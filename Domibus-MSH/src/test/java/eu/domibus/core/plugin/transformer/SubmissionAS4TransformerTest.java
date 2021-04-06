@@ -21,7 +21,7 @@ import java.util.*;
 @RunWith(JMockit.class)
 public class SubmissionAS4TransformerTest {
 
-    @Injectable
+   /* @Injectable
     private MessageIdGenerator messageIdGenerator;
 
     @Tested
@@ -178,5 +178,5 @@ public class SubmissionAS4TransformerTest {
         partyId.setValue(partyIdValue);
         partyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
         return Collections.singleton(partyId);
-    }
+    }*/
 }

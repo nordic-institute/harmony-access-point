@@ -56,7 +56,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JMockit.class)
 public class UserMessageDefaultServiceTest {
 
-    private static final long SYSTEM_DATE = new Date().getTime();
+  /*  private static final long SYSTEM_DATE = new Date().getTime();
     public static final String MESSAGE_ID = "1000";
 
     @Tested
@@ -162,7 +162,7 @@ public class UserMessageDefaultServiceTest {
     private ErrorLogDao errorLogDao;
 
     @Injectable
-    private PropertyDao propertyDao;
+    private MessagePropertyDao propertyDao;
 
     @Injectable
     private UIMessageDao uiMessageDao;
@@ -1071,6 +1071,6 @@ public class UserMessageDefaultServiceTest {
             auditService.addMessageDownloadedAudit(messageId);
             times = 0;
         }};
-    }
+    }*/
 
 }

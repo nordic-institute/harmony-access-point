@@ -25,6 +25,6 @@ public class SymmetricAS4Transformer implements MessageSubmissionTransformer<Mes
 
     @Override
     public Submission transformToSubmission(final Messaging messageData) {
-        return this.submissionAS4Transformer.transformFromMessaging(messageData.getUserMessage());
+        return this.submissionAS4Transformer.transformFromMessaging(messageData.getUserMessage(), messageData.getUserMessage().getPartInfoList());
     }
 }

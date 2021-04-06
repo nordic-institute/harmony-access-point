@@ -1,80 +1,66 @@
 package eu.domibus.api.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Embeddable
-public class AgreementRef {
+@Entity
+@Table(name = "TB_D_AGREEMENT")
+@NamedQueries({
+        @NamedQuery(name = "AgreementRef.findByValue", query = "select serv from AgreementRef serv where serv.value=:VALUE"),
+})
+public class AgreementRef extends AbstractBaseEntity {
 
-    @Column(name = "AGREEMENT_REF_VALUE")
+    @Column(name = "VALUE", unique = true)
     protected String value;
 
-    @Column(name = "AGREEMENT_REF_TYPE")
+    @Column(name = "TYPE")
     protected String type;
 
-    @Column(name = "AGREEMENT_REF_PMODE")
-    protected String pmode;
-
-    /**
-     * Gets the value of the value property.
-     *
-     * @return possible object is {@link String }
-     */
     public String getValue() {
-        return this.value;
+        return value;
     }
 
-    /**
-     * Sets the value of the value property.
-     *
-     * @param value allowed object is {@link String }
-     */
-    public void setValue(final String value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
     public String getType() {
-        return this.type;
+        return type;
     }
 
-    public void setType(final String value) {
-        this.type = value;
-    }
-
-    public String getPmode() {
-        return this.pmode;
-    }
-
-    public void setPmode(final String value) {
-        this.pmode = value;
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AgreementRef)) return false;
 
-        final AgreementRef that = (AgreementRef) o;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (this.pmode != null ? !this.pmode.equalsIgnoreCase(that.pmode) : that.pmode != null) return false;
-        if (this.type != null ? !this.type.equalsIgnoreCase(that.type) : that.type != null) return false;
-        return !(this.value != null ? !this.value.equalsIgnoreCase(that.value) : that.value != null);
+        AgreementRef that = (AgreementRef) o;
 
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(value, that.value)
+                .append(type, that.type)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = this.value != null ? this.value.hashCode() : 0;
-        result = 31 * result + (this.type != null ? this.type.hashCode() : 0);
-        result = 31 * result + (this.pmode != null ? this.pmode.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(value)
+                .append(type)
+                .toHashCode();
     }
 
     @Override
@@ -82,7 +68,6 @@ public class AgreementRef {
         return new ToStringBuilder(this)
                 .append("value", value)
                 .append("type", type)
-                .append("pmode", pmode)
                 .toString();
     }
 }

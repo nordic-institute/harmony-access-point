@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExchangeEbms3ServiceImplTest {
 
-    @Mock
+   /* @Mock
     private PModeProvider pModeProvider;
 
     @Mock
@@ -378,7 +378,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123");
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }
-
+*/
 
 
 }

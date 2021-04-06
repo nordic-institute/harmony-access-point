@@ -2,9 +2,13 @@ package eu.domibus.core.message;
 
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.api.model.Messaging;
+
+import java.util.List;
 
 
 /**
@@ -13,8 +17,8 @@ import eu.domibus.api.model.Messaging;
  */
 public interface MessagingService {
 
-    void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException;
+    void storeMessage(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException;
 
-    void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName);
+    void storePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, LegConfiguration legConfiguration, String backendName);
 
 }

@@ -20,8 +20,8 @@ public class MessageConfig {
     }
 
     @Bean
-    public PropertyDao propertyDao() {
-        return new PropertyDao();
+    public MessagePropertyDao propertyDao() {
+        return new MessagePropertyDao();
     }
 
     @Bean

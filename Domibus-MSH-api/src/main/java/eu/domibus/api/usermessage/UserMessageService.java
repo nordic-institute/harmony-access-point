@@ -36,7 +36,7 @@ public interface UserMessageService {
 
     String getFinalRecipient(final String messageId);
 
-    Map<String,String> getProperties(String messageId);
+    Map<String,String> getProperties(Long messageEntityId);
 
     String getOriginalSender(String messageId);
 

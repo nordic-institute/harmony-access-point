@@ -32,7 +32,7 @@ public class Ebms3ErrorLogResourceTest {
 
     private static final String CSV_TITLE = "Error Signal Message Id, Msh Role, Message In Error Id, Error Code, Error Detail, Timestamp, Notified";
 
-    @Tested
+   /* @Tested
     ErrorLogResource errorLogResource;
 
     @Injectable
@@ -143,5 +143,5 @@ public class Ebms3ErrorLogResourceTest {
                         signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
                         errorDetailStr + "," + date + "," + date + System.lineSeparator(),
                 csv.getBody());
-    }
+    }*/
 }

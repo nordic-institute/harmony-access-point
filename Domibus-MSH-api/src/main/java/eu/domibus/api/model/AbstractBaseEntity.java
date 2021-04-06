@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @XmlTransient
 @MappedSuperclass
-public abstract class AbstractBaseEntity implements Serializable {
+public abstract class AbstractBaseEntity implements DomibusBaseEntity {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseEntity.class);
 

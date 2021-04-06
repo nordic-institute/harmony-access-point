@@ -31,7 +31,7 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class PullEbms3ReceiptListenerTest {
 
-    @Tested
+ /*   @Tested
     private PullReceiptListener pullReceiptListener;
 
     @Injectable
@@ -109,5 +109,5 @@ public class PullEbms3ReceiptListenerTest {
         signalMessage.setReceipt(receipt);
         signalMessages.add(signalMessage);
         return signalMessages;
-    }
+    }*/
 }

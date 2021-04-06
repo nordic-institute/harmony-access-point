@@ -3,19 +3,19 @@ package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -66,7 +66,7 @@ public class RetryDefaultEbms3ServiceTest {
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Injectable
     private PullMessageService pullMessageService;
@@ -75,7 +75,7 @@ public class RetryDefaultEbms3ServiceTest {
     private JMSManager jmsManager;
 
     @Injectable
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     private MessagingLockDao messagingLockDao;
@@ -119,7 +119,7 @@ public class RetryDefaultEbms3ServiceTest {
 
         new Expectations() {{
 
-            messagingDao.findUserMessageByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             updateRetryLoggingService.getLegConfiguration(userMessage);
@@ -147,7 +147,7 @@ public class RetryDefaultEbms3ServiceTest {
         String messageId = "123";
 
         new Expectations() {{
-            messagingDao.findUserMessageByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             updateRetryLoggingService.getLegConfiguration(userMessage);

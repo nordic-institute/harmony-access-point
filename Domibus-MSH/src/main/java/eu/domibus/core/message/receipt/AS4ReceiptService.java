@@ -1,5 +1,6 @@
 package eu.domibus.core.message.receipt;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.api.model.Messaging;
@@ -18,7 +19,7 @@ public interface AS4ReceiptService {
      * Generates AS4 receipt based on a SOAPMessage request
      *
      * @param request
-     * @param messaging
+     * @param userMessage
      * @param replyPattern
      * @param nonRepudiation
      * @param duplicate
@@ -27,7 +28,7 @@ public interface AS4ReceiptService {
      * @throws EbMS3Exception
      */
     SOAPMessage generateReceipt(SOAPMessage request,
-                                Messaging messaging,
+                                UserMessage userMessage,
                                 ReplyPattern replyPattern,
                                 Boolean nonRepudiation,
                                 Boolean duplicate,

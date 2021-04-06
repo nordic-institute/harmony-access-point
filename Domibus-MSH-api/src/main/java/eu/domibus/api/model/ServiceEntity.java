@@ -3,21 +3,23 @@ package eu.domibus.api.model;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Embeddable
-public class Service {
+@Entity
+@Table(name = "TB_D_SERVICE")
+@NamedQueries({
+        @NamedQuery(name = "Service.findByValue", query = "select serv from ServiceEntity serv where serv.value=:VALUE"),
+})
+public class ServiceEntity extends AbstractBaseEntity {
 
-    @Column(name = "SERVICE_VALUE")
+    @Column(name = "VALUE", unique = true)
     protected String value = Ebms3Constants.TEST_SERVICE;
 
-    @Column(name = "SERVICE_TYPE")
+    @Column(name = "TYPE")
     protected String type;
 
     public String getValue() {
@@ -39,9 +41,9 @@ public class Service {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof Service)) return false;
+        if (!(o instanceof ServiceEntity)) return false;
 
-        final Service service = (Service) o;
+        final ServiceEntity service = (ServiceEntity) o;
 
         if (this.type != null ? !this.type.equalsIgnoreCase(service.type) : service.type != null) return false;
         return this.value.equalsIgnoreCase(service.value);

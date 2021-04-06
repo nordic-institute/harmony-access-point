@@ -1,5 +1,7 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.IncomingPullRequestHandler;
 import eu.domibus.api.model.Messaging;
@@ -38,8 +40,8 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
     protected IncomingSignalErrorHandler incomingSignalErrorHandler;
 
     @Override
-    public IncomingMessageHandler getMessageHandler(SOAPMessage request, Messaging messaging) {
-        final SignalMessage signalMessage = messaging.getSignalMessage();
+    public IncomingMessageHandler getMessageHandler(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
+        final Ebms3SignalMessage signalMessage = ebms3Messaging.getSignalMessage();
         if (signalMessage != null) {
             if (signalMessage.getPullRequest() != null) {
                 LOG.trace("Using incomingMessagePullRequestHandler");

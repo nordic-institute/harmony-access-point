@@ -1,9 +1,10 @@
 package eu.domibus.core.ebms3;
 
-import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.ebms3.model.Ebms3Description;
+import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.model.Description;
-import eu.domibus.api.model.Error;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.ErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.dom.DOMDocument;
 import org.w3c.dom.Document;
@@ -120,9 +121,9 @@ public class EbMS3Exception extends Exception {
         return new DOMSource(document);
     }
 
-    public Error getFaultInfoError() {
+    public Ebms3Error getFaultInfoError() {
 
-        final Error ebMS3Error = new Error();
+        final Ebms3Error ebMS3Error = new Ebms3Error();
 
         ebMS3Error.setOrigin(this.ebMS3ErrorCode.getCode().getOrigin());
         ebMS3Error.setErrorCode(this.ebMS3ErrorCode.getCode().getErrorCode().getErrorCodeName());
@@ -131,7 +132,10 @@ public class EbMS3Exception extends Exception {
         ebMS3Error.setCategory(this.ebMS3ErrorCode.getCategory().name());
         ebMS3Error.setRefToMessageInError(this.refToMessageId);
         ebMS3Error.setShortDescription(this.getShortDescription());
-        ebMS3Error.setDescription(this.getDescription());
+        Ebms3Description ebms3Description = new Ebms3Description();
+        ebms3Description.setValue(this.getDescription().getValue());
+        ebms3Description.setLang(this.getDescription().getLang());
+        ebMS3Error.setDescription(ebms3Description);
 
 
         return ebMS3Error;

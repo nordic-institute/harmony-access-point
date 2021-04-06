@@ -15,11 +15,11 @@ public class PullRequestResult {
 
     private final String messageId;
 
-    public PullRequestResult(final UserMessageLog userMessageLog) {
+    public PullRequestResult(String messageId, final UserMessageLog userMessageLog) {
         this.sendAttempts = userMessageLog.getSendAttempts();
         this.nextAttempts = userMessageLog.getNextAttempt();
         this.messageStatus = userMessageLog.getMessageStatus();
-        this.messageId = userMessageLog.getMessageId();
+        this.messageId = messageId;
     }
 
 

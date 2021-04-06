@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
 
@@ -10,7 +11,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 
 public interface MessageLegConfigurationFactory {
 
-    LegConfigurationExtractor extractMessageConfiguration(final SoapMessage soapMessage, final Messaging messaging);
+    LegConfigurationExtractor extractMessageConfiguration(final SoapMessage soapMessage, final Ebms3Messaging messaging);
 
 
 }

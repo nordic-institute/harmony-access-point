@@ -44,7 +44,7 @@ import java.util.HashMap;
 @Deprecated
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
-    @Autowired
+  /*  @Autowired
     JMSManager jmsManager;
 
     @Autowired
@@ -176,5 +176,5 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         RetrieveMessageRequest retrieveMessageRequest = new RetrieveMessageRequest();
         retrieveMessageRequest.setMessageID(messageId);
         return retrieveMessageRequest;
-    }
+    }*/
 }

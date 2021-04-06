@@ -12,7 +12,7 @@ import org.mapstruct.Mapping;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Mapper(config = Ebms3CentralMapperConfig.class)
+//@Mapper(config = Ebms3CentralMapperConfig.class)
 public interface Ebms3PartyIdMapper {
 
     @Mapping(source = "value", target = "value")

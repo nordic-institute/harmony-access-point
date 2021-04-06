@@ -1,19 +1,19 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.*;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -32,6 +32,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Handles the incoming AS4 pull receipt
@@ -52,9 +53,10 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     private final EbMS3MessageBuilder messageBuilder;
     private final ResponseHandler responseHandler;
     private final PModeProvider pModeProvider;
-    private final MessagingDao messagingDao;
+    protected UserMessageDao userMessageDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
+    protected PartInfoDao partInfoDao;
 
     public IncomingPullReceiptHandler(
             MessageExchangeService messageExchangeService,
@@ -65,9 +67,10 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             EbMS3MessageBuilder messageBuilder,
             ResponseHandler responseHandler,
             PModeProvider pModeProvider,
-            MessagingDao messagingDao,
+            UserMessageDao userMessageDao,
             MessageUtil messageUtil,
-            SoapUtil soapUtil) {
+            SoapUtil soapUtil,
+            PartInfoDao partInfoDao) {
         this.messageExchangeService = messageExchangeService;
         this.reliabilityChecker = reliabilityChecker;
         this.pullReceiptMatcher = pullReceiptMatcher;
@@ -76,30 +79,33 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         this.responseHandler = responseHandler;
         this.messageBuilder = messageBuilder;
         this.pModeProvider = pModeProvider;
-        this.messagingDao = messagingDao;
+        this.userMessageDao = userMessageDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
+        this.partInfoDao = partInfoDao;
     }
 
     @Override
     @Timer(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
     @Counter(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
-    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
+    public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.trace("before pull receipt.");
-        final SOAPMessage soapMessage = handlePullRequestReceipt(request, messaging);
+
+        String messageId = ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+        final SOAPMessage soapMessage = handlePullRequestReceipt(request, messageId);
         LOG.trace("returning pull receipt.");
         return soapMessage;
     }
 
-    protected SOAPMessage handlePullRequestReceipt(SOAPMessage request, Messaging messaging) {
-        String messageId = messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+    protected SOAPMessage handlePullRequestReceipt(SOAPMessage request, String messageId) {
+
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage = null;
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
-            LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", userMessageLog.getMessageId(), userMessageLog.getMessageStatus());
+            LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("No message in waiting for callback state found for receipt referring to :[%s]", messageId), messageId, null);
             return messageBuilder.getSoapMessage(ebMS3Exception);
         }
@@ -114,7 +120,6 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         }
 
         try {
-            userMessage = messagingDao.findUserMessageByMessageId(messageId);
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
             LOG.debug("PMode key found : " + pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
@@ -158,7 +163,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
                 throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "Raw message found in db but impossible to restore it");
             }
         } else {
-            soapMessage = messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+            final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+            soapMessage = messageBuilder.buildSOAPMessage(userMessage, partInfoList, legConfiguration);
         }
         return soapMessage;
     }

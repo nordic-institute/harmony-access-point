@@ -77,18 +77,17 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             return;
         }
 
-        Messaging messaging = null;
         String policyName = null;
         String messageId = null;
         LegConfiguration legConfiguration = null;
+        Ebms3Messaging ebms3Messaging = null;
 
         try {
-            Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+            ebms3Messaging = soapService.getMessage(message);
 
-            message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
+            message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, ebms3Messaging);
 
-            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
+            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, ebms3Messaging);
             if (legConfigurationExtractor == null) return;
 
             legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
@@ -109,24 +108,26 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (EbMS3Exception e) {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
-            processPluginNotification(e, legConfiguration, messaging);
+            processPluginNotification(e, legConfiguration, ebms3Messaging);
             logIncomingMessaging(message);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_INCOMING_NOT_FOUND, e, policyName); // Those errors are not expected
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", messaging != null ? messageId : "unknown", e);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", ebms3Messaging != null ? messageId : "unknown", e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ex);
         }
     }
 
-    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Messaging messaging) {
-        if (messaging == null) {
+    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Ebms3Messaging ebms3Messaging) {
+        if (ebms3Messaging == null) {
             LOG.debug("Messaging header is empty");
             return;
         }
-        final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+        final Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+
+        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
         if (legConfiguration == null) {
             LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
             return;

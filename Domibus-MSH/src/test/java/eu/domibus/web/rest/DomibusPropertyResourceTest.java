@@ -30,7 +30,7 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class DomibusPropertyResourceTest {
 
-    @Tested
+ /*   @Tested
     DomibusPropertyResource domibusPropertyResource;
 
     @Injectable
@@ -84,5 +84,5 @@ public class DomibusPropertyResourceTest {
         ResponseEntity<String> res = domibusPropertyResource.getCsv(request);
 
         Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
-    }
+    }*/
 }

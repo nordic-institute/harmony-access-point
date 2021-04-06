@@ -28,7 +28,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.util.UUID;
 
 import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
-import static eu.domibus.core.plugin.handler.DatabaseMessageHandlerTest.createUserMessage;
 
 /**
  * @author Arun Raj
@@ -36,7 +35,7 @@ import static eu.domibus.core.plugin.handler.DatabaseMessageHandlerTest.createUs
  */
 @RunWith(JMockit.class)
 public class BackendMessageValidatorTest {
-    private static final String MESSAGE_ID_PATTERN = "^[\\x20-\\x7E]*$";
+   /* private static final String MESSAGE_ID_PATTERN = "^[\\x20-\\x7E]*$";
     private static final String RED = "red_gw";
     private static final String BLUE = "blue_gw";
     private static final String INITIATOR_ROLE_NAME = "defaultInitiatorRole";
@@ -71,7 +70,7 @@ public class BackendMessageValidatorTest {
             result = MessageStatus.NOT_FOUND;
         }};
 
-        /*Happy Flow No error should occur*/
+        *//*Happy Flow No error should occur*//*
         try {
             String messageId1 = "1234567890-123456789-01234567890/1234567890/`~!@#$%^&*()-_=+\\|,<.>/?;:'\"|\\[{]}.567890.1234567890-1234567890?1234567890#1234567890!1234567890$1234567890%1234567890|12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012";
             backendMessageValidatorObj.validateMessageId(messageId1);
@@ -91,9 +90,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e1) {
             Assert.fail("Exception was not expected in happy scenarios");
         }
-        /*Happy Flow No error should occur*/
+        *//*Happy Flow No error should occur*//*
 
-        /*Message Id with leading and/or trailing whitespaces should throw error*/
+        *//*Message Id with leading and/or trailing whitespaces should throw error*//*
         try {
             String messageId2 = "\t\t346ea37f-7583-40b0-9ffc-3f4cfa88bf8b@domibus.eu\t\t";
             backendMessageValidatorObj.validateMessageId(messageId2);
@@ -101,10 +100,10 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message Id with leading and/or trailing whitespaces should throw error*/
+        *//*Message Id with leading and/or trailing whitespaces should throw error*//*
 
 
-        /*Message Id containing non printable control characters should result in error*/
+        *//*Message Id containing non printable control characters should result in error*//*
         try {
             String messageId4 = "346ea\b37f-7583-40\u0010b0-9ffc-3f4\u007Fcfa88bf8b@d\u0001omibus.eu";
             backendMessageValidatorObj.validateMessageId(messageId4);
@@ -112,9 +111,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message Id containing non printable control characters should result in error*/
+        *//*Message Id containing non printable control characters should result in error*//*
 
-        /*Message Id containing only non printable control characters should result in error*/
+        *//*Message Id containing only non printable control characters should result in error*//*
         try {
             String messageId5 = "\b\u0010\u0030\u007F\u0001";
             backendMessageValidatorObj.validateMessageId(messageId5);
@@ -122,9 +121,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message Id containing non printable control characters should result in error*/
+        *//*Message Id containing non printable control characters should result in error*//*
 
-        /*Message id more than 255 characters long should result in error*/
+        *//*Message id more than 255 characters long should result in error*//*
         try {
             String messageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
             backendMessageValidatorObj.validateMessageId(messageId6);
@@ -132,9 +131,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message id more than 255 characters long should result in error*/
+        *//*Message id more than 255 characters long should result in error*//*
 
-        /*Message id should not be null*/
+        *//*Message id should not be null*//*
         try {
             String messageId8 = null;
             backendMessageValidatorObj.validateMessageId(messageId8);
@@ -142,9 +141,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message id should not be null*/
+        *//*Message id should not be null*//*
 
-        /*Message id should not be blank*/
+        *//*Message id should not be blank*//*
         try {
             String messageId9 = "     ";
             backendMessageValidatorObj.validateMessageId(messageId9);
@@ -152,7 +151,7 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message id should not be null*/
+        *//*Message id should not be null*//*
 
     }
 
@@ -166,7 +165,7 @@ public class BackendMessageValidatorTest {
 
         }};
 
-        /*Happy Flow No error should occur*/
+        *//*Happy Flow No error should occur*//*
         try {
             String refTomessageId1 = "1234567890-123456789-01234567890/1234567890/`~!@#$%^&*()-_=+\\|,<.>/?;:'\"|\\[{]}.567890.1234567890-1234567890?1234567890#1234567890!1234567890$1234567890%1234567890|12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId1);
@@ -186,9 +185,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e1) {
             Assert.fail("Exception was not expected in happy scenarios");
         }
-        /*Happy Flow No error should occur*/
+        *//*Happy Flow No error should occur*//*
 
-        /*Message Id with leading and/or trailing whitespaces should throw error*/
+        *//*Message Id with leading and/or trailing whitespaces should throw error*//*
         try {
             String refTomessageId2 = "\t\t346ea37f-7583-40b0-9ffc-3f4cfa88bf8b@domibus.eu\t\t";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId2);
@@ -196,10 +195,10 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message Id with leading and/or trailing whitespaces should throw error*/
+        *//*Message Id with leading and/or trailing whitespaces should throw error*//*
 
 
-        /*Message Id containing non printable control characters should result in error*/
+        *//*Message Id containing non printable control characters should result in error*//*
         try {
             String refTomessageId4 = "346ea\b37f-7583-40\u0010b0-9ffc-3f4\u007Fcfa88bf8b@d\u0001omibus.eu";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId4);
@@ -207,9 +206,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message Id containing non printable control characters should result in error*/
+        *//*Message Id containing non printable control characters should result in error*//*
 
-        /*Message Id containing only non printable control characters should result in error*/
+        *//*Message Id containing only non printable control characters should result in error*//*
         try {
             String refTomessageId5 = "\b\u0010\u0030\u007F\u0001";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId5);
@@ -217,9 +216,9 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message Id containing non printable control characters should result in error*/
+        *//*Message Id containing non printable control characters should result in error*//*
 
-        /*Message id more than 255 characters long should result in error*/
+        *//*Message id more than 255 characters long should result in error*//*
         try {
             String refTomessageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId6);
@@ -227,16 +226,16 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
-        /*Message id more than 255 characters long should result in error*/
+        *//*Message id more than 255 characters long should result in error*//*
 
-        /*Ref To Message id can be null*/
+        *//*Ref To Message id can be null*//*
         try {
             backendMessageValidatorObj.validateRefToMessageId(null);
 
         } catch (EbMS3Exception e2) {
             Assert.fail("RefToMessageId is an optional element and null should be handled!");
         }
-        /*Ref To Message id can be null*/
+        *//*Ref To Message id can be null*//*
 
     }
 
@@ -251,7 +250,7 @@ public class BackendMessageValidatorTest {
             result = MessageStatus.NOT_FOUND;
         }};
 
-        /*If the domibus-configuration file does not have the message id format, then message id pattern validation must be skipped. No exception expected*/
+        *//*If the domibus-configuration file does not have the message id format, then message id pattern validation must be skipped. No exception expected*//*
         try {
             String refTomessageId1 = "1234567890-123456789-01234567890/1234567890/`~!@#$%^&*()-_=+\\|,<.>/?;:'\"|\\[{]}.567890.1234567890-1234567890?1234567890#1234567890!1234567890$1234567890%1234567890|12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012";
             backendMessageValidatorObj.validateMessageId(refTomessageId1);
@@ -265,7 +264,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    /* Verifies that the initiator and the responder parties are different. */
+    *//* Verifies that the initiator and the responder parties are different. *//*
     public void validatePartiesOk() throws Exception {
 
         final Party from = new Party();
@@ -283,7 +282,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    /* Verifies that the message is being sent by the same party as the one configured for the sending access point */
+    *//* Verifies that the message is being sent by the same party as the one configured for the sending access point *//*
     public void validateInitiatorPartyOk() throws Exception {
 
         final Party gatewayParty = new Party();
@@ -301,7 +300,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    /* Verifies that the message is NOT being sent by the same party as the one configured for the sending access point */
+    *//* Verifies that the message is NOT being sent by the same party as the one configured for the sending access point *//*
     public void validateInitiatorPartyNOk() throws Exception {
 
         final Party gatewayParty = new Party();
@@ -322,7 +321,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    /* Verifies that the message is not for the current gateway. */
+    *//* Verifies that the message is not for the current gateway. *//*
     public void validateResponderPartyOk() throws Exception {
 
         final Party gatewayParty = new Party();
@@ -340,7 +339,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    /* Verifies that the parties' roles are different. */
+    *//* Verifies that the parties' roles are different. *//*
     public void validatePartiesRolesOk() throws Exception {
 
         final Role fromRole = new Role();
@@ -360,7 +359,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    /* Verifies that the parties' roles are the same. */
+    *//* Verifies that the parties' roles are the same. *//*
     public void validatePartiesRolesNOk() throws Exception {
 
         final Role fromRole = new Role();
@@ -780,5 +779,5 @@ class MessageIdPatternRetriever extends DefaultHandler {
 
     public String getMessageIdPattern() {
         return MessageIdPattern;
-    }
+    }*/
 }

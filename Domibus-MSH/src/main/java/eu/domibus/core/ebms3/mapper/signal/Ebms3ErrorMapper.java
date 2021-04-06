@@ -1,7 +1,6 @@
 package eu.domibus.core.ebms3.mapper.signal;
 
 import eu.domibus.api.ebms3.model.Ebms3Error;
-import eu.domibus.api.model.Error;
 import eu.domibus.core.ebms3.mapper.Ebms3CentralMapperConfig;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
@@ -13,7 +12,7 @@ import org.mapstruct.Mapping;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Mapper(config = Ebms3CentralMapperConfig.class)
+//@Mapper(config = Ebms3CentralMapperConfig.class)
 public interface Ebms3ErrorMapper {
 
     @Mapping(source = "description", target = "description")

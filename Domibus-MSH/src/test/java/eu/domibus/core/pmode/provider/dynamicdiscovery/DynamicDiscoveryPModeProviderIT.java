@@ -146,7 +146,7 @@ public class DynamicDiscoveryPModeProviderIT {
         //read here
         do {
             try {
-                cachingPModeProvider.findPartyName(Collections.singletonList(partyId));
+                cachingPModeProvider.findPartyName(partyId);
                 Assert.fail("Exception expected");
             } catch (Exception e) {
                 LOG.error("exception thrown", e);

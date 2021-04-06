@@ -156,7 +156,7 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
         try {
             int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessage", UIMessageEntity.class)
                     .setParameter(1, userMessageLog.getMessageStatus().name())
-                    .setParameter(2, userMessageLog.getNotificationStatus().name())
+                    .setParameter(2, userMessageLog.getNotificationStatus().getStatus().name())
                     .setParameter(3, userMessageLog.getDeleted(), TemporalType.TIMESTAMP)
                     .setParameter(4, userMessageLog.getFailed(), TemporalType.TIMESTAMP)
                     .setParameter(5, userMessageLog.getRestored(), TemporalType.TIMESTAMP)
@@ -164,7 +164,7 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
                     .setParameter(7, userMessageLog.getSendAttempts())
                     .setParameter(8, userMessageLog.getSendAttemptsMax())
                     .setParameter(9, new Date(lastModified), TemporalType.TIMESTAMP)
-                    .setParameter(10, userMessageLog.getMessageId())
+                    .setParameter(10, userMessageLog.getUserMessage().getMessageId())
                     .executeUpdate();
             return rowsUpdated == 1;
 

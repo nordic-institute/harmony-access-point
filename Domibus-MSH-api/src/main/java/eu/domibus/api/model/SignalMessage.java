@@ -1,74 +1,78 @@
 package eu.domibus.api.model;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
 @Entity
 @Table(name = "TB_SIGNAL_MESSAGE")
 @NamedQueries({
+        @NamedQuery(name = "SignalMessage.findBySignalMessageId",
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.signalMessageId = :SIGNAL_MESSAGE_ID"),
+        @NamedQuery(name = "SignalMessage.findSignalMessageByUserMessageEntityId",
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.entityID = :ENTITY_ID"),
+        @NamedQuery(name = "SignalMessage.findSignalMessageWithUserMessageByUserMessageId",
+                query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage where signalMessage.userMessage.messageId = :MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageIdByRefMessageId",
                 query = "select signalMessage.messageInfo.messageId from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
+        @NamedQuery(name = "SignalMessage.findMessageIdsWithRefToMessageIds", query = "select mi.signalMessageId from SignalMessage mi where mi.refToMessageId in :MESSAGEIDS"),
         @NamedQuery(name = "SignalMessage.findSignalMessageByRefMessageId",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
                 query = "select signalMessage.receipt.entityId from SignalMessage signalMessage where signalMessage.messageInfo.messageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage mi where mi.messageId in :MESSAGEIDS"),
 })
-public class SignalMessage extends AbstractBaseEntity {
+public class SignalMessage extends AbstractNoGeneratedPkEntity {
 
-    @OneToOne(cascade = CascadeType.ALL)
-    protected MessageInfo messageInfo;
+    @Column(name = "MESSAGE_ID", nullable = false, unique = true, updatable = false)
+    @NotNull
+    protected String signalMessageId;
 
-    @Embedded
-    protected PullRequest pullRequest; //NOSONAR
+    @Column(name = "REF_TO_MESSAGE_ID")
+    protected String refToMessageId;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    protected ReceiptEntity receipt;
+    @Column(name = "EBMS3_TIMESTAMP")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "SIGNALMESSAGE_ID")
-    protected Set<Error> error; //NOSONAR
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK", nullable = false)
+    @MapsId
+    private UserMessage userMessage;
 
-    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private RawEnvelopeLog rawEnvelopeLog;
-
-    public MessageInfo getMessageInfo() {
-        return this.messageInfo;
+    public String getSignalMessageId() {
+        return signalMessageId;
     }
 
-    public void setMessageInfo(final MessageInfo value) {
-        this.messageInfo = value;
+    public void setSignalMessageId(String messageId) {
+        this.signalMessageId = messageId;
     }
 
-    public PullRequest getPullRequest() {
-        return this.pullRequest;
+    public String getRefToMessageId() {
+        return refToMessageId;
     }
 
-    public void setPullRequest(final PullRequest value) {
-        this.pullRequest = value;
+    public void setRefToMessageId(String refToMessageId) {
+        this.refToMessageId = refToMessageId;
     }
 
-    public ReceiptEntity getReceipt() {
-        return this.receipt;
+    public UserMessage getUserMessage() {
+        return userMessage;
     }
 
-    public void setReceipt(final ReceiptEntity value) {
-        this.receipt = value;
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public Set<Error> getError() {
-        if (this.error == null) {
-            this.error = new HashSet<>();
-        }
-        return this.error;
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public RawEnvelopeLog getRawEnvelopeLog() {
-        return rawEnvelopeLog;
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
     }
 }

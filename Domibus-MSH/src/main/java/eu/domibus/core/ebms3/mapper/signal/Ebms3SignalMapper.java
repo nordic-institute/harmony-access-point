@@ -12,14 +12,14 @@ import org.mapstruct.Mapping;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Mapper(config = Ebms3CentralMapperConfig.class,
+/*@Mapper(config = Ebms3CentralMapperConfig.class,
         uses = {
                 Ebms3MessageInfoMapper.class,
                 Ebms3PullRequestMapper.class,
                 Ebms3ReceiptMapper.class,
                 Ebms3ErrorMapper.class,
                 Ebms3DescriptionMapper.class,
-        })
+        })*/
 public interface Ebms3SignalMapper {
 
     @Mapping(source = "messageInfo", target = "messageInfo")

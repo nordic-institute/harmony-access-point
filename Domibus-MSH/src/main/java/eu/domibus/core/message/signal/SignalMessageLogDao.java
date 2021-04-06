@@ -1,23 +1,23 @@
 package eu.domibus.core.message.signal;
 
-import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Maps;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.SignalMessageLog;
-import eu.domibus.core.message.MessageLogDao;
+import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.model.*;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ import java.util.Map;
  * @since 3.2
  */
 @Repository
-public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
+public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
 
     @Autowired
     private SignalMessageLogInfoFilter signalMessageLogInfoFilter;
@@ -37,16 +37,11 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         super(SignalMessageLog.class);
     }
 
-    @Override
-    public MessageStatus getMessageStatus(String messageId) {
-        try {
-            TypedQuery<MessageStatus> query = em.createNamedQuery("SignalMessageLog.getMessageStatus", MessageStatus.class);
-            query.setParameter(STR_MESSAGE_ID, messageId);
-            return query.getSingleResult();
-        } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id [" + messageId + "]");
-            return MessageStatus.NOT_FOUND;
-        }
+    public MessageStatusEntity getMessageStatus(String messageId) {
+        TypedQuery<MessageStatusEntity> query = em.createNamedQuery("SignalMessageLog.getMessageStatus", MessageStatusEntity.class);
+        query.setParameter("MESSAGE_ID", messageId);
+        return DataAccessUtils.singleResult(query.getResultList());
+
     }
 
     public SignalMessageLog findByMessageId(String messageId) {
@@ -89,12 +84,12 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return queryParameterized.getResultList();
     }
 
-    @Timer(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
-    @Counter(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteSignalMessageLogs result [{}]", result);
         return result;
     }
@@ -106,14 +101,30 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return singleResult.intValue();
     }
 
-    @Override
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return signalMessageLogInfoFilter;
     }
 
-    @Override
     public String findLastTestMessageId(String party) {
-        return super.findLastTestMessageId(party, MessageType.SIGNAL_MESSAGE, MSHRole.RECEIVING);
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("messageSubtype", MessageSubtype.TEST);
+        filters.put("mshRole", MSHRole.RECEIVING);
+        filters.put("toPartyId", party);
+        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
+        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
+        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
+        queryParameterized.setFirstResult(0);
+        queryParameterized.setMaxResults(1);
+        long startTime = 0;
+        if (LOG.isDebugEnabled()) {
+            startTime = System.currentTimeMillis();
+        }
+        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+        if (LOG.isDebugEnabled()) {
+            final long endTime = System.currentTimeMillis();
+            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
+        }
+        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
 }

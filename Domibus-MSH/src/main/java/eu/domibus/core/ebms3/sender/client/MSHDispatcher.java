@@ -80,7 +80,7 @@ public class MSHDispatcher {
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.getLocalClient(domain.getCode(), endpoint);
 
         Map<String, List<String>> headers = new HashMap<>();
-        headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageInfo().getMessageId()));
+        headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageId()));
         headers.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
         if(legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
             headers.put(HEADER_DOMIBUS_SPLITTING_COMPRESSION, Arrays.asList("true"));
@@ -96,7 +96,7 @@ public class MSHDispatcher {
             if(e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
             }
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0005, "Error dispatching message to " + endpoint, userMessage.getMessageInfo().getMessageId(), exception);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0005, "Error dispatching message to " + endpoint, userMessage.getMessageId(), exception);
             ex.setMshRole(MSHRole.SENDING);
             throw ex;
         }

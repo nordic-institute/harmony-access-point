@@ -112,8 +112,8 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
             byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             outputStream = byteArrayOutputStream;
 
-            boolean useCompression = compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
-            LOG.debug("Compression properties for message [{}] applied? [{}]", userMessage.getMessageInfo().getMessageId(), useCompression);
+            boolean useCompression = compressionService.handleCompression(userMessage.getMessageId(), partInfo, legConfiguration);
+            LOG.debug("Compression properties for message [{}] applied? [{}]", userMessage.getMessageId(), useCompression);
 
             if (encryptionActive) {
                 LOG.debug("Using encryption for part info [{}]", partInfo.getHref());

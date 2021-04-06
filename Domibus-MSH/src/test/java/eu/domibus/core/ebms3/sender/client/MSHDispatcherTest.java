@@ -9,7 +9,7 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -68,7 +68,7 @@ public class MSHDispatcherTest {
     PModeProvider pModeProvider;
 
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     CertificateService certificateService;

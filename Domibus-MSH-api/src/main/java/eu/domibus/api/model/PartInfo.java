@@ -16,6 +16,7 @@ import javax.activation.DataSource;
 import javax.crypto.Cipher;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  *
@@ -23,8 +24,9 @@ import javax.persistence.*;
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"),
-        @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from UserMessage um join um.payloadInfo.partInfo pi where um.messageInfo.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+        @NamedQuery(name = "PartInfo.findPartInfos", query = "select pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+        @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
 @Entity
 @Table(name = "TB_PART_INFO")
@@ -32,14 +34,19 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
 
-    @Embedded
-    protected Schema schema; //NOSONAR
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_MESSAGE_ID_FK")
+    protected UserMessage userMessage;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(name = "TB_PART_PROPERTIES",
+            joinColumns = @JoinColumn(name = "PART_INFO_ID_FK"),
+            inverseJoinColumns = @JoinColumn(name = "PART_INFO_PROPERTY_FK")
+    )
+    protected Set<PartProperty> partProperties; //NOSONAR
 
     @Embedded
     protected Description description; //NOSONAR
-
-    @Embedded
-    protected PartProperties partProperties; //NOSONAR
 
     @Column(name = "HREF")
     protected String href;
@@ -54,8 +61,10 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     @Column(name = "IN_BODY")
     protected boolean inBody;
+
     @Transient
     protected DataHandler payloadDatahandler; //NOSONAR
+
     @Column(name = "MIME")
     private String mime;
 
@@ -116,6 +125,22 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.encrypted = encrypted;
     }
 
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
+
+    public Set<PartProperty> getPartProperties() {
+        return partProperties;
+    }
+
+    public void setPartProperties(Set<PartProperty> partProperties) {
+        this.partProperties = partProperties;
+    }
+
     @PostLoad
     private void loadBinaray() {
         if (fileName != null) { /* Create payload data handler from File */
@@ -151,28 +176,12 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         return encryptionService.getDecryptCipherForPayload();
     }
 
-    public Schema getSchema() {
-        return this.schema;
-    }
-
-    public void setSchema(final Schema value) {
-        this.schema = value;
-    }
-
     public Description getDescription() {
         return this.description;
     }
 
     public void setDescription(final Description value) {
         this.description = value;
-    }
-
-    public PartProperties getPartProperties() {
-        return this.partProperties;
-    }
-
-    public void setPartProperties(final PartProperties value) {
-        this.partProperties = value;
     }
 
     public String getHref() {
@@ -202,7 +211,6 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("schema", schema)
                 .append("description", description)
                 .append("partProperties", partProperties)
                 .append("href", href)
@@ -224,7 +232,6 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(schema, partInfo.schema)
                 .append(description, partInfo.description)
                 //.append(partProperties, partInfo.partProperties)
                 .append(href, partInfo.href)
@@ -235,7 +242,6 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(schema)
                 .append(description)
                 // .append(partProperties)
                 .append(href)

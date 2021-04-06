@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class RoutingServiceTest {
 
-    public static final int MAX_INDEX = 10;
+  /*  public static final int MAX_INDEX = 10;
     public static final String MESSAGE_ID = "MessageId";
 
     @Injectable
@@ -255,8 +255,8 @@ public class RoutingServiceTest {
             result = criteriaList;
 
             // TODO: Criteria Operator is not used.
-            /*filter.getCriteriaOperator();
-            result = LogicalOperator.AND;*/
+            *//*filter.getCriteriaOperator();
+            result = LogicalOperator.AND;*//*
 
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
@@ -917,5 +917,5 @@ public class RoutingServiceTest {
             routingService.invalidateBackendFiltersCache();
             signalService.signalMessageFiltersUpdated();
         }};
-    }
+    }*/
 }

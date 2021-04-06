@@ -17,6 +17,7 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.user.UserEntityBase;
@@ -56,7 +57,7 @@ public class EventEbms3ServiceImplTest {
     private PModeProvider pModeProvider;
 
     @Injectable
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Injectable
     private ErrorLogDao errorLogDao;
@@ -219,7 +220,7 @@ public class EventEbms3ServiceImplTest {
         final String toParty = "red_gw";
 
         new Expectations() {{
-            messagingDao.findUserMessageByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);

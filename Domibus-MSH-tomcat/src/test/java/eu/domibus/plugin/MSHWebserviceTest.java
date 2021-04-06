@@ -16,7 +16,7 @@ import javax.xml.ws.WebServiceException;
 @Service
 public class MSHWebserviceTest extends MSHWebservice {
 
-    protected Messaging messaging;
+    protected Ebms3Messaging ebms3Messaging;
 
     @Autowired
     MessageUtil messageUtil;
@@ -25,15 +25,14 @@ public class MSHWebserviceTest extends MSHWebservice {
     Ebms3Converter ebms3Converter;
 
     @Override
-    protected Messaging getMessaging() {
-        return messaging;
+    protected Ebms3Messaging getMessaging() {
+        return ebms3Messaging;
     }
 
     @Override
     public SOAPMessage invoke(SOAPMessage request) {
         try {
             Ebms3Messaging ebms3Messaging = messageUtil.getMessaging(request);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         } catch (Exception e) {
             throw new WebServiceException("Error getting Messaging", e);
         }

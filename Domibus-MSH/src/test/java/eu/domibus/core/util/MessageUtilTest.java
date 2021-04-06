@@ -6,7 +6,6 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.Error;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import mockit.*;
@@ -358,7 +357,7 @@ public class MessageUtilTest {
     @Test
     public void createService(@Injectable Node collaborationInfoNode,
                               @Injectable Node serviceNode,
-                              @Injectable Service service) {
+                              @Injectable ServiceEntity service) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(collaborationInfoNode, "Service");
             result = serviceNode;

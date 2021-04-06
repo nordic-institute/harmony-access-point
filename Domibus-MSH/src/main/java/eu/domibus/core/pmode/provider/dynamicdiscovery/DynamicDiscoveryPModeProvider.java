@@ -1,19 +1,19 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.Property;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.PartyRoleDao;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
-import eu.domibus.api.model.PartyId;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -75,6 +75,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     @Autowired
     protected CertificateService certificateService;
+
+    @Autowired
+    protected PartyRoleDao partyRoleDao;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -172,7 +175,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         Collection<eu.domibus.common.model.configuration.Process> candidates = findCandidateProcesses(userMessage, mshRole);
 
         if (candidates == null || candidates.isEmpty()) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "No matching dynamic discovery processes found for message.", userMessage.getMessageInfo().getMessageId(), null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "No matching dynamic discovery processes found for message.", userMessage.getMessageId(), null);
         }
 
         LOG.info("Found [{}] dynamic discovery candidates. MSHRole: [{}]", candidates.size(), mshRole);
@@ -198,9 +201,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getTo() != null &&
                 userMessage.getPartyInfo().getTo().getPartyId() != null &&
-                userMessage.getPartyInfo().getTo().getPartyId().iterator() != null &&
-                userMessage.getPartyInfo().getTo().getPartyId().iterator().hasNext()) {
-            to = userMessage.getPartyInfo().getTo().getPartyId().iterator().next();
+                userMessage.getPartyInfo().getTo().getPartyId() != null
+                ) {
+            to = userMessage.getPartyInfo().getTo().getPartyId();
         }
         if (to == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", messageId, null);
@@ -215,10 +218,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getFrom() != null &&
-                userMessage.getPartyInfo().getFrom().getPartyId() != null &&
-                userMessage.getPartyInfo().getFrom().getPartyId().iterator() != null &&
-                userMessage.getPartyInfo().getFrom().getPartyId().iterator().hasNext()) {
-            from = userMessage.getPartyInfo().getFrom().getPartyId().iterator().next();
+                userMessage.getPartyInfo().getFrom().getPartyId() != null
+                ) {
+            from = userMessage.getPartyInfo().getFrom().getPartyId();
         }
         if (from == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", messageId, null);
@@ -228,10 +230,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     }
 
     protected String getMessageId(UserMessage userMessage) {
-        if(userMessage == null || userMessage.getMessageInfo() == null) {
+        if(userMessage == null) {
             return null;
         }
-        return userMessage.getMessageInfo().getMessageId();
+        return userMessage.getMessageId();
     }
 
     protected synchronized Party updateConfigurationParty(String name, String type, String endpoint) {
@@ -351,7 +353,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             LOG.debug("Extracted the common name [{}]", cn);
         } catch (final InvalidNameException e) {
             LOG.error("Error while extracting CommonName from certificate", e);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Error while extracting CommonName from certificate", userMessage.getMessageInfo().getMessageId(), e);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Error while extracting CommonName from certificate", userMessage.getMessageId(), e);
         }
         //set toPartyId in UserMessage
         final PartyId receiverParty = new PartyId();
@@ -364,10 +366,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             receiverParty.setType(type);
         }
 
-        userMessage.getPartyInfo().getTo().getPartyId().clear();
-        userMessage.getPartyInfo().getTo().getPartyId().add(receiverParty);
+        userMessage.getPartyInfo().getTo().setPartyId(receiverParty);
         if(userMessage.getPartyInfo().getTo().getRole() == null) {
-            userMessage.getPartyInfo().getTo().setRole(dynamicDiscoveryService.getResponderRole());
+            String responderRoleValue = dynamicDiscoveryService.getResponderRole();
+            PartyRole partyRole = partyRoleDao.findOrCreateRole(responderRoleValue);
+            userMessage.getPartyInfo().getTo().setRole(partyRole);
         }
 
         LOG.debug("Add public certificate to the truststore");
@@ -378,20 +381,20 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected EndpointInfo lookupByFinalRecipient(UserMessage userMessage) throws EbMS3Exception {
         Property finalRecipient = getFinalRecipient(userMessage);
         if(finalRecipient == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Dynamic discovery processes found for message but finalRecipient information is missing in messageProperties.", userMessage.getMessageInfo().getMessageId(), null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Dynamic discovery processes found for message but finalRecipient information is missing in messageProperties.", userMessage.getMessageId(), null);
         }
         LOG.info("Perform lookup by finalRecipient: " + finalRecipient.getName() + " " + finalRecipient.getType() + " " +finalRecipient.getValue());
 
         //lookup sml/smp - result is cached
         final EndpointInfo endpoint = dynamicDiscoveryService.lookupInformation(domainProvider.getCurrentDomain().getCode(), finalRecipient.getValue(),
                 finalRecipient.getType(),
-                userMessage.getCollaborationInfo().getAction(),
-                userMessage.getCollaborationInfo().getService().getValue(),
-                userMessage.getCollaborationInfo().getService().getType());
+                userMessage.getActionValue(),
+                userMessage.getService().getValue(),
+                userMessage.getService().getType());
 
         // The SMP entries missing this info are not for the use of Domibus
         if(endpoint.getAddress() == null  || endpoint.getCertificate() == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Invalid endpoint metadata received from the dynamic discovery process.", userMessage.getMessageInfo().getMessageId(), null);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Invalid endpoint metadata received from the dynamic discovery process.", userMessage.getMessageId(), null);
         }
         LOG.debug("Lookup successful: " + endpoint.getAddress());
         return endpoint;
@@ -409,8 +412,8 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             if (matchProcess(process, mshRole)) {
                 LOG.debug("Process matched: [{}] [{}]", process.getName(), mshRole);
                 for (final LegConfiguration legConfiguration : process.getLegs()) {
-                    if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), userMessage.getCollaborationInfo().getService().getValue()) &&
-                            StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), userMessage.getCollaborationInfo().getAction())) {
+                    if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), userMessage.getService().getValue()) &&
+                            StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), userMessage.getActionValue())) {
                         LOG.debug("Leg matched, adding process. Leg: " + legConfiguration.getName());
                         candidates.add(process);
                     }
@@ -434,12 +437,12 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     protected Property getFinalRecipient(UserMessage userMessage) {
         if(userMessage.getMessageProperties() == null ||
-                userMessage.getMessageProperties().getProperty().isEmpty()) {
+                userMessage.getMessageProperties().isEmpty()) {
             LOG.warn("Empty property set");
             return null;
         }
 
-        for (final eu.domibus.api.model.Property p : userMessage.getMessageProperties().getProperty()) {
+        for (final eu.domibus.api.model.Property p : userMessage.getMessageProperties()) {
             if (p.getName() != null && StringUtils.equalsIgnoreCase(p.getName(), MessageConstants.FINAL_RECIPIENT)) {
                 return p;
             }

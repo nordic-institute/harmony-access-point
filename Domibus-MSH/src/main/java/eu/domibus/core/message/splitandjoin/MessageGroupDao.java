@@ -6,6 +6,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -24,6 +25,12 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
 
     public MessageGroupDao() {
         super(MessageGroupEntity.class);
+    }
+
+    public MessageGroupEntity findByUserMessageEntityId(Long userMessageEntityId) {
+        final TypedQuery<MessageGroupEntity> namedQuery = em.createNamedQuery("MessageGroupEntity.findByUserMessageEntityId", MessageGroupEntity.class);
+        namedQuery.setParameter("USER_MESSAGE_ENTITY_ID", userMessageEntityId);
+        return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 
     public MessageGroupEntity findByGroupId(String groupId) {

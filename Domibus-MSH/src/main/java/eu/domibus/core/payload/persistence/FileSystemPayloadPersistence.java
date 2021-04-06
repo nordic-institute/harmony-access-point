@@ -101,7 +101,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     @Override
     public void storeOutgoingPayload(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration, String backendName) throws IOException, EbMS3Exception {
         //message fragment files are already saved on the file system
-        if (!userMessage.isUserMessageFragment()) {
+        if (!userMessage.isMessageFragment()) {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
             saveOutgoingPayloadToDisk(partInfo, userMessage, legConfiguration, currentStorage, backendName);
         }
@@ -131,8 +131,8 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
     }
 
     protected long saveOutgoingFileToDisk(File file, PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration, final Boolean encryptionActive) throws IOException, EbMS3Exception {
-        boolean useCompression = compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
-        LOG.debug("Compression for message with id: [{}] applied: [{}]", userMessage.getMessageInfo().getMessageId(), useCompression);
+        boolean useCompression = compressionService.handleCompression(userMessage.getMessageId(), partInfo, legConfiguration);
+        LOG.debug("Compression for message with id: [{}] applied: [{}]", userMessage.getMessageId(), useCompression);
 
         OutputStream outputStream = null;
         try {
