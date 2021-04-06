@@ -7,6 +7,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
 import eu.domibus.logging.DomibusLogger;
@@ -40,6 +41,9 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Autowired
     private DomibusCacheService domibusCacheService;
+
+    @Autowired
+    private CertificateHelper certificateHelper;
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
@@ -105,24 +109,9 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
+        certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
-    }
-
-    private void validateTruststoreType(String storeType, String storeFileName) {
-        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-        switch (storeType.toLowerCase()) {
-            case "pkcs12":
-                if (Arrays.asList("p12", "pfx").contains(fileType)) {
-                    return;
-                }
-            case "jks":
-                if (Arrays.asList("jks").contains(fileType)) {
-                    return;
-                }
-        }
-        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
     @Override
