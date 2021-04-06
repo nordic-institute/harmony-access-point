@@ -16,6 +16,7 @@ import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertifica
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
 import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.core.certificate.CertificateDaoImpl;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -139,7 +140,8 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
                 Mockito.spy(ExpiredCertificateConfigurationManager.class),
-                Mockito.spy(BackupServiceImpl.class));
+                Mockito.spy(BackupServiceImpl.class),
+                Mockito.spy(CertificateHelper.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
