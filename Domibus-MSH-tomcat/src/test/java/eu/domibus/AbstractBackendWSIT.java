@@ -9,6 +9,7 @@ import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
+import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import org.apache.commons.codec.binary.Base64;
@@ -71,6 +72,26 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
+
+    protected void submitMessage(MessageStatus expectedStatus, String responseFileName) throws SubmitMessageFault {
+        String payloadHref = "cid:message";
+        eu.domibus.plugin.ws.generated.body.SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
+
+        super.prepareSendMessage(responseFileName);
+        eu.domibus.plugin.ws.generated.body.SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
+
+        final List<String> messageID = response.getMessageID();
+        assertNotNull(response);
+        assertNotNull(messageID);
+        assertEquals(1, messageID.size());
+        final String messageId = messageID.iterator().next();
+
+        waitUntilMessageHasStatus(messageId, expectedStatus);
+
+        verify(postRequestedFor(urlMatching("/domibus/services/msh")));
+    }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
