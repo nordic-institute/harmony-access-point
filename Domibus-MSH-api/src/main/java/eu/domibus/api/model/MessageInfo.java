@@ -2,6 +2,7 @@ package eu.domibus.api.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,6 +19,8 @@ import java.util.Date;
         @NamedQuery(name = "MessageInfo.findMessageIdsWithRefToMessageIds", query = "select mi.messageId from MessageInfo mi, SignalMessageLog sml where (sml.messageId=mi.messageId and sml.messageType=:MESSAGE_TYPE) and mi.refToMessageId in :MESSAGEIDS"),
         @NamedQuery(name = "MessageInfo.deleteMessages", query = "delete from MessageInfo mi where mi.messageId in :MESSAGEIDS"),
 })
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MessageInfo extends AbstractBaseEntity {
 
     public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";

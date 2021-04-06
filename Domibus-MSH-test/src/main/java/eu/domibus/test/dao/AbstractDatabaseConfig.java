@@ -10,7 +10,6 @@ import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -44,6 +43,16 @@ public abstract class AbstractDatabaseConfig {
         jpaProperties.put("hibernate.show_sql", "true");
         jpaProperties.put("hibernate.format_sql", "true");
         jpaProperties.put("hibernate.id.new_generator_mappings", "false");
+
+        jpaProperties.put("hibernate.current_session_context_class", "thread");
+        jpaProperties.put("hibernate.cache.use_query_cache", "true");
+        jpaProperties.put("hibernate.cache.use_second_level_cache", "true");
+        jpaProperties.put("hibernate.cache.default_cache_concurrency_strategy", "read-write");
+        jpaProperties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+
+        jpaProperties.put("hibernate.generate_statistics", "true");
+        jpaProperties.put("hibernate.cache.generate_statistics", "true");
+
         jpaProperties.put(AvailableSettings.CONNECTION_PROVIDER, connectionProvider);
         jpaProperties.put("hibernate.dialect", getSpecificDatabaseDialect());
 

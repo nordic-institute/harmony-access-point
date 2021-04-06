@@ -4,6 +4,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserEntityBaseImpl;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 
@@ -28,7 +29,7 @@ import java.util.Set;
         }
 )
 @NamedQueries({
-        @NamedQuery(name = "User.findAll", query = "FROM User u"),
+        @NamedQuery(name = "User.findAll", query = "FROM User u"/*, hints = @QueryHint(name = "org.hibernate.cacheable", value = "true")*/ ),
         @NamedQuery(name = "User.findByUserName", query = "FROM User u where u.userName=:USER_NAME and u.deleted=false"),
         @NamedQuery(name = "User.findActiveByUserName", query = "FROM User u where u.userName=:USER_NAME and u.active=true and u.deleted=false"),
         @NamedQuery(name = "User.findSuspendedUsers", query = "FROM User u where u.suspensionDate is not null and u.suspensionDate<:SUSPENSION_INTERVAL and u.deleted=false"),
@@ -39,6 +40,8 @@ import java.util.Set;
 })
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName("User")
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User extends UserEntityBaseImpl implements UserEntityBase {
 
     public static final String USER_NAME = "USER_NAME";
@@ -66,6 +69,7 @@ public class User extends UserEntityBaseImpl implements UserEntityBase {
             name = "TB_USER_ROLES",
             joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID_PK"),
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID_PK"))
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<UserRole> roles = new HashSet<>();
 
     @Override

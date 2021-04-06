@@ -18,8 +18,10 @@ import javax.persistence.*;
 @Table(name = "TB_USER_MESSAGE")
 @NamedQueries({
         @NamedQuery(name = "UserMessage.find",
-                query = "select userMessage from UserMessage userMessage where userMessage.messageInfo.messageId IN :MESSAGEIDS")
-})
+                query = "select userMessage from UserMessage userMessage where userMessage.messageInfo.messageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "UserMessage.findAll",
+                query = "select userMessage from UserMessage userMessage "
+        )})
 public class UserMessage extends AbstractBaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
