@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.exception.ConfigurationException;
+import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
 import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -19,6 +20,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -30,16 +33,25 @@ import java.security.cert.X509Certificate;
  * @since 6/13/18.
  */
 
-//@RunWith(JMockit.class)
+@RunWith(JMockit.class)
 public class PeppolIT {
 
     //The (sub)domain of the SML, e.g. acc.edelivery.tech.ec.europa.eu
     //private static final String TEST_SML_ZONE = "isaitb.acc.edelivery.tech.ec.europa.eu";
     private static final String TEST_SML_ZONE = "acc.edelivery.tech.ec.europa.eu";
 
-    /* This is not a unit tests but a useful test for a real SMP entry. */
-//    @Test
-    @Ignore
+    private Boolean useProxy = false;
+
+    private String httpProxyHost = "";
+
+    private String httpProxyPort = "";
+
+    private String httpProxyUser = "";
+
+    private String httpProxyPassword = "";
+
+    @Test
+    @Ignore("This is not a unit tests but a useful test for a real SMP entry")
     public void testLookupInformation() throws Exception {
         EndpointInfo endpointNew = testLookupInformation("0088:112244", "iso6523-actorid-upis", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0", "cenbii-procid-ubl::urn:www.cenbii.eu:profile:bii04:ver1.0", "");
         EndpointInfo endpointOld = testLookupInformation("0088:112233", "iso6523-actorid-upis", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0", "cenbii-procid-ubl::urn:www.cenbii.eu:profile:bii04:ver1.0", "");
@@ -83,12 +95,6 @@ public class PeppolIT {
             throw new ConfigurationException("Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId, e);
         }
     }
-    Boolean useProxy = false;
-    String httpProxyHost = "";
-    String httpProxyPort = "";
-    String httpProxyUser = "";
-    String httpProxyPassword = "";
-
 
     private HttpHost getConfiguredProxy() {
         return new HttpHost(httpProxyHost, Integer.parseInt(httpProxyPort));
@@ -114,6 +120,4 @@ public class PeppolIT {
         System.out.println("The certificate does not contain a common name (CN): " + certificate.getSubjectDN().getName());
         return "";
     }
-
-
 }
