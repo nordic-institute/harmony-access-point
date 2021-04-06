@@ -4,7 +4,6 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
-import ddsl.dobjects.DWait;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;

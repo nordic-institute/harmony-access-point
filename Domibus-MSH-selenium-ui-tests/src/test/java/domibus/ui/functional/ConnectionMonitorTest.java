@@ -4,25 +4,18 @@ import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
-import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.connectionMon.ConnectionMonitoringPage;
 import pages.connectionMon.TestMessDetailsModal;
 import pages.pmode.parties.PModePartiesPage;
-import pages.pmode.parties.PartyModal;
 import pages.truststore.TruststorePage;
 import utils.DFileUtils;
 import utils.PModeXMLUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
+
 
 
 /**
@@ -179,14 +172,14 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
-			page.grid().getActionButton("Send", 0).click();
-			new DWait(driver).forXMillis(100);
-			page.grid().getActionButton("Refresh", 0).click();
-			new DWait(driver).forXMillis(100);
+		page.grid().getActionButton("Send", 0).click();
+		new DWait(driver).forXMillis(100);
+		page.grid().getActionButton("Refresh", 0).click();
+		new DWait(driver).forXMillis(100);
 
-			String afterSentData = page.grid().getSendRecStatus("Send", 0);
+		String afterSentData = page.grid().getSendRecStatus("Send", 0);
 
-			soft.assertTrue(afterSentData.contains("a few seconds ago"), "After sent data contains time difference in seconds");
+		soft.assertTrue(afterSentData.contains("a few seconds ago"), "After sent data contains time difference in seconds");
 
 		soft.assertAll();
 
@@ -319,13 +312,4 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		return page.getAlertArea().getAlertMessage();
 	}
 
-	}
-
-
-
-
-
-
-
-
-	
+}

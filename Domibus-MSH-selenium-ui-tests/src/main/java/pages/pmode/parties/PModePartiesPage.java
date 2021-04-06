@@ -60,6 +60,13 @@ public class PModePartiesPage extends DomibusPage {
 		return new PartiesFilters(driver);
 	}
 
+
+	/**
+	 * This method will return Party Id which is neither Responder nor initiator
+	 * @param noOfParty  Total number of Party available on Pmode parties page
+	 * @return  the Party Id
+
+	 */
 	public String getNoResIniPartyId(int noOfParty) throws Exception {
 		for (int i = 0; i < noOfParty; i++) {
 			if (grid().getRowSpecificColumnVal(i, "Process (I=Initiator, R=Responder, IR=Both)").isEmpty())
