@@ -67,6 +67,7 @@ Domibus 5.0 (from 4.2.1)
                             domibus.datasource.xa.property.url=jdbc:mysql://${domibus.database.serverName}:${domibus.database.port}/${domibus.database.schema}?pinGlobalTxToPhysicalConnection=true&useLegacyDatetimeCode=false&serverTimezone=UTC
                             domibus.datasource.url=jdbc:mysql://${domibus.database.serverName}:${domibus.database.port}/${domibus.database.schema}?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
                 - Non-XA performance improvement:
+                        o In case of custom plugins and extensions taht use somibus persistence context, change the name from domibusJTA to domibusEM
                         o Modify the Domibus properties file "\conf\domibus\domibus.properties":
                                   - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize" (if present)
                                   - remove these properties:
