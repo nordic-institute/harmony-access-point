@@ -111,13 +111,13 @@ public class ConMonGrid extends DGrid {
 	}
 
 	public DButton getActionButton(String buttonName,int i){
-		WebElement actionIccon;
+		WebElement actionIcon;
 		try {
-			actionIccon = gridRows.get(i).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"" + buttonName + "\"]"));
+			actionIcon = gridRows.get(i).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"" + buttonName + "\"]"));
 		}catch(Exception e){
 			return null ;
 		}
-		return new DButton(driver, actionIccon);
+		return new DButton(driver, actionIcon);
 	}
 
 	public String getSendRecStatus(String process, int rowIndex) throws Exception {
@@ -128,9 +128,7 @@ public class ConMonGrid extends DGrid {
 			return sentRecvStatusDetail.get(2 * rowIndex+1).getText();
 
 		}
-		else{
 			throw new Exception("Other than send or receive status is demanded");
-		}
 	}
 
 
