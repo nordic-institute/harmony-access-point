@@ -35,14 +35,14 @@ public class LoggerUtil {
         appender.setEncoder(encoder);
         appender.setOutputStream(logging);
         appender.setContext(loggerContext);
-        appender.setName("APPENDER_FOR_TESTING");
+        appender.setName(APPENDER_FOR_TESTING);
         appender.start();
         logger.addAppender(appender);
     }
 
     public void cleanupByteArrayOutputStreamAppender() {
         if (this.logger != null) {
-            this.logger.detachAppender("APPENDER_FOR_TESTING");
+            this.logger.detachAppender(APPENDER_FOR_TESTING);
         }
     }
 
