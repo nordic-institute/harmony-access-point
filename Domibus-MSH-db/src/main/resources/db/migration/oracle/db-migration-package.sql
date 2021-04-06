@@ -9,7 +9,7 @@
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG
+-- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO
 -- *****************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
@@ -1292,7 +1292,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
-                                    v_tab || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                                        v_tab || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
                             v_batch_no := v_batch_no + 1;
                         END IF;
                     EXCEPTION
@@ -1501,6 +1501,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     BEGIN
         DBMS_OUTPUT.PUT_LINE('Migration post actions start...');
 
+        -- TODO add these to Liquibase?
         migrate_user_message_post;
 
         --  drop_table_if_exists('TB_MESSAGE_GROUP');
