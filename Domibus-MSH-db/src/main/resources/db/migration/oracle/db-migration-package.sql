@@ -1251,8 +1251,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab              VARCHAR2(30) := 'TB_PROPERTY';
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
         v_tab_message_new  VARCHAR2(30) := 'MIGR_TB_MESSAGE_PROPERTIES';
-        v_count_message    NUMBER       := 0;
-        v_count            NUMBER       := 0;
         CURSOR c_property IS
             SELECT TP.ID_PK,
                    UM.ID_PK USER_MESSAGE_ID_FK,
@@ -1280,31 +1278,21 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN property.FIRST .. property.LAST
                 LOOP
                     BEGIN
-
-                        BEGIN
-                            EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_message_new ||
-                                              ' (ID_PK, USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                              'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
-                                USING
-                                property(i).ID_PK,
-                                property(i).USER_MESSAGE_ID_FK,
-                                get_tb_d_msg_property_rec(property(i).NAME, property(i).VALUE, property(i).TYPE),
-                                property(i).CREATION_TIME,
-                                property(i).CREATED_BY,
-                                property(i).MODIFICATION_TIME,
-                                property(i).MODIFIED_BY;
-                        EXCEPTION
-                            WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_message_new ||
-                                                     ' -> execute immediate error: ' ||
-                                                     DBMS_UTILITY.FORMAT_ERROR_STACK);
-                        END;
-                        v_count_message := v_count_message + 1;
-
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_message_new ||
+                                          ' (ID_PK, USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                            USING
+                            property(i).ID_PK,
+                            property(i).USER_MESSAGE_ID_FK,
+                            get_tb_d_msg_property_rec(property(i).NAME, property(i).VALUE, property(i).TYPE),
+                            property(i).CREATION_TIME,
+                            property(i).CREATED_BY,
+                            property(i).MODIFICATION_TIME,
+                            property(i).MODIFIED_BY;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
-                                        v_tab || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                                    v_tab || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
                             v_batch_no := v_batch_no + 1;
                         END IF;
                     EXCEPTION
@@ -1312,10 +1300,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             DBMS_OUTPUT.PUT_LINE('migrate_message_log -> execute immediate error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
-                    v_count := i;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || property.COUNT || ' records in total. ' || v_count_message || ' into ' ||
+                        'Migrated ' || property.COUNT || ' records in total into ' ||
                         v_tab_message_new);
         END LOOP;
 
