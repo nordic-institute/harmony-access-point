@@ -1323,7 +1323,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_property;
     END migrate_property;
 
-    /**- TB_PART_INFO data migration --*/
+    /**- TB_PART_INFO, TB_USER_MESSAGE data migration --*/
     PROCEDURE migrate_part_info_user IS
         v_tab              VARCHAR2(30) := 'TB_PART_INFO';
         v_tab_new          VARCHAR2(30) := 'MIGR_TB_PART_INFO';
@@ -1414,8 +1414,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_part_info;
     END migrate_part_info_user;
 
-    /**- TB_PART_INFO data migration --*/
-    PROCEDURE migrate_part_property IS
+    /**- TB_PART_INFO, TB_PART_PROPERTY data migration --*/
+    PROCEDURE migrate_part_info_property IS
         v_tab_info     VARCHAR2(30) := 'TB_PART_INFO';
         v_tab_property VARCHAR2(30) := 'TB_PART_PROPERTY';
         v_tab_new      VARCHAR2(30) := 'MIGR_TB_PART_PROPERTIES';
@@ -1461,7 +1461,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 part_prop(i).MODIFIED_BY;
                         EXCEPTION
                             WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_part_property for ' || v_tab_new ||
+                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new ||
                                                      ' -> execute immediate error: ' ||
                                                      DBMS_UTILITY.FORMAT_ERROR_STACK);
                         END;
@@ -1473,7 +1473,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_part_property -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_property -> execute immediate error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
@@ -1484,7 +1484,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_part_prop;
-    END migrate_part_property;
+    END migrate_part_info_property;
 
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_user_message_post IS
@@ -1542,7 +1542,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         migrate_property;
         migrate_part_info_user;
-        migrate_part_property;
+        migrate_part_info_property;
 
         -- house keeping
         migrate_post;
