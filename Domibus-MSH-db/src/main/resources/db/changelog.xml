@@ -6,7 +6,7 @@
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
+    <include file="common/changelog-properties-new.xml" relativeToChangelogFile="true"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp,Cosmin Baciu" id="EDELIVERY-7803-oracle sequence">
