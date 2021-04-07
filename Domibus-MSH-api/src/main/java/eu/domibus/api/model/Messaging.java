@@ -10,11 +10,6 @@ import java.util.List;
  */
 @Entity
 @Table(name = "TB_MESSAGING")
-@NamedQueries({
-        @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
-        @NamedQuery(name = "Messaging.findSignalMessageByUserMessageId",
-                query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.refToMessageId = :MESSAGE_ID"),
-})
 public class Messaging extends AbstractBaseEntity {
 
     @Column(name = "ID")

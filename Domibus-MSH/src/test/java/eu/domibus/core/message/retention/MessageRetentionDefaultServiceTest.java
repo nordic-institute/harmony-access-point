@@ -1,31 +1,8 @@
 package eu.domibus.core.message.retention;
 
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.model.UserMessageLogDto;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.Queue;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.message.retention.MessageRetentionDefaultService.DELETE_TYPE;
-import static eu.domibus.messaging.MessageConstants.*;
 import static org.junit.Assert.assertEquals;
 
 /**

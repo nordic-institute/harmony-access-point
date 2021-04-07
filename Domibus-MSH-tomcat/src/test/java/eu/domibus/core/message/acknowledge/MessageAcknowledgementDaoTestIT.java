@@ -1,31 +1,6 @@
 package eu.domibus.core.message.acknowledge;
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogBuilder;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.ebms3.Ebms3MessagingDocumentParser;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.InputStream;
-import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

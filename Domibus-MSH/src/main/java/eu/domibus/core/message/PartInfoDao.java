@@ -89,7 +89,7 @@ public class PartInfoDao extends BasicDao<PartInfo> {
             return;
         }
 
-        final Query emptyQuery = em.createNamedQuery("Messaging.emptyPayloads");
+        final Query emptyQuery = em.createNamedQuery("PartInfo.emptyPayloads");
         emptyQuery.setParameter("PARTINFOS", databasePayloads);
         emptyQuery.executeUpdate();
     }

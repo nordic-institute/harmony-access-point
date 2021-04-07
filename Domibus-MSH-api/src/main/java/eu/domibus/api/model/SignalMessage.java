@@ -21,7 +21,7 @@ import java.util.Date;
                 query = "select signalMessage.messageInfo.messageId from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findMessageIdsWithRefToMessageIds", query = "select mi.signalMessageId from SignalMessage mi where mi.refToMessageId in :MESSAGEIDS"),
         @NamedQuery(name = "SignalMessage.findSignalMessageByRefMessageId",
-                query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
                 query = "select signalMessage.receipt.entityId from SignalMessage signalMessage where signalMessage.messageInfo.messageId IN :MESSAGEIDS"),
         @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage mi where mi.messageId in :MESSAGEIDS"),

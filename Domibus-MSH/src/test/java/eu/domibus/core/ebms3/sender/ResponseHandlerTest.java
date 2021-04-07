@@ -8,7 +8,6 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
@@ -48,8 +47,6 @@ public class ResponseHandlerTest {
     private SignalMessageDao signalMessageDao;
     @Injectable
     protected MessageUtil messageUtil;
-    @Injectable
-    private MessagingDao messagingDao;
     @Injectable
     private ErrorLogDao errorLogDao;
 

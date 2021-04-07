@@ -1,24 +1,7 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.*;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageDefaultServiceHelper;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.messaging.MessageConstants;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.sql.Date;
-import java.util.Random;
-import java.util.UUID;
 
 /**
  * JUnit for {@link UIReplicationDataServiceImpl} class
