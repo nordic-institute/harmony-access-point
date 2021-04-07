@@ -1246,7 +1246,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_message_log;
 
-    /**- TB_PROPERTY data migration --*/
+    /**- TB_PROPERTY, TB_USER_MESSAGE data migration --*/
     PROCEDURE migrate_property IS
         v_tab              VARCHAR2(30) := 'TB_PROPERTY';
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
@@ -1315,8 +1315,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab              VARCHAR2(30) := 'TB_PART_INFO';
         v_tab_new          VARCHAR2(30) := 'MIGR_TB_PART_INFO';
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
-        v_count_message    NUMBER       := 0;
-        v_count            NUMBER       := 0;
         CURSOR c_part_info IS
             SELECT PI.ID_PK,
                    PI.BINARY_DATA,
@@ -1377,7 +1375,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                      ' -> execute immediate error: ' ||
                                                      DBMS_UTILITY.FORMAT_ERROR_STACK);
                         END;
-                        v_count_message := v_count_message + 1;
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -1390,10 +1387,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             DBMS_OUTPUT.PUT_LINE('migrate_part_info_user -> execute immediate error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
-                    v_count := i;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || part_info.COUNT || ' records in total. ' || v_count_message || ' into ' ||
+                        'Migrated ' || part_info.COUNT || ' records in total into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1401,10 +1397,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_part_info;
     END migrate_part_info_user;
 
-    /**- TB_PART_INFO, TB_PART_PROPERTY data migration --*/
+    /**- TB_PART_INFO, TB_PROPERTY data migration --*/
     PROCEDURE migrate_part_info_property IS
         v_tab_info     VARCHAR2(30) := 'TB_PART_INFO';
-        v_tab_property VARCHAR2(30) := 'TB_PART_PROPERTY';
+        v_tab_property VARCHAR2(30) := 'TB_PROPERTY';
         v_tab_new      VARCHAR2(30) := 'MIGR_TB_PART_PROPERTIES';
         CURSOR c_part_prop IS
             SELECT PR.NAME,
@@ -1422,7 +1418,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         part_prop      T_PART_PROP;
         v_batch_no     INT          := 1;
     BEGIN
-        DBMS_OUTPUT.PUT_LINE(v_tab_info || 'and ' || v_tab_property || ' migration started...');
+        DBMS_OUTPUT.PUT_LINE(v_tab_info || ' and ' || v_tab_property || ' migration started...');
         OPEN c_part_prop;
         LOOP
             FETCH c_part_prop BULK COLLECT INTO part_prop;
@@ -1448,9 +1444,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 part_prop(i).MODIFIED_BY;
                         EXCEPTION
                             WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new ||
-                                                     ' -> execute immediate error: ' ||
-                                                     DBMS_UTILITY.FORMAT_ERROR_STACK);
+                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new || ' -> execute immediate error: ' ||DBMS_UTILITY.FORMAT_ERROR_STACK);
                         END;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
