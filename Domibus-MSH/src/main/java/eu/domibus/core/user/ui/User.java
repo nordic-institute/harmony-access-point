@@ -29,7 +29,7 @@ import java.util.Set;
         }
 )
 @NamedQueries({
-        @NamedQuery(name = "User.findAll", query = "FROM User u"/*, hints = @QueryHint(name = "org.hibernate.cacheable", value = "true")*/ ),
+        @NamedQuery(name = "User.findAll", query = "FROM User u"),
         @NamedQuery(name = "User.findByUserName", query = "FROM User u where u.userName=:USER_NAME and u.deleted=false"),
         @NamedQuery(name = "User.findActiveByUserName", query = "FROM User u where u.userName=:USER_NAME and u.active=true and u.deleted=false"),
         @NamedQuery(name = "User.findSuspendedUsers", query = "FROM User u where u.suspensionDate is not null and u.suspensionDate<:SUSPENSION_INTERVAL and u.deleted=false"),
@@ -40,7 +40,6 @@ import java.util.Set;
 })
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName("User")
-@Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User extends UserEntityBaseImpl implements UserEntityBase {
 
