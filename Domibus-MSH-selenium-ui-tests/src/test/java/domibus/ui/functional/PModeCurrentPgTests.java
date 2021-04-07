@@ -10,6 +10,7 @@ import pages.pmode.archive.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import utils.DFileUtils;
+import utils.Gen;
 
 /**
  * @author Catalin Comanici
@@ -186,15 +187,14 @@ public class PModeCurrentPgTests extends SeleniumTest {
 
 		soft.assertAll();
 	}
+
 	/*  This method will verify message while uploading Pmode and Pmode archive record */
 	@Test(description = "PMC-2", groups = {"multiTenancy", "singleTenancy"})
 	public void uploadPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		PModeArchivePage page = new PModeArchivePage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
-		int archivePgCount = page.grid().getPagination().getTotalItems();
+		rest.pmode().uploadPMode("pmodes/pmode-red.xml", null);
+		int archivePgCount = rest.pmode().getPmodesList(null).length();
 
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
 		pmcPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
@@ -208,19 +208,17 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/Edelivery-blue.xml");
 		String oldPmode = pmcPage.getTextArea().getText();
 
-
-		modal.uploadPmodeFile(path, "new");
+		String pmodeMessage = Gen.rndStr(50);
+		modal.uploadPmodeFile(path, pmodeMessage);
+		log.info("upload message is " + pmodeMessage);
 
 		soft.assertTrue(pmcPage.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS));
 
 		String newPmode = pmcPage.getTextArea().getText();
 
-		pmcPage.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
-		int archivePgNewCount = page.grid().getPagination().getTotalItems();
-
+		log.info("checking number of pomodes in archive");
+		int archivePgNewCount = rest.pmode().getPmodesList(null).length();
 		soft.assertTrue(archivePgCount+1 == archivePgNewCount , "Archive page has one new record present");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Description").contains("CURRENT"),"Current is present in first row");
 
 		log.info("comparing pmodes");
 		soft.assertFalse(XMLUnit.compareXML(oldPmode,newPmode).identical(), "Both pmodes are not identical");

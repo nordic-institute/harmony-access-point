@@ -199,7 +199,7 @@ public class UsersPgUXTest extends SeleniumTest {
 		page.grid().getGridCtrl().getAllLnk().click();
 
 		log.info("checking info in grid against the file");
-		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+		page.getUsersGrid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
 
 		soft.assertAll();
 	}
@@ -394,7 +394,8 @@ public class UsersPgUXTest extends SeleniumTest {
 		page.grid().getGridCtrl().getAllLnk().click();
 
 		log.info("checking info in grid against the file");
-		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+//		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+		page.getUsersGrid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
 		soft.assertAll();
 	}
 
