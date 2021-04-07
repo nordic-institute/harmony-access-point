@@ -51,6 +51,7 @@ public class CommandDaoIT {
     }
 
     @Test
+    @Transactional
     public void createCommand() {
         CommandEntity entity = new CommandEntity();
         entity.setCreationTime(new Date());
