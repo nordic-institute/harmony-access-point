@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.ext.services.CommandExtTask;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.tsl.cache.CacheCleaner;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 
@@ -57,8 +58,6 @@ public class DssRefreshCommand implements CommandExtTask {
         domibusTSLValidationJob.onlineRefresh();
         LOG.info("DSS trusted lists refreshed");
     }
-
-
 
     @PostConstruct
     public void init(){

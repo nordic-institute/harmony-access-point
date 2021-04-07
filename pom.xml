@@ -43,7 +43,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.68</bouncycastle.version>
+        <bouncycastle.version>1.67</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
@@ -611,6 +611,14 @@
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
                 <version>${xmlsec.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -674,6 +682,14 @@
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-common</artifactId>
                 <version>${wss4j-ws-security.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Apache Commons -->
 

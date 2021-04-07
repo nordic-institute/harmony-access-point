@@ -5,9 +5,9 @@ import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.SignatureValue;
 import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.model.x509.CertificateToken;
-/*import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
+import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
 import eu.europa.esig.dss.token.JKSSignatureToken;
-import eu.europa.esig.dss.token.Pkcs12SignatureToken;*/
+import eu.europa.esig.dss.token.Pkcs12SignatureToken;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.xades.TrustedListSignatureParametersBuilder;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
@@ -27,7 +27,7 @@ public class TrustedListSignature {
 
     public TrustedListSignature() throws IOException {
 
-        /*JKSSignatureToken signingToken = new JKSSignatureToken("C:\\tmp\\gateway_keystore.jks", new KeyStore.PasswordProtection("test123".toCharArray()));
+        JKSSignatureToken signingToken = new JKSSignatureToken("C:\\tmp\\gateway_keystore.jks", new KeyStore.PasswordProtection("test123".toCharArray()));
         DSSDocument trustedList = new FileDocument("Domibus-authentication-dss-extension/src/test/resources/CUST.xml");
 
         DSSPrivateKeyEntry privateKeyEntry = signingToken.getKeys().get(0);
@@ -45,7 +45,7 @@ public class TrustedListSignature {
         ToBeSigned dataToSign = service.getDataToSign(trustedList, parameters);
         SignatureValue signatureValue = signingToken.sign(dataToSign, parameters.getDigestAlgorithm(), privateKeyEntry);
         DSSDocument signedTrustedList = service.signDocument(trustedList, parameters, signatureValue);
-        signedTrustedList.writeTo(new FileOutputStream("C:\\tmp\\CUST.xml"));*/
+        signedTrustedList.writeTo(new FileOutputStream("C:\\tmp\\CUST.xml"));
     }
 
     public static void main(String[] args) throws IOException {
