@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+
+    <changeSet id="utc_conversion_stored_procedure" author="azhikso" dbms="mysql">
+        <createProcedure>
+
+            CREATE PROCEDURE `MigrateTimeStampDataToUTC1`(
+            IN timeZone VARCHAR(255)
+            )
+            BEGIN
+            DECLARE tot_count INT DEFAULT 0;
+            DECLARE row_count INT DEFAULT 0;
+            SELECT COUNT(*) FROM TB_USER INTO tot_count;
+            SET row_count=0;
+            WHILE(row_count &lt; tot_count) DO
+            select SUSPENSION_DATE, PASSWORD_CHANGE_DATE, CREATION_TIME, MODIFICATION_TIME, USER_NAME into @susp_date,
+            @pwd_date, @creat_ime, @mod_time,
+            @user_name from tb_user LIMIT row_count,1;
+            update TB_USER
+            set SUSPENSION_DATE = CONVERT_TZ(@susp_date, timeZone, '+00:00'),
+            PASSWORD_CHANGE_DATE = CONVERT_TZ(@pwd_date, timeZone, '+00:00'),
+            CREATION_TIME = CONVERT_TZ(@creat_ime, timeZone, '+00:00'),
+            MODIFICATION_TIME = CONVERT_TZ(@mod_time, timeZone, '+00:00')
+            where USER_NAME=@user_name
+            LIMIT 1;
+            SET row_count = row_count + 1;
+            END WHILE;
+
+            SET row_count=0;
+            SET tot_count=0;
+            SELECT COUNT(*) FROM WS_PLUGIN_TB_MESSAGE_LOG INTO tot_count;
+            WHILE(row_count &lt; tot_count) DO
+            select RECEIVED, ID_PK into @rec_time, @id from WS_PLUGIN_TB_MESSAGE_LOG LIMIT row_count,1;
+            update WS_PLUGIN_TB_MESSAGE_LOG
+            set RECEIVED = CONVERT_TZ(@rec_time, timeZone, '+00:00')
+            where ID_PK=@id
+            LIMIT 1;
+            SET row_count = row_count + 1;
+            END WHILE;
+
+            SET row_count=0;
+            SET tot_count=0;
+            SELECT COUNT(*) FROM WS_PLUGIN_TB_BACKEND_MSG_LOG INTO tot_count;
+            WHILE(row_count &lt; tot_count)DO
+            select CREATION_TIME, MODIFICATION_TIME, SENT, NEXT_ATTEMPT, ID_PK into @creat_ime, @mod_time, @sent_time,
+            @nxt_attempt, @id from WS_PLUGIN_TB_BACKEND_MSG_LOG LIMIT row_count,1;
+            update WS_PLUGIN_TB_BACKEND_MSG_LOG
+            set CREATION_TIME = CONVERT_TZ(@creat_ime, timeZone, '+00:00'),
+            MODIFICATION_TIME = CONVERT_TZ(@mod_time, timeZone, '+00:00'),
+            SENT = CONVERT_TZ(@sent_time, timeZone, '+00:00'),
+            NEXT_ATTEMPT = CONVERT_TZ(@nxt_attempt, timeZone, '+00:00')
+            where ID_PK=@id
+            LIMIT 1;
+            SET row_count = row_count + 1;
+            END WHILE;
+            END
+
+        </createProcedure>
+    </changeSet>
+
+    <!--<changeSet id="utc_conversion_stored_procedure" author="azhikso" dbms="mysql">
+        &lt;!&ndash; Convert existing data to UTC &ndash;&gt;
+
+        <sql endDelimiter="\n/">
+            CREATE PROCEDURE `MigrateTimeStampDataToUTC1`(
+            IN timeZone VARCHAR(255)
+            )
+            BEGIN
+            DECLARE tot_count INT DEFAULT 0;
+            DECLARE row_count INT DEFAULT 0;
+            SELECT COUNT(*) FROM TB_USER INTO tot_count;
+            SET row_count=0;
+            WHILE(row_count<tot_count) DO
+            select SUSPENSION_DATE, PASSWORD_CHANGE_DATE, CREATION_TIME, MODIFICATION_TIME, USER_NAME into @susp_date, @pwd_date, @creat_ime, @mod_time,
+            @user_name from tb_user LIMIT row_count,1;
+            update TB_USER
+            set SUSPENSION_DATE = CONVERT_TZ(@susp_date, timeZone, '+00:00'),
+            PASSWORD_CHANGE_DATE = CONVERT_TZ(@pwd_date, timeZone, '+00:00'),
+            CREATION_TIME = CONVERT_TZ(@creat_ime, timeZone, '+00:00'),
+            MODIFICATION_TIME = CONVERT_TZ(@mod_time, timeZone, '+00:00')
+            where USER_NAME=@user_name
+            LIMIT 1;
+            SET row_count = row_count + 1;
+            END WHILE;
+
+            SET row_count=0;
+            SET tot_count=0;
+            SELECT COUNT(*) FROM WS_PLUGIN_TB_MESSAGE_LOG INTO tot_count;
+            WHILE(row_count<tot_count) DO
+            select RECEIVED, ID_PK into @rec_time, @id from WS_PLUGIN_TB_MESSAGE_LOG LIMIT row_count,1;
+            update WS_PLUGIN_TB_MESSAGE_LOG
+            set RECEIVED = CONVERT_TZ(@rec_time, timeZone, '+00:00')
+            where ID_PK=@id
+            LIMIT 1;
+            SET row_count = row_count + 1;
+            END WHILE;
+
+            SET row_count=0;
+            SET tot_count=0;
+            SELECT COUNT(*) FROM WS_PLUGIN_TB_BACKEND_MSG_LOG INTO tot_count;
+            WHILE(row_count<tot_count)DO
+            select CREATION_TIME, MODIFICATION_TIME, SENT, NEXT_ATTEMPT, ID_PK into @creat_ime, @mod_time, @sent_time, @nxt_attempt, @id from WS_PLUGIN_TB_BACKEND_MSG_LOG LIMIT row_count,1;
+            update WS_PLUGIN_TB_BACKEND_MSG_LOG
+            set CREATION_TIME = CONVERT_TZ(@creat_ime, timeZone, '+00:00'),
+            MODIFICATION_TIME = CONVERT_TZ(@mod_time, timeZone, '+00:00'),
+            SENT = CONVERT_TZ(@sent_time, timeZone, '+00:00'),
+            NEXT_ATTEMPT = CONVERT_TZ(@nxt_attempt, timeZone, '+00:00')
+            where ID_PK=@id
+            LIMIT 1;
+            SET row_count = row_count + 1;
+            END WHILE;
+            END
+
+        </sql>
+
+
+    </changeSet>-->
+</databaseChangeLog>
