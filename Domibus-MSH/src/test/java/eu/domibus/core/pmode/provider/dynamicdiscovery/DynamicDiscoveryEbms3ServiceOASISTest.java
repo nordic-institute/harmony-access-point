@@ -469,7 +469,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         Assert.assertNull(defaultProxy);
     }
 
-    @Test
+//    @Test
     @Ignore("This is not a unit tests but the code is useful to test real SMP entries")
     public void testLookupInformation() throws Exception {
         new NonStrictExpectations() {{

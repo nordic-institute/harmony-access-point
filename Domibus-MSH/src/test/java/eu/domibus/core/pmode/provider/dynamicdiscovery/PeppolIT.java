@@ -20,8 +20,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -33,7 +31,7 @@ import java.security.cert.X509Certificate;
  * @since 6/13/18.
  */
 
-@RunWith(JMockit.class)
+//@RunWith(JMockit.class)
 public class PeppolIT {
 
     //The (sub)domain of the SML, e.g. acc.edelivery.tech.ec.europa.eu
@@ -50,7 +48,7 @@ public class PeppolIT {
 
     private String httpProxyPassword = "";
 
-    @Test
+//    @Test
     @Ignore("This is not a unit tests but a useful test for a real SMP entry")
     public void testLookupInformation() throws Exception {
         EndpointInfo endpointNew = testLookupInformation("0088:112244", "iso6523-actorid-upis", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0", "cenbii-procid-ubl::urn:www.cenbii.eu:profile:bii04:ver1.0", "");
