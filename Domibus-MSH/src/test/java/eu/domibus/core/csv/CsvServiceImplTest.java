@@ -229,8 +229,7 @@ public class CsvServiceImplTest {
         setCsvSerializer();
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
-
-        String timeOffset = ZonedDateTime.now().getOffset().toString().replace(":", "");
+        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).getOffset().toString().replace(":", "");
         Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
@@ -247,8 +246,7 @@ public class CsvServiceImplTest {
         setCsvSerializer();
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
-
-        String timeOffset = ZonedDateTime.now().getOffset().toString().replace(":", "");
+        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).getOffset().toString().replace(":", "");
         Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
