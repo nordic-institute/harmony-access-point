@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
  * @since 3.3
  */
 
-@Ignore
 @RunWith(JMockit.class)
 public class Ebms3UserMessageLegConfigurationFactoryTest {
 
