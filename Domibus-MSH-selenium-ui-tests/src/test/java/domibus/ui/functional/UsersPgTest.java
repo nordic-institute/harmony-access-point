@@ -113,7 +113,7 @@ public class UsersPgTest extends SeleniumTest {
 	
 	/* Available roles in Role drop down on new/edit pop up */
 	@Test(description = "USR-12", groups = {"multiTenancy", "singleTenancy"})
-	public void availableRolesAdmin() throws Exception {
+	public void availableRoles() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
 		String adminUser = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
@@ -674,17 +674,17 @@ public class UsersPgTest extends SeleniumTest {
 	public void superDelUpdateSelf() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		log.info("Delete all super user except Default one");
-		JSONArray userArray = rest.users().getUsers(null);
-		int userCount = userArray.length();
-		
-		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).getString("userName");
-			String role = userArray.getJSONObject(i).getString("roles");
-			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
-				rest.users().deleteUser(userName, null);
-			}
-		}
+//		log.info("Delete all super user except Default one");
+//		JSONArray userArray = rest.users().getUsers(null);
+//		int userCount = userArray.length();
+//
+//		for (int i = 0; i < userCount; i++) {
+//			String userName = userArray.getJSONObject(i).getString("userName");
+//			String role = userArray.getJSONObject(i).getString("roles");
+//			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
+//				rest.users().deleteUser(userName, null);
+//			}
+//		}
 		
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
@@ -711,7 +711,7 @@ public class UsersPgTest extends SeleniumTest {
 	public void superDelUpdateOtherSuper() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("Add new Super user");
-		String userName = rest.getUser(null, DRoles.SUPER, true, false, true).
+		String userName = rest.getUser(null, DRoles.SUPER, true, false, false).
 				getString("userName");
 		
 		log.info("Login with default Super user");
@@ -724,9 +724,10 @@ public class UsersPgTest extends SeleniumTest {
 		page.getEditBtn().click();
 
 		UserModal modal = new UserModal(driver);
-		modal.fillData(null, "abc@gmail.com", "", "", "");
+		modal.getEmailInput().fill( "abc@gmail.com");
 		modal.getOkBtn().click();
 		page.saveAndConfirm();
+
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), "The operation 'update users' completed successfully.");
 		
 		page.grid().waitForRowsToLoad();

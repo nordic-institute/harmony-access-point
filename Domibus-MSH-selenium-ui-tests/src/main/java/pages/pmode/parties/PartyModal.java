@@ -36,8 +36,10 @@ public class PartyModal extends EditModal {
 	protected WebElement certFingerPrintInput;
 	@FindBy(css = "mat-dialog-container div:nth-child(2) > mat-card > mat-card-content > div > label")
 	protected WebElement importButton;
+
 	@FindBy(css = "#identifierTable")
 	protected WebElement identifierTable;
+
 	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(1)")
 	protected WebElement newIdentifierButton;
 	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(2)")
