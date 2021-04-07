@@ -53,14 +53,8 @@ public class AllPgTest extends SeleniumTest {
 
 			page.getSidebar().goToPage(ppage);
 
-			log.info("Clean given directory");
-			FileUtils.cleanDirectory(new File(data.downloadFolderPath()));
-
 			log.info("Click on download csv button");
 			String filename = page.pressSaveCsvAndSaveFile();
-			
-			log.info("Wait for download to complete");
-			page.wait.forXMillis(3000);
 
 			log.info("Check if file is downloaded at given location");
 			soft.assertTrue(filename != null, "File is downloaded successfully");

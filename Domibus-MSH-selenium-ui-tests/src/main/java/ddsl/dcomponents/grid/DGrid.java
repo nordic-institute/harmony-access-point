@@ -268,7 +268,6 @@ public class DGrid extends DComponent {
 	}
 
 
-
 	public ArrayList<HashMap<String, String>> getListedRowInfo() throws Exception {
 
 		ArrayList<HashMap<String, String>> listedRowInfo = new ArrayList<>();
@@ -562,7 +561,7 @@ public class DGrid extends DComponent {
 		log.info("checking file headers against column names");
 
 		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
-		if(!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)){
+		if (!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)) {
 			log.debug("UI columns = " + columnNames.toString());
 			log.debug("CSV columns = " + csvFileHeaders.toString());
 		}
@@ -680,7 +679,8 @@ public class DGrid extends DComponent {
 
 
 		log.info("checking individual records");
-		for (HashMap<String, String> gridRow : gridInfo) {
+		for (int i = 0; i < Math.min(gridInfo.size(), 10); i++) {
+			HashMap<String, String> gridRow = gridInfo.get(i);
 			boolean found = false;
 			for (CSVRecord record : records) {
 				if (csvRowVsGridRow(record, gridRow)) {
