@@ -630,6 +630,32 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    public void testDeleteMessages_emptySignal(@Mocked Session s, @Mocked EntityManager em1,
+                                               @Injectable UserMessageLogDto uml1,
+                                               @Injectable UserMessageLogDto uml2,
+                                               @Injectable Messaging messaging) {
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<Messaging> messagings = new ArrayList<>();
+        messagings.add(messaging);
+        new Expectations() {{
+            em1.unwrap(Session.class);
+            result = s;
+            messagingDao.findMessagings((List<String>) any);
+            result = messagings;
+            messaging.getSignalMessage();
+            result = null;
+        }};
+
+        Deencapsulation.setField(userMessageDefaultService, "em", em1);
+        userMessageDefaultService.deleteMessages(userMessageLogDtos);
+
+        new Verifications() {{
+            signalMessageLogDao.deleteMessageLogs(Collections.emptyList());
+            backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
+        }};
+    }
+
+    @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
                                              @Injectable UserMessage userMessage,
                                              @Injectable UserMessageLog userMessageLog,
