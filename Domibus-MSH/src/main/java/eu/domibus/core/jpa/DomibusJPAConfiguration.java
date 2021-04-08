@@ -75,7 +75,7 @@ public class DomibusJPAConfiguration {
             }
         }
         result.setJpaProperties(jpaProperties);
-
+        result.setMappingResources("mysql-orm.xml");
         return result;
     }
 

@@ -22,7 +22,8 @@ import java.util.Date;
 public class WSMessageLogEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "sequence", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "sequence", allocationSize = 1)
     @Column(name = "ID_PK")
     private long entityId;
 
