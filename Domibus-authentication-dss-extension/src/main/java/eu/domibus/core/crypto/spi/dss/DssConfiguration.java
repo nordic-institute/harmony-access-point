@@ -86,8 +86,6 @@ public class DssConfiguration {
 
     private final static String CACERT_PATH = "/lib/security/cacerts";
 
-    private TrustedListsCertificateSource tslCertificateSource;
-
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
 
@@ -201,9 +199,8 @@ public class DssConfiguration {
 
     @Bean
     public CommonsDataLoader dataLoader(ProxyHelper proxyHelper,KeyStore trustedListTrustStore) {
-        //CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
-        CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
-  //      commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
+        CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
+        commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         return commonsDataLoader;
     }
 
@@ -403,12 +400,13 @@ public class DssConfiguration {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
+
     @Bean
     public TLValidationJob job(LOTLSource europeanLOTL,CommonsDataLoader dataLoader,CacheCleaner cacheCleaner) {
         TLValidationJob job = new TLValidationJob();
         job.setOnlineDataLoader(onlineLoader(dataLoader));
         job.setOfflineDataLoader(offlineLoader(dataLoader));
-        job.setTrustedListCertificateSource(new TrustedListsCertificateSource());
+        job.setTrustedListCertificateSource(trustedListSource());
         job.setSynchronizationStrategy(new AcceptAllStrategy());
         job.setCacheCleaner(cacheCleaner);
 
@@ -492,11 +490,6 @@ public class DssConfiguration {
         fileLoader.setCacheExpirationTime(0);
         fileLoader.setFileCacheDirectory(cacheDirectory());
         return fileLoader;
-    }
-
-
-    public TrustedListsCertificateSource getCertificateSources() {
-        return tslCertificateSource;
     }
 
     @Bean

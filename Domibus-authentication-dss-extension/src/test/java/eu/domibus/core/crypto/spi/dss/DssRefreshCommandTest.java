@@ -17,7 +17,7 @@ import java.util.HashMap;
 @RunWith(JMockit.class)
 public class DssRefreshCommandTest {
 
-   /* @Test
+    @Test
     public void canHandleTrue() {
         Assert.assertTrue(new DssRefreshCommand(null,null).canHandle(DssRefreshCommand.COMMAND_NAME));
     }
@@ -68,10 +68,10 @@ public class DssRefreshCommandTest {
             domibusTSLValidationJob.refresh();times=0;
             domibusTSLValidationJob.initRepository();times=0;
         }};
-    }*/
+    }
 
 
-   /* @Test @TODO weird jmockit behavior here, fix later.
+    @Test //@TODO weird jmockit behavior here, fix later.
     public void initWithCacheDirectoryEmpty(@Mocked DomibusTSLValidationJob domibusTSLValidationJob, @Mocked DssExtensionPropertyManager dssExtensionPropertyManager,@Mocked Path path) throws IOException {
         new Expectations(){{
             String cachePath = "This directory exists";
@@ -90,5 +90,5 @@ public class DssRefreshCommandTest {
             domibusTSLValidationJob.refresh();times=0;
             domibusTSLValidationJob.initRepository();times=0;
         }};
-    }*/
+    }
 }

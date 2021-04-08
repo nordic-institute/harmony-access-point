@@ -55,8 +55,4 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<TLSourc
             return null;
         }
     }
-
-    protected KeyStoreCertificateSource initKeyStoreCertificateSource(String customListKeystorePath, String customListKeystoreType, String customListKeystorePassword) throws IOException {
-        return new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword);
-    }
 }

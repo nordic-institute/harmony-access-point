@@ -72,8 +72,6 @@ public class CustomTrustedListPropertyMapperTest {
             domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_2_CODE);
             this.result = customList2Code;
 
-            customTrustedListPropertyMapper.initKeyStoreCertificateSource(keystorePath, keystoreType, keystorePasswd);
-            this.result = keyStoreCertificateSource;
         }};
         List<TLSource> otherTrustedLists = customTrustedListPropertyMapper.map();
         Assert.assertEquals(2, otherTrustedLists.size());

@@ -25,26 +25,6 @@ public class DomibusDataLoader extends CommonsDataLoader {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDataLoader.class);
 
-    private final static String CACERT_PATH = "/lib/security/cacerts";
-
-    @Value("${domibus.dss.ssl.trust.store.path}")
-    private String dssTlsTrustStorePath;
-
-    @Value("${domibus.dss.ssl.trust.store.type}")
-    private String dssTlsTrustStoreType;
-
-    @Value("${domibus.dss.ssl.trust.store.password}")
-    private String dssTlsTrustStorePassword;
-
-    @Value("${domibus.dss.ssl.cacert.path}")
-    private String cacertPath;
-
-    @Value("${domibus.dss.ssl.cacert.type}")
-    private String cacertType;
-
-    @Value("${domibus.dss.ssl.cacert.password}")
-    private String cacertPassword;
-
     private KeyStore trustStore;
 
     public DomibusDataLoader(KeyStore trustStore) {
