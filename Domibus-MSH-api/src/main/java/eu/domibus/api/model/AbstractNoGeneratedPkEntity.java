@@ -5,11 +5,11 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public class AbstractNoGeneratedPkEntity implements DomibusBaseEntity {
+public class AbstractNoGeneratedPkEntity extends AbstractBaseAuditEntity {
 
     @Id
     @Column(name = "ID_PK")
-    private long entityId;
+    protected long entityId;
 
     @Override
     public long getEntityId() {

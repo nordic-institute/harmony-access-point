@@ -32,6 +32,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -158,7 +159,9 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         if (pullReceiptMatcher.matchReliableReceipt(legConfiguration.getReliability()) && legConfiguration.getReliability().isNonRepudiation()) {
             RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageId(messageId);
             try {
-                soapMessage = soapUtil.createSOAPMessage(rawEnvelopeDto.getRawMessage());
+                final byte[] rawMessage = rawEnvelopeDto.getRawMessage();
+                final String rawXml = new String(rawMessage, StandardCharsets.UTF_8);
+                soapMessage = soapUtil.createSOAPMessage(rawXml);
             } catch (ParserConfigurationException | SOAPException | SAXException | IOException e) {
                 throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "Raw message found in db but impossible to restore it");
             }

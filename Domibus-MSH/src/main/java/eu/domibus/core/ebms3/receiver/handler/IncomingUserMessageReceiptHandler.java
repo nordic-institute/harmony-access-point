@@ -81,8 +81,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     @Counter(clazz = IncomingUserMessageReceiptHandler.class, value = "incoming_user_message_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.debug("Processing UserMessage receipt");
-        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        final SOAPMessage soapMessage = handleUserMessageReceipt(request, messaging.getSignalMessage());
+        SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        final SOAPMessage soapMessage = handleUserMessageReceipt(request, signalMessageResult.getSignalMessage());
         return soapMessage;
     }
 

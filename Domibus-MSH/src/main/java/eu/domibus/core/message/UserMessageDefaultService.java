@@ -741,10 +741,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected byte[] messageToBytes(UserMessage userMessage) {
-        Messaging message = new Messaging();
-        message.setUserMessage(userMessage);
-
-        return messageConverterService.getAsByteArray(message);
+        return messageConverterService.getAsByteArray(userMessage);
     }
 
     protected String getPayloadName(PartInfo info) {
@@ -782,7 +779,8 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public Map<String,String> getProperties(Long messageEntityId) {
         HashMap<String, String> properties = new HashMap<>();
-        final List<MessageProperty> propertiesForMessageId = messagePropertyDao.findMessageProperties(messageEntityId);
+        final UserMessage userMessage = userMessageDao.read(messageEntityId);
+        final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
         propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
         return properties;
     }

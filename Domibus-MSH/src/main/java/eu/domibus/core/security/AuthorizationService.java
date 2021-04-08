@@ -1,8 +1,6 @@
 package eu.domibus.core.security;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.ebms3.model.Ebms3PullRequest;
-import eu.domibus.api.model.PullRequest;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;

@@ -46,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 /**
@@ -118,7 +119,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
         SOAPMessage request;
         try {
-            request = soapUtil.createSOAPMessage(rawXmlByMessageId.getRawMessage());
+            final String rawXml = new String(rawXmlByMessageId.getRawMessage(), StandardCharsets.UTF_8);
+            request = soapUtil.createSOAPMessage(rawXml);
         } catch (SOAPException | IOException | ParserConfigurationException | SAXException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0201, "Could not generate Receipt. Check security header and non-repudiation settings", messageId, e);
@@ -157,7 +159,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
                     messageId = existingSignalMessage.getSignalMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp(existingSignalMessage.getTimestamp());
-                    requestMessage = new StreamSource(new StringReader(rawXmlByMessageId.getRawMessage()));
+                    final String rawXml = new String(rawXmlByMessageId.getRawMessage(), StandardCharsets.UTF_8);
+                    requestMessage = new StreamSource(new StringReader(rawXml));
                 } else {
                     messageId = messageIdGenerator.generateMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp();

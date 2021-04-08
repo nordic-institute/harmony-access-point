@@ -15,12 +15,9 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_SIGNAL_MESSAGE_LOG")
 @NamedQueries({
-        @NamedQuery(name = "SignalMessageLog.findByMessageId", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "SignalMessageLog.getMessageStatus", query = "select signalMessageLog.messageStatus " +
-                "from SignalMessageLog signalMessageLog left join fetch signalMessageLog.messageStatus" +
-                "where signalMessageLog.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "SignalMessageLog.findByMessageIdAndRole", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.messageId=:MESSAGE_ID and signalMessageLog.mshRole=:MSH_ROLE"),
-        @NamedQuery(name = "SignalMessageLog.deleteMessageLogs", query = "delete from SignalMessageLog sml where sml.messageId in :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessageLog.findByMessageId", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.signalMessage.signalMessageId=:MESSAGE_ID"),
+        @NamedQuery(name = "SignalMessageLog.findByMessageIdAndRole", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.signalMessage.signalMessageId=:MESSAGE_ID and signalMessageLog.mshRole=:MSH_ROLE"),
+        @NamedQuery(name = "SignalMessageLog.deleteMessageLogs", query = "delete from SignalMessageLog sml where sml.signalMessage.signalMessageId in :MESSAGEIDS"),
 })
 public class SignalMessageLog extends AbstractNoGeneratedPkEntity {
 
