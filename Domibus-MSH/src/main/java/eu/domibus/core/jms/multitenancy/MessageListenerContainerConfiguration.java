@@ -27,6 +27,7 @@ import org.springframework.scheduling.SchedulingTaskExecutor;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
 import javax.jms.Queue;
+import javax.jms.Session;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -224,7 +225,7 @@ public class MessageListenerContainerConfiguration {
         manageTimeout(domain, destination, domainPropertyConcurrency, messageListenerContainer);
 
         messageListenerContainer.setSessionTransacted(true);
-        messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         messageListenerContainer.setTaskExecutor(schedulingTaskExecutor);
 
         messageListenerContainer.afterPropertiesSet();
