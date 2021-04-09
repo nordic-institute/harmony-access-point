@@ -532,7 +532,6 @@ public class UserMessageDefaultService implements UserMessageService {
         return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
-    @Transactional
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
