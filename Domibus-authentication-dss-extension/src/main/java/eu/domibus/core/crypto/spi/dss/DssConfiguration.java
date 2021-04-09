@@ -8,7 +8,6 @@ import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.alert.ExceptionOnStatusAlert;
-import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.service.crl.OnlineCRLSource;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
@@ -61,7 +60,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -284,7 +282,7 @@ public class DssConfiguration {
 
     @Bean
     public DssRefreshCommand dssRefreshCommand(TLValidationJob job, DssExtensionPropertyManager dssExtensionPropertyManager,File cacheDirectory) {
-        return new DssRefreshCommand(job, dssExtensionPropertyManager,cacheDirectory);
+        return new DssRefreshCommand(job, cacheDirectory);
     }
 
    @Bean

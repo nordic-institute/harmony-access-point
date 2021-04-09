@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.tsl.cache.CacheCleaner;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
+import org.apache.commons.io.FileUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,15 +33,12 @@ public class DssRefreshCommand implements CommandExtTask {
 
     private TLValidationJob domibusTSLValidationJob;
 
-    private DssExtensionPropertyManager dssExtensionPropertyManager;
 
     private File cacheDirectory;
 
-    private CacheCleaner cacheCleaner;
 
-    public DssRefreshCommand(TLValidationJob domibusTSLValidationJob, DssExtensionPropertyManager dssExtensionPropertyManager, File cacheDirectory) {
+    public DssRefreshCommand(TLValidationJob domibusTSLValidationJob, File cacheDirectory) {
         this.domibusTSLValidationJob = domibusTSLValidationJob;
-        this.dssExtensionPropertyManager=dssExtensionPropertyManager;
         this.cacheDirectory=cacheDirectory;
     }
 
@@ -62,6 +59,10 @@ public class DssRefreshCommand implements CommandExtTask {
     @PostConstruct
     public void init(){
         //TODO please refer to the following ticket EDELIVERY-7555 and refactor the code.
+        loadTrustedList();
+    }
+
+    protected void loadTrustedList() {
         LOG.info("Executing command to refresh DSS trusted lists at:[{}]", LocalDateTime.now());
         Path cachePath = cacheDirectory.toPath();
         String serverCacheDirectoryPath = cachePath.toString();
@@ -69,6 +70,7 @@ public class DssRefreshCommand implements CommandExtTask {
             LOG.error("Dss cache directory[{}] should be created by the system, please check permissions", serverCacheDirectoryPath);
             return;
         }
+
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(cachePath)) {
             Iterator files = ds.iterator();
             if (!files.hasNext()) {

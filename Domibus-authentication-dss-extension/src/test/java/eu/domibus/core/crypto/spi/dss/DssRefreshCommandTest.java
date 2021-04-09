@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
@@ -8,7 +9,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * @author Thomas Dussart
@@ -19,76 +26,81 @@ public class DssRefreshCommandTest {
 
     @Test
     public void canHandleTrue() {
-        Assert.assertTrue(new DssRefreshCommand(null,null).canHandle(DssRefreshCommand.COMMAND_NAME));
+        Assert.assertTrue(new DssRefreshCommand(null, null).canHandle(DssRefreshCommand.COMMAND_NAME));
     }
 
     @Test
     public void canHandleFalse() {
-        Assert.assertFalse(new DssRefreshCommand(null,null).canHandle("test"));
+        Assert.assertFalse(new DssRefreshCommand(null, null).canHandle("test"));
     }
 
     @Test
-    public void executeRefresh(@Mocked DomibusTSLValidationJob domibusTSLValidationJob, @Mocked DssExtensionPropertyManager dssExtensionPropertyManager) {
-        new Expectations(){{
-            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH);
-            result="false";
-        }};
-
-        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(domibusTSLValidationJob, dssExtensionPropertyManager);
+    public void executeRefresh(@Mocked TLValidationJob tlValidationJob) {
+        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(tlValidationJob, null);
         dssRefreshCommand.execute(new HashMap<>());
         new Verifications(){{
-            domibusTSLValidationJob.clearRepository();times=0;
-            domibusTSLValidationJob.refresh();times=1;
+            tlValidationJob.onlineRefresh();times=1;
         }};
     }
+
+
 
     @Test
-    public void executeFullRefresh(@Mocked DomibusTSLValidationJob domibusTSLValidationJob, @Mocked DssExtensionPropertyManager dssExtensionPropertyManager){
+    public void initWithNonExistingDirectory(@Mocked TLValidationJob tlValidationJob, @Mocked File cacheDirectory,@Mocked LocalDateTime localDateTime) {
         new Expectations(){{
-            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH);
-            result="true";
+            localDateTime.now();
+            result=null;
+            cacheDirectory.toPath().toFile().exists();
+            result=false;
         }};
-        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(domibusTSLValidationJob, dssExtensionPropertyManager);
-        dssRefreshCommand.execute(new HashMap<>());
+        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(tlValidationJob, cacheDirectory);
+        dssRefreshCommand.loadTrustedList();
         new Verifications(){{
-            domibusTSLValidationJob.clearRepository();times=1;
-            domibusTSLValidationJob.refresh();times=1;
+            tlValidationJob.onlineRefresh();times=0;
+            tlValidationJob.offlineRefresh();times=0;
         }};
     }
+
 
     @Test
-    public void initWithInvalidCacheDirectoryPath(@Mocked DomibusTSLValidationJob domibusTSLValidationJob, @Mocked DssExtensionPropertyManager dssExtensionPropertyManager) {
+    public void initWithCacheDirectoryEmpty(@Mocked TLValidationJob tlValidationJob, @Mocked File cacheDirectory, @Mocked Path path, @Mocked LocalDateTime localDateTime, @Mocked Files files, @Mocked Iterator iterator) throws  IOException {
         new Expectations(){{
-            domibusTSLValidationJob.getCacheDirectoryPath();
-            result="this directory does not exists";
-        }};
-        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(domibusTSLValidationJob, dssExtensionPropertyManager);
-        dssRefreshCommand.init();
-        new Verifications(){{
-            domibusTSLValidationJob.refresh();times=0;
-            domibusTSLValidationJob.initRepository();times=0;
-        }};
-    }
-
-
-    @Test //@TODO weird jmockit behavior here, fix later.
-    public void initWithCacheDirectoryEmpty(@Mocked DomibusTSLValidationJob domibusTSLValidationJob, @Mocked DssExtensionPropertyManager dssExtensionPropertyManager,@Mocked Path path) throws IOException {
-        new Expectations(){{
-            String cachePath = "This directory exists";
-            domibusTSLValidationJob.getCacheDirectoryPath();
-            this.result = cachePath;
-            Paths.get(cachePath);
-            this.result=path;
+            localDateTime.now();
+            result=null;
+            cacheDirectory.toPath();
+            result=path;
             path.toFile().exists();
             result=true;
-            Files.newDirectoryStream(path).iterator().hasNext();
+            files.newDirectoryStream(path).iterator();
+            result=iterator;
+            iterator.hasNext();
+            result=false;
+        }};
+        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(tlValidationJob, cacheDirectory);
+        dssRefreshCommand.loadTrustedList();
+        new Verifications(){{
+            tlValidationJob.onlineRefresh();times=1;
+        }};
+    }
+
+    @Test
+    public void initWithCacheDirectoryNotEmpty(@Mocked TLValidationJob tlValidationJob, @Mocked File cacheDirectory, @Mocked Path path, @Mocked LocalDateTime localDateTime, @Mocked Files files, @Mocked Iterator iterator) throws  IOException {
+        new Expectations(){{
+            localDateTime.now();
+            result=null;
+            cacheDirectory.toPath();
+            result=path;
+            path.toFile().exists();
+            result=true;
+            files.newDirectoryStream(path).iterator();
+            result=iterator;
+            iterator.hasNext();
             result=true;
         }};
-        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(domibusTSLValidationJob, dssExtensionPropertyManager);
-        dssRefreshCommand.init();
+        DssRefreshCommand dssRefreshCommand = new DssRefreshCommand(tlValidationJob, cacheDirectory);
+        dssRefreshCommand.loadTrustedList();
         new Verifications(){{
-            domibusTSLValidationJob.refresh();times=0;
-            domibusTSLValidationJob.initRepository();times=0;
+            tlValidationJob.offlineRefresh();times=1;
         }};
     }
 }

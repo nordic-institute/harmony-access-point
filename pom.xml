@@ -72,7 +72,7 @@
         <dependency.check.version>6.0.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
-        <domibus.dss.version>1.0-SNAPSHOT</domibus.dss.version>
+        <domibus.dss.version>5.0-SNAPSHOT</domibus.dss.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
