@@ -2,6 +2,7 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
@@ -46,7 +47,7 @@ public class DssRefreshCommandTest {
 
 
     @Test
-    public void initWithNonExistingDirectory(@Mocked TLValidationJob tlValidationJob, @Mocked File cacheDirectory,@Mocked LocalDateTime localDateTime) {
+    public void initWithNonExistingDirectory(@Injectable TLValidationJob tlValidationJob, @Injectable File cacheDirectory, @Mocked LocalDateTime localDateTime) {
         new Expectations(){{
             localDateTime.now();
             result=null;
@@ -63,7 +64,7 @@ public class DssRefreshCommandTest {
 
 
     @Test
-    public void initWithCacheDirectoryEmpty(@Mocked TLValidationJob tlValidationJob, @Mocked File cacheDirectory, @Mocked Path path, @Mocked LocalDateTime localDateTime, @Mocked Files files, @Mocked Iterator iterator) throws  IOException {
+    public void initWithCacheDirectoryEmpty(@Injectable TLValidationJob tlValidationJob, @Injectable File cacheDirectory, @Injectable Path path, @Mocked LocalDateTime localDateTime, @Mocked Files files, @Mocked Iterator iterator) throws  IOException {
         new Expectations(){{
             localDateTime.now();
             result=null;

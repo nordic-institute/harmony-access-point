@@ -72,7 +72,6 @@
         <dependency.check.version>6.0.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
-        <domibus.dss.version>5.0-SNAPSHOT</domibus.dss.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -923,67 +922,67 @@
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-document</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-tsl-validation</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-utils-apache-commons</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-service</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-utils</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-policy-jaxb</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-model</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>validation-policy</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-xades</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-simple-report-jaxb</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-detailed-report-jaxb</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-enumerations</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.domibus</groupId>
                 <artifactId>dss-spi</artifactId>
-                <version>${domibus.dss.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!--UUMDS extension -->
 

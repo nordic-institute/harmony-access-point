@@ -77,10 +77,8 @@ public class CustomTrustedListPropertyMapperTest {
         Assert.assertEquals(2, otherTrustedLists.size());
         TLSource otherTrustedList = otherTrustedLists.get(0);
         Assert.assertEquals(customList1Url, otherTrustedList.getUrl());
-        //Assert.assertEquals(customList1Code, otherTrustedList.getCountryCode());
 
         otherTrustedList = otherTrustedLists.get(1);
         Assert.assertEquals(customList2Url, otherTrustedList.getUrl());
-        //Assert.assertEquals(customList2Code, otherTrustedList.getCountryCode());
     }
 }

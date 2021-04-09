@@ -1,9 +1,10 @@
 Domibus 5.0 (from 4.2.1)
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
-                - Remove domibus.authentication.dss.custom.trusted.lists.list1.code from /conf/domibus/extensions/config/authentication-dss-extension.properties
-                - Remove property domibus.authentication.dss.full.tls.refresh from /conf/domibus/extensions/config/authentication-dss-extension.properties
-                - Remove property domibus.authentication.dss.lotl.country.code from /conf/domibus/extensions/config/authentication-dss-extension.properties
+                - [DSS only]
+                    o Remove domibus.authentication.dss.custom.trusted.lists.list1.code from /conf/domibus/extensions/config/authentication-dss-extension.properties
+                    o Remove property domibus.authentication.dss.full.tls.refresh from /conf/domibus/extensions/config/authentication-dss-extension.properties
+                    o Remove property domibus.authentication.dss.lotl.country.code from /conf/domibus/extensions/config/authentication-dss-extension.properties
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:
