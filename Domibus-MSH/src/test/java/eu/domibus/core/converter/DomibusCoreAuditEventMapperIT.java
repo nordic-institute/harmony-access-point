@@ -90,28 +90,26 @@ public class DomibusCoreAuditEventMapperIT {
 
         @Bean
         public AuditMapper auditMapper() {
-            AuditMapperImpl auditMapper = new AuditMapperImpl();
-            return auditMapper;
+            return new AuditMapperImpl();
         }
 
         @Bean
         public DomibusCoreMapper domibusCoreMapper() {
-            DomibusCoreMapper domibusCoreMapper = new DomibusCoreMapperImpl();
-            return domibusCoreMapper;
+            return new DomibusCoreMapperImpl();
         }
     }
 
     @Autowired
-    DomibusCoreMapper domibusCoreMapper;
+    private DomibusCoreMapper domibusCoreMapper;
 
     @Autowired
-    AuditMapper auditMapper;
+    private AuditMapper auditMapper;
 
     @Autowired
-    ObjectService objectService;
+    private ObjectService objectService;
 
     @Test
-    public void testConvertPartyResponseRo() throws Exception {
+    public void testConvertPartyResponseRo() {
         PartyResponseRo toConvert = (PartyResponseRo) objectService.createInstance(PartyResponseRo.class);
         final Party converted = domibusCoreMapper.partyResponseRoToParty(toConvert);
         final PartyResponseRo convertedBack = domibusCoreMapper.partyToPartyResponseRo(converted);
@@ -123,7 +121,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertParty() throws Exception {
+    public void testConvertParty() {
         Party toConvert = (Party) objectService.createInstance(Party.class);
         final PartyResponseRo converted = domibusCoreMapper.partyToPartyResponseRo(toConvert);
         final Party convertedBack = domibusCoreMapper.partyResponseRoToParty(converted);
@@ -131,7 +129,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertDomain() throws Exception {
+    public void testConvertDomain() {
         DomainSpi toConvert = (DomainSpi) objectService.createInstance(DomainSpi.class);
         final Domain converted = domibusCoreMapper.domainSpiToDomain(toConvert);
         final DomainSpi convertedBack = domibusCoreMapper.domainToDomainSpi(converted);
@@ -139,7 +137,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertBackendFilter() throws Exception {
+    public void testConvertBackendFilter() {
         BackendFilter toConvert = (BackendFilter) objectService.createInstance(BackendFilter.class);
         final MessageFilterRO converted = domibusCoreMapper.backendFilterToMessageFilterRO(toConvert);
         final BackendFilter convertedBack = domibusCoreMapper.messageFilterROToBackendFilter(converted);
@@ -148,7 +146,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertBackendFilterEntity() throws Exception {
+    public void testConvertBackendFilterEntity() {
         BackendFilter toConvert = (BackendFilter) objectService.createInstance(BackendFilter.class);
         final BackendFilterEntity converted = domibusCoreMapper.backendFilterToBackendFilterEntity(toConvert);
         final BackendFilter convertedBack = domibusCoreMapper.backendFilterEntityToBackendFilter(converted);
@@ -157,7 +155,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertRoutingCriteria() throws Exception {
+    public void testConvertRoutingCriteria() {
         RoutingCriteria toConvert = (RoutingCriteria) objectService.createInstance(RoutingCriteria.class);
         final RoutingCriteriaEntity converted = domibusCoreMapper.routingCriteriaToRoutingCriteriaEntity(toConvert);
         final RoutingCriteria convertedBack = domibusCoreMapper.routingCriteriaEntityToRoutingCriteria(converted);
@@ -165,7 +163,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertMessageAttemptEntity() throws Exception {
+    public void testConvertMessageAttemptEntity() {
         MessageAttemptEntity toConvert = (MessageAttemptEntity) objectService.createInstance(MessageAttemptEntity.class);
         final MessageAttempt converted = domibusCoreMapper.messageAttemptEntityToMessageAttempt(toConvert);
         final MessageAttemptEntity convertedBack = domibusCoreMapper.messageAttemptToMessageAttemptEntity(converted);
@@ -173,7 +171,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertPartProperties() throws Exception {
+    public void testConvertPartProperties() {
         PartPropertiesDTO toConvert = (PartPropertiesDTO) objectService.createInstance(PartPropertiesDTO.class);
         final PartProperties converted = domibusCoreMapper.partPropertiesDTOToPartProperties(toConvert);
         final PartPropertiesDTO convertedBack = domibusCoreMapper.partPropertiesToPartPropertiesDTO(converted);
@@ -181,7 +179,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertProcess() throws Exception {
+    public void testConvertProcess() {
         Process toConvert = (Process) objectService.createInstance(Process.class);
         final eu.domibus.common.model.configuration.Process converted = domibusCoreMapper.processAPIToProcess(toConvert);
         final Process convertedBack = domibusCoreMapper.processToProcessAPI(converted);
@@ -189,7 +187,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUserMessage() throws Exception {
+    public void testConvertUserMessage() {
         UserMessageDTO toConvert = (UserMessageDTO) objectService.createInstance(UserMessageDTO.class);
         final UserMessage converted = domibusCoreMapper.userMessageDTOToUserMessage(toConvert);
         final UserMessageDTO convertedBack = domibusCoreMapper.userMessageToUserMessageDTO(converted);
@@ -197,7 +195,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUserMessageDTO() throws Exception {
+    public void testConvertUserMessageDTO() {
         PullRequestDTO toConvert = (PullRequestDTO) objectService.createInstance(PullRequestDTO.class);
         final PullRequest converted = domibusCoreMapper.pullRequestDTOToPullRequest(toConvert);
         final PullRequestDTO convertedBack = domibusCoreMapper.pullRequestToPullRequestDTO(converted);
@@ -205,7 +203,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertPluginUserRO() throws Exception {
+    public void testConvertPluginUserRO() {
         PluginUserRO toConvert = (PluginUserRO) objectService.createInstance(PluginUserRO.class);
         toConvert.setCertificateId(null);
         toConvert.setAuthenticationType(AuthType.BASIC.name());
@@ -221,7 +219,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertEvent() throws Exception {
+    public void testConvertEvent() {
         PModeResponseRO toConvert = (PModeResponseRO) objectService.createInstance(PModeResponseRO.class);
         final PModeArchiveInfo converted = domibusCoreMapper.pModeResponseROToPModeArchiveInfo(toConvert);
         final PModeResponseRO convertedBack = domibusCoreMapper.pModeArchiveInfoToPModeResponseRO(converted);
@@ -230,7 +228,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertTrustStore() throws Exception {
+    public void testConvertTrustStore() {
         TrustStoreRO toConvert = (TrustStoreRO) objectService.createInstance(TrustStoreRO.class);
         final TrustStoreEntry converted = domibusCoreMapper.trustStoreROToTrustStoreEntry(toConvert);
         final TrustStoreRO convertedBack = domibusCoreMapper.trustStoreEntryToTrustStoreRO(converted);
@@ -240,7 +238,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertAuditResponse() throws Exception {
+    public void testConvertAuditResponse() {
         AuditResponseRo toConvert = (AuditResponseRo) objectService.createInstance(AuditResponseRo.class);
         final AuditLog converted = domibusCoreMapper.auditResponseRoToAuditLog(toConvert);
         final AuditResponseRo convertedBack = domibusCoreMapper.auditLogToAuditResponseRo(converted);
@@ -248,7 +246,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertDomainRO() throws Exception {
+    public void testConvertDomainRO() {
         DomainRO toConvert = (DomainRO) objectService.createInstance(DomainRO.class);
         final Domain converted = domibusCoreMapper.domainROToDomain(toConvert);
         final DomainRO convertedBack = domibusCoreMapper.domainToDomainRO(converted);
@@ -256,7 +254,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertDomainToDomainDTO() throws Exception {
+    public void testConvertDomainToDomainDTO() {
         Domain toConvert = (Domain) objectService.createInstance(Domain.class);
         final DomainDTO converted = domibusCoreMapper.domainToDomainDTO(toConvert);
         final Domain convertedBack = domibusCoreMapper.domainDTOToDomain(converted);
@@ -264,7 +262,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertDomainDTOToDomain() throws Exception {
+    public void testConvertDomainDTOToDomain() {
         DomainDTO toConvert = (DomainDTO) objectService.createInstance(DomainDTO.class);
         final Domain converted = domibusCoreMapper.domainDTOToDomain(toConvert);
         final DomainDTO convertedBack = domibusCoreMapper.domainToDomainDTO(converted);
@@ -272,7 +270,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUserResponseRO() throws Exception {
+    public void testConvertUserResponseRO() {
         UserResponseRO toConvert = (UserResponseRO) objectService.createInstance(UserResponseRO.class);
         final User converted = domibusCoreMapper.userResponseROToUser(toConvert);
         final UserResponseRO convertedBack = domibusCoreMapper.userToUserResponseRO(converted);
@@ -282,7 +280,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUser() throws Exception {
+    public void testConvertUser() {
         User toConvert = (User) objectService.createInstance(User.class);
         final eu.domibus.core.user.ui.User converted = domibusCoreMapper.userApiToUserSecurity(toConvert);
         final User convertedBack = domibusCoreMapper.userSecurityToUserApi(converted);
@@ -294,7 +292,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertAuditLog() throws Exception {
+    public void testConvertAuditLog() {
         AuditLog toConvert = (AuditLog) objectService.createInstance(AuditLog.class);
         final Audit converted = auditMapper.auditLogToAudit(toConvert);
         final AuditLog convertedBack = domibusCoreMapper.auditToAuditLog(converted);
@@ -307,7 +305,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertLoggingLevelRO() throws Exception {
+    public void testConvertLoggingLevelRO() {
         LoggingLevelRO toConvert = (LoggingLevelRO) objectService.createInstance(LoggingLevelRO.class);
         final LoggingEntry converted = domibusCoreMapper.loggingLevelROToLoggingEntry(toConvert);
         final LoggingLevelRO convertedBack = domibusCoreMapper.loggingEntryToLoggingLevelRO(converted);
@@ -315,7 +313,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertConfigurationParty() throws Exception {
+    public void testConvertConfigurationParty() {
         Party toConvert = (Party) objectService.createInstance(Party.class);
         final eu.domibus.common.model.configuration.Party converted = domibusCoreMapper.partyToConfigurationParty(toConvert);
         final Party convertedBack = domibusCoreMapper.configurationPartyToParty(converted);
@@ -326,7 +324,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertProcessRo() throws Exception {
+    public void testConvertProcessRo() {
         ProcessRo toConvert = (ProcessRo) objectService.createInstance(ProcessRo.class);
         final Process converted = domibusCoreMapper.processRoToProcess(toConvert);
         final ProcessRo convertedBack = domibusCoreMapper.processToProcessRo(converted);
@@ -334,7 +332,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertMessageLogRO() throws Exception {
+    public void testConvertMessageLogRO() {
         MessageLogRO toConvert = (MessageLogRO) objectService.createInstance(MessageLogRO.class);
         final MessageLogInfo converted = domibusCoreMapper.messageLogROToMessageLogInfo(toConvert);
         final MessageLogRO convertedBack = domibusCoreMapper.messageLogInfoToMessageLogRO(converted);
@@ -342,7 +340,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUIMessageEntity() throws Exception {
+    public void testConvertUIMessageEntity() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final UIMessageDiffEntity converted = domibusCoreMapper.uiMessageEntityToUIMessageDiffEntity(toConvert);
         final UIMessageEntity convertedBack = domibusCoreMapper.uiMessageDiffEntityToUIMessageEntity(converted);
@@ -355,7 +353,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUIMessageEntityMessageLog() throws Exception {
+    public void testConvertUIMessageEntityMessageLog() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final MessageLogRO converted = domibusCoreMapper.uiMessageEntityToMessageLogRO(toConvert);
         final UIMessageEntity convertedBack = domibusCoreMapper.messageLogROToUIMessageEntity(converted);
@@ -365,17 +363,18 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUIMessageEntityMessageLogInfo() throws Exception {
+    public void testConvertUIMessageEntityMessageLogInfo() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final MessageLogInfo converted = domibusCoreMapper.uiMessageEntityToMessageLogInfo(toConvert);
         final UIMessageEntity convertedBack = domibusCoreMapper.messageLogInfoToUIMessageEntity(converted);
         convertedBack.setLastModified(toConvert.getLastModified());
         convertedBack.setEntityId(toConvert.getEntityId());
+        convertedBack.getTimezoneOffset().setEntityId(toConvert.getTimezoneOffset().getEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
     @Test
-    public void testConvertUIMessageEntitySignalMessageLog() throws Exception {
+    public void testConvertUIMessageEntitySignalMessageLog() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final SignalMessageLog converted = domibusCoreMapper.uiMessageEntityToSignalMessageLog(toConvert);
         final UIMessageEntity convertedBack = domibusCoreMapper.signalMessageLogToUIMessageEntity(converted);
@@ -393,7 +392,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUIMessageEntityUserMessageLog() throws Exception {
+    public void testConvertUIMessageEntityUserMessageLog() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final UserMessageLog converted = domibusCoreMapper.uiMessageEntityToUserMessageLog(toConvert);
         final UIMessageEntity convertedBack = domibusCoreMapper.userMessageLogToUIMessageEntity(converted);
@@ -410,7 +409,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertCommand() throws Exception {
+    public void testConvertCommand() {
         Command toConvert = (Command) objectService.createInstance(Command.class);
         final CommandEntity converted = domibusCoreMapper.commandToCommandEntity(toConvert);
         final Command convertedBack = domibusCoreMapper.commandEntityToCommand(converted);
@@ -418,7 +417,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertCertificateEntry() throws Exception {
+    public void testConvertCertificateEntry() {
         CertificateEntry toConvert = new CertificateEntry();
         toConvert.setAlias("alias1");
         toConvert.setCertificate(new X509CertImpl());
@@ -428,7 +427,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertErrorLogRO() throws Exception {
+    public void testConvertErrorLogRO() {
         ErrorLogRO toConvert = (ErrorLogRO) objectService.createInstance(ErrorLogRO.class);
         final ErrorLogEntry converted = domibusCoreMapper.errorLogROToErrorLogEntry(toConvert);
         final ErrorLogRO convertedBack = domibusCoreMapper.errorLogEntryToErrorLogRO(converted);
@@ -436,7 +435,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertUserMessageApi() throws Exception {
+    public void testConvertUserMessageApi() {
         eu.domibus.api.usermessage.domain.CollaborationInfo collaborationInfo = (eu.domibus.api.usermessage.domain.CollaborationInfo) objectService.createInstance(eu.domibus.api.usermessage.domain.CollaborationInfo.class);
         eu.domibus.api.usermessage.domain.UserMessage toConvert = new eu.domibus.api.usermessage.domain.UserMessage();
         toConvert.setCollaborationInfo(collaborationInfo);
@@ -446,7 +445,7 @@ public class DomibusCoreAuditEventMapperIT {
     }
 
     @Test
-    public void testConvertList() throws Exception {
+    public void testConvertList() {
         MessageAttemptEntity toConvert1 = (MessageAttemptEntity) objectService.createInstance(MessageAttemptEntity.class);
         MessageAttemptEntity toConvert2 = (MessageAttemptEntity) objectService.createInstance(MessageAttemptEntity.class);
         List<MessageAttemptEntity> toConvertList = new ArrayList<>();

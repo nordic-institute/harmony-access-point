@@ -42,6 +42,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -195,6 +196,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private UserMessageDao userMessageDao;
 
+    @Autowired
+    private ReprogrammableService reprogrammableService;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -271,7 +275,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final Date currentDate = new Date();
         userMessageLog.setRestored(currentDate);
         userMessageLog.setFailed(null);
-        userMessageLog.setNextAttempt(currentDate);
+        reprogrammableService.setRescheduleInfo(userMessageLog, currentDate);
 
         Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog, messageId);
         LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
@@ -320,7 +324,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
-        userMessageLog.setNextAttempt(new Date());
+        reprogrammableService.setRescheduleInfo(userMessageLog, new Date());
         userMessageLogDao.update(userMessageLog);
         scheduleSending(userMessage, userMessageLog);
     }

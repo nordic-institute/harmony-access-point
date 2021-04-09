@@ -17,6 +17,7 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -77,16 +78,11 @@ public class PullMessageEbms3ServiceImplTest {
     @Injectable
     MessageRetentionDefaultService messageRetentionService;
 
+    @Injectable
+    private ReprogrammableService reprogrammableService;
+
     @Tested
     private PullMessageServiceImpl pullMessageService;
-
-    @Test
-    public void updatePullMessageAfterRequest() {
-    }
-
-    @Test
-    public void updatePullMessageAfterReceipt() {
-    }
 
     @Test
     public void delete() {
@@ -280,7 +276,7 @@ public class PullMessageEbms3ServiceImplTest {
         pullMessageService.waitingForCallBack(legConfiguration, userMessageLog);
         new Verifications() {{
             pullMessageStateService.sendFailed(userMessageLog);
-            lock.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             messagingLockDao.save(lock);
             userMessageLogDao.update(userMessageLog);times=0;
@@ -306,7 +302,7 @@ public class PullMessageEbms3ServiceImplTest {
         new Verifications() {{
             lock.setMessageState(MessageState.WAITING);
             lock.setSendAttempts(userMessageLog.getSendAttempts());
-            lock.setNextAttempt(userMessageLog.getNextAttempt());
+            reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
             userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
             messagingLockDao.save(lock);
             userMessageLogDao.update(userMessageLog);
@@ -407,7 +403,7 @@ public class PullMessageEbms3ServiceImplTest {
 
         pullMessageService.pullFailedOnRequest(legConfiguration, userMessageLog);
         new VerificationsInOrder() {{
-            lock.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             pullMessageStateService.sendFailed(userMessageLog);
             messagingLockDao.save(lock);
@@ -441,7 +437,7 @@ public class PullMessageEbms3ServiceImplTest {
             updateRetryLoggingService.saveAndNotify(MessageStatus.READY_TO_PULL, userMessageLog);
             lock.setMessageState(MessageState.READY);
             lock.setSendAttempts(3);
-            lock.setNextAttempt(nextAttempt);
+            reprogrammableService.setRescheduleInfo(lock, nextAttempt);
             messagingLockDao.save(lock);
         }};
     }

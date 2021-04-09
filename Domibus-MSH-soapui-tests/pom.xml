@@ -37,18 +37,6 @@
 		<allJMSDomainsProperties>allJMSDomainsProperties={}</allJMSDomainsProperties>
     </properties>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>SmartBearPluginRepository</id>
-            <url>https://www.soapui.org/repository/maven2</url>
-        </pluginRepository>
-    </pluginRepositories>
-    <repositories>
-        <repository>
-            <id>SmartBearDependencyRepository</id>
-            <url>https://www.soapui.org/repository/maven2</url>
-        </repository>
-    </repositories>
     <dependencies>
         <!-- for development purposes only. The soapui
         has its own groovy library -->

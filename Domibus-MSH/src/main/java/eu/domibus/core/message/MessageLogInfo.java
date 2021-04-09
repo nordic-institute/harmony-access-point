@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.scheduler.Reprogrammable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -36,6 +37,10 @@ public class MessageLogInfo {
     private int sendAttemptsMax;
 
     private Date nextAttempt;
+
+    private String nextAttemptTimezoneId;
+
+    private Integer nextAttemptOffsetSeconds;
 
     private String conversationId;
 
@@ -79,6 +84,8 @@ public class MessageLogInfo {
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
+                          final String nextAttemptTimezoneId,
+                          final Integer nextAttemptOffsetSeconds,
                           final String conversationId,
                           final String fromPartyId,
                           final String toPartyId,
@@ -98,6 +105,8 @@ public class MessageLogInfo {
         this.sendAttempts = sendAttempts;
         this.sendAttemptsMax = sendAttemptsMax;
         this.nextAttempt = nextAttempt;
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
         //message information UserMessage/SignalMessage
         this.conversationId = conversationId;
         this.fromPartyId = fromPartyId;
@@ -121,6 +130,8 @@ public class MessageLogInfo {
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
+                          final String nextAttemptTimezoneId,
+                          final Integer nextAttemptOffsetSeconds,
                           final String conversationId,
                           final String fromPartyId,
                           final String toPartyId,
@@ -136,9 +147,9 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue
     ) {
-        this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
-                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
-                originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
+        this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received, sendAttempts,
+                sendAttemptsMax, nextAttempt, nextAttemptTimezoneId, nextAttemptOffsetSeconds, conversationId,
+                fromPartyId, toPartyId, originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
 
         this.messageFragment = messageFragment;
         this.sourceMessage = sourceMessage;
@@ -177,6 +188,14 @@ public class MessageLogInfo {
 
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptOffsetSeconds(Integer nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
     }
 
     public void setMessageType(MessageType messageType) {
@@ -285,6 +304,14 @@ public class MessageLogInfo {
 
     public Date getNextAttempt() {
         return nextAttempt;
+    }
+
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public Integer getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
     }
 
     public Date getFailed() {

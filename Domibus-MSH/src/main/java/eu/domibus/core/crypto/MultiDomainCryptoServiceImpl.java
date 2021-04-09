@@ -7,6 +7,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
 import eu.domibus.logging.DomibusLogger;
@@ -42,7 +43,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     private DomibusCacheService domibusCacheService;
 
     @Autowired
-    protected CertificateService certificateService;
+    private CertificateHelper certificateHelper;
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
@@ -108,7 +109,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        certificateService.validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
+        certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
     }

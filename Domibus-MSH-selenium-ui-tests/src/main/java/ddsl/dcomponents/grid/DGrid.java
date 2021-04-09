@@ -81,10 +81,10 @@ public class DGrid extends DComponent {
 
 	public ArrayList<String> getColumnNames() throws Exception {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=document.querySelector(\"#pageGridId\")\n" +
-				"var header=document.querySelector(\"#pageGridId datatable-header\")\n" +
+		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=arguments[0]\n" +
+				"var header=grid.querySelector(\"datatable-header\")\n" +
 				"var headers=header.innerText.split(\"\\n\")\n" +
-				"return headers");
+				"return headers", container);
 
 		result.removeIf(str -> (StringUtils.isEmpty(str)));
 
@@ -268,15 +268,14 @@ public class DGrid extends DComponent {
 	}
 
 
-
 	public ArrayList<HashMap<String, String>> getListedRowInfo() throws Exception {
 
 		ArrayList<HashMap<String, String>> listedRowInfo = new ArrayList<>();
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		ArrayList<Map<String, Object>> result = (ArrayList<Map<String, Object>>) js.executeScript("var grid=document.querySelector(\"#pageGridId\")\n" +
-				"var header=document.querySelector(\"#pageGridId datatable-header\")\n" +
-				"var body=document.querySelector(\"#pageGridId datatable-body\")\n" +
+		ArrayList<Map<String, Object>> result = (ArrayList<Map<String, Object>>) js.executeScript("var grid=arguments[0]\n" +
+				"var header=grid.querySelector(\"datatable-header\")\n" +
+				"var body=grid.querySelector(\"datatable-body\")\n" +
 				"var headers=header.innerText.split(\"\\n\")\n" +
 				"var rows=body.querySelectorAll(\"datatable-body-row\")\n" +
 				"result=[]\n" +
@@ -288,7 +287,7 @@ public class DGrid extends DComponent {
 				"else if(curCell.querySelector('mat-button-toggle-group mat-button-toggle button[aria-pressed = \"true\"]')){resultRow[headers[j]]=curCell.querySelector('mat-button-toggle-group mat-button-toggle button[aria-pressed = \"true\"]').innerText}\n" +
 				"else{resultRow[headers[j]]=cells[j].innerText}}\n" +
 				"result[i]=resultRow}\n" +
-				"return result;");
+				"return result;", container);
 
 		for (Map<String, Object> objectHashMap : result) {
 			HashMap<String, String> rowInfo = new HashMap<>();
@@ -562,7 +561,7 @@ public class DGrid extends DComponent {
 		log.info("checking file headers against column names");
 
 		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
-		if(!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)){
+		if (!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)) {
 			log.debug("UI columns = " + columnNames.toString());
 			log.debug("CSV columns = " + csvFileHeaders.toString());
 		}
@@ -680,7 +679,8 @@ public class DGrid extends DComponent {
 
 
 		log.info("checking individual records");
-		for (HashMap<String, String> gridRow : gridInfo) {
+		for (int i = 0; i < Math.min(gridInfo.size(), 10); i++) {
+			HashMap<String, String> gridRow = gridInfo.get(i);
 			boolean found = false;
 			for (CSVRecord record : records) {
 				if (csvRowVsGridRow(record, gridRow)) {

@@ -1,11 +1,9 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.*;
+import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.AbstractBaseEntity;
-import eu.domibus.api.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -31,12 +29,12 @@ import java.util.Date;
 @NamedNativeQueries({
         @NamedNativeQuery(
                 name    =   "UIMessageEntity.updateMessage",
-                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, FAILED=?4, RESTORED=?5, NEXT_ATTEMPT=?6, SEND_ATTEMPTS=?7, SEND_ATTEMPTS_MAX=?8, LAST_MODIFIED=?9 " +
-                        " WHERE MESSAGE_ID=?10"
+                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, FAILED=?4, RESTORED=?5, NEXT_ATTEMPT=?6, FK_TIMEZONE_OFFSET=?7, SEND_ATTEMPTS=?8, SEND_ATTEMPTS_MAX=?9, LAST_MODIFIED=?10 " +
+                        " WHERE MESSAGE_ID=?11"
                 ,resultSetMapping = "updateResult"
         )
 })
-public class UIMessageEntity extends AbstractBaseEntity {
+public class UIMessageEntity extends AbstractBaseEntity implements Reprogrammable {
 
     @Column(name = "MESSAGE_ID")
     private String messageId;
@@ -89,6 +87,10 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Column(name = "NEXT_ATTEMPT")
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
 
     @Column(name = "FROM_ID")
     private String fromId;
@@ -222,12 +224,24 @@ public class UIMessageEntity extends AbstractBaseEntity {
         this.sendAttemptsMax = sendAttemptsMax;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public String getFromId() {

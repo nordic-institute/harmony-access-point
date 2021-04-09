@@ -80,10 +80,13 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final BackupService backupService;
 
+    private CertificateHelper certificateHelper;
+
     public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
                                   ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
-                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager, BackupService backupService) {
+                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager, BackupService backupService,
+                                  CertificateHelper certificateHelper) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -92,6 +95,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.imminentExpirationCertificateConfigurationManager = imminentExpirationCertificateConfigurationManager;
         this.expiredCertificateConfigurationManager = expiredCertificateConfigurationManager;
         this.backupService = backupService;
+        this.certificateHelper = certificateHelper;
     }
 
     @Override
@@ -343,7 +347,7 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
                                   String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) {
-        validateTruststoreType(trustType, fileName);
+        certificateHelper.validateStoreType(trustType, fileName);
         replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword, trustStoreBackupLocation);
     }
 
@@ -414,22 +418,6 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation) {
         return doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, aliases, trustStoreBackupLocation);
-    }
-
-    @Override
-    public void validateTruststoreType(String storeType, String storeFileName) {
-        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-        switch (storeType.toLowerCase()) {
-            case "pkcs12":
-                if (Arrays.asList("p12", "pfx").contains(fileType)) {
-                    return;
-                }
-            case "jks":
-                if (Arrays.asList("jks").contains(fileType)) {
-                    return;
-                }
-        }
-        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
     protected boolean doAddCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation,

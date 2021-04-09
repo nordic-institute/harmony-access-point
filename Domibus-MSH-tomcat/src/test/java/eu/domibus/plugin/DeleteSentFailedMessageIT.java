@@ -36,7 +36,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageIT {
     @Test
     public void testDeleteFailedMessage() throws SubmitMessageFault {
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
-        sendMessageToDelete(MessageStatus.SEND_FAILURE);
+        submitMessage(MessageStatus.SEND_FAILURE, "validAS4Response.xml");
 
         Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
         deleteMessages();

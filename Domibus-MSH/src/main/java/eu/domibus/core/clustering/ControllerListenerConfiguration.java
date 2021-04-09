@@ -12,6 +12,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.Session;
 import javax.jms.Topic;
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ public class ControllerListenerConfiguration {
 
         messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
-        messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         messageListenerContainer.setPubSubDomain(true);
         messageListenerContainer.setSubscriptionDurable(false);
 

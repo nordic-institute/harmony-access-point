@@ -9,9 +9,9 @@ import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -27,13 +27,14 @@ import java.util.Map;
 @Repository
 public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
 
-    @Autowired
-    private SignalMessageLogInfoFilter signalMessageLogInfoFilter;
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageLogDao.class);
 
-    public SignalMessageLogDao() {
-        super(SignalMessageLog.class);
+    private final SignalMessageLogInfoFilter signalMessageLogInfoFilter;
+
+    public SignalMessageLogDao(SignalMessageLogInfoFilter signalMessageLogInfoFilter,
+                               ReprogrammableService reprogrammableService) {
+        super(SignalMessageLog.class, reprogrammableService);
+        this.signalMessageLogInfoFilter = signalMessageLogInfoFilter;
     }
 
     @Override

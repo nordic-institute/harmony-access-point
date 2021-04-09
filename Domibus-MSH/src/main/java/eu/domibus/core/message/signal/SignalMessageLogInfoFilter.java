@@ -19,6 +19,8 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
     private static final String CONVERSATION_ID = "conversationId";
 
+    private static final String EMPTY_CONVERSATION_ID = "'',";
+
     @Override
     protected String getHQLKey(String originalColumn) {
         if (StringUtils.equals(originalColumn, CONVERSATION_ID)) {
@@ -49,7 +51,9 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
-                "''," +
+                "timezoneOffset.nextAttemptTimezoneId," +
+                "timezoneOffset.nextAttemptOffsetSeconds," +
+                EMPTY_CONVERSATION_ID +
                 " partyFrom.value," +
                 " partyTo.value," +
                 (isFourCornerModel() ? " propsFrom.value," : "'',") +
@@ -74,6 +78,7 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                                 "left join message.messageProperties.property propsFrom " +
                                         "left join message.messageProperties.property propsTo "
                                 : StringUtils.EMPTY) +
+                        "left join log.timezoneOffset timezoneOffset " +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
 

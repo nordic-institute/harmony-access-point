@@ -96,12 +96,6 @@
             <class name="domibus.ui.functional.PModeCurrentPgTests">
             </class>
             <class name="domibus.ui.functional.PmodePartiesPgTest">
-                <methods>
-                    <!--                    excluded due to problem in extracting data from table in modal-->
-                    <exclude name="doubleClickRow"/>
-                    <exclude name="IRRemovalCurrentPmode"/>
-                    <exclude name="responderInitiatorRemovalFromPartiesPage"/>
-                </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilterPgTest">
                 <methods>

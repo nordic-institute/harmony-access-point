@@ -19,5 +19,12 @@ public interface DateUtil {
 
     String getCurrentTime();
 
+    /**
+     * Returns the current system {@code Date}, reflected in coordinated universal time (UTC).
+     *
+     * @return the current system {@code Date}, reflected in coordinated universal time (UTC)
+     */
+    Date getUtcDate();
+
     long getDiffMinutesBetweenDates(Date date1, Date date2);
 }

@@ -1,13 +1,14 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
@@ -23,18 +24,24 @@ import java.util.Map;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    @Autowired
-    private UserMessageLogInfoFilter userMessageLogInfoFilter;
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
-    public UserMessageLogDao() {
-        super(UserMessageLog.class);
+    private final DateUtil dateUtil;
+
+    private final UserMessageLogInfoFilter userMessageLogInfoFilter;
+
+    public UserMessageLogDao(DateUtil dateUtil,
+                             UserMessageLogInfoFilter userMessageLogInfoFilter,
+                             ReprogrammableService reprogrammableService) {
+        super(UserMessageLog.class, reprogrammableService);
+
+        this.dateUtil = dateUtil;
+        this.userMessageLogInfoFilter = userMessageLogInfoFilter;
     }
 
     public List<String> findRetryMessages() {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
-        query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
+        query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
     }

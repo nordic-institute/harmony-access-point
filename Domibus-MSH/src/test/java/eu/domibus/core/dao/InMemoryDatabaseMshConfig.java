@@ -9,7 +9,7 @@ import javax.sql.DataSource;
  * @author Thomas Dussart
  * @since 4.0
  */
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 @Profile("IN_MEMORY_DATABASE")
 public class InMemoryDatabaseMshConfig extends AbstractDatabaseMshConfig {
 

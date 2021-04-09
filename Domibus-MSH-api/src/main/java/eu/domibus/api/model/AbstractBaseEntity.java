@@ -5,6 +5,7 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
@@ -130,5 +131,16 @@ public abstract class AbstractBaseEntity implements Serializable {
         return ((other != null) &&
                 this.getClass().equals(other.getClass())
         );
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("entityId", entityId)
+                .append("creationTime", creationTime)
+                .append("modificationTime", modificationTime)
+                .append("createdBy", createdBy)
+                .append("modifiedBy", modifiedBy)
+                .toString();
     }
 }
