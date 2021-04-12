@@ -25,9 +25,9 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.3.9</cxf.version>
+        <cxf.version>3.3.10</cxf.version>
         <spring.version>5.2.9.RELEASE</spring.version>
-        <spring.security.version>5.4.1</spring.security.version>
+        <spring.security.version>5.4.5</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
         <activemq.version>5.15.14</activemq.version>
@@ -51,12 +51,12 @@
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.15</xstream.version>
+        <xstream.version>1.4.16</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>1.24.1</tika.version>
+        <tika.version>1.26</tika.version>
         <peppol.version>1.1.3</peppol.version>
         <dynamic.discovery.client.version>1.12</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
