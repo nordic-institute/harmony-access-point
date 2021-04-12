@@ -1,5 +1,11 @@
 package eu.domibus.api.model;
 
+/**
+ * Domibus internal class holding the data contained in the Ebms3Error
+ *
+ * @author Cosmin Baciu
+ * @since 5.0
+ */
 public class SignalMessageError {
 
     protected String signalDescription;

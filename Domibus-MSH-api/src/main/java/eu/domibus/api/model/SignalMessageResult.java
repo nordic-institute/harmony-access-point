@@ -1,5 +1,11 @@
 package eu.domibus.api.model;
 
+/**
+ * Holds the result of the transformation of the Signal from ebms3 model to the internal model
+ *
+ * @author Cosmin Baciu
+ * @since 5.0
+ */
 public class SignalMessageResult {
 
     protected SignalMessage signalMessage;
