@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2.1-SNAPSHOT</version>
+        <version>4.2.2-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>domibus-db</artifactId>
@@ -83,7 +83,7 @@
                </configuration>
                <executions>
 
-                   <!-- 4.2.1 starts here -->
+                   <!-- 4.2.2 starts here -->
                    <execution>
                        <id>generate-mysql-script-data</id>
                        <phase>generate-resources</phase>
@@ -192,7 +192,10 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
-                   <!-- 4.2.1 ends here -->
+                   <!-- 4.2.2 ends here -->
+
+                   <!-- delta 4.2.1 to 4.2.2 starts here -->
+                   <!-- delta 4.2.1 to 4.2.2 starts here -->
 
                    <!-- delta 4.2 to 4.2.1 starts here -->
                    <execution>

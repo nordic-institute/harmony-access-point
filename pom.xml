@@ -6,7 +6,7 @@
 
     <groupId>eu.domibus</groupId>
     <artifactId>domibus</artifactId>
-    <version>4.2.1-SNAPSHOT</version>
+    <version>4.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
@@ -66,7 +66,7 @@
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
-        <dependency.check.version>6.0.5</dependency.check.version>
+        <dependency.check.version>6.1.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 
         <!-- Sonar properties -->
