@@ -605,16 +605,6 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
-        "readable" : {
-          "type" : "boolean"
-        },
-        "filename" : {
-          "type" : "string"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
-        },
         "url" : {
           "type" : "string",
           "format" : "url"
@@ -624,6 +614,16 @@
         },
         "open" : {
           "type" : "boolean"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
         }
       }
     },
