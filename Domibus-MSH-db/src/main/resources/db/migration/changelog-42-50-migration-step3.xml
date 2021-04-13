@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- step 3 -->
+    
+    <!-- rename former tables to OLD_* -->
+    <changeSet id="EDELIVERY-7970" author="Catalin Enache">
+        <renameTable oldTableName="TB_USER_MESSAGE" newTableName="OLD_TB_USER_MESSAGE"/>
+        <renameTable oldTableName="TB_SIGNAL_MESSAGE" newTableName="OLD_TB_SIGNAL_MESSAGE"/>
+
+        <renameTable oldTableName="TB_MESSAGE_FRAGMENT" newTableName="OLD_TB_MESSAGE_FRAGMENT"/>
+        <renameTable oldTableName="TB_MESSAGE_HEADER" newTableName="OLD_TB_MESSAGE_HEADER"/>
+        <renameTable oldTableName="TB_MESSAGE_GROUP" newTableName="OLD_TB_MESSAGE_GROUP"/>
+
+        <renameTable oldTableName="TB_RECEIPT_DATA" newTableName="OLD_TB_RECEIPT_DATA"/>
+        <renameTable oldTableName="TB_RECEIPT" newTableName="OLD_TB_RECEIPT"/>
+        <renameTable oldTableName="TB_MESSAGE_INFO" newTableName="OLD_TB_MESSAGE_INFO"/>
+        <renameTable oldTableName="TB_MESSAGING" newTableName="OLD_TB_MESSAGING"/>
+        <renameTable oldTableName="TB_ERROR" newTableName="OLD_TB_ERROR"/>
+        <renameTable oldTableName="TB_MESSAGE_LOG" newTableName="OLD_TB_MESSAGE_LOG"/>
+        <renameTable oldTableName="TB_PARTY_ID" newTableName="OLD_TB_PARTY_ID"/>
+        <renameTable oldTableName="TB_PROPERTY" newTableName="OLD_TB_PROPERTY"/>
+        <renameTable oldTableName="TB_RAWENVELOPE_LOG" newTableName="OLD_TB_RAWENVELOPE_LOG"/>
+        <renameTable oldTableName="TB_PART_INFO" newTableName="OLD_TB_PART_INFO"/>
+
+    </changeSet>
+
+    <!-- put back constraints -->
+    <changeSet id="EDELIVERY-7970-constraints" author="Catalin Enache">
+
+    </changeSet>
+</databaseChangeLog>

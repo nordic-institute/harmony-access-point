@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- step 2 -->
+    
+    <!-- add migration package and execute it -->
+    <changeSet id="EDELIVERY-7970" author="Catalin Enache">
+        <sqlFile path="src/main/resources/db/migration/oracle/db-migration-package.sql" endDelimiter="\n/" dbms="oracle"/>
+        <sql endDelimiter="\n/" dbms="oracle">
+            BEGIN
+                MIGRATE_42_TO_50.MIGRATE;
+            END;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

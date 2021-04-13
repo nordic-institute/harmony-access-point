@@ -417,31 +417,31 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         -- TODO check if needed to drop FKs or constraints
 
         -- drop any previously created table
-        drop_table_if_exists('MIGR_TB_USER_MESSAGE');
-        drop_table_if_exists('MIGR_TB_SJ_MESSAGE_FRAGMENT');
-        drop_table_if_exists('MIGR_TB_SJ_MESSAGE_GROUP');
-        drop_table_if_exists('MIGR_TB_SJ_MESSAGE_HEADER');
-        drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE');
-        drop_table_if_exists('MIGR_TB_USER_MESSAGE_LOG');
-        drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_LOG');
-        drop_table_if_exists('MIGR_TB_RECEIPT');
-        drop_table_if_exists('MIGR_TB_USER_MESSAGE_RAW');
-        drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_RAW');
-        drop_table_if_exists('MIGR_TB_MESSAGE_PROPERTIES');
-        drop_table_if_exists('MIGR_TB_PART_INFO');
-        drop_table_if_exists('MIGR_TB_PART_PROPERTIES');
-
-        drop_table_if_exists('TB_D_MPC');
-        drop_table_if_exists('TB_D_ROLE');
-        drop_table_if_exists('TB_D_SERVICE');
-        drop_table_if_exists('TB_D_AGREEMENT');
-        drop_table_if_exists('TB_D_ACTION');
-        drop_table_if_exists('TB_D_PARTY');
-        drop_table_if_exists('TB_D_MESSAGE_SUBTYPE');
-        drop_table_if_exists('TB_D_MESSAGE_STATUS');
-        drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
-        drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
-        drop_table_if_exists('TB_D_PART_PROPERTY');
+--         drop_table_if_exists('MIGR_TB_USER_MESSAGE');
+--         drop_table_if_exists('MIGR_TB_SJ_MESSAGE_FRAGMENT');
+--         drop_table_if_exists('MIGR_TB_SJ_MESSAGE_GROUP');
+--         drop_table_if_exists('MIGR_TB_SJ_MESSAGE_HEADER');
+--         drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE');
+--         drop_table_if_exists('MIGR_TB_USER_MESSAGE_LOG');
+--         drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_LOG');
+--         drop_table_if_exists('MIGR_TB_RECEIPT');
+--         drop_table_if_exists('MIGR_TB_USER_MESSAGE_RAW');
+--         drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_RAW');
+--         drop_table_if_exists('MIGR_TB_MESSAGE_PROPERTIES');
+--         drop_table_if_exists('MIGR_TB_PART_INFO');
+--         drop_table_if_exists('MIGR_TB_PART_PROPERTIES');
+--
+--         drop_table_if_exists('TB_D_MPC');
+--         drop_table_if_exists('TB_D_ROLE');
+--         drop_table_if_exists('TB_D_SERVICE');
+--         drop_table_if_exists('TB_D_AGREEMENT');
+--         drop_table_if_exists('TB_D_ACTION');
+--         drop_table_if_exists('TB_D_PARTY');
+--         drop_table_if_exists('TB_D_MESSAGE_SUBTYPE');
+--         drop_table_if_exists('TB_D_MESSAGE_STATUS');
+--         drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
+--         drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
+--         drop_table_if_exists('TB_D_PART_PROPERTY');
 
         -- create them
         v_sql :=
