@@ -100,7 +100,7 @@ public class PullRequestHandler {
             leg = pullContext.filterLegOnMpc();
             try {
                 String initiatorPartyName = null;
-                final String mpc = userMessage.getMpc().getValue();
+                final String mpc = userMessage.getMpcValue();
                 if (pullContext.getInitiator() != null) {
                     LOG.debug("Get initiator from pull context");
                     initiatorPartyName = pullContext.getInitiator().getName();

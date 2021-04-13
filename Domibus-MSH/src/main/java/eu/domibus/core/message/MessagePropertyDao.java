@@ -1,15 +1,12 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.PartProperty;
-import eu.domibus.api.model.Property;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author François Gautier
@@ -28,6 +25,7 @@ public class MessagePropertyDao extends BasicDao<MessageProperty> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    @Transactional
     public MessageProperty findOrCreateProperty(final String name, String value, String type) {
         MessageProperty property = findPropertyByName(name);
         if (property != null) {

@@ -99,13 +99,13 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         return partInfo;
     }
 
-    protected AgreementRef createAgreementRef(UserMessage userMessage) {
-        AgreementRef agreementRef = userMessage.getAgreementRef();
+    protected AgreementRefEntity createAgreementRef(UserMessage userMessage) {
+        AgreementRefEntity agreementRef = userMessage.getAgreementRef();
         if (agreementRef == null) {
             return null;
         }
 
-        AgreementRef result = new AgreementRef();
+        AgreementRefEntity result = new AgreementRefEntity();
         result.setType(agreementRef.getType());
         result.setValue(agreementRef.getValue());
         return result;

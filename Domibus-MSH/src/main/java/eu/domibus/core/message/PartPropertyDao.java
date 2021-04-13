@@ -6,6 +6,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
@@ -30,6 +31,7 @@ public class PartPropertyDao extends BasicDao<PartProperty> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    @Transactional
     public PartProperty findOrCreateProperty(final String name, String value, String type) {
         PartProperty property = findPropertyByName(name);
         if (property != null) {

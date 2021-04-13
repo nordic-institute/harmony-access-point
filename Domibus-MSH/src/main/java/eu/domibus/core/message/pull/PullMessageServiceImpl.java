@@ -231,7 +231,7 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     private MessagingLock prepareMessagingLock(UserMessage userMessage, String partyIdentifier, String pModeKey, UserMessageLog messageLog) {
         final String messageId = userMessage.getMessageId();
-        final String mpc = userMessage.getMpc().getValue();
+        final String mpc = userMessage.getMpcValue();
         LOG.trace("Saving message lock with partyID:[{}], mpc:[{}]", partyIdentifier, mpc);
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
         final Date staledDate = updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);

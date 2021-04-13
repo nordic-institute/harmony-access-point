@@ -4,6 +4,7 @@ import eu.domibus.api.model.MpcEntity;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 
@@ -18,6 +19,7 @@ public class MpcDao extends BasicDao<MpcEntity> {
         super(MpcEntity.class);
     }
 
+    @Transactional
     public MpcEntity findOrCreateMpc(String value) {
         MpcEntity mpc = findMpc(value);
         if (mpc != null) {
