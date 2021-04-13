@@ -14,17 +14,17 @@ import java.util.Date;
         @NamedQuery(name = "SignalMessage.findBySignalMessageId",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.signalMessageId = :SIGNAL_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageByUserMessageEntityId",
-                query = "select signalMessage from SignalMessage signalMessage where signalMessage.entityID = :ENTITY_ID"),
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.entityId = :ENTITY_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageWithUserMessageByUserMessageId",
                 query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage where signalMessage.userMessage.messageId = :MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageIdByRefMessageId",
-                query = "select signalMessage.messageInfo.messageId from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
+                query = "select signalMessage.signalMessageId from SignalMessage signalMessage where signalMessage.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findMessageIdsWithRefToMessageIds", query = "select mi.signalMessageId from SignalMessage mi where mi.refToMessageId in :MESSAGEIDS"),
         @NamedQuery(name = "SignalMessage.findSignalMessageByRefMessageId",
-                query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
-                query = "select signalMessage.receipt.entityId from SignalMessage signalMessage where signalMessage.messageInfo.messageId IN :MESSAGEIDS"),
-        @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage mi where mi.messageId in :MESSAGEIDS"),
+                query = "select receipt.entityId from ReceiptEntity receipt where receipt.signalMessage.signalMessageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage mi where mi.signalMessageId in :MESSAGEIDS"),
 })
 public class SignalMessage extends AbstractNoGeneratedPkEntity {
 

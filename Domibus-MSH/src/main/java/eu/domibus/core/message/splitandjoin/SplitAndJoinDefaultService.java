@@ -229,8 +229,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         final SOAPMessage sourceRequest = rejoinSourceMessage(groupId, new File(sourceMessageFile));
         Ebms3Messaging ebms3Messaging = messageUtil.getMessage(sourceRequest);
-        Messaging sourceMessaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        UserMessage userMessage = sourceMessaging.getUserMessage();
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         userMessage.setSourceMessage(true);
 
         MessageExchangeConfiguration userMessageExchangeContext;
@@ -251,7 +250,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException("Error handling payloads", e);
         }
 
-        messagingService.storePayloads(sourceMessaging.getUserMessage(), partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
+        messagingService.storePayloads(userMessage, partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
 
         final String sourceMessageId = userMessage.getMessageId();
         messageGroupService.setSourceMessageId(sourceMessageId, groupId);

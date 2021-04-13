@@ -26,7 +26,6 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
     @Column(name = "VALUE")
     protected String value;
 
-
     @Column(name = "TYPE", nullable = true)
     protected String type;
 

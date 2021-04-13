@@ -2,7 +2,6 @@ package eu.domibus.core.pmode;
 
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;

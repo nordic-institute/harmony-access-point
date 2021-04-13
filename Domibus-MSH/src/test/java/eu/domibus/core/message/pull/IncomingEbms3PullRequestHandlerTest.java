@@ -1,48 +1,7 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.PullRequest;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.security.AuthorizationService;
-import eu.domibus.core.util.MessageUtil;
-import eu.domibus.core.util.TimestampDateFormatter;
-import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.ebms3.receiver.MessageTestUtility;
-import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
-import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerFactory;
 
 /**
  * @author Cosmin Baciu

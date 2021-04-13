@@ -37,13 +37,6 @@ public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
         super(SignalMessageLog.class);
     }
 
-    public MessageStatusEntity getMessageStatus(String messageId) {
-        TypedQuery<MessageStatusEntity> query = em.createNamedQuery("SignalMessageLog.getMessageStatus", MessageStatusEntity.class);
-        query.setParameter("MESSAGE_ID", messageId);
-        return DataAccessUtils.singleResult(query.getResultList());
-
-    }
-
     public SignalMessageLog findByMessageId(String messageId) {
         TypedQuery<SignalMessageLog> query = em.createNamedQuery("SignalMessageLog.findByMessageId", SignalMessageLog.class);
         query.setParameter("MESSAGE_ID", messageId);

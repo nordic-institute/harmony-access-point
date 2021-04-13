@@ -49,9 +49,6 @@ public class PullMessageServiceImpl implements PullMessageService {
     private BackendNotificationService backendNotificationService;
 
     @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
     private PullMessageStateService pullMessageStateService;
 
     @Autowired

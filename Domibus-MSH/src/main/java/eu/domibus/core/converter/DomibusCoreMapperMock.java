@@ -136,12 +136,12 @@ public class DomibusCoreMapperMock implements DomibusCoreMapper {
 
     @Override
     public DomainDTO domainToDomainDTO(Domain domain) {
-        return null;
+        return new DomainDTO(domain.getCode(), domain.getName());
     }
 
     @Override
     public Domain domainDTOToDomain(DomainDTO domain) {
-        return null;
+        return new Domain(domain.getCode(), domain.getName());
     }
 
     @Override

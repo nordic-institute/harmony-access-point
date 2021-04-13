@@ -151,9 +151,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected PayloadFileStorageProvider storageProvider;
 
     @Autowired
-    protected MessagingDao messagingDao;
-
-    @Autowired
     protected MessagePropertyValidator messagePropertyValidator;
 
     @Autowired

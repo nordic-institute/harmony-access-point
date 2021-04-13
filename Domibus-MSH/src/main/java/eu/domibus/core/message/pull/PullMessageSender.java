@@ -143,16 +143,15 @@ public class PullMessageSender {
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
             Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
-            Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-            userMessage = messaging.getUserMessage();
 
-            if (userMessage == null && messaging.getSignalMessage() != null) {
+            if (ebms3Messaging.getUserMessage() == null && ebms3Messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
                 logError(ebms3Messaging.getSignalMessage());
                 return;
             }
-            messageId = userMessage.getMessageId();
 
+            userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+            messageId = userMessage.getMessageId();
 
             List<PartInfo> partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging);
             handleResponse(response, userMessage, partInfos);

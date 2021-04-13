@@ -1,33 +1,14 @@
 package eu.domibus.api.model;
 
-import javax.persistence.*;
-import java.util.List;
-
-
 /**
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Entity
-@Table(name = "TB_MESSAGING")
-@NamedQueries({
-        @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
-        @NamedQuery(name = "Messaging.findSignalMessageByUserMessageId",
-                query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.refToMessageId = :MESSAGE_ID"),
-})
-public class Messaging extends AbstractBaseEntity {
+public class Messaging  {
 
-    @Column(name = "ID")
     protected String id;
-
-    @JoinColumn(name = "SIGNAL_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
     protected SignalMessage signalMessage;
-
-    @JoinColumn(name = "USER_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
     protected UserMessage userMessage;
-
 
     public SignalMessage getSignalMessage() {
         return this.signalMessage;

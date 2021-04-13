@@ -6,6 +6,7 @@ import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
+import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -90,9 +91,9 @@ public class ResponseHandler {
     }
 
     public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse) {
-        eu.domibus.api.model.Messaging convertedMessagingResponse = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
+        SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
-        final eu.domibus.api.model.SignalMessage signalMessage = convertedMessagingResponse.getSignalMessage();
+        final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
         signalMessage.setUserMessage(userMessage);
         nonRepudiationService.saveResponse(response, signalMessage);
 

@@ -22,18 +22,6 @@ public class MessagePropertyDao extends BasicDao<MessageProperty> {
         super(MessageProperty.class);
     }
 
-    public List<MessageProperty> findMessageProperties(final Long userMessageEntityId) {
-        final Query query = this.em.createNamedQuery("MessageProperty.findMessageProperties");
-        query.setParameter("ENTITY_ID", userMessageEntityId);
-        return query.getResultList();
-    }
-
-    public MessageProperty findPropertyByValue(final String value) {
-        final TypedQuery<MessageProperty> query = this.em.createNamedQuery("MessageProperty.findByValue", MessageProperty.class);
-        query.setParameter("VALUE", value);
-        return DataAccessUtils.singleResult(query.getResultList());
-    }
-
     public MessageProperty findPropertyByName(final String value) {
         final TypedQuery<MessageProperty> query = this.em.createNamedQuery("MessageProperty.findByName", MessageProperty.class);
         query.setParameter("NAME", value);

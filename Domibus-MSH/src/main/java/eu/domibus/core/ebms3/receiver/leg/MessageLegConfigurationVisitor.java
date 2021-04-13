@@ -2,7 +2,6 @@ package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationExtractor;
 import eu.domibus.core.pmode.provider.PModeProvider;

@@ -59,9 +59,9 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
     }
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
-        String queryString = "select distinct m.messageInfo.messageId from UserMessage m " +
-                "inner join m.messageProperties.property p, UserMessageLog ml " +
-                "where ml.messageId = m.messageInfo.messageId and ml.messageStatus = 'SEND_FAILURE' and ml.messageType = 'USER_MESSAGE' and ml.deleted is null ";
+        String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
+                "inner join m.messageProperties p,  " +
+                "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
         }
@@ -101,9 +101,9 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
 
     public MessageStatus getMessageStatus(String messageId) {
         try {
-            TypedQuery<MessageStatus> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatusEntity.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
-            return query.getSingleResult();
+            return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [" + messageId + "]");
             return MessageStatus.NOT_FOUND;

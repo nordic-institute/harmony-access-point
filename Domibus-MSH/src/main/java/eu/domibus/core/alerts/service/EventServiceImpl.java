@@ -17,7 +17,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;

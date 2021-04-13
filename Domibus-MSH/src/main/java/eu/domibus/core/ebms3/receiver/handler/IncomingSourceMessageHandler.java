@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -46,7 +47,7 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
         }
 
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging);
-        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        return userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, messaging.getUserMessage(), partInfoList, testMessage);
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        return userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
     }
 }
