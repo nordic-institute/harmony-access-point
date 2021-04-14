@@ -1,10 +1,11 @@
 package eu.domibus.ext.delegate.services.message;
 
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.usermessage.UserMessageRestoreService;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -38,6 +39,9 @@ public class MessageMonitoringServiceDelegateTest {
 
     @Injectable
     UserMessageSecurityService userMessageSecurityService;
+
+    @Injectable
+    UserMessageRestoreService restoreService;
 
     @Test
     public void testGetFailedMessages() throws Exception {
@@ -107,7 +111,7 @@ public class MessageMonitoringServiceDelegateTest {
 
         new Verifications() {{
             userMessageSecurityService.checkMessageAuthorization(messageId);
-            userMessageService.restoreFailedMessage(messageId);
+            restoreService.restoreFailedMessage(messageId);
         }};
     }
 
@@ -124,7 +128,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testGetAttemptsHistory(@Injectable  final List<MessageAttempt> attemptsHistory) throws Exception {
+    public void testGetAttemptsHistory(@Injectable final List<MessageAttempt> attemptsHistory) throws Exception {
         final String messageId = "1";
 
         new Expectations(messageMonitoringServiceDelegate) {{
