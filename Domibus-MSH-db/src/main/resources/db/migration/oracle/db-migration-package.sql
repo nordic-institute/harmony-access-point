@@ -136,6 +136,28 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_role_rec;
 
+    FUNCTION get_tb_d_msh_role_rec(role VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF role IS NULL THEN
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MSH_ROLE');
+            END IF;
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MSH_ROLE WHERE ROLE = :1' INTO v_id_pk USING role;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MSH_ROLE: ' || role);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MSH_ROLE(ID_PK, ROLE) VALUES (' || v_id_pk || ', :1)' USING role;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_msh_role_rec;
+
     FUNCTION get_tb_d_service_rec(service_type VARCHAR2, service_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
@@ -781,7 +803,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             message_group(i).SOAP_ACTION,
                             message_group(i).REJECTED,
                             message_group(i).EXPIRED,
-                            get_tb_d_role_rec(message_group(i).MSH_ROLE),
+                            get_tb_d_msh_role_rec(message_group(i).MSH_ROLE),
                             message_group(i).CREATION_TIME,
                             message_group(i).CREATED_BY,
                             message_group(i).MODIFICATION_TIME,
@@ -1181,7 +1203,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                     message_log(i).SCHEDULED,
                                     message_log(i).VERSION,
                                     get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
-                                    get_tb_d_role_rec(message_log(i).MSH_ROLE),
+                                    get_tb_d_msh_role_rec(message_log(i).MSH_ROLE),
                                     get_tb_d_notif_status_rec(message_log(i).NOTIFICATION_STATUS),
                                     message_log(i).CREATION_TIME,
                                     message_log(i).CREATED_BY,
@@ -1205,7 +1227,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                     message_log(i).RECEIVED,
                                     message_log(i).DELETED,
                                     get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
-                                    get_tb_d_role_rec(message_log(i).MSH_ROLE),
+                                    get_tb_d_msh_role_rec(message_log(i).MSH_ROLE),
                                     message_log(i).CREATION_TIME,
                                     message_log(i).CREATED_BY,
                                     message_log(i).MODIFICATION_TIME,
