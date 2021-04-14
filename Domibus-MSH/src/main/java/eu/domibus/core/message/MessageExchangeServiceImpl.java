@@ -123,7 +123,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         } else {
             LOG.debug("No pull process found for message configuration");
         }
-        return messageStatusDao.findMessageStatus(messageStatus);
+        return messageStatusDao.findOrCreate(messageStatus);
     }
 
     /**

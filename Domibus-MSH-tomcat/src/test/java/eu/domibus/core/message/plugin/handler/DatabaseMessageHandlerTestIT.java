@@ -1,15 +1,24 @@
 package eu.domibus.core.message.plugin.handler;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.IOException;
+import java.security.cert.X509CRL;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,18 +40,36 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     private static final String SERVICE_TYPE_TC1 = "tc1";
     private static final String PROPERTY_ENDPOINT = "endPointAddress";
 
+    @Configuration
+    static class ContextConfiguration {
+
+        @Primary
+        @Bean
+        public BackendConnectorProvider backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorProvider.class);
+        }
+    }
+
+    @Autowired
+    BackendConnectorProvider backendConnectorProvider;
+
     @Autowired
     DatabaseMessageHandler databaseMessageHandler;
 
     @Test
-    public void submit() throws MessagingProcessingException {
+    public void submit() throws MessagingProcessingException, IOException {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+
         Submission submission = createSubmission();
+        uploadPmode();
         databaseMessageHandler.submit(submission, "mybackend");
 
     }
 
     protected Submission createSubmission() {
         Submission submission = new Submission();
+        submission.setMpc(Ebms3Constants.DEFAULT_MPC);
         submission.setAction(ACTION_TC1LEG1);
         submission.setService(SERVICE_NOPROCESS);
         submission.setServiceType(SERVICE_TYPE_TC1);
@@ -53,9 +80,8 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
         submission.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);
         submission.setToRole(RESPONDER_ROLE);
         submission.addMessageProperty(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
-        submission.addMessageProperty(PROPERTY_ENDPOINT, "http://localhost:8080/domibus/domibus-blue");
         submission.addMessageProperty(MessageConstants.FINAL_RECIPIENT, FINAL_RECIPIENT);
-        submission.setAgreementRef("12345");
+//        submission.setAgreementRef("12345");
         submission.setRefToMessageId("123456");
 
         String strPayLoad1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";

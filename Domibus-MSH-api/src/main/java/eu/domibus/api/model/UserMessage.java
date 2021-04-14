@@ -76,7 +76,7 @@ public class UserMessage extends AbstractBaseEntity {
     protected List<PartInfo> partInfoList;
 
     public boolean isSplitAndJoin() {
-        return sourceMessage || messageFragment;
+        return isSourceMessage() || isMessageFragment();
     }
 
     public String getMessageId() {
@@ -180,8 +180,8 @@ public class UserMessage extends AbstractBaseEntity {
         this.timestamp = timestamp;
     }
 
-    public Boolean isSourceMessage() {
-        return sourceMessage;
+    public boolean isSourceMessage() {
+        return BooleanUtils.toBoolean(sourceMessage);
     }
 
     public void setSourceMessage(Boolean sourceMessage) {

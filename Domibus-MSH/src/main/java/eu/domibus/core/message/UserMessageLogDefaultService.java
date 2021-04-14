@@ -60,7 +60,7 @@ public class UserMessageLogDefaultService {
         final MSHRoleEntity mshRoleEntity = mshRoleDao.findByRole(MSHRole.valueOf(mshRole));
         userMessageLog.setMshRole(mshRoleEntity);
 
-        final NotificationStatusEntity notificationStatusEntity = notificationStatusDao.findByStatus(NotificationStatus.valueOf(notificationStatus));
+        final NotificationStatusEntity notificationStatusEntity = notificationStatusDao.findOrCreate(NotificationStatus.valueOf(notificationStatus));
         userMessageLog.setNotificationStatus(notificationStatusEntity);
 
         userMessageLog.setSendAttemptsMax(maxAttempts);
