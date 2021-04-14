@@ -104,10 +104,10 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         PartyInfo partyInfo = new PartyInfo();
         userMessage.setPartyInfo(partyInfo);
 
-        final From from = ebms3ToToUserMessageTo(ebms3PartyInfo.getFrom());
+        final From from = ebms3FromToUserMessageFrom(ebms3PartyInfo.getFrom());
         partyInfo.setFrom(from);
 
-        final To to = ebms3ToToUserMessageTo(ebms3PartyInfo.getTo());
+        final To to = ebms3FromToUserMessageFrom(ebms3PartyInfo.getTo());
         partyInfo.setTo(to);
 
         final Ebms3PayloadInfo ebms3PayloadInfo = ebms3UserMessage.getPayloadInfo();
@@ -121,7 +121,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         return userMessage;
     }
 
-    private From ebms3ToToUserMessageTo(Ebms3From ebms3From) {
+    private From ebms3FromToUserMessageFrom(Ebms3From ebms3From) {
         From from = new From();
 
         final PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(ebms3From.getRole());
@@ -133,7 +133,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         return from;
     }
 
-    private To ebms3ToToUserMessageTo(Ebms3To ebms3To) {
+    private To ebms3FromToUserMessageFrom(Ebms3To ebms3To) {
         To to = new To();
 
         final PartyRole toPartyRole = partyRoleDao.findOrCreateRole(ebms3To.getRole());

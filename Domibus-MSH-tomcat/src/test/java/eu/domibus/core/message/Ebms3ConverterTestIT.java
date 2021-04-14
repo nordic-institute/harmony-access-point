@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0
+ */
 public class Ebms3ConverterTestIT extends AbstractIT {
 
     @Autowired

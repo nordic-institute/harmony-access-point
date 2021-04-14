@@ -114,7 +114,7 @@ public class SubmissionAS4Transformer {
         from.setRole(fromRole);
 
         final Set<Submission.Party> fromParties = submission.getFromParties();
-        if (fromParties.size() > 0) {
+        if (CollectionUtils.isNotEmpty(fromParties)) {
             LOG.error("Cannot have multiple from parties, using the first party");
             final Submission.Party party = fromParties.iterator().next();
             final PartyId fromParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
@@ -132,7 +132,7 @@ public class SubmissionAS4Transformer {
         to.setRole(toRole);
 
         final Set<Submission.Party> toParties = submission.getToParties();
-        if (toParties.size() > 0) {
+        if (CollectionUtils.isNotEmpty(toParties)) {
             LOG.error("Cannot have multiple to parties, using the first party");
             final Submission.Party party = toParties.iterator().next();
             final PartyId toParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
