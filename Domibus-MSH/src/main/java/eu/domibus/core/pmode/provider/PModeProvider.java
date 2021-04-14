@@ -391,7 +391,7 @@ public abstract class PModeProvider {
 
     public abstract String findPartyName(PartyId partyId) throws EbMS3Exception;
 
-    public abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
+    public abstract String findAgreement(AgreementRefEntity agreementRef) throws EbMS3Exception;
 
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
         final String actionValue = userMessage.getActionValue();

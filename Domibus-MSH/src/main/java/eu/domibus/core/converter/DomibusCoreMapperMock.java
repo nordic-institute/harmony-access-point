@@ -126,12 +126,12 @@ public class DomibusCoreMapperMock implements DomibusCoreMapper {
 
     @Override
     public DomainSpi domainToDomainSpi(Domain domain) {
-        return null;
+        return new DomainSpi(domain.getCode(), domain.getName());
     }
 
     @Override
     public Domain domainSpiToDomain(DomainSpi domainSpi) {
-        return null;
+        return new Domain(domainSpi.getCode(), domainSpi.getName());
     }
 
     @Override

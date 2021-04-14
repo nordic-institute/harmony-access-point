@@ -109,6 +109,7 @@ public class JMSMessageTransformerTest {
         listTypedProperty.add(objTypedProperty1);
         listTypedProperty.add(objTypedProperty2);
         Submission.Payload objPayload1 = new Submission.Payload(PAYLOAD_ID, payLoadDataHandler1, listTypedProperty, false, null, null);
+
         submissionObj.addPayload(objPayload1);
         Submission.Payload objBodyload = new Submission.Payload("", payLoadDataHandler2, listTypedProperty, true, null, null);
         submissionObj.addPayload(objBodyload);

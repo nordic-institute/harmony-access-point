@@ -46,78 +46,6 @@ public class Ebms3PartInfo implements Comparable<Ebms3PartInfo> {
     @XmlSchemaType(name = "token")
     protected String href;
 
-    @XmlTransient
-    protected byte[] binaryData;
-
-    @XmlTransient
-    protected String fileName;
-
-    @XmlTransient
-    protected boolean inBody;
-
-    @XmlTransient
-    protected DataHandler payloadDatahandler; //NOSONAR
-    @XmlTransient
-    private String mime;
-
-    @XmlTransient
-    private long length = -1;
-
-    @XmlTransient
-    private int partOrder = 0;
-
-    @XmlTransient
-    protected Boolean encrypted;
-
-    public DataHandler getPayloadDatahandler() {
-        return payloadDatahandler;
-    }
-
-    public void setPayloadDatahandler(final DataHandler payloadDatahandler) {
-        this.payloadDatahandler = payloadDatahandler;
-    }
-
-    public byte[] getBinaryData() {
-        return binaryData;
-    }
-
-    public void setBinaryData(byte[] binaryData) {
-        this.binaryData = binaryData;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public String getMime() {
-        return mime;
-    }
-
-    public void setMime(final String mime) {
-        this.mime = mime;
-    }
-
-    public boolean isInBody() {
-        return this.inBody;
-    }
-
-    public void setInBody(final boolean inBody) {
-        this.inBody = inBody;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public boolean isEncrypted() {
-        return BooleanUtils.toBoolean(encrypted);
-    }
-
-    public void setEncrypted(boolean encrypted) {
-        this.encrypted = encrypted;
-    }
-
-
     /**
      * This element occurs zero or more times. It refers to schema(s) that define the instance document
      * identified in the parent PartInfo element. If the item being referenced has schema(s) of some kind
@@ -240,22 +168,6 @@ public class Ebms3PartInfo implements Comparable<Ebms3PartInfo> {
         this.href = value;
     }
 
-    public long getLength() {
-        return length;
-    }
-
-    public void setLength(long length) {
-        this.length = length;
-    }
-
-    public int getPartOrder() {
-        return partOrder;
-    }
-
-    public void setPartOrder(int partOrder) {
-        this.partOrder = partOrder;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -263,11 +175,6 @@ public class Ebms3PartInfo implements Comparable<Ebms3PartInfo> {
                 .append("description", description)
                 .append("partProperties", partProperties)
                 .append("href", href)
-                .append("binaryData", binaryData)
-                .append("fileName", fileName)
-                .append("inBody", inBody)
-                .append("payloadDatahandler", payloadDatahandler)
-                .append("mime", mime)
                 .toString();
     }
 

@@ -6,6 +6,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author François Gautier
@@ -24,6 +25,7 @@ public class PartyRoleDao extends BasicDao<PartyRole> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    @Transactional
     public PartyRole findOrCreateRole(String value) {
         PartyRole role = findRoleByValue(value);
         if (role != null) {

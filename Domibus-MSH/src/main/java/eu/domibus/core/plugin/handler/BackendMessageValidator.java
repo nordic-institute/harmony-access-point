@@ -378,7 +378,7 @@ public class BackendMessageValidator {
      * @param agreementRef the AgreementRef to be validated.
      * @throws EbMS3Exception if the AgreementRef value is invalid
      */
-    protected void validateAgreementRef(AgreementRef agreementRef) throws EbMS3Exception {
+    protected void validateAgreementRef(AgreementRefEntity agreementRef) throws EbMS3Exception {
         //agreementRef is an optional element and can be null
         if (agreementRef == null) {
             LOG.debug("Optional field AgreementRef is null");

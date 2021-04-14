@@ -193,7 +193,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage, List<PartInfo> partInfos) {
         // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
-        return (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpc().getValue()) && !isPayloadOnFileSystem(partInfos));
+        return (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpcValue()) && !isPayloadOnFileSystem(partInfos));
     }
 
     protected boolean isPayloadOnFileSystem(List<PartInfo> partInfos) {
@@ -446,7 +446,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
-//            userMessage.setSplitAndJoin(splitAndJoin);
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
                 LOG.error("SplitAndJoin feature needs payload storage on the file system");

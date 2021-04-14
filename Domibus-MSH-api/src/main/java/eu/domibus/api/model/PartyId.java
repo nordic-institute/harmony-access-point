@@ -10,7 +10,7 @@ import javax.persistence.*;
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "PartyId.findByValue", query = "select prop from MessageProperty prop where prop.value=:VALUE"),
+        @NamedQuery(name = "PartyId.findByValue", query = "select prop from PartyId prop where prop.value=:VALUE"),
 })
 @Entity
 @Table(name = "TB_D_PARTY")
