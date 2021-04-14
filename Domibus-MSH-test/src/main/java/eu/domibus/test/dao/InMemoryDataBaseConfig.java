@@ -9,6 +9,7 @@ import javax.sql.DataSource;
  * @author Francois Gautier
  * @since 5.0
  */
+//TODO to be replaced by AbstractIT
 @EnableTransactionManagement
 @Profile("IN_MEMORY_DATABASE")
 public class InMemoryDataBaseConfig extends AbstractDatabaseConfig {

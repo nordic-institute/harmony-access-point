@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Primary;
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
-import java.security.cert.X509CRL;
 import java.util.ArrayList;
 import java.util.Collection;
 
