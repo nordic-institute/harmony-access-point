@@ -21,7 +21,7 @@ import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 public class PartyServiceImplTest {
 
     @Injectable
-    private DomibusCoreMapper coreMapper;
+    private PartyCoreMapper partyConverter;
 
     @Injectable
     private PModeProvider pModeProvider;
@@ -156,7 +156,7 @@ public class PartyServiceImplTest {
             result = partyEntities;
             pModeProvider.findAllProcesses();
             result = processEntities;
-            coreMapper.configurationPartyListToPartyList(partyEntities);
+            partyConverter.configurationPartyListToPartyList(partyEntities);
             result = parties;
             partyService.linkProcessWithPartyAsInitiator(withAny(new HashMap<>()), processEntities);
             times = 1;
@@ -210,7 +210,7 @@ public class PartyServiceImplTest {
             processEntity.getInitiatorParties();
             result = responderParties;
 
-            coreMapper.processToProcessAPI(processEntity);
+            partyConverter.processToProcessAPI(processEntity);
             result = process;
         }};
         partyService.linkProcessWithPartyAsInitiator(partyMap, processes);
@@ -239,7 +239,7 @@ public class PartyServiceImplTest {
             processEntity.getResponderParties();
             result = responderParties;
 
-            coreMapper.processToProcessAPI(processEntity);
+            partyConverter.processToProcessAPI(processEntity);
             result = process;
         }};
         partyService.linkProcessWithPartyAsResponder(partyMap, processes);
@@ -422,7 +422,7 @@ public class PartyServiceImplTest {
             replacement.getName();
             result = "replacementParty"; // update the replacement party
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -465,7 +465,7 @@ public class PartyServiceImplTest {
             converted.getIdentifiers();
             result = identifiers;
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -522,7 +522,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -573,7 +573,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -629,7 +629,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -668,7 +668,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList();
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -707,7 +707,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList();
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -758,7 +758,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList(process);
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -809,7 +809,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList(process);
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -865,7 +865,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList(process);
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -904,7 +904,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList();
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -943,7 +943,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList();
 
-            coreMapper.partyListToConfigurationPartyList(replacements);
+            partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -1351,7 +1351,7 @@ public class PartyServiceImplTest {
             parties.getParty();
             result = listParties;
 
-            coreMapper.partyToConfigurationParty(party);
+            partyConverter.partyToConfigurationParty(party);
             result = configParty;
 
         }};

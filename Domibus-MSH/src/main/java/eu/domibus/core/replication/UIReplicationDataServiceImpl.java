@@ -1,6 +1,7 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessagingDao;

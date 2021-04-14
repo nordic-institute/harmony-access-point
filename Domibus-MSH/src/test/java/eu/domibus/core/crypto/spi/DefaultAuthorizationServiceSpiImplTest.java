@@ -296,7 +296,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = false;
         }};
 
-        defaultAuthorizationServiceSpi.authorize(null, signingCertificate, null, userMessagePmodeData);
+        defaultAuthorizationServiceSpi.authorize(signingCertificate,  userMessagePmodeData);
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(signingCertificate, ALIAS_TEST_AUTH);

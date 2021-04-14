@@ -7,7 +7,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.*;
@@ -39,7 +39,7 @@ public class TruststoreResourceTest {
     CertificateService certificateService;
 
     @Injectable
-    DomibusCoreMapper coreMapper;
+    PartyCoreMapper partyCoreConverter;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;

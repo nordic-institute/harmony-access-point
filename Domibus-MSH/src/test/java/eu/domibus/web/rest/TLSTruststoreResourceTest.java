@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -32,7 +32,7 @@ public class TLSTruststoreResourceTest {
     TLSCertificateManager tlsCertificateManager;
 
     @Injectable
-    DomibusCoreMapper coreMapper;
+    PartyCoreMapper coreMapper;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
