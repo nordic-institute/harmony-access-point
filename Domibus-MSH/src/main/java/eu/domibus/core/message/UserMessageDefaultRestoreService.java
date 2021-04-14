@@ -49,11 +49,11 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private PullMessageService pullMessageService;
 
-    PModeService pModeService;
+    private PModeService pModeService;
 
-    PModeServiceHelper pModeServiceHelper;
+    private PModeServiceHelper pModeServiceHelper;
 
-    protected UserMessageDefaultService userMessageService;
+    private UserMessageDefaultService userMessageService;
 
     public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UIReplicationSignalService uiReplicationSignalService, UserMessageLogDao userMessageLogDao, MessagingDao messagingDao, PModeProvider pModeProvider, PullMessageService pullMessageService, PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService) {
         this.messageExchangeService = messageExchangeService;
