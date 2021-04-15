@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -125,17 +126,17 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             LOG.debug("Messaging header is empty");
             return;
         }
-        final Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
 
-        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         if (legConfiguration == null) {
             LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
             return;
         }
-        boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+        boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         try {
             if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
             }
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);

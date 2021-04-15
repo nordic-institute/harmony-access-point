@@ -13,9 +13,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_AGREEMENT")
 @NamedQueries({
-        @NamedQuery(name = "AgreementRef.findByValue", query = "select serv from AgreementRef serv where serv.value=:VALUE"),
+        @NamedQuery(name = "AgreementRef.findByValue", query = "select serv from AgreementRefEntity serv where serv.value=:VALUE"),
 })
-public class AgreementRef extends AbstractBaseEntity {
+public class AgreementRefEntity extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)
     protected String value;
@@ -45,7 +45,7 @@ public class AgreementRef extends AbstractBaseEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        AgreementRef that = (AgreementRef) o;
+        AgreementRefEntity that = (AgreementRefEntity) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

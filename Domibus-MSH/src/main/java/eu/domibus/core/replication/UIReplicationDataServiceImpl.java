@@ -4,7 +4,6 @@ import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -14,8 +13,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 
 /**

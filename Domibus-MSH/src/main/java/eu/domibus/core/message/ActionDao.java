@@ -5,8 +5,10 @@ import eu.domibus.api.model.ActionEntity;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+
 
 /**
  * @author Cosmin Baciu
@@ -19,6 +21,7 @@ public class ActionDao extends BasicDao<ActionEntity> {
         super(ActionEntity.class);
     }
 
+    @Transactional
     public ActionEntity findOrCreateAction(String value) {
         ActionEntity mpc = findByValue(value);
         if (mpc != null) {

@@ -5,15 +5,15 @@ package eu.domibus.api.model;
  * @since 3.3
  */
 public class RawEnvelopeDto {
-    final String rawMessage;
+    final byte[] rawMessage;
     final long id;
 
-    public RawEnvelopeDto(long id, String rawMessage) {
+    public RawEnvelopeDto(long id, byte[] rawMessage) {
         this.id = id;
         this.rawMessage = rawMessage;
     }
 
-    public String getRawMessage() {
+    public byte[] getRawMessage() {
         return rawMessage;
     }
 

@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -63,8 +64,8 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
             assert false;
         }
-        final Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+        final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
@@ -78,7 +79,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         } catch (final EbMS3Exception e) {
             try {
                 if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                    backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());

@@ -6,6 +6,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
@@ -18,6 +19,7 @@ public class ServiceDao extends BasicDao<ServiceEntity> {
         super(ServiceEntity.class);
     }
 
+    @Transactional
     public ServiceEntity findOrCreateService(String value, String type) {
         ServiceEntity service = findByValue(value);
         if (service != null) {
@@ -26,7 +28,7 @@ public class ServiceDao extends BasicDao<ServiceEntity> {
         ServiceEntity newService = new ServiceEntity();
         newService.setValue(value);
         newService.setType(type);
-        create(newService);
+         create(newService);
         return newService;
     }
 

@@ -51,9 +51,6 @@ public class UpdateRetryLoggingService {
     private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
-    private MessagingDao messagingDao;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired

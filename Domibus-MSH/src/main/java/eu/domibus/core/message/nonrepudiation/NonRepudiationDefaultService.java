@@ -134,7 +134,8 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         auditService.addMessageEnvelopesDownloadedAudit(messageId, ModificationType.USER_MESSAGE_ENVELOPE_DOWNLOADED);
         LOG.debug("Returning the user message envelope with id [{}]: [{}]", messageId, userEnvelope.getRawMessage());
-        return userEnvelope.getRawMessage();
+        final String rawXml = new String(userEnvelope.getRawMessage(), StandardCharsets.UTF_8);
+        return rawXml;
     }
 
     @Override
@@ -147,7 +148,8 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
         LOG.debug("Returning the signal message envelope with user message id [{}]: [{}]", userMessageId, rawEnvelopeDto.getRawMessage());
-        return rawEnvelopeDto.getRawMessage();
+        final String rawXml = new String(rawEnvelopeDto.getRawMessage(), StandardCharsets.UTF_8);
+        return rawXml;
     }
 
     @Override

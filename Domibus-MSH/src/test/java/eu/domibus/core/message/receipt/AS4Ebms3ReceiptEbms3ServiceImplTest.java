@@ -1,53 +1,7 @@
 package eu.domibus.core.message.receipt;
 
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.ebms3.model.*;
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.*;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.common.ErrorCode;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.ReplyPattern;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.api.model.SignalMessageLog;
-import eu.domibus.core.message.signal.SignalMessageLogBuilder;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.core.util.MessageUtil;
-import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.util.TimestampDateFormatter;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.namespace.QName;
-import javax.xml.soap.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMResult;
-import java.util.Iterator;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu

@@ -1,6 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -9,8 +10,6 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
@@ -76,23 +75,24 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
         LOG.debug("Parsing the SourceMessage from file [{}]", sourceMessageFileName);
 
         SOAPMessage userMessageRequest = null;
-        Messaging messaging = null;
+        UserMessage userMessage = null;
         try {
             userMessageRequest = splitAndJoinService.getUserMessage(new File(sourceMessageFileName), contentTypeString);
             Ebms3Messaging ebms3Messaging = messageUtil.getMessaging(userMessageRequest);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+            userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         } catch (Exception e) {
             LOG.error("Error getting the Messaging object from the SOAPMessage", e);
             throw new WebServiceException(e);
         }
         LOG.debug("Finished parsing the SourceMessage from file [{}]", sourceMessageFileName);
 
-        final UserMessage userMessage = messaging.getUserMessage();
         SOAPMessage finalUserMessageRequest = userMessageRequest;
 
+        //required by lambda expression
+        final UserMessage finalUserMessage = userMessage;
         domainTaskExecutor.submitLongRunningTask(
-                () -> splitAndJoinService.createUserFragmentsFromSourceFile(sourceMessageFileName, finalUserMessageRequest, userMessage, contentTypeString, compression),
-                () -> splitAndJoinService.setSourceMessageAsFailed(userMessage),
+                () -> splitAndJoinService.createUserFragmentsFromSourceFile(sourceMessageFileName, finalUserMessageRequest, finalUserMessage, contentTypeString, compression),
+                () -> splitAndJoinService.setSourceMessageAsFailed(finalUserMessage),
                 currentDomain);
 
         try {

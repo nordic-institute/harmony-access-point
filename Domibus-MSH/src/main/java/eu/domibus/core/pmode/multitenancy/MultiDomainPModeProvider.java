@@ -134,7 +134,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findAgreement(AgreementRef agreementRef) throws EbMS3Exception {
+    public String findAgreement(AgreementRefEntity agreementRef) throws EbMS3Exception {
         return getCurrentPModeProvider().findAgreement(agreementRef);
     }
 

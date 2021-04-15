@@ -1,25 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageRaw;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.util.SoapUtil;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.xml.soap.SOAPMessage;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

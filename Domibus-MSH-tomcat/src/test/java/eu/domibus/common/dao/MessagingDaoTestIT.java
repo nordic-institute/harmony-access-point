@@ -1,25 +1,6 @@
 package eu.domibus.common.dao;
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
-import eu.domibus.api.model.*;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.model.configuration.Identifier;
-import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.configuration.PartyIdType;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.pull.MessagePullDto;
-import eu.domibus.core.party.PartyDao;
-import eu.domibus.test.util.PojoInstaciatorUtil;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

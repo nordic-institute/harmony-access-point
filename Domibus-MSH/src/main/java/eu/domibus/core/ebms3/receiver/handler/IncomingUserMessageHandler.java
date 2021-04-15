@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -46,11 +47,11 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
 
-        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging);
 
-        authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
-        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging.getUserMessage(), partInfoList, testMessage);
+        authorizationService.authorizeUserMessage(request, userMessage);
+        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }

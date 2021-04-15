@@ -17,7 +17,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -213,11 +212,11 @@ public class EventServiceImpl implements EventService {
             }
 
             String receiverPartyName = null;
-            if (mpcService.forcePullOnMpc(userMessage.getMpc().getValue())) {
+            if (mpcService.forcePullOnMpc(userMessage.getMpcValue())) {
                 LOG.debug("Find UserMessage exchange context (pull context)");
                 userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 LOG.debug("Extract receiverPartyName from mpc");
-                receiverPartyName = mpcService.extractInitiator(userMessage.getMpc().getValue());
+                receiverPartyName = mpcService.extractInitiator(userMessage.getMpcValue());
             } else {
                 LOG.debug("Find UserMessage exchange context");
                 userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.valueOf(role));
