@@ -52,10 +52,10 @@ public interface DomibusCoreMapper {
 
     List<DomainRO> domainListToDomainROList(List<Domain> domainList);
 
-    @WithoutMetadata
+    @WithoutAudit
     BackendFilterEntity backendFilterToBackendFilterEntity(BackendFilter backendFilter);
 
-    @WithoutMetadata
+    @WithoutAudit
     @Mapping(ignore = true, target = "inputPattern")
     @Mapping(ignore = true, target = "tooltip")
     RoutingCriteriaEntity routingCriteriaToRoutingCriteriaEntity(RoutingCriteria routingCriteria);

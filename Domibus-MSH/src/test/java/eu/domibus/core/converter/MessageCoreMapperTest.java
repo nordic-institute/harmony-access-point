@@ -71,10 +71,6 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         convertedBack.setMessageFragment(toConvert.isMessageFragment());
         convertedBack.setPartInfoList(toConvert.getPartInfoList());
         convertedBack.setEntityId(toConvert.getEntityId());
-        convertedBack.setCreationTime(toConvert.getCreationTime());
-        convertedBack.setModificationTime(toConvert.getModificationTime());
-        convertedBack.setCreatedBy(toConvert.getCreatedBy());
-        convertedBack.setModifiedBy(toConvert.getModifiedBy());
 
         From fromToConvert = (From) getPartyIdProperty(toConvert, "from");
         To toToConvert = (To) getPartyIdProperty(toConvert, "to");
@@ -83,49 +79,16 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         To toConvertedBack = (To) getPartyIdProperty(convertedBack, "to");
 
         fromConvertedBack.getPartyId().setEntityId(fromToConvert.getPartyId().getEntityId());
-        fromConvertedBack.getPartyId().setCreationTime(fromToConvert.getPartyId().getCreationTime());
-        fromConvertedBack.getPartyId().setModificationTime(fromToConvert.getPartyId().getModificationTime());
-        fromConvertedBack.getPartyId().setCreatedBy(fromToConvert.getPartyId().getCreatedBy());
-        fromConvertedBack.getPartyId().setModifiedBy(fromToConvert.getPartyId().getModifiedBy());
-
         fromConvertedBack.getRole().setEntityId(fromToConvert.getRole().getEntityId());
-        fromConvertedBack.getRole().setCreationTime(fromToConvert.getRole().getCreationTime());
-        fromConvertedBack.getRole().setModificationTime(fromToConvert.getRole().getModificationTime());
-        fromConvertedBack.getRole().setCreatedBy(fromToConvert.getRole().getCreatedBy());
-        fromConvertedBack.getRole().setModifiedBy(fromToConvert.getRole().getModifiedBy());
-
         toConvertedBack.getPartyId().setEntityId(toToConvert.getPartyId().getEntityId());
-        toConvertedBack.getPartyId().setCreationTime(toToConvert.getPartyId().getCreationTime());
-        toConvertedBack.getPartyId().setModificationTime(toToConvert.getPartyId().getModificationTime());
-        toConvertedBack.getPartyId().setCreatedBy(toToConvert.getPartyId().getCreatedBy());
-        toConvertedBack.getPartyId().setModifiedBy(toToConvert.getPartyId().getModifiedBy());
-
         toConvertedBack.getRole().setEntityId(toToConvert.getRole().getEntityId());
-        toConvertedBack.getRole().setCreationTime(toToConvert.getRole().getCreationTime());
-        toConvertedBack.getRole().setModificationTime(toToConvert.getRole().getModificationTime());
-        toConvertedBack.getRole().setCreatedBy(toToConvert.getRole().getCreatedBy());
-        toConvertedBack.getRole().setModifiedBy(toToConvert.getRole().getModifiedBy());
-
         convertedBack.getMpc().setEntityId(toConvert.getMpc().getEntityId());
-        convertedBack.getMpc().setCreationTime(toConvert.getMpc().getCreationTime());
-        convertedBack.getMpc().setModificationTime(toConvert.getMpc().getModificationTime());
-        convertedBack.getMpc().setCreatedBy(toConvert.getMpc().getCreatedBy());
-        convertedBack.getMpc().setModifiedBy(toConvert.getMpc().getModifiedBy());
 
         MessageProperty messagePropertyConvertedBack = getAnyMessageProperty(convertedBack);
         MessageProperty messagePropertyToConvert = getAnyMessageProperty(toConvert);
         messagePropertyConvertedBack.setEntityId(messagePropertyToConvert.getEntityId());
-        messagePropertyConvertedBack.setCreationTime(messagePropertyToConvert.getCreationTime());
-        messagePropertyConvertedBack.setModificationTime(messagePropertyToConvert.getModificationTime());
-        messagePropertyConvertedBack.setCreatedBy(messagePropertyToConvert.getCreatedBy());
-        messagePropertyConvertedBack.setModifiedBy(messagePropertyToConvert.getModifiedBy());
 
         convertedBack.getService().setEntityId(toConvert.getService().getEntityId());
-        convertedBack.getService().setCreationTime(toConvert.getService().getCreationTime());
-        convertedBack.getService().setModificationTime(toConvert.getService().getModificationTime());
-        convertedBack.getService().setCreatedBy(toConvert.getService().getCreatedBy());
-        convertedBack.getService().setModifiedBy(toConvert.getService().getModifiedBy());
-
         convertedBack.getAgreementRef().setEntityId(toConvert.getAgreementRef().getEntityId());
         convertedBack.getAction().setEntityId(toConvert.getAction().getEntityId());
 
@@ -155,50 +118,5 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
 
         objectService.assertObjects(convertedBack, toConvert);
     }
-
-//    @Test
-//    public void convertUIMessageEntitySignalMessageLog() {
-//        UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
-//        final SignalMessageLog converted = messageCoreMapper.uiMessageEntityToSignalMessageLog(toConvert);
-//        final UIMessageEntity convertedBack = messageCoreMapper.signalMessageLogToUIMessageEntity(converted);
-//        convertedBack.setConversationId(toConvert.getConversationId());
-//        convertedBack.setRefToMessageId(toConvert.getRefToMessageId());
-//        convertedBack.setFromId(toConvert.getFromId());
-//        convertedBack.setToId(toConvert.getToId());
-//        convertedBack.setFromScheme(toConvert.getFromScheme());
-//        convertedBack.setToScheme(toConvert.getToScheme());
-//        convertedBack.setLastModified(toConvert.getLastModified());
-//        convertedBack.setServiceType(toConvert.getServiceType());
-//        convertedBack.setServiceValue(toConvert.getServiceValue());
-//        convertedBack.setAction(toConvert.getAction());
-//        convertedBack.setNotificationStatus(toConvert.getNotificationStatus());
-//        convertedBack.setSendAttemptsMax(toConvert.getSendAttemptsMax());
-//        convertedBack.setSendAttempts(toConvert.getSendAttempts());
-//        convertedBack.setNextAttempt(toConvert.getNextAttempt());
-//        convertedBack.setFailed(toConvert.getFailed());
-//        convertedBack.setRestored(toConvert.getRestored());
-//        convertedBack.setMessageType(toConvert.getMessageType());
-//        convertedBack.setMessageSubtype(toConvert.getMessageSubtype());
-//        objectService.assertObjects(convertedBack, toConvert);
-//    }
-
-//    @Test
-//    public void convertUIMessageEntityUserMessageLog() {
-//        UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
-//        final UserMessageLog converted = messageCoreMapper.uiMessageEntityToUserMessageLog(toConvert);
-//        final UIMessageEntity convertedBack = messageCoreMapper.userMessageLogToUIMessageEntity(converted);
-//        convertedBack.setConversationId(toConvert.getConversationId());
-//        convertedBack.setFromId(toConvert.getFromId());
-//        convertedBack.setToId(toConvert.getToId());
-//        convertedBack.setFromScheme(toConvert.getFromScheme());
-//        convertedBack.setToScheme(toConvert.getToScheme());
-//        convertedBack.setLastModified(toConvert.getLastModified());
-//        convertedBack.setAction(toConvert.getAction());
-//        convertedBack.setServiceType(toConvert.getServiceType());
-//        convertedBack.setServiceValue(toConvert.getServiceValue());
-//        convertedBack.setMessageType(toConvert.getMessageType());
-//        objectService.assertObjects(convertedBack, toConvert);
-//    }
-
 
 }

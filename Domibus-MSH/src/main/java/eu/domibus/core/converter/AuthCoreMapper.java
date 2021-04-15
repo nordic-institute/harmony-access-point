@@ -21,7 +21,7 @@ public interface AuthCoreMapper {
 
     User userResponseROToUser(UserResponseRO user);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @Mapping(source = "authorities", target = "roles")
     @Mapping(ignore = true, target = "attemptCount")
     @Mapping(ignore = true, target = "suspensionDate")
@@ -75,7 +75,7 @@ public interface AuthCoreMapper {
     @Mapping(ignore = true, target = "expirationDate")
     PluginUserRO authenticationEntityToPluginUserRO(AuthenticationEntity authenticationEntity);
 
-    @WithoutMetadata
+    @WithoutAudit
     @Mapping(ignore = true, target = "attemptCount")
     @Mapping(ignore = true, target = "suspensionDate")
     @Mapping(ignore = true, target = "passwordChangeDate")

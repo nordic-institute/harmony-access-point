@@ -29,21 +29,21 @@ public interface PartyCoreMapper {
     @Mapping(ignore = true, target = "responderParties")
     @Mapping(ignore = true, target = "legs")
     @InheritInverseConfiguration
-    @WithoutMetadata
+    @WithoutAudit
     Process processAPIToProcess(eu.domibus.api.process.Process process);
 
     @Mapping(ignore = true, target = "processesWithPartyAsInitiator")
     @Mapping(ignore = true, target = "processesWithPartyAsResponder")
     Party configurationPartyToParty(eu.domibus.common.model.configuration.Party party);
 
-    @WithoutMetadata
+    @WithoutAudit
     @Mapping(ignore = true, target = "password")
     eu.domibus.common.model.configuration.Party partyToConfigurationParty(Party party);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     eu.domibus.common.model.configuration.Identifier identifierToConfigurationIdentifier(eu.domibus.api.party.Identifier party);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     eu.domibus.common.model.configuration.PartyIdType partyIdTypeToConfigurationPartyIdType(eu.domibus.api.party.PartyIdType party);
 
     List<eu.domibus.common.model.configuration.Party> partyListToConfigurationPartyList(List<Party> partyList);

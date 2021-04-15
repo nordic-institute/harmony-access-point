@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper(uses = {EventMapper.class}, componentModel = "spring")
 public interface AlertCoreMapper {
 
-    @WithoutMetadata
+    @WithoutAudit
     Alert alertServiceToAlertPersist(eu.domibus.core.alerts.model.service.Alert alert);
 
     eu.domibus.core.alerts.model.service.Alert alertPersistToAlertService(Alert alert);

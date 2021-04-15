@@ -14,16 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author François Gautier
  * @since 5.0
  */
-public class LogCoreMapperTest extends AbstractMapperTest {
+public class AuditLogCoreMapperTest extends AbstractMapperTest {
 
     @Autowired
-    private LogCoreMapper auditCoreMapper;
+    private AuditLogCoreMapper auditLogCoreMapper;
 
     @Test
     public void convertAuditLogAuditResponseRo() {
         AuditLog toConvert = (AuditLog) objectService.createInstance(AuditLog.class);
-        final AuditResponseRo converted = auditCoreMapper.auditLogToAuditResponseRo(toConvert);
-        final AuditLog convertedBack = auditCoreMapper.auditResponseRoToAuditLog(converted);
+        final AuditResponseRo converted = auditLogCoreMapper.auditLogToAuditResponseRo(toConvert);
+        final AuditLog convertedBack = auditLogCoreMapper.auditResponseRoToAuditLog(converted);
 
         objectService.assertObjects(convertedBack, toConvert);
     }
@@ -31,8 +31,8 @@ public class LogCoreMapperTest extends AbstractMapperTest {
     @Test
     public void convertAuditLogAudit() {
         AuditLog toConvert = (AuditLog) objectService.createInstance(AuditLog.class);
-        final Audit converted = auditCoreMapper.auditLogToAudit(toConvert);
-        final AuditLog convertedBack = auditCoreMapper.auditToAuditLog(converted);
+        final Audit converted = auditLogCoreMapper.auditLogToAudit(toConvert);
+        final AuditLog convertedBack = auditLogCoreMapper.auditToAuditLog(converted);
 
         convertedBack.setRevisionId(toConvert.getRevisionId());
         convertedBack.setAuditTargetName(toConvert.getAuditTargetName());
@@ -48,8 +48,8 @@ public class LogCoreMapperTest extends AbstractMapperTest {
         MSHRoleEntity mshRole = new MSHRoleEntity();
         mshRole.setRole(MSHRole.SENDING);
         toConvert.setMshRole(mshRole);
-        final ErrorLogRO converted = auditCoreMapper.errorLogEntryToErrorLogRO(toConvert);
-        final ErrorLogEntry convertedBack = auditCoreMapper.errorLogROToErrorLogEntry(converted);
+        final ErrorLogRO converted = auditLogCoreMapper.errorLogEntryToErrorLogRO(toConvert);
+        final ErrorLogEntry convertedBack = auditLogCoreMapper.errorLogROToErrorLogEntry(converted);
 
         convertedBack.setEntityId(toConvert.getEntityId());
 

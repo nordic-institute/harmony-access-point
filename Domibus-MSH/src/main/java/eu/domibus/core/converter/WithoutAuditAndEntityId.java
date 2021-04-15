@@ -10,9 +10,10 @@ import java.lang.annotation.RetentionPolicy;
  * @since 5.0
  */
 @Retention(RetentionPolicy.CLASS)
+@Mapping(ignore = true, target = "entityId")
 @Mapping(ignore = true, target = "creationTime")
 @Mapping(ignore = true, target = "modificationTime")
 @Mapping(ignore = true, target = "createdBy")
 @Mapping(ignore = true, target = "modifiedBy")
-public @interface WithoutMetadata {
+public @interface WithoutAuditAndEntityId {
 }

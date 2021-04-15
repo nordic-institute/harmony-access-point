@@ -17,7 +17,7 @@ import java.util.List;
  * @since 5.0
  */
 @Mapper(componentModel = "spring")
-public interface LogCoreMapper {
+public interface AuditLogCoreMapper {
 
     List<AuditResponseRo> auditLogListToAuditResponseRoList(List<AuditLog> auditLogList);
 
@@ -37,7 +37,7 @@ public interface LogCoreMapper {
 
     ErrorLogRO errorLogEntryToErrorLogRO(ErrorLogEntry errorLogEntry);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @Mapping(ignore = true, target = "userMessage")
     @Mapping(target = "mshRole.role", source = "mshRole")
     ErrorLogEntry errorLogROToErrorLogEntry(ErrorLogRO errorLogRO);

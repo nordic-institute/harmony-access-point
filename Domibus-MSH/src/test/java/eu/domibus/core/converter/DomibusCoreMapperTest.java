@@ -103,6 +103,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
         final DomainDTO convertedBack = domibusCoreMapper.domainToDomainDTO(converted);
         objectService.assertObjects(convertedBack, toConvert);
     }
+    
     @Test
     public void convertPasswordEncryptionResultDTOToPasswordEncryptionResult() {
         PasswordEncryptionResultDTO toConvert = (PasswordEncryptionResultDTO) objectService.createInstance(PasswordEncryptionResultDTO.class);

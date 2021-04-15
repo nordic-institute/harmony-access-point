@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface MessageCoreMapper {
 
-    @WithoutMetadata
+    @WithoutAudit
     @Mapping(target = "entityId", source = "id")
     @Mapping(target = "userMessage.messageId", source = "messageId")
     MessageAttemptEntity messageAttemptToMessageAttemptEntity(MessageAttempt messageAttempt);
@@ -41,7 +41,7 @@ public interface MessageCoreMapper {
 
     UIMessageDiffEntity uiMessageEntityToUIMessageDiffEntity(UIMessageEntity uiMessageEntity);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @Mapping(ignore = true, target = "lastModified")
     UIMessageEntity uiMessageDiffEntityToUIMessageEntity(UIMessageDiffEntity uiMessageEntity);
 
@@ -53,10 +53,8 @@ public interface MessageCoreMapper {
     @Mapping(target = "sourceMessage", ignore = true)
     MessageLogRO uiMessageEntityToMessageLogRO(UIMessageEntity uiMessageEntity);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @InheritInverseConfiguration
-//    @Mapping(target = "fromId", source = "fromPartyId")
-//    @Mapping(target = "toId", source = "toPartyId")
     @Mapping(target = "lastModified", ignore = true)
     UIMessageEntity messageLogROToUIMessageEntity(MessageLogRO messageLogRO);
 
@@ -68,68 +66,20 @@ public interface MessageCoreMapper {
     @Mapping(ignore = true, target = "sourceMessage")
     MessageLogInfo uiMessageEntityToMessageLogInfo(UIMessageEntity uiMessageEntity);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @InheritInverseConfiguration
     @Mapping(ignore = true, target = "fromScheme")
     @Mapping(ignore = true, target = "toScheme")
     @Mapping(ignore = true, target = "lastModified")
     UIMessageEntity messageLogInfoToUIMessageEntity(MessageLogInfo uiMessageEntity);
 
-//    @Mapping(source = "mshRole", target = "mshRole.role")
-//    @Mapping(source = "messageStatus", target = "messageStatus.messageStatus")
-//    @InheritInverseConfiguration
-//    SignalMessageLog uiMessageEntityToSignalMessageLog(UIMessageEntity uiMessageEntity);
-//
-//    @WithoutMetadata
-//    @Mapping(target = "messageId", source = "signalMessage.userMessage.messageId")
-//    @Mapping(target = "refToMessageId", source = "signalMessage.userMessage.refToMessageId")
-//    @Mapping(target = "conversationId", source = "signalMessage.userMessage.conversationId")
-//    @Mapping(target = "fromId", source = "signalMessage.userMessage.partyInfo.from.partyId.value")
-//    @Mapping(target = "toId", source = "signalMessage.userMessage.partyInfo.to.partyId.value")
-//    @Mapping(target = "action", source = "signalMessage.userMessage.action.value")
-//    @Mapping(target = "serviceType", source = "signalMessage.userMessage.service.type")
-//    @Mapping(target = "serviceValue", source = "signalMessage.userMessage.service.value")
-//    @Mapping(target = "notificationStatus", ignore = true)
-//    @Mapping(target = "messageType", ignore = true)
-//    @Mapping(target = "messageSubtype", ignore = true)
-//    @Mapping(target = "restored", ignore = true)
-//    @Mapping(target = "failed", ignore = true)
-//    @Mapping(target = "sendAttempts", ignore = true)
-//    @Mapping(target = "sendAttemptsMax", ignore = true)
-//    @Mapping(target = "nextAttempt", ignore = true)
-//    @Mapping(target = "fromScheme", ignore = true)
-//    @Mapping(target = "toScheme", ignore = true)
-//    @Mapping(target = "lastModified", ignore = true)
-//    UIMessageEntity signalMessageLogToUIMessageEntity(SignalMessageLog uiMessageEntity);
-
-//    @Mapping(target = "backend", ignore = true)
-//    @Mapping(target = "downloaded", ignore = true)
-//    @Mapping(target = "scheduled", ignore = true)
-//    @Mapping(target = "version", ignore = true)
-//    @InheritInverseConfiguration
-//    UserMessageLog uiMessageEntityToUserMessageLog(UIMessageEntity uiMessageEntity);
-//
-//    @WithoutMetadata
-//    @Mapping(target = "messageId", source = "userMessage.messageId")
-//    @Mapping(target = "conversationId", source = "userMessage.conversationId")
-//    @Mapping(target = "refToMessageId", source = "userMessage.refToMessageId")
-//    @Mapping(target = "fromId", source = "userMessage.partyInfo.from.partyId.value")
-//    @Mapping(target = "toId", source = "userMessage.partyInfo.to.partyId.value")
-//    @Mapping(target = "action", source = "userMessage.action.value")
-//    @Mapping(target = "serviceType", source = "userMessage.service.type")
-//    @Mapping(target = "serviceValue", source = "userMessage.service.value")
-//    @Mapping(target = "messageType", ignore = true)
-//    @Mapping(target = "fromScheme", ignore = true)
-//    @Mapping(target = "toScheme", ignore = true)
-//    @Mapping(target = "lastModified", ignore = true)
-//    UIMessageEntity userMessageLogToUIMessageEntity(UserMessageLog uiMessageEntity);
 
     @InheritInverseConfiguration
     @Mapping(target = "collaborationInfo.agreementRef.pmode", ignore = true)
     @Mapping(target = "collaborationInfo.agreementRef", source = "agreementRef")
     eu.domibus.api.usermessage.domain.UserMessage userMessageToUserMessageApi(UserMessage userMessage);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @Mapping(target = "partyInfo.from.role.value", source = "partyInfo.from.role")
     @Mapping(target = "partyInfo.to.role.value", source = "partyInfo.to.role")
     @Mapping(target = "mpc.value", source = "mpc")
@@ -146,7 +96,7 @@ public interface MessageCoreMapper {
     @Mapping(target = "messageFragment", ignore = true)
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @Mapping(target = "binaryData", ignore = true)
     @Mapping(target = "fileName", ignore = true)
     @Mapping(target = "encrypted", ignore = true)
@@ -158,7 +108,7 @@ public interface MessageCoreMapper {
     @Mapping(target = "schema", ignore = true)
     eu.domibus.api.usermessage.domain.PartInfo convertPartInfo(PartInfo PartInfo);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     PartProperty convertToPartProperty(eu.domibus.api.usermessage.domain.Property property);
 
     eu.domibus.api.usermessage.domain.Property convertToProperty(PartProperty property);
@@ -202,18 +152,14 @@ public interface MessageCoreMapper {
         return partyId;
     }
 
-
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     @Mapping(source = ".", target = "value")
     ActionEntity serviceToServiceEntityApi(String action);
 
-    @WithoutAllMetadata
-    AgreementRef serviceToServiceEntityApi(eu.domibus.api.usermessage.domain.AgreementRef service);
-
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     ServiceEntity serviceToServiceEntityApi(Service service);
 
-    @WithoutAllMetadata
+    @WithoutAuditAndEntityId
     MessageProperty propertyToMessagePropertyApi(eu.domibus.api.usermessage.domain.Property property);
 
 
@@ -222,12 +168,6 @@ public interface MessageCoreMapper {
     default NotificationStatus notificationStatus(NotificationStatusEntity s) {
         return s.getStatus();
     }
-
-//    default NotificationStatusEntity notificationStatusEntity(NotificationStatus notificationStatus) {
-//        NotificationStatusEntity notificationStatusEntity = new NotificationStatusEntity();
-//        notificationStatusEntity.setStatus(notificationStatus);
-//        return notificationStatusEntity;
-//    }
 
     default MSHRole mshRole(MSHRoleEntity mshRoleEntity) {
         return mshRoleEntity.getRole();

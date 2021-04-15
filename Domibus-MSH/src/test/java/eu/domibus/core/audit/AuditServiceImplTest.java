@@ -12,7 +12,7 @@ import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.MessageAudit;
 import eu.domibus.core.audit.model.PModeArchiveAudit;
 import eu.domibus.core.audit.model.PModeAudit;
-import eu.domibus.core.converter.LogCoreMapper;
+import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.util.AnnotationsUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class AuditServiceImplTest {
     private AnnotationsUtil annotationsUtil;
 
     @Mock
-    private LogCoreMapper logCoreMapper;
+    private AuditLogCoreMapper auditLogCoreMapper;
 
     @Mock
     private AuditDao auditDao;
@@ -116,7 +116,7 @@ public class AuditServiceImplTest {
                 from,
                 0,
                 10);
-        verify(logCoreMapper, times(1)).auditLogListToAuditList(eq(audits));
+        verify(auditLogCoreMapper, times(1)).auditLogListToAuditList(eq(audits));
 
     }
 
