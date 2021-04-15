@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,7 +32,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private DomibusCoreMapper coreMapper;
+    private MessageCoreMapper messageCoreConverter;
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
@@ -71,7 +71,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         }
         result.setMessageLogEntries(resultList
                 .stream()
-                .map(messageLogInfo -> convertMessageLogInfo(messageLogInfo))
+                .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList()));
         return result;
     }
@@ -82,18 +82,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return (messageType == MessageType.SIGNAL_MESSAGE ?
                 signalMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters) :
                 userMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters));
-    }
-
-    /**
-     * @param messageLogInfo
-     * @return
-     */
-    MessageLogRO convertMessageLogInfo(MessageLogInfo messageLogInfo) {
-        if (messageLogInfo == null) {
-            return null;
-        }
-
-        return coreMapper.messageLogInfoToMessageLogRO(messageLogInfo);
     }
 
     /**

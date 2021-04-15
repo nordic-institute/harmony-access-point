@@ -3,7 +3,7 @@ package eu.domibus.core.message.attempt;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
     MessageAttemptDao messageAttemptDao;
 
     @Autowired
-    DomibusCoreMapper coreMapper;
+    MessageCoreMapper messageCoreConverter;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -37,7 +37,7 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
     @Override
     public List<MessageAttempt> getAttemptsHistory(String messageId) {
         final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(messageId);
-        return coreMapper.messageAttemptEntityListToMessageAttemptList(entities);
+        return messageCoreConverter.messageAttemptEntityListToMessageAttemptList(entities);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -47,7 +47,7 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
             return;
         }
 
-        final MessageAttemptEntity entity = coreMapper.messageAttemptToMessageAttemptEntity(attempt);
+        final MessageAttemptEntity entity = messageCoreConverter.messageAttemptToMessageAttemptEntity(attempt);
         messageAttemptDao.create(entity);
     }
 

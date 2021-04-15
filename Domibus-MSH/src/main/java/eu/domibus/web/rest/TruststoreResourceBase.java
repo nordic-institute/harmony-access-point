@@ -6,7 +6,7 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -31,7 +31,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-    protected final DomibusCoreMapper coreMapper;
+    protected final PartyCoreMapper partyConverter;
 
     protected final ErrorHandlerService errorHandlerService;
 
@@ -39,9 +39,9 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected final AuditService auditService;
 
-    public TruststoreResourceBase(DomibusCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
+    public TruststoreResourceBase(PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
                                   MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        this.coreMapper = coreMapper;
+        this.partyConverter = partyConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
         this.auditService = auditService;
@@ -88,7 +88,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = doGetTrustStoreEntries();
-        return coreMapper.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
+        return partyConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
     }
 
     protected abstract List<TrustStoreEntry> doGetTrustStoreEntries();

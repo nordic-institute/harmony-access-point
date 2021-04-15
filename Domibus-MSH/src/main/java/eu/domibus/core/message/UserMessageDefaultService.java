@@ -19,7 +19,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.error.ErrorLogDao;
@@ -149,7 +149,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private DomibusCoreMapper domibusCoreMapper;
+    private MessageCoreMapper messageCoreConverter;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -539,10 +539,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
         final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
-        if (userMessageByMessageId == null) {
-            return null;
-        }
-        return domibusCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
+        return messageCoreConverter.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Transactional

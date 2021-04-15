@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
 import eu.domibus.core.certificate.CertificateServiceImpl;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.property.*;
 import eu.domibus.logging.DomibusLogger;
@@ -72,12 +71,6 @@ public class CRLEbms3ServiceImplIT {
 //        public DomainCoreConverter domainConverter() {
 //            return Mockito.mock(DomainCoreConverter.class);
 //        }
-
-        @Bean
-        public DomibusCoreMapper coreMapper() {
-            return Mockito.mock(DomibusCoreMapper.class);
-        }
-
 
         @Bean
         public PropertyProviderDispatcher domibusPropertyProviderDispatcher() {
