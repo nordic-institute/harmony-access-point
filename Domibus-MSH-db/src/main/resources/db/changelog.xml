@@ -2820,7 +2820,7 @@
             <column name="PRIORITY" type="INT"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACK_RCRITERIA_AUD"
-                                 constraintName="FK_BCK_RCR_AUD_REV_INFO " deferrable="false" initiallyDeferred="false"
+                                 constraintName="FK_BCK_RCR_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
         <createIndex indexName="IDX_FK_BCK_RCR_AUD_REV_INFO" tableName="TB_BACK_RCRITERIA_AUD">
