@@ -455,7 +455,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         drop_table_if_exists('TB_D_MPC');
         drop_table_if_exists('TB_D_ROLE');
-        drop_table_if_exists('TB_D_MSH_ROLE');
         drop_table_if_exists('TB_D_SERVICE');
         drop_table_if_exists('TB_D_AGREEMENT');
         drop_table_if_exists('TB_D_ACTION');
@@ -465,6 +464,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
         drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
         drop_table_if_exists('TB_D_PART_PROPERTY');
+        drop_table_if_exists('TB_D_MSH_ROLE');
 
         -- create them
         v_table := 'MIGR_TB_USER_MESSAGE';
@@ -583,7 +583,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_table := 'TB_D_NOTIFICATION_STATUS';
         create_table(v_table, v_sql);
 
-
+        v_sql :=
+                'CREATE TABLE TB_D_MSH_ROLE (ID_PK NUMBER(38, 0) NOT NULL, ROLE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MSH_ROLE PRIMARY KEY (ID_PK))';
+        v_table := 'TB_D_MSH_ROLE';
+        create_table(v_table, v_sql);
     END migrate_pre;
     /** -- Helper procedures and functions end -*/
 
