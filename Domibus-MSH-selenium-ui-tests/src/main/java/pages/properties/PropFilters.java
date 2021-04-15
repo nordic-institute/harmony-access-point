@@ -59,7 +59,7 @@ public class PropFilters extends FilterArea {
 		}
 
 		clickSearch();
-		wait.forXMillis(500);
+//		wait.forXMillis(500);
 
 	}
 

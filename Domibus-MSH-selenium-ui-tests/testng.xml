@@ -19,6 +19,9 @@
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
             <class name="domibus.ui.ux.MessagesPgUXTest">
+                <methods>
+                    <exclude name="csvFileDownloadHeaders"/>
+                </methods>
             </class>
             <class name="domibus.ui.ux.PluginUsersPgUXTest">
                 <methods>
@@ -48,8 +51,9 @@
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
             <class name="domibus.ui.functional.ErrorLogPgTest">
                 <methods>
-                    <!--                    2 tests disabled due to inconsistent results-->
+                    <!--                    3 tests disabled due to inconsistent results-->
                     <exclude name="checkNoOFErrorsPerMessage"/>
+                    <exclude name="checkTimestamp"/>
                     <exclude name="checkErrorCode"/>
                 </methods>
             </class>
@@ -92,6 +96,9 @@
     <test name="Test">
         <classes>
             <class name="domibus.ui.functional.MessagesPgTest">
+                <methods>
+                    <exclude name="downloadMsgs"/>
+                </methods>
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests">
             </class>
