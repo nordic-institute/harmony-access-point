@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -46,7 +46,7 @@ public class MessageFilterResourceTest {
     RoutingService routingService;
 
     @Injectable
-    DomibusCoreMapper coreMapper;
+    BackendFilterCoreMapper backendFilterCoreMapper;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -57,7 +57,7 @@ public class MessageFilterResourceTest {
         List<MessageFilterRO> messageFilterROS = singletonList(new MessageFilterRO());
 
         new Expectations(){{
-            coreMapper.messageFilterROListToBackendFilterList(messageFilterROS);
+            backendFilterCoreMapper.messageFilterROListToBackendFilterList(messageFilterROS);
             this.result = backendFilters;
             times = 1;
         }};
@@ -155,7 +155,7 @@ public class MessageFilterResourceTest {
             routingService.getBackendFiltersUncached();
             result = backendFilters;
 
-            coreMapper.backendFilterListToMessageFilterROList(backendFilters);
+            backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);
             result = messageFilterROS;
         }};
 

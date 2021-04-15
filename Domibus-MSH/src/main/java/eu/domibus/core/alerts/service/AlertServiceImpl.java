@@ -15,7 +15,7 @@ import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AlertCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class AlertServiceImpl implements AlertService {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomibusCoreMapper coreMapper;
+    private AlertCoreMapper alertCoreMapper;
 
     @Autowired
     private JMSManager jmsManager;
@@ -113,7 +113,7 @@ public class AlertServiceImpl implements AlertService {
         alert.setAlertLevel(alertLevel);
         alertDao.create(alert);
         LOG.info("New alert saved: [{}]", alert);
-        return coreMapper.alertPersistToAlertService(alert);
+        return alertCoreMapper.alertPersistToAlertService(alert);
     }
 
     /**
@@ -223,7 +223,7 @@ public class AlertServiceImpl implements AlertService {
             });
 
         }
-        return coreMapper.alertPersistListToAlertServiceList(alerts);
+        return alertCoreMapper.alertPersistListToAlertServiceList(alerts);
     }
 
     /**
@@ -266,7 +266,7 @@ public class AlertServiceImpl implements AlertService {
 
     private void convertAndEnqueue(Alert alert) {
         LOG.debug("Preparing alert for retry [{}]", alert);
-        final eu.domibus.core.alerts.model.service.Alert convert = coreMapper.alertPersistToAlertService(alert);
+        final eu.domibus.core.alerts.model.service.Alert convert = alertCoreMapper.alertPersistToAlertService(alert);
         enqueueAlert(convert);
     }
 

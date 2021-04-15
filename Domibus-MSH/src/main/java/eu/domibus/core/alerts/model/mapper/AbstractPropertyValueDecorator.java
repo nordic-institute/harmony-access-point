@@ -52,6 +52,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
     }
 
     protected AbstractEventProperty convert(AbstractPropertyValue propertyValue) {
+        if(propertyValue == null){
+            return null;
+        }
         LOG.debug("AbstractPropertyValue convert: [{}]", propertyValue.getClass());
         if (propertyValue instanceof StringPropertyValue) {
             return delegate.stringPropertyValueToStringEventProperty((StringPropertyValue) propertyValue);

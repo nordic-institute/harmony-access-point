@@ -15,7 +15,7 @@ import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AlertCoreMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class AlertEbms3ServiceImplTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomibusCoreMapper coreMapper;
+    private AlertCoreMapper alertCoreMapper;
 
     @Injectable
     private JMSManager jmsManager;
@@ -111,7 +111,7 @@ public class AlertEbms3ServiceImplTest {
             assertNull(alert.getReportingTime());
             assertEquals(AlertLevel.HIGH, alert.getAlertLevel());
             assertTrue(alert.getEvents().contains(eventEntity));
-            coreMapper.alertPersistToAlertService(alert);
+            alertCoreMapper.alertPersistToAlertService(alert);
             times = 1;
         }};
     }
@@ -286,9 +286,9 @@ public class AlertEbms3ServiceImplTest {
         new Expectations() {{
             alertDao.findRetryAlerts();
             result = alerts;
-            coreMapper.alertPersistToAlertService(firstRetryAlert);
+            alertCoreMapper.alertPersistToAlertService(firstRetryAlert);
             result = firstConvertedAlert;
-            coreMapper.alertPersistToAlertService(secondRetryAlert);
+            alertCoreMapper.alertPersistToAlertService(secondRetryAlert);
             result = secondConvertedAlert;
         }};
         alertService.retrieveAndResendFailedAlerts();
@@ -309,7 +309,7 @@ public class AlertEbms3ServiceImplTest {
         }};
         alertService.findAlerts(alertCriteria);
         new Verifications(){{
-           coreMapper.alertPersistListToAlertServiceList(alerts);
+           alertCoreMapper.alertPersistListToAlertServiceList(alerts);
            times=1;
         }};
 
@@ -383,7 +383,7 @@ public class AlertEbms3ServiceImplTest {
         new Verifications(){{
             alertDao.filterAlerts(alertCriteria);
             times=1;
-            coreMapper.alertPersistListToAlertServiceList(alerts);
+            alertCoreMapper.alertPersistListToAlertServiceList(alerts);
         }};
     }
 }

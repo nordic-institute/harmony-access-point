@@ -12,7 +12,7 @@
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
-                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_BACKEND_MSG_LOG"/>
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_BACKEND_MSG_LOG"/>
             </column>
 
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
@@ -49,6 +49,8 @@
     </changeSet>
     
     <changeSet id="EDELIVERY-4808" author="Catalin Enache">
+        <setColumnRemarks columnName="MESSAGE_ID" remarks="Message ID of the Domibus message" tableName="WS_PLUGIN_TB_MESSAGE_LOG"/>
+        <setColumnRemarks columnName="FINAL_RECIPIENT" remarks="Final recipient of the Domibus message" tableName="WS_PLUGIN_TB_MESSAGE_LOG"/>
         <addColumn tableName="WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="CONVERSATION_ID" type="VARCHAR(255)" remarks="Conversation ID of the Domibus message"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)" remarks="Reference to Message ID of the Domibus message"/>
@@ -61,9 +63,9 @@
         <comment>split plugin user unique constraints in 2</comment>
         <dropUniqueConstraint uniqueColumns="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UK_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UK_PLUGIN_USER_CERT"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
 
     </changeSet>
@@ -359,6 +361,13 @@
         </createView>
     </changeSet>
 
+    <!-- Start here 4.2 to new 5.0 -->
+    <!-- TODO EDELIVERY-7970 -->
+    <!--<include file="migration/changelog-5.0new-delta.xml" relativeToChangelogFile="true"/>-->
+    <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+    <!-- End here 4.2 to new 5.0 -->
+
+
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
             <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
@@ -367,7 +376,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml -->

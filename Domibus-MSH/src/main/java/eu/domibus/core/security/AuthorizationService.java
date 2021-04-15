@@ -5,7 +5,6 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.certificate.CertificateExchangeType;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
@@ -50,9 +49,6 @@ public class AuthorizationService {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -101,8 +97,7 @@ public class AuthorizationService {
         final CertificateTrust certificateTrust = getCertificateTrust(request);
         final UserMessagePmodeData userMessagePmodeData= pModeProvider.getUserMessagePmodeData(userMessage);
 
-        getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
-                coreMapper.userMessageToUserMessageDTO(userMessage), userMessagePmodeData);
+        getAuthorizationService().authorize(certificateTrust.getSigningCertificate(), userMessagePmodeData);
 
     }
 

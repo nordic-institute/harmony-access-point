@@ -3,20 +3,18 @@ package eu.domibus.core.crypto.spi;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ext.domain.PullRequestDTO;
-import eu.domibus.ext.domain.UserMessageDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +63,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
      * {@inheritDoc}
      */
     @Override
-    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, UserMessageDTO userMessageDTO, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
+    public void authorize(X509Certificate signingCertificate, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
         doAuthorize(signingCertificate, userMessagePmodeData.getPartyName());
     }
 

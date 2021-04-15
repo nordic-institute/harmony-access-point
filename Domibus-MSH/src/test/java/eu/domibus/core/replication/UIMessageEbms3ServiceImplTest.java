@@ -1,7 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.web.rest.ro.MessageLogRO;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -25,7 +24,7 @@ public class UIMessageEbms3ServiceImplTest {
     private UIMessageDao uiMessageDao;
 
     @Injectable
-    private DomibusCoreMapper coreMapper;
+    private MessageCoreMapper messageCoreConverter;
 
     @Tested
     UIMessageServiceImpl uiMessageService;
@@ -49,7 +48,7 @@ public class UIMessageEbms3ServiceImplTest {
         uiMessageService.findPaged(from, max, column, asc, filters);
 
         new Verifications() {{
-            uiMessageService.convertToMessageLogInfo(withAny(new UIMessageEntity()));
+            messageCoreConverter.uiMessageEntityToMessageLogInfo(withAny(new UIMessageEntity()));
             times = 1;
         }};
     }
@@ -73,7 +72,7 @@ public class UIMessageEbms3ServiceImplTest {
         Assert.assertEquals(uiMessageEntityList.size(), messageLogResultRO.getMessageLogEntries().size());
 
         new Verifications() {{
-            uiMessageService.convertUIMessageEntity(withAny(new UIMessageEntity()));
+            messageCoreConverter.uiMessageEntityToMessageLogRO(withAny(new UIMessageEntity()));
             times = 1;
         }};
     }
@@ -89,27 +88,6 @@ public class UIMessageEbms3ServiceImplTest {
         }};
     }
 
-    @Test
-    public void testConvertUIMessageEntity() {
-
-        //tested method
-        final MessageLogRO messageLogRO = uiMessageService.convertUIMessageEntity(uiMessageEntity);
-
-        new Verifications() {{
-            coreMapper.uiMessageEntityToMessageLogRO(uiMessageEntity);
-        }};
-    }
-
-    @Test
-    public void testConvertToMessageLogInfo() {
-
-        //tested method
-        uiMessageService.convertToMessageLogInfo(uiMessageEntity);
-
-        new Verifications() {{
-            coreMapper.uiMessageEntityToMessageLogInfo(uiMessageEntity);
-        }};
-    }
 
 
 }

@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.plugin.PluginUserService;
@@ -33,7 +33,7 @@ public class PluginUserResourceTest {
     private PluginUserService pluginUserService;
 
     @Injectable
-    DomibusCoreMapper coreMapper;
+    AuthCoreMapper authCoreMapper;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -90,7 +90,7 @@ public class PluginUserResourceTest {
         final List<AuthenticationEntity> userList = Arrays.asList(user);
 
         new Expectations() {{
-            coreMapper.pluginUserROListToAuthenticationEntityList(userROs);
+            authCoreMapper.pluginUserROListToAuthenticationEntityList(userROs);
             result = userList;
         }};
 
