@@ -1,21 +1,16 @@
 package eu.domibus.core.converter;
 
-import eu.domibus.api.cluster.Command;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
-import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.logging.LoggingEntry;
-import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
-import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
@@ -41,24 +36,6 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
         DomainSpi toConvert = (DomainSpi) objectService.createInstance(DomainSpi.class);
         final Domain converted = domibusCoreMapper.domainSpiToDomain(toConvert);
         final DomainSpi convertedBack = domibusCoreMapper.domainToDomainSpi(converted);
-        objectService.assertObjects(convertedBack, toConvert);
-    }
-
-    @Test
-    public void convertBackendFilter() {
-        BackendFilter toConvert = (BackendFilter) objectService.createInstance(BackendFilter.class);
-        final MessageFilterRO converted = domibusCoreMapper.backendFilterToMessageFilterRO(toConvert);
-        final BackendFilter convertedBack = domibusCoreMapper.messageFilterROToBackendFilter(converted);
-        convertedBack.setActive(true);
-        objectService.assertObjects(convertedBack, toConvert);
-    }
-
-    @Test
-    public void convertBackendFilterEntity() {
-        BackendFilter toConvert = (BackendFilter) objectService.createInstance(BackendFilter.class);
-        final BackendFilterEntity converted = domibusCoreMapper.backendFilterToBackendFilterEntity(toConvert);
-        final BackendFilter convertedBack = domibusCoreMapper.backendFilterEntityToBackendFilter(converted);
-        convertedBack.setActive(true);
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -103,20 +80,12 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
         final DomainDTO convertedBack = domibusCoreMapper.domainToDomainDTO(converted);
         objectService.assertObjects(convertedBack, toConvert);
     }
-    
+
     @Test
     public void convertPasswordEncryptionResultDTOToPasswordEncryptionResult() {
         PasswordEncryptionResultDTO toConvert = (PasswordEncryptionResultDTO) objectService.createInstance(PasswordEncryptionResultDTO.class);
         final PasswordEncryptionResult converted = domibusCoreMapper.passwordEncryptionResultDTOToPasswordEncryptionResult(toConvert);
         final PasswordEncryptionResultDTO convertedBack = domibusCoreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO(converted);
-        objectService.assertObjects(convertedBack, toConvert);
-    }
-
-    @Test
-    public void convertCommand() {
-        Command toConvert = (Command) objectService.createInstance(Command.class);
-        final CommandEntity converted = domibusCoreMapper.commandToCommandEntity(toConvert);
-        final Command convertedBack = domibusCoreMapper.commandEntityToCommand(converted);
         objectService.assertObjects(convertedBack, toConvert);
     }
 
