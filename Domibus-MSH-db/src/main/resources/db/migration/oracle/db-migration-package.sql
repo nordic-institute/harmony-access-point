@@ -1,4 +1,4 @@
--- *****************************************************************************************************
+-- ********************************************************************************************************
 -- Domibus 4.2.1 to 5.0 data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
@@ -9,11 +9,11 @@
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO
--- *****************************************************************************************************
+-- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO, TB_ERROR_LOG
+-- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
-    BATCH_SIZE CONSTANT NUMBER := 10000;
+    BATCH_SIZE CONSTANT NUMBER := 3;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -452,6 +452,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('MIGR_TB_MESSAGE_PROPERTIES');
         drop_table_if_exists('MIGR_TB_PART_INFO');
         drop_table_if_exists('MIGR_TB_PART_PROPERTIES');
+        drop_table_if_exists('MIGR_TB_ERROR_LOG');
 
         drop_table_if_exists('TB_D_MPC');
         drop_table_if_exists('TB_D_ROLE');
@@ -526,6 +527,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_sql := 'CREATE TABLE MIGR_TB_PART_PROPERTIES (ID_PK NUMBER(38, 0) NOT NULL, PART_INFO_ID_FK NUMBER(38, 0) NOT NULL, PART_INFO_PROPERTY_FK NUMBER(38, 0) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_PART_PROPERTIES PRIMARY KEY (ID_PK))';
         v_table := 'MIGR_TB_PART_PROPERTIES';
+        create_table(v_table, v_sql);
+
+        v_sql := 'CREATE TABLE MIGR_TB_ERROR_LOG (ID_PK NUMBER(38, 0) NOT NULL, ERROR_CODE VARCHAR2(255), ERROR_DETAIL VARCHAR2(255), ERROR_SIGNAL_MESSAGE_ID VARCHAR2(255), MESSAGE_IN_ERROR_ID VARCHAR2(255), MSH_ROLE_ID_FK NUMBER(38, 0), NOTIFIED TIMESTAMP, TIME_STAMP TIMESTAMP, USER_MESSAGE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_ERROR_LOG PRIMARY KEY (ID_PK))';
+        v_table := 'MIGR_TB_ERROR_LOG';
         create_table(v_table, v_sql);
 
         -- create dictionary tables
@@ -1495,6 +1500,83 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_part_prop;
     END migrate_part_info_property;
 
+    /**- TB_ERROR_LOG data migration --*/
+    PROCEDURE migrate_error_log IS
+        v_tab      VARCHAR2(30) := 'TB_ERROR_LOG';
+        v_tab_new  VARCHAR2(30) := 'MIGR_TB_ERROR_LOG';
+        CURSOR c_error_log IS
+            SELECT EL.ID_PK,
+                   EL.ERROR_CODE,
+                   EL.ERROR_DETAIL,
+                   EL.ERROR_SIGNAL_MESSAGE_ID,
+                   EL.MESSAGE_IN_ERROR_ID,
+                   EL.MSH_ROLE,
+                   EL.NOTIFIED,
+                   EL.TIME_STAMP,
+                   EL.CREATION_TIME,
+                   EL.CREATED_BY,
+                   EL.MODIFICATION_TIME,
+                   EL.MODIFIED_BY,
+                   UMMI.ID_PK USER_MESSAGE_ID_FK
+            FROM TB_ERROR_LOG EL
+                     LEFT JOIN
+                 (SELECT MI.MESSAGE_ID, UM.ID_PK
+                  FROM TB_MESSAGE_INFO MI,
+                       TB_USER_MESSAGE UM
+                  WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK) UMMI
+                 ON EL.MESSAGE_IN_ERROR_ID = UMMI.MESSAGE_ID;
+        TYPE T_ERROR_LOG IS TABLE OF c_error_log%ROWTYPE;
+        error_log  T_ERROR_LOG;
+        v_batch_no INT          := 1;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_error_log;
+        LOOP
+            FETCH c_error_log BULK COLLECT INTO error_log;
+            EXIT WHEN error_log.COUNT = 0;
+
+            FOR i IN error_log.FIRST .. error_log.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, ERROR_CODE, ERROR_DETAIL, ERROR_SIGNAL_MESSAGE_ID, MESSAGE_IN_ERROR_ID, MSH_ROLE_ID_FK,' ||
+                                          ' NOTIFIED, TIME_STAMP, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13)'
+                            USING
+                            error_log(i).ID_PK,
+                            error_log(i).ERROR_CODE,
+                            error_log(i).ERROR_DETAIL,
+                            error_log(i).ERROR_SIGNAL_MESSAGE_ID,
+                            error_log(i).MESSAGE_IN_ERROR_ID,
+                            get_tb_d_msh_role_rec(error_log(i).MSH_ROLE),
+                            error_log(i).NOTIFIED,
+                            error_log(i).TIME_STAMP,
+                            error_log(i).USER_MESSAGE_ID_FK,
+                            error_log(i).CREATION_TIME,
+                            error_log(i).CREATED_BY,
+                            error_log(i).MODIFICATION_TIME,
+                            error_log(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || error_log.COUNT || ' records in total into ' ||
+                        v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_error_log;
+    END migrate_error_log;
+
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_user_message_post IS
     BEGIN
@@ -1553,6 +1635,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_property;
         migrate_part_info_user;
         migrate_part_info_property;
+
+        migrate_error_log;
 
         -- house keeping
         migrate_post;
