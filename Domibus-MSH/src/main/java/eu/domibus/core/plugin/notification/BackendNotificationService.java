@@ -220,24 +220,24 @@ public class BackendNotificationService {
         return messageDeletedEvent;
     }
 
-    public void notifyMessageDeleted(String messageId, UserMessageLog userMessageLog) {
+    public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
-            LOG.warn("Could not find message with id [{}]", messageId);
+            LOG.warn("Could not find message with id [{}]", userMessage);
             return;
         }
-        if (userMessageLog.isTestMessage()) {
-            LOG.debug("Message [{}] is of type test: no notification for message deleted", messageId);
+        if (userMessage.isTestMessage()) {
+            LOG.debug("Message [{}] is of type test: no notification for message deleted", userMessage);
             return;
         }
         String backend = userMessageLog.getBackend();
         if (StringUtils.isEmpty(backend)) {
-            LOG.warn("Could not find backend for message with id [{}]", messageId);
+            LOG.warn("Could not find backend for message with id [{}]", userMessage);
             return;
         }
 
         Map<String, String> properties = userMessageService.getProperties(userMessageLog.getEntityId());
         MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
-                messageId,
+                userMessage.getMessageId(),
                 properties);
         backendConnectorDelegate.messageDeletedEvent(
                 backend,

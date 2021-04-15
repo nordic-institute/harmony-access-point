@@ -32,7 +32,7 @@ public class MessageLogInfoFilter {
     private static final String MESSAGE_COLLABORATION_INFO_CONVERSATION_ID = "message.collaborationInfo.conversationId";
     private static final String LOG_FAILED = "log.failed";
     private static final String LOG_RESTORED = "log.restored";
-    private static final String LOG_MESSAGE_SUBTYPE = "log.messageSubtype";
+    private static final String LOG_MESSAGE_SUBTYPE = "message.messageSubtype";
     public static final String MESSAGE_ACTION = "action";
     public static final String MESSAGE_SERVICE_TYPE = "serviceType";
     public static final String MESSAGE_SERVICE_VALUE = "serviceValue";

@@ -1,5 +1,7 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -51,6 +53,9 @@ public class MessagingServiceImpl implements MessagingService {
     protected UserMessageDao userMessageDao;
 
     @Autowired
+    protected MessageSubtypeDao messageSubtypeDao;
+
+    @Autowired
     protected PayloadPersistenceProvider payloadPersistenceProvider;
 
     @Autowired
@@ -87,6 +92,14 @@ public class MessagingServiceImpl implements MessagingService {
         if (userMessage == null) {
             return;
         }
+
+        // Sets the subtype
+        MessageSubtype messageSubtype = null;
+        if (checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue())) {
+            messageSubtype = MessageSubtype.TEST;
+        }
+        final MessageSubtypeEntity messageSubtypeEntity = messageSubtypeDao.findByType(messageSubtype);
+        userMessage.setMessageSubtype(messageSubtypeEntity);
 
         if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
@@ -237,5 +250,18 @@ public class MessagingServiceImpl implements MessagingService {
         }
 
         return false;
+    }
+
+    /**
+     * Checks <code>service</code> and <code>action</code> to determine if it's a TEST message
+     *
+     * @param service Service
+     * @param action  Action
+     * @return True, if it's a test message and false otherwise
+     */
+    protected Boolean checkTestMessage(final String service, final String action) {
+        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(service)
+                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(action);
+
     }
 }

@@ -166,7 +166,7 @@ public class UpdateRetryLoggingService {
         LOG.debug("Scheduled flag for message [{}] has been reset to false", userMessage);
 
         userMessageLogDao.update(userMessageLog);
-        if (hasAttemptsLeft(userMessageLog, legConfiguration) && !userMessageLog.isTestMessage()) {
+        if (hasAttemptsLeft(userMessageLog, legConfiguration) && !userMessage.isTestMessage()) {
             updateNextAttemptAndNotify(userMessage, legConfiguration, messageStatus, userMessageLog);
         } else { // max retries reached, mark message as ultimately failed (the message may be pushed back to the send queue by an administrator but this send completely failed)
             setMessageFailed(userMessage, userMessageLog);
@@ -190,7 +190,7 @@ public class UpdateRetryLoggingService {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageId());
 
         NotificationStatusEntity notificationStatus = userMessageLog.getNotificationStatus();
-        boolean isTestMessage = userMessageLog.isTestMessage();
+        boolean isTestMessage = userMessage.isTestMessage();
 
         LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());

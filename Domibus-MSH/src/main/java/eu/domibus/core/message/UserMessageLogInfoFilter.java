@@ -33,7 +33,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "info.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
-                "log.messageSubtype," +
+                "message.messageSubtype," +
                 "log.messageFragment," +
                 "log.sourceMessage," +
                 MESSAGE_COLLABORATION_INFO_ACTION + "," +
@@ -58,17 +58,15 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
      */
     private String getQueryBody() {
         return
-                " from UserMessageLog log, " +
-                        "UserMessage message " +
-                        "left join log.messageInfo info " +
+                " from UserMessageLog log " +
+                        "join log.userMessage message " +
                         (isFourCornerModel() ?
-                                "left join message.messageProperties.property propsFrom "  +
-                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                                "left join message.messageProperties propsFrom "  +
+                                "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
-                        "where message.messageInfo = info " +
                         (isFourCornerModel() ?
-                                "and propsFrom.name = 'originalSender' "  +
+                                "where propsFrom.name = 'originalSender' "  +
                                 "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
 
     }

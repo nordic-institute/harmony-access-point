@@ -90,7 +90,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
-        final Boolean isTestMessage = userMessageLog.isTestMessage();
+        final Boolean isTestMessage = userMessage.isTestMessage();
 
         switch (reliabilityCheckSuccessful) {
             case OK:

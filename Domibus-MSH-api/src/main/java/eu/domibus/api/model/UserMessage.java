@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.message.MessageSubtype;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.*;
@@ -65,6 +66,10 @@ public class UserMessage extends AbstractBaseEntity {
     @JoinColumn(name = "MPC_ID_FK")
     protected MpcEntity mpc;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MESSAGE_SUBTYPE_ID_FK")
+    private MessageSubtypeEntity messageSubtype;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_MESSAGE_PROPERTIES",
             joinColumns = @JoinColumn(name = "USER_MESSAGE_ID_FK"),
@@ -75,8 +80,23 @@ public class UserMessage extends AbstractBaseEntity {
     @Transient
     protected List<PartInfo> partInfoList;
 
+    public boolean isTestMessage() {
+        if(MessageSubtype.TEST == messageSubtype.getMessageSubtype()) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isSplitAndJoin() {
         return isSourceMessage() || isMessageFragment();
+    }
+
+    public MessageSubtypeEntity getMessageSubtype() {
+        return messageSubtype;
+    }
+
+    public void setMessageSubtype(MessageSubtypeEntity messageSubtype) {
+        this.messageSubtype = messageSubtype;
     }
 
     public String getMessageId() {

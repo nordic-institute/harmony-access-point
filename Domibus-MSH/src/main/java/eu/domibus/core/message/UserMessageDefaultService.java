@@ -598,11 +598,11 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-
-        backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
-
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
         final UserMessage userMessage = signalMessage.getUserMessage();
+
+        backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
+
         partInfoDao.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
 

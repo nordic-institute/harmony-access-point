@@ -48,8 +48,7 @@ public class UserMessageLogDefaultService {
     @Autowired
     protected NotificationStatusDao notificationStatusDao;
 
-    @Autowired
-    protected MessageSubtypeDao messageSubtypeDao;
+
 
     private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
         UserMessageLog userMessageLog = new UserMessageLog();
@@ -76,14 +75,7 @@ public class UserMessageLogDefaultService {
         final UserMessageLog userMessageLog = createUserMessageLog(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
         userMessageLog.setUserMessage(userMessage);
 
-        // Sets the subtype
-        MessageSubtype messageSubtype = null;
-        if (checkTestMessage(service, action)) {
-            messageSubtype = MessageSubtype.TEST;
-        }
-        final MessageSubtypeEntity messageSubtypeEntity = messageSubtypeDao.findByType(messageSubtype);
-        userMessageLog.setMessageSubtype(messageSubtypeEntity);
-        if (!MessageSubtype.TEST.equals(messageSubtype)) {
+        if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
         }
         final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(status);
@@ -97,7 +89,7 @@ public class UserMessageLogDefaultService {
     protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
         LOG.debug("Updating message status to [{}]", newStatus);
 
-        if (!messageLog.isTestMessage()) {
+        if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
@@ -157,16 +149,5 @@ public class UserMessageLogDefaultService {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
-    /**
-     * Checks <code>service</code> and <code>action</code> to determine if it's a TEST message
-     *
-     * @param service Service
-     * @param action  Action
-     * @return True, if it's a test message and false otherwise
-     */
-    protected Boolean checkTestMessage(final String service, final String action) {
-        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(service)
-                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(action);
 
-    }
 }
