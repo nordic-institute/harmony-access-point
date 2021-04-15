@@ -23,6 +23,8 @@ public class ConMonGrid extends DGrid {
 	public ConMonGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
+		this.container = container;
 	}
 	
 	public void enableMonitoringForParty(String partyName) throws Exception {

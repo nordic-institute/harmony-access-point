@@ -215,7 +215,7 @@ public class LoggingPgTest extends SeleniumTest {
 		page.loggingGrid().sortBy("Logger Name");
 
 		columnName = page.grid().getSortedColumnName();
-		soft.assertNull(columnName, "do column marked as sorted");
+		soft.assertNull(columnName, "column marked as sorted");
 
 		soft.assertAll();
 	}

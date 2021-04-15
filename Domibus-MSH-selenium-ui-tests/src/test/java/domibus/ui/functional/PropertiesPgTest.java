@@ -923,10 +923,15 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		try {
 			String globalNewVal = Gen.randomAlphaNumeric(12);
-			modifyProperty("domibus.instance.name", false, globalNewVal);
-			soft.assertEquals(page.getAlertArea().getAlertMessage()
-					, String.format(expectedErrorTemplate, globalNewVal, "domibus.instance.name", newMaxLength)
-					, "Correct error message is shown (GLOBAL)");
+//			modifyProperty("domibus.instance.name", false, globalNewVal);
+//			soft.assertEquals(page.getAlertArea().getAlertMessage()
+//					, String.format(expectedErrorTemplate, globalNewVal, "domibus.instance.name", newMaxLength)
+//					, "Correct error message is shown (GLOBAL)");
+			String global_oldVal = rest.properties().getPropertyValue("domibus.instance.name", false, null);
+			ClientResponse response = rest.properties().updateGlobalProperty("domibus.instance.name", globalNewVal);
+			soft.assertFalse(response.getStatus() == 200, "Response is not success");
+
+			rest.properties().updateGlobalProperty("domibus.instance.name", global_oldVal);
 		} catch (Exception e) {
 		}
 		try {

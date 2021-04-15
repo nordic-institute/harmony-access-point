@@ -982,7 +982,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 
 
 		log.info("checking error message");
-		soft.assertFalse(page.getAlertArea().isError(), "Error message is present");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message is present");
 
 		soft.assertAll();
 	}

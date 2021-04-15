@@ -41,6 +41,7 @@ public class ConnectionMonitoringPage extends DomibusPage {
 	}
 	
 	public Boolean isLoaded() {
+		grid().waitForRowsToLoad();
 		return grid().isPresent();
 	}
 }

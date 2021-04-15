@@ -37,6 +37,7 @@ public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
+
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
 	public List<WebElement> gridRows;
 
@@ -47,7 +48,7 @@ public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
-
+	
 	protected WebElement container;
 
 	public DGrid(WebDriver driver, WebElement container) {

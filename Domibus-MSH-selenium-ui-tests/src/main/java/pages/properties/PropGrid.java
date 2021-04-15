@@ -14,6 +14,8 @@ public class PropGrid extends DGrid {
 
 	public PropGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
+
+		this.container = container;
 	}
 
 	private final String valKey = "Property Value";

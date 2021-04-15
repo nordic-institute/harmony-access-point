@@ -238,7 +238,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 	/*CM-12 - Make sure destination party is not responding and test connection*/
 	@Test(description = "CM-12", groups = {"multiTenancy", "singleTenancy"})
-	public void RecPartyInactive() throws Exception {
+	public void recPartyInactive() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 
@@ -255,8 +255,8 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		if (!partyToMonitor.equalsIgnoreCase(currentParty)) {
 
 			String actualErrMsg = getAlrtForTestMsg(page, 0, "Details", modal);
-			String error = String.format(DMessages.CONNECTION_MONITORING_ERROR, partyToMonitor);
-			soft.assertTrue(actualErrMsg.equals(error), "Correct error message is shown");
+			String error = String.format(DMessages.CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP, partyToMonitor, receiverEndPoint);
+			soft.assertEquals(actualErrMsg, error, "Correct error message is shown");
 
 			modal.getCloseBtn().click();
 			page.grid().waitForRowsToLoad();
