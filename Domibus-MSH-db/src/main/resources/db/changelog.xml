@@ -29,14 +29,14 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
             </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)" remarks="Message ID of the Domibus message">
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="CONVERSATION_ID" type="VARCHAR(255)" remarks="Conversation ID of the Domibus message"/>
-            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)" remarks="Reference to Message ID of the Domibus message"/>
-            <column name="FROM_PARTY_ID" type="VARCHAR(255)" remarks="From Party ID of the Domibus message"/>
-            <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the Domibus message"/>
-            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the Domibus message"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="FROM_PARTY_ID" type="VARCHAR(255)"/>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
             <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
                 <constraints nullable="false"/>
             </column>
@@ -46,28 +46,28 @@
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_BACKEND_MSG_LOG"/>
             </column>
 
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
 
-            <column name="MESSAGE_ID" type="VARCHAR(255)" remarks="ID of the domibus message log">
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the domibus message"/>
-            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the domibus message"/>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
 
-            <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the backend message"/>
-            <column name="MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the Domibus message"/>
-            <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)" remarks="The type describing the kind backend message"/>
+            <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)"/>
 
             <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
             <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
@@ -93,14 +93,14 @@
             <column name="ROLE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
 
@@ -113,14 +113,14 @@
             </column>
             <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY"/>
 
@@ -133,14 +133,14 @@
             </column>
             <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_D_PART_PROP_NAME" tableName="TB_D_PART_PROPERTY"/>
 
@@ -151,14 +151,14 @@
             <column name="VALUE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_MPC_VALUE" tableName="TB_D_MPC"/>
 
@@ -170,14 +170,14 @@
                 <constraints nullable="false"/>
             </column>
             <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_SERVICE_VALUE" tableName="TB_D_SERVICE"/>
 
@@ -189,14 +189,14 @@
                 <constraints nullable="false"/>
             </column>
             <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_PARTY_VALUE" tableName="TB_D_PARTY"/>
 
@@ -207,14 +207,14 @@
             <column name="ACTION" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="ACTION" constraintName="UK_D_PARTY_ACTION" tableName="TB_D_ACTION"/>
 
@@ -226,14 +226,14 @@
                 <constraints nullable="false"/>
             </column>
             <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT"/>
 
@@ -244,14 +244,14 @@
             <column name="ROLE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_ROLE_VALUE" tableName="TB_D_ROLE"/>
 
@@ -262,14 +262,14 @@
             <column name="STATUS" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_NOTIF_STATUS" tableName="TB_D_NOTIFICATION_STATUS"/>
 
@@ -280,14 +280,14 @@
             <column name="STATUS" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS"/>
 
@@ -298,14 +298,14 @@
             <column name="SUBTYPE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="SUBTYPE" constraintName="UK_D_MESSAGE_SUBTYPE" tableName="TB_D_MESSAGE_SUBTYPE"/>
     </changeSet>
@@ -320,8 +320,8 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
-            <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
-            <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
+            <column name="SOURCE_MESSAGE" type="BOOLEAN" remarks="true if the message is a SourceMessage"/>
+            <column name="MESSAGE_FRAGMENT" type="BOOLEAN" remarks="true if the message is a message fragment"/>
             <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column name="ACTION_ID_FK" type="BIGINT"/>
             <column name="AGREEMENT_ID_FK" type="BIGINT"/>
@@ -332,14 +332,14 @@
             <column name="TO_PARTY_ID_FK" type="BIGINT"/>
             <column name="TO_ROLE_ID_FK" type="BIGINT"/>
             <column name="MESSAGE_SUBTYPE_ID_FK" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
@@ -418,14 +418,14 @@
             <column name="TO_VALUE" type="VARCHAR(255)"/>
             <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
             <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_ACKNW"
                                  constraintName="FK_MSG_ACK_USER_MSG" deferrable="false" initiallyDeferred="false"
@@ -442,14 +442,14 @@
             <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
             <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
             <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
@@ -463,50 +463,49 @@
             <column name="ID_PK" type="BIGINT"  autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_HEADER"/>
             </column>
-            <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
-            <column name="START" remarks="The multipart start value" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column name="BOUNDARY" type="VARCHAR(255)" remarks="The multipart boundary value"/>
+            <column name="START" type="VARCHAR(255)" remarks="The multipart start value"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_SJ_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin" >
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_GROUP"/>
             </column>
-            <column name="GROUP_ID" remarks="The group id" type="VARCHAR(255)">
+            <column name="GROUP_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MESSAGE_SIZE" remarks="The message size before compression" type="BIGINT"/>
-            <column name="FRAGMENT_COUNT" remarks="The message fragment count" type="INT"/>
-            <column name="SENT_FRAGMENTS" remarks="Stores how many fragments have been sent" type="INT"/>
-            <column name="RECEIVED_FRAGMENTS" remarks="Stores how many fragments have been received" type="INT"/>
-            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm used for the SourceMessage"
-                    type="VARCHAR(255)"/>
-            <column name="COMPRESSED_MESSAGE_SIZE" remarks="The size of the message after compression" type="BIGINT"/>
-            <column name="SOAP_ACTION" remarks="The Soap action value" type="VARCHAR(255)"/>
-            <column name="REJECTED" remarks="True if the message group has been rejected" type="BOOLEAN"/>
-            <column name="EXPIRED" remarks="True if the message group has expired" type="BOOLEAN"/>
-            <column name="MSH_ROLE_ID_FK" remarks="The role of the MSH" type="BIGINT">
+            <column name="MESSAGE_SIZE" type="BIGINT" remarks="The message size before compression"/>
+            <column name="FRAGMENT_COUNT" type="INT"/>
+            <column name="SENT_FRAGMENTS" type="INT"/>
+            <column name="RECEIVED_FRAGMENTS" type="INT"/>
+            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)"/>
+            <column name="COMPRESSED_MESSAGE_SIZE" type="BIGINT" remarks="The size of the message after compression"/>
+            <column name="SOAP_ACTION" type="VARCHAR(255)"/>
+            <column name="REJECTED" type="BOOLEAN" remarks="True if the message group has been rejected"/>
+            <column name="EXPIRED" type="BOOLEAN" remarks="True if the message group has expired"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="SOURCE_MESSAGE_ID_FK" remarks="The SourceMessage id" type="BIGINT">
+            <column name="SOURCE_MESSAGE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
                                  constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
@@ -537,14 +536,14 @@
             <column name="GROUP_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="GROUP_ID_FK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
                                  constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
@@ -583,14 +582,14 @@
             </column>
             <column name="NOTIFICATION_STATUS_ID_FK" type="BIGINT"/>
 
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
                                  constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
@@ -635,14 +634,14 @@
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
             <column name="MESSAGE_STALED" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <createIndex indexName="IDX_MESSAGE_LOCK_SEARCH" tableName="TB_MESSAGING_LOCK">
             <column name="MESSAGE_TYPE"/>
@@ -673,14 +672,14 @@
                 <constraints nullable="false"/>
             </column>
             <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
                                  constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
@@ -700,14 +699,14 @@
             <column name="PART_INFO_PROPERTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
@@ -735,14 +734,14 @@
             <column name="MESSAGE_PROPERTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
                                  constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
@@ -765,14 +764,14 @@
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="BLOB"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_RAW"
                                  constraintName="FK_MSG_RAW_USER_MSG" deferrable="false"
@@ -786,14 +785,14 @@
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
@@ -813,14 +812,14 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
                                  constraintName="FK_SIGNAL_LOG_SIGNAL_ID" deferrable="false" initiallyDeferred="false"
@@ -849,14 +848,14 @@
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
             </column>
             <column name="RAW_XML" type="BLOB"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
                                  constraintName="FK_TB_RECEIPT_SIGNAL_MSG" deferrable="false"
@@ -868,14 +867,14 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="BLOB"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_RAW"
                                  constraintName="FK_SIGNAL_MSG_RAW_SIGNAL_MSG" deferrable="false"
@@ -900,14 +899,14 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_SEND_ATTEMPT"
                                  constraintName="FK_SEND_ATTEMPT_USER_MSG" deferrable="false" initiallyDeferred="false"
@@ -929,14 +928,14 @@
             <column name="STATE" type="VARCHAR(255)" remarks="User message deletion job state: NEW, RUNNING or STOPPED"/>
             <column name="ACTUAL_START_DATE" type="TIMESTAMP" remarks="The actual date when this job was started."/>
 
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
     <!--End UserMessage Tables -->
@@ -953,22 +952,22 @@
             <column name="NOT_VALID_BEFORE_DATE" type="DATETIME"/>
             <column name="NOT_VALID_AFTER_DATE" type="DATETIME"/>
             <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert imminent notification date"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert expired notification date"/>
             <column name="CERTIFICATE_STATUS" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="UK_CERTIFICATE_ALIAS"
                              tableName="TB_CERTIFICATE"/>
@@ -991,14 +990,14 @@
             <column name="GROUP_NAME" type="VARCHAR(255)"/>
             <column name="ENTITY_ID" type="VARCHAR(255)"/>
             <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
                                  constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
@@ -1020,8 +1019,8 @@
             <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
             <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
             <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert imminent notification date"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert expired notification date"/>
             <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
         </createTable>
@@ -1040,35 +1039,35 @@
             <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
                 <constraints nullable="false"/>
             </column>
-            <column name="COMMAND_NAME" type="VARCHAR(255)" remarks="The command name">
+            <column name="COMMAND_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
-            <column name="PROPERTY_NAME" type="VARCHAR(50)" remarks="The property name">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="PROPERTY_VALUE" type="VARCHAR(255)" remarks="The property value"/>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
             <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
                                  constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
@@ -1084,21 +1083,21 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_ENCRYPTION_KEY"/>
             </column>
-            <column name="KEY_USAGE" type="VARCHAR(255)"/>
-            <column name="SECRET_KEY" type="BLOB">
+            <column name="KEY_USAGE" type="VARCHAR(255)" remarks="The encryption usage: PAYLOAD"/>
+            <column name="SECRET_KEY" type="BLOB"  remarks="The secret key used for symmetric encryption">
                 <constraints nullable="false"/>
             </column>
-            <column name="INIT_VECTOR" type="BLOB">
+            <column name="INIT_VECTOR" type="BLOB" remarks="The initialization vector used for encryption">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UK_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
 
@@ -1114,14 +1113,14 @@
             <column name="NOTIFIED" type="TIMESTAMP"/>
             <column name="TIME_STAMP" type="TIMESTAMP"/>
             <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_ERROR_LOG"
                                  constraintName="FK_ERROR_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
@@ -1141,10 +1140,10 @@
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
 
-        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
-            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
-            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
-            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
+            <column name="VERSION" type="VARCHAR(30)"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -1530,14 +1529,14 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_BUSINESS_PROCESS"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_PM_ACTION">
@@ -1547,14 +1546,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ACTION"
                                  constraintName="FK_ACTION_BP" deferrable="false"
@@ -1577,14 +1576,14 @@
             <column name="USER_NAME" type="VARCHAR(255)"/>
             <column name="FROM_QUEUE" type="VARCHAR(255)"/>
             <column name="TO_QUEUE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <createView
                 replaceIfExists="true"
@@ -1618,14 +1617,14 @@
             <column name="TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_AGREEMENT"
                                  constraintName="FK_AGREEMENT_BP" deferrable="false"
@@ -1644,14 +1643,14 @@
             <column name="PASSWORD" type="VARCHAR(255)"/>
             <column name="USERNAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY"
                                  constraintName="FK_PARTY_BP" deferrable="false"
@@ -1668,14 +1667,14 @@
             </column>
             <column name="FK_BUSINESSPROCESSES" type="BIGINT"/>
             <column name="FK_PARTY" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_CONFIGURATION"
                                  constraintName="FK_CONFIG_PARTY" deferrable="false"
@@ -1720,14 +1719,14 @@
             <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
             <column name="XML" type="BLOB"/>
             <column defaultValue="" name="DESCRIPTION" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_PM_CONFIGURATION_RAW_AUD">
@@ -1763,14 +1762,14 @@
             <column name="ERROR_AS_RESPONSE" type="BOOLEAN"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ERROR_HANDLING"
                                  constraintName="FK_ERROR_HANDLING_BP" deferrable="false"
@@ -1787,14 +1786,14 @@
             <column name="MAX_SIZE" type="BIGINT"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_PM_PAYLOAD">
@@ -1809,14 +1808,14 @@
             <column name="REQUIRED_" type="BOOLEAN"/>
             <column name="SCHEMA_FILE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD"
                                  constraintName="FK_PAYLOAD_BP" deferrable="false"
@@ -1833,14 +1832,14 @@
             <column name="FK_PROFILE" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
                                  constraintName="FK_JP_PROFILE" deferrable="false"
@@ -1864,14 +1863,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP_BINDING"
                                  constraintName="FK_MEP_BINDING_BP" deferrable="false"
@@ -1888,14 +1887,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ROLE"
                                  constraintName="FK_ROLE_BP" deferrable="false"
@@ -1913,14 +1912,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP"
                                  constraintName="FK_MEP_BP" deferrable="false"
@@ -1947,14 +1946,14 @@
             <column name="USE_DYNAMIC_RESPONDER" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PM_PROCESS"
                                  constraintName="FK_PROCESS_MEP_BINDING" deferrable="false"
@@ -2006,14 +2005,14 @@
             <column name="PARTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
                                  constraintName="FK_JOIN_INIT_PARTY_PRS" deferrable="false"
@@ -2038,14 +2037,14 @@
             <column name="POLICY" type="VARCHAR(255)"/>
             <column name="SIGNATURE_METHOD" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SECURITY"
                                  constraintName="FK_SECURITY_BP" deferrable="false"
@@ -2063,14 +2062,14 @@
             <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SERVICE"
                                  constraintName="FK_SERVICE_BP" deferrable="false"
@@ -2090,14 +2089,14 @@
             <column name="RETRY_TIMEOUT" type="INT"/>
             <column name="STRATEGY" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RECEPTION_AWARENESS"
                                  constraintName="FK_REC_AWRNS_BP" deferrable="false"
@@ -2115,14 +2114,14 @@
             <column name="NON_REPUDIATION" type="BOOLEAN"/>
             <column name="REPLY_PATTERN" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RELIABILITY"
                                  constraintName="FK_RELIABILITY_BP" deferrable="false"
@@ -2152,14 +2151,14 @@
                     remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
                     type="INT" defaultValueNumeric="-1"/>
             <column name="FK_CONFIGURATION" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_PM_MPC"
                                  constraintName="FK_MPC_CONFIGURATION" deferrable="false"
@@ -2175,14 +2174,14 @@
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY_SET"
                                  constraintName="FK_PROPERTY_SET_BP" deferrable="false"
@@ -2203,14 +2202,14 @@
             <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
             <column name="JOIN_INTERVAL" remarks="The join interval" type="INT"/>
             <column name="FK_BUSINESSPROCESS" remarks="Foreign key to the business process" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <createIndex indexName="IDX_FK_SPLT_BP" tableName="TB_PM_SPLITTING">
             <column name="FK_BUSINESSPROCESS"/>
@@ -2233,14 +2232,14 @@
             <column name="FK_SERVICE" type="BIGINT"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column name="FK_SPLITTING" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_PM_LEG" constraintName="FK_LEG_SPLT"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
@@ -2326,14 +2325,14 @@
             <column name="LEG_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="LEG_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
                                  constraintName="FK_JOIN_PROCESS_LEG" deferrable="false"
@@ -2357,14 +2356,14 @@
             <column name="PARTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
                                  constraintName="FK_JOIN_PROC_RESP_PARTY" deferrable="false"
@@ -2390,14 +2389,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="REQUIRED_" type="BOOLEAN"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY"
                                  constraintName="FK_MESSAGE_PROPERTY_BP" deferrable="false"
@@ -2414,14 +2413,14 @@
             <column name="SET_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="PROPERTY_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
                                  constraintName="FK_JOIN_PROP_SET_PROP" deferrable="false"
@@ -2450,14 +2449,14 @@
             <column name="PARTYMPCMAP_KEY" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="LEGCONFIGURATION_ID_PK" baseTableName="TB_PM_LEG_MPC"
                                  constraintName="FK_LEG_MPC_LEG" deferrable="false"
@@ -2509,14 +2508,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY_ID_TYPE"
                                  constraintName="FK_PARTY_ID_TYPE_BP" deferrable="false"
@@ -2533,14 +2532,14 @@
             <column name="PARTY_ID" type="VARCHAR(255)"/>
             <column name="FK_PARTY_ID_TYPE" type="BIGINT"/>
             <column name="FK_PARTY" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_PARTY_IDENTIFIER"
                                  constraintName="FK_PARTY_IDENT_PARTY" deferrable="false"
@@ -2633,14 +2632,14 @@
             <column name="ALERT_LEVEL" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <createTable tableName="TB_EVENT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -2651,14 +2650,14 @@
             </column>
             <column name="REPORTING_TIME" type="TIMESTAMP"/>
             <column name="LAST_ALERT_DATE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_EVENT_ALERT">
@@ -2668,14 +2667,14 @@
             <column name="FK_ALERT" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
@@ -2703,14 +2702,14 @@
             <column name="DTYPE" type="VARCHAR(31)"/>
             <column name="STRING_VALUE" type="VARCHAR(255)"/>
             <column name="DATE_VALUE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_PROPERTY"
                                  constraintName="FK_EVENT_PROPERTY_ID" deferrable="false" initiallyDeferred="false"
@@ -2730,14 +2729,14 @@
             </column>
             <column name="BACKEND_NAME" type="VARCHAR(255)"/>
             <column name="PRIORITY" type="INT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_BACKEND_FILTER_AUD">
@@ -2770,14 +2769,14 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="FK_BACKEND_FILTER" type="BIGINT"/>
             <column name="PRIORITY" type="INT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_BACKEND_FILTER" baseTableName="TB_ROUTING_CRITERIA"
                                  constraintName="FK_ROUT_CRIT_BACK_FTR" deferrable="false"
@@ -2852,14 +2851,14 @@
             <column defaultValueBoolean="true" name="USER_ENABLED" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="USERNAME" constraintName="UK_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
@@ -2912,14 +2911,14 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
                                  constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false"
@@ -2953,14 +2952,14 @@
                 <constraints nullable="false"/>
             </column>
             <column defaultValueNumeric="0" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
 
@@ -3008,14 +3007,14 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_PASSWORD_HISTORY"
                                  constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
@@ -3032,14 +3031,14 @@
             <column name="ROLE_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UK_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
@@ -3050,14 +3049,14 @@
             <column name="ROLE_ID" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
             </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_ROLES"
                                  constraintName="FK_USER_ROLES_ROLE" deferrable="false" initiallyDeferred="false"
