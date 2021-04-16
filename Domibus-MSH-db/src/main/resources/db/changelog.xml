@@ -484,15 +484,15 @@
             </column>
 
             <column name="MESSAGE_SIZE" type="BIGINT" remarks="The message size before compression"/>
-            <column name="FRAGMENT_COUNT" type="INT" remarks="The message fragment count"/>
-            <column name="SENT_FRAGMENTS" type="INT" remarks="Stores how many fragments have been sent"/>
-            <column name="RECEIVED_FRAGMENTS" type="INT" remarks="Stores how many fragments have been received"/>
-            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)" remarks="Compression algorithm used for the SourceMessage"/>
+            <column name="FRAGMENT_COUNT" type="INT"/>
+            <column name="SENT_FRAGMENTS" type="INT"/>
+            <column name="RECEIVED_FRAGMENTS" type="INT"/>
+            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)"/>
             <column name="COMPRESSED_MESSAGE_SIZE" type="BIGINT" remarks="The size of the message after compression"/>
-            <column name="SOAP_ACTION" type="VARCHAR(255)" remarks="The Soap action value"/>
+            <column name="SOAP_ACTION" type="VARCHAR(255)"/>
             <column name="REJECTED" type="BOOLEAN" remarks="True if the message group has been rejected"/>
             <column name="EXPIRED" type="BOOLEAN" remarks="True if the message group has expired"/>
-            <column name="MSH_ROLE_ID_FK" type="BIGINT" remarks="The role of the MSH">
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="SOURCE_MESSAGE_ID_FK" type="BIGINT">
