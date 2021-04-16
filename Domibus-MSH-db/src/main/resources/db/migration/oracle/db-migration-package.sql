@@ -1380,35 +1380,26 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN part_info.FIRST .. part_info.LAST
                 LOOP
                     BEGIN
-
-                        BEGIN
-                            EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                              ' (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY, FILENAME, MIME,' ||
-                                              'PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                              'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
-                                USING
-                                part_info(i).ID_PK,
-                                part_info(i).BINARY_DATA,
-                                part_info(i).DESCRIPTION_LANG,
-                                part_info(i).DESCRIPTION_VALUE,
-                                part_info(i).HREF,
-                                part_info(i).IN_BODY,
-                                part_info(i).FILENAME,
-                                part_info(i).MIME,
-                                part_info(i).PART_ORDER,
-                                part_info(i).ENCRYPTED,
-                                part_info(i).USER_MESSAGE_ID_FK,
-                                part_info(i).CREATION_TIME,
-                                part_info(i).CREATED_BY,
-                                part_info(i).MODIFICATION_TIME,
-                                part_info(i).MODIFIED_BY;
-                        EXCEPTION
-                            WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_user for ' || v_tab_new ||
-                                                     ' -> execute immediate error: ' ||
-                                                     DBMS_UTILITY.FORMAT_ERROR_STACK);
-                        END;
-
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY, FILENAME, MIME,' ||
+                                          'PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
+                            USING
+                            part_info(i).ID_PK,
+                            part_info(i).BINARY_DATA,
+                            part_info(i).DESCRIPTION_LANG,
+                            part_info(i).DESCRIPTION_VALUE,
+                            part_info(i).HREF,
+                            part_info(i).IN_BODY,
+                            part_info(i).FILENAME,
+                            part_info(i).MIME,
+                            part_info(i).PART_ORDER,
+                            part_info(i).ENCRYPTED,
+                            part_info(i).USER_MESSAGE_ID_FK,
+                            part_info(i).CREATION_TIME,
+                            part_info(i).CREATED_BY,
+                            part_info(i).MODIFICATION_TIME,
+                            part_info(i).MODIFIED_BY;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1417,7 +1408,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_user -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_user for ' || v_tab_new ||
+                                                 ' -> execute immediate error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
@@ -1460,25 +1452,19 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN part_prop.FIRST .. part_prop.LAST
                 LOOP
                     BEGIN
-
-                        BEGIN
-                            EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                              ' (ID_PK, PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                              'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
-                                USING
-                                HIBERNATE_SEQUENCE.nextval,
-                                part_prop(i).PART_INFO_ID_FK,
-                                get_tb_d_part_property_rec(part_prop(i).NAME,
-                                                           part_prop(i).VALUE,
-                                                           part_prop(i).TYPE),
-                                part_prop(i).CREATION_TIME,
-                                part_prop(i).CREATED_BY,
-                                part_prop(i).MODIFICATION_TIME,
-                                part_prop(i).MODIFIED_BY;
-                        EXCEPTION
-                            WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new || ' -> execute immediate error: ' ||DBMS_UTILITY.FORMAT_ERROR_STACK);
-                        END;
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                            USING
+                            HIBERNATE_SEQUENCE.nextval,
+                            part_prop(i).PART_INFO_ID_FK,
+                            get_tb_d_part_property_rec(part_prop(i).NAME,
+                                                       part_prop(i).VALUE,
+                                                       part_prop(i).TYPE),
+                            part_prop(i).CREATION_TIME,
+                            part_prop(i).CREATED_BY,
+                            part_prop(i).MODIFICATION_TIME,
+                            part_prop(i).MODIFIED_BY;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1487,8 +1473,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_property -> execute immediate error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new ||
+                                                 ' -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
