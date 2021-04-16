@@ -1,4 +1,7 @@
 Domibus 5.0 (from 4.2)
+                - Run the appropriate DB migration script(mysql-4.2-to-5.0-migration.ddl for MySQL or oracle-4.2-to-5.0-migration.ddl for Oracle)
+                - Execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) with correct TIMEZONE value as IN parameter for mysql or oracle DB.
+                  The 'TIMEZONE' value should be the timezone in which the date time values have been previously saved (e.g. 'Europe/Brussels').
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"
