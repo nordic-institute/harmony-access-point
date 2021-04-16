@@ -7,7 +7,7 @@
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-new.xml" relativeToChangelogFile="true"/>
+    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="thomas dussart" id="EDELIVERY-2144">
         <comment>inserts</comment>
