@@ -453,6 +453,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('MIGR_TB_PART_INFO');
         drop_table_if_exists('MIGR_TB_PART_PROPERTIES');
         drop_table_if_exists('MIGR_TB_ERROR_LOG');
+        drop_table_if_exists('MIGR_TB_MESSAGE_ACKNW');
 
         drop_table_if_exists('TB_D_MPC');
         drop_table_if_exists('TB_D_ROLE');
@@ -531,6 +532,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_sql := 'CREATE TABLE MIGR_TB_ERROR_LOG (ID_PK NUMBER(38, 0) NOT NULL, ERROR_CODE VARCHAR2(255), ERROR_DETAIL VARCHAR2(255), ERROR_SIGNAL_MESSAGE_ID VARCHAR2(255), MESSAGE_IN_ERROR_ID VARCHAR2(255), MSH_ROLE_ID_FK NUMBER(38, 0), NOTIFIED TIMESTAMP, TIME_STAMP TIMESTAMP, USER_MESSAGE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_ERROR_LOG PRIMARY KEY (ID_PK))';
         v_table := 'MIGR_TB_ERROR_LOG';
+        create_table(v_table, v_sql);
+
+        v_sql := 'CREATE TABLE MIGR_TB_MESSAGE_ACKNW (ID_PK NUMBER(38, 0) NOT NULL, FROM_VALUE VARCHAR2(255), TO_VALUE VARCHAR2(255), ACKNOWLEDGE_DATE TIMESTAMP, USER_MESSAGE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_MESSAGE_ACKNW PRIMARY KEY (ID_PK))';
+        v_table := 'MIGR_TB_MESSAGE_ACKNW';
         create_table(v_table, v_sql);
 
         -- create dictionary tables
@@ -1563,6 +1568,73 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_error_log;
     END migrate_error_log;
 
+    /**- TB_MESSAGE_ACKNW data migration --*/
+    PROCEDURE migrate_message_acknw IS
+        v_tab      VARCHAR2(30) := 'TB_MESSAGE_ACKNW';
+        v_tab_new  VARCHAR2(30) := 'MIGR_TB_MESSAGE_ACKNW';
+        CURSOR c_message_acknw IS
+            SELECT MA.ID_PK,
+                   MA.FROM_VALUE,
+                   MA.TO_VALUE,
+                   MA.ACKNOWLEDGE_DATE,
+                   MA.CREATION_TIME,
+                   MA.CREATED_BY,
+                   MA.MODIFICATION_TIME,
+                   MA.MODIFIED_BY,
+                   UM.ID_PK USER_MESSAGE_ID_FK
+            FROM
+                TB_MESSAGE_ACKNW MA,
+                TB_MESSAGE_INFO MI,
+                TB_USER_MESSAGE UM
+            WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK
+              AND MI.MESSAGE_ID = MA.MESSAGE_ID;
+        TYPE T_MESSAGE_ACKNW IS TABLE OF c_message_acknw%ROWTYPE;
+        message_acknw  T_MESSAGE_ACKNW;
+        v_batch_no INT          := 1;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_message_acknw;
+        LOOP
+            FETCH c_message_acknw BULK COLLECT INTO message_acknw;
+            EXIT WHEN message_acknw.COUNT = 0;
+
+            FOR i IN message_acknw.FIRST .. message_acknw.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, FROM_VALUE, TO_VALUE, ACKNOWLEDGE_DATE, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9)'
+                            USING
+                            message_acknw(i).ID_PK,
+                            message_acknw(i).FROM_VALUE,
+                            message_acknw(i).TO_VALUE,
+                            message_acknw(i).ACKNOWLEDGE_DATE,
+                            message_acknw(i).USER_MESSAGE_ID_FK,
+                            message_acknw(i).CREATION_TIME,
+                            message_acknw(i).CREATED_BY,
+                            message_acknw(i).MODIFICATION_TIME,
+                            message_acknw(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || message_acknw.COUNT || ' records in total into ' ||
+                        v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_message_acknw;
+    END migrate_message_acknw;
+
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_user_message_post IS
     BEGIN
@@ -1623,6 +1695,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_part_info_property;
 
         migrate_error_log;
+        migrate_message_acknw;
 
         -- house keeping
         migrate_post;
