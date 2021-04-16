@@ -7,6 +7,7 @@ import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.TypedQuery;
 
@@ -16,6 +17,7 @@ import javax.persistence.TypedQuery;
  * @author Cosmin Baciu
  * @since 3.2
  */
+@Service
 public class MessageStatusDao extends BasicDao<MessageStatusEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLog.class);

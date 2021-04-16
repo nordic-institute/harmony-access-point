@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -44,9 +43,6 @@ public class MessageResourceTest {
 
     @Injectable
     MessageConverterService messageConverterService;
-
-    @Injectable
-    private MessagingDao messagingDao;
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;

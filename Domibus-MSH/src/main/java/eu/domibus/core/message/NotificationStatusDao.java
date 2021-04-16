@@ -5,9 +5,11 @@ import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.TypedQuery;
 
+@Service
 public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLog.class);

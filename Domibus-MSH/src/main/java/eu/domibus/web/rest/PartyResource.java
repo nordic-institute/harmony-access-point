@@ -10,7 +10,7 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -42,7 +42,7 @@ public class PartyResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
 
-    private DomibusCoreMapper coreMapper;
+    private PartyCoreMapper partyCoreMapper;
 
     private PartyService partyService;
 
@@ -54,10 +54,13 @@ public class PartyResource extends BaseResource {
 
     private DomainContextProvider domainProvider;
 
-    public PartyResource(DomibusCoreMapper coreMapper, PartyService partyService, CertificateService certificateService,
-                         PModeValidationHelper pModeValidationHelper, MultiDomainCryptoService multiDomainCertificateProvider,
+    public PartyResource(PartyCoreMapper partyCoreMapper,
+                         PartyService partyService,
+                         CertificateService certificateService,
+                         PModeValidationHelper pModeValidationHelper,
+                         MultiDomainCryptoService multiDomainCertificateProvider,
                          DomainContextProvider domainProvider) {
-        this.coreMapper = coreMapper;
+        this.partyCoreMapper = partyCoreMapper;
         this.partyService = partyService;
         this.certificateService = certificateService;
         this.pModeValidationHelper = pModeValidationHelper;
@@ -77,7 +80,7 @@ public class PartyResource extends BaseResource {
         LOG.debug("Searching party with parameters name [{}], endPoint [{}], partyId [{}], processName [{}], pageStart [{}], pageSize [{}]",
                 request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize());
 
-        List<PartyResponseRo> partyResponseRos = coreMapper.partyListToPartyResponseRoList(
+        List<PartyResponseRo> partyResponseRos = partyCoreMapper.partyListToPartyResponseRoList(
                 partyService.getParties(request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize()));
 
         flattenIdentifiers(partyResponseRos);
@@ -127,7 +130,7 @@ public class PartyResource extends BaseResource {
     public ValidationResponseRO updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
-        List<Party> partyList = coreMapper.partyResponseRoListToPartyList(partiesRo);
+        List<Party> partyList = partyCoreMapper.partyResponseRoListToPartyList(partiesRo);
         LOG.debug("Updating partyList [{}]", partyList.toArray());
 
         Map<String, String> certificates = partiesRo.stream()
@@ -231,7 +234,7 @@ public class PartyResource extends BaseResource {
 
     @GetMapping(value = {"/processes"})
     public List<ProcessRo> listProcesses() {
-        return coreMapper.processAPIListToProcessRoList(partyService.getAllProcesses());
+        return partyCoreMapper.processAPIListToProcessRoList(partyService.getAllProcesses());
     }
 
     @GetMapping(value = "/{partyName}/certificate")
@@ -243,7 +246,7 @@ public class PartyResource extends BaseResource {
                 LOG.debug("Certificate entry not found for party name [{}].", partyName);
                 return ResponseEntity.notFound().build();
             }
-            TrustStoreRO res = coreMapper.trustStoreEntryToTrustStoreRO(entry);
+            TrustStoreRO res = partyCoreMapper.trustStoreEntryToTrustStoreRO(entry);
             return ResponseEntity.ok(res);
         } catch (KeyStoreException e) {
             LOG.error("Failed to get certificate from truststore", e);
@@ -271,7 +274,7 @@ public class PartyResource extends BaseResource {
             throw new IllegalArgumentException("Certificate could not be parsed");
         }
 
-        return coreMapper.trustStoreEntryToTrustStoreRO(cert);
+        return partyCoreMapper.trustStoreEntryToTrustStoreRO(cert);
     }
 
 }

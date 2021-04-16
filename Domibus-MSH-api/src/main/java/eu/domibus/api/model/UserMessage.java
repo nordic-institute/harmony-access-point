@@ -59,7 +59,7 @@ public class UserMessage extends AbstractBaseEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGREEMENT_ID_FK")
-    protected AgreementRef agreementRef;
+    protected AgreementRefEntity agreementRef;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "MPC_ID_FK")
@@ -116,6 +116,9 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public String getActionValue() {
+        if(action == null) {
+            return null;
+        }
         return action.getValue();
     }
 
@@ -127,20 +130,34 @@ public class UserMessage extends AbstractBaseEntity {
         return service;
     }
 
+    public String getServiceValue() {
+        if(service == null) {
+            return null;
+        }
+        return service.getValue();
+    }
+
     public void setService(ServiceEntity service) {
         this.service = service;
     }
 
-    public AgreementRef getAgreementRef() {
+    public AgreementRefEntity getAgreementRef() {
         return agreementRef;
     }
 
-    public void setAgreementRef(AgreementRef agreementRef) {
+    public void setAgreementRef(AgreementRefEntity agreementRef) {
         this.agreementRef = agreementRef;
     }
 
     public MpcEntity getMpc() {
         return mpc;
+    }
+
+    public String getMpcValue() {
+        if(mpc == null) {
+            return null;
+        }
+        return mpc.getValue();
     }
 
     public void setMpc(MpcEntity mpc) {

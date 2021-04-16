@@ -11,7 +11,7 @@ import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.web.rest.ro.PluginUserRO;
@@ -73,7 +73,7 @@ public class PluginUserEbms3ServiceImplTest {
     PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     @Injectable
-    private DomibusCoreMapper coreMapper;
+    private AuthCoreMapper authCoreMapper;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -283,7 +283,7 @@ public class PluginUserEbms3ServiceImplTest {
         LocalDateTime expDate = LocalDateTime.now().plusDays(30);
 
         new Expectations() {{
-            coreMapper.authenticationEntityToPluginUserRO(user);
+            authCoreMapper.authenticationEntityToPluginUserRO(user);
             result = userRO;
             userSecurityPolicyManager.getExpirationDate(user);
             result = expDate;

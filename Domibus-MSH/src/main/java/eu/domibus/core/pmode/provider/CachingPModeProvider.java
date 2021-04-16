@@ -14,7 +14,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.api.model.AgreementRef;
+import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
@@ -511,7 +511,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
+    public String findAgreement(final AgreementRefEntity agreementRef) throws EbMS3Exception {
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {
             return OPTIONAL_AND_EMPTY; // AgreementRef is optional
         }

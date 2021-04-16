@@ -12,7 +12,7 @@ import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
@@ -60,7 +60,7 @@ public class UserResource extends BaseResource {
     private UserService userManagementService;
 
     @Autowired
-    private DomibusCoreMapper coreMapper;
+    private AuthCoreMapper authCoreMapper;
 
     @Autowired
     private AuthUtils authUtils;
@@ -103,7 +103,7 @@ public class UserResource extends BaseResource {
         LOG.debug("Update Users was called: {}", userROS);
         validateUsers(userROS);
         updateUserRoles(userROS);
-        List<User> users = coreMapper.userResponseROListToUserList(userROS);
+        List<User> users = authCoreMapper.userResponseROListToUserList(userROS);
         getUserService().updateUsers(users);
     }
 
@@ -200,7 +200,7 @@ public class UserResource extends BaseResource {
      * @return a list of
      */
     protected List<UserResponseRO> prepareResponse(List<User> users) {
-        List<UserResponseRO> userResponseROS = coreMapper.userListToUserResponseROList(users);
+        List<UserResponseRO> userResponseROS = authCoreMapper.userListToUserResponseROList(users);
         for (UserResponseRO userResponseRO : userResponseROS) {
             userResponseRO.setStatus("PERSISTED");
             userResponseRO.updateRolesField();

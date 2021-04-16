@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -35,8 +36,8 @@ public class UserMessageLegConfigurationExtractor extends AbstractLegConfigurati
     @Override
     public LegConfiguration extractMessageConfiguration() throws EbMS3Exception {
         message.put(MSHDispatcher.MESSAGE_TYPE_IN, MessageType.USER_MESSAGE);
-        final Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        final String pmodeKey = this.pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING).getPmodeKey(); // FIXME: This does not work for signalmessages
+        final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        final String pmodeKey = this.pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING).getPmodeKey(); // FIXME: This does not work for signalmessages
         setUpMessage(pmodeKey);
         return this.pModeProvider.getLegConfiguration(pmodeKey);
     }

@@ -7,7 +7,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -42,7 +42,7 @@ public class TruststoreResourceBaseTest {
     TruststoreResourceBase truststoreResourceBase;
 
     @Injectable
-    DomibusCoreMapper coreMapper;
+    PartyCoreMapper partyCoreConverter;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
@@ -118,7 +118,7 @@ public class TruststoreResourceBaseTest {
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.doGetTrustStoreEntries();
             result = trustStoreEntryList;
-            coreMapper.trustStoreEntryListToTrustStoreROList(trustStoreEntryList);
+            partyCoreConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntryList);
             result = getTestTrustStoreROList(date);
         }};
 
@@ -202,7 +202,7 @@ public class TruststoreResourceBaseTest {
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.doGetTrustStoreEntries();
             result = trustStoreEntries;
-            coreMapper.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
+            partyCoreConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
             result = entries;
         }};
 

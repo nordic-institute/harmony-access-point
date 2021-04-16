@@ -1,7 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,7 +29,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomibusCoreMapper coreMapper;
+    private MessageCoreMapper messageCoreMapper;
 
     @Autowired
     private UIMessageService uiMessageService;
@@ -94,7 +94,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         List<UIMessageEntity> uiMessageEntityList =
                         findAll().
                         stream().
-                        map(objects -> convertToUIMessageEntity(objects)).
+                        map(objects -> messageCoreMapper.uiMessageDiffEntityToUIMessageEntity(objects)).
                         collect(Collectors.toList());
 
         if (!uiMessageEntityList.isEmpty()) {
@@ -124,7 +124,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         List<UIMessageEntity> uiMessageEntityList =
                 findAll(limit).
                         stream().
-                        map(objects -> convertToUIMessageEntity(objects)).
+                        map(messageCoreMapper::uiMessageDiffEntityToUIMessageEntity).
                         collect(Collectors.toList());
 
         LOG.debug("[{}] milliseconds to fetch the records", System.currentTimeMillis() - startTime);
@@ -141,18 +141,4 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         return recordsToSync;
     }
 
-
-    /**
-     * Converts one record of the diff query to {@link UIMessageEntity}
-     *
-     * @param diffEntity
-     * @return
-     */
-    protected UIMessageEntity convertToUIMessageEntity(UIMessageDiffEntity diffEntity) {
-        if (null == diffEntity) {
-            return null;
-        }
-
-        return coreMapper.uiMessageDiffEntityToUIMessageEntity(diffEntity);
-    }
 }

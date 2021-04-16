@@ -8,7 +8,6 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -64,9 +63,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Autowired
     @Qualifier("retentionMessageQueue")
     private Queue retentionMessageQueue;
-
-    @Autowired
-    private MessagingDao messagingDao;
 
     @Autowired
     private JsonUtil jsonUtil;

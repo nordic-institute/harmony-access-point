@@ -29,7 +29,7 @@ public class MpcServiceImpl implements MpcService {
         if (userMessage == null) {
             return false;
         }
-        return forcePullOnMpc(userMessage.getMpc().getValue());
+        return forcePullOnMpc(userMessage.getMpcValue());
     }
 
     @Override

@@ -5,7 +5,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -33,7 +33,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     protected static final String TRUSTSTORE_BACKUP_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
-                                 DomibusCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
+                                 PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
         super(coreMapper, errorHandlerService, multiPartFileUtil, auditService);
 

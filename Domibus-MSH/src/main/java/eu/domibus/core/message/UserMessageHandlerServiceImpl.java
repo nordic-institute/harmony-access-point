@@ -151,9 +151,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected PayloadFileStorageProvider storageProvider;
 
     @Autowired
-    protected MessagingDao messagingDao;
-
-    @Autowired
     protected MessagePropertyValidator messagePropertyValidator;
 
     @Autowired
@@ -448,7 +445,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 notificationStatus.toString(),
                 MSHRole.RECEIVING.toString(),
                 0,
-                StringUtils.isEmpty(userMessage.getMpc().getValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpc().getValue(),
+                StringUtils.isEmpty(userMessage.getMpcValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpcValue(),
                 backendName,
                 to.getEndpoint(),
                 userMessage.getService().getValue(),
@@ -633,7 +630,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             result.setDescription(description);
         }
         result.setHref(ebms3PartInfo.getHref());
-        result.setMime(ebms3PartInfo.getMime());
 
         final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
         final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();

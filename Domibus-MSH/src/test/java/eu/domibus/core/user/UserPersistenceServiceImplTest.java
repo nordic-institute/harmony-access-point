@@ -9,7 +9,7 @@ import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
@@ -49,9 +49,6 @@ public class UserPersistenceServiceImplTest {
     private BCryptPasswordEncoder bCryptEncoder;
 
     @Injectable
-    private DomibusCoreMapper coreMapper;
-
-    @Injectable
     private UserDomainService userDomainService;
 
     @Injectable
@@ -70,7 +67,7 @@ public class UserPersistenceServiceImplTest {
     UserSessionsService userSessionsService;
 
     @Autowired
-    private DomibusCoreMapper coreMapper2;
+    private AuthCoreMapper authCoreMapper;
 
     @Injectable
     AuthenticationService authenticationService;
@@ -107,7 +104,7 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> users = Arrays.asList(addedUser, modifiedUser, deletedUser);
 
         new Expectations() {{
-            coreMapper.userApiToUserSecurity(addedUser);
+            authCoreMapper.userApiToUserSecurity(addedUser);
             returns(addedUserUntity);
         }};
 
@@ -134,7 +131,7 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
 
         new Expectations() {{
-            coreMapper.userApiToUserSecurity(addedUser);
+            authCoreMapper.userApiToUserSecurity(addedUser);
             result = addedUserUntity;
         }};
 
