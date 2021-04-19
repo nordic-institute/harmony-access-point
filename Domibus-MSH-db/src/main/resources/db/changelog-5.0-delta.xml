@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
+    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
@@ -365,6 +365,7 @@
     <!-- TODO EDELIVERY-7970 -->
     <!--<include file="migration/changelog-5.0new-delta.xml" relativeToChangelogFile="true"/>-->
     <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+    <include file="migration/changelog-utc-conversion-procedures.xml"  relativeToChangelogFile="true"/>
     <!-- End here 4.2 to new 5.0 -->
 
 
