@@ -35,26 +35,11 @@ public class SeleniumTest extends BaseTest {
 	static int methodCount = 1;
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	public String logFilename;
-//	private void makeLoggerLog() throws Exception{
-//		PatternLayout layout = new PatternLayout("%d{ISO8601} [%C.%M] - %m%n");
-//
-//		Path file = Files.createTempFile("autoTests", ".txt");
-//		this.logFilename = file.toAbsolutePath().toString();
-//
-//		FileAppender fileAppender = new FileAppender();
-//		fileAppender.setFile(file.toAbsolutePath().toString());
-//		fileAppender.setAppend(true);
-//		fileAppender.setImmediateFlush(true);
-//		fileAppender.setLayout(layout);
-//		fileAppender.setName("CustomAppender");
-//		fileAppender.setWriter(new BufferedWriter(new FileWriter(logFilename)));
-//		log.addAppender(fileAppender);
-//	}
+
 	
 	
 	@BeforeSuite(alwaysRun = true)
 	public void beforeSuite() throws Exception {
-//		makeLoggerLog();
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
 		generateTestData();

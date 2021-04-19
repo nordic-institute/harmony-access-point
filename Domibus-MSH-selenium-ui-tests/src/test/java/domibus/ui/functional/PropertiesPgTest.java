@@ -302,12 +302,17 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		page.propGrid().setPropertyValue("domain.title", domainTitleVal);
 
+		page.getAlertArea().isShown();
+
 		page.refreshPage();
 
-		String value = page.propGrid().getPropertyValue("domain.title");
+		String pageValue = page.getDomainFromTitle();
+
+		String value = rest.properties().getPropertyValue("domain.title", true, null);
 		log.info("got property value " + value);
 
 		soft.assertEquals(value, domainTitleVal, "Set value is saved properly");
+		soft.assertEquals(pageValue, domainTitleVal, "Set value is shown in page title");
 
 		log.info("resetting value");
 		rest.properties().updateDomibusProperty("domain.title", "", null);

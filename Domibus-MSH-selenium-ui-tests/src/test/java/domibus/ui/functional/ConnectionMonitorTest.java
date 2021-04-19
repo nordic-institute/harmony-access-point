@@ -197,9 +197,9 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 
 		page.grid().getActionButton("Send", 0).click();
-		new DWait(driver).forXMillis(100);
+		new DWait(driver).forXMillis(1000);
 		page.grid().getActionButton("Refresh", 0).click();
-		new DWait(driver).forXMillis(100);
+		new DWait(driver).forXMillis(1000);
 
 		String afterSentData = page.grid().sentRecvStatusDetail.get(0).getText();
 		soft.assertTrue(afterSentData.contains("a few seconds ago"), "After sent data contains time difference in seconds");
