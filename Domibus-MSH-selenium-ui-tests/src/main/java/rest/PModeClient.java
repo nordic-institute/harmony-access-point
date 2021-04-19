@@ -107,6 +107,21 @@ public class PModeClient extends BaseRestClient {
 		ClientResponse clientResponse = jsonPUT(resource.path(RestServicePaths.PMODE_RESTORE + pmodeId), "");
 		return clientResponse;
 	}
-	
+
+	public String getCurrentPmode(String domain) throws Exception {
+		if(!isPmodeUploaded(domain)){
+			return "";
+		}
+
+		Integer latestId = getLatestPModeID(domain);
+
+		switchDomain(domain);
+
+		ClientResponse response = requestGET(resource.path(RestServicePaths.PMODE+"/"+latestId), null);
+		if(response.getStatus() != 200){
+			throw new DomibusRestException("Could not get latest pmode", response);
+		}
+		return response.getEntity(String.class);
+	}
 	
 }

@@ -3,11 +3,14 @@ package pages.pmode.current;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.Gen;
 
 
 /**
@@ -31,6 +34,7 @@ public class PModeCurrentPage extends DomibusPage {
 	WebElement infoTxt;
 	@FindBy(id = "pmodetextarea_id")
 	WebElement CurrentPmodeXml;
+
 	public PModeCurrentPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -68,6 +72,21 @@ public class PModeCurrentPage extends DomibusPage {
 	}
 
 
+	public void saveAndConfirm(String description) throws Exception {
+
+		getSaveBtn().click();
+
+		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
+
+		if (StringUtils.isEmpty(description)) {
+			description = Gen.rndStr(10);
+		}
+
+		modal.getDescriptionTextArea().isEnabled();
+		modal.descriptionTextArea.sendKeys(description);
+
+		modal.clickOK();
+	}
 }
 
 
