@@ -1,24 +1,7 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Lists;
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.*;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.hibernate.transform.ResultTransformer;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 /**

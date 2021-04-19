@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -47,7 +45,6 @@ public class UserMessageLogDefaultService {
 
     @Autowired
     protected NotificationStatusDao notificationStatusDao;
-
 
 
     private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {

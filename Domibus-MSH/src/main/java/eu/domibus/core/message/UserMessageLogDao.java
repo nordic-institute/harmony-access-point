@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import com.google.common.collect.Maps;
 import eu.domibus.core.dao.ListDao;
@@ -256,7 +255,7 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
 
     protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
         Map<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype", MessageSubtype.TEST);
+        filters.put("testMessage", true);
         filters.put("mshRole", mshRole);
         filters.put("toPartyId", party);
         filters.put("messageType", messageType);

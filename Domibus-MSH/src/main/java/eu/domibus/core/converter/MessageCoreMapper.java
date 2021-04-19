@@ -1,6 +1,5 @@
 package eu.domibus.core.converter;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.domain.PartProperties;
@@ -180,17 +179,6 @@ public interface MessageCoreMapper {
         mshRoleEntity.setRole(notificationStatus);
         return mshRoleEntity;
     }
-
-    default MessageSubtype mshRole(MessageSubtypeEntity messageSubtypeEntity) {
-        return messageSubtypeEntity.getMessageSubtype();
-    }
-
-    default MessageSubtypeEntity mshRoleEntity(MessageSubtype notificationStatus) {
-        MessageSubtypeEntity messageSubtypeEntity = new MessageSubtypeEntity();
-        messageSubtypeEntity.setMessageSubtype(notificationStatus);
-        return messageSubtypeEntity;
-    }
-
     default MessageStatus apiMessageStatus(MessageStatusEntity messageStatusEntity) {
         return messageStatusEntity.getMessageStatus();
     }

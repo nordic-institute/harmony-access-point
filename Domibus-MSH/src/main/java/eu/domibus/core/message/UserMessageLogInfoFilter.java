@@ -32,7 +32,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "message.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
-                "message.messageSubtype.messageSubtype," +
+                "message.testMessage," +
                 "message.messageFragment," +
                 "message.sourceMessage," +
                 MESSAGE_COLLABORATION_INFO_ACTION + "," +

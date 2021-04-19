@@ -1,11 +1,10 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.common.MessageStatus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -53,9 +52,8 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Column(name = "MESSAGE_TYPE")
     private MessageType messageType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MESSAGE_SUBTYPE")
-    private MessageSubtype messageSubtype;
+    @Column(name = "TEST_MESSAGE")
+    private Boolean testMesage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
@@ -158,12 +156,12 @@ public class UIMessageEntity extends AbstractBaseEntity {
         this.messageType = messageType;
     }
 
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
+    public Boolean getTestMesage() {
+        return testMesage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMesage(Boolean testMesage) {
+        this.testMesage = testMesage;
     }
 
     public String getConversationId() {
@@ -318,7 +316,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(messageStatus, that.messageStatus)
                 .append(notificationStatus, that.notificationStatus)
                 .append(messageType, that.messageType)
-                .append(messageSubtype, that.messageSubtype)
                 .append(mshRole, that.mshRole)
                 .append(conversationId, that.conversationId)
                 .append(deleted, that.deleted)
@@ -345,7 +342,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(messageStatus)
                 .append(notificationStatus)
                 .append(messageType)
-                .append(messageSubtype)
                 .append(mshRole)
                 .append(conversationId)
                 .append(deleted)

@@ -1,7 +1,6 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.SignalMessageLogService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.MessageStatusDao;
@@ -26,7 +25,7 @@ public class SignalMessageLogDefaultService implements SignalMessageLogService {
     @Autowired
     protected MshRoleDao mshRoleDao;
 
-    private SignalMessageLog createSignalMessageLog(SignalMessage signalMessage, MessageSubtype messageSubtype) {
+    private SignalMessageLog createSignalMessageLog(SignalMessage signalMessage) {
         MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.RECEIVED);
         MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.RECEIVING);
 
@@ -42,13 +41,10 @@ public class SignalMessageLogDefaultService implements SignalMessageLogService {
 
     @Override
     public void save(SignalMessage signalMessage, String userMessageService, String userMessageAction) {
-        // Sets the subtype
-        MessageSubtype messageSubtype = null;
-        if (checkTestMessage(userMessageService, userMessageAction)) {
-            messageSubtype = MessageSubtype.TEST;
-        }
+        final Boolean testMessage = checkTestMessage(userMessageService, userMessageAction);
+
         // Builds the signal message log
-        final SignalMessageLog signalMessageLog = createSignalMessageLog(signalMessage, messageSubtype);
+        final SignalMessageLog signalMessageLog = createSignalMessageLog(signalMessage);
         // Saves an entry of the signal message log
         signalMessageLogDao.create(signalMessageLog);
     }

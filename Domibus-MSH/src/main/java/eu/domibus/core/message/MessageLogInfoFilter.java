@@ -32,7 +32,7 @@ public class MessageLogInfoFilter {
     private static final String MESSAGE_COLLABORATION_INFO_CONVERSATION_ID = "message.conversationId";
     private static final String LOG_FAILED = "log.failed";
     private static final String LOG_RESTORED = "log.restored";
-    private static final String LOG_MESSAGE_SUBTYPE = "message.messageSubtype";
+    private static final String MESSAGE_TEST_MESSAGE = "message.testMessage";
     public static final String MESSAGE_ACTION = "action";
     public static final String MESSAGE_SERVICE_TYPE = "serviceType";
     public static final String MESSAGE_SERVICE_VALUE = "serviceValue";
@@ -81,8 +81,8 @@ public class MessageLogInfoFilter {
                 return LOG_FAILED;
             case "restored":
                 return LOG_RESTORED;
-            case "messageSubtype":
-                return LOG_MESSAGE_SUBTYPE;
+            case "testMessage":
+                return MESSAGE_TEST_MESSAGE;
             case MESSAGE_ACTION:
                 return MESSAGE_COLLABORATION_INFO_ACTION;
             case MESSAGE_SERVICE_TYPE:
@@ -130,13 +130,13 @@ public class MessageLogInfoFilter {
                     }
                 }
             }
-        } else {
-            if (filter.getKey().equals("messageSubtype")) {
+        }/* else {
+            if (filter.getKey().equals("testMessage")) {
                 result.append(" and ");
                 String tableName = getHQLKey(filter.getKey());
                 result.append(tableName).append(" is null");
             }
-        }
+        }*/
     }
 
     public <E> TypedQuery<E> applyParameters(TypedQuery<E> query, Map<String, Object> filters) {

@@ -1,7 +1,6 @@
 package eu.domibus.core.message.signal;
 
 import com.google.common.collect.Maps;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.MessageLogInfo;
@@ -11,7 +10,6 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -100,7 +98,7 @@ public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
 
     public String findLastTestMessageId(String party) {
         Map<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype", MessageSubtype.TEST);
+        filters.put("testMessage", true);
         filters.put("mshRole", MSHRole.RECEIVING);
         filters.put("toPartyId", party);
         String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);

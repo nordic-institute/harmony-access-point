@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -56,9 +55,6 @@ public class MessagingServiceImpl implements MessagingService {
     protected UserMessageDao userMessageDao;
 
     @Autowired
-    protected MessageSubtypeDao messageSubtypeDao;
-
-    @Autowired
     protected PayloadPersistenceProvider payloadPersistenceProvider;
 
     @Autowired
@@ -96,13 +92,9 @@ public class MessagingServiceImpl implements MessagingService {
             return;
         }
 
-        // Sets the subtype
-        MessageSubtype messageSubtype = null;
-        if (checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue())) {
-            messageSubtype = MessageSubtype.TEST;
-        }
-        final MessageSubtypeEntity messageSubtypeEntity = messageSubtypeDao.findOrCreateSubtype(messageSubtype);
-        userMessage.setMessageSubtype(messageSubtypeEntity);
+
+        final Boolean testMessage = checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+        userMessage.setTestMessage(testMessage);
 
         if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();

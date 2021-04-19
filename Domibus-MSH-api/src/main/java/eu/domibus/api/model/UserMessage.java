@@ -1,12 +1,10 @@
 package eu.domibus.api.model;
 
-import eu.domibus.api.message.MessageSubtype;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,6 +45,9 @@ public class UserMessage extends AbstractBaseEntity {
     @Column(name = "MESSAGE_FRAGMENT")
     protected Boolean messageFragment;
 
+    @Column(name = "TEST_MESSAGE")
+    protected Boolean testMessage;
+
     @Embedded
     protected PartyInfo partyInfo; //NOSONAR
 
@@ -66,10 +67,6 @@ public class UserMessage extends AbstractBaseEntity {
     @JoinColumn(name = "MPC_ID_FK")
     protected MpcEntity mpc;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "MESSAGE_SUBTYPE_ID_FK")
-    private MessageSubtypeEntity messageSubtype;
-
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_MESSAGE_PROPERTIES",
             joinColumns = @JoinColumn(name = "USER_MESSAGE_ID_FK"),
@@ -78,26 +75,15 @@ public class UserMessage extends AbstractBaseEntity {
     protected Set<MessageProperty> messageProperties; //NOSONAR
 
     public boolean isTestMessage() {
-        if(messageSubtype == null) {
-            return false;
-        }
+        return BooleanUtils.toBoolean(testMessage);
+    }
 
-        if(MessageSubtype.TEST == messageSubtype.getMessageSubtype()) {
-            return true;
-        }
-        return false;
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
     }
 
     public boolean isSplitAndJoin() {
         return isSourceMessage() || isMessageFragment();
-    }
-
-    public MessageSubtypeEntity getMessageSubtype() {
-        return messageSubtype;
-    }
-
-    public void setMessageSubtype(MessageSubtypeEntity messageSubtype) {
-        this.messageSubtype = messageSubtype;
     }
 
     public String getMessageId() {

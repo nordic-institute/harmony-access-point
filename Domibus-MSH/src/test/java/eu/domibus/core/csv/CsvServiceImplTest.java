@@ -2,7 +2,6 @@ package eu.domibus.core.csv;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
@@ -107,13 +106,13 @@ public class CsvServiceImplTest {
 
     @Test
     public void testExportToCsvTest() throws CsvException {
-        testExportCsvBySubtype(MessageSubtype.TEST);
+        testExportCsvBySubtype(true);
     }
 
-    private void testExportCsvBySubtype(MessageSubtype messageSubtype) {
+    private void testExportCsvBySubtype(Boolean testMessage) {
         // Given
         Date date = new Date();
-        List<MessageLogInfo> messageLogInfoList = getMessageList(date, messageSubtype);
+        List<MessageLogInfo> messageLogInfoList = getMessageList(date, testMessage);
 
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
         ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
@@ -126,15 +125,15 @@ public class CsvServiceImplTest {
 
         // Then
         Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Conversation Id,Message Type,Message Subtype,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored"));
-        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId,USER_MESSAGE," + (messageSubtype != null ? messageSubtype.name() : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
+        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
-    private List<MessageLogInfo> getMessageList(Date date, MessageSubtype messageSubtype) {
+    private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype, false, false, "action", "serviceType", "serviceValue");
+                "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);
         return result;
     }
