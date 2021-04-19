@@ -69,7 +69,7 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
 
         convertedBack.setSourceMessage(toConvert.isSourceMessage());
         convertedBack.setMessageFragment(toConvert.isMessageFragment());
-        convertedBack.setPartInfoList(toConvert.getPartInfoList());
+//        convertedBack.setPartInfoList(toConvert.getPartInfoList());
         convertedBack.setEntityId(toConvert.getEntityId());
 
         From fromToConvert = (From) getPartyIdProperty(toConvert, "from");

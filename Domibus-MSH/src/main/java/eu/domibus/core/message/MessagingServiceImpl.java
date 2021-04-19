@@ -50,6 +50,9 @@ public class MessagingServiceImpl implements MessagingService {
     protected static Long BYTES_IN_MB = 1048576L;
 
     @Autowired
+    PartInfoDao partInfoDao;
+
+    @Autowired
     protected UserMessageDao userMessageDao;
 
     @Autowired
@@ -98,7 +101,7 @@ public class MessagingServiceImpl implements MessagingService {
         if (checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue())) {
             messageSubtype = MessageSubtype.TEST;
         }
-        final MessageSubtypeEntity messageSubtypeEntity = messageSubtypeDao.findByType(messageSubtype);
+        final MessageSubtypeEntity messageSubtypeEntity = messageSubtypeDao.findOrCreateSubtype(messageSubtype);
         userMessage.setMessageSubtype(messageSubtypeEntity);
 
         if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
@@ -124,6 +127,11 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("Saving Messaging");
         setPayloadsContentType(partInfoList);
+        partInfoList.stream().forEach(partInfo -> {
+            partInfo.setUserMessage(userMessage);
+            partInfoDao.create(partInfo);
+        });
+
         userMessageDao.create(userMessage);
     }
 

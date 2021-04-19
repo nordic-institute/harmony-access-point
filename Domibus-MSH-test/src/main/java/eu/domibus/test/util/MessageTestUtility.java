@@ -85,6 +85,11 @@ public class MessageTestUtility {
         to.setPartyId(receiver);
         partyInfo.setTo(to);
 
+        return userMessage;
+    }
+
+    public List<PartInfo> createPartInfoList(UserMessage userMessage) {
+        List<PartInfo> partyInfoList = new ArrayList<>();
         PartInfo partInfo = new PartInfo();
         partInfo.setUserMessage(userMessage);
 
@@ -100,12 +105,11 @@ public class MessageTestUtility {
         Set<PartProperty> partProperties = new HashSet<>();
         partProperties.add(partProperty);
         partInfo.setPartProperties(partProperties);
-
-        List<PartInfo> partyInfoList = new ArrayList<>();
         partyInfoList.add(partInfo);
-        userMessage.setPartInfoList(partyInfoList);
-        return userMessage;
+
+        return partyInfoList;
     }
+
 
     protected MessageProperty createProperty(String name, String value, String type) {
         MessageProperty aProperty = new MessageProperty();

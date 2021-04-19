@@ -3,13 +3,12 @@ package eu.domibus.core.ebms3.mapper;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.SignalMessageResult;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.core.ebms3.mapper.signal.Ebms3SignalMapper;
 import eu.domibus.core.ebms3.mapper.usermessage.Ebms3UserMessageMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -35,12 +34,15 @@ public class Ebms3Converter {
         return ebms3SignalMapper.signalMessageEbms3ToEntity(ebms3SignalMessage);
     }
 
-    public Ebms3UserMessage convertToEbms3(UserMessage userMessage) {
-        return ebms3UserMessageMapper.userMessageEntityToEbms3(userMessage);
+    public Ebms3UserMessage convertToEbms3(UserMessage userMessage, List<PartInfo> partInfoList) {
+        return ebms3UserMessageMapper.userMessageEntityToEbms3(userMessage, partInfoList);
     }
 
     public UserMessage convertFromEbms3(Ebms3UserMessage ebms3UserMessage) {
         return ebms3UserMessageMapper.userMessageEbms3ToEntity(ebms3UserMessage);
+    }
+    public List<PartInfo> convertPartInfoFromEbms3(Ebms3UserMessage ebms3UserMessage) {
+        return ebms3UserMessageMapper.partInfoEbms3ToEntity(ebms3UserMessage);
     }
 
     public SignalMessageResult convertFromEbms3(Ebms3Messaging ebms3Messaging) {

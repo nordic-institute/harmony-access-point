@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.core.dao.BasicDao;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,10 @@ public class AgreementDao extends BasicDao<AgreementRefEntity> {
 
     @Transactional
     public AgreementRefEntity findOrCreateAgreement(String value, String type) {
+        if(StringUtils.isEmpty(value)) {
+            return null;
+        }
+
         AgreementRefEntity agreementRef = findByValue(value);
         if (agreementRef != null) {
             return agreementRef;

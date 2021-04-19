@@ -657,7 +657,8 @@ public class UserMessageDefaultService implements UserMessageService {
     public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
         auditService.addMessageDownloadedAudit(messageId);
-        return messageToBytes(userMessage);
+        final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        return messageToBytes(userMessage, partInfoList);
     }
 
     @Override
@@ -693,10 +694,9 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessage userMessage = getUserMessageById(messageId);
 
         Map<String, InputStream> result = new HashMap<>();
-        InputStream messageStream = messageToStream(userMessage);
-        result.put("message.xml", messageStream);
-
         final List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        InputStream messageStream = messageToStream(userMessage, partInfos);
+        result.put("message.xml", messageStream);
 
         if (CollectionUtils.isEmpty(partInfos)) {
             LOG.info("No payload info found for message with id [{}]", messageId);
@@ -733,12 +733,12 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessage;
     }
 
-    protected InputStream messageToStream(UserMessage userMessage) {
-        return new ByteArrayInputStream(messageToBytes(userMessage));
+    protected InputStream messageToStream(UserMessage userMessage, List<PartInfo> partInfoList) {
+        return new ByteArrayInputStream(messageToBytes(userMessage, partInfoList));
     }
 
-    protected byte[] messageToBytes(UserMessage userMessage) {
-        return messageConverterService.getAsByteArray(userMessage);
+    protected byte[] messageToBytes(UserMessage userMessage, List<PartInfo> partInfoList) {
+        return messageConverterService.getAsByteArray(userMessage, partInfoList);
     }
 
     protected String getPayloadName(PartInfo info) {

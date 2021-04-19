@@ -11,6 +11,7 @@ import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.collections4.CollectionUtils;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -76,6 +77,7 @@ public interface MessageCoreMapper {
 
     @InheritInverseConfiguration
     @Mapping(target = "collaborationInfo.agreementRef.pmode", ignore = true)
+    @Mapping(target = "payloadInfo", ignore = true)
     @Mapping(target = "collaborationInfo.agreementRef", source = "agreementRef")
     eu.domibus.api.usermessage.domain.UserMessage userMessageToUserMessageApi(UserMessage userMessage);
 
@@ -91,9 +93,9 @@ public interface MessageCoreMapper {
     @Mapping(target = "action", source = "collaborationInfo.action")
     @Mapping(target = "service", source = "collaborationInfo.service")
     @Mapping(target = "agreementRef", source = "collaborationInfo.agreementRef")
-    @Mapping(target = "partInfoList", source = "payloadInfo.partInfo")
     @Mapping(target = "sourceMessage", ignore = true)
     @Mapping(target = "messageFragment", ignore = true)
+    @BeanMapping(ignoreUnmappedSourceProperties = {"partInfoList"})
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
     @WithoutAuditAndEntityId

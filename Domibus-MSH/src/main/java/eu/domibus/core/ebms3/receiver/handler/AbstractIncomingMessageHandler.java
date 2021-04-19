@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -25,6 +26,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Common behaviour for handling incoming AS4 messages
@@ -65,6 +67,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             assert false;
         }
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        final List<PartInfo> partInfos = ebms3Converter.convertPartInfoFromEbms3(ebms3Messaging.getUserMessage());
         Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
@@ -79,7 +82,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         } catch (final EbMS3Exception e) {
             try {
                 if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());

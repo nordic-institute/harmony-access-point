@@ -25,7 +25,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT um.messageId, um.timestamp FROM UserMessageLog as ml join ml.userMessage um where ml.messageStatus.messageStatus=eu.domibus.api.model.MessageStatus.READY_TO_PULL order by um.timestamp desc"),
         @NamedQuery(name = "UserMessageLog.getMessageStatus", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findByMessageId", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "UserMessageLog.findByMessageIdAndRole", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole=:MSH_ROLE"),
+        @NamedQuery(name = "UserMessageLog.findByMessageIdAndRole", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessageLog.findBackendForMessage", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findEntries", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
@@ -159,6 +159,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     @MapsId
     private UserMessage userMessage;
 
+    public UserMessageLog() {
+        setReceived(new Date());
+        setSendAttempts(0);
+    }
 
 
     public String getBackend() {

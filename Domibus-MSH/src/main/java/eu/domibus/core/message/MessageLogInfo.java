@@ -73,7 +73,6 @@ public class MessageLogInfo {
                           final MessageStatus messageStatus,
                           final NotificationStatus notificationStatus,
                           final MSHRole mshRole,
-                          final MessageType messageType,
                           final Date deleted,
                           final Date received,
                           final int sendAttempts,
@@ -92,7 +91,6 @@ public class MessageLogInfo {
         this.messageStatus = messageStatus;
         this.notificationStatus = notificationStatus;
         this.mshRole = mshRole;
-        this.messageType = messageType;
         this.deleted = deleted;
         this.received = received;
         this.sendAttempts = sendAttempts;
@@ -115,7 +113,6 @@ public class MessageLogInfo {
                           final MessageStatus messageStatus,
                           final NotificationStatus notificationStatus,
                           final MSHRole mshRole,
-                          final MessageType messageType,
                           final Date deleted,
                           final Date received,
                           final int sendAttempts,
@@ -136,7 +133,7 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue
     ) {
-        this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
+        this(messageId, messageStatus, notificationStatus, mshRole, deleted, received,
                 sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
 

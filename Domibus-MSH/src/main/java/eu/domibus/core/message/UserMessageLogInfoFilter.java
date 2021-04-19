@@ -15,27 +15,26 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         String query = "select new eu.domibus.core.message.MessageLogInfo(" +
-                "log.messageId," +
-                "log.messageStatus," +
-                "log.notificationStatus," +
-                "log.mshRole," +
-                "log.messageType," +
+                "message.messageId," +
+                "log.messageStatus.messageStatus," +
+                "log.notificationStatus.status," +
+                "log.mshRole.role," +
                 "log.deleted," +
                 "log.received," +
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
-                "message.collaborationInfo.conversationId," +
+                "message.conversationId," +
                 "partyFrom.value," +
                 "partyTo.value," +
                 (isFourCornerModel() ? "propsFrom.value," : "'',") +
                 (isFourCornerModel() ? "propsTo.value," : "'',") +
-                "info.refToMessageId," +
+                "message.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
-                "message.messageSubtype," +
-                "log.messageFragment," +
-                "log.sourceMessage," +
+                "message.messageSubtype.messageSubtype," +
+                "message.messageFragment," +
+                "message.sourceMessage," +
                 MESSAGE_COLLABORATION_INFO_ACTION + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_VALUE +

@@ -77,10 +77,11 @@ public class UserMessage extends AbstractBaseEntity {
     )
     protected Set<MessageProperty> messageProperties; //NOSONAR
 
-    @Transient
-    protected List<PartInfo> partInfoList;
-
     public boolean isTestMessage() {
+        if(messageSubtype == null) {
+            return false;
+        }
+
         if(MessageSubtype.TEST == messageSubtype.getMessageSubtype()) {
             return true;
         }
@@ -214,13 +215,5 @@ public class UserMessage extends AbstractBaseEntity {
 
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
-    }
-
-    public List<PartInfo> getPartInfoList() {
-        return partInfoList;
-    }
-
-    public void setPartInfoList(List<PartInfo> partInfoList) {
-        this.partInfoList = partInfoList;
     }
 }

@@ -132,7 +132,7 @@ public class CsvServiceImplTest {
     private List<MessageLogInfo> getMessageList(Date date, MessageSubtype messageSubtype) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
-                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, MessageType.USER_MESSAGE, date, date, 1, 5, date,
+                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
                 "refToMessageId", date, date, messageSubtype, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);

@@ -53,10 +53,10 @@ public class UserMessageLogDefaultService {
     private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setUserMessage(userMessage);
-        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(MessageStatus.valueOf(messageStatus));
+        final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
         userMessageLog.setMessageStatus(messageStatusEntity);
 
-        final MSHRoleEntity mshRoleEntity = mshRoleDao.findByRole(MSHRole.valueOf(mshRole));
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.valueOf(mshRole));
         userMessageLog.setMshRole(mshRoleEntity);
 
         final NotificationStatusEntity notificationStatusEntity = notificationStatusDao.findOrCreate(NotificationStatus.valueOf(notificationStatus));

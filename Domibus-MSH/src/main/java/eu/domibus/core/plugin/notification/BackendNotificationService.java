@@ -113,7 +113,7 @@ public class BackendNotificationService {
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
+    public void notifyMessageReceivedFailure(final UserMessage userMessage, List<PartInfo> partInfoList, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
 
         if (isPluginNotificationDisabled()) {
@@ -136,12 +136,12 @@ public class BackendNotificationService {
         properties.put(MessageConstants.SERVICE_TYPE, service.getType());
         properties.put(MessageConstants.ACTION, actionValue);
 
-        notifyOfIncoming(userMessage, notificationType, properties);
+        notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
     }
 
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
-    public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
+    public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage, List<PartInfo> partInfoList) {
         if (isPluginNotificationDisabled()) {
             return;
         }
@@ -150,7 +150,7 @@ public class BackendNotificationService {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
-        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
+        notifyOfIncoming(matchingBackendFilter, userMessage, partInfoList, notificationType, new HashMap<>());
     }
 
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
@@ -274,7 +274,7 @@ public class BackendNotificationService {
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
-    protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, List<PartInfo> partInfoList, final NotificationType notificationType, Map<String, String> properties) {
         Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
         properties.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         properties.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
@@ -289,18 +289,18 @@ public class BackendNotificationService {
             return;
         }
 
-        validateAndNotify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
+        validateAndNotify(userMessage, partInfoList, matchingBackendFilter.getBackendName(), notificationType, properties);
     }
 
-    protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyOfIncoming(final UserMessage userMessage, List<PartInfo> partInfoList, final NotificationType notificationType, Map<String, String> properties) {
         final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
-        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
+        notifyOfIncoming(matchingBackendFilter, userMessage, partInfoList, notificationType, properties);
     }
 
-    protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, String> properties) {
+    protected void validateAndNotify(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType, Map<String, String> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageId(), notificationType);
 
-        submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
+        submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName, notificationType);
 
         notify(userMessage, backendName, notificationType, properties);
     }

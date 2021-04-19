@@ -137,7 +137,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+                final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
                 errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0004, cciEx.getMessage()));
                 return;
             }

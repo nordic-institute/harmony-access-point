@@ -154,10 +154,10 @@ public class EbMS3MessageBuilder {
                 messageFragmentElement.addAttribute(NonRepudiationConstants.ID_QNAME, ID_PREFIX_MESSAGE_FRAGMENT + messageIDDigest);
 
                 UserMessage cloneUserMessageFragment = userMessageFactory.cloneUserMessageFragment(userMessage);
-                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment);
+                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment, partInfoList);
                 ebms3Messaging.setUserMessage(ebms3UserMessageFragment);
             } else {
-                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(userMessage);
+                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(userMessage, partInfoList);
                 ebms3Messaging.setUserMessage(ebms3UserMessageFragment);
             }
 

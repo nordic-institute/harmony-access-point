@@ -48,6 +48,9 @@ public class UpdateRetryLoggingService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
+    protected UserMessageDao userMessageDao;
+
+    @Autowired
     private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
@@ -174,6 +177,7 @@ public class UpdateRetryLoggingService {
         uiReplicationSignalService.messageChange(userMessage.getMessageId());
 
         if (messageAttempt != null) {
+            messageAttempt.setUserMessageEntityId(userMessage.getEntityId());
             messageAttemptService.createAndUpdateEndDate(messageAttempt);
         }
     }
@@ -216,7 +220,7 @@ public class UpdateRetryLoggingService {
 
     public void saveAndNotify(UserMessage userMessage, MessageStatus messageStatus, UserMessageLog userMessageLog) {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, messageStatus, new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(messageStatusDao.findMessageStatus(messageStatus));
+        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
         LOG.debug("Updating status to [{}]", userMessageLog.getMessageStatus());
         userMessageLogDao.update(userMessageLog);
 

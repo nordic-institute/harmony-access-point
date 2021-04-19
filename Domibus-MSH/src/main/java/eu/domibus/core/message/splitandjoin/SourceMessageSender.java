@@ -153,6 +153,7 @@ public class SourceMessageSender implements MessageSender {
                 attempt.setError(attemptError);
                 attempt.setStatus(attemptStatus);
                 attempt.setEndDate(new Timestamp(System.currentTimeMillis()));
+                attempt.setUserMessageEntityId(userMessage.getEntityId());
                 messageAttemptService.create(attempt);
 
                 LOG.debug("Finished sending SourceMessage");

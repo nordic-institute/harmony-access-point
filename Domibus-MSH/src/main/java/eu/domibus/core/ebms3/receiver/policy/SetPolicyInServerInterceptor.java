@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
@@ -33,6 +34,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -127,6 +129,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             return;
         }
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        final List<PartInfo> partInfos = ebms3Converter.convertPartInfoFromEbms3(ebms3Messaging.getUserMessage());
 
         final String messageId = userMessage.getMessageId();
         if (legConfiguration == null) {
@@ -136,7 +139,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         try {
             if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
+                backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, userMessageHandlerService.createErrorResult(e));
             }
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
