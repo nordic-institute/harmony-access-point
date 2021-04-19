@@ -1862,11 +1862,14 @@ class Domibus{
         debugLog("  ====  Calling \"adminConsoleUserSuspended\".", log)
         def jsonSlurper = new JsonSlurper()
         def userStatus = null
+		def authenticationUser = authUser
+        def authenticationPwd = authPwd
         int i = 0
 
         try{
+			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
-            def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authUser, authPwd))
+            def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authenticationUser,authenticationPwd))
             debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
             assert(usersMap != null),"Error:adminConsoleUserSuspended: Error while parsing the list of admin console users."
             while ( (i < usersMap.size()) && (userStatus == null) ) {
@@ -1889,11 +1892,15 @@ class Domibus{
         debugLog("  ====  Calling \"pluginUserSuspended\".", log)
         def jsonSlurper = new JsonSlurper()
         def userStatus = null
+		def authenticationUser = authUser
+        def authenticationPwd = authPwd
+
         int i = 0
 
         try{
+		    (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  pluginUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
-            def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authUser, authPwd))
+            def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authenticationUser, authenticationPwd))
             debugLog("  pluginUserSuspended  [][]  Plugin users map: $usersMap.", log)
             assert(usersMap != null),"Error:pluginUserSuspended: Error while parsing the list of plugin users."
             while ( (i < usersMap.entries.size()) && (userStatus == null) ) {
