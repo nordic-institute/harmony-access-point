@@ -1425,6 +1425,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_part_info;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' and '|| v_tab_user_message ||' migration is done');
+        END IF;
     END migrate_part_info_user;
 
     /**- TB_PART_INFO, TB_PROPERTY data migration --*/
@@ -1566,6 +1571,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_error_log;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
     END migrate_error_log;
 
     /**- TB_MESSAGE_ACKNW data migration --*/
@@ -1633,6 +1643,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_message_acknw;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
     END migrate_message_acknw;
 
     /**-- TB_USER_MESSAGE migration post actions --*/
