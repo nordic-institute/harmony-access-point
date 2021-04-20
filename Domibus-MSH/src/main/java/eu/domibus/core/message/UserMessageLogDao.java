@@ -48,7 +48,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
         String queryString = "select distinct m.messageInfo.messageId from UserMessage m " +
-                "inner join m.messageProperties.property p, UserMessageLog ml " +
+                "left join m.messageProperties.property p, UserMessageLog ml " +
                 "where ml.messageId = m.messageInfo.messageId and ml.messageStatus = 'SEND_FAILURE' and ml.messageType = 'USER_MESSAGE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
