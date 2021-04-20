@@ -274,28 +274,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_party_rec;
 
-    FUNCTION get_tb_d_msg_subtype_rec(msg_subtype VARCHAR2) RETURN NUMBER IS
-        v_id_pk NUMBER;
+    FUNCTION get_msg_subtype(msg_subtype VARCHAR2) RETURN NUMBER IS
+        v_test_message NUMBER := 0;
     BEGIN
-        IF msg_subtype IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_SUBTYPE');
-            END IF;
-            RETURN v_id_pk;
+        IF msg_subtype = 'TEST' THEN
+            v_test_message := 1;
         END IF;
-        BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ACTION WHERE ACTION = :1' INTO v_id_pk USING msg_subtype;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MESSAGE_SUBTYPE: ' || msg_subtype);
-                v_id_pk := HIBERNATE_SEQUENCE.nextval;
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_SUBTYPE(ID_PK, SUBTYPE) VALUES (' || v_id_pk ||
-                                  ', :1)' USING msg_subtype;
-                COMMIT;
-        END;
-        RETURN v_id_pk;
-    END get_tb_d_msg_subtype_rec;
+        RETURN v_test_message;
+    END get_msg_subtype;
 
     FUNCTION get_tb_d_notif_status_rec(status VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
@@ -462,7 +448,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('TB_D_AGREEMENT');
         drop_table_if_exists('TB_D_ACTION');
         drop_table_if_exists('TB_D_PARTY');
-        drop_table_if_exists('TB_D_MESSAGE_SUBTYPE');
         drop_table_if_exists('TB_D_MESSAGE_STATUS');
         drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
         drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
@@ -471,7 +456,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         -- create them
         v_table := 'MIGR_TB_USER_MESSAGE';
-        v_sql := 'CREATE TABLE MIGR_TB_USER_MESSAGE (ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), MESSAGE_SUBTYPE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
+        v_sql := 'CREATE TABLE MIGR_TB_USER_MESSAGE (ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), TEST_MESSAGE NUMBER(1), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
         create_table(v_table, v_sql);
 
         v_table := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
@@ -571,11 +556,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         create_table(v_table, v_sql);
 
         v_sql :=
-                'CREATE TABLE TB_D_MESSAGE_SUBTYPE (ID_PK NUMBER(38, 0) NOT NULL, SUBTYPE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_SUBTYPE PRIMARY KEY (ID_PK))';
-        v_table := 'TB_D_MESSAGE_SUBTYPE';
-        create_table(v_table, v_sql);
-
-        v_sql :=
                 'CREATE TABLE TB_D_MESSAGE_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_STATUS PRIMARY KEY (ID_PK))';
         v_table := 'TB_D_MESSAGE_STATUS';
         create_table(v_table, v_sql);
@@ -648,7 +628,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
                                           ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, ' ||
-                                          'TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, MESSAGE_SUBTYPE_ID_FK) ' ||
+                                          'TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, TEST_MESSAGE) ' ||
                                           'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16)'
                             USING user_message(i).ID_PK,
                             user_message(i).MESSAGE_ID,
@@ -666,7 +646,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             get_tb_d_action_rec(user_message(i).ACTION),
                             get_tb_d_party_rec(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE),
                             get_tb_d_party_rec(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE),
-                            get_tb_d_msg_subtype_rec(user_message(i).MESSAGE_SUBTYPE);
+                            get_msg_subtype(user_message(i).MESSAGE_SUBTYPE);
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1665,7 +1645,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_FROM_ROLE_ID FOREIGN KEY (FROM_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
             EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_TO_PARTY_ID FOREIGN KEY (TO_PARTY_ID_FK) REFERENCES TB_D_PARTY (ID_PK)';
             EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_TO_ROLE_ID FOREIGN KEY (TO_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_SUBTYPE_ID FOREIGN KEY (MESSAGE_SUBTYPE_ID_FK) REFERENCES TB_D_MESSAGE_SUBTYPE (ID_PK)';
             DBMS_OUTPUT.PUT_LINE('Added FK back on MIGR_TB_USER_MESSAGE table');
         EXCEPTION
             WHEN OTHERS THEN
