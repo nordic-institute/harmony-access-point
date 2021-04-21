@@ -73,7 +73,12 @@
                 </methods>
             </class>
             <class name="domibus.ui.functional.ChangePasswordPgTest"/>
-            <class name="domibus.ui.functional.ConnectionMonitorTest"/>
+            <class name="domibus.ui.functional.ConnectionMonitorTest">
+                <methods>
+                    <exclude name="recPartyInactive"/>
+                    <exclude name="checkSendFeature"/>
+                </methods>
+            </class>
             <class name="domibus.ui.functional.JMSMessPgTest">
                 <methods>
                     <!--                    needs to be updated because of functionality change-->
@@ -118,6 +123,8 @@
                     <!--                    need fixes -->
                     <exclude name="checkDefaultPassword"/>
                     <exclude name="dontReuseLastPass"/>
+                    <exclude name="updateAndSave"/>
+                    <exclude name="monitoringParty"/>
                     <!--                    EDELIVERY-7956-->
                     <exclude name="checkPropertyLengthMax"/>
                 </methods>

@@ -62,25 +62,22 @@ public class SeleniumTest extends BaseTest {
 		methodCount++;
 		login(data.getAdminUser());
 	}
-	
-	
-	@AfterMethod(alwaysRun = true)
+
+
 	protected void logout() throws Exception {
 		DomibusPage page = new DomibusPage(driver);
-		
-		
+
 		driver.manage().deleteAllCookies();
 		((JavascriptExecutor) driver).executeScript("localStorage.clear();");
-		
-		/*refresh will close any remaining opened modals*/
-		page.refreshPage();
+
+		page.clickVoidSpace();
 		if (page.getSandwichMenu().isLoggedIn()) {
 			log.info("Logging out");
 			page.getSandwichMenu().logout();
 		}
 	}
-	
-	
+
+
 	@AfterClass(alwaysRun = true)
 	protected void afterClass() throws Exception {
 		log.info("-------- Quitting driver after test class-------");

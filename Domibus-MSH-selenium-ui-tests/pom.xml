@@ -33,6 +33,7 @@
 		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
 	</properties>
 
+
 	<build>
 		<plugins>
 			<plugin>

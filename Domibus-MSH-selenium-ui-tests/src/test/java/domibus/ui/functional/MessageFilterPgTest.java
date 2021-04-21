@@ -892,7 +892,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		MessageFilterGrid grid = page.grid();
 		log.info("check persisted checkbox cannot be edited by the user");
 		for (int i = 0; i < grid.getRowsNo(); i++) {
-			soft.assertTrue(!grid.getPersisted(i).isEnabled(), "Persisted checkbox is disabled for all rows " + i);
+			soft.assertTrue(!grid.getPersistedChckElem(i).isEnabled(), "Persisted checkbox is disabled for all rows " + i);
 		}
 		
 		soft.assertAll();
