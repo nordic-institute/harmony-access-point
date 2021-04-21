@@ -19,6 +19,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -76,6 +77,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected MshRoleDao mshRoleDao;
+
+    @Autowired
+    protected PartInfoDao partInfoDao;
 
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")

@@ -26,8 +26,8 @@ public class SignalMessageLogDefaultService implements SignalMessageLogService {
     protected MshRoleDao mshRoleDao;
 
     private SignalMessageLog createSignalMessageLog(SignalMessage signalMessage) {
-        MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.RECEIVED);
-        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.RECEIVING);
+        MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(MessageStatus.RECEIVED);
+        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
 
         // builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()

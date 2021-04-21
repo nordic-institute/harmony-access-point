@@ -51,19 +51,19 @@ public class UserMessage extends AbstractBaseEntity {
     @Embedded
     protected PartyInfo partyInfo; //NOSONAR
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACTION_ID_FK")
     protected ActionEntity action;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SERVICE_ID_FK")
     protected ServiceEntity service;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AGREEMENT_ID_FK")
     protected AgreementRefEntity agreementRef;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MPC_ID_FK")
     protected MpcEntity mpc;
 

@@ -573,6 +573,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         boolean bodyloadFound = false;
         for (final Ebms3PartInfo ebms3PartInfo : ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
             PartInfo partInfo = convert(ebms3PartInfo);
+            result.add(partInfo);
 
             final String cid = ebms3PartInfo.getHref();
             LOG.debug("looking for attachment with cid: {}", cid);

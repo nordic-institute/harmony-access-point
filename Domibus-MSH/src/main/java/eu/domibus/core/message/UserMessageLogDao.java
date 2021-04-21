@@ -182,7 +182,7 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
     }
 
     public void setAsNotified(final UserMessageLog messageLog) {
-        final NotificationStatusEntity status = notificationStatusDao.findByStatus(NotificationStatus.NOTIFIED);
+        final NotificationStatusEntity status = notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED);
         messageLog.setNotificationStatus(status);
     }
 
@@ -278,7 +278,7 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
-        MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(messageStatus);
+        MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
         messageLog.setMessageStatus(messageStatusEntity);
 
         switch (messageStatus) {
