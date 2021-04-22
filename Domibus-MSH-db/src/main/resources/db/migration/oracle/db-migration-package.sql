@@ -1,4 +1,4 @@
--- *****************************************************************************************************
+-- ********************************************************************************************************
 -- Domibus 4.2.1 to 5.0 data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
@@ -9,8 +9,9 @@
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO
--- *****************************************************************************************************
+-- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO,
+-- TB_ERROR_LOG, TB_MESSAGE_ACKNW
+-- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
     BATCH_SIZE CONSTANT NUMBER := 10000;
@@ -94,6 +95,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_count_match;
     END check_counts;
 
+    PROCEDURE log_verbose(message VARCHAR2) IS
+    BEGIN
+        IF VERBOSE_LOGS THEN
+            DBMS_OUTPUT.PUT_LINE(message);
+        END IF;
+    END log_verbose;
+
     FUNCTION get_tb_d_mpc_rec(mpc_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
@@ -118,9 +126,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF role IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ROLE');
-            END IF;
+            log_verbose('No record added into TB_D_ROLE');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -136,13 +142,31 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_role_rec;
 
+    FUNCTION get_tb_d_msh_role_rec(role VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF role IS NULL THEN
+            log_verbose('No record added into TB_D_MSH_ROLE');
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MSH_ROLE WHERE ROLE = :1' INTO v_id_pk USING role;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MSH_ROLE: ' || role);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MSH_ROLE(ID_PK, ROLE) VALUES (' || v_id_pk || ', :1)' USING role;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_msh_role_rec;
+
     FUNCTION get_tb_d_service_rec(service_type VARCHAR2, service_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF service_type IS NULL AND service_value IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_SERVICE');
-            END IF;
+            log_verbose('No record added into TB_D_SERVICE');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -163,9 +187,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF message_status IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_STATUS');
-            END IF;
+            log_verbose('No record added into TB_D_MESSAGE_STATUS');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -186,9 +208,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF agreement_type IS NULL AND agreement_value IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_AGREEMENT');
-            END IF;
+            log_verbose('No record added into TB_D_AGREEMENT');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -210,9 +230,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF action IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ACTION');
-            END IF;
+            log_verbose('No record added into TB_D_ACTION');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -232,9 +250,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF party_type IS NULL AND party_value IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_PARTY');
-            END IF;
+            log_verbose('No record added into TB_D_PARTY');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -251,36 +267,20 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_party_rec;
 
-    FUNCTION get_tb_d_msg_subtype_rec(msg_subtype VARCHAR2) RETURN NUMBER IS
-        v_id_pk NUMBER;
+    FUNCTION get_msg_subtype(msg_subtype VARCHAR2) RETURN NUMBER IS
+        v_test_message NUMBER := 0;
     BEGIN
-        IF msg_subtype IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_SUBTYPE');
-            END IF;
-            RETURN v_id_pk;
+        IF msg_subtype = 'TEST' THEN
+            v_test_message := 1;
         END IF;
-        BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ACTION WHERE ACTION = :1' INTO v_id_pk USING msg_subtype;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-                -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MESSAGE_SUBTYPE: ' || msg_subtype);
-                v_id_pk := HIBERNATE_SEQUENCE.nextval;
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_SUBTYPE(ID_PK, SUBTYPE) VALUES (' || v_id_pk ||
-                                  ', :1)' USING msg_subtype;
-                COMMIT;
-        END;
-        RETURN v_id_pk;
-    END get_tb_d_msg_subtype_rec;
+        RETURN v_test_message;
+    END get_msg_subtype;
 
     FUNCTION get_tb_d_notif_status_rec(status VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF status IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_NOTIFICATION_STATUS');
-            END IF;
+            log_verbose('No record added into TB_D_NOTIFICATION_STATUS');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -302,9 +302,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_new VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
     BEGIN
         IF message_id IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record to look into ' || v_tab_new);
-            END IF;
+            log_verbose('No record to look into ' || v_tab_new);
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -322,9 +320,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_new VARCHAR2(30) := 'MIGR_TB_SIGNAL_MESSAGE';
     BEGIN
         IF message_id IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record to look into ' || v_tab_new);
-            END IF;
+            log_verbose('No record to look into ' || v_tab_new);
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -341,9 +337,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF prop_name IS NULL AND prop_value IS NULL AND prop_type IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_PROPERTY');
-            END IF;
+            log_verbose('No record added into TB_D_MESSAGE_PROPERTY');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -365,9 +359,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF prop_name IS NULL AND prop_value IS NULL AND prop_type IS NULL THEN
-            IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_PART_PROPERTY');
-            END IF;
+            log_verbose('No record added into TB_D_PART_PROPERTY');
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -430,6 +422,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('MIGR_TB_MESSAGE_PROPERTIES');
         drop_table_if_exists('MIGR_TB_PART_INFO');
         drop_table_if_exists('MIGR_TB_PART_PROPERTIES');
+        drop_table_if_exists('MIGR_TB_ERROR_LOG');
+        drop_table_if_exists('MIGR_TB_MESSAGE_ACKNW');
 
         drop_table_if_exists('TB_D_MPC');
         drop_table_if_exists('TB_D_ROLE');
@@ -437,20 +431,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('TB_D_AGREEMENT');
         drop_table_if_exists('TB_D_ACTION');
         drop_table_if_exists('TB_D_PARTY');
-        drop_table_if_exists('TB_D_MESSAGE_SUBTYPE');
         drop_table_if_exists('TB_D_MESSAGE_STATUS');
         drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
         drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
         drop_table_if_exists('TB_D_PART_PROPERTY');
+        drop_table_if_exists('TB_D_MSH_ROLE');
 
         -- create them
-        v_sql :=
-                'CREATE TABLE TB_D_NOTIFICATION_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_NOTIFICATION_STATUS PRIMARY KEY (ID_PK))';
-        v_table := 'TB_D_NOTIFICATION_STATUS';
-        create_table(v_table, v_sql);
-
         v_table := 'MIGR_TB_USER_MESSAGE';
-        v_sql := 'CREATE TABLE MIGR_TB_USER_MESSAGE (ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), MESSAGE_SUBTYPE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
+        v_sql := 'CREATE TABLE MIGR_TB_USER_MESSAGE (ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), TEST_MESSAGE NUMBER(1), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
         create_table(v_table, v_sql);
 
         v_table := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
@@ -510,6 +499,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_table := 'MIGR_TB_PART_PROPERTIES';
         create_table(v_table, v_sql);
 
+        v_sql := 'CREATE TABLE MIGR_TB_ERROR_LOG (ID_PK NUMBER(38, 0) NOT NULL, ERROR_CODE VARCHAR2(255), ERROR_DETAIL VARCHAR2(255), ERROR_SIGNAL_MESSAGE_ID VARCHAR2(255), MESSAGE_IN_ERROR_ID VARCHAR2(255), MSH_ROLE_ID_FK NUMBER(38, 0), NOTIFIED TIMESTAMP, TIME_STAMP TIMESTAMP, USER_MESSAGE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_ERROR_LOG PRIMARY KEY (ID_PK))';
+        v_table := 'MIGR_TB_ERROR_LOG';
+        create_table(v_table, v_sql);
+
+        v_sql := 'CREATE TABLE MIGR_TB_MESSAGE_ACKNW (ID_PK NUMBER(38, 0) NOT NULL, FROM_VALUE VARCHAR2(255), TO_VALUE VARCHAR2(255), ACKNOWLEDGE_DATE TIMESTAMP, USER_MESSAGE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_MESSAGE_ACKNW PRIMARY KEY (ID_PK))';
+        v_table := 'MIGR_TB_MESSAGE_ACKNW';
+        create_table(v_table, v_sql);
+
         -- create dictionary tables
         v_sql :=
                 'CREATE TABLE TB_D_MPC (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MPC PRIMARY KEY (ID_PK))';
@@ -542,11 +539,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         create_table(v_table, v_sql);
 
         v_sql :=
-                'CREATE TABLE TB_D_MESSAGE_SUBTYPE (ID_PK NUMBER(38, 0) NOT NULL, SUBTYPE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_SUBTYPE PRIMARY KEY (ID_PK))';
-        v_table := 'TB_D_MESSAGE_SUBTYPE';
-        create_table(v_table, v_sql);
-
-        v_sql :=
                 'CREATE TABLE TB_D_MESSAGE_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_STATUS PRIMARY KEY (ID_PK))';
         v_table := 'TB_D_MESSAGE_STATUS';
         create_table(v_table, v_sql);
@@ -558,6 +550,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_sql := 'CREATE TABLE TB_D_PART_PROPERTY (ID_PK NUMBER(38, 0) NOT NULL, NAME VARCHAR2(255) NOT NULL, VALUE VARCHAR2(1024), TYPE VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_PART_PROPERTY PRIMARY KEY (ID_PK))';
         v_table := 'TB_D_PART_PROPERTY';
+        create_table(v_table, v_sql);
+
+        v_sql :=
+                'CREATE TABLE TB_D_NOTIFICATION_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_NOTIFICATION_STATUS PRIMARY KEY (ID_PK))';
+        v_table := 'TB_D_NOTIFICATION_STATUS';
+        create_table(v_table, v_sql);
+
+        v_sql :=
+                'CREATE TABLE TB_D_MSH_ROLE (ID_PK NUMBER(38, 0) NOT NULL, ROLE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MSH_ROLE PRIMARY KEY (ID_PK))';
+        v_table := 'TB_D_MSH_ROLE';
         create_table(v_table, v_sql);
     END migrate_pre;
     /** -- Helper procedures and functions end -*/
@@ -609,7 +611,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
                                           ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, ' ||
-                                          'TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, MESSAGE_SUBTYPE_ID_FK) ' ||
+                                          'TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, TEST_MESSAGE) ' ||
                                           'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16)'
                             USING user_message(i).ID_PK,
                             user_message(i).MESSAGE_ID,
@@ -627,7 +629,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             get_tb_d_action_rec(user_message(i).ACTION),
                             get_tb_d_party_rec(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE),
                             get_tb_d_party_rec(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE),
-                            get_tb_d_msg_subtype_rec(user_message(i).MESSAGE_SUBTYPE);
+                            get_msg_subtype(user_message(i).MESSAGE_SUBTYPE);
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -781,7 +783,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             message_group(i).SOAP_ACTION,
                             message_group(i).REJECTED,
                             message_group(i).EXPIRED,
-                            get_tb_d_role_rec(message_group(i).MSH_ROLE),
+                            get_tb_d_msh_role_rec(message_group(i).MSH_ROLE),
                             message_group(i).CREATION_TIME,
                             message_group(i).CREATED_BY,
                             message_group(i).MODIFICATION_TIME,
@@ -1181,7 +1183,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                     message_log(i).SCHEDULED,
                                     message_log(i).VERSION,
                                     get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
-                                    get_tb_d_role_rec(message_log(i).MSH_ROLE),
+                                    get_tb_d_msh_role_rec(message_log(i).MSH_ROLE),
                                     get_tb_d_notif_status_rec(message_log(i).NOTIFICATION_STATUS),
                                     message_log(i).CREATION_TIME,
                                     message_log(i).CREATED_BY,
@@ -1205,7 +1207,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                     message_log(i).RECEIVED,
                                     message_log(i).DELETED,
                                     get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
-                                    get_tb_d_role_rec(message_log(i).MSH_ROLE),
+                                    get_tb_d_msh_role_rec(message_log(i).MSH_ROLE),
                                     message_log(i).CREATION_TIME,
                                     message_log(i).CREATED_BY,
                                     message_log(i).MODIFICATION_TIME,
@@ -1347,35 +1349,26 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN part_info.FIRST .. part_info.LAST
                 LOOP
                     BEGIN
-
-                        BEGIN
-                            EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                              ' (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY, FILENAME, MIME,' ||
-                                              'PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                              'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
-                                USING
-                                part_info(i).ID_PK,
-                                part_info(i).BINARY_DATA,
-                                part_info(i).DESCRIPTION_LANG,
-                                part_info(i).DESCRIPTION_VALUE,
-                                part_info(i).HREF,
-                                part_info(i).IN_BODY,
-                                part_info(i).FILENAME,
-                                part_info(i).MIME,
-                                part_info(i).PART_ORDER,
-                                part_info(i).ENCRYPTED,
-                                part_info(i).USER_MESSAGE_ID_FK,
-                                part_info(i).CREATION_TIME,
-                                part_info(i).CREATED_BY,
-                                part_info(i).MODIFICATION_TIME,
-                                part_info(i).MODIFIED_BY;
-                        EXCEPTION
-                            WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_user for ' || v_tab_new ||
-                                                     ' -> execute immediate error: ' ||
-                                                     DBMS_UTILITY.FORMAT_ERROR_STACK);
-                        END;
-
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY, FILENAME, MIME,' ||
+                                          'PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
+                            USING
+                            part_info(i).ID_PK,
+                            part_info(i).BINARY_DATA,
+                            part_info(i).DESCRIPTION_LANG,
+                            part_info(i).DESCRIPTION_VALUE,
+                            part_info(i).HREF,
+                            part_info(i).IN_BODY,
+                            part_info(i).FILENAME,
+                            part_info(i).MIME,
+                            part_info(i).PART_ORDER,
+                            part_info(i).ENCRYPTED,
+                            part_info(i).USER_MESSAGE_ID_FK,
+                            part_info(i).CREATION_TIME,
+                            part_info(i).CREATED_BY,
+                            part_info(i).MODIFICATION_TIME,
+                            part_info(i).MODIFIED_BY;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1384,7 +1377,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_user -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_user for ' || v_tab_new ||
+                                                 ' -> execute immediate error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
@@ -1395,6 +1389,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_part_info;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' and '|| v_tab_user_message ||' migration is done');
+        END IF;
     END migrate_part_info_user;
 
     /**- TB_PART_INFO, TB_PROPERTY data migration --*/
@@ -1427,25 +1426,19 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN part_prop.FIRST .. part_prop.LAST
                 LOOP
                     BEGIN
-
-                        BEGIN
-                            EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                              ' (ID_PK, PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                              'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
-                                USING
-                                HIBERNATE_SEQUENCE.nextval,
-                                part_prop(i).PART_INFO_ID_FK,
-                                get_tb_d_part_property_rec(part_prop(i).NAME,
-                                                           part_prop(i).VALUE,
-                                                           part_prop(i).TYPE),
-                                part_prop(i).CREATION_TIME,
-                                part_prop(i).CREATED_BY,
-                                part_prop(i).MODIFICATION_TIME,
-                                part_prop(i).MODIFIED_BY;
-                        EXCEPTION
-                            WHEN OTHERS THEN
-                                DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new || ' -> execute immediate error: ' ||DBMS_UTILITY.FORMAT_ERROR_STACK);
-                        END;
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                            USING
+                            HIBERNATE_SEQUENCE.nextval,
+                            part_prop(i).PART_INFO_ID_FK,
+                            get_tb_d_part_property_rec(part_prop(i).NAME,
+                                                       part_prop(i).VALUE,
+                                                       part_prop(i).TYPE),
+                            part_prop(i).CREATION_TIME,
+                            part_prop(i).CREATED_BY,
+                            part_prop(i).MODIFICATION_TIME,
+                            part_prop(i).MODIFIED_BY;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1454,8 +1447,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_property -> execute immediate error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new ||
+                                                 ' -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
@@ -1466,6 +1459,160 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         COMMIT;
         CLOSE c_part_prop;
     END migrate_part_info_property;
+
+    /**- TB_ERROR_LOG data migration --*/
+    PROCEDURE migrate_error_log IS
+        v_tab      VARCHAR2(30) := 'TB_ERROR_LOG';
+        v_tab_new  VARCHAR2(30) := 'MIGR_TB_ERROR_LOG';
+        CURSOR c_error_log IS
+            SELECT EL.ID_PK,
+                   EL.ERROR_CODE,
+                   EL.ERROR_DETAIL,
+                   EL.ERROR_SIGNAL_MESSAGE_ID,
+                   EL.MESSAGE_IN_ERROR_ID,
+                   EL.MSH_ROLE,
+                   EL.NOTIFIED,
+                   EL.TIME_STAMP,
+                   EL.CREATION_TIME,
+                   EL.CREATED_BY,
+                   EL.MODIFICATION_TIME,
+                   EL.MODIFIED_BY,
+                   UMMI.ID_PK USER_MESSAGE_ID_FK
+            FROM TB_ERROR_LOG EL
+                     LEFT JOIN
+                 (SELECT MI.MESSAGE_ID, UM.ID_PK
+                  FROM TB_MESSAGE_INFO MI,
+                       TB_USER_MESSAGE UM
+                  WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK) UMMI
+                 ON EL.MESSAGE_IN_ERROR_ID = UMMI.MESSAGE_ID;
+        TYPE T_ERROR_LOG IS TABLE OF c_error_log%ROWTYPE;
+        error_log  T_ERROR_LOG;
+        v_batch_no INT          := 1;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_error_log;
+        LOOP
+            FETCH c_error_log BULK COLLECT INTO error_log;
+            EXIT WHEN error_log.COUNT = 0;
+
+            FOR i IN error_log.FIRST .. error_log.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, ERROR_CODE, ERROR_DETAIL, ERROR_SIGNAL_MESSAGE_ID, MESSAGE_IN_ERROR_ID, MSH_ROLE_ID_FK,' ||
+                                          ' NOTIFIED, TIME_STAMP, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13)'
+                            USING
+                            error_log(i).ID_PK,
+                            error_log(i).ERROR_CODE,
+                            error_log(i).ERROR_DETAIL,
+                            error_log(i).ERROR_SIGNAL_MESSAGE_ID,
+                            error_log(i).MESSAGE_IN_ERROR_ID,
+                            get_tb_d_msh_role_rec(error_log(i).MSH_ROLE),
+                            error_log(i).NOTIFIED,
+                            error_log(i).TIME_STAMP,
+                            error_log(i).USER_MESSAGE_ID_FK,
+                            error_log(i).CREATION_TIME,
+                            error_log(i).CREATED_BY,
+                            error_log(i).MODIFICATION_TIME,
+                            error_log(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || error_log.COUNT || ' records in total into ' ||
+                        v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_error_log;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
+    END migrate_error_log;
+
+    /**- TB_MESSAGE_ACKNW data migration --*/
+    PROCEDURE migrate_message_acknw IS
+        v_tab      VARCHAR2(30) := 'TB_MESSAGE_ACKNW';
+        v_tab_new  VARCHAR2(30) := 'MIGR_TB_MESSAGE_ACKNW';
+        CURSOR c_message_acknw IS
+            SELECT MA.ID_PK,
+                   MA.FROM_VALUE,
+                   MA.TO_VALUE,
+                   MA.ACKNOWLEDGE_DATE,
+                   MA.CREATION_TIME,
+                   MA.CREATED_BY,
+                   MA.MODIFICATION_TIME,
+                   MA.MODIFIED_BY,
+                   UM.ID_PK USER_MESSAGE_ID_FK
+            FROM
+                TB_MESSAGE_ACKNW MA,
+                TB_MESSAGE_INFO MI,
+                TB_USER_MESSAGE UM
+            WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK
+              AND MI.MESSAGE_ID = MA.MESSAGE_ID;
+        TYPE T_MESSAGE_ACKNW IS TABLE OF c_message_acknw%ROWTYPE;
+        message_acknw  T_MESSAGE_ACKNW;
+        v_batch_no INT          := 1;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_message_acknw;
+        LOOP
+            FETCH c_message_acknw BULK COLLECT INTO message_acknw;
+            EXIT WHEN message_acknw.COUNT = 0;
+
+            FOR i IN message_acknw.FIRST .. message_acknw.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, FROM_VALUE, TO_VALUE, ACKNOWLEDGE_DATE, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9)'
+                            USING
+                            message_acknw(i).ID_PK,
+                            message_acknw(i).FROM_VALUE,
+                            message_acknw(i).TO_VALUE,
+                            message_acknw(i).ACKNOWLEDGE_DATE,
+                            message_acknw(i).USER_MESSAGE_ID_FK,
+                            message_acknw(i).CREATION_TIME,
+                            message_acknw(i).CREATED_BY,
+                            message_acknw(i).MODIFICATION_TIME,
+                            message_acknw(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || message_acknw.COUNT || ' records in total into ' ||
+                        v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_message_acknw;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
+    END migrate_message_acknw;
 
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_user_message_post IS
@@ -1481,7 +1628,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_FROM_ROLE_ID FOREIGN KEY (FROM_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
             EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_TO_PARTY_ID FOREIGN KEY (TO_PARTY_ID_FK) REFERENCES TB_D_PARTY (ID_PK)';
             EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_TO_ROLE_ID FOREIGN KEY (TO_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_SUBTYPE_ID FOREIGN KEY (MESSAGE_SUBTYPE_ID_FK) REFERENCES TB_D_MESSAGE_SUBTYPE (ID_PK)';
             DBMS_OUTPUT.PUT_LINE('Added FK back on MIGR_TB_USER_MESSAGE table');
         EXCEPTION
             WHEN OTHERS THEN
@@ -1525,6 +1671,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_property;
         migrate_part_info_user;
         migrate_part_info_property;
+
+        migrate_error_log;
+        migrate_message_acknw;
 
         -- house keeping
         migrate_post;
