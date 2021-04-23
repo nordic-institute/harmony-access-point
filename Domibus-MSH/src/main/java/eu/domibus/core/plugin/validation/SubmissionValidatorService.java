@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.validation;
 
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -31,7 +32,7 @@ public class SubmissionValidatorService {
         this.submissionAS4Transformer = submissionAS4Transformer;
     }
 
-    public void validateSubmission(UserMessage userMessage, String backendName, NotificationType notificationType) throws SubmissionValidationException {
+    public void validateSubmission(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType) throws SubmissionValidationException {
         if (NotificationType.MESSAGE_RECEIVED != notificationType) {
             LOG.debug("Validation is not configured to be done for notification of type [{}]", notificationType);
             return;
@@ -43,7 +44,7 @@ public class SubmissionValidatorService {
             return;
         }
         LOG.info("Performing submission validation for backend [{}]", backendName);
-        Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage, userMessage.getPartInfoList());
+        Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage, partInfoList);
         List<SubmissionValidator> submissionValidators = submissionValidatorList.getSubmissionValidators();
         for (SubmissionValidator submissionValidator : submissionValidators) {
             submissionValidator.validate(submission);

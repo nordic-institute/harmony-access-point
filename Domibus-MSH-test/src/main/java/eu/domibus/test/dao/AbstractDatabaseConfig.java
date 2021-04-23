@@ -24,6 +24,7 @@ import java.util.Properties;
  * @author Francois Gautier
  * @since 5.0
  */
+//TODO to be replaced by AbstractIT
 @Configuration
 public abstract class AbstractDatabaseConfig {
 

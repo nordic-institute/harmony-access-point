@@ -49,7 +49,7 @@ public class SubmissionAS4Transformer {
 
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
-        final MpcEntity mpc = mpcDao.findMpc(submission.getMpc());
+        final MpcEntity mpc = mpcDao.findOrCreateMpc(submission.getMpc());
         result.setMpc(mpc);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
@@ -68,7 +68,7 @@ public class SubmissionAS4Transformer {
             prop.setValue(propertyEntry.getValue());
             prop.setType(propertyEntry.getType());
 
-            final MessageProperty propertyByName = messagePropertyDao.findPropertyByName(prop.getName());
+            final MessageProperty propertyByName = messagePropertyDao.findOrCreateProperty(prop.getName(), prop.getValue(), prop.getType());
             messageProperties.add(propertyByName);
         }
 
@@ -174,7 +174,7 @@ public class SubmissionAS4Transformer {
             return result;
         }
 
-        result.setMpc(userMessage.getMpc().getValue());
+        result.setMpc(userMessage.getMpcValue());
         result.setAction(userMessage.getActionValue());
         result.setService(userMessage.getService().getValue());
         result.setServiceType(userMessage.getService().getType());

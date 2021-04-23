@@ -42,6 +42,10 @@ public class SignalMessageLog extends AbstractNoGeneratedPkEntity {
     @MapsId
     private SignalMessage signalMessage;
 
+    public SignalMessageLog() {
+        setReceived(new Date());
+    }
+
     public Date getReceived() {
         return received;
     }

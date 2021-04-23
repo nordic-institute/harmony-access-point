@@ -230,7 +230,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
-                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
@@ -276,7 +276,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
@@ -573,6 +573,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         boolean bodyloadFound = false;
         for (final Ebms3PartInfo ebms3PartInfo : ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
             PartInfo partInfo = convert(ebms3PartInfo);
+            result.add(partInfo);
 
             final String cid = ebms3PartInfo.getHref();
             LOG.debug("looking for attachment with cid: {}", cid);

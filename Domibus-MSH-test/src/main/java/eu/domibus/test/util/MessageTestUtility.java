@@ -29,7 +29,6 @@ public class MessageTestUtility {
         userMessage.setConversationId("123456");
         userMessage.setTimestamp(new Date());
         userMessage.setRefToMessageId("321");
-        userMessage.setEntityId(1);
         userMessage.setCreationTime(new Date());
         userMessage.setModificationTime(new Date());
         userMessage.setModifiedBy("baciuco");
@@ -37,22 +36,16 @@ public class MessageTestUtility {
         userMessage.setMessageId("id123456");
         userMessage.setConversationId("123");
 
-        ActionEntity actionEntity = new ActionEntity();
-        actionEntity.setValue("TC1Leg1");
+        ActionEntity actionEntity = createActionEntity();
         userMessage.setAction(actionEntity);
 
-        AgreementRefEntity agreementRef = new AgreementRefEntity();
-        agreementRef.setValue("agreement1");
-        agreementRef.setType("agreementType");
+        AgreementRefEntity agreementRef = createAgreementRefEntity();
         userMessage.setAgreementRef(agreementRef);
 
-        ServiceEntity service = new ServiceEntity();
-        service.setValue("bdx:noprocess");
-        service.setType("tc1");
+        ServiceEntity service = createServiceEntity();
         userMessage.setService(service);
 
-        MpcEntity mpcEntity = new MpcEntity();
-        mpcEntity.setValue("myMpc");
+        MpcEntity mpcEntity = createMpcEntity();
         userMessage.setMpc(mpcEntity);
 
         Set<MessageProperty> messageProperties = new HashSet<>();
@@ -64,27 +57,78 @@ public class MessageTestUtility {
         userMessage.setPartyInfo(partyInfo);
 
         From from = new From();
-        PartyRole fromRole = new PartyRole();
-        fromRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+        PartyRole fromRole = createSenderPartyRole();
         from.setRole(fromRole);
 
-        PartyId sender = new PartyId();
-        sender.setValue(BLUE);
-        sender.setType(DEF_PARTY_TYPE);
+        PartyId sender = createSenderPartyId();
         from.setPartyId(sender);
         partyInfo.setFrom(from);
 
         To to = new To();
-        PartyRole toRole = new PartyRole();
-        toRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+        PartyRole toRole = createReceiverPartyRole();
         to.setRole(toRole);
 
-        PartyId receiver = new PartyId();
-        receiver.setValue(RED);
-        receiver.setType(DEF_PARTY_TYPE);
+        PartyId receiver = createReceiverPartyId();
         to.setPartyId(receiver);
         partyInfo.setTo(to);
 
+        return userMessage;
+    }
+
+    public PartyId createSenderPartyId() {
+        PartyId sender = new PartyId();
+        sender.setValue(BLUE);
+        sender.setType(DEF_PARTY_TYPE);
+        return sender;
+    }
+
+    public PartyId createReceiverPartyId() {
+        PartyId receiver = new PartyId();
+        receiver.setValue(RED);
+        receiver.setType(DEF_PARTY_TYPE);
+        return receiver;
+    }
+
+    public PartyRole createReceiverPartyRole() {
+        PartyRole toRole = new PartyRole();
+        toRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
+        return toRole;
+    }
+
+    public PartyRole createSenderPartyRole() {
+        PartyRole fromRole = new PartyRole();
+        fromRole.setValue("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
+        return fromRole;
+    }
+
+    public MpcEntity createMpcEntity() {
+        MpcEntity mpcEntity = new MpcEntity();
+        mpcEntity.setValue("myMpc");
+        return mpcEntity;
+    }
+
+    public ServiceEntity createServiceEntity() {
+        ServiceEntity service = new ServiceEntity();
+        service.setValue("bdx:noprocess");
+        service.setType("tc1");
+        return service;
+    }
+
+    public AgreementRefEntity createAgreementRefEntity() {
+        AgreementRefEntity agreementRef = new AgreementRefEntity();
+        agreementRef.setValue("agreement1");
+        agreementRef.setType("agreementType");
+        return agreementRef;
+    }
+
+    public ActionEntity createActionEntity() {
+        ActionEntity actionEntity = new ActionEntity();
+        actionEntity.setValue("TC1Leg1");
+        return actionEntity;
+    }
+
+    public List<PartInfo> createPartInfoList(UserMessage userMessage) {
+        List<PartInfo> partyInfoList = new ArrayList<>();
         PartInfo partInfo = new PartInfo();
         partInfo.setUserMessage(userMessage);
 
@@ -100,12 +144,11 @@ public class MessageTestUtility {
         Set<PartProperty> partProperties = new HashSet<>();
         partProperties.add(partProperty);
         partInfo.setPartProperties(partProperties);
-
-        List<PartInfo> partyInfoList = new ArrayList<>();
         partyInfoList.add(partInfo);
-        userMessage.setPartInfoList(partyInfoList);
-        return userMessage;
+
+        return partyInfoList;
     }
+
 
     protected MessageProperty createProperty(String name, String value, String type) {
         MessageProperty aProperty = new MessageProperty();

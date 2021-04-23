@@ -19,6 +19,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -76,6 +77,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected MshRoleDao mshRoleDao;
+
+    @Autowired
+    protected PartInfoDao partInfoDao;
 
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
@@ -137,7 +141,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+                final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
                 errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0004, cciEx.getMessage()));
                 return;
             }

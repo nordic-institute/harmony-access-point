@@ -15,27 +15,26 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         String query = "select new eu.domibus.core.message.MessageLogInfo(" +
-                "log.messageId," +
-                "log.messageStatus," +
-                "log.notificationStatus," +
-                "log.mshRole," +
-                "log.messageType," +
+                "message.messageId," +
+                "log.messageStatus.messageStatus," +
+                "log.notificationStatus.status," +
+                "log.mshRole.role," +
                 "log.deleted," +
                 "log.received," +
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
-                "message.collaborationInfo.conversationId," +
+                "message.conversationId," +
                 "partyFrom.value," +
                 "partyTo.value," +
                 (isFourCornerModel() ? "propsFrom.value," : "'',") +
                 (isFourCornerModel() ? "propsTo.value," : "'',") +
-                "info.refToMessageId," +
+                "message.refToMessageId," +
                 "log.failed," +
                 "log.restored," +
-                "log.messageSubtype," +
-                "log.messageFragment," +
-                "log.sourceMessage," +
+                "message.testMessage," +
+                "message.messageFragment," +
+                "message.sourceMessage," +
                 MESSAGE_COLLABORATION_INFO_ACTION + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_VALUE +
@@ -58,17 +57,15 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
      */
     private String getQueryBody() {
         return
-                " from UserMessageLog log, " +
-                        "UserMessage message " +
-                        "left join log.messageInfo info " +
+                " from UserMessageLog log " +
+                        "join log.userMessage message " +
                         (isFourCornerModel() ?
-                                "left join message.messageProperties.property propsFrom "  +
-                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                                "left join message.messageProperties propsFrom "  +
+                                "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
-                        "where message.messageInfo = info " +
                         (isFourCornerModel() ?
-                                "and propsFrom.name = 'originalSender' "  +
+                                "where propsFrom.name = 'originalSender' "  +
                                 "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
 
     }

@@ -18,6 +18,8 @@ public class MessageAttempt {
      */
     private String messageId;
 
+    protected Long userMessageEntityId;
+
     /**
      * When the attempt has started
      */
@@ -82,6 +84,14 @@ public class MessageAttempt {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Long getUserMessageEntityId() {
+        return userMessageEntityId;
+    }
+
+    public void setUserMessageEntityId(Long userMessageEntityId) {
+        this.userMessageEntityId = userMessageEntityId;
     }
 
     @Override

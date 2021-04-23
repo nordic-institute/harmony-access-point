@@ -5,7 +5,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,22 +45,25 @@ public class UserMessage extends AbstractBaseEntity {
     @Column(name = "MESSAGE_FRAGMENT")
     protected Boolean messageFragment;
 
+    @Column(name = "TEST_MESSAGE")
+    protected Boolean testMessage;
+
     @Embedded
     protected PartyInfo partyInfo; //NOSONAR
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACTION_ID_FK")
     protected ActionEntity action;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SERVICE_ID_FK")
     protected ServiceEntity service;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AGREEMENT_ID_FK")
     protected AgreementRefEntity agreementRef;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MPC_ID_FK")
     protected MpcEntity mpc;
 
@@ -72,11 +74,16 @@ public class UserMessage extends AbstractBaseEntity {
     )
     protected Set<MessageProperty> messageProperties; //NOSONAR
 
-    @Transient
-    protected List<PartInfo> partInfoList;
+    public boolean isTestMessage() {
+        return BooleanUtils.toBoolean(testMessage);
+    }
+
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
+    }
 
     public boolean isSplitAndJoin() {
-        return sourceMessage || messageFragment;
+        return isSourceMessage() || isMessageFragment();
     }
 
     public String getMessageId() {
@@ -180,8 +187,8 @@ public class UserMessage extends AbstractBaseEntity {
         this.timestamp = timestamp;
     }
 
-    public Boolean isSourceMessage() {
-        return sourceMessage;
+    public boolean isSourceMessage() {
+        return BooleanUtils.toBoolean(sourceMessage);
     }
 
     public void setSourceMessage(Boolean sourceMessage) {
@@ -194,13 +201,5 @@ public class UserMessage extends AbstractBaseEntity {
 
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
-    }
-
-    public List<PartInfo> getPartInfoList() {
-        return partInfoList;
-    }
-
-    public void setPartInfoList(List<PartInfo> partInfoList) {
-        this.partInfoList = partInfoList;
     }
 }

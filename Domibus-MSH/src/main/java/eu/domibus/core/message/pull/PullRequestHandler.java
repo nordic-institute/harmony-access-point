@@ -164,6 +164,7 @@ public class PullRequestHandler {
                             .setAttemptStatus(attemptStatus)
                             .setAttemptError(attemptError)
                             .setStartDate(startDate).build();
+                    attempt.setUserMessageEntityId(userMessage.getEntityId());
                     messageAttemptService.create(attempt);
                 } catch (Exception e) {
                     LOG.error("Could not create the message attempt", e);

@@ -1,6 +1,5 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.metrics.Counter;
@@ -196,8 +195,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
                     predicates.add(cb.equal(ume.<String>get(filterKey), filterValue));
                 }
             } else {
-                if (filterKey.equals("messageSubtype")) {
-                    predicates.add(cb.isNull(ume.<MessageSubtype>get("messageSubtype")));
+                if (filterKey.equals("testMessage")) {
+                    predicates.add(cb.isNull(ume.<Boolean>get("testMessage")));
                 }
             }
         }

@@ -1,6 +1,5 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
@@ -74,7 +73,7 @@ public class UIMessageDaoImplIT {
         uiMessageEntity.setMessageStatus(MessageStatus.ACKNOWLEDGED);
         uiMessageEntity.setNotificationStatus(NotificationStatus.NOT_REQUIRED);
         uiMessageEntity.setMessageType(MessageType.USER_MESSAGE);
-        uiMessageEntity.setMessageSubtype(null);
+        uiMessageEntity.setTestMesage(false);
         uiMessageEntity.setFromId(fromId);
         uiMessageEntity.setFromScheme("urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
         uiMessageEntity.setToId(toId);
@@ -116,7 +115,7 @@ public class UIMessageDaoImplIT {
         Map<String, Object> filters = new HashMap<>();
         long count;
 
-        filters.put("messageSubtype", MessageSubtype.TEST);
+        filters.put("testMessage", true);
         count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(0, count);
 
@@ -177,7 +176,7 @@ public class UIMessageDaoImplIT {
         uiMessageEntity.setMessageStatus(MessageStatus.ACKNOWLEDGED);
         uiMessageEntity.setNotificationStatus(NotificationStatus.NOT_REQUIRED);
         uiMessageEntity.setMessageType(MessageType.USER_MESSAGE);
-        uiMessageEntity.setMessageSubtype(null);
+        uiMessageEntity.setTestMesage(false);
         uiMessageEntity.setConversationId(conversationId);
 
         uiMessageDao.saveOrUpdate(uiMessageEntity);

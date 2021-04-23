@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.jpa.QueryHints;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ public class PartInfoDao extends BasicDao<PartInfo> {
     public List<PartInfo> findPartInfoByUserMessageEntityId(final Long userMessageEntityId) {
         final Query query = this.em.createNamedQuery("PartInfo.findPartInfos");
         query.setParameter("ENTITY_ID", userMessageEntityId);
+        query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
         return query.getResultList();
     }
 

@@ -1,7 +1,6 @@
 package eu.domibus.core.util;
 
 import com.google.gson.reflect.TypeToken;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.UserMessageLogDto;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,8 +43,8 @@ public class JsonUtilTest {
         String id1 = "id1";
         String id2 = "id2";
         String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto(id1, MessageSubtype.TEST, backend);
-        UserMessageLogDto uml2 = new UserMessageLogDto(id2, MessageSubtype.TEST, backend);
+        UserMessageLogDto uml1 = new UserMessageLogDto(id1, true, backend);
+        UserMessageLogDto uml2 = new UserMessageLogDto(id2, true, backend);
         List<UserMessageLogDto> umls = Arrays.asList(uml1, uml2);
         String json = jsonUtil.listToJson(umls);
 

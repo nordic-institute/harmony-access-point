@@ -3,9 +3,7 @@ package eu.domibus.plugin.jms;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.AbstractBackendJMSIT;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
-import eu.domibus.core.message.MessageSubtypeDao;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;

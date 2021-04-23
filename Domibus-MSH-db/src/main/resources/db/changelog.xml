@@ -291,23 +291,6 @@
         </createTable>
         <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS"/>
 
-        <createTable tableName="TB_D_MESSAGE_SUBTYPE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_D_MESSAGE_SUBTYPE"/>
-            </column>
-            <column name="SUBTYPE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-        <addUniqueConstraint columnNames="SUBTYPE" constraintName="UK_D_MESSAGE_SUBTYPE" tableName="TB_D_MESSAGE_SUBTYPE"/>
     </changeSet>
     <!-- End Dictionary Tables -->
 
@@ -322,6 +305,7 @@
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
             <column name="SOURCE_MESSAGE" type="BOOLEAN" remarks="true if the message is a SourceMessage"/>
             <column name="MESSAGE_FRAGMENT" type="BOOLEAN" remarks="true if the message is a message fragment"/>
+            <column name="TEST_MESSAGE" type="BOOLEAN"/>
             <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column name="ACTION_ID_FK" type="BIGINT"/>
             <column name="AGREEMENT_ID_FK" type="BIGINT"/>
@@ -331,7 +315,6 @@
             <column name="FROM_ROLE_ID_FK" type="BIGINT"/>
             <column name="TO_PARTY_ID_FK" type="BIGINT"/>
             <column name="TO_ROLE_ID_FK" type="BIGINT"/>
-            <column name="MESSAGE_SUBTYPE_ID_FK" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -374,10 +357,6 @@
                                  constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="MESSAGE_SUBTYPE_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_SUBTYPE_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MESSAGE_SUBTYPE"/>
         <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -404,9 +383,6 @@
         </createIndex>
         <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
             <column name="TO_ROLE_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_MESSAGE_SUBTYPE_ID" tableName="TB_USER_MESSAGE">
-            <column name="MESSAGE_SUBTYPE_ID_FK"/>
         </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
 

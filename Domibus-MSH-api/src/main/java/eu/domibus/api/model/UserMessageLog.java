@@ -1,7 +1,5 @@
 package eu.domibus.api.model;
 
-import eu.domibus.api.message.MessageSubtype;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -11,7 +9,7 @@ import java.util.Date;
  * @since 3.2
  */
 @Entity
-@Table(name = "TB_MESSAGE_LOG")
+@Table(name = "TB_USER_MESSAGE_LOG")
 @NamedQueries({
         @NamedQuery(name = "UserMessageLog.findRetryMessages",
                 query = "select um.messageId " +
@@ -25,12 +23,12 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT um.messageId, um.timestamp FROM UserMessageLog as ml join ml.userMessage um where ml.messageStatus.messageStatus=eu.domibus.api.model.MessageStatus.READY_TO_PULL order by um.timestamp desc"),
         @NamedQuery(name = "UserMessageLog.getMessageStatus", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findByMessageId", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "UserMessageLog.findByMessageIdAndRole", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole=:MSH_ROLE"),
+        @NamedQuery(name = "UserMessageLog.findByMessageIdAndRole", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessageLog.findBackendForMessage", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findEntries", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
                 query = "SELECT um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
-                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
@@ -41,7 +39,7 @@ import java.util.Date;
                         "AND uml.deleted IS NOT NULL AND um.mpc.value = :MPC AND uml.deleted < :DATE                                            "),
         @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
                 query = "SELECT um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
-                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       um.testMessage          as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
@@ -53,7 +51,7 @@ import java.util.Date;
                         "and uml.deleted is null and um.mpc.value = :MPC and uml.received < :DATE                                          "),
         @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
                 query ="SELECT um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                                         " +
-                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       um.testMessage          as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
@@ -64,7 +62,7 @@ import java.util.Date;
                         "and um.mpc.value = :MPC and uml.downloaded is not null and uml.downloaded < :DATE                                      "),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
                 query = "SELECT um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
-                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       um.testMessage          as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
@@ -75,7 +73,7 @@ import java.util.Date;
                         "and uml.deleted is null and um.mpc = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE  "),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan",
                 query = "SELECT um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
-                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       um.testMessage          as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
@@ -154,21 +152,16 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     @JoinColumn(name = "NOTIFICATION_STATUS_ID_FK")
     private NotificationStatusEntity notificationStatus;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "MESSAGE_SUBTYPE_ID_FK")
-    private MessageSubtypeEntity messageSubtype;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_PK")
     @MapsId
     private UserMessage userMessage;
 
-    public boolean isTestMessage() {
-        if(MessageSubtype.TEST == messageSubtype.getMessageSubtype()) {
-            return true;
-        }
-        return false;
+    public UserMessageLog() {
+        setReceived(new Date());
+        setSendAttempts(0);
     }
+
 
     public String getBackend() {
         return backend;
@@ -282,13 +275,7 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
         this.notificationStatus = notificationStatus;
     }
 
-    public MessageSubtypeEntity getMessageSubtype() {
-        return messageSubtype;
-    }
 
-    public void setMessageSubtype(MessageSubtypeEntity messageSubtype) {
-        this.messageSubtype = messageSubtype;
-    }
 
 
     public UserMessage getUserMessage() {

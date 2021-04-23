@@ -34,7 +34,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     @Override
-    public Ebms3UserMessage userMessageEntityToEbms3(UserMessage userMessage) {
+    public Ebms3UserMessage userMessageEntityToEbms3(UserMessage userMessage, List<PartInfo> partinfoList) {
         Ebms3UserMessage ebms3UserMessage = new Ebms3UserMessage();
         Ebms3MessageInfo messageInfo = new Ebms3MessageInfo();
         ebms3UserMessage.setMessageInfo(messageInfo);
@@ -54,7 +54,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
         final Ebms3PartyInfo ebms3PartyInfo = convertPartyInfo(userMessage.getPartyInfo());
         ebms3UserMessage.setPartyInfo(ebms3PartyInfo);
-        Ebms3PayloadInfo payloadInfo = convertPayloadInfo(userMessage.getPartInfoList());
+        Ebms3PayloadInfo payloadInfo = convertPayloadInfo(partinfoList);
         ebms3UserMessage.setPayloadInfo(payloadInfo);
 
         return ebms3UserMessage;
@@ -81,7 +81,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         userMessage.setConversationId(collaborationInfo.getConversationId());
 
         final Ebms3AgreementRef agreementRef = collaborationInfo.getAgreementRef();
-        if(agreementRef != null) {
+        if (agreementRef != null) {
             final AgreementRefEntity agreement = agreementDao.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
             userMessage.setAgreementRef(agreement);
         }
@@ -90,7 +90,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         userMessage.setMpc(mpcEntity);
 
         final Ebms3MessageProperties userMessageMessageProperties = ebms3UserMessage.getMessageProperties();
-        if(userMessageMessageProperties != null) {
+        if (userMessageMessageProperties != null) {
             final Set<Ebms3Property> properties = userMessageMessageProperties.getProperty();
             userMessage.setMessageProperties(new HashSet<>());
             properties.stream().forEach(ebms3Property -> {
@@ -110,15 +110,20 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         final To to = ebms3FromToUserMessageFrom(ebms3PartyInfo.getTo());
         partyInfo.setTo(to);
 
+        return userMessage;
+    }
+
+    @Override
+    public List<PartInfo> partInfoEbms3ToEntity(Ebms3UserMessage ebms3UserMessage) {
         final Ebms3PayloadInfo ebms3PayloadInfo = ebms3UserMessage.getPayloadInfo();
         final List<Ebms3PartInfo> partInfoList = ebms3PayloadInfo.getPartInfo();
-        userMessage.setPartInfoList(new ArrayList<>());
+        List<PartInfo> result = new ArrayList<>();
         partInfoList.stream().forEach(ebms3PartInfo -> {
             final PartInfo partInfo = convertFromEbms3PartInfo(ebms3PartInfo);
-            userMessage.getPartInfoList().add(partInfo);
+            result.add(partInfo);
         });
 
-        return userMessage;
+        return result;
     }
 
     private From ebms3FromToUserMessageFrom(Ebms3From ebms3From) {
@@ -155,7 +160,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         Ebms3PartInfo result = new Ebms3PartInfo();
         result.setHref(partInfo.getHref());
         final Description description = partInfo.getDescription();
-        if(description != null) {
+        if (description != null) {
             Ebms3Description ebms3Description = new Ebms3Description();
             ebms3Description.setValue(description.getValue());
             ebms3Description.setLang(description.getLang());
@@ -177,7 +182,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         PartInfo result = new PartInfo();
         result.setHref(partInfo.getHref());
         final Ebms3Description ebms3Description = partInfo.getDescription();
-        if(ebms3Description != null) {
+        if (ebms3Description != null) {
             Description description = new Description();
             description.setValue(description.getValue());
             description.setLang(description.getLang());
@@ -185,7 +190,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         }
 
         final Ebms3PartProperties ebms3PartProperties = partInfo.getPartProperties();
-        if(ebms3PartProperties != null) {
+        if (ebms3PartProperties != null) {
             result.setPartProperties(new HashSet<>());
             final Set<Ebms3Property> properties = ebms3PartProperties.getProperties();
             properties.stream().forEach(partProperty -> result.getPartProperties().add(convertToPartProperty(partProperty)));
@@ -209,7 +214,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         collaborationInfo.setConversationId(userMessage.getConversationId());
 
         final AgreementRefEntity agreementRef = userMessage.getAgreementRef();
-        if(agreementRef != null) {
+        if (agreementRef != null) {
             Ebms3AgreementRef ebms3AgreementRef = new Ebms3AgreementRef();
             collaborationInfo.setAgreementRef(ebms3AgreementRef);
             ebms3AgreementRef.setType(agreementRef.getType());

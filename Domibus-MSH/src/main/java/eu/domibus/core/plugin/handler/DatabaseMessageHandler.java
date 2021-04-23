@@ -338,8 +338,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             try {
                 messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-                partInfo.setUserMessage(userMessage);
-                partInfoDao.create(partInfo);
                 messageFragmentEntity.setUserMessage(userMessage);
                 messageFragmentDao.create(messageFragmentEntity);
             } catch (CompressionException exc) {
@@ -350,7 +348,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
             MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpc().getValue(),
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
                     backendName, to.getEndpoint(), userMessage.getService().getValue(), userMessage.getActionValue(), null, true);
             prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
 
@@ -424,7 +422,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                to = createNewParty(userMessage.getMpc().getValue());
+                to = createNewParty(userMessage.getMpcValue());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
@@ -479,7 +477,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
             final boolean sourceMessage = userMessage.isSourceMessage();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpc().getValue(),
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {

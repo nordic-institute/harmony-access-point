@@ -49,6 +49,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
 
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging);
+        partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
 
         authorizationService.authorizeUserMessage(request, userMessage);
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
