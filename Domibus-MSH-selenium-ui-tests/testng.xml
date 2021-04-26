@@ -9,7 +9,11 @@
     </groups>
     <test name="NoData">
         <classes>
-            <class name="domibus.ui.ux.AuditPgUXTest"/>
+            <class name="domibus.ui.ux.AuditPgUXTest">
+                <methods>
+                    <exclude name="filterWAdvancedFilters"></exclude>
+                </methods>
+            </class>
             <class name="domibus.ui.ux.PModeArchiveUXTest">
                 <methods>
                     <!--                    time format issue - need to add fields to page descriptor-->

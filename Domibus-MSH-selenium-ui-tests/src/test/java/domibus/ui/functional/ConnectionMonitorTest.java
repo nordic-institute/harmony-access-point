@@ -107,7 +107,6 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	public void sendTestMsg() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
-
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
 		int size = page.grid().getPagination().getTotalItems();
@@ -121,7 +120,8 @@ public class ConnectionMonitorTest extends SeleniumTest {
 				page.grid().getActionButton("Details", i).click();
 				page.getAlertArea().closeButton.click();
 				modalTest.getTestbutton().click();
-				new DWait(driver).forXMillis(100);
+
+				page.getAlertArea().isShown();
 
 				soft.assertFalse(modalTest.isMessInfoPresent("send"), "Sent message Info fields have data present");
 

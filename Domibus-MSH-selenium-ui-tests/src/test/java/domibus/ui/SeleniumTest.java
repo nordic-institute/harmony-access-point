@@ -2,9 +2,11 @@ package domibus.ui;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
+import ddsl.dcomponents.SideNavigation;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
+import ddsl.enums.PAGES;
 import domibus.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -60,9 +62,49 @@ public class SeleniumTest extends BaseTest {
 		log.info("--------------------------- Running test number: " + methodCount);
 		log.info("--------------------------- Running test method: " + method.getDeclaringClass().getSimpleName() + "." + method.getName());
 		methodCount++;
+
+		driver.get(data.getUiBaseUrl());
+		new DomibusPage(driver).waitForPageToLoad();
+
 		login(data.getAdminUser());
 	}
 
+	protected DomibusPage login(HashMap<String, String> user) {
+		log.info("login started");
+		LoginPage loginPage = new LoginPage(driver);
+
+		try {
+
+			if (loginPage.getSandwichMenu().isLoggedIn()) {
+				String currentLoggedInUser = loginPage.getSandwichMenu().getCurrentUserID();
+				if (StringUtils.equalsIgnoreCase(currentLoggedInUser, user.get("username"))) {
+					loginPage.refreshPage();
+					loginPage.getDomainSelector().selectOptionByIndex(0);
+					return new DomibusPage(driver);
+				}
+				logout();
+			}
+
+			loginPage.login(user);
+			loginPage.waitForPageToLoad();
+		} catch (Exception e) {
+			log.info("Login did not succeed!!!");
+			log.debug(e.getMessage());
+		}
+
+		return new DomibusPage(driver);
+	}
+
+	protected DomibusPage login(String user, String pass) {
+
+		HashMap<String, String> userInfo = new HashMap<>();
+		userInfo.put("username", user);
+		userInfo.put("pass", pass);
+
+		login(userInfo);
+
+		return new DomibusPage(driver);
+	}
 
 	protected void logout() throws Exception {
 		DomibusPage page = new DomibusPage(driver);
@@ -70,7 +112,7 @@ public class SeleniumTest extends BaseTest {
 		driver.manage().deleteAllCookies();
 		((JavascriptExecutor) driver).executeScript("localStorage.clear();");
 
-		page.clickVoidSpace();
+		page.refreshPage();
 		if (page.getSandwichMenu().isLoggedIn()) {
 			log.info("Logging out");
 			page.getSandwichMenu().logout();
@@ -88,44 +130,7 @@ public class SeleniumTest extends BaseTest {
 			log.error("EXCEPTION: ", e);
 		}
 	}
-	
-	
-	protected DomibusPage login(HashMap<String, String> user) {
-		log.info("login started");
-		LoginPage loginPage = new LoginPage(driver);
-		
-		try {
-			
-			if (loginPage.getSandwichMenu().isLoggedIn()) {
-				String currentLoggedInUser = loginPage.getSandwichMenu().getCurrentUserID();
-				if (StringUtils.equalsIgnoreCase(currentLoggedInUser, user.get("username"))) {
-					loginPage.refreshPage();
-					return new DomibusPage(driver);
-				}
-				logout();
-			}
-			
-			loginPage.login(user);
-			loginPage.waitForPageToLoad();
-		} catch (Exception e) {
-			log.info("Login did not succeed!!!");
-			log.debug(e.getMessage());
-		}
-		
-		return new DomibusPage(driver);
-	}
-	
-	protected DomibusPage login(String user, String pass) {
-		
-		HashMap<String, String> userInfo = new HashMap<>();
-		userInfo.put("username", user);
-		userInfo.put("pass", pass);
-		
-		login(userInfo);
-		
-		return new DomibusPage(driver);
-	}
-	
+
 	protected String selectRandomDomain() throws Exception {
 		if(!data.isMultiDomain()){
 			log.info("running in singletenancy mode, no domain to select");

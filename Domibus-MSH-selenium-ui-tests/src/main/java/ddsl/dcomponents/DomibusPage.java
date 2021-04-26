@@ -54,9 +54,9 @@ public class DomibusPage extends DComponent {
 	public void refreshPage() {
 		driver.navigate().refresh();
 		try {
-			wait.forXMillis(300);
+			wait.forXMillis(100);
 			waitForPageToLoad();
-			wait.forXMillis(300);
+			wait.forXMillis(100);
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
@@ -91,6 +91,7 @@ public class DomibusPage extends DComponent {
 	
 	public void waitForPageToLoad() throws Exception {
 		wait.forElementToBeVisible(getSandwichMenu().expandButton);
+
 	}
 	
 	public void waitForPageTitle() throws Exception {

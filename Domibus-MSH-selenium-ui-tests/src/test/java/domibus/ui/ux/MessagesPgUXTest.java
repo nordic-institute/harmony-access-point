@@ -211,9 +211,10 @@ public class MessagesPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
-		page.refreshPage();
-		
+
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
 		List<String> columnsPre = grid.getColumnNames();
 		log.info("getting column list before new column is added: " + columnsPre);
 		

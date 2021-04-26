@@ -96,7 +96,7 @@ public class AuditPgUXTest extends SeleniumTest {
 		HashMap<String, String> info = page.grid().getRowInfo(0);
 
 		page.filters().simpleFilter(info.get("Table")
-				, info.get("User")
+				, null
 				, info.get("Action")
 				, null, null);
 		page.grid().waitForRowsToLoad();
@@ -153,7 +153,7 @@ public class AuditPgUXTest extends SeleniumTest {
 		log.info("Filtering ...");
 		page.filters().advancedFilter(
 				event.getString("auditTargetName")
-				, event.getString("user")
+				, null
 				, event.getString("action")
 				, fromDate
 				, toDate);
@@ -167,7 +167,7 @@ public class AuditPgUXTest extends SeleniumTest {
 
 		for (HashMap<String, String> map : info) {
 			soft.assertEquals(map.get("Table"), event.getString("auditTargetName"), "Table - value corresponds to filter value");
-			soft.assertEquals(map.get("User"), event.getString("user"), "User - value corresponds to filter value");
+//			soft.assertEquals(map.get("User"), event.getString("user"), "User - value corresponds to filter value");
 			soft.assertEquals(map.get("Action"), event.getString("action"), "Action - value corresponds to filter value");
 
 			Date gridRowDate = TestRunData.UI_DATE_FORMAT2.parse(map.get("Changed")+":00");
