@@ -361,6 +361,7 @@ class Domibus{
                 "delete from TB_MESSAGE_ACKNW",
                 "delete from TB_MESSAGING_LOCK",
                 "delete from TB_MESSAGE_LOG",
+				"delete from WS_PLUGIN_TB_MESSAGE_LOG",				
                 "delete from TB_MESSAGE_UI"
         ] as String[]
 
@@ -2388,6 +2389,14 @@ class Domibus{
         if (testCase.testSuite.getPropertyValue("TestSuiteSmokeTestsResult") == "FAILED") {
             debugLog("One of smoke tests failed. Now would cancel execution of all other test cases in current test suite.", log)
             testRunner.cancel( "One of smoke tests failed. Aborting whole test suite run." )
+        }
+    }
+	
+    static void  skipIfOldPluginSelected(testRunner, context, log) {
+        debugLog("  ====  Calling \"skipIfOldPluginSelected\".", log)
+        if (context.expand('${#Project#endpointUrl}').contains("backend")) {
+            debugLog("The old plugin is currently used: this testCase is not supported.", log)
+            testRunner.cancel( "The old plugin is currently used: this testCase will be skipped." )
         }
     }
 
