@@ -802,10 +802,8 @@ public class AuditPgTest extends SeleniumTest {
 		
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
-		
-		log.info("Extract total number of items for default domain");
-		int defaultGridRowCount = page.grid().getPagination().getTotalItems();
-		
+		page.grid().waitForRowsToLoad();
+
 		log.info("Check if pagination is present");
 		if (!page.grid().getPagination().isPaginationPresent()) {
 			log.info("Default domain grid has data less than 10 so no pagination exists");
@@ -816,18 +814,13 @@ public class AuditPgTest extends SeleniumTest {
 			
 			log.info("Change domain");
 			page.getDomainSelector().selectOptionByIndex(1);
-			log.info("Extract total number of items for second domain");
-			int secondGridRowCount = page.grid().getPagination().getTotalItems();
-			
+			page.grid().waitForRowsToLoad();
+
 			log.info("Check if pagination is present");
 			if (page.grid().getPagination().isPaginationPresent()) {
 				log.info("Pagination is present for second domain");
-				if (page.grid().getPagination().getActivePage() == 1) {
-					log.info("Active page is " + page.grid().getPagination().getActivePage());
-				}
+				soft.assertEquals(page.grid().getPagination().getActivePage(), Integer.valueOf(1), "Pagination reset to first page");
 			}
-			log.info("Check if both domains have different number of data");
-			soft.assertTrue(defaultGridRowCount != secondGridRowCount, " Both domains have different number of records");
 		}
 		soft.assertAll();
 	}
@@ -844,11 +837,12 @@ public class AuditPgTest extends SeleniumTest {
 		
 		String messageId = rest.jms().getQueueMessages(queue).getJSONObject(0).getString("id");
 		rest.jms().deleteMessages(queue, messageId);
-		
+
 		AuditPage page = new AuditPage(driver);
+		page.wait.forXMillis(1000);
+
 		log.info("Navigate to Audit page");
 		page.getSidebar().goToPage(PAGES.AUDIT);
-		page.wait.forXMillis(1000);
 		page.grid().waitForRowsToLoad();
 		
 		page.filters().getTableFilter().selectOptionByText("Jms message");
