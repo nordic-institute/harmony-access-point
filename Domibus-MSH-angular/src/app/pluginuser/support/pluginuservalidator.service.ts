@@ -21,7 +21,6 @@ export class PluginUserValidatorService {
     if (dupValues.length > 0) {
       throw new Error('Duplicate user name for plugin users: ' + dupValues);
     }
-
   }
 
   checkPluginUserCertificateDuplication(allPluginUsers: PluginUserRO[]) {
