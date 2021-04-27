@@ -58,10 +58,6 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         domainContextProvider.setCurrentDomain(domainCode);
         getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
-        if(messageId.contains("ioana")) {
-            throw new OutOfMemoryError("ioana OOO");
-        }
-
         if (delay > 0) {
             scheduleSending(messageId, delay);
             return;
