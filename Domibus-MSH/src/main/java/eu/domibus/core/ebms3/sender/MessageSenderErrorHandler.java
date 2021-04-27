@@ -13,7 +13,6 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ErrorHandler;
 
@@ -29,14 +28,19 @@ public class MessageSenderErrorHandler implements ErrorHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderErrorHandler.class);
 
-    @Autowired
     private MessagingDao messagingDao;
 
-    @Autowired
-    protected PModeProvider pModeProvider;
+    private PModeProvider pModeProvider;
 
-    @Autowired
     private UpdateRetryLoggingService updateRetryLoggingService;
+
+    public MessageSenderErrorHandler(MessagingDao messagingDao,
+                                     PModeProvider pModeProvider,
+                                     UpdateRetryLoggingService updateRetryLoggingService) {
+        this.messagingDao = messagingDao;
+        this.pModeProvider = pModeProvider;
+        this.updateRetryLoggingService = updateRetryLoggingService;
+    }
 
     @Override
     public void handleError(Throwable t) {
@@ -56,7 +60,7 @@ public class MessageSenderErrorHandler implements ErrorHandler {
         try {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
         } catch (final EbMS3Exception e) {
-            LOG.error("Impossible to handle error for message " + messageId, e);
+            LOG.error("Could not get the pMode key for message " + messageId, e);
             return ;
         }
 
