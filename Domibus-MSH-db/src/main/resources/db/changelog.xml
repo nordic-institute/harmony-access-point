@@ -44,7 +44,7 @@
         <comment>create Domibus tables</comment>
         <createTable tableName="TB_USER_MSG_DELETION_JOB">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE_DELETION_JOB"/>
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MSG_DELETION_JOB"/>
             </column>
             <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
             <column name="MPC" type="VARCHAR(255)"/>
