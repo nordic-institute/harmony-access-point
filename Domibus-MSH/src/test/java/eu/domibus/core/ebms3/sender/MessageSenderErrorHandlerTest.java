@@ -69,7 +69,7 @@ public class MessageSenderErrorHandlerTest {
             updateRetryLoggingService.updatePushedMessageRetryLogging(anyString, legConfiguration, (MessageAttempt)any);
         }};
 
-        messageSenderErrorHandler.handleError((new Throwable("OutOfMemory")));
+        messageSenderErrorHandler.handleError(new RuntimeException("Unexpected exception occured"));
 
         new FullVerifications() {
         };
