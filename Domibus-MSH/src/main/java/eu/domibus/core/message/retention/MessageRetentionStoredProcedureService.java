@@ -197,14 +197,14 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         String name = null;
         switch (messageStatus) {
             case DOWNLOADED:
-                name = "DeleteExpiredDownloadedMessages";
+                name = "del_expired_downloaded_msgs";
                 break;
             case RECEIVED:
-                name = "DeleteExpiredUnDownloadedMessages";
+                name = "del_expired_undownloaded_msgs";
                 break;
             case ACKNOWLEDGED:
             case SEND_FAILURE:
-                name = "DeleteExpiredSentMessages";
+                name = "del_expired_sent_msgs";
                 break;
             default:
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "There is no stored procedure for this message status" + messageStatus.name());
