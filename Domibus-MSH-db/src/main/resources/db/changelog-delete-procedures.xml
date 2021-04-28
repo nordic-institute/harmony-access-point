@@ -8,8 +8,8 @@
     <changeSet id="deletion_stored_procedures" author="idragusa" dbms="oracle">
         <!-- DOWNLOADED USER MESSAGES -->
         <sql endDelimiter="\n/">
-            create or replace PROCEDURE DeleteExpiredDownloadedMessages (
-            mpc                        IN VARCHAR2,
+            create or replace PROCEDURE DeleteExpiredDownloadedMsgs (
+            mpc                       IN VARCHAR2,
             startdate                 IN DATE,
             enddate                   IN DATE,
             maxcount   IN NUMBER DEFAULT 1000
@@ -153,13 +153,13 @@
             END LOOP;
 
             COMMIT;
-            END DeleteExpiredDownloadedMessages;
+            END DeleteExpiredDownloadedMsgs;
 
         </sql>
 
         <!-- SENT USER MESSAGES -->
         <sql endDelimiter="\n/">
-            create or replace PROCEDURE DeleteExpiredSentMessages (
+            create or replace PROCEDURE DeleteExpiredSentMsgs (
             mpc IN VARCHAR2,
             startdate IN DATE,
             enddate IN DATE,
@@ -312,7 +312,7 @@
 
             END LOOP;
             commit;
-            END DeleteExpiredSentMessages;
+            END DeleteExpiredSentMsgs;
 
         </sql>
     </changeSet>

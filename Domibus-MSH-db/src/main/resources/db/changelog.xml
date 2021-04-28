@@ -42,7 +42,7 @@
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
-        <createTable tableName="TB_USER_MESSAGE_DELETION_JOB">
+        <createTable tableName="TB_USER_MSG_DELETION_JOB">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE_DELETION_JOB"/>
             </column>
@@ -2234,15 +2234,15 @@
             <column name="DOWNLOADED"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MESSAGE_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG">
             <column name="MESSAGE_STATUS"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MESSAGE_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG">
             <column name="MODIFICATION_TIME"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MESSAGE_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG">
             <column name="MESSAGE_TYPE"/>
         </createIndex>
 
