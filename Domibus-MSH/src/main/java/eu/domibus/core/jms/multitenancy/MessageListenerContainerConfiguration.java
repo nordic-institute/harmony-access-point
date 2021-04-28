@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JMSConstants;
+import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
 import eu.domibus.core.message.pull.PullReceiptListener;
@@ -111,14 +112,20 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
+    @Autowired
+    @Qualifier("messageSenderErrorHandler")
+    protected MessageSenderErrorHandler messageSenderErrorHandler;
+
 
     @Bean(name = DISPATCH_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createSendMessageListener(Domain domain, String selector, String concurrencyPropertyName) {
         LOG.debug("Instantiating the DefaultMessageListenerContainer for domain [{}] with selector [{}] and concurrency property [{}]", domain, selector, concurrencyPropertyName);
-        return createDefaultMessageListenerContainer(domain, connectionFactory, sendMessageQueue,
+        DefaultMessageListenerContainer defaultMessageListenerContainer = createDefaultMessageListenerContainer(domain, connectionFactory, sendMessageQueue,
                 messageSenderListener, transactionManager, concurrencyPropertyName, selector
         );
+        defaultMessageListenerContainer.setErrorHandler(messageSenderErrorHandler);
+        return defaultMessageListenerContainer;
     }
 
     /**
@@ -129,9 +136,11 @@ public class MessageListenerContainerConfiguration {
     public DefaultMessageListenerContainer createSendLargeMessageListener(Domain domain) {
         LOG.debug("Instantiating the createSendLargeMessageListenerContainer for domain [{}]", domain);
 
-        return createDefaultMessageListenerContainer(domain, connectionFactory, sendLargeMessageQueue,
+        DefaultMessageListenerContainer defaultMessageListenerContainer = createDefaultMessageListenerContainer(domain, connectionFactory, sendLargeMessageQueue,
                 largeMessageSenderListener, transactionManager, PROPERTY_LARGE_FILES_CONCURRENCY
         );
+        defaultMessageListenerContainer.setErrorHandler(messageSenderErrorHandler);
+        return defaultMessageListenerContainer;
     }
 
     /**

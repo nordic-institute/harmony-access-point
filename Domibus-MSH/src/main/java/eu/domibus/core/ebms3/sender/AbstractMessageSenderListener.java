@@ -3,7 +3,6 @@ package eu.domibus.core.ebms3.sender;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ import javax.jms.MessageListener;
  * @since 4.1
  */
 public abstract class AbstractMessageSenderListener implements MessageListener {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractMessageSenderListener.class);
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -43,23 +40,23 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
             domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             delay = message.getLongProperty(MessageConstants.DELAY);
         } catch (final NumberFormatException nfe) {
-            LOG.trace("Error getting message properties", nfe);
+            getLogger().trace("Error getting message properties", nfe);
             //This is ok, no delay has been set
         } catch (final JMSException e) {
-            LOG.error("Error processing JMS message", e);
+            getLogger().error("Error processing JMS message", e);
         }
         if (StringUtils.isBlank(messageId)) {
-            LOG.error("Message ID is empty: could not send message");
+            getLogger().error("Message ID is empty: could not send message");
             return;
         }
         if (StringUtils.isBlank(domainCode)) {
-            LOG.error("Domain is empty: could not send message");
+            getLogger().error("Domain is empty: could not send message");
             return;
         }
 
-        LOG.debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
+        getLogger().debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
         if (delay > 0) {
             scheduleSending(messageId, delay);
@@ -68,10 +65,14 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
 
         sendUserMessage(messageId, retryCount);
 
-        LOG.debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
+        getLogger().debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
+
+        getLogger().removeMDC(DomibusLogger.MDC_MESSAGE_ID);
     }
 
     public abstract void scheduleSending(String messageId, Long delay);
 
     public abstract void sendUserMessage(final String messageId, int retryCount);
+
+    public abstract DomibusLogger getLogger();
 }
