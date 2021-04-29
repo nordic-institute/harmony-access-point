@@ -16,7 +16,7 @@
             <!-- rollover daily -->
             <fileNamePattern>target/logs/domibus-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- each file should be at most 30MB, keep 60 days worth of history, but at most 20GB -->
-            <maxFileSize>30MB</maxFileSize>
+            <maxFileSize>2GB</maxFileSize>
             <maxHistory>60</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -26,7 +26,7 @@
 
     <appender name="DEFAULT-ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">
         <!-- Have tried to play around with queue size - no major effect -->
-        <queueSize>1024</queueSize>
+        <queueSize>3000</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <appender-ref ref="file" />
     </appender>
