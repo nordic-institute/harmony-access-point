@@ -440,7 +440,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_HEADER"/>
             </column>
             <column name="BOUNDARY" type="VARCHAR(255)" remarks="The multipart boundary value"/>
-            <column name="START" type="VARCHAR(255)" remarks="The multipart start value"/>
+            <column name="START_MULTIPART" type="VARCHAR(255)" remarks="The multipart start value"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

@@ -16,9 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -74,15 +71,11 @@ public class FSPurgeFailedServiceTest {
 
     @Test
     public void testPurgeMessages() throws FileSystemException, FSSetUpException {
-        final List<String> domains = new ArrayList<>();
-        domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
+        final String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
         new Expectations(1, instance) {{
-            fsMultiTenancyService.getDomainsToProcess();
-            result = domains;
-
-            fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
-            result = true;
+            fsMultiTenancyService.getFSPluginDomain();
+            result = domain;
 
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
@@ -113,11 +106,8 @@ public class FSPurgeFailedServiceTest {
     @Test
     public void testPurgeMessages_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
         new Expectations(1, instance) {{
-            fsMultiTenancyService.verifyDomainExists("DOMAIN1");
-            result = true;
-
-            fsMultiTenancyService.getDomainsToProcess();
-            result = Collections.singletonList("DOMAIN1");
+            fsMultiTenancyService.getFSPluginDomain();
+            result = "DOMAIN1";
 
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");
