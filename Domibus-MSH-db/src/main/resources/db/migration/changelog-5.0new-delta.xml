@@ -300,6 +300,7 @@
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-sj-message">
         <!-- rename TB_MESSAGE_HEADER -->
         <renameTable oldTableName="TB_MESSAGE_HEADER" newTableName="TB_SJ_MESSAGE_HEADER" />
+        <renameColumn tableName="TB_SJ_MESSAGE_HEADER" oldColumnName="START" newColumnName="START_MULTIPART" columnDataType="VARCHAR(255)"/>
 
         <!-- start rename TB_MESSAGE_GROUP -->
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_GROUP" />
@@ -317,6 +318,7 @@
                 <constraints nullable="false"/>
             </column>
         </addColumn>
+
         <!-- TODO migration script here -->
         <dropColumn tableName="TB_SJ_MESSAGE_GROUP" columnName="MSH_ROLE" />
         <dropColumn tableName="TB_SJ_MESSAGE_GROUP" columnName="SOURCE_MESSAGE_ID" />
