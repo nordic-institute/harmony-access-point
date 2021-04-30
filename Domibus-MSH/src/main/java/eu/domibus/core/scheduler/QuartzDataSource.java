@@ -12,6 +12,7 @@ import java.util.logging.Logger;
  * @since 5.0
  * <p>
  * Return connections with autocommit = false
+ * TODO: François Gautier 30-04-21  to be used or deleted as part of the story: EDELIVERY-7994 quartz issue on wildfly: Can't call rollback when autocommit=true
  */
 public class QuartzDataSource implements DataSource {
 
