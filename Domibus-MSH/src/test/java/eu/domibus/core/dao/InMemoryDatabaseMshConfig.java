@@ -19,7 +19,6 @@ public class InMemoryDatabaseMshConfig extends AbstractDatabaseMshConfig {
         return getH2DataSource();
     }
 
-
     @Override
     public String getSpecificDatabaseDialect() {
         return H_2_DIALECT;
