@@ -1,4 +1,8 @@
 Domibus 4.2.2 (from 4.2.1):
+                - [Mysql8 only]
+                   - Grant XA_RECOVER_ADMIN privilege to the user:
+                     - GRANT XA_RECOVER_ADMIN ON *. * TO 'edelivery_user'@'localhost';
+                     - FLUSH PRIVILEGES;
                 - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-migration.ddl for MySQL or oracle-4.2.1-to-4.2.2-migration.ddl for Oracle)
                 - Replace the Domibus war
 Domibus 4.2.1 (from 4.2):
