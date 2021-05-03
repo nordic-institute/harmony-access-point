@@ -34,7 +34,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_MESSAGE_ID_FK")
     protected UserMessage userMessage;
 

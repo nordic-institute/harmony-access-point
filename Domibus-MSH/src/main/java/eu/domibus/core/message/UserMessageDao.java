@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -28,10 +29,38 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         super(UserMessage.class);
     }
 
+
+    @Transactional
+    public UserMessage findByEntityId(Long entityId) {
+        final UserMessage userMessage = super.read(entityId);
+
+        initializeChildren(userMessage);
+
+        return userMessage;
+    }
+
+    private void initializeChildren(UserMessage userMessage) {
+        //initialize values from the second level cache
+        userMessage.getMessageProperties().forEach(messageProperty -> messageProperty.getValue());
+        userMessage.getMpcValue();
+        userMessage.getServiceValue();
+        userMessage.getActionValue();
+        userMessage.getAgreementRef();
+        userMessage.getPartyInfo().getFrom().getPartyId().getValue();
+        userMessage.getPartyInfo().getFrom().getRole().getValue();
+        userMessage.getPartyInfo().getTo().getPartyId().getValue();
+        userMessage.getPartyInfo().getTo().getRole().getValue();
+    }
+
+    @Transactional
     public UserMessage findByMessageId(String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        return DataAccessUtils.singleResult(query.getResultList());
+        final UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
+        if(userMessage != null) {
+            initializeChildren(userMessage);
+        }
+        return userMessage;
     }
 
     public UserMessage findByGroupEntityId(Long groupEntityId) {

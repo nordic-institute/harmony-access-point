@@ -14,7 +14,7 @@ import javax.persistence.Table;
  * @since 4.1
  */
 @Entity
-@Table(name = "TB_MESSAGE_HEADER")
+@Table(name = "TB_SJ_MESSAGE_HEADER")
 public class MessageHeaderEntity extends AbstractBaseEntity {
 
     @Column(name = "BOUNDARY")

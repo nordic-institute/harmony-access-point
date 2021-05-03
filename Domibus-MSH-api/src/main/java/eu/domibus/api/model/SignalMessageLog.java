@@ -29,11 +29,11 @@ public class SignalMessageLog extends AbstractNoGeneratedPkEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date deleted;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MESSAGE_STATUS_ID_FK")
     private MessageStatusEntity messageStatus;
 

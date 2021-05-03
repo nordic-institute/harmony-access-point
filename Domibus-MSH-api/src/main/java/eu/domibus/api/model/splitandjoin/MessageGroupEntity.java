@@ -3,6 +3,7 @@ package eu.domibus.api.model.splitandjoin;
 import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.UserMessage;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -58,7 +59,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     @Column(name = "EXPIRED")
     protected Boolean expired;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 
@@ -150,7 +151,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     }
 
     public Boolean getRejected() {
-        return rejected;
+        return BooleanUtils.toBoolean(rejected);
     }
 
     public void setRejected(Boolean rejected) {
@@ -158,7 +159,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     }
 
     public Boolean getExpired() {
-        return expired;
+        return BooleanUtils.toBoolean(expired);
     }
 
     public void setExpired(Boolean expired) {

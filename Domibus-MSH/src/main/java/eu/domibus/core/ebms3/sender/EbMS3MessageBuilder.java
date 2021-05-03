@@ -21,6 +21,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -141,10 +142,14 @@ public class EbMS3MessageBuilder {
             if (userMessage.getTimestamp() == null) {
                 userMessage.setTimestamp(new Date());
             }
-            LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
-            for (final PartInfo partInfo : partInfoList) {
-                this.attachPayload(partInfo, message);
+
+            if(CollectionUtils.isNotEmpty(partInfoList)) {
+                LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
+                for (final PartInfo partInfo : partInfoList) {
+                    this.attachPayload(partInfo, message);
+                }
             }
+
             if (messageGroupEntity != null) {
                 final Ebms3MessageFragmentType messageFragment = createMessageFragment(userMessage, messageFragmentEntity, partInfoList, messageGroupEntity);
                 jaxbContextMessageFragment.createMarshaller().marshal(messageFragment, message.getSOAPHeader());
