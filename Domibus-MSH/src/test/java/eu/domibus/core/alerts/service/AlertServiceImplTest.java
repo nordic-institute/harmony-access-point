@@ -148,7 +148,7 @@ public class AlertServiceImplTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-            coreMapper.alertPersistToAlertService((eu.domibus.core.alerts.model.persist.Alert) any);
+            alertCoreMapper.alertPersistToAlertService((eu.domibus.core.alerts.model.persist.Alert) any);
             result = alert;
             alertService.enqueueAlert(alert);
         }};
