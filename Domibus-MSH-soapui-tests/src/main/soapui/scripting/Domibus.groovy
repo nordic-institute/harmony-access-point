@@ -2507,6 +2507,63 @@ class Domibus{
         assert(mockRunner.isRunning()),"  startRestMockService  [][]  Mock service did not start."
         log.info ("  startRestMockService  [][]  Rest mock service " + restMockServiceName + " is running.")
     }
+	
+	// Handle soap mock service
+    static void  stopAllMockService(log,testRunner) {
+        log.info("  ====  Calling \"stopAllMockService\".")
+        def project = testRunner.testCase.testSuite.project
+        def mockServicesCount = project.getMockServiceCount()
+        for (i in 0..(mockServicesCount-1)){
+            // Stop each mock service
+            def mockServiceName = project.getMockServiceAt(i).getName()
+            debugLog("  stopAllMockService  [][]  Stopping service: \"" + mockServiceName+"\"",log)
+            stopMockService(mockServiceName,log,testRunner)
+        }
+        log.info ("  stopAllMockService  [][]  All mock services are stopped.")
+    }
+	
+    static void  stopMockService(String mockServiceName,log,testRunner) {
+        log.info("  ====  Calling \"stopMockService\".")
+        debugLog("  stopMockService  [][]  Mock service name: \"" + mockServiceName+"\"",log)
+        def mockService = null
+        try{
+            mockService = testRunner.testCase.testSuite.project.getMockServiceByName(mockServiceName)
+        }
+        catch (Exception ex) {
+            log.error "  stopMockService  [][]  Can't find mock service called: " + mockServiceName
+            assert 0,"Exception occurred: " + ex
+        }
+        def mockRunner = mockService.getMockRunner()
+        if(mockRunner!= null){
+            mockRunner.stop()
+            assert(!mockRunner.isRunning()),"  stopMockService  [][]  Mock service is still running."
+            mockRunner.release()
+        }
+        log.info ("  stopMockService  [][]  Mock service \"" + mockServiceName + "\" is stopped.")
+    }
+	
+    static void  startMockService(String mockServiceName,log,testRunner,stopAll=true) {
+        log.info("  ====  Calling \"startMockService\".")
+        debugLog("  startMockService  [][]  Mock service name: \"" + mockServiceName+"\"",log)
+        if(stopAll==true){
+            stopAllMockService(log,testRunner)
+        }else{
+            stopMockService(mockServiceName,log,testRunner)
+        }
+        def mockService = null
+        try{
+            mockService = testRunner.testCase.testSuite.project.getMockServiceByName(mockServiceName)
+        }
+        catch (Exception ex) {
+            log.error "  startMockService  [][]  Can't find mock service called: " + mockServiceName
+            assert 0,"Exception occurred: " + ex
+        }
+        mockService.start()
+        def mockRunner = mockService.getMockRunner()
+        assert(mockRunner!= null),"  startMockService  [][]  Can't get mock runner: mock service did not start."
+        assert(mockRunner.isRunning()),"  startMockService  [][]  Mock service did not start."
+        log.info ("  startMockService  [][]  Mock service \"" + mockServiceName + "\" is running.")
+    }
 
     //---------------------------------------------------------------------------------------------------------------------------------
     // Methods handling Pmode properties overwriting
