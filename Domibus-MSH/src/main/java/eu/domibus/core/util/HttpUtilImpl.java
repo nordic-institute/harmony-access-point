@@ -66,19 +66,21 @@ public class HttpUtilImpl implements HttpUtil {
 
             RequestConfig.Builder builder = RequestConfig.custom();
             int httpTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT);
-            if( httpTimeout > 0 ) {
+            if (httpTimeout > 0) {
+                LOG.debug("Configure the http client with httpTimeout: [{}]", httpTimeout);
                 builder.setConnectTimeout(httpTimeout * MILIS_TO_SECONDS)
                         .setConnectionRequestTimeout(httpTimeout * MILIS_TO_SECONDS)
                         .setSocketTimeout(httpTimeout * MILIS_TO_SECONDS);
             }
 
             HttpHost proxy = null;
-            if(domibusProxyService.useProxy()) {
+            if (domibusProxyService.useProxy()) {
+                LOG.debug("Configure http client with proxy: [{}]", proxy);
                 proxy = proxyUtil.getConfiguredProxy();
                 builder.setProxy(proxy);
             }
 
-            RequestConfig config =builder.build();
+            RequestConfig config = builder.build();
             HttpGet httpGet = new HttpGet(url);
             httpGet.setConfig(config);
 
