@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0
+ */
 public class PartPropertyDaoTestIT extends AbstractIT {
 
     @Autowired
