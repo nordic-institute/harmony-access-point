@@ -57,10 +57,6 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         result.setService(serviceDao.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
         result.setPartyInfo(createPartyInfo(sourceMessage.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(sourceMessage.getMessageProperties()));
-//        result.setPayloadInfo(createPayloadInfo(fragmentFile, fragmentNumber));
-
-//        MessageFragmentEntity messageFragmentEntity = createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
-//        result.setMessageFragment(messageFragmentEntity);
 
         return result;
     }
