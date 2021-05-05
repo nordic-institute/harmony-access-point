@@ -14,7 +14,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * @author François Gautier
+ * @since 5.0
+ */
 public class WebserviceClient {
 
     public static final String DEFAULT_WEBSERVICE_LOCATION = "http://localhost:8080/domibus/services/wsplugin?wsdl";
