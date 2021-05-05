@@ -12,8 +12,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageConfig {
     @Bean
-    public UserMessageLogDao userMessageLogDao(DateUtil dateUtil, UserMessageLogInfoFilter userMessageLogInfoFilter, ReprogrammableService reprogrammableService) {
-        return new UserMessageLogDao(dateUtil, userMessageLogInfoFilter, reprogrammableService);
+    public UserMessageLogDao userMessageLogDao(DateUtil dateUtil,
+                                               UserMessageLogInfoFilter userMessageLogInfoFilter,
+                                               MessageStatusDao messageStatusDao,
+                                               NotificationStatusDao notificationStatusDao,
+                                               ReprogrammableService reprogrammableService) {
+        return new UserMessageLogDao(dateUtil, userMessageLogInfoFilter, messageStatusDao, notificationStatusDao, reprogrammableService);
     }
 
     @Bean

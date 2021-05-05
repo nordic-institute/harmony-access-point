@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.NotificationStatus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -41,8 +40,6 @@ public class MessageLogInfo {
     private Integer nextAttemptOffsetSeconds;
 
     private String conversationId;
-
-    private MessageType messageType;
 
     private Boolean testMessage;
 
@@ -269,10 +266,6 @@ public class MessageLogInfo {
         return mshRole;
     }
 
-    public MessageType getMessageType() {
-        return messageType;
-    }
-
     public Date getDeleted() {
         return deleted;
     }
@@ -357,10 +350,6 @@ public class MessageLogInfo {
         this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
     }
 
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -383,7 +372,6 @@ public class MessageLogInfo {
                 .append(nextAttemptTimezoneId, that.nextAttemptTimezoneId)
                 .append(nextAttemptOffsetSeconds, that.nextAttemptOffsetSeconds)
                 .append(conversationId, that.conversationId)
-                .append(messageType, that.messageType)
                 .append(deleted, that.deleted)
                 .append(originalSender, that.originalSender)
                 .append(finalRecipient, that.finalRecipient)
@@ -413,7 +401,6 @@ public class MessageLogInfo {
                 .append(nextAttemptTimezoneId)
                 .append(nextAttemptOffsetSeconds)
                 .append(conversationId)
-                .append(messageType)
                 .append(deleted)
                 .append(originalSender)
                 .append(finalRecipient)

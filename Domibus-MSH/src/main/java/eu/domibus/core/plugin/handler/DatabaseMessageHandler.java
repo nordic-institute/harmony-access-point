@@ -362,12 +362,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
@@ -493,12 +493,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }

@@ -67,7 +67,7 @@ public class UserMessage extends AbstractBaseEntity {
     @JoinColumn(name = "MPC_ID_FK")
     protected MpcEntity mpc;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "TB_MESSAGE_PROPERTIES",
             joinColumns = @JoinColumn(name = "USER_MESSAGE_ID_FK"),
             inverseJoinColumns = @JoinColumn(name = "MESSAGE_PROPERTY_FK")

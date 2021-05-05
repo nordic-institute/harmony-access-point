@@ -117,6 +117,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
@@ -126,6 +131,8 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!--        Spring Start        -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -161,6 +168,8 @@
             <artifactId>spring-jms</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!--        Spring End        -->
+
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
