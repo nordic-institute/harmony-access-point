@@ -1,9 +1,11 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.core.property.PropertyConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author François Gautier
@@ -31,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 @Transactional
 public class PropertyDaoIT {
 
-    /*@Autowired
+    @Autowired
     private MessagePropertyDao propertyDao;
 
     @Autowired
@@ -46,36 +45,37 @@ public class PropertyDaoIT {
         msgId = randomUUID().toString();
         Property property = getProperty("prop1", "value1");
         Property property1 = getProperty("prop2", "value2");
-        createUserMessageWithProperties(Arrays.asList(
-                property,
-                property1),
-                getMessageInfo(msgId));
+//        createUserMessageWithProperties(Arrays.asList(
+//                property,
+//                property1),
+//                getMessageInfo(msgId));
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void findUserMessageByGroupId() {
-        List<Property> messagePropertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(msgId);
+//        List<Property> messagePropertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(msgId);
 
-        assertEquals(2, messagePropertiesForMessageId.size());
-        assertEquals("prop1", messagePropertiesForMessageId.get(1).getName());
-        assertEquals("value1", messagePropertiesForMessageId.get(1).getValue());
-        assertEquals("prop2", messagePropertiesForMessageId.get(0).getName());
-        assertEquals("value2", messagePropertiesForMessageId.get(0).getValue());
+//        assertEquals(2, messagePropertiesForMessageId.size());
+//        assertEquals("prop1", messagePropertiesForMessageId.get(1).getName());
+//        assertEquals("value1", messagePropertiesForMessageId.get(1).getValue());
+//        assertEquals("prop2", messagePropertiesForMessageId.get(0).getName());
+//        assertEquals("value2", messagePropertiesForMessageId.get(0).getValue());
     }
 
-    private void createUserMessageWithProperties(List<Property> properties, MessageInfo messageInfo) {
-        UserMessage userMessage = new UserMessage();
-        userMessage.setMessageInfo(messageInfo);
-        CollaborationInfo collaborationInfo = new CollaborationInfo();
-        collaborationInfo.setConversationId(randomUUID().toString());
-        userMessage.setCollaborationInfo(collaborationInfo);
-        if (properties != null) {
-            MessageProperties value = new MessageProperties();
-            value.getProperty().addAll(properties);
-            userMessage.setMessageProperties(value);
-        }
-        em.persist(userMessage);
-    }
+//    private void createUserMessageWithProperties(List<Property> properties, MessageInfo messageInfo) {
+//        UserMessage userMessage = new UserMessage();
+//        userMessage.setMessageInfo(messageInfo);
+//        CollaborationInfo collaborationInfo = new CollaborationInfo();
+//        collaborationInfo.setConversationId(randomUUID().toString());
+//        userMessage.setCollaborationInfo(collaborationInfo);
+//        if (properties != null) {
+//            MessageProperties value = new MessageProperties();
+//            value.getProperty().addAll(properties);
+//            userMessage.setMessageProperties(value);
+//        }
+//        em.persist(userMessage);
+//    }
 
     private Property getProperty(String name, String value) {
         Property property = new Property();
@@ -89,7 +89,7 @@ public class PropertyDaoIT {
         MessageInfo messageInfo = new MessageInfo();
         messageInfo.setMessageId(msgId);
         messageInfo.setTimestamp(new Date());
-        messageInfoDao.create(messageInfo);
+//        messageInfoDao.create(messageInfo);
         return messageInfo;
-    }*/
+    }
 }

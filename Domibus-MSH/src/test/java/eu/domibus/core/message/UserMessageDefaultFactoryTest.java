@@ -1,12 +1,20 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.model.From;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.PartyInfo;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.To;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.usermessage.domain.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,10 +27,21 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class UserMessageDefaultFactoryTest {
 
-    /*@Tested
+    @Tested
     UserMessageDefaultFactory userMessageDefaultFactory;
 
+
+    @Injectable
+    protected PartPropertyDao partPropertyDao;
+    @Injectable
+    protected MessagePropertyDao messagePropertyDao;
+    @Injectable
+    protected PartyIdDao partyIdDao;
+    @Injectable
+    protected PartyRoleDao partyRoleDao;
+
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createUserMessageFragmentTest(@Mocked UserMessage sourceMessage,
                                               @Injectable MessageInfo messageInfo,
                                               @Injectable MessageGroupEntity messageGroupEntity,
@@ -32,9 +51,9 @@ public class UserMessageDefaultFactoryTest {
         String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultFactory) {{
-            sourceMessage.setSplitAndJoin(true);
-            sourceMessage.getMessageInfo();
-            result = messageInfo;
+//            sourceMessage.setSplitAndJoin(true);
+//            sourceMessage.getMessageInfo();
+//            result = messageInfo;
             messageInfo.getMessageId();
             result = messageId;
 
@@ -49,6 +68,7 @@ public class UserMessageDefaultFactoryTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void cloneUserMessageFragmentTest(@Injectable UserMessage userMessageFragment,
                                              @Injectable MessageInfo messageInfo,
                                              @Injectable CollaborationInfo collaborationInfo,
@@ -57,12 +77,12 @@ public class UserMessageDefaultFactoryTest {
         String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultFactory) {{
-            userMessageFragment.getCollaborationInfo();
-            result = collaborationInfo;
-            userMessageFragment.getMessageInfo();
-            result = messageInfo;
-            messageInfo.getMessageId();
-            result = messageId;
+//            userMessageFragment.getCollaborationInfo();
+//            result = collaborationInfo;
+//            userMessageFragment.getMessageInfo();
+//            result = messageInfo;
+//            messageInfo.getMessageId();
+//            result = messageId;
             userMessageFragment.getPartyInfo();
             result = partyInfo;
             userMessageFragment.getMessageProperties();
@@ -72,19 +92,20 @@ public class UserMessageDefaultFactoryTest {
         userMessageDefaultFactory.cloneUserMessageFragment(userMessageFragment);
 
         new FullVerificationsInOrder(userMessageDefaultFactory) {{
-            userMessageDefaultFactory.createCollaborationInfo(withCapture());
-            times = 1;
-            userMessageDefaultFactory.createMessageInfo(withCapture(), messageId);
-            times = 1;
+//            userMessageDefaultFactory.createCollaborationInfo(withCapture());
+//            times = 1;
+//            userMessageDefaultFactory.createMessageInfo(withCapture(), messageId);
+//            times = 1;
             userMessageDefaultFactory.createPartyInfo(partyInfo);
             times = 1;
-            userMessageDefaultFactory.createMessageProperties(messageProperties);
-            times = 1;
+//            userMessageDefaultFactory.createMessageProperties(messageProperties);
+//            times = 1;
         }};
 
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createMessageFragmentEntityTest(@Injectable MessageGroupEntity messageGroupEntity) {
         Long fragmentNumber = 1L;
         String groupId = "groupId";
@@ -117,36 +138,7 @@ public class UserMessageDefaultFactoryTest {
     }
 
     @Test
-    public void createCollaborationInfoTest(@Injectable CollaborationInfo source,
-                                            @Injectable AgreementRef agreementRef,
-                                            @Injectable CollaborationInfo collaborationInfo,
-                                            @Injectable Service service) {
-        String action = "action";
-        String conversationId = "conversationId";
-
-        new Expectations(userMessageDefaultFactory) {{
-            source.getConversationId();
-            result = conversationId;
-            source.getAction();
-            result = action;
-            source.getAgreementRef();
-            result = agreementRef;
-            agreementRef.getValue();
-            result = anyString;
-            agreementRef.getType();
-            result = anyString;
-            source.getService();
-            result = service;
-            service.getValue();
-            result = anyString;
-            service.getType();
-            result = anyString;
-        }};
-
-        Assert.assertNotNull(userMessageDefaultFactory.createCollaborationInfo(source));
-    }
-
-    @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createMessageInfoTest(@Injectable MessageInfo source) {
         String messageId = UUID.randomUUID().toString();
 
@@ -157,10 +149,11 @@ public class UserMessageDefaultFactoryTest {
             result = anyString;
         }};
 
-        Assert.assertNotNull(userMessageDefaultFactory.createMessageInfo(source, messageId));
+//        Assert.assertNotNull(userMessageDefaultFactory.createMessageInfo(source, messageId));
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createPartyInfoTest(@Injectable PartyInfo source,
                                     @Injectable From from,
                                     @Injectable PartyId party,
@@ -182,18 +175,4 @@ public class UserMessageDefaultFactoryTest {
         Assert.assertNotNull(userMessageDefaultFactory.createPartyInfo(source));
     }
 
-    @Test
-    public void createMessagePropertiesTest(@Injectable MessageProperties source,
-                                            @Injectable Property sourceProperty) {
-        String allowed_properties = "originalSender";
-
-        new Expectations(userMessageDefaultFactory) {{
-            source.getProperty();
-            result = sourceProperty;
-            sourceProperty.getName();
-            result = allowed_properties;
-        }};
-
-        Assert.assertNotNull(userMessageDefaultFactory.createMessageProperties(source));
-    }*/
 }

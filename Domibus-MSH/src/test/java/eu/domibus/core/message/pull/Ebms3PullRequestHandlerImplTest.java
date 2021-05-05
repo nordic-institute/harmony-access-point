@@ -1,6 +1,34 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.*;
+import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.security.ChainCertificateInvalidException;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.ebms3.sender.retry.RetryService;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.PartInfoDao;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityMatcher;
+import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.test.util.MessageTestUtility;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -10,11 +38,8 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class Ebms3PullRequestHandlerImplTest {
 
-   /* @Injectable
-    MessageExchangeService messageExchangeService;
-
     @Injectable
-    MessagingDao messagingDao;
+    MessageExchangeService messageExchangeService;
 
     @Injectable
     EbMS3MessageBuilder messageBuilder;
@@ -37,11 +62,17 @@ public class Ebms3PullRequestHandlerImplTest {
     @Injectable
     PullMessageService pullMessageService;
 
+    @Injectable
+    UserMessageDao userMessageDao;
+
+    @Injectable
+    PartInfoDao partInfoDao;
+
     @Tested
     PullRequestHandler pullRequestHandler;
 
-
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testHandlePullRequestMessageFoundWithErro(
             @Mocked final Process process,
             @Mocked final LegConfiguration legConfiguration,
@@ -52,11 +83,11 @@ public class Ebms3PullRequestHandlerImplTest {
         SignalMessage signalMessage = new SignalMessage();
         final PullRequest pullRequest = new PullRequest();
         pullRequest.setMpc(mpcQualifiedName);
-        signalMessage.setPullRequest(pullRequest);
+//        signalMessage.setPullRequest(pullRequest);
         messaging.setSignalMessage(signalMessage);
 
         final UserMessage userMessage = new MessageTestUtility().createSampleUserMessage();
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         final EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Payload in body must be valid XML", messageId, null);
 
 
@@ -65,15 +96,12 @@ public class Ebms3PullRequestHandlerImplTest {
             pullContext.filterLegOnMpc();
             result = legConfiguration;
 
-            messagingDao.findUserMessageByMessageId(messageId);
-            result = userMessage;
-
-            messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+            messageBuilder.buildSOAPMessage(userMessage,null, legConfiguration);
             result = ebMS3Exception;
         }};
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
-            Error error;
+            Ebms3Error error;
             messageBuilder.buildSOAPFaultMessage(error = withCapture());
             error.equals(ebMS3Exception.getFaultInfoError());
             times = 1;
@@ -86,6 +114,7 @@ public class Ebms3PullRequestHandlerImplTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testHandlePullRequestMessageFound(
             @Mocked final PhaseInterceptorChain pi,
             @Mocked final Process process,
@@ -97,11 +126,11 @@ public class Ebms3PullRequestHandlerImplTest {
         SignalMessage signalMessage = new SignalMessage();
         final PullRequest pullRequest = new PullRequest();
         pullRequest.setMpc(mpcQualifiedName);
-        signalMessage.setPullRequest(pullRequest);
+//        signalMessage.setPullRequest(pullRequest);
         messaging.setSignalMessage(signalMessage);
 
         final UserMessage userMessage = new MessageTestUtility().createSampleUserMessage();
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
 
 
         new Expectations() {{
@@ -114,8 +143,6 @@ public class Ebms3PullRequestHandlerImplTest {
             pullContext.filterLegOnMpc();
             result = legConfiguration;
 
-            messagingDao.findUserMessageByMessageId(messageId);
-            result = userMessage;
         }};
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
@@ -126,7 +153,7 @@ public class Ebms3PullRequestHandlerImplTest {
             PhaseInterceptorChain.getCurrentMessage().getExchange().put(DispatchClientDefaultProvider.MESSAGE_ID, messageId);
             times = 1;
 
-            messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+            messageBuilder.buildSOAPMessage(userMessage,null, legConfiguration);
             times = 1;
 
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, legConfiguration, ReliabilityChecker.CheckResult.WAITING_FOR_CALLBACK);
@@ -164,8 +191,6 @@ public class Ebms3PullRequestHandlerImplTest {
 
         new Expectations() {{
 
-            messagingDao.findUserMessageByMessageId(messageId);
-            result = userMessage;
             messageExchangeService.verifySenderCertificate(legConfiguration, pullContext.getResponder().getName());
             result = new DomibusCertificateException("test");
 
@@ -177,7 +202,7 @@ public class Ebms3PullRequestHandlerImplTest {
             reliabilityChecker.handleEbms3Exception(e = withCapture(), messageId);
             times = 1;
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getErrorCode());
-            Error faultInfo = null;
+            Ebms3Error faultInfo = null;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
             Assert.assertEquals("EBMS:0101", faultInfo.getErrorCode());
@@ -202,9 +227,6 @@ public class Ebms3PullRequestHandlerImplTest {
 
         new Expectations() {{
 
-            messagingDao.findUserMessageByMessageId(messageId);
-            result = userMessage;
-
             messageExchangeService.verifySenderCertificate(legConfiguration, pullContext.getResponder().getName());
             result = new ConfigurationException();
 
@@ -215,7 +237,7 @@ public class Ebms3PullRequestHandlerImplTest {
             reliabilityChecker.handleEbms3Exception(e = withCapture(), messageId);
             times = 1;
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
-            Error faultInfo = null;
+            Ebms3Error faultInfo = null;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
             Assert.assertEquals("EBMS:0010", faultInfo.getErrorCode());
@@ -238,9 +260,6 @@ public class Ebms3PullRequestHandlerImplTest {
         final String messageId = "whatEverID";
         new Expectations() {{
 
-            messagingDao.findUserMessageByMessageId(messageId);
-            result = userMessage;
-
             messageExchangeService.verifyReceiverCertificate(legConfiguration, pullContext.getInitiator().getName());
             result = new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, "invalid certificate");
 
@@ -248,7 +267,7 @@ public class Ebms3PullRequestHandlerImplTest {
         }};
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
-            messageBuilder.buildSOAPFaultMessage(withAny(new Error()));
+            messageBuilder.buildSOAPFaultMessage(withAny(new Ebms3Error()));
             times = 0;
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, legConfiguration, ReliabilityChecker.CheckResult.ABORT);
             times = 1;
@@ -256,5 +275,5 @@ public class Ebms3PullRequestHandlerImplTest {
             messageAttemptService.create(withAny(attempt));
             times = 0;
         }};
-    }*/
+    }
 }
