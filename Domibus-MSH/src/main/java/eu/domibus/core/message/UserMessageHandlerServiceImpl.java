@@ -165,6 +165,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MshRoleDao mshRoleDao;
 
+    @Autowired
+    protected MessageFragmentDao messageFragmentDao;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
@@ -387,12 +390,18 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         LOG.info("Persisting received message");
 
         if (ebms3MessageFragmentType != null) {
-            handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
+            userMessage.setMessageFragment(true);
         }
 
         boolean compressed = compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageId(), compressed);
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList);
+        final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList);
+
+        if (ebms3MessageFragmentType != null) {
+            handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
+            addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+        }
+        return messageId;
     }
 
     /**
@@ -464,7 +473,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
 
     protected void handleMessageFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
-        userMessage.setMessageFragment(true);
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(ebms3MessageFragmentType.getGroupId());
 
         if (messageGroupEntity == null) {
@@ -476,7 +484,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             messageHeaderEntity.setStart(messageHeader.getStart());
             messageHeaderEntity.setBoundary(messageHeader.getBoundary());
 
-            MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.RECEIVING);
+            MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
             messageGroupEntity.setMshRole(role);
             messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
             messageGroupEntity.setSoapAction(ebms3MessageFragmentType.getAction());
@@ -494,8 +502,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         messageFragmentEntity.setUserMessage(userMessage);
         messageFragmentEntity.setGroup(messageGroupEntity);
         messageFragmentEntity.setFragmentNumber(ebms3MessageFragmentType.getFragmentNum());
+        messageFragmentDao.create(messageFragmentEntity);
 
-        addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+
     }
 
     protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
@@ -545,6 +554,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         PartInfo partInfo = new PartInfo();
         partInfo.setHref(messageFragment.getHref());
         partInfo.setUserMessage(userMessage);
+        partInfo.setMime(messageFragment.getMessageHeader().getType().value());
 
         partInfoDao.create(partInfo);
 
@@ -569,6 +579,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
 
         List<PartInfo> result = new ArrayList<>();
+
+        if (ebms3Messaging.getUserMessage().getPayloadInfo() == null || CollectionUtils.isEmpty(ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo())) {
+            return result;
+        }
 
         boolean bodyloadFound = false;
         for (final Ebms3PartInfo ebms3PartInfo : ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
@@ -634,12 +648,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
         final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
-        if(ebms3PartInfoPartProperties != null || CollectionUtils.isNotEmpty(ebms3Properties)) {
+        if (ebms3PartInfoPartProperties != null || CollectionUtils.isNotEmpty(ebms3Properties)) {
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
                 final PartProperty property = partPropertyDao.findPropertyByNameValueAndType(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
-                if(property != null) {
+                if (property != null) {
                     partProperties.add(property);
                 }
             }
