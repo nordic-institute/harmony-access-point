@@ -1,9 +1,12 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.core.message.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +25,15 @@ public class ErrorServiceImpl implements ErrorService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorServiceImpl.class);
 
-    @Autowired
-    private ErrorLogDao errorLogDao;
-
-    @Autowired
+    protected ErrorLogDao errorLogDao;
     protected DomibusPropertyProvider domibusPropertyProvider;
+    protected MshRoleDao mshRoleDao;
+
+    public ErrorServiceImpl(ErrorLogDao errorLogDao, DomibusPropertyProvider domibusPropertyProvider, MshRoleDao mshRoleDao) {
+        this.errorLogDao = errorLogDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.mshRoleDao = mshRoleDao;
+    }
 
     /**
      * {@inheritDoc}
@@ -39,6 +46,13 @@ public class ErrorServiceImpl implements ErrorService {
         this.errorLogDao.create(errorLogEntry);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail) {
+        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, ErrorCode.EBMS_0004, errorDetail);
+        errorLogDao.create(errorLogEntry);
+    }
 
     @Override
     public void deleteErrorLogWithoutMessageIds() {

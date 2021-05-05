@@ -107,7 +107,7 @@ public class ResponseHandler {
 
         signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
-        final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+        final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
         createWarningEntries(ebms3MessagingResponse.getSignalMessage(), sendingRole);
 
         //UI replication

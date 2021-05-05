@@ -475,9 +475,7 @@
             <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="SOURCE_MESSAGE_ID_FK" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+            <column name="SOURCE_MESSAGE_ID_FK" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
