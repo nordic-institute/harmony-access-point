@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.mapper.usermessage;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -151,6 +152,10 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     private Ebms3PayloadInfo convertPayloadInfo(List<PartInfo> partInfoList) {
+        if(CollectionUtils.isEmpty(partInfoList)) {
+            return null;
+        }
+
         Ebms3PayloadInfo result = new Ebms3PayloadInfo();
         partInfoList.stream().forEach(partInfo -> result.getPartInfo().add(convertEbms3PartInfo(partInfo)));
         return result;

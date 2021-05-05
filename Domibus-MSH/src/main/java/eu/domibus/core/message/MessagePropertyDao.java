@@ -4,9 +4,9 @@ import eu.domibus.api.model.MessageProperty;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author François Gautier
@@ -19,15 +19,17 @@ public class MessagePropertyDao extends BasicDao<MessageProperty> {
         super(MessageProperty.class);
     }
 
-    public MessageProperty findPropertyByName(final String value) {
-        final TypedQuery<MessageProperty> query = this.em.createNamedQuery("MessageProperty.findByName", MessageProperty.class);
-        query.setParameter("NAME", value);
+    public MessageProperty findPropertyByNameValueAndType(final String name, String value, String type) {
+        final TypedQuery<MessageProperty> query = this.em.createNamedQuery("MessageProperty.findByNameValueAndType", MessageProperty.class);
+        query.setParameter("NAME", name);
+        query.setParameter("VALUE", value);
+        query.setParameter("TYPE", type);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
     @Transactional
     public MessageProperty findOrCreateProperty(final String name, String value, String type) {
-        MessageProperty property = findPropertyByName(name);
+        MessageProperty property = findPropertyByNameValueAndType(name, value, type);
         if (property != null) {
             return property;
         }

@@ -5,9 +5,9 @@ import eu.domibus.api.model.*;
 import eu.domibus.test.util.MessageTestUtility;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 public class UserMessageDaoTestIT extends AbstractIT {
 
@@ -75,6 +75,12 @@ public class UserMessageDaoTestIT extends AbstractIT {
         userMessage.setMpc(mpcEntity);
 
         userMessageDao.create(userMessage);
+
+        final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
+        final Set<MessageProperty> messageProperties = dbUserMessage.getMessageProperties();
+        messageProperties.forEach(messageProperty -> messageProperty.getValue());
+
+        userMessage.getPartyInfo().getFrom().getRole().getValue();
 
         System.out.println(userMessage);
     }

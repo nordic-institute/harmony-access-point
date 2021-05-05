@@ -183,7 +183,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);
-        messageGroupEntity.setSourceMessage(userMessage);
+        final UserMessage dbUserMessage = userMessageDao.findByMessageId(userMessage.getMessageId());
+        messageGroupEntity.setSourceMessage(dbUserMessage);
 
         MessageExchangeConfiguration userMessageExchangeConfiguration;
         LegConfiguration legConfiguration;
@@ -216,7 +217,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         messageHeaderEntity.setStart(StringUtils.replaceEach(start, new String[]{"<", ">"}, new String[]{"", ""}));
         messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
 
-        userMessageDefaultService.createMessageFragments(userMessage, messageGroupEntity, fragmentFiles);
+        userMessageDefaultService.createMessageFragments(dbUserMessage, messageGroupEntity, fragmentFiles);
 
         attachmentCleanupService.cleanAttachments(sourceMessageRequest);
 
@@ -383,6 +384,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
     }
 
+    @Transactional
     @Override
     public void setSourceMessageAsFailed(UserMessage userMessage) {
         final String messageId = userMessage.getMessageId();
