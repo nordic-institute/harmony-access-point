@@ -1,8 +1,13 @@
 Domibus 4.2.2 (from 4.2.1):
                 - [Mysql8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:
-                     - GRANT XA_RECOVER_ADMIN ON *. * TO 'edelivery_user'@'localhost';
-                     - FLUSH PRIVILEGES;
+                        In MySQL 8.0, XA_RECOVER is permitted only to users who have the XA_RECOVER_ADMIN privilege. Prior to MySQL 8.0, any user could execute this and discover the XID values of XA transactions by other users.
+                        This privilege requirement prevents users from discovering the XID values for outstanding prepared XA transactions other than their own.
+                            - GRANT XA_RECOVER_ADMIN ON *.* TO 'edelivery_user'@'localhost';
+                    - Execute below command to flush privileges:
+                        When we grant some privileges for a user, running this command will reloads the grant tables in the mysql database enabling the changes to take effect without reloading or restarting mysql service.
+                            - FLUSH PRIVILEGES;
+
                 - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-migration.ddl for MySQL or oracle-4.2.1-to-4.2.2-migration.ddl for Oracle)
                 - Replace the Domibus war
 Domibus 4.2.1 (from 4.2):
