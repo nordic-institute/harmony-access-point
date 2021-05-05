@@ -23,10 +23,7 @@ import javax.jms.MapMessage;
 import javax.jms.Session;
 import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class SenderService {
 
@@ -117,8 +114,9 @@ public class SenderService {
         messageMap.setStringProperty("refToMessageId", messageId);
 
         messageMap.setStringProperty("service", "eu_ics2_c2t");
-        messageMap.setStringProperty("serviceType", "eu-customs-service-type");
-        messageMap.setStringProperty("agreementRef", "EU-ICS2-TI-V1.0");
+        messageMap.setStringProperty("serviceType", received.getStringProperty("serviceType"));
+        messageMap.setStringProperty("agreementRef", received.getStringProperty("agreementRef"));
+        messageMap.setStringProperty("agreementRefType", received.getStringProperty("agreementRefType"));
 
 
         messageMap.setStringProperty("action", "IE3R01");
@@ -144,6 +142,13 @@ public class SenderService {
         messageMap.setStringProperty("payload_1_description", "message");
         messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
         messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+        if(LOG.isDebugEnabled()) {
+            Enumeration mapNames = messageMap.getMapNames();
+            while (mapNames.hasMoreElements()){
+                Object o = mapNames.nextElement();
+                LOG.debug("Key:[{}], value:[{}]",o,messageMap.getStringProperty(o.toString()));
+            }
+        }
 
         if(!sendMetadataOnly) {
             LOG.info("Adding happy flow payload to the map message");
