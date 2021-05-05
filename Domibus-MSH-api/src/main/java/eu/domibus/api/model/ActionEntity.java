@@ -17,7 +17,7 @@ import javax.persistence.*;
 })
 public class ActionEntity extends AbstractBaseEntity {
 
-    @Column(name = "VALUE", unique = true)
+    @Column(name = "ACTION", unique = true)
     protected String value;
 
     public String getValue() {

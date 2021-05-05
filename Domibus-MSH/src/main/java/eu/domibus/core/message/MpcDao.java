@@ -2,8 +2,10 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.MpcEntity;
 import eu.domibus.core.dao.BasicDao;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 
@@ -18,7 +20,12 @@ public class MpcDao extends BasicDao<MpcEntity> {
         super(MpcEntity.class);
     }
 
+    @Transactional
     public MpcEntity findOrCreateMpc(String value) {
+        if(StringUtils.isEmpty(value)) {
+            return null;
+        }
+
         MpcEntity mpc = findMpc(value);
         if (mpc != null) {
             return mpc;

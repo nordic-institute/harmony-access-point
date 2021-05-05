@@ -230,7 +230,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
-                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
@@ -276,7 +276,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
@@ -445,7 +445,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 notificationStatus.toString(),
                 MSHRole.RECEIVING.toString(),
                 0,
-                StringUtils.isEmpty(userMessage.getMpc().getValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpc().getValue(),
+                StringUtils.isEmpty(userMessage.getMpcValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpcValue(),
                 backendName,
                 to.getEndpoint(),
                 userMessage.getService().getValue(),
@@ -573,6 +573,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         boolean bodyloadFound = false;
         for (final Ebms3PartInfo ebms3PartInfo : ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
             PartInfo partInfo = convert(ebms3PartInfo);
+            result.add(partInfo);
 
             final String cid = ebms3PartInfo.getHref();
             LOG.debug("looking for attachment with cid: {}", cid);
@@ -630,7 +631,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             result.setDescription(description);
         }
         result.setHref(ebms3PartInfo.getHref());
-        result.setMime(ebms3PartInfo.getMime());
 
         final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
         final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
@@ -638,7 +638,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findPropertyByName(ebms3Property.getName());
+                final PartProperty property = partPropertyDao.findPropertyByNameValueAndType(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
                 if(property != null) {
                     partProperties.add(property);
                 }

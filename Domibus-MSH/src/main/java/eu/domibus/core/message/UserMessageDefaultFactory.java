@@ -23,17 +23,24 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     private static final List<String> ALLOWED_PROPERTIES = Arrays.asList(new String[]{"originalSender", "finalRecipient", "trackingIdentifier"});
     public static final String CID_FRAGMENT = "cid:fragment";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String TEXT_XML = "text/xml";
 
     protected PartPropertyDao partPropertyDao;
     protected MessagePropertyDao messagePropertyDao;
     protected PartyIdDao partyIdDao;
     protected PartyRoleDao partyRoleDao;
+    protected AgreementDao agreementDao;
+    protected ServiceDao serviceDao;
+    protected ActionDao actionDao;
 
-    public UserMessageDefaultFactory(PartPropertyDao partPropertyDao, MessagePropertyDao messagePropertyDao, PartyIdDao partyIdDao, PartyRoleDao partyRoleDao) {
+    public UserMessageDefaultFactory(PartPropertyDao partPropertyDao, MessagePropertyDao messagePropertyDao, PartyIdDao partyIdDao, PartyRoleDao partyRoleDao, AgreementDao agreementDao, ServiceDao serviceDao, ActionDao actionDao) {
         this.partPropertyDao = partPropertyDao;
         this.messagePropertyDao = messagePropertyDao;
         this.partyIdDao = partyIdDao;
         this.partyRoleDao = partyRoleDao;
+        this.agreementDao = agreementDao;
+        this.serviceDao = serviceDao;
+        this.actionDao = actionDao;
     }
 
     @Override
@@ -45,15 +52,11 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         result.setRefToMessageId(sourceMessage.getRefToMessageId());
         result.setTimestamp(sourceMessage.getTimestamp());
         result.setConversationId(sourceMessage.getConversationId());
-        result.setAgreementRef(createAgreementRef(sourceMessage));
-        result.setAction(createAction(sourceMessage));
-        result.setService(createService(sourceMessage));
+        result.setAgreementRef(getAgreementRef(sourceMessage));
+        result.setAction(actionDao.findOrCreateAction(sourceMessage.getActionValue()));
+        result.setService(serviceDao.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
         result.setPartyInfo(createPartyInfo(sourceMessage.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(sourceMessage.getMessageProperties()));
-//        result.setPayloadInfo(createPayloadInfo(fragmentFile, fragmentNumber));
-
-//        MessageFragmentEntity messageFragmentEntity = createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
-//        result.setMessageFragment(messageFragmentEntity);
 
         return result;
     }
@@ -66,9 +69,9 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         result.setTimestamp(userMessageFragment.getTimestamp());
 
         result.setConversationId(userMessageFragment.getConversationId());
-        result.setAgreementRef(createAgreementRef(userMessageFragment));
-        result.setAction(createAction(userMessageFragment));
-        result.setService(createService(userMessageFragment));
+        result.setAgreementRef(getAgreementRef(userMessageFragment));
+        result.setAction(actionDao.findOrCreateAction(userMessageFragment.getActionValue()));
+        result.setService(serviceDao.findOrCreateService(userMessageFragment.getService().getValue(), userMessageFragment.getService().getType()));
 
         result.setPartyInfo(createPartyInfo(userMessageFragment.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(userMessageFragment.getMessageProperties()));
@@ -91,6 +94,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         partInfo.setHref(CID_FRAGMENT + fragmentNumber);
         partInfo.setFileName(fragmentFile);
         partInfo.setLength(new File(fragmentFile).length());
+        partInfo.setMime(APPLICATION_OCTET_STREAM);
 
         PartProperty partProperty = partPropertyDao.findOrCreateProperty(Property.MIME_TYPE, APPLICATION_OCTET_STREAM, null);
         Set<PartProperty> partProperties = new HashSet<>();
@@ -99,22 +103,12 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         return partInfo;
     }
 
-    protected AgreementRef createAgreementRef(UserMessage userMessage) {
-        AgreementRef agreementRef = userMessage.getAgreementRef();
+    protected AgreementRefEntity getAgreementRef(UserMessage userMessage) {
+        AgreementRefEntity agreementRef = userMessage.getAgreementRef();
         if (agreementRef == null) {
             return null;
         }
-
-        AgreementRef result = new AgreementRef();
-        result.setType(agreementRef.getType());
-        result.setValue(agreementRef.getValue());
-        return result;
-    }
-
-    protected ActionEntity createAction(UserMessage userMessage) {
-        ActionEntity result = new ActionEntity();
-        result.setValue(userMessage.getActionValue());
-        return result;
+        return agreementDao.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
     }
 
     protected ServiceEntity createService(UserMessage userMessage) {
@@ -127,7 +121,6 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
     protected PartyInfo createPartyInfo(final PartyInfo source) {
         final PartyInfo partyInfo = new PartyInfo();
-
 
         if (source.getFrom() != null) {
             final From from = new From();

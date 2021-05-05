@@ -276,11 +276,11 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getService());
             action = findActionName(userMessage.getActionValue());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_ACTION_FOUND, action, userMessage.getActionValue());
-            if (isPull && mpcService.forcePullOnMpc(userMessage.getMpc().getValue())) {
-                mpc = mpcService.extractBaseMpc(userMessage.getMpc().getValue());
+            if (isPull && mpcService.forcePullOnMpc(userMessage.getMpcValue())) {
+                mpc = mpcService.extractBaseMpc(userMessage.getMpcValue());
                 leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc, initiatorRole, responderRole);
             } else {
-                mpc = userMessage.getMpc().getValue();
+                mpc = userMessage.getMpcValue();
                 leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole);
             }
             LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
@@ -347,7 +347,7 @@ public abstract class PModeProvider {
         } catch (EbMS3Exception exc) {
             if (isPull && mpcService.forcePullOnMpc(userMessage)) {
                 LOG.info("Receiver party not found in pMode, extract from MPC");
-                receiverParty = mpcService.extractInitiator(userMessage.getMpc().getValue());
+                receiverParty = mpcService.extractInitiator(userMessage.getMpcValue());
                 exc.setErrorDetail("Receiver Party extracted from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
             } else {
                 LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
@@ -391,7 +391,7 @@ public abstract class PModeProvider {
 
     public abstract String findPartyName(PartyId partyId) throws EbMS3Exception;
 
-    public abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
+    public abstract String findAgreement(AgreementRefEntity agreementRef) throws EbMS3Exception;
 
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
         final String actionValue = userMessage.getActionValue();

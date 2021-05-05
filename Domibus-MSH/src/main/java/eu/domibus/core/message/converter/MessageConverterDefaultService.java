@@ -3,7 +3,7 @@ package eu.domibus.core.message.converter;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.messaging.MessagingException;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.logging.DomibusLogger;
@@ -16,6 +16,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * Created by musatmi on 11/05/2017.
@@ -32,8 +33,8 @@ public class MessageConverterDefaultService implements MessageConverterService {
     protected Ebms3Converter ebms3Converter;
 
     @Override
-    public byte[] getAsByteArray(UserMessage userMessage) {
-        final Ebms3UserMessage ebms3UserMessage = ebms3Converter.convertToEbms3(userMessage);
+    public byte[] getAsByteArray(UserMessage userMessage, List<PartInfo> partInfoList) {
+        final Ebms3UserMessage ebms3UserMessage = ebms3Converter.convertToEbms3(userMessage, partInfoList);
 
         Ebms3Messaging ebms3Messaging = new Ebms3Messaging();
         ebms3Messaging.setUserMessage(ebms3UserMessage);

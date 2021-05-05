@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
@@ -49,7 +48,7 @@ public class MessageLogFilterRequestRO implements Serializable {
 
     private String receivedTo;
 
-    private MessageSubtype messageSubtype;
+    private Boolean testMessage;
 
     @CustomWhiteListed(permitted = ":/-.")
     private String action;
@@ -179,12 +178,12 @@ public class MessageLogFilterRequestRO implements Serializable {
         this.finalRecipient = finalRecipient;
     }
 
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
     }
 
     public String getReceivedFrom() {

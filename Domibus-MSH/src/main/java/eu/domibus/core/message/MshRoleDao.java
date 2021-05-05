@@ -7,6 +7,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
 /**
  * @author Cosmin Baciu
@@ -17,6 +18,18 @@ public class MshRoleDao extends BasicDao<MSHRoleEntity> {
 
     public MshRoleDao() {
         super(MSHRoleEntity.class);
+    }
+
+    @Transactional
+    public MSHRoleEntity findOrCreate(final MSHRole role) {
+        MSHRoleEntity mshRoleEntity = findByRole(role);
+        if (mshRoleEntity != null) {
+            return mshRoleEntity;
+        }
+        MSHRoleEntity entity = new MSHRoleEntity();
+        entity.setRole(role);
+        create(entity);
+        return entity;
     }
 
     public MSHRoleEntity findByRole(final MSHRole role) {

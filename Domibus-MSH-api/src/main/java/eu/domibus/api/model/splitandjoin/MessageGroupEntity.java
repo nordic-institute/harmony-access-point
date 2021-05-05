@@ -3,6 +3,7 @@ package eu.domibus.api.model.splitandjoin;
 import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.UserMessage;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -21,10 +22,10 @@ import java.math.BigInteger;
 @NamedQueries({
         @NamedQuery(name = "MessageGroupEntity.findByUserMessageEntityId", query = "SELECT gr FROM MessageFragmentEntity frag join frag.group gr where frag.entityId= :USER_MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "MessageGroupEntity.findByGroupId", query = "SELECT c FROM MessageGroupEntity c where c.groupId=:GROUP_ID"),
-        @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole = :MSH_ROLE " +
+        @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole.role = :MSH_ROLE " +
                 "and c.fragmentCount <> c.receivedFragments and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) )"),
-        @NamedQuery(name = "MessageGroupEntity.findSendNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c, UserMessageLog msg join msg.userMessage um where c.mshRole = :MSH_ROLE " +
-                " and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) ) and c.sourceMessage.entityId = um.entityId and msg.messageStatus = :SOURCE_MSG_STATUS")
+        @NamedQuery(name = "MessageGroupEntity.findSendNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c, UserMessageLog msg join msg.userMessage um where c.mshRole.role = :MSH_ROLE " +
+                " and ( (c.rejected is null or c.rejected=false) or (c.expired is null or c.expired=false) ) and c.sourceMessage.entityId = um.entityId and msg.messageStatus.messageStatus = :SOURCE_MSG_STATUS")
 })
 public class MessageGroupEntity extends AbstractBaseEntity {
 
@@ -58,7 +59,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     @Column(name = "EXPIRED")
     protected Boolean expired;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 
@@ -150,7 +151,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     }
 
     public Boolean getRejected() {
-        return rejected;
+        return BooleanUtils.toBoolean(rejected);
     }
 
     public void setRejected(Boolean rejected) {
@@ -158,7 +159,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     }
 
     public Boolean getExpired() {
-        return expired;
+        return BooleanUtils.toBoolean(expired);
     }
 
     public void setExpired(Boolean expired) {

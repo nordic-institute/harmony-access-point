@@ -34,10 +34,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -87,8 +84,8 @@ import static org.awaitility.Awaitility.with;
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
                 DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class, DomibusTestMocksConfiguration.class})
-@DirtiesContext
-@Rollback
+//@DirtiesContext
+//@Rollback
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -110,8 +107,14 @@ public abstract class AbstractIT {
     @Autowired
     protected DomibusProxyService domibusProxyService;
 
+    private static boolean springContextInitialized = false;
+
     @BeforeClass
     public static void init() throws IOException {
+        if(springContextInitialized) {
+            return;
+        }
+
         deleteTransactionLock();
 
         FileUtils.deleteDirectory(new File("target/temp"));
@@ -130,6 +133,8 @@ public abstract class AbstractIT {
                         "test_user",
                         "test_password",
                         Collections.singleton(new SimpleGrantedAuthority(eu.domibus.api.security.AuthRole.ROLE_ADMIN.name()))));
+
+        springContextInitialized = true;
     }
 
     @Before
@@ -137,8 +142,8 @@ public abstract class AbstractIT {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }
 
-    @After
-    public void cleanTransactionsLog() {
+//    @AfterClass
+    public static void cleanTransactionsLog() {
         deleteTransactionLock();
     }
 

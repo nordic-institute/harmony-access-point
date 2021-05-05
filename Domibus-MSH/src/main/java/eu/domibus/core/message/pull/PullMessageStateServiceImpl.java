@@ -60,7 +60,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     public void expirePullMessage(final String messageId) {
         LOG.debug("Message:[{}] expired.", messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(messageId);
+        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessageLog.getEntityId());
         sendFailed(userMessageLog, messageId);
     }
 

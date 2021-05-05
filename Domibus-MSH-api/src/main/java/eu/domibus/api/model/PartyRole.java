@@ -18,7 +18,7 @@ import javax.persistence.*;
 @Table(name = "TB_D_ROLE")
 public class PartyRole extends AbstractBaseEntity {
 
-    @Column(name = "VALUE")
+    @Column(name = "ROLE")
     protected String value;
 
     public String getValue() {

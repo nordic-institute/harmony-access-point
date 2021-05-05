@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static eu.domibus.common.JMSConstants.ALERT_MESSAGE_QUEUE;
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
 
@@ -61,7 +62,7 @@ public class EventServiceImpl implements EventService {
 
     private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
 
-    private static final int MAX_DESCRIPTION_LENGTH = 255;
+    public static final int MAX_DESCRIPTION_LENGTH = 255;
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
@@ -85,7 +86,7 @@ public class EventServiceImpl implements EventService {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    @Qualifier("alertMessageQueue")
+    @Qualifier(ALERT_MESSAGE_QUEUE)
     private Queue alertMessageQueue;
 
     @Autowired
@@ -208,15 +209,15 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.joining(" "));
             
             if (StringUtils.isNotBlank(errors)) {
-                event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors.toString(), MAX_DESCRIPTION_LENGTH));
+                event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors, MAX_DESCRIPTION_LENGTH));
             }
 
             String receiverPartyName = null;
-            if (mpcService.forcePullOnMpc(userMessage.getMpc().getValue())) {
+            if (mpcService.forcePullOnMpc(userMessage.getMpcValue())) {
                 LOG.debug("Find UserMessage exchange context (pull context)");
                 userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 LOG.debug("Extract receiverPartyName from mpc");
-                receiverPartyName = mpcService.extractInitiator(userMessage.getMpc().getValue());
+                receiverPartyName = mpcService.extractInitiator(userMessage.getMpcValue());
             } else {
                 LOG.debug("Find UserMessage exchange context");
                 userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.valueOf(role));

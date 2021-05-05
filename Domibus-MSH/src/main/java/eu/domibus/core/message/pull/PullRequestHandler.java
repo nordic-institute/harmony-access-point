@@ -100,7 +100,7 @@ public class PullRequestHandler {
             leg = pullContext.filterLegOnMpc();
             try {
                 String initiatorPartyName = null;
-                final String mpc = userMessage.getMpc().getValue();
+                final String mpc = userMessage.getMpcValue();
                 if (pullContext.getInitiator() != null) {
                     LOG.debug("Get initiator from pull context");
                     initiatorPartyName = pullContext.getInitiator().getName();
@@ -164,6 +164,7 @@ public class PullRequestHandler {
                             .setAttemptStatus(attemptStatus)
                             .setAttemptError(attemptError)
                             .setStartDate(startDate).build();
+                    attempt.setUserMessageEntityId(userMessage.getEntityId());
                     messageAttemptService.create(attempt);
                 } catch (Exception e) {
                     LOG.error("Could not create the message attempt", e);

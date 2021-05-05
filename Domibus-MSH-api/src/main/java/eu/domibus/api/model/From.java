@@ -14,11 +14,11 @@ import javax.persistence.*;
 @Embeddable
 public class From {
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_PARTY_ID_FK")
     protected PartyId partyId;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_ROLE_ID_FK")
     protected PartyRole role;
 

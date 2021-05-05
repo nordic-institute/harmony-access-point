@@ -17,11 +17,11 @@ import javax.persistence.*;
 @Embeddable
 public class To {
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_PARTY_ID_FK")
     protected PartyId partyId;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_ROLE_ID_FK")
     protected PartyRole role;
 

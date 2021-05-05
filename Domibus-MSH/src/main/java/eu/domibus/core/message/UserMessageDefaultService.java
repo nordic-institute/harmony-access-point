@@ -17,9 +17,10 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.error.ErrorLogDao;
@@ -79,19 +80,19 @@ public class UserMessageDefaultService implements UserMessageService {
     static final String DOES_NOT_EXIST = "] does not exist";
 
     @Autowired
-    @Qualifier("sendMessageQueue")
+    @Qualifier(JMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
 
     @Autowired
-    @Qualifier("sendLargeMessageQueue")
+    @Qualifier(JMSConstants.SEND_LARGE_MESSAGE_QUEUE)
     private Queue sendLargeMessageQueue;
 
     @Autowired
-    @Qualifier("splitAndJoinQueue")
+    @Qualifier(JMSConstants.SPLIT_AND_JOIN_QUEUE)
     private Queue splitAndJoinQueue;
 
     @Autowired
-    @Qualifier("sendPullReceiptQueue")
+    @Qualifier(JMSConstants.SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
 
     @Autowired
@@ -149,7 +150,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private DomibusCoreMapper domibusCoreMapper;
+    private MessageCoreMapper messageCoreConverter;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -539,10 +540,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
         final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
-        if (userMessageByMessageId == null) {
-            return null;
-        }
-        return domibusCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
+        return messageCoreConverter.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Transactional
@@ -598,11 +596,11 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-
-        backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
-
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
         final UserMessage userMessage = signalMessage.getUserMessage();
+
+        backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
+
         partInfoDao.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
 
@@ -660,7 +658,8 @@ public class UserMessageDefaultService implements UserMessageService {
     public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
         auditService.addMessageDownloadedAudit(messageId);
-        return messageToBytes(userMessage);
+        final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        return messageToBytes(userMessage, partInfoList);
     }
 
     @Override
@@ -696,10 +695,9 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessage userMessage = getUserMessageById(messageId);
 
         Map<String, InputStream> result = new HashMap<>();
-        InputStream messageStream = messageToStream(userMessage);
-        result.put("message.xml", messageStream);
-
         final List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        InputStream messageStream = messageToStream(userMessage, partInfos);
+        result.put("message.xml", messageStream);
 
         if (CollectionUtils.isEmpty(partInfos)) {
             LOG.info("No payload info found for message with id [{}]", messageId);
@@ -736,12 +734,12 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessage;
     }
 
-    protected InputStream messageToStream(UserMessage userMessage) {
-        return new ByteArrayInputStream(messageToBytes(userMessage));
+    protected InputStream messageToStream(UserMessage userMessage, List<PartInfo> partInfoList) {
+        return new ByteArrayInputStream(messageToBytes(userMessage, partInfoList));
     }
 
-    protected byte[] messageToBytes(UserMessage userMessage) {
-        return messageConverterService.getAsByteArray(userMessage);
+    protected byte[] messageToBytes(UserMessage userMessage, List<PartInfo> partInfoList) {
+        return messageConverterService.getAsByteArray(userMessage, partInfoList);
     }
 
     protected String getPayloadName(PartInfo info) {

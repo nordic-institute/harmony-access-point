@@ -23,6 +23,7 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageRawEnvelopeDao.class);
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
+    public static final String MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
     public UserMessageRawEnvelopeDao() {
         super(UserMessageRaw.class);
@@ -50,11 +51,11 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
     /**
      * Delete all the raw entries related to a given UserMessage id.
      *
-     * @param messageId the id of the message.
+     * @param entityId the id of the message.
      */
-    public void deleteUserMessageRawEnvelope(final String messageId) {
+    public void deleteUserMessageRawEnvelope(final long entityId) {
         Query query = em.createNamedQuery("Raw.deleteByMessageID");
-        query.setParameter(MESSAGE_ID, messageId);
+        query.setParameter(MESSAGE_ENTITY_ID, entityId);
         query.executeUpdate();
     }
 

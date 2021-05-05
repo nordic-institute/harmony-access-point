@@ -1,26 +1,7 @@
 package eu.domibus.core.ebms3.receiver.token;
 
-import com.sun.xml.messaging.saaj.soap.impl.TextImpl;
-import eu.domibus.core.ebms3.receiver.MessageTestUtility;
-import eu.domibus.core.ebms3.receiver.interceptor.TrustSenderInterceptor;
-import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
-import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.dom.WSConstants;
-import org.apache.wss4j.dom.util.WSSecurityUtil;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Thomas Dussart

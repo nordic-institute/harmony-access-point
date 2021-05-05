@@ -6,6 +6,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
@@ -24,14 +25,17 @@ public class PartPropertyDao extends BasicDao<PartProperty> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public PartProperty findPropertyByName(final String value) {
-        final TypedQuery<PartProperty> query = this.em.createNamedQuery("PartProperty.findByName", PartProperty.class);
-        query.setParameter("NAME", value);
+    public PartProperty findPropertyByNameValueAndType(final String name, String value, String type) {
+        final TypedQuery<PartProperty> query = this.em.createNamedQuery("PartProperty.findByNameValueAndType", PartProperty.class);
+        query.setParameter("NAME", name);
+        query.setParameter("VALUE", value);
+        query.setParameter("TYPE", type);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    @Transactional
     public PartProperty findOrCreateProperty(final String name, String value, String type) {
-        PartProperty property = findPropertyByName(name);
+        PartProperty property = findPropertyByNameValueAndType(name, value, type);
         if (property != null) {
             return property;
         }

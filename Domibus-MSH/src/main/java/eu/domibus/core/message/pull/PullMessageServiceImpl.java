@@ -81,6 +81,10 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     protected MessageStatusDao messageStatusDao;
 
+    @Autowired
+    protected UserMessageDao userMessageDao;
+
+
     /**
      * {@inheritDoc}
      */
@@ -149,7 +153,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                         assert false;
                 }
                 backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
-                LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                LOG.businessInfo(userMessage.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
                 messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
 
@@ -193,7 +197,8 @@ public class PullMessageServiceImpl implements PullMessageService {
                         return messageId;
                     case RETRY:
                         LOG.debug("[PULL_REQUEST]:message:[{}] retry pull attempt.", pullMessageId.getMessageId());
-                        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(messageId);
+                        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+                        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
                         return messageId;
                 }
             }
@@ -231,7 +236,7 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     private MessagingLock prepareMessagingLock(UserMessage userMessage, String partyIdentifier, String pModeKey, UserMessageLog messageLog) {
         final String messageId = userMessage.getMessageId();
-        final String mpc = userMessage.getMpc().getValue();
+        final String mpc = userMessage.getMpcValue();
         LOG.trace("Saving message lock with partyID:[{}], mpc:[{}]", partyIdentifier, mpc);
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
         final Date staledDate = updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);

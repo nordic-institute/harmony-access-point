@@ -24,7 +24,7 @@ import java.util.Set;
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "PartInfo.findPartInfos", query = "select pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "PartInfo.findPartInfos", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
         @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
@@ -34,7 +34,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_MESSAGE_ID_FK")
     protected UserMessage userMessage;
 

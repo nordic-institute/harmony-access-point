@@ -123,6 +123,7 @@ public class PullMessageSender {
         String messageId = null;
         String mpcName = null;
         UserMessage userMessage = null;
+        List<PartInfo> partInfos = null;
 
         try {
             final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
@@ -153,7 +154,7 @@ public class PullMessageSender {
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
 
-            List<PartInfo> partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging);
+            partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging);
             handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;
@@ -171,7 +172,7 @@ public class PullMessageSender {
         } catch (final EbMS3Exception e) {
             try {
                 if (notifyBusinessOnError && userMessage != null) {
-                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);

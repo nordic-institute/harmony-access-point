@@ -6,7 +6,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.user.UserService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -45,7 +45,7 @@ public class UserResourceTest {
     private UserService userManagementService;
 
     @Injectable
-    DomibusCoreMapper coreMapper;
+    AuthCoreMapper authCoreMapper;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -89,7 +89,7 @@ public class UserResourceTest {
             userManagementService.findUsers();
             result = userList;
 
-            coreMapper.userListToUserResponseROList(userList);
+            authCoreMapper.userListToUserResponseROList(userList);
             result = userResponseROList;
         }};
 

@@ -1,6 +1,5 @@
 package eu.domibus.core.message.signal;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 
 /**

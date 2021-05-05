@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -48,6 +49,9 @@ public class MessagingServiceImpl implements MessagingService {
     protected static Long BYTES_IN_MB = 1048576L;
 
     @Autowired
+    PartInfoDao partInfoDao;
+
+    @Autowired
     protected UserMessageDao userMessageDao;
 
     @Autowired
@@ -88,6 +92,10 @@ public class MessagingServiceImpl implements MessagingService {
             return;
         }
 
+
+        final Boolean testMessage = checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+        userMessage.setTestMessage(testMessage);
+
         if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
@@ -111,6 +119,11 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("Saving Messaging");
         setPayloadsContentType(partInfoList);
+        partInfoList.stream().forEach(partInfo -> {
+            partInfo.setUserMessage(userMessage);
+            partInfoDao.create(partInfo);
+        });
+
         userMessageDao.create(userMessage);
     }
 
@@ -237,5 +250,18 @@ public class MessagingServiceImpl implements MessagingService {
         }
 
         return false;
+    }
+
+    /**
+     * Checks <code>service</code> and <code>action</code> to determine if it's a TEST message
+     *
+     * @param service Service
+     * @param action  Action
+     * @return True, if it's a test message and false otherwise
+     */
+    protected Boolean checkTestMessage(final String service, final String action) {
+        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(service)
+                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(action);
+
     }
 }

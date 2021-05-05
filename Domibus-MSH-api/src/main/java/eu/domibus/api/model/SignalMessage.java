@@ -28,7 +28,7 @@ import java.util.Date;
 })
 public class SignalMessage extends AbstractNoGeneratedPkEntity {
 
-    @Column(name = "MESSAGE_ID", nullable = false, unique = true, updatable = false)
+    @Column(name = "SIGNAL_MESSAGE_ID", nullable = false, unique = true, updatable = false)
     @NotNull
     protected String signalMessageId;
 

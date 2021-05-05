@@ -1,6 +1,5 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
@@ -60,9 +59,8 @@ public class UIMessageDiffEntity {
     @Column(name = "MESSAGE_TYPE")
     private MessageType messageType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MESSAGE_SUBTYPE")
-    private MessageSubtype messageSubtype;
+    @Column(name = "TEST_MESSAGE")
+    private Boolean testMessage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
@@ -130,12 +128,12 @@ public class UIMessageDiffEntity {
         this.notificationStatus = notificationStatus;
     }
 
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
     }
 
     public void setMshRole(MSHRole mshRole) {
@@ -211,10 +209,6 @@ public class UIMessageDiffEntity {
 
     public MessageType getMessageType() {
         return messageType;
-    }
-
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
     }
 
     public MSHRole getMshRole() {
@@ -312,7 +306,6 @@ public class UIMessageDiffEntity {
                 .append(messageStatus, that.messageStatus)
                 .append(notificationStatus, that.notificationStatus)
                 .append(messageType, that.messageType)
-                .append(messageSubtype, that.messageSubtype)
                 .append(mshRole, that.mshRole)
                 .append(conversationId, that.conversationId)
                 .append(deleted, that.deleted)
@@ -335,7 +328,6 @@ public class UIMessageDiffEntity {
                 .append(messageStatus)
                 .append(notificationStatus)
                 .append(messageType)
-                .append(messageSubtype)
                 .append(mshRole)
                 .append(conversationId)
                 .append(deleted)

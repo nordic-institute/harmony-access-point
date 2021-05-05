@@ -52,7 +52,7 @@ public class MessageLogResource extends BaseResource {
     private static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
     private static final String PROPERTY_MESSAGE_ID = "messageId";
     private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
-    private static final String PROPERTY_MESSAGE_SUBTYPE = "messageSubtype";
+    private static final String PROPERTY_TEST_MESSAGE = "testMessage";
     private static final String PROPERTY_MESSAGE_TYPE = "messageType";
     private static final String PROPERTY_MSH_ROLE = "mshRole";
     private static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
@@ -119,7 +119,7 @@ public class MessageLogResource extends BaseResource {
         }
         filters.put(PROPERTY_RECEIVED_FROM, from);
         filters.put(PROPERTY_RECEIVED_TO, to);
-        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
+        //filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         LOG.debug("using filters [{}]", filters);
 
@@ -231,7 +231,7 @@ public class MessageLogResource extends BaseResource {
         filters.put(PROPERTY_REF_TO_MESSAGE_ID, request.getRefToMessageId());
         filters.put(PROPERTY_ORIGINAL_SENDER, request.getOriginalSender());
         filters.put(PROPERTY_FINAL_RECIPIENT, request.getFinalRecipient());
-        filters.put(PROPERTY_MESSAGE_SUBTYPE, request.getMessageSubtype());
+        filters.put(PROPERTY_TEST_MESSAGE, request.getTestMessage());
         filters.put(MESSAGE_ACTION, request.getAction());
         filters.put(MESSAGE_SERVICE_TYPE, request.getServiceType());
         filters.put(MESSAGE_SERVICE_VALUE, request.getServiceValue());

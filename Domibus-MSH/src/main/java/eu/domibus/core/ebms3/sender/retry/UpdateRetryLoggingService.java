@@ -48,6 +48,9 @@ public class UpdateRetryLoggingService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
+    protected UserMessageDao userMessageDao;
+
+    @Autowired
     private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
@@ -166,7 +169,7 @@ public class UpdateRetryLoggingService {
         LOG.debug("Scheduled flag for message [{}] has been reset to false", userMessage);
 
         userMessageLogDao.update(userMessageLog);
-        if (hasAttemptsLeft(userMessageLog, legConfiguration) && !userMessageLog.isTestMessage()) {
+        if (hasAttemptsLeft(userMessageLog, legConfiguration) && !userMessage.isTestMessage()) {
             updateNextAttemptAndNotify(userMessage, legConfiguration, messageStatus, userMessageLog);
         } else { // max retries reached, mark message as ultimately failed (the message may be pushed back to the send queue by an administrator but this send completely failed)
             setMessageFailed(userMessage, userMessageLog);
@@ -174,6 +177,7 @@ public class UpdateRetryLoggingService {
         uiReplicationSignalService.messageChange(userMessage.getMessageId());
 
         if (messageAttempt != null) {
+            messageAttempt.setUserMessageEntityId(userMessage.getEntityId());
             messageAttemptService.createAndUpdateEndDate(messageAttempt);
         }
     }
@@ -183,14 +187,14 @@ public class UpdateRetryLoggingService {
         LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageId());
 
         messageFailed(userMessage, userMessageLog);
-        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getMessageId());
+        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
     }
 
     public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {
         LOG.debug("Marking message [{}] as failed", userMessage.getMessageId());
 
         NotificationStatusEntity notificationStatus = userMessageLog.getNotificationStatus();
-        boolean isTestMessage = userMessageLog.isTestMessage();
+        boolean isTestMessage = userMessage.isTestMessage();
 
         LOG.businessError(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_FAILURE : DomibusMessageCode.BUS_MESSAGE_SEND_FAILURE,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
@@ -216,7 +220,7 @@ public class UpdateRetryLoggingService {
 
     public void saveAndNotify(UserMessage userMessage, MessageStatus messageStatus, UserMessageLog userMessageLog) {
         backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, messageStatus, new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(messageStatusDao.findMessageStatus(messageStatus));
+        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
         LOG.debug("Updating status to [{}]", userMessageLog.getMessageStatus());
         userMessageLogDao.update(userMessageLog);
 

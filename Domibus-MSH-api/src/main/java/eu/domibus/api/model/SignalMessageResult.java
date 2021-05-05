@@ -10,6 +10,8 @@ public class SignalMessageResult {
 
     protected SignalMessage signalMessage;
     protected SignalMessageError signalMessageError;
+    protected ReceiptEntity receiptEntity;
+    protected PullRequest pullRequest;
 
     public SignalMessage getSignalMessage() {
         return signalMessage;
@@ -25,5 +27,21 @@ public class SignalMessageResult {
 
     public void setSignalMessageError(SignalMessageError signalMessageError) {
         this.signalMessageError = signalMessageError;
+    }
+
+    public ReceiptEntity getReceiptEntity() {
+        return receiptEntity;
+    }
+
+    public void setReceiptEntity(ReceiptEntity receiptEntity) {
+        this.receiptEntity = receiptEntity;
+    }
+
+    public PullRequest getPullRequest() {
+        return pullRequest;
+    }
+
+    public void setPullRequest(PullRequest pullRequest) {
+        this.pullRequest = pullRequest;
     }
 }

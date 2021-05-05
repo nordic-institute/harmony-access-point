@@ -20,4 +20,6 @@ public final class DomibusStringUtil {
     public static boolean isTrimmedStringLengthLongerThanDefaultMaxLength(String testString){
         return isStringLengthLongerThanDefaultMaxLength(trim(testString));
     }
+
+
 }

@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Party {
 
-    protected Integer entityId;
+    protected Long entityId;
 
     protected List<Identifier> identifiers; //NOSONAR
 
@@ -25,11 +25,11 @@ public class Party {
 
     protected String endpoint;
 
-    public Integer getEntityId() {
+    public Long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(Integer entityId) {
+    public void setEntityId(Long entityId) {
         this.entityId = entityId;
     }
 

@@ -70,11 +70,9 @@ public class MessageSenderService {
             return;
         }
 
-
-        final UserMessage userMessage = userMessageDao.read(userMessageLog.getEntityId());
+        final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
-
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
