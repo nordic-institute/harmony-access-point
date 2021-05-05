@@ -2,15 +2,14 @@ package eu.domibus.core.csv;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.csv.serializer.*;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -124,8 +123,8 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Conversation Id,Message Type,Message Subtype,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored"));
-        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
+        Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Conversation Id,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
+        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
     private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
@@ -229,7 +228,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        String timeOffset = ZonedDateTime.now().getOffset().toString().replace(":", "");
+        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).getOffset().toString().replace(":", "");
         Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
@@ -247,7 +246,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        String timeOffset = ZonedDateTime.now().getOffset().toString().replace(":", "");
+        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).getOffset().toString().replace(":", "");
         Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {

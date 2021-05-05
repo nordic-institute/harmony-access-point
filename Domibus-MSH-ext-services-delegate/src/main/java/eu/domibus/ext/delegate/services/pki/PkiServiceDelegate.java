@@ -18,7 +18,7 @@ import java.util.List;
 public class PkiServiceDelegate implements PkiExtService {
 
     @Autowired
-    private CertificateService certificateService;
+    protected CertificateService certificateService;
 
     /**
      * {@inheritDoc}

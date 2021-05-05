@@ -11,8 +11,9 @@ import org.junit.runner.RunWith;
 
 import java.util.Map;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class DomibusEbms3PropertyExtServiceDelegateAbstractTest extends TestCase {
+public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
 
     @Tested
     protected DomibusPropertyExtServiceDelegateAbstract domibusPropertyExtServiceDelegateAbstract;
@@ -120,6 +121,62 @@ public class DomibusEbms3PropertyExtServiceDelegateAbstractTest extends TestCase
     }
 
     @Test
+    public void getKnownBooleanPropertyValue_local(@Mocked String propertyName,
+                                                   @Mocked Map<String, DomibusPropertyMetadataDTO> props,
+                                                   @Mocked DomibusPropertyMetadataDTO propMeta) {
+        boolean propValue = true;
+
+        new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
+            domibusPropertyExtServiceDelegateAbstract.hasKnownProperty(propertyName);
+            result = true;
+
+            domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
+            result = props;
+
+            props.get(propertyName);
+            result = propMeta;
+
+            propMeta.isStoredGlobally();
+            result = false;
+
+            domibusPropertyExtServiceDelegateAbstract.onGetLocalBooleanPropertyValue(propertyName, propMeta);
+            result = propValue;
+        }};
+
+        boolean result = domibusPropertyExtServiceDelegateAbstract.getKnownBooleanPropertyValue(propertyName);
+
+        Assert.assertEquals(propValue, result);
+    }
+
+    @Test
+    public void getKnownBooleanPropertyValue_global(@Mocked String propertyName,
+                                                   @Mocked Map<String, DomibusPropertyMetadataDTO> props,
+                                                   @Mocked DomibusPropertyMetadataDTO propMeta) {
+        boolean propValue = true;
+
+        new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
+            domibusPropertyExtServiceDelegateAbstract.hasKnownProperty(propertyName);
+            result = true;
+
+            domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
+            result = props;
+
+            props.get(propertyName);
+            result = propMeta;
+
+            propMeta.isStoredGlobally();
+            result = true;
+
+            domibusPropertyExtService.getBooleanProperty(propertyName);
+            result = propValue;
+        }};
+
+        boolean result = domibusPropertyExtServiceDelegateAbstract.getKnownBooleanPropertyValue(propertyName);
+
+        Assert.assertEquals(propValue, result);
+    }
+
+    @Test
     public void setKnownPropertyValue_global(@Mocked Map<String, DomibusPropertyMetadataDTO> props,
                                              @Mocked DomibusPropertyMetadataDTO propMeta,
                                              @Mocked DomainDTO domain) {
@@ -173,8 +230,6 @@ public class DomibusEbms3PropertyExtServiceDelegateAbstractTest extends TestCase
         new Verifications() {{
             domibusPropertyExtServiceDelegateAbstract.onSetLocalPropertyValue(domainCode, propertyName, propertyValue, broadcast);
             domainExtService.getDomain(domainCode);
-            times = 0;
-            domibusPropertyExtService.setDomainProperty((DomainDTO) any, propertyName, propertyValue);
             times = 0;
         }};
     }
@@ -280,4 +335,31 @@ public class DomibusEbms3PropertyExtServiceDelegateAbstractTest extends TestCase
 
         Assert.assertEquals(propValue, result);
     }
+
+    @Test
+    public void onGetLocalPropertyValue_domain() {
+        String result = domibusPropertyExtServiceDelegateAbstract.onGetLocalPropertyValue("domain", "property");
+        assertNull(result);
+    }
+
+    @Test
+    public void onGetLocalIntegerPropertyValue(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        String property = "";
+        Integer integer = domibusPropertyExtServiceDelegateAbstract.onGetLocalIntegerPropertyValue(property, propMeta);
+        assertEquals(Integer.valueOf(0),integer);
+    }
+
+    @Test
+    public void onGetLocalBooleanPropertyValue(@Mocked DomibusPropertyMetadataDTO propMeta) {
+        String property = "";
+        boolean b = domibusPropertyExtServiceDelegateAbstract.onGetLocalBooleanPropertyValue(property, propMeta);
+        assertFalse(b);
+    }
+
+    @Test
+    public void onGetLocalPropertyValue() {
+        String result = domibusPropertyExtServiceDelegateAbstract.onGetLocalPropertyValue("property");
+        assertNull(result);
+    }
+
 }

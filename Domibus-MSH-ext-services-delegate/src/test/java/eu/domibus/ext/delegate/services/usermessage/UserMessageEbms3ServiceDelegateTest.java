@@ -1,9 +1,9 @@
 package eu.domibus.ext.delegate.services.usermessage;
 
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.*;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.UserMessageExtException;
@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 
 @RunWith(JMockit.class)
-public class Ebms3UserMessageEbms3ServiceDelegateTest {
+public class UserMessageEbms3ServiceDelegateTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
     @Tested
@@ -26,7 +26,7 @@ public class Ebms3UserMessageEbms3ServiceDelegateTest {
     UserMessageService userMessageService;
 
     @Injectable
-    DomainExtConverter domainConverter;
+    DomibusExtMapper domibusExtMapper;
 
     @Injectable
     UserMessageSecurityService userMessageSecurityService;
@@ -69,7 +69,7 @@ public class Ebms3UserMessageEbms3ServiceDelegateTest {
         // Then
         new Verifications() {{
             userMessageService.getMessage(messageId);
-            domainConverter.convert(userMessage, UserMessageDTO.class);
+            domibusExtMapper.userMessageToUserMessageDTO(userMessage);
         }};
     }
 

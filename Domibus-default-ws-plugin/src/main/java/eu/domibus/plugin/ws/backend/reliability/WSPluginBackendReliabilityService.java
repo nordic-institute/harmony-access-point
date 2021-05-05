@@ -1,6 +1,9 @@
 package eu.domibus.plugin.ws.backend.reliability;
 
+import eu.domibus.ext.domain.AlertEventDTOBuilder;
+import eu.domibus.ext.domain.AlertLevelDTO;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.PluginEventExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
@@ -10,13 +13,18 @@ import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategy;
 import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyProvider;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.exception.WSPluginException;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import static eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyConstant.MULTIPLIER_MINUTES_TO_MILLIS;
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
 
 /**
  * @author Cosmin Baciu
@@ -33,12 +41,20 @@ public class WSPluginBackendReliabilityService {
 
     protected final WSPluginRetryStrategyProvider wsPluginRetryStrategyProvider;
 
+    private final PluginEventExtService pluginEventExtService;
+
+    private final WSPluginPropertyManager wsPluginPropertyManager;
+
     public WSPluginBackendReliabilityService(WSBackendMessageLogDao wsBackendMessageLogDao,
                                              DomibusPropertyExtService domibusPropertyProvider,
-                                             WSPluginRetryStrategyProvider wsPluginRetryStrategyProvider) {
+                                             WSPluginRetryStrategyProvider wsPluginRetryStrategyProvider,
+                                             PluginEventExtService pluginEventExtService,
+                                             WSPluginPropertyManager wsPluginPropertyManager) {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.wsPluginRetryStrategyProvider = wsPluginRetryStrategyProvider;
+        this.pluginEventExtService = pluginEventExtService;
+        this.wsPluginPropertyManager = wsPluginPropertyManager;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -52,6 +68,7 @@ public class WSPluginBackendReliabilityService {
             setWaitingForRetry(backendMessage, rule);
         } else {
             setFailed(backendMessage);
+            createEventForAlert(backendMessage, rule);
         }
         wsBackendMessageLogDao.update(backendMessage);
     }
@@ -64,10 +81,40 @@ public class WSPluginBackendReliabilityService {
         backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SEND_FAILURE);
     }
 
+    protected void createEventForAlert(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule) {
+
+        boolean alertIsActive = BooleanUtils.isTrue(wsPluginPropertyManager.getKnownBooleanPropertyValue(PUSH_ALERT_ACTIVE));
+        LOG.debug("[WSPLUGIN] Alert is enabled: [{}]", alertIsActive);
+        if(alertIsActive) {
+            String alertLevel = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_LEVEL);
+            String subject = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_SUBJECT);
+            String body = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_BODY);
+            pluginEventExtService.enqueueMessageEvent(AlertEventDTOBuilder.getInstance()
+                    .alertLevelDTO(AlertLevelDTO.valueOf(alertLevel))
+                    .emailBody(getEmailBody(backendMessage, rule, body))
+                    .emailSubject(subject)
+                    .build());
+        }
+    }
+
+    protected String getEmailBody(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule, String body) {
+        HashMap<String, String> emailBodyVariables = new HashMap<>();
+        emailBodyVariables.put("rule.name", rule.getRuleName());
+        emailBodyVariables.put("rule.recipient", rule.getRecipient());
+        emailBodyVariables.put("rule.endpoint", rule.getEndpoint());
+        emailBodyVariables.put("rule.retry", rule.getRetry());
+        emailBodyVariables.put("rule.types", rule.getTypes().toString());
+        emailBodyVariables.put("message.messageId", backendMessage.getMessageId());
+        emailBodyVariables.put("message.originalSender", backendMessage.getOriginalSender());
+        emailBodyVariables.put("message.messageStatus", backendMessage.getMessageStatus().name());
+        emailBodyVariables.put("message.type", backendMessage.getType().name());
+        return StringSubstitutor.replace(body, emailBodyVariables, "{", "}");
+    }
+
     /**
      * Check if the message can be send again: there is time and attempts left
      *
-     * @param backendMessage the message to check
+     * @param backendMessage       the message to check
      * @param retryTimeoutInMinute from {@link WSPluginDispatchRule}
      * @return {@code true} if the message can be send again
      */

@@ -277,6 +277,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL = "domibus.entityManagerFactory.jpaProperty.hibernate.format_sql";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_FACTORY_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_JTA_PLATFORM = "domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform";
+    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_JDBC_FETCH = "domibus.entityManagerFactory.jpaProperty.hibernate.jdbc.fetch_size";
     String DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.password.encryption.active"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR

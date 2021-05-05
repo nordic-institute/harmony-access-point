@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
-import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
@@ -385,7 +385,7 @@ public class AlertResourceTest {
         }};
 
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(13, alertTypesAsStrings.size());
+        assertEquals(14, alertTypesAsStrings.size());
         assertTrue(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 
@@ -397,7 +397,7 @@ public class AlertResourceTest {
         }};
 
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(8, alertTypesAsStrings.size());
+        assertEquals(9, alertTypesAsStrings.size());
         assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 
