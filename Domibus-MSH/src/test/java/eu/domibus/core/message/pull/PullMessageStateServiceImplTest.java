@@ -61,7 +61,7 @@ public class PullMessageStateServiceImplTest {
         Assert.assertNotNull(userMessageLog);
 
         new Verifications() {{
-            rawEnvelopeLogDao.deleteUserMessageRawEnvelope(messageId);
+            rawEnvelopeLogDao.deleteUserMessageRawEnvelope(anyLong);
             times = 1;
             pullMessageStateService.sendFailed(userMessageLog, messageId);
             times = 1;

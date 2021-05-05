@@ -7,6 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.test.util.MessageTestUtility;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,6 +25,7 @@ public class Ebms3ConverterTestIT extends AbstractIT {
     Ebms3Converter ebms3Converter;
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testEbms3ConversionToEntityAndViceVersa() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();

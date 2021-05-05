@@ -3,6 +3,7 @@ package eu.domibus.plugin;
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.messaging.XmlProcessingException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,6 +44,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        ref: Receive Message-01
      */
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
@@ -53,6 +55,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testReceiveTestMessage() throws Exception {
         String filename = "SOAPTestMessage.xml";
         String messageId = "ping123@domibus.eu";

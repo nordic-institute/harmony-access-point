@@ -32,6 +32,7 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.Holder;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -39,7 +40,7 @@ import java.util.HashMap;
 @Rollback
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
-   /* @Autowired
+    @Autowired
     JMSManager jmsManager;
 
     @Autowired
@@ -120,20 +121,27 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         final String sanitizedMessageId = StringUtils.trim(messageId).replace("\t", "");
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setBinaryData(messagePayload.getBytes());
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
-        userMessage.getMessageInfo().setMessageId(sanitizedMessageId);
+        userMessage.setMessageId(sanitizedMessageId);
         eu.domibus.api.model.Messaging messaging = new eu.domibus.api.model.Messaging();
         messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
+        ArrayList<PartInfo> partInfoList = new ArrayList<>();
+        PartInfo e = new PartInfo();
+        e.setBinaryData(messagePayload.getBytes());
+        e.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
+        partInfoList.add(e);
+        messagingService.storeMessage(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
-        userMessageLog.setMessageId(sanitizedMessageId);
-        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
-        userMessageLog.setMshRole(MSHRole.RECEIVING);
+        MessageStatusEntity messageStatus = new MessageStatusEntity();
+        messageStatus.setMessageStatus(MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(messageStatus);
+//        userMessageLog.setMessageId(sanitizedMessageId);
+//        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
+        MSHRoleEntity mshRole = new MSHRoleEntity();
+        mshRole.setRole(MSHRole.RECEIVING);
+        userMessageLog.setMshRole(mshRole);
         userMessageLog.setReceived(new Date());
-        userMessageLogService.save(sanitizedMessageId,
+        userMessageLogService.save(userMessage,
                 eu.domibus.common.MessageStatus.RECEIVED.name(),
                 NotificationStatus.REQUIRED.name(),
                 MshRole.RECEIVING.name(),
@@ -171,5 +179,5 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         RetrieveMessageRequest retrieveMessageRequest = new RetrieveMessageRequest();
         retrieveMessageRequest.setMessageID(messageId);
         return retrieveMessageRequest;
-    }*/
+    }
 }

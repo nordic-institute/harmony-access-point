@@ -204,7 +204,7 @@ public class PullMessageEbms3ServiceImplTest {
         assertEquals(messageId, returnedMessageId);
 
         new Verifications() {{
-            rawEnvelopeLogDao.deleteUserMessageRawEnvelope(messageId);
+            rawEnvelopeLogDao.deleteUserMessageRawEnvelope(id);
             times = 1;
         }};
 
