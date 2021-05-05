@@ -638,7 +638,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findPropertyByName(ebms3Property.getName());
+                final PartProperty property = partPropertyDao.findPropertyByNameValueAndType(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
                 if(property != null) {
                     partProperties.add(property);
                 }
