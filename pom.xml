@@ -146,7 +146,9 @@
         <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <commons-text.version>1.8</commons-text.version>
 
+        <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
@@ -207,6 +209,10 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>SmartBearDependencyRepository</id>
+            <url>https://www.soapui.org/repository/maven2</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -261,6 +267,13 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <!-- This dependency picks up commons-test's calls to Log4J and redirects them to SLF4J -->
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -507,7 +520,6 @@
                 <artifactId>jsr181-api</artifactId>
                 <version>${jsr181-api.version}</version>
             </dependency>
-
 
             <!-- ActiveMQ -->
             <dependency>
@@ -914,7 +926,7 @@
             </dependency>
             <!-- End Miscellaneous -->
 
-            <!-- IAM dependencies -->
+            <!-- UUM&DS dependencies -->
             <dependency>
                 <groupId>eu.europa.ec.joinup.sd-dss</groupId>
                 <artifactId>dss-document</artifactId>
@@ -1001,7 +1013,7 @@
                 <artifactId>dss-spi</artifactId>
                 <version>${dss.version}</version>
             </dependency>
-            <!--UUMDS extension -->
+            <!-- End UUMDS extension -->
 
             <dependency>
                 <groupId>com.nimbusds</groupId>
@@ -1071,6 +1083,14 @@
                     <exclusion>
                         <groupId>commons-beanutils</groupId>
                         <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                 </exclusions>
                 <scope>test</scope>

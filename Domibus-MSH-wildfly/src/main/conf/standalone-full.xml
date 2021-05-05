@@ -214,7 +214,7 @@
                         3306
                     </xa-datasource-property>
                     <xa-datasource-property name="DatabaseName">
-                        domibus?autoReconnect=true&amp;useSSL=false
+                        domibus?autoReconnect=true&amp;useSSL=false&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC
                     </xa-datasource-property>
                     <driver>com.mysql</driver>
                     <xa-pool>

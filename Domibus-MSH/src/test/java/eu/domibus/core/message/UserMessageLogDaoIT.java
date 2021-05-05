@@ -10,9 +10,7 @@ import eu.domibus.core.util.UtilConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*
 import java.util.stream.Collectors;
 
 import static java.util.UUID.randomUUID;
@@ -44,7 +39,11 @@ import static org.hamcrest.CoreMatchers.hasItems;
 public class UserMessageLogDaoIT {
 
     /*private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
+
+    public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
+
     public static final String MPC = "mpc";
+
     public static final String BACKEND = "backend";
 
     @Autowired
@@ -71,8 +70,15 @@ public class UserMessageLogDaoIT {
     private final String receivedWithProperties = randomUUID().toString();
     private final String downloadedNoProperties = randomUUID().toString();
     private final String downloadedWithProperties = randomUUID().toString();
+    private final String waitingForRetryNoProperties = randomUUID().toString();
+    private final String waitingForRetryWithProperties = randomUUID().toString();
     private final String sendFailureNoProperties = randomUUID().toString();
     private final String sendFailureWithProperties = randomUUID().toString();
+
+    @BeforeClass
+    public static void setTimezone() {
+        TimeZone.setDefault(TimeZone.getTimeZone(TIMEZONE_ID_AMERICA_LOS_ANGELES));
+    }
 
     @Before
     public void setUp() {
@@ -83,9 +89,15 @@ public class UserMessageLogDaoIT {
         createEntities(MessageStatus.DELETED, deletedNoProperties, deletedWithProperties);
         createEntities(MessageStatus.RECEIVED, receivedNoProperties, receivedWithProperties);
         createEntities(MessageStatus.DOWNLOADED, downloadedNoProperties, downloadedWithProperties);
+        createEntities(MessageStatus.WAITING_FOR_RETRY, waitingForRetryNoProperties, waitingForRetryWithProperties);
         createEntities(MessageStatus.SEND_FAILURE, sendFailureNoProperties, sendFailureWithProperties);
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+    }
+
+    @AfterClass
+    public static void resetTimezone() {
+        TimeZone.setDefault(null);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -186,6 +198,33 @@ public class UserMessageLogDaoIT {
         Assert.assertEquals(2, getProperties(deletedUserMessagesOlderThan, deletedWithProperties).size());
     }
 
+    @Test
+    public void getDeletedUserMessagesOlderThan_notFound() {
+        List<UserMessageLogDto> deletedUserMessagesOlderThan =
+                userMessageLogDao.getDeletedUserMessagesOlderThan(before, MPC, 10);
+        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
+    }
+
+    @Test
+    public void currentAndFutureDateTimesSavedInUtcIrrespectiveOfApplicationTimezone() {
+        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(waitingForRetryNoProperties);
+        Assert.assertNotNull("Should have found a retry message", retryMessage);
+
+        final Date now = dateUtil.getUtcDate();
+        Assert.assertTrue("Should have saved the received date in UTC, irrespective of the application timezone " +
+                        "(difference to UTC current date time less than 10 minutes)",
+                dateUtil.getDiffMinutesBetweenDates(now, retryMessage.getReceived()) < 10);
+        Assert.assertTrue("Should have saved the next attempt date in UTC, irrespective of the application " +
+                        "timezone (difference to UTC current date time less than 10 minutes)",
+                dateUtil.getDiffMinutesBetweenDates(now, retryMessage.getNextAttempt()) < 10);
+        Assert.assertNotNull("Should have correctly saved the next attempt timezone offset considering the server timezone",
+                retryMessage.getTimezoneOffset());
+        Assert.assertEquals("Should have correctly saved the next attempt timezone ID considering the server timezone",
+                "America/Los_Angeles", retryMessage.getTimezoneOffset().getNextAttemptTimezoneId());
+        Assert.assertTrue("Should have correctly saved the next attempt timezone offset in seconds considering the server timezone",
+                retryMessage.getTimezoneOffset().getNextAttemptOffsetSeconds() != 0);
+    }
+
     private Map<String, String> getProperties(List<UserMessageLogDto> deletedUserMessagesOlderThan, String deletedWithProperties) {
         return deletedUserMessagesOlderThan.stream()
                 .filter(userMessageLogDto -> equalsAnyIgnoreCase(userMessageLogDto.getMessageId(), deletedWithProperties))
@@ -245,14 +284,21 @@ public class UserMessageLogDaoIT {
         userMessageLog.setMessageId(msgId);
         userMessageLog.setMessageStatus(messageStatus);
         userMessageLog.setMpc(UserMessageLogDaoIT.MPC);
-        if (messageStatus == MessageStatus.DELETED) {
-            userMessageLog.setDeleted(date);
-        }
-        if (messageStatus == MessageStatus.RECEIVED) {
-            userMessageLog.setReceived(date);
-        }
-        if (messageStatus == MessageStatus.DOWNLOADED) {
-            userMessageLog.setDownloaded(date);
+        switch (messageStatus) {
+            case DELETED:
+                userMessageLog.setDeleted(date);
+                break;
+            case RECEIVED:
+                userMessageLog.setReceived(date);
+                break;
+            case DOWNLOADED:
+                userMessageLog.setDownloaded(date);
+                break;
+            case WAITING_FOR_RETRY:
+                Date now = dateUtil.getUtcDate();
+                Date nextAttempt_FiveMinutesLater = new Date(now.getTime() + (5 * 60 * 1000));
+                reprogrammableService.setRescheduleInfo(userMessageLog, nextAttempt_FiveMinutesLater);
+                break;
         }
         userMessageLog.setBackend(UserMessageLogDaoIT.BACKEND);
 

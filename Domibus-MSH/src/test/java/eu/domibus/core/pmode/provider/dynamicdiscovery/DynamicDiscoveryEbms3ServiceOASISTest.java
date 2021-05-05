@@ -469,9 +469,8 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         Assert.assertNull(defaultProxy);
     }
 
-    // This is not a unit tests but the code is useful to test real SMP entries.
-    @Test
-    @Ignore
+//    @Test
+    @Ignore("This is not a unit tests but the code is useful to test real SMP entries")
     public void testLookupInformation() throws Exception {
         new NonStrictExpectations() {{
             domibusProxyService.isProxyUserSet();
