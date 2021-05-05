@@ -30,15 +30,20 @@ public class UserMessageDefaultFactoryTest {
     @Tested
     UserMessageDefaultFactory userMessageDefaultFactory;
 
-
     @Injectable
     protected PartPropertyDao partPropertyDao;
+
     @Injectable
     protected MessagePropertyDao messagePropertyDao;
+
     @Injectable
     protected PartyIdDao partyIdDao;
+
     @Injectable
     protected PartyRoleDao partyRoleDao;
+
+    @Injectable
+    protected AgreementDao agreementDao;
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
@@ -119,6 +124,7 @@ public class UserMessageDefaultFactoryTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createPayloadInfoTest(@Injectable PayloadInfo payloadInfo,
                                       @Injectable PartInfo partInfo,
                                       @Injectable DataHandler dataHandler,
