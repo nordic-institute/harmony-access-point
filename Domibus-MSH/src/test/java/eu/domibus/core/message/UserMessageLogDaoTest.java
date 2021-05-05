@@ -3,6 +3,8 @@ package eu.domibus.core.message;
 import mockit.integration.junit4.JMockit;
 import org.junit.runner.RunWith;
 
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.scheduler.ReprogrammableService;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -18,6 +20,12 @@ public class UserMessageLogDaoTest {
 
     @Injectable
     private EntityManager em;
+
+    @Injectable
+    private DateUtil dateUtil;
+
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     @Test
     public void testFindRetryMessages(@Injectable TypedQuery<String> query, @Injectable List<String> retryMessages) {

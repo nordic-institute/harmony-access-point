@@ -2,6 +2,11 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.core.property.PropertyConfig;
+import eu.domibus.core.scheduler.ReprogrammableService;
+import eu.domibus.core.scheduler.SchedulerConfig;
+import eu.domibus.core.time.TimeConfig;
+import eu.domibus.core.time.TimezoneOffsetService;
+import eu.domibus.core.util.UtilConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  * @since 5.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, MessageConfig.class, PropertyConfig.class})
+@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, MessageConfig.class, PropertyConfig.class, UtilConfig.class, SchedulerConfig.class, TimeConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 @Transactional
 public class PropertyDaoIT {
@@ -36,6 +41,12 @@ public class PropertyDaoIT {
 
     @Autowired
     private MessageInfoDao messageInfoDao;
+
+    @Autowired
+    private ReprogrammableService reprogrammableService;
+
+    @Autowired
+    private TimezoneOffsetService timezoneOffsetService;
 
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager em;

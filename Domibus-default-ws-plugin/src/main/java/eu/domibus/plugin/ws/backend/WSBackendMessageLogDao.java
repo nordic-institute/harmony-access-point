@@ -1,11 +1,11 @@
 package eu.domibus.plugin.ws.backend;
 
+import eu.domibus.ext.services.DateExtService;
 import eu.domibus.plugin.ws.util.WSBasicDao;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,8 +17,11 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
 
-    public WSBackendMessageLogDao() {
+    private final DateExtService dateExtService;
+
+    public WSBackendMessageLogDao(DateExtService dateExtService) {
         super(WSBackendMessageLogEntity.class);
+        this.dateExtService = dateExtService;
     }
 
     /**
@@ -54,7 +57,7 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
         TypedQuery<WSBackendMessageLogEntity> query = em.createNamedQuery(
                 "WSBackendMessageLogEntity.findRetryMessages",
                 WSBackendMessageLogEntity.class);
-        query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
+        query.setParameter("CURRENT_TIMESTAMP", dateExtService.getUtcDate());
         query.setParameter("BACKEND_MESSAGE_STATUS", WSBackendMessageStatus.WAITING_FOR_RETRY);
 
         return query.getResultList();

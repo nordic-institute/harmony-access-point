@@ -1,6 +1,9 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -32,7 +35,10 @@ import java.util.Map;
 public class MessageLogDaoTest {
 
    /* @Tested
-    private MessageLogDao messageLogDao = new UserMessageLogDao();
+    private UserMessageLogDao messageLogDao;
+
+    @Injectable
+    private DateUtil dateUtil;
 
     @Injectable
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
@@ -41,15 +47,18 @@ public class MessageLogDaoTest {
     private CriteriaBuilder criteriaBuilder;
 
     @Injectable
-    private Root<? extends MessageLog> root;
+    private Root<UserMessageLog> root;
 
     @Injectable
     private EntityManager entityManager;
 
+    @Injectable
+    private ReprogrammableService reprogrammableService;
+
     private Map<String, Object> filters = new HashMap<>();
 
     @Test
-    public void testSetMessageStatus_Deleted(@Injectable MessageLog messageLog) {
+    public void testSetMessageStatus_Deleted(@Injectable UserMessageLog messageLog) {
         // WHEN
         messageLogDao.setMessageStatus(messageLog, MessageStatus.DELETED);
 
@@ -57,36 +66,36 @@ public class MessageLogDaoTest {
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.DELETED);
             messageLog.setDeleted((java.util.Date) any);
-            messageLog.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(messageLog);
         }};
     }
 
     @Test
-    public void testSetMessageStatus_Acknowledged(@Injectable MessageLog messageLog) {
+    public void testSetMessageStatus_Acknowledged(@Injectable UserMessageLog messageLog) {
         // WHEN
         messageLogDao.setMessageStatus(messageLog, MessageStatus.ACKNOWLEDGED);
 
         // THEN
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
-            messageLog.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(messageLog);
         }};
     }
 
     @Test
-    public void testSetMessageStatus_AcknowledgedWithWarning(@Injectable MessageLog messageLog) {
+    public void testSetMessageStatus_AcknowledgedWithWarning(@Injectable UserMessageLog messageLog) {
         // WHEN
         messageLogDao.setMessageStatus(messageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
 
         // THEN
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED_WITH_WARNING);
-            messageLog.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(messageLog);
         }};
     }
 
     @Test
-    public void testSetMessageStatus_Downloaded(@Injectable MessageLog messageLog) {
+    public void testSetMessageStatus_Downloaded(@Injectable UserMessageLog messageLog) {
         // WHEN
         messageLogDao.setMessageStatus(messageLog, MessageStatus.DOWNLOADED);
 
@@ -94,12 +103,12 @@ public class MessageLogDaoTest {
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.DOWNLOADED);
             messageLog.setDownloaded((java.util.Date) any);
-            messageLog.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(messageLog);
         }};
     }
 
     @Test
-    public void testSetMessageStatus_SendFailure(@Injectable MessageLog messageLog) {
+    public void testSetMessageStatus_SendFailure(@Injectable UserMessageLog messageLog) {
         // WHEN
         messageLogDao.setMessageStatus(messageLog, MessageStatus.SEND_FAILURE);
 
@@ -107,7 +116,7 @@ public class MessageLogDaoTest {
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.SEND_FAILURE);
             messageLog.setFailed((java.util.Date) any);
-            messageLog.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(messageLog);
         }};
     }
 

@@ -10,6 +10,8 @@ export interface AlertsEntry {
   reportingTime: Date;
   reportingTimeFailure: Date;
   nextAttempt: Date;
+  nextAttemptTimezoneId: string;
+  nextAttemptOffsetSeconds: number;
   parameters: string[];
   deleted: boolean;
 }

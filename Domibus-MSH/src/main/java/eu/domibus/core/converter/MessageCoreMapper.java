@@ -51,6 +51,8 @@ public interface MessageCoreMapper {
     @Mapping(target = "finalRecipient", source = "toScheme")
     @Mapping(target = "messageFragment", ignore = true)
     @Mapping(target = "sourceMessage", ignore = true)
+    @Mapping(source = "timezoneOffset.nextAttemptTimezoneId", target = "nextAttemptTimezoneId")
+    @Mapping(source = "timezoneOffset.nextAttemptOffsetSeconds", target = "nextAttemptOffsetSeconds")
     MessageLogRO uiMessageEntityToMessageLogRO(UIMessageEntity uiMessageEntity);
 
     @WithoutAuditAndEntityId
@@ -64,6 +66,8 @@ public interface MessageCoreMapper {
     @Mapping(ignore = true, target = "finalRecipient")
     @Mapping(ignore = true, target = "messageFragment")
     @Mapping(ignore = true, target = "sourceMessage")
+    @Mapping(source = "timezoneOffset.nextAttemptTimezoneId", target = "nextAttemptTimezoneId")
+    @Mapping(source = "timezoneOffset.nextAttemptOffsetSeconds", target = "nextAttemptOffsetSeconds")
     MessageLogInfo uiMessageEntityToMessageLogInfo(UIMessageEntity uiMessageEntity);
 
     @WithoutAuditAndEntityId
@@ -72,7 +76,6 @@ public interface MessageCoreMapper {
     @Mapping(ignore = true, target = "toScheme")
     @Mapping(ignore = true, target = "lastModified")
     UIMessageEntity messageLogInfoToUIMessageEntity(MessageLogInfo uiMessageEntity);
-
 
     @InheritInverseConfiguration
     @Mapping(target = "collaborationInfo.agreementRef.pmode", ignore = true)

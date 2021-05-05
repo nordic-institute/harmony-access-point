@@ -16,6 +16,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.AlertCoreMapper;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -74,6 +75,9 @@ public class AlertEbms3ServiceImplTest {
 
     @Injectable
     private CommonConfigurationManager commonConfigurationManager;
+
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     @Test
     public void createAlertOnEvent(@Mocked AlertModuleConfiguration config) {
@@ -190,7 +194,7 @@ public class AlertEbms3ServiceImplTest {
         alertService.handleAlertStatus(alert);
         new VerificationsInOrder() {{
             persistedAlert.setAlertStatus(AlertStatus.SUCCESS);times=1;
-            persistedAlert.setNextAttempt(null);times=1;
+            reprogrammableService.removeRescheduleInfo(persistedAlert);times=1;
             persistedAlert.setReportingTime(withAny(new Date()));times=1;
         }};
     }
@@ -229,7 +233,7 @@ public class AlertEbms3ServiceImplTest {
         alertService.handleAlertStatus(alert);
         new VerificationsInOrder() {{
             persistedAlert.setAlertStatus(AlertStatus.FAILED);times=1;
-            persistedAlert.setNextAttempt(nextAttempt);
+            reprogrammableService.setRescheduleInfo(persistedAlert, nextAttempt);
             persistedAlert.setAttempts(1);times=1;
             persistedAlert.setAlertStatus(AlertStatus.RETRY);times=1;
 
@@ -265,7 +269,7 @@ public class AlertEbms3ServiceImplTest {
         alertService.handleAlertStatus(alert);
         new VerificationsInOrder() {{
             persistedAlert.setAlertStatus(AlertStatus.FAILED);times=1;
-            persistedAlert.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(persistedAlert);
 
             persistedAlert.setReportingTimeFailure(failureTime);times=1;
             persistedAlert.setAttempts(2);times=1;

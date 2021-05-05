@@ -34,6 +34,10 @@ public class AlertRo {
 
     private Date nextAttempt;
 
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
+
     private Date reportingTimeFailure;
 
     @SkipWhiteListed
@@ -101,6 +105,14 @@ public class AlertRo {
         return reportingTime;
     }
 
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
     public void setReportingTime(Date reportingTime) {
         this.reportingTime = reportingTime;
     }
@@ -147,6 +159,14 @@ public class AlertRo {
 
     public Date getNextAttempt() {
         return nextAttempt;
+    }
+
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
     }
 
     public void setNextAttempt(Date nextAttempt) {

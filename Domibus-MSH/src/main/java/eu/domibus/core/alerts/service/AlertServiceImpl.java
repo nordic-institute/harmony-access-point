@@ -16,10 +16,10 @@ import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.AlertCoreMapper;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -54,34 +54,49 @@ public class AlertServiceImpl implements AlertService {
 
     static final String ALERT_SELECTOR = "alert";
 
-    @Autowired
-    private EventDao eventDao;
+    private final EventDao eventDao;
 
-    @Autowired
-    private AlertDao alertDao;
+    private final AlertDao alertDao;
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private AlertCoreMapper alertCoreMapper;
+    private final AlertCoreMapper alertCoreMapper;
 
-    @Autowired
-    private JMSManager jmsManager;
+    private final JMSManager jmsManager;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
     @Qualifier("alertMessageQueue")
-    private Queue alertMessageQueue;
+    private final Queue alertMessageQueue;
 
-    @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private final AlertConfigurationService alertConfigurationService;
 
-    @Autowired
-    private ServerInfoService serverInfoService;
+    private final ServerInfoService serverInfoService;
 
-    @Autowired
-    private CommonConfigurationManager alertConfigurationManager;
+    private final CommonConfigurationManager alertConfigurationManager;
+
+    private final ReprogrammableService reprogrammableService;
+
+    public AlertServiceImpl(EventDao eventDao,
+                            AlertDao alertDao,
+                            DomibusPropertyProvider domibusPropertyProvider,
+                            JMSManager jmsManager,
+                            AlertCoreMapper alertCoreMapper,
+                            @Qualifier("alertMessageQueue") Queue alertMessageQueue,
+                            AlertConfigurationService alertConfigurationService,
+                            ServerInfoService serverInfoService,
+                            CommonConfigurationManager alertConfigurationManager,
+                            ReprogrammableService reprogrammableService) {
+        this.eventDao = eventDao;
+        this.alertDao = alertDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.alertCoreMapper = alertCoreMapper;
+        this.jmsManager = jmsManager;
+        this.alertMessageQueue = alertMessageQueue;
+        this.alertConfigurationService = alertConfigurationService;
+        this.serverInfoService = serverInfoService;
+        this.alertConfigurationManager = alertConfigurationManager;
+        this.reprogrammableService = reprogrammableService;
+    }
 
     /**
      * {@inheritDoc}
@@ -168,7 +183,7 @@ public class AlertServiceImpl implements AlertService {
             return;
         }
         alertEntity.setAlertStatus(alert.getAlertStatus());
-        alertEntity.setNextAttempt(null);
+        reprogrammableService.removeRescheduleInfo(alertEntity);
         if (SUCCESS == alertEntity.getAlertStatus()) {
             alertEntity.setReportingTime(new Date());
             alertEntity.setAttempts(alertEntity.getAttempts() + 1);
@@ -182,7 +197,8 @@ public class AlertServiceImpl implements AlertService {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
-            alertEntity.setNextAttempt(nextAttempt);
+            reprogrammableService.setRescheduleInfo(alertEntity, nextAttempt);
+
             alertEntity.setAttempts(attempts);
             alertEntity.setAlertStatus(RETRY);
         }

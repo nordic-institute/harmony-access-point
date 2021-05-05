@@ -32,6 +32,7 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -172,6 +173,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     NonRepudiationService nonRepudiationService;
+
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -350,7 +354,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.setMessageStatus(MessageStatus.SEND_ENQUEUED);
             userMessageLog.setRestored(withAny(new Date()));
             userMessageLog.setFailed(null);
-            userMessageLog.setNextAttempt(withAny(new Date()));
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
             userMessageLogDao.update(userMessageLog);
@@ -390,7 +394,7 @@ public class UserMessageDefaultServiceTest {
             times = 1;
             userMessageLog.setFailed(null);
             times = 1;
-            userMessageLog.setNextAttempt(withAny(new Date()));
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             times = 1;
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
             times = 1;
@@ -784,7 +788,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.sendEnqueuedMessage(messageId);
 
         new FullVerifications(userMessageDefaultService) {{
-            userMessageLog.setNextAttempt(withAny(new Date()));
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             userMessageLogDao.update(userMessageLog);
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
         }};

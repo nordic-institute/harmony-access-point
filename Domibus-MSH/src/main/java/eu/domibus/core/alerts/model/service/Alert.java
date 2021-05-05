@@ -2,12 +2,14 @@ package eu.domibus.core.alerts.model.service;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.persistence.Column;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +38,10 @@ public class Alert {
     private Integer maxAttempts;
 
     private Date nextAttempt;
+
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
 
     private Date reportingTimeFailure;
 
@@ -147,6 +153,22 @@ public class Alert {
         this.nextAttempt = nextAttempt;
     }
 
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
@@ -157,6 +179,9 @@ public class Alert {
                 .append("reportingTime", reportingTime)
                 .append("attempts", attempts)
                 .append("maxAttempts", maxAttempts)
+                .append("nextAttempt", nextAttempt)
+                .append("nextAttemptTimezoneId", nextAttemptTimezoneId)
+                .append("nextAttemptOffsetSeconds", nextAttemptOffsetSeconds)
                 .append("reportingTimeFailure", reportingTimeFailure)
                 .append("events", events)
                 .toString();

@@ -115,6 +115,7 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         convertedBack.setEntityId(toConvert.getEntityId());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setFromScheme(toConvert.getFromScheme());
+        convertedBack.getTimezoneOffset().setEntityId(toConvert.getTimezoneOffset().getEntityId());
 
         objectService.assertObjects(convertedBack, toConvert);
     }

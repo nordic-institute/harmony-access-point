@@ -298,6 +298,8 @@ public class AlertResource extends BaseResource {
         alertRo.setMaxAttempts(alert.getMaxAttempts());
         alertRo.setReportingTimeFailure(alert.getReportingTimeFailure());
         alertRo.setNextAttempt(alert.getNextAttempt());
+        alertRo.setNextAttemptTimezoneId(alert.getNextAttemptTimezoneId());
+        alertRo.setNextAttemptOffsetSeconds(alert.getNextAttemptOffsetSeconds());
 
         final List<String> alertParameterNames = getAlertParameters(alert.getAlertType().name());
         final List<String> alertParameterValues = alertParameterNames.
