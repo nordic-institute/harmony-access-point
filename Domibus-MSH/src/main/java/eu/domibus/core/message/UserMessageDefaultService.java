@@ -495,6 +495,30 @@ public class UserMessageDefaultService implements UserMessageService {
         return restoredMessages;
     }
 
+    @Override
+    public List<String> restoreSendEnqueuedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+        final List<String> sendEnqueuedMessages = userMessageLogDao.findSendEnqueuedMessages(finalRecipient, start, end);
+        if (sendEnqueuedMessages == null) {
+            return null;
+        }
+        LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient", sendEnqueuedMessages, start, end, finalRecipient);
+
+        final List<String> restoredMessages = new ArrayList<>();
+        for (String messageId : sendEnqueuedMessages) {
+            try {
+                //restoreService.restoreFailedMessage(messageId);
+                sendEnqueuedMessage(messageId);
+                restoredMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+            }
+        }
+
+        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, start, end, finalRecipient);
+
+        return restoredMessages;
+    }
+
     @Transactional
     @Override
     public void deleteFailedMessage(String messageId) {

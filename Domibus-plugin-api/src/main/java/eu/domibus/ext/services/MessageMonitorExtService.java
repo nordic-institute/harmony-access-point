@@ -113,6 +113,26 @@ public interface MessageMonitorExtService {
     List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException;
 
     /**
+     * Operation to unblock and retry to send all messages which had the SEND_ENQUEUED status
+     * during the period occurred between the "begin" and "end" times.
+     * <p>This operation will attempts to resend each message.
+     * Afterwards, in case of failure, the retry mechanism, as configured in the PMode, will apply.</p>
+     *
+     * The method takes into account the user permissions:
+     * <ul>
+     * <li>It restores all failed messages matching the criteria if unsecured authorization is allowed or the user has ROLE_ADMIN</li>
+     * <li>It restores the messages matching the finalRecipient value in case the user has ROLE_USER</li>
+     * </ul>
+     *
+     * @param begin specific instant time starting period
+     * @param end   specific instant time ending period
+     * @return List the messages ids's list of successfully restored messages.
+     * @throws MessageMonitorExtException Raised in case a blocking event occurs. It is not raised when the operation is successful for at least one message
+     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
+     */
+    List<String> restoreSendEnqueuedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException;
+
+    /**
      * Operation to delete a message which is in SEND_FAILURE status in the access point.
      * <p>Only the payload will be deleted. The LOGs tables will keep track of the message.
      *

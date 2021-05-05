@@ -72,6 +72,32 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
+    public List<String> findSendEnqueuedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
+        String queryString = "select distinct m.messageInfo.messageId from UserMessage m " +
+                "left join m.messageProperties.property p, UserMessageLog ml " +
+                "where ml.messageId = m.messageInfo.messageId and ml.messageStatus = 'SEND_ENQUEUED' and ml.messageType = 'USER_MESSAGE' and ml.deleted is null ";
+        if (StringUtils.isNotEmpty(finalRecipient)) {
+            queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
+        }
+        if (failedStartDate != null) {
+            queryString += " and ml.failed >= :START_DATE";
+        }
+        if (failedEndDate != null) {
+            queryString += " and ml.failed <= :END_DATE";
+        }
+        TypedQuery<String> query = this.em.createQuery(queryString, String.class);
+        if (StringUtils.isNotEmpty(finalRecipient)) {
+            query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        }
+        if (failedStartDate != null) {
+            query.setParameter("START_DATE", failedStartDate);
+        }
+        if (failedEndDate != null) {
+            query.setParameter("END_DATE", failedEndDate);
+        }
+        return query.getResultList();
+    }
+
     /**
      * Finds a UserMessageLog by message id. If the message id is not found it catches the exception raised Hibernate and returns null.
      *
