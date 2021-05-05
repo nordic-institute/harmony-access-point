@@ -81,6 +81,10 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     protected MessageStatusDao messageStatusDao;
 
+    @Autowired
+    protected UserMessageDao userMessageDao;
+
+
     /**
      * {@inheritDoc}
      */
@@ -193,7 +197,8 @@ public class PullMessageServiceImpl implements PullMessageService {
                         return messageId;
                     case RETRY:
                         LOG.debug("[PULL_REQUEST]:message:[{}] retry pull attempt.", pullMessageId.getMessageId());
-                        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(messageId);
+                        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+                        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
                         return messageId;
                 }
             }

@@ -21,7 +21,6 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -330,7 +329,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
-            List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+            List<PartInfo> partInfos = new ArrayList<>();
+            partInfos.add(partInfo);
 
             Party to = messageValidations(userMessage, partInfos, pModeKey, backendName);
             LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
@@ -338,6 +338,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             try {
                 messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                partInfo.setUserMessage(userMessage);
+                partInfoDao.create(partInfo);
                 messageFragmentEntity.setUserMessage(userMessage);
                 messageFragmentDao.create(messageFragmentEntity);
             } catch (CompressionException exc) {
@@ -347,7 +349,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
             MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
                     backendName, to.getEndpoint(), userMessage.getService().getValue(), userMessage.getActionValue(), null, true);
             prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
@@ -444,6 +446,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
+            userMessage.setSourceMessage(splitAndJoin);
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
                 LOG.error("SplitAndJoin feature needs payload storage on the file system");
