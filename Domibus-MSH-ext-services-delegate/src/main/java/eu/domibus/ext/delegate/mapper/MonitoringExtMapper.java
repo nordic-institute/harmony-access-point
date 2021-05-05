@@ -13,8 +13,8 @@ import org.mapstruct.Mapping;
  * @since 4.2
  */
 @Mapper(componentModel = "spring")
-@DecoratedWith(MonitoringMapperDecorator.class)
-public interface MonitoringMapper {
+@DecoratedWith(MonitoringExtMapperDecorator.class)
+public interface MonitoringExtMapper {
 
     @Mapping(target = "services", ignore = true)
     MonitoringInfoDTO monitoringInfoToMonitoringInfoDTO(MonitoringInfo monitoringInfo);

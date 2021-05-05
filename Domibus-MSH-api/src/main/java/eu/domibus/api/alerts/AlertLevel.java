@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.model.common;
+package eu.domibus.api.alerts;
 /**
  * @author Thomas Dussart
  * @since 4.0

@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.model.persist;
 
-import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.api.model.AbstractBaseEntity;

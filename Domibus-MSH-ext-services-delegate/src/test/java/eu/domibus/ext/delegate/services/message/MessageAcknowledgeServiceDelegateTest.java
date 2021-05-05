@@ -1,11 +1,10 @@
 package eu.domibus.ext.delegate.services.message;
 
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.api.message.UserMessageSecurityService;
-import eu.domibus.ext.domain.MessageAcknowledgementDTO;
+import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -34,7 +33,7 @@ public class MessageAcknowledgeServiceDelegateTest {
     MessageAcknowledgeService messageAcknowledgeService;
 
     @Injectable
-    DomainExtConverter domainConverter;
+    MessageExtMapper messageExtMapper;
 
     @Injectable
     UserMessageService userMessageService;
@@ -43,7 +42,7 @@ public class MessageAcknowledgeServiceDelegateTest {
     UserMessageSecurityService userMessageSecurityService;
 
     @Test
-    public void testAcknowledgeMessageDelivered() throws Exception {
+    public void testAcknowledgeMessageDelivered()  {
         final String messageId = "1";
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
         final Map<String, String> properties = new HashMap<>();
@@ -61,12 +60,12 @@ public class MessageAcknowledgeServiceDelegateTest {
 
         new Verifications() {{
             messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
-            domainConverter.convert(messageAcknowledgement, MessageAcknowledgementDTO.class);
+            messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
         }};
     }
 
     @Test
-    public void testAcknowledgeMessageDeliveredWithNoProperties() throws Exception {
+    public void testAcknowledgeMessageDeliveredWithNoProperties()  {
         final String messageId = "1";
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
 
@@ -78,7 +77,7 @@ public class MessageAcknowledgeServiceDelegateTest {
     }
 
     @Test
-    public void testGetAcknowledgeMessages() throws Exception {
+    public void testGetAcknowledgeMessages() {
         final String messageId = "1";
         final List<MessageAcknowledgement> messageAcknowledgements = new ArrayList<>();
         messageAcknowledgements.add(new MessageAcknowledgement());
@@ -94,7 +93,7 @@ public class MessageAcknowledgeServiceDelegateTest {
         messageAcknowledgeServiceDelegate.getAcknowledgedMessages(messageId);
 
         new Verifications() {{
-            domainConverter.convert(messageAcknowledgements, MessageAcknowledgementDTO.class);
+            messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgements);
         }};
     }
 }
