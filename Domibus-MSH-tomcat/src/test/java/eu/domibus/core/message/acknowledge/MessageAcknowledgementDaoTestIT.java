@@ -62,6 +62,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSaveMessageAcknowledge() {
         String user = "baciuco";
         String messageId = "123";

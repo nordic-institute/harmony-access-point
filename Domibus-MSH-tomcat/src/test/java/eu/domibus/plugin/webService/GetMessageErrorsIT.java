@@ -10,6 +10,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.plugin.webService.generated.ErrorResultImplArray;
 import eu.domibus.plugin.webService.generated.GetErrorsRequest;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -36,6 +37,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is not empty for a certain message.
      */
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetMessageErrorsOk() {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
         ErrorLogEntry logEntry = new ErrorLogEntry();

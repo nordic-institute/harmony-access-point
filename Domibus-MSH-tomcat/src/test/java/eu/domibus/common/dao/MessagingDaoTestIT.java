@@ -5,6 +5,7 @@ import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.MpcEntity;
 import eu.domibus.api.model.PartyInfo;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
