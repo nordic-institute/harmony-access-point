@@ -87,7 +87,7 @@ public class MessagingServiceImpl implements MessagingService {
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
     @Counter(clazz = MessagingServiceImpl.class, value = "storeMessage")
-    public void storeMessage(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
+    public void storeMessagePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (userMessage == null) {
             return;
         }
@@ -118,13 +118,17 @@ public class MessagingServiceImpl implements MessagingService {
             storePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
         }
         LOG.debug("Saving Messaging");
+    }
+
+    @Override
+    public void saveUserMessageAndPayloads(UserMessage userMessage, List<PartInfo> partInfoList) {
+        userMessageDao.create(userMessage);
+
         setPayloadsContentType(partInfoList);
         partInfoList.stream().forEach(partInfo -> {
             partInfo.setUserMessage(userMessage);
             partInfoDao.create(partInfo);
         });
-
-        userMessageDao.create(userMessage);
     }
 
     protected boolean scheduleSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos) {

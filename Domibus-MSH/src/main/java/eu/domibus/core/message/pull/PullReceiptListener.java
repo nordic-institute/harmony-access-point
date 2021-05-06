@@ -1,5 +1,8 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
+import eu.domibus.api.ebms3.model.Ebms3Receipt;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.ReceiptEntity;
@@ -125,7 +128,8 @@ public class PullReceiptListener implements MessageListener {
             if (userMessageHandlerService.checkSelfSending(pModeKey)) {
                 removeSelfSendingPrefix(receipt.getSignalMessage());
             }
-            SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(receipt.getSignalMessage(), legConfiguration);
+            final Ebms3SignalMessage ebms3SignalMessage = convert(receipt.getSignalMessage(), receipt);
+            SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(ebms3SignalMessage, legConfiguration);
             pullReceiptSender.sendReceipt(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey, refToMessageId, domainCode);
         } catch (final JMSException | EbMS3Exception e) {
             LOG.error("Error processing JMS message", e);
@@ -133,6 +137,20 @@ public class PullReceiptListener implements MessageListener {
         }
 
         LOG.trace("[PullReceiptListener] ~~~ The end of onMessage ~~~");
+    }
+    
+    protected Ebms3SignalMessage convert(SignalMessage signalMessage, ReceiptEntity receiptEntity) {
+        Ebms3SignalMessage result = new Ebms3SignalMessage();
+        Ebms3MessageInfo ebms3MessageInfo = new Ebms3MessageInfo();
+        ebms3MessageInfo.setMessageId(signalMessage.getSignalMessageId());
+        ebms3MessageInfo.setTimestamp(signalMessage.getTimestamp());
+        ebms3MessageInfo.setRefToMessageId(signalMessage.getRefToMessageId());
+        result.setMessageInfo(ebms3MessageInfo);
+        Ebms3Receipt receipt = new Ebms3Receipt();
+        receipt.getAny().add(receiptEntity.getRawXml());
+        result.setReceipt(receipt);
+        
+        return result;
     }
 
     protected void removeSelfSendingPrefix(SignalMessage signalMessage) {
