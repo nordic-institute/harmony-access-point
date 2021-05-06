@@ -1,5 +1,6 @@
 package eu.domibus.core.scheduler;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.quartz.*;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.*;
 
@@ -34,6 +36,7 @@ public class DomibusQuartzStarterTest {
     private final JobKey jobKey1 = new JobKey("retryWorkerJob", groupName);
     private final List<Scheduler> generalSchedulers = new ArrayList<>();
     private final Map<Domain, Scheduler> schedulers = new HashMap<>();
+
     @Tested
     private DomibusQuartzStarter domibusQuartzStarter;
 
@@ -52,6 +55,11 @@ public class DomibusQuartzStarterTest {
     @Injectable
     protected Trigger trigger;
 
+    @Injectable
+    protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    private PlatformTransactionManager transactionManager;
 
     @Before
     public void setUp() throws Exception {
@@ -91,34 +99,29 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    public void checkSchedulerJobs_InvalidConfig_JobDeleted(final @Mocked JobDetailImpl jobDetail) throws Exception {
+    public void checkSchedulerJob_InvalidConfig_JobDeleted(final @Mocked JobDetailImpl jobDetail) throws Exception {
+
+        SchedulerException se = new SchedulerException(new ClassNotFoundException("required class was not found: eu.domibus.core.ebms3.sender.retry.SendRetryWorker"));
 
         new Expectations() {{
-            scheduler.getJobGroupNames();
-            times = 1;
-            result = jobGroups;
-
-            scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName));
-            times = 1;
-            result = jobKeys;
-
             scheduler.getJobDetail(jobKey1);
             times = 1;
             result = jobDetail;
 
             jobDetail.getJobClass();
             times = 1;
-            result = new SchedulerException(new ClassNotFoundException("required class was not found: eu.domibus.core.ebms3.sender.retry.SendRetryWorker"));
-
-            scheduler.getSchedulerName();
-            times = 1;
+            result = se;
         }};
 
         //tested method
-        domibusQuartzStarter.checkSchedulerJobs(scheduler);
+        domibusQuartzStarter.checkSchedulerJob(scheduler, jobKey1);
 
         new FullVerifications() {{
             JobKey jobKeyActual;
+
+            domibusQuartzStarter.deleteSchedulerJob(scheduler, jobKey1, se);
+            times = 1;
+
             scheduler.deleteJob(jobKeyActual = withCapture());
             times = 1;
             Assert.assertEquals(jobKey1, jobKeyActual);
@@ -321,34 +324,4 @@ public class DomibusQuartzStarterTest {
         }};
     }
 
-    @Test
-    public void checkSchedulerJobsFromGroupTest(@Injectable Scheduler scheduler,
-                                                @Injectable JobKey jobKey,
-                                                @Mocked JobDetail jobDetail,
-                                                @Injectable Job job) throws Exception {
-
-        final String groupName = "default";
-        final String jobName = "retryWorker";
-        final String jobGroup = "jobGroup";
-
-        new Expectations() {{
-            scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName));
-            result = jobKey;
-            jobKey.getName();
-            result = jobName;
-            jobKey.getGroup();
-            result = jobGroup;
-            scheduler.getJobDetail(jobKey);
-            result = withAny(jobDetail);
-            jobDetail.getJobClass();
-            result = new SchedulerException();
-        }};
-
-        domibusQuartzStarter.checkSchedulerJobsFromGroup(scheduler, groupName);
-
-        new Verifications() {{
-            scheduler.deleteJob(jobKey);
-            times = 0;
-        }};
-    }
 }

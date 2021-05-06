@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.Session;
 import javax.jms.Topic;
 import java.util.Optional;
 
@@ -29,24 +29,22 @@ public class ControllerListenerConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerConfiguration.class);
 
     @Bean("controllerListener")
-    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  @Qualifier(CLUSTER_COMMAND_TOPIC) Topic destination,
                                                                                  ControllerListenerService messageListener,
-                                                                                 PlatformTransactionManager transactionManager,
                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,
                                                                                  DomibusPropertyProvider domibusPropertyProvider) {
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
-        messageListenerContainer.setTransactionManager(transactionManager);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
         LOG.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, concurrency);
 
         messageListenerContainer.setConcurrency(concurrency);
         messageListenerContainer.setSessionTransacted(true);
-        messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
         messageListenerContainer.setPubSubDomain(true);
         messageListenerContainer.setSubscriptionDurable(false);
 

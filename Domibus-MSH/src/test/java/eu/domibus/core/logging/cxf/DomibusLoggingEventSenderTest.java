@@ -26,6 +26,8 @@ public class DomibusLoggingEventSenderTest {
         new Expectations(domibusLoggingEventSender) {{
             domibusLoggingEventSender.checkIfStripPayloadPossible();
             result = true;
+            domibusLoggingEventSender.isCxfLoggingInfoEnabled();
+            result = true;
         }};
 
         //tested method

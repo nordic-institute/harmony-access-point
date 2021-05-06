@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.Property;
+import eu.domibus.api.model.*;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.core.property.PropertyConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
@@ -36,7 +37,7 @@ public class PropertyDaoIT {
     @Autowired
     private MessageInfoDao messageInfoDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
     private String msgId;
 

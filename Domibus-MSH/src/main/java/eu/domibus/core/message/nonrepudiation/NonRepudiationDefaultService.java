@@ -107,7 +107,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         List<SignalMessage> signalMessages = signalMessageDao.findByRefMessageId(userMessageId);
         if (CollectionUtils.isEmpty(signalMessages)) {
-            LOG.error("Could not find any signal message for ref message [{}]", userMessageId);
+            LOG.warn("Could not find any signal message for ref message [{}]", userMessageId);
             return;
         }
 

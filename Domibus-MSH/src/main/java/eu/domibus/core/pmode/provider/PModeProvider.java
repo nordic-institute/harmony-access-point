@@ -11,6 +11,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Action;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Process;
@@ -63,7 +64,7 @@ public abstract class PModeProvider {
     @Autowired
     protected ConfigurationRawDAO configurationRawDAO;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
 
     @Autowired
