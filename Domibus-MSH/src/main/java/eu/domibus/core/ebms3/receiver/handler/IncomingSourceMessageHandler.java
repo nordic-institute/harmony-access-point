@@ -46,7 +46,7 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
             throw ex;
         }
 
-        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging);
+        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, null);
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         return userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
     }

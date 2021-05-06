@@ -1,15 +1,15 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -36,12 +36,14 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
     public MessageGroupEntity findByGroupId(String groupId) {
         final TypedQuery<MessageGroupEntity> namedQuery = em.createNamedQuery("MessageGroupEntity.findByGroupId", MessageGroupEntity.class);
         namedQuery.setParameter("GROUP_ID", groupId);
-        try {
-            return namedQuery.getSingleResult();
-        } catch (NoResultException ex) {
-            LOG.trace("Could not found MessageGroupEntity for group [{}]", groupId);
-            return null;
-        }
+        return DataAccessUtils.singleResult(namedQuery.getResultList());
+    }
+
+    @Transactional
+    public MessageGroupEntity findByGroupIdWithMessageHeader(String groupId) {
+        final TypedQuery<MessageGroupEntity> namedQuery = em.createNamedQuery("MessageGroupEntity.findByGroupIdWithMessageHeader", MessageGroupEntity.class);
+        namedQuery.setParameter("GROUP_ID", groupId);
+        return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 
     public List<MessageGroupEntity> findOngoingReceivedNonExpiredOrRejected() {

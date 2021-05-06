@@ -2,6 +2,7 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
@@ -129,10 +130,10 @@ public class PullMessageSender {
             final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
             final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
             notifyBusinessOnError = Boolean.valueOf(map.getStringProperty(PullContext.NOTIFY_BUSINNES_ON_ERROR));
-            SignalMessage signalMessage = new SignalMessage();
-            PullRequest pullRequest = new PullRequest();
+            Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
+            Ebms3PullRequest pullRequest = new Ebms3PullRequest();
             pullRequest.setMpc(mpcQualifiedName);
-//            signalMessage.setPullRequest(pullRequest);
+            signalMessage.setPullRequest(pullRequest);
             LOG.debug("Sending pull request with mpc:[{}]", mpcQualifiedName);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             mpcName = legConfiguration.getDefaultMpc().getName();
@@ -154,7 +155,7 @@ public class PullMessageSender {
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
 
-            partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging);
+            partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging, null);
             handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;
@@ -192,7 +193,7 @@ public class PullMessageSender {
 
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
         LOG.debug("legConfiguration for received userMessage is [{}]", legConfiguration.getName());
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, partInfos, testMessage);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, null, partInfos, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());

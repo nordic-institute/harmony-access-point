@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -98,6 +99,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         }
     }
 
+    @Transactional
     @Override
     public void saveResponse(SOAPMessage response, String userMessageId) {
         if (isNonRepudiationAuditDisabled()) {

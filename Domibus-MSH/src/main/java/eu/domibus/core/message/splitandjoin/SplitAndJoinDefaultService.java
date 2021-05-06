@@ -246,7 +246,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         List<PartInfo> partInfos = null;
         try {
-            partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging);
+            partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             throw new SplitAndJoinException("Error handling payloads", e);
         }
@@ -353,7 +353,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected SOAPMessage rejoinSourceMessage(String groupId, File sourceMessageFile) {
         LOG.debug("Creating the SOAPMessage for group [{}] from file [{}] ", groupId, sourceMessageFile);
 
-        final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(groupId);
+        final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupIdWithMessageHeader(groupId);
         final String contentType = createContentType(messageGroupEntity.getMessageHeaderEntity().getBoundary(), messageGroupEntity.getMessageHeaderEntity().getStart());
 
         return getUserMessage(sourceMessageFile, contentType);
