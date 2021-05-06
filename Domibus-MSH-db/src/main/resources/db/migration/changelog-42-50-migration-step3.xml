@@ -6,7 +6,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- step 3 -->
-    
+
+    <!-- drop any previosly created index, UQ, etc to avoid name collision -->
+    <changeSet id="EDELIVERY-7970-drop-indexes-uq" author="Catalin Enache">
+        <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_MESSAGE_IN_ERROR_ID" />
+    </changeSet>
+
     <!-- rename former tables to OLD_* -->
     <changeSet id="EDELIVERY-7970-rename-former-tables" author="Catalin Enache">
         <renameTable oldTableName="TB_USER_MESSAGE" newTableName="OLD_TB_USER_MESSAGE"/>
@@ -26,12 +31,29 @@
         <renameTable oldTableName="TB_PROPERTY" newTableName="OLD_TB_PROPERTY"/>
         <renameTable oldTableName="TB_RAWENVELOPE_LOG" newTableName="OLD_TB_RAWENVELOPE_LOG"/>
         <renameTable oldTableName="TB_PART_INFO" newTableName="OLD_TB_PART_INFO"/>
+
+        <renameTable oldTableName="TB_PART_PROPERTIES" newTableName="OLD_TB_PART_PROPERTIES"/>
+        <renameTable oldTableName="TB_MESSAGE_ACKNW" newTableName="OLD_TB_MESSAGE_ACKNW"/>
+        <renameTable oldTableName="TB_ERROR_LOG" newTableName="OLD_TB_ERROR_LOG"/>
     </changeSet>
 
     <changeSet id="EDELIVERY-7970-rename-MIGR-tables" author="Catalin Enache">
         <renameTable oldTableName="MIGR_TB_USER_MESSAGE" newTableName="TB_USER_MESSAGE"/>
         <renameTable oldTableName="MIGR_TB_SJ_MESSAGE_FRAGMENT" newTableName="TB_SJ_MESSAGE_FRAGMENT"/>
+        <renameTable oldTableName="MIGR_TB_SJ_MESSAGE_GROUP" newTableName="TB_SJ_MESSAGE_GROUP"/>
+        <renameTable oldTableName="MIGR_TB_SJ_MESSAGE_HEADER" newTableName="TB_SJ_MESSAGE_HEADER"/>
         <renameTable oldTableName="MIGR_TB_SIGNAL_MESSAGE" newTableName="TB_SIGNAL_MESSAGE"/>
+        <renameTable oldTableName="MIGR_TB_RECEIPT" newTableName="TB_RECEIPT"/>
+        <renameTable oldTableName="MIGR_TB_USER_MESSAGE_LOG" newTableName="TB_USER_MESSAGE_LOG"/>
+        <renameTable oldTableName="MIGR_TB_SIGNAL_MESSAGE_LOG" newTableName="TB_SIGNAL_MESSAGE_LOG"/>
+        <renameTable oldTableName="MIGR_TB_USER_MESSAGE_RAW" newTableName="TB_USER_MESSAGE_RAW"/>
+        <renameTable oldTableName="MIGR_TB_SIGNAL_MESSAGE_RAW" newTableName="TB_SIGNAL_MESSAGE_RAW"/>
+        <renameTable oldTableName="MIGR_TB_MESSAGE_PROPERTIES" newTableName="TB_MESSAGE_PROPERTIES"/>
+        <renameTable oldTableName="MIGR_TB_PART_INFO" newTableName="TB_PART_INFO"/>
+        <renameTable oldTableName="MIGR_TB_PART_PROPERTIES" newTableName="TB_PART_PROPERTIES"/>
+        <renameTable oldTableName="MIGR_TB_ERROR_LOG" newTableName="TB_ERROR_LOG"/>
+        <renameTable oldTableName="MIGR_TB_MESSAGE_ACKNW" newTableName="TB_MESSAGE_ACKNW"/>
+
     </changeSet>
 
     <!-- put back constraints -->
@@ -112,11 +134,179 @@
             <column name="GROUP_ID_FK"/>
         </createIndex>
 
+        <!-- TB_SJ_MESSAGE_GROUP -->
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
+        <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="SOURCE_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SJ_MG_ROLE_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+
         <!-- TB_SIGNAL_MESSAGE -->
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
+        <!-- TB_RECEIPT -->
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
+                                 constraintName="FK_TB_RECEIPT_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <!-- TB_USER_MESSAGE_LOG -->
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_NOTIFICATION_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_ROLE_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="NOTIFICATION_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
+        <!-- TB_SIGNAL_MESSAGE_LOG -->
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_SIGNAL_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SIGNAL_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_STATUS_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_ROLE_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_RECEIVED" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
+        <!-- TB_USER_MESSAGE_RAW -->
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_RAW"
+                                 constraintName="FK_MSG_RAW_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <!-- TB_SIGNAL_MESSAGE_RAW -->
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_RAW"
+                                 constraintName="FK_SIGNAL_MSG_RAW_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <!-- TB_MESSAGE_PROPERTIES -->
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
+                                 constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_PROPERTY_FK" baseTableName="TB_MESSAGE_PROPERTIES"
+                                 constraintName="FK_MSG_PROPS_MSG_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_MESSAGE_PROPERTY"/>
+        <createIndex indexName="IDX_MSG_PROPS_MSG_ID" tableName="TB_MESSAGE_PROPERTIES">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_PROPERTY_FK"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="USER_MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
+
+        <!-- TB_PART_INFO -->
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="FK_USER_MESSAGE_ID" tableName="TB_PART_INFO">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <!-- TB_PART_PROPERTIES -->
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_PROPERTY_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_PART_PROPERTY"/>
+        <createIndex indexName="IDX_PART_PROPS_PART_INFO" tableName="TB_PART_PROPERTIES">
+            <column name="PART_INFO_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
+            <column name="PART_INFO_PROPERTY_FK"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
+
+        <!-- TB_ERROR_LOG -->
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_ERROR_LOG_MSH_ROLE_ID" tableName="TB_ERROR_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_ERROR_LOG_MSG_ID" tableName="TB_ERROR_LOG">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
+            <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+
+        <!-- TB_MESSAGE_ACKNW -->
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_ACKNW"
+                                 constraintName="FK_MSG_ACK_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID_FK" tableName="TB_MESSAGE_ACKNW">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- TODO - move to step 4 -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence">
+        <sql dbms="oracle">
+            ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
+        </sql>
     </changeSet>
 </databaseChangeLog>
