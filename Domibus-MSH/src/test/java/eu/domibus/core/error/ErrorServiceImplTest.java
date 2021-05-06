@@ -1,6 +1,7 @@
 package eu.domibus.core.error;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.MshRoleDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -25,6 +26,9 @@ public class ErrorServiceImplTest {
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    protected MshRoleDao mshRoleDao;
 
     @Test
     public void createErrorLog(final @Mocked ErrorLogEntry errorLogEntry) {
