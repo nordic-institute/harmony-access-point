@@ -17,7 +17,7 @@ public class MessagingDaoTestIT extends AbstractIT {
     @Autowired
     private PartyDao partyDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     @Test
