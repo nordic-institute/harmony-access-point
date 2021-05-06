@@ -98,15 +98,6 @@
             <artifactId>domibus-logging</artifactId>
         </dependency>
 
-
-        <!-- Atomikos Library for distributed transactions -->
-        <dependency>
-            <groupId>com.atomikos</groupId>
-            <artifactId>transactions-jms</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- End Atomikos Library for distributed transactions -->
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

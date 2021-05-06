@@ -26,8 +26,8 @@ public class DomibusJMSWebLogicQueueConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWebLogicQueueConfiguration.class);
 
-    @Bean(DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY)
-    public ConnectionFactory cachingConnectionFactory(@Qualifier(DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
+    @Bean(DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory weblogicConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
@@ -39,7 +39,7 @@ public class DomibusJMSWebLogicQueueConfiguration {
         return cachingConnectionFactory;
     }
 
-    @Bean(DOMIBUS_JMS_XACONNECTION_FACTORY)
+    @Bean(DOMIBUS_JMS_CONNECTION_FACTORY)
     public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");
