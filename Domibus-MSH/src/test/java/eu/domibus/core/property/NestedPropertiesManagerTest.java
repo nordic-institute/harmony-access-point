@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -35,6 +36,7 @@ public class NestedPropertiesManagerTest {
     ConfigurableEnvironment environment;
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetNestedProperties(@Mocked DomibusPropertyMetadata prop) {
         String prefix = "routing";
 

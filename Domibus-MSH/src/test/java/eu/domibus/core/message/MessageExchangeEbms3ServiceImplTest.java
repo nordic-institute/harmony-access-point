@@ -22,6 +22,7 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.test.util.PojoInstaciatorUtil;
+import org.junit.Ignore;
 import org.apache.commons.lang3.Validate;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExchangeEbms3ServiceImplTest {
 
-   /* @Mock
+    @Mock
     private PModeProvider pModeProvider;
 
     @Mock
@@ -56,9 +57,6 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Mock
     private EbMS3MessageBuilder messageBuilder;
-
-    @Mock
-    private MessagingDao messagingDao;
 
     @Mock
     private UserMessageLogDao userMessageLogDao;
@@ -153,6 +151,7 @@ public class MessageExchangeEbms3ServiceImplTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSuccessFullOneWayPullConfiguration() throws Exception {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qn1]];[name:leg2,defaultMpc[name:test2,qualifiedName:qn2]]}", "initiatorParties{[name:resp1]}");
         MessageStatus messageStatus = getMessageStatus(process);
@@ -165,7 +164,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         processes.add(process);
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agreementName", "senderParty", "receiverParty", "service", "action", "leg");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
-        return messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+        return messageExchangeService.getMessageStatus(messageExchangeConfiguration).getMessageStatus();
     }
 
     @Test(expected = PModeException.class)
@@ -271,7 +270,7 @@ public class MessageExchangeEbms3ServiceImplTest {
 
         when(party.getIdentifiers()).thenReturn(identifiers);
 
-        when(messagingDao.findMessagingOnStatusReceiverAndMpc(eq("party1"), eq(MessageStatus.READY_TO_PULL), eq(mpc))).thenReturn(Lists.<MessagePullDto>newArrayList());
+//        when(messagingDao.findMessagingOnStatusReceiverAndMpc(eq("party1"), eq(MessageStatus.READY_TO_PULL), eq(mpc))).thenReturn(Lists.<MessagePullDto>newArrayList());
 
         final String messageId = messageExchangeService.retrieveReadyToPullUserMessageId(mpc, party);
         assertNull(messageId);
@@ -293,7 +292,9 @@ public class MessageExchangeEbms3ServiceImplTest {
         final String testMessageId = "testMessageId";
         when(pullMessageService.getPullMessageId(eq("party1"), eq(mpc))).thenReturn(testMessageId);
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(MessageStatus.READY_TO_PULL);
+        MessageStatusEntity messageStatus = new MessageStatusEntity();
+        messageStatus.setMessageStatus(MessageStatus.READY_TO_PULL);
+        userMessageLog.setMessageStatus(messageStatus);
         when(userMessageLogDao.findByMessageId(testMessageId)).thenReturn(userMessageLog);
 
         final String messageId = messageExchangeService.retrieveReadyToPullUserMessageId(mpc, party);
@@ -332,6 +333,7 @@ public class MessageExchangeEbms3ServiceImplTest {
 
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetMessageStatusWhenNoPullProcessFound() {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
                 "sender",
@@ -340,12 +342,13 @@ public class MessageExchangeEbms3ServiceImplTest {
                 "action1",
                 "leg1");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.<Process>newArrayList());
-        final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+        final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration).getMessageStatus();
         assertEquals(MessageStatus.SEND_ENQUEUED, messageStatus);
 
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testRetrieveMessageRestoreStatusWithValidPull() throws EbMS3Exception {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
                 "sender",
@@ -354,16 +357,19 @@ public class MessageExchangeEbms3ServiceImplTest {
                 "action1",
                 "leg1");
         UserMessage userMessage = new UserMessage();
-        userMessage.setMpc("mpc123");
-        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
+        MpcEntity mpc = new MpcEntity();
+        mpc.setValue("mpc123");
+        userMessage.setMpc(mpc);
+//        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
         when(pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING)).thenReturn(messageExchangeConfiguration);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.newArrayList(process));
-        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123");
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
 
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testRetrieveMessageRestoreStatusWithForcePull() throws EbMS3Exception {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
                 "sender",
@@ -372,13 +378,14 @@ public class MessageExchangeEbms3ServiceImplTest {
                 "action1",
                 "leg1");
         UserMessage userMessage = new UserMessage();
-        userMessage.setMpc("mpc123");
-        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
+        MpcEntity mpc = new MpcEntity();
+        mpc.setValue("mpc123");
+        userMessage.setMpc(mpc);
+//        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
         when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
-        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123");
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }
-*/
 
 
 }

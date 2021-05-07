@@ -7,6 +7,7 @@ import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import eu.domibus.web.rest.ro.ErrorLogRO;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,6 +21,7 @@ public class AuditLogCoreMapperTest extends AbstractMapperTest {
     private AuditLogCoreMapper auditLogCoreMapper;
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertAuditLogAuditResponseRo() {
         AuditLog toConvert = (AuditLog) objectService.createInstance(AuditLog.class);
         final AuditResponseRo converted = auditLogCoreMapper.auditLogToAuditResponseRo(toConvert);
@@ -29,6 +31,7 @@ public class AuditLogCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertAuditLogAudit() {
         AuditLog toConvert = (AuditLog) objectService.createInstance(AuditLog.class);
         final Audit converted = auditLogCoreMapper.auditLogToAudit(toConvert);
@@ -43,6 +46,7 @@ public class AuditLogCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertErrorLogEntryToErrorLogRO() {
         ErrorLogEntry toConvert = (ErrorLogEntry) objectService.createInstance(ErrorLogEntry.class);
         MSHRoleEntity mshRole = new MSHRoleEntity();

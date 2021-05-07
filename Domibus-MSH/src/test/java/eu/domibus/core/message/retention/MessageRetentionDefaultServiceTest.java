@@ -1,8 +1,31 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.JsonUtil;
+import eu.domibus.core.message.PartInfoDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.Queue;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.message.retention.MessageRetentionDefaultService.DELETE_TYPE;
+import static eu.domibus.messaging.MessageConstants.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -13,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JMockit.class)
 public class MessageRetentionDefaultServiceTest {
 
-  /*  @Injectable
+    @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
@@ -35,10 +58,10 @@ public class MessageRetentionDefaultServiceTest {
     private Queue retentionMessageQueue;
 
     @Injectable
-    private MessagingDao messagingDao;
+    private JsonUtil jsonUtil;
 
     @Injectable
-    private JsonUtil jsonUtil;
+    private PartInfoDao partInfoDao;
 
     @Tested
     MessageRetentionDefaultService messageRetentionService;
@@ -109,10 +132,10 @@ public class MessageRetentionDefaultServiceTest {
         properties.put(FINAL_RECIPIENT, FINAL_RECIPIENT);
         properties.put(ORIGINAL_SENDER, ORIGINAL_SENDER);
         new Expectations(messageRetentionService) {{
-            userMessage1.getMessageInfo().getMessageId();
+            userMessage1.getMessageId();
             result = "ID1";
 
-            userMessage2.getMessageInfo().getMessageId();
+            userMessage2.getMessageId();
             result = "ID2";
 
             userMessageServiceHelper.getProperties(userMessage1);
@@ -308,7 +331,7 @@ public class MessageRetentionDefaultServiceTest {
     public void shouldDeletePayloadOnSendFailureUMFragment(@Mocked UserMessage userMessage) {
 
         new Expectations() {{
-            userMessage.isUserMessageFragment();
+            userMessage.isMessageFragment();
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
             times = 0;
@@ -321,9 +344,6 @@ public class MessageRetentionDefaultServiceTest {
     public void deletePayloadSendSuccess(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
 
         new Expectations() {{
-            //partial mocking of the following methods
-            messagingDao.clearPayloadData(userMessage);
-            times = 1;
             messageRetentionService.deletePayload(userMessage, userMessageLog);
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
@@ -340,8 +360,6 @@ public class MessageRetentionDefaultServiceTest {
 
         new Expectations() {{
             //partial mocking of the following methods
-            messagingDao.clearPayloadData(userMessage);
-            times = 1;
             messageRetentionService.deletePayload(userMessage, userMessageLog);
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
@@ -359,8 +377,6 @@ public class MessageRetentionDefaultServiceTest {
 
         new Expectations() {{
             //partial mocking of the following methods
-            messagingDao.clearPayloadData(userMessage);
-            times = 0;
             messageRetentionService.deletePayload(userMessage, userMessageLog);
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
@@ -377,8 +393,7 @@ public class MessageRetentionDefaultServiceTest {
 
         new Expectations() {{
             //partial mocking of the following methods
-            messagingDao.clearPayloadData(userMessage);
-            times = 0;
+            
             messageRetentionService.deletePayload(userMessage, userMessageLog);
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
@@ -580,5 +595,5 @@ public class MessageRetentionDefaultServiceTest {
 
         new FullVerifications() {
         };
-    }*/
+    }
 }

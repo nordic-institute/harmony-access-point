@@ -1,9 +1,27 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.MpcEntity;
+import eu.domibus.api.model.PartyInfo;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.JPAConstants;
+import eu.domibus.common.model.configuration.Identifier;
+import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.configuration.PartyIdType;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.party.PartyDao;
+import eu.domibus.test.util.PojoInstaciatorUtil;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -11,8 +29,9 @@ import static org.junit.Assert.assertNotNull;
  */
 public class MessagingDaoTestIT extends AbstractIT {
 
-   /* @Autowired
-    private MessagingDao messagingDao;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private PartyDao partyDao;
@@ -23,6 +42,7 @@ public class MessagingDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void findMessagingOnStatusReceiverAndMpc() {
 
         List<Identifier> identifiers = new ArrayList<>();
@@ -44,14 +64,13 @@ public class MessagingDaoTestIT extends AbstractIT {
         Messaging firstMessage = new Messaging();
         UserMessage firstUm = new UserMessage();
         firstUm.setPartyInfo(firstParty);
-        CollaborationInfo collaborationInfo = new CollaborationInfo();
-        collaborationInfo.setConversationId("conv123");
-        firstUm.setCollaborationInfo(collaborationInfo);
+        firstUm.setConversationId("conv123");
         firstMessage.setUserMessage(firstUm);
-        MessageInfo messageInfo = firstMessage.getUserMessage().getMessageInfo();
-        messageInfo.setRefToMessageId(null);
-        messageInfo.setMessageId("123456");
-        firstMessage.getUserMessage().setMpc("http://mpc");
+        firstUm.setRefToMessageId(null);
+        firstUm.setMessageId("123456");
+        MpcEntity mpc = new MpcEntity();
+        mpc.setValue("http://mpc");
+        firstMessage.getUserMessage().setMpc(mpc);
         firstMessage.setId(null);
 
         PartyInfo secondParty = PojoInstaciatorUtil.instanciate(PartyInfo.class, "to[role:test,partyId{[value:RED_MSH]}]");
@@ -59,29 +78,28 @@ public class MessagingDaoTestIT extends AbstractIT {
         UserMessage secondUm = new UserMessage();
         secondUm.setPartyInfo(secondParty);
         secondMessage.setUserMessage(secondUm);
-        MessageInfo secondMessageInfo = secondMessage.getUserMessage().getMessageInfo();
-        secondMessageInfo.setMessageId("789101212");
-        secondMessageInfo.setRefToMessageId(null);
+        secondUm.setMessageId("789101212");
+        secondUm.setRefToMessageId(null);
         secondMessage.setId(null);
-        messagingDao.create(firstMessage);
+//        messagingDao.create(firstMessage);
         //@thom fix this late because their is a weird contraint exception here.
 
-        UserMessageLogEntityBuilder umlBuilder = UserMessageLogEntityBuilder.create()
-                .setMessageId(messageInfo.getMessageId())
-                .setMessageStatus(MessageStatus.READY_TO_PULL)
-                .setMshRole(MSHRole.SENDING);
-        userMessageLogDao.create(umlBuilder.build());
+//        UserMessageLogEntityBuilder umlBuilder = UserMessageLogEntityBuilder.create()
+//                .setMessageId(messageInfo.getMessageId())
+//                .setMessageStatus(MessageStatus.READY_TO_PULL)
+//                .setMshRole(MSHRole.SENDING);
+//        userMessageLogDao.create(umlBuilder.build());
 
-        List<MessagePullDto> testParty = messagingDao.findMessagingOnStatusReceiverAndMpc("RED_MSH", MessageStatus.READY_TO_PULL, "http://mpc");
-        assertEquals(1, testParty.size());
-        assertEquals("123456", testParty.get(0).getMessageId());
-
-        Messaging messageByMessageId = messagingDao.findMessageByMessageId("123456");
-        assertNotNull(messageByMessageId.getCreatedBy());
-        assertNotNull(messageByMessageId.getCreationTime());
-        assertNotNull(messageByMessageId.getModifiedBy());
-        assertNotNull(messageByMessageId.getModificationTime());
-        assertEquals(messageByMessageId.getCreationTime(), messageByMessageId.getModificationTime());
-    }*/
+//        List<MessagePullDto> testParty = messagingDao.findMessagingOnStatusReceiverAndMpc("RED_MSH", MessageStatus.READY_TO_PULL, "http://mpc");
+//        assertEquals(1, testParty.size());
+//        assertEquals("123456", testParty.get(0).getMessageId());
+//
+//        Messaging messageByMessageId = messagingDao.findMessageByMessageId("123456");
+//        assertNotNull(messageByMessageId.getCreatedBy());
+//        assertNotNull(messageByMessageId.getCreationTime());
+//        assertNotNull(messageByMessageId.getModifiedBy());
+//        assertNotNull(messageByMessageId.getModificationTime());
+//        assertEquals(messageByMessageId.getCreationTime(), messageByMessageId.getModificationTime());
+    }
 
 }

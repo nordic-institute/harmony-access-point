@@ -1,7 +1,24 @@
 package eu.domibus.core.ebms3.receiver.token;
 
+import com.sun.xml.messaging.saaj.soap.impl.TextImpl;
+import eu.domibus.core.ebms3.receiver.interceptor.TrustSenderInterceptor;
+import eu.domibus.test.util.MessageTestUtility;
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Thomas Dussart
@@ -11,7 +28,7 @@ import org.junit.runner.RunWith;
 public class TokenReferenceExtractorTest {
 
 
-  /*  @Tested
+    @Tested
     private TokenReferenceExtractor tokenReferenceExtractor;
 
     @Test
@@ -101,16 +118,16 @@ public class TokenReferenceExtractorTest {
 
     @Test
     public void testGetSecTokenRefWithSpacesWithMock(@Mocked final Element securityHeader,
-                                          @Mocked final Element signature,
-                                          @Mocked final Element keyInfo,
-                                          @Mocked final Node textNode,
-                                         @Mocked final Element securityTokenrRefecence) throws WSSecurityException {
+                                                     @Mocked final Element signature,
+                                                     @Mocked final Element keyInfo,
+                                                     @Mocked final Node textNode,
+                                                     @Mocked final Element securityTokenrRefecence) throws WSSecurityException {
 
         new Expectations() {{
             securityHeader.getFirstChild();
             result = signature;
             signature.getLocalName();
-            result =WSConstants.SIGNATURE.getLocalPart();
+            result = WSConstants.SIGNATURE.getLocalPart();
             signature.getNamespaceURI();
             result = WSConstants.SIGNATURE.getNamespaceURI();
             signature.getFirstChild();
@@ -124,7 +141,7 @@ public class TokenReferenceExtractorTest {
             textNode.getNodeType();
             result = Node.TEXT_NODE;
             textNode.getNextSibling();
-            result =securityTokenrRefecence;
+            result = securityTokenrRefecence;
             securityTokenrRefecence.getNodeType();
             result = Node.ELEMENT_NODE;
         }};
@@ -156,16 +173,16 @@ public class TokenReferenceExtractorTest {
             someNode.getNodeType();
             result = Node.TEXT_NODE;
             someNode.getNextSibling();
-            result =textNode;
+            result = textNode;
             textNode.getNodeType();
             result = Node.TEXT_NODE;
             textNode.getNextSibling();
-            result =resultElement;
+            result = resultElement;
             resultElement.getNodeType();
             result = Node.ELEMENT_NODE;
         }};
 
         Element targetElement = tokenReferenceExtractor.getFirstChildElement(parentNode);
         Assert.assertEquals(resultElement, targetElement);
-    }*/
+    }
 }

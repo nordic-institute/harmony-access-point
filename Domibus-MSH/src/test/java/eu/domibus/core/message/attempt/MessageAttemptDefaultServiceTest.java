@@ -3,6 +3,7 @@ package eu.domibus.core.message.attempt;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
+import eu.domibus.core.message.UserMessageDao;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -31,6 +32,9 @@ public class MessageAttemptDefaultServiceTest {
 
     @Injectable
     MessageCoreMapper messageCoreConverter;
+
+    @Injectable
+    UserMessageDao userMessageDao;
 
     @Test
     public void testGetAttemptsHistory(@Injectable final List<MessageAttemptEntity> entities) throws Exception {

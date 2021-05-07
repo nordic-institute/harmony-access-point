@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.MessageLogInfoFilter;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -78,7 +76,7 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
         Assert.assertTrue(filterQueryString.contains("log.messageId = :messageId"));
-        Assert.assertTrue(filterQueryString.contains("info.refToMessageId = :refToMessageId"));
+        Assert.assertTrue(filterQueryString.contains("message.refToMessageId = :refToMessageId"));
         Assert.assertTrue(filterQueryString.contains("log.received = :received"));
         Assert.assertTrue(filterQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(filterQueryString.contains("propsTo.value = :finalRecipient"));
@@ -104,7 +102,7 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
         Assert.assertTrue(filterQueryString.contains("log.messageId = :messageId"));
-        Assert.assertTrue(filterQueryString.contains("info.refToMessageId = :refToMessageId"));
+        Assert.assertTrue(filterQueryString.contains("message.refToMessageId = :refToMessageId"));
         Assert.assertTrue(filterQueryString.contains("log.received = :received"));
         Assert.assertTrue(filterQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(filterQueryString.contains("propsTo.value = :finalRecipient"));

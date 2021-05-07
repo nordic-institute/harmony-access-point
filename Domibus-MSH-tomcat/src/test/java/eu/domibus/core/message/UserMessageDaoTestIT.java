@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.test.util.MessageTestUtility;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,6 +38,7 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSaveUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();

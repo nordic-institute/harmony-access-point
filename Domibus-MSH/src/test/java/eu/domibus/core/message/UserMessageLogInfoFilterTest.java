@@ -59,7 +59,7 @@ public class UserMessageLogInfoFilterTest {
 
     @Test
     public void testGetHQLKeyConversationId() {
-        Assert.assertEquals("message.collaborationInfo.conversationId", userMessageLogInfoFilter.getHQLKey("conversationId"));
+        Assert.assertEquals("message.conversationId", userMessageLogInfoFilter.getHQLKey("conversationId"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class UserMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(resultQueryString.contains("log.received <= :receivedTo"));
         Assert.assertTrue(resultQueryString.contains("log.messageId = :messageId"));
-        Assert.assertTrue(resultQueryString.contains("info.refToMessageId = :refToMessageId"));
+        Assert.assertTrue(resultQueryString.contains("message.refToMessageId = :refToMessageId"));
         Assert.assertTrue(resultQueryString.contains("log.received = :received"));
         Assert.assertTrue(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(resultQueryString.contains("propsTo.value = :finalRecipient"));
