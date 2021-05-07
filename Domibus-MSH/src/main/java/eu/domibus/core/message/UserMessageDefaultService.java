@@ -198,7 +198,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager em;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
