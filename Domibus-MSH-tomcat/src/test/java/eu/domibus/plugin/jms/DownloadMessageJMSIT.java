@@ -87,7 +87,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
 
         partInfoList.add(partInfo);
-        messagingService.storeMessage(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
+        messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatus = new MessageStatusEntity();

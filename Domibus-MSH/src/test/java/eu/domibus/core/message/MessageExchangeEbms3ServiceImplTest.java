@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -223,7 +224,7 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Test
     public void testInvalidRequest() throws Exception {
-        when(messageBuilder.buildSOAPMessage(any(SignalMessage.class), any(LegConfiguration.class))).thenThrow(
+        when(messageBuilder.buildSOAPMessage(any(Ebms3SignalMessage.class), any(LegConfiguration.class))).thenThrow(
                 new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", null, null));
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qn1]];[name:leg2,defaultMpc[name:test2,qualifiedName:qn2]]}", "initiatorParties{[name:initiator]}");
 

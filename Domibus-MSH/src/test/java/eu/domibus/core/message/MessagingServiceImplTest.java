@@ -180,7 +180,7 @@ public class MessagingServiceImplTest {
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testStoreMessageCalls(@Injectable final UserMessage userMessage) {
-        messagingService.storeMessage(userMessage, null,MSHRole.SENDING, legConfiguration, "backend");
+        messagingService.storeMessagePayloads(userMessage, null,MSHRole.SENDING, legConfiguration, "backend");
 
     }
 
@@ -206,7 +206,7 @@ public class MessagingServiceImplTest {
         }};
 
         final String backend = "backend";
-        messagingService.storeMessage(userMessage, null, MSHRole.SENDING, legConfiguration, backend);
+        messagingService.storeMessagePayloads(userMessage, null, MSHRole.SENDING, legConfiguration, backend);
 
         new Verifications() {{
             payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backend);
