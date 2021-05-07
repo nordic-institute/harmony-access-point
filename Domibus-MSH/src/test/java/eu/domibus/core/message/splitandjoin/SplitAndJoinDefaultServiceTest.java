@@ -255,7 +255,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, sourceMessageFile, backendName);
 
         new Verifications() {{
-            userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging);
+            userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
             messagingService.storePayloads(null, null, MSHRole.RECEIVING, legConfiguration, backendName);
             messageGroupService.setSourceMessageId(sourceMessageId, sourceMessageId);
             incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
