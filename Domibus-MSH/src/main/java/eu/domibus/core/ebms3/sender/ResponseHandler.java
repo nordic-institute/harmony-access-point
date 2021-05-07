@@ -15,6 +15,7 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
@@ -23,6 +24,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -41,9 +43,10 @@ public class ResponseHandler {
     private final NonRepudiationService nonRepudiationService;
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
-    MshRoleDao mshRoleDao;
+    protected MshRoleDao mshRoleDao;
     private final ErrorLogDao errorLogDao;
     protected Ebms3Converter ebms3Converter;
+    protected UserMessageDao userMessageDao;
 
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
                            UIReplicationSignalService uiReplicationSignalService,
@@ -52,7 +55,8 @@ public class ResponseHandler {
                            MessageUtil messageUtil,
                            MshRoleDao mshRoleDao,
                            ErrorLogDao errorLogDao,
-                           Ebms3Converter ebms3Converter) {
+                           Ebms3Converter ebms3Converter,
+                           UserMessageDao userMessageDao) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.nonRepudiationService = nonRepudiationService;
@@ -61,6 +65,7 @@ public class ResponseHandler {
         this.mshRoleDao = mshRoleDao;
         this.errorLogDao = errorLogDao;
         this.ebms3Converter = ebms3Converter;
+        this.userMessageDao = userMessageDao;
     }
 
     public ResponseResult verifyResponse(final SOAPMessage response, String messageId) throws EbMS3Exception {
@@ -90,11 +95,12 @@ public class ResponseHandler {
         return result;
     }
 
+    @Transactional
     public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse) {
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-        signalMessage.setUserMessage(userMessage);
+        signalMessage.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
         nonRepudiationService.saveResponse(response, signalMessage);
 
         // Stores the signal message
