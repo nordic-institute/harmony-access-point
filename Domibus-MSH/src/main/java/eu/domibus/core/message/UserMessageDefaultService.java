@@ -151,7 +151,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private MessageCoreMapper messageCoreConverter;
+    private MessageCoreMapper messageCoreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -544,7 +544,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
         final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
-        return messageCoreConverter.userMessageToUserMessageApi(userMessageByMessageId);
+        return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Transactional

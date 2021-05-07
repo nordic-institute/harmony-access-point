@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.property.PropertyConfig;
 import eu.domibus.core.scheduler.ReprogrammableService;
@@ -36,9 +37,10 @@ import static org.hamcrest.CoreMatchers.hasItems;
 @ContextConfiguration(classes = {InMemoryDataBaseConfig.class, MessageConfig.class, PropertyConfig.class, UtilConfig.class, SchedulerConfig.class, TimeConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 @Transactional
+@Ignore("EDELIVERY-8052 Failing tests must be ignored")
 public class UserMessageLogDaoIT {
 
-    /*private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
 
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
 
@@ -50,9 +52,9 @@ public class UserMessageLogDaoIT {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private MessageInfoDao messageInfoDao;
+    private UserMessageDao userMessageDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     @Autowired
@@ -199,13 +201,6 @@ public class UserMessageLogDaoIT {
     }
 
     @Test
-    public void getDeletedUserMessagesOlderThan_notFound() {
-        List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getDeletedUserMessagesOlderThan(before, MPC, 10);
-        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
-    }
-
-    @Test
     public void currentAndFutureDateTimesSavedInUtcIrrespectiveOfApplicationTimezone() {
         UserMessageLog retryMessage = userMessageLogDao.findByMessageId(waitingForRetryNoProperties);
         Assert.assertNotNull("Should have found a retry message", retryMessage);
@@ -241,34 +236,32 @@ public class UserMessageLogDaoIT {
     }
 
     private void createEntities(MessageStatus status, String noProperties, String withProperties) {
-        MessageInfo messageInfo1 = getMessageInfo(noProperties);
-        createUserMessageLog(noProperties, status, now, messageInfo1);
-        createUserMessageWithProperties(null, messageInfo1, em);
+//        MessageInfo messageInfo1 = getMessageInfo(noProperties);
+        createUserMessageLog(noProperties, status, now);
+        createUserMessageWithProperties(null, em);
 
-        MessageInfo messageInfo2 = getMessageInfo(withProperties);
-        createUserMessageLog(withProperties, status, now, messageInfo2);
+//        MessageInfo messageInfo2 = getMessageInfo(withProperties);
+        createUserMessageLog(withProperties, status, now);
         createUserMessageWithProperties(Arrays.asList(
                 getProperty("prop1", "value1"),
-                getProperty("prop2", "value2")),
-                messageInfo2, em);
+                getProperty("prop2", "value2")), em);
     }
 
-    private void createUserMessageWithProperties(List<Property> properties, MessageInfo messageInfo, EntityManager em) {
+    private void createUserMessageWithProperties(List<MessageProperty> properties,  EntityManager em) {
         UserMessage userMessage = new UserMessage();
-        userMessage.setMessageInfo(messageInfo);
-        CollaborationInfo collaborationInfo = new CollaborationInfo();
-        collaborationInfo.setConversationId(randomUUID().toString());
-        userMessage.setCollaborationInfo(collaborationInfo);
+//        userMessage.setMessageInfo(messageInfo);
+        userMessage.setConversationId(randomUUID().toString());
+        userMessage.setMessageId(randomUUID().toString());
         if (properties != null) {
-            MessageProperties value = new MessageProperties();
-            value.getProperty().addAll(properties);
-            userMessage.setMessageProperties(value);
+            HashSet<MessageProperty> messageProperties = new HashSet<>();
+            messageProperties.addAll(properties);
+            userMessage.setMessageProperties(messageProperties);
         }
         em.persist(userMessage);
     }
 
-    private Property getProperty(String name, String value) {
-        Property property = new Property();
+    private MessageProperty getProperty(String name, String value) {
+        MessageProperty property = new MessageProperty();
         property.setName(name);
         property.setType("type");
         property.setValue(value);
@@ -277,13 +270,19 @@ public class UserMessageLogDaoIT {
 
     private void createUserMessageLog(String msgId,
                                       MessageStatus messageStatus,
-                                      Date date,
-                                      MessageInfo messageInfo) {
+                                      Date date) {
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageInfo(messageInfo);
-        userMessageLog.setMessageId(msgId);
-        userMessageLog.setMessageStatus(messageStatus);
-        userMessageLog.setMpc(UserMessageLogDaoIT.MPC);
+//        userMessageLog.setMessageInfo(messageInfo);
+//        userMessageLog.setMessageId(msgId);
+        UserMessage userMessage = new UserMessage();
+        userMessage.setMessageId(msgId);
+        userMessage.setConversationId(msgId);
+        userMessageDao.create(userMessage);
+        userMessageLog.setUserMessage(userMessage);
+        MessageStatusEntity messageStatus1 = new MessageStatusEntity();
+        messageStatus1.setMessageStatus(messageStatus);
+        userMessageLog.setMessageStatus(messageStatus1);
+//        userMessageLog.setMpc(UserMessageLogDaoIT.MPC);
         switch (messageStatus) {
             case DELETED:
                 userMessageLog.setDeleted(date);
@@ -305,12 +304,12 @@ public class UserMessageLogDaoIT {
         userMessageLogDao.create(userMessageLog);
     }
 
-    private MessageInfo getMessageInfo(String msgId) {
-        MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setMessageId(msgId);
-        messageInfo.setTimestamp(new Date());
-        messageInfoDao.create(messageInfo);
-        return messageInfo;
-    }*/
+//    private MessageInfo getMessageInfo(String msgId) {
+//        MessageInfo messageInfo = new MessageInfo();
+//        messageInfo.setMessageId(msgId);
+//        messageInfo.setTimestamp(new Date());
+//        messageInfoDao.create(messageInfo);
+//        return messageInfo;
+//    }
 
 }

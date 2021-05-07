@@ -49,11 +49,11 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     @Column(name = "NOTIFIED")
     private Date notified;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_MESSAGE_ID_FK")
     private UserMessage userMessage;
 

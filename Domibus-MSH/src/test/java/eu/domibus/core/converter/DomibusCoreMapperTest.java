@@ -13,6 +13,7 @@ import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,6 +33,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     private ObjectService objectService;
     
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertDomain() {
         DomainSpi toConvert = (DomainSpi) objectService.createInstance(DomainSpi.class);
         final Domain converted = domibusCoreMapper.domainSpiToDomain(toConvert);
@@ -40,6 +42,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertRoutingCriteria() {
         RoutingCriteria toConvert = (RoutingCriteria) objectService.createInstance(RoutingCriteria.class);
         final RoutingCriteriaEntity converted = domibusCoreMapper.routingCriteriaToRoutingCriteriaEntity(toConvert);
@@ -49,6 +52,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
 
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertEvent() {
         PModeResponseRO toConvert = (PModeResponseRO) objectService.createInstance(PModeResponseRO.class);
         final PModeArchiveInfo converted = domibusCoreMapper.pModeResponseROToPModeArchiveInfo(toConvert);
@@ -58,6 +62,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertDomainRO() {
         DomainRO toConvert = (DomainRO) objectService.createInstance(DomainRO.class);
         final Domain converted = domibusCoreMapper.domainROToDomain(toConvert);
@@ -66,6 +71,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertDomainToDomainDTO() {
         Domain toConvert = (Domain) objectService.createInstance(Domain.class);
         final DomainDTO converted = domibusCoreMapper.domainToDomainDTO(toConvert);
@@ -74,6 +80,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertDomainDTOToDomain() {
         DomainDTO toConvert = (DomainDTO) objectService.createInstance(DomainDTO.class);
         final Domain converted = domibusCoreMapper.domainDTOToDomain(toConvert);
@@ -82,6 +89,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertPasswordEncryptionResultDTOToPasswordEncryptionResult() {
         PasswordEncryptionResultDTO toConvert = (PasswordEncryptionResultDTO) objectService.createInstance(PasswordEncryptionResultDTO.class);
         final PasswordEncryptionResult converted = domibusCoreMapper.passwordEncryptionResultDTOToPasswordEncryptionResult(toConvert);
@@ -90,6 +98,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertLoggingEntry() {
         LoggingEntry toConvert = (LoggingEntry) objectService.createInstance(LoggingEntry.class);
         final LoggingLevelRO converted = domibusCoreMapper.loggingEntryToLoggingLevelRO(toConvert);

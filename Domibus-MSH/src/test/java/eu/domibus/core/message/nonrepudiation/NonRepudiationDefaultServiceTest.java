@@ -1,7 +1,25 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.RawEnvelopeDto;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.util.SoapUtil;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.xml.soap.SOAPMessage;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -13,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JMockit.class)
 public class NonRepudiationDefaultServiceTest {
 
-  /*  @Tested
+    @Tested
     NonRepudiationDefaultService nonRepudiationService;
 
     @Injectable
@@ -29,10 +47,13 @@ public class NonRepudiationDefaultServiceTest {
     private SignalMessageDao signalMessageDao;
 
     @Injectable
-    private MessagingDao messagingDao;
+    private AuditService auditService;
 
     @Injectable
-    private AuditService auditService;
+    private SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
+
+    @Injectable
+    private UserMessageDao userMessageDao;
 
     @Test
     public void saveResponse_disabled(@Mocked SOAPMessage response) {
@@ -45,7 +66,7 @@ public class NonRepudiationDefaultServiceTest {
         nonRepudiationService.saveResponse(response, userMessageId);
 
         new Verifications() {{
-            signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
+            signalMessageDao.findByRefMessageId(userMessageId);
             times = 0;
         }};
     }
@@ -57,7 +78,7 @@ public class NonRepudiationDefaultServiceTest {
             nonRepudiationService.isNonRepudiationAuditDisabled();
             result = false;
 
-            signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
+            signalMessageDao.findByRefMessageId(userMessageId);
             result = Arrays.asList();
         }};
 
@@ -70,6 +91,7 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void saveResponse_ok(@Mocked SOAPMessage response, @Mocked SignalMessage signalMessage) {
         String userMessageId = "msgid";
         List<SignalMessage> signalMessages = Arrays.asList(signalMessage);
@@ -77,7 +99,7 @@ public class NonRepudiationDefaultServiceTest {
             nonRepudiationService.isNonRepudiationAuditDisabled();
             result = false;
 
-            signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
+            signalMessageDao.findByRefMessageId(userMessageId);
             result = signalMessages;
 
             signalMessages.stream().findFirst();
@@ -132,6 +154,7 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getUserMessageEnvelope_ok(@Mocked UserMessage userMessage, @Mocked RawEnvelopeDto rawEnvelopeDto) {
         String messageId = "msgid", envelopContent = "content";
 
@@ -157,12 +180,9 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getSignalMessageEnvelope_noMessage() {
         String userMessageId = "msgid";
-        new Expectations(nonRepudiationService) {{
-            messagingDao.findSignalMessageByUserMessageId(userMessageId);
-            result = null;
-        }};
 
         String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
 
@@ -175,15 +195,9 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getSignalMessageEnvelope_noMessageEnvelope(@Mocked SignalMessage signalMessage) {
         String userMessageId = "msgid";
-        new Expectations(nonRepudiationService) {{
-            messagingDao.findSignalMessageByUserMessageId(userMessageId);
-            result = signalMessage;
-
-            signalMessage.getRawEnvelopeLog();
-            result = null;
-        }};
 
         String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
 
@@ -196,18 +210,9 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
-    public void getSignalMessageEnvelope_ok(@Mocked SignalMessage signalMessage, @Mocked UserMessageRaw rawEnvelopeLog) {
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    public void getSignalMessageEnvelope_ok(@Mocked SignalMessage signalMessage) {
         String userMessageId = "msgid", rawXml = "rawXml";
-        new Expectations(nonRepudiationService) {{
-            messagingDao.findSignalMessageByUserMessageId(userMessageId);
-            result = signalMessage;
-
-            signalMessage.getRawEnvelopeLog();
-            result = rawEnvelopeLog;
-
-            rawEnvelopeLog.getRawXML();
-            result = rawXml;
-        }};
 
         String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
 
@@ -235,5 +240,5 @@ public class NonRepudiationDefaultServiceTest {
         assertNotNull(result.get("user_message_envelope.xml"));
         assertNotNull(result.get("signal_message_envelope.xml"));
         assertEquals(2, result.size());
-    }*/
+    }
 }

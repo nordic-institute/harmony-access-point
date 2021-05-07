@@ -26,6 +26,21 @@ public class MessageConfig {
     }
 
     @Bean
+    public MessageStatusDao messageStatusDao() {
+        return new MessageStatusDao();
+    }
+
+    @Bean
+    public NotificationStatusDao notificationStatusDao() {
+        return new NotificationStatusDao();
+    }
+
+    @Bean
+    public UserMessageDao userMessageDao() {
+        return new UserMessageDao();
+    }
+
+    @Bean
     public MessagePropertyDao propertyDao() {
         return new MessagePropertyDao();
     }

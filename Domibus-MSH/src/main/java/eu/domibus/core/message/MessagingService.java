@@ -17,7 +17,9 @@ import java.util.List;
  */
 public interface MessagingService {
 
-    void storeMessage(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException;
+    void storeMessagePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException;
+
+    void saveUserMessageAndPayloads(UserMessage userMessage, List<PartInfo> partInfoList);
 
     void storePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, LegConfiguration legConfiguration, String backendName);
 

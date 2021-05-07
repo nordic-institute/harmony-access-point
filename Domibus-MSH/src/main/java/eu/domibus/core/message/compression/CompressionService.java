@@ -111,12 +111,12 @@ public class CompressionService {
     /**
      * This method handles decompression of payloads for messages in case of {@link eu.domibus.api.model.MSHRole#RECEIVING}
      *
-     * @param ebmsMessage         the receving {@link UserMessage} with all payloads
+     * @param userMessage         the receving {@link UserMessage} with all payloads
      * @param legConfigForMessage processing information for the message
      * @return {@code true} if everything was decompressed without problems, {@code false} in case of disabled compression via pmode
      * @throws EbMS3Exception if an problem occurs during the de compression or the mimetype of a compressed payload was missing
      */
-    public boolean handleDecompression(final UserMessage ebmsMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
+    public boolean handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
         //if compression is not necessary return false
         if (!legConfigForMessage.isCompressPayloads()) {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_NOT_ENABLED);
@@ -155,8 +155,8 @@ public class CompressionService {
             partInfo.getPartProperties().remove(compressionProperty);
 
             if (mimeType == null) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), ebmsMessage.getMessageId());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "No mime type found for payload with cid:" + partInfo.getHref(), ebmsMessage.getMessageId(), null);
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), userMessage.getMessageId());
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "No mime type found for payload with cid:" + partInfo.getHref(), userMessage.getMessageId(), null);
                 ex.setMshRole(MSHRole.RECEIVING);
                 throw ex;
             }

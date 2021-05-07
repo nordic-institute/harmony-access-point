@@ -2,6 +2,7 @@ package eu.domibus.core.error;
 
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
@@ -9,6 +10,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,7 @@ import java.util.Date;
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class ErrorLogDaoIT {
 
-/*    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -46,7 +48,9 @@ public class ErrorLogDaoIT {
 
     public void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail, Date timestamp) {
         ErrorLogEntry errorLogEntry = new ErrorLogEntry();
-        errorLogEntry.setMshRole(mshRole);
+        MSHRoleEntity mshRole1 = new MSHRoleEntity();
+        mshRole1.setRole(mshRole);
+        errorLogEntry.setMshRole(mshRole1);
         errorLogEntry.setMessageInErrorId(messageInErrorId);
         errorLogEntry.setErrorCode(errorCode);
         errorLogEntry.setErrorDetail(errorDetail);
@@ -57,9 +61,10 @@ public class ErrorLogDaoIT {
 
     @Test
     @Transactional
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void test_deleteErrorLogsWithoutMessageIdOlderThan(){
 
         int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
         Assert.assertEquals(2, result);
-    }*/
+    }
 }

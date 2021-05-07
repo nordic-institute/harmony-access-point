@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.services.DateExtService;
 import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
@@ -39,7 +40,7 @@ public class WSBackendMessageLogDaoIT {
     @Autowired
     private DateExtService dateExtService;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private javax.persistence.EntityManager em;
 
     private WSBackendMessageLogEntity entityFailed;

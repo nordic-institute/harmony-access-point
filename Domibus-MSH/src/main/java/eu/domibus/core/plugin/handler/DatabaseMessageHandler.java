@@ -337,9 +337,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             fillMpc(userMessage, legConfiguration, to);
 
             try {
-                messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-                partInfo.setUserMessage(userMessage);
-                partInfoDao.create(partInfo);
+                messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
                 messageFragmentEntity.setUserMessage(userMessage);
                 messageFragmentDao.create(messageFragmentEntity);
             } catch (CompressionException exc) {
@@ -456,7 +455,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
             try {
-                messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);

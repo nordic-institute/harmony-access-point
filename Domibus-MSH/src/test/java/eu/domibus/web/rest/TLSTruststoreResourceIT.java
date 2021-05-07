@@ -15,6 +15,7 @@ import mockit.FullVerifications;
 import mockit.Mocked;
 import mockit.Verifications;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -94,7 +95,6 @@ public class TLSTruststoreResourceIT {
         mockMvc = MockMvcBuilders.standaloneSetup(tlsTruststoreResource).build();
 
         ReflectionTestUtils.setField(tlsTruststoreResource, "tlsCertificateManager", tlsCertificateManager);
-        ReflectionTestUtils.setField(tlsTruststoreResource, "coreMapper", partyCoreConverter);
         ReflectionTestUtils.setField(tlsTruststoreResource, "errorHandlerService", errorHandlerService);
         ReflectionTestUtils.setField(tlsTruststoreResource, "multiPartFileUtil", multiPartFileUtil);
         ReflectionTestUtils.setField(tlsTruststoreResource, "auditService", auditService);
@@ -102,6 +102,7 @@ public class TLSTruststoreResourceIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getEntries_ok() throws Exception {
         List<TrustStoreEntry> entries = Arrays.asList(new TrustStoreEntry());

@@ -21,6 +21,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,7 +42,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class RoutingServiceTest {
 
-  /*  public static final int MAX_INDEX = 10;
+    public static final int MAX_INDEX = 10;
     public static final String MESSAGE_ID = "MessageId";
 
     @Injectable
@@ -184,10 +185,11 @@ public class RoutingServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getBackendFilters_backendFilterNotEmptyInDao() {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
-        routingService.coreMapper = coreMapper;
+//        routingService.coreMapper = coreMapper;
 
         ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
         backendFilterEntityList.add(new BackendFilterEntity());
@@ -198,8 +200,8 @@ public class RoutingServiceTest {
             backendFilterDao.findAll();
             result = backendFilterEntityList;
 
-            coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
-            result = backendFilters;
+//            coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
+//            result = backendFilters;
         }};
         List<BackendFilter> actual = routingService.getBackendFiltersUncached();
 
@@ -210,10 +212,11 @@ public class RoutingServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getBackendFilters_return1(@Injectable BackendFilterEntity backendFilterEntity) {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
-        routingService.coreMapper = coreMapper;
+//        routingService.coreMapper = coreMapper;
 
         ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
         backendFilterEntityList.add(backendFilterEntity);
@@ -226,7 +229,7 @@ public class RoutingServiceTest {
         routingService.getBackendFiltersUncached();
 
         new FullVerifications() {{
-            coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
+//            coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
         }};
     }
 
@@ -255,8 +258,8 @@ public class RoutingServiceTest {
             result = criteriaList;
 
             // TODO: Criteria Operator is not used.
-            *//*filter.getCriteriaOperator();
-            result = LogicalOperator.AND;*//*
+            /*filter.getCriteriaOperator();
+            result = LogicalOperator.AND;*/
 
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
@@ -696,7 +699,7 @@ public class RoutingServiceTest {
         List<BackendFilter> backendFilters = asList(backendFilter1, backendFilter2);
 
         new Expectations(routingService) {{
-            userMessage.getMessageInfo().getMessageId();
+            userMessage.getMessageId();
             result = MESSAGE_ID;
 
             routingService.isBackendFilterMatching(backendFilter1, criteriaMap, userMessage);
@@ -724,7 +727,7 @@ public class RoutingServiceTest {
         List<BackendFilter> backendFilters = new ArrayList<>();
 
         new Expectations() {{
-            userMessage.getMessageInfo().getMessageId();
+            userMessage.getMessageId();
             result = MESSAGE_ID;
         }};
 
@@ -883,6 +886,7 @@ public class RoutingServiceTest {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void updateBackendFilters(@Injectable BackendFilter filter1,
                                      @Injectable BackendFilter filter2,
                                      @Injectable List<BackendFilterEntity> allBackendFilterEntities) {
@@ -890,7 +894,7 @@ public class RoutingServiceTest {
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
         routingService.signalService = signalService;
-        routingService.coreMapper = coreMapper;
+//        routingService.coreMapper = coreMapper;
 
         List<BackendFilter> filters = new ArrayList<>();
         filters.add(filter1);
@@ -900,8 +904,8 @@ public class RoutingServiceTest {
             backendFilterDao.findAll();
             result = allBackendFilterEntities;
 
-            coreMapper.backendFilterListToBackendFilterEntityList(filters);
-            result = allBackendFilterEntities;
+//            coreMapper.backendFilterListToBackendFilterEntityList(filters);
+//            result = allBackendFilterEntities;
 
             routingService.validateFilters((List<BackendFilter>) any);
             routingService.invalidateBackendFiltersCache();
@@ -917,5 +921,5 @@ public class RoutingServiceTest {
             routingService.invalidateBackendFiltersCache();
             signalService.signalMessageFiltersUpdated();
         }};
-    }*/
+    }
 }

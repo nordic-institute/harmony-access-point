@@ -51,7 +51,7 @@ public class UIMessageEntity extends AbstractBaseEntity implements Reprogrammabl
     private MessageType messageType;
 
     @Column(name = "TEST_MESSAGE")
-    private Boolean testMesage;
+    private Boolean testMessage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
@@ -158,12 +158,12 @@ public class UIMessageEntity extends AbstractBaseEntity implements Reprogrammabl
         this.messageType = messageType;
     }
 
-    public Boolean getTestMesage() {
-        return testMesage;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setTestMesage(Boolean testMesage) {
-        this.testMesage = testMesage;
+    public void setTestMessage(Boolean testMesage) {
+        this.testMessage = testMesage;
     }
 
     public String getConversationId() {
