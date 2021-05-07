@@ -134,7 +134,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         PartInfo partInfo = new PartInfo();
         partInfo.setBinaryData(messagePayload.getBytes());
         partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
-        messagingService.storeMessage(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
+        messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatus = new MessageStatusEntity();

@@ -291,7 +291,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
             messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(withAny(new UserMessage()), anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending(userMessage, (UserMessageLog) any);
         }};
@@ -362,7 +362,7 @@ public class DatabaseMessageHandlerTest {
 //            assertEquals("TC2Leg1", message.getCollaborationInfo().getAction());
 //            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
             messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
-            messagingService.storeMessage(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(withAny(new UserMessage()), MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
@@ -413,7 +413,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogService.save(withAny(new UserMessage()), anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
         }};
 
@@ -451,7 +451,7 @@ public class DatabaseMessageHandlerTest {
             times = 0;
             pModeProvider.getLegConfiguration(anyString);
             times = 0;
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             times = 0;
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
@@ -494,7 +494,7 @@ public class DatabaseMessageHandlerTest {
             times = 0;
             pModeProvider.getLegConfiguration(anyString);
             times = 0;
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             times = 0;
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
@@ -549,7 +549,7 @@ public class DatabaseMessageHandlerTest {
             times = 0;
             messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
             times = 0;
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             times = 0;
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
@@ -594,7 +594,7 @@ public class DatabaseMessageHandlerTest {
             times = 0;
             pModeProvider.getLegConfiguration(anyString);
             times = 0;
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             times = 0;
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
@@ -632,7 +632,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             times = 0;
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             times = 0;
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
@@ -672,7 +672,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
@@ -771,7 +771,7 @@ public class DatabaseMessageHandlerTest {
 
             LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
 
-            messagingService.storeMessage(new UserMessage(),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(new UserMessage(),null, MSHRole.SENDING, legConfiguration, anyString);
             result = new CompressionException("Could not store binary data for message due to IO exception", new IOException("test compression"));
         }};
 
@@ -789,7 +789,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
-            messagingService.storeMessage(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
         }};
@@ -1156,7 +1156,7 @@ public class DatabaseMessageHandlerTest {
         databaseMessageHandler.submitMessageFragment(userMessage,null,null, backendName);
 
         new Verifications() {{
-            messagingService.storeMessage(userMessage,null, MSHRole.SENDING, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage,null, MSHRole.SENDING, legConfiguration, backendName);
             times = 1;
             uiReplicationSignalService.userMessageSubmitted(withCapture());
             times = 1;

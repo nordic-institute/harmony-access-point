@@ -164,7 +164,6 @@ public class IncomingEbms3UserMessageHandlerTest {
 
     /**
      * Happy flow unit testing with actual data
-     *
      */
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
@@ -178,14 +177,14 @@ public class IncomingEbms3UserMessageHandlerTest {
             soapRequestMessage.getProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
             result = pmodeKey;
 
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null,false);
+            userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null, null, false);
             result = soapResponseMessage;
         }};
 
         incomingUserMessageHandler.processMessage(soapRequestMessage, messaging);
 
         new Verifications() {{
-            backendNotificationService.notifyMessageReceivedFailure(userMessage,null, (ErrorResult) any);
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, null, (ErrorResult) any);
             times = 0;
         }};
     }
@@ -193,7 +192,6 @@ public class IncomingEbms3UserMessageHandlerTest {
 
     /**
      * Unit testing with actual data.
-     *
      */
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
@@ -208,7 +206,7 @@ public class IncomingEbms3UserMessageHandlerTest {
             legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer();
             result = true;
 
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, withAny(pmodeKey), withAny(soapRequestMessage), withAny(userMessage),null, false);
+            userMessageHandlerService.handleNewUserMessage(legConfiguration, withAny(pmodeKey), withAny(soapRequestMessage), withAny(userMessage), null, null, false);
             result = new EbMS3Exception(null, null, null, null);
 
         }};
@@ -221,7 +219,7 @@ public class IncomingEbms3UserMessageHandlerTest {
         }
 
         new Verifications() {{
-            backendNotificationService.notifyMessageReceivedFailure(userMessage, null,(ErrorResult) any);
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, null, (ErrorResult) any);
         }};
     }
 }

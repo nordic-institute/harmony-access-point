@@ -312,7 +312,7 @@ public class UserMessageHandlerServiceImplTest {
             result = soapResponseMessage;
         }};
 
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, false);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
 
         new FullVerifications() {{
             soapUtil.logMessage(soapRequestMessage);
@@ -358,7 +358,7 @@ public class UserMessageHandlerServiceImplTest {
 
         }};
 
-        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, true, false, false);
+        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, true, false, false);
 
         new FullVerifications() {{
             soapUtil.logMessage(soapRequestMessage);
@@ -411,7 +411,7 @@ public class UserMessageHandlerServiceImplTest {
             result = "groupId";
         }};
 
-        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, true, false, false);
+        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, true, false, false);
 
         new FullVerifications() {{
             soapUtil.logMessage(soapRequestMessage);
@@ -479,7 +479,7 @@ public class UserMessageHandlerServiceImplTest {
             result = soapResponseMessage;
         }};
 
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, true);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, true);
 
         new FullVerifications() {{
             soapUtil.logMessage(soapRequestMessage);
@@ -522,7 +522,7 @@ public class UserMessageHandlerServiceImplTest {
             result = Collections.emptyIterator();
         }};
 
-        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging);
+        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
 
         new FullVerifications() {{
             partInfo.setInBody(true);
@@ -551,7 +551,7 @@ public class UserMessageHandlerServiceImplTest {
             result = Collections.emptyIterator();
         }};
 
-        userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage);
+        userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage, null);
 
         new Verifications() {{
             xmlUtil.getTransformerFactory().newTransformer();
@@ -615,10 +615,10 @@ public class UserMessageHandlerServiceImplTest {
         userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "");
 
         new FullVerifications() {{
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging);
+            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
             userMessageLogService.save(
                     userMessage,
                     MessageStatus.RECEIVED.toString(),
@@ -676,7 +676,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage);
+            userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage, null);
             fail("Expecting error that - More than one Partinfo referencing the soap body found!");
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
@@ -733,7 +733,7 @@ public class UserMessageHandlerServiceImplTest {
         }
 
         new FullVerifications() {{
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging);
+            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
         }};
@@ -757,7 +757,7 @@ public class UserMessageHandlerServiceImplTest {
             compressionService.handleDecompression(userMessage, null, legConfiguration);
             result = true;
 
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
             result = new CompressionException("Could not store binary data for message ", null);
 
             userMessage.getMessageId();
@@ -771,10 +771,10 @@ public class UserMessageHandlerServiceImplTest {
         }
 
         new FullVerifications() {{
-            userMessageHandlerService.handlePayloads(soapRequestMessage, null);
+            userMessageHandlerService.handlePayloads(soapRequestMessage, null, null);
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
             userMessageLogDao.create(withAny(userMessageLog));
             times = 0;
         }};
@@ -820,7 +820,7 @@ public class UserMessageHandlerServiceImplTest {
             result = attachmentPart2DH;
         }};
 
-        userMessageHandlerService.handlePayloads(soapRequestMessage, null);
+        userMessageHandlerService.handlePayloads(soapRequestMessage, null, null);
 //        Assert.assertNotNull(partInfo.getPayloadDatahandler());
 //        assertNotNull(partInfo.getPayloadDatahandler());
 
@@ -872,7 +872,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging);
+            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             fail("Expected Ebms3 exception that no matching payload was found!");
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0011, e.getErrorCode());
@@ -984,7 +984,7 @@ public class UserMessageHandlerServiceImplTest {
             result = soapResponseMessage;
         }};
 
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, false);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
 
         new FullVerifications() {{
             soapUtil.logMessage(soapRequestMessage);
@@ -1033,7 +1033,7 @@ public class UserMessageHandlerServiceImplTest {
             result = new SubmissionValidationException("Error while submitting the message!!");
         }};
         try {
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, false);
+            userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
             fail();
         } catch (Exception e) {
             Assert.assertTrue("Expecting Ebms3exception!", e instanceof EbMS3Exception);
@@ -1254,7 +1254,7 @@ public class UserMessageHandlerServiceImplTest {
         userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, null, selfSending, messageExists, testMessage);
 
         new FullVerifications() {{
-            backendNotificationService.notifyMessageReceived(backendFilter,userMessage, null);
+            backendNotificationService.notifyMessageReceived(backendFilter, userMessage, null);
             soapUtil.logMessage(request);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
         }};
@@ -1338,7 +1338,7 @@ public class UserMessageHandlerServiceImplTest {
 
             uiReplicationSignalService.userMessageReceived(messageId);
 
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
 
             userMessageLogService.save(
                     userMessage,
@@ -1373,7 +1373,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = messageId;
 
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
             result = new CompressionException();
         }};
 
@@ -1409,7 +1409,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = messageId;
 
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
             result = new InvalidPayloadSizeException("ERROR");
 
             storageProvider.isPayloadsPersistenceFileSystemConfigured();
@@ -1454,7 +1454,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = messageId;
 
-            messagingService.storeMessage(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, backendName);
             result = new InvalidPayloadSizeException("ERROR");
 
             storageProvider.isPayloadsPersistenceFileSystemConfigured();
@@ -1469,7 +1469,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
 
         try {
-            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey,  null, backendName, userMessage, null);
+            userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null);
             fail();
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
@@ -1506,8 +1506,8 @@ public class UserMessageHandlerServiceImplTest {
             ebms3MessageFragmentType.getFragmentNum();
             result = 41L;
 
-            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
-            times = 1;
+//            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+//            times = 1;
         }};
 
         userMessageHandlerService.handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
@@ -1566,8 +1566,8 @@ public class UserMessageHandlerServiceImplTest {
             ebms3MessageFragmentType.getFragmentNum();
             result = 41L;
 
-            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
-            times = 1;
+//            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+//            times = 1;
         }};
 
         userMessageHandlerService.handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
@@ -1888,32 +1888,5 @@ public class UserMessageHandlerServiceImplTest {
 
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void addPartInfoFromFragment_noFragment(@Injectable UserMessage userMessage) {
-        userMessageHandlerService.addPartInfoFromFragment(userMessage, null);
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void addPartInfoFromFragment(@Injectable UserMessage userMessage,
-                                        @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType) {
-
-        new Expectations() {{
-            ebms3MessageFragmentType.getHref();
-            result = "Ref";
-        }};
-
-        userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
-        new FullVerifications() {{
-//            PayloadInfo payloadInfo;
-//            userMessage.setPayloadInfo(payloadInfo = withCapture());
-//
-//            assertEquals(1, payloadInfo.getPartInfo().size());
-//            assertEquals("Ref", payloadInfo.getPartInfo().get(0).getHref());
-        }};
     }
 }
