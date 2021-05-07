@@ -58,6 +58,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Autowired
     private AuditService auditService;
 
+    @Transactional
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
@@ -70,10 +71,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
             UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
             if (userMessage != null) {
-                rawEnvelopeLog.setUserMessage(userMessage);
+                rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
             }
             rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
-            rawEnvelopeLog.setUserMessage(userMessage);
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
