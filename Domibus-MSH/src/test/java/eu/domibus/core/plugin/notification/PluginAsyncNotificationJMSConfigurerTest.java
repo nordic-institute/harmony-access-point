@@ -2,16 +2,10 @@ package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.plugin.notification.PluginAsyncNotificationJMSConfigurer;
-import eu.domibus.core.plugin.notification.PluginAsyncNotificationListener;
-import eu.domibus.core.plugin.notification.PluginEventNotifierProvider;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListenerService;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -72,6 +66,21 @@ public class PluginAsyncNotificationJMSConfigurerTest {
         }};
     }
 
+    @Test
+    public void configureJmsListenersWithNoAsyncPlugins(@Injectable JmsListenerEndpointRegistrar registrar) throws JMSException {
+        pluginAsyncNotificationJMSConfigurer.asyncNotificationConfigurations = null;
+
+        new Expectations(pluginAsyncNotificationJMSConfigurer) {{
+            pluginAsyncNotificationJMSConfigurer.initializeAsyncNotificationLister(registrar, (AsyncNotificationConfiguration) any);
+            times = 0;
+        }};
+
+        pluginAsyncNotificationJMSConfigurer.configureJmsListeners(registrar);
+
+        new FullVerifications() {{
+        }};
+    }
+    
     @Test
     public void initializeAsyncNotificationLister(@Injectable JmsListenerEndpointRegistrar registrar,
                                                   @Injectable AsyncNotificationConfiguration asyncNotificationConfiguration,

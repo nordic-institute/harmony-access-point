@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.ext.services.CommandExtTask;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 
 import javax.annotation.PostConstruct;
@@ -12,20 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
- *
  * @author Thomas Dussart
  * @since 4.2
- *
+ * <p>
  * This command triggers a refresh of the DSS trusted list on the node it is executed.
  */
 public class DssRefreshCommand implements CommandExtTask {
 
-    public static final String COMMAND_NAME="DSS_REFRESH";
+    public static final String COMMAND_NAME = "DSS_REFRESH";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshCommand.class);
 
@@ -33,15 +32,15 @@ public class DssRefreshCommand implements CommandExtTask {
 
     private DssExtensionPropertyManager dssExtensionPropertyManager;
 
-    public DssRefreshCommand(DomibusTSLValidationJob domibusTSLValidationJob,DssExtensionPropertyManager dssExtensionPropertyManager) {
+    public DssRefreshCommand(DomibusTSLValidationJob domibusTSLValidationJob, DssExtensionPropertyManager dssExtensionPropertyManager) {
         this.domibusTSLValidationJob = domibusTSLValidationJob;
-        this.dssExtensionPropertyManager=dssExtensionPropertyManager;
+        this.dssExtensionPropertyManager = dssExtensionPropertyManager;
     }
 
     @Override
     public boolean canHandle(String command) {
         boolean candHandle = COMMAND_NAME.equals(command);
-        LOG.debug("Command with name:[{}] should be executed[{}]",command,candHandle);
+        LOG.debug("Command with name:[{}] should be executed[{}]", command, candHandle);
         return candHandle;
     }
 
@@ -57,7 +56,7 @@ public class DssRefreshCommand implements CommandExtTask {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         //TODO please refer to the following ticket EDELIVERY-7555 and refactor the code.
         LOG.info("Executing command to refresh DSS trusted lists at:[{}]", LocalDateTime.now());
         String serverCacheDirectoryPath = domibusTSLValidationJob.getCacheDirectoryPath();
@@ -69,14 +68,16 @@ public class DssRefreshCommand implements CommandExtTask {
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(cachePath)) {
             Iterator files = ds.iterator();
             if (!files.hasNext()) {
-                LOG.debug("Cache directory:[{}] is empty, refreshing trusted lists needed",serverCacheDirectoryPath);
+                LOG.debug("Cache directory:[{}] is empty, refreshing trusted lists needed", serverCacheDirectoryPath);
                 domibusTSLValidationJob.refresh();
             } else {
-                LOG.debug("Cache directory:[{}] is not empty, loading trusted lists from disk",serverCacheDirectoryPath);
+                LOG.debug("Cache directory:[{}] is not empty, loading trusted lists from disk", serverCacheDirectoryPath);
                 domibusTSLValidationJob.initRepository();
             }
         } catch (IOException e) {
             LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
+        } catch (DSSException d) {
+            LOG.error("Error while initiating DSS list of trusted list repository", d);
         }
     }
 }

@@ -61,7 +61,7 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 public class Party extends AbstractBaseEntity {
 
     @XmlElement(required = true, name = "identifier")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "FK_PARTY")
     @Audited(targetAuditMode = NOT_AUDITED)
     @AuditJoinTable(name = "TB_PM_PARTY_IDENTIFIER_AUD")
