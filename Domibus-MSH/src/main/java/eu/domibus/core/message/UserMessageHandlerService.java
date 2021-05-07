@@ -1,13 +1,12 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3UserMessage;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.model.PartInfo;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.ErrorResult;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
@@ -41,7 +40,7 @@ public interface UserMessageHandlerService {
      * @throws JAXBException
      * @throws SOAPException
      */
-    SOAPMessage handleNewUserMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, UserMessage userMessage, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
+    SOAPMessage handleNewUserMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
 
     /**
      * Handles incoming source messages for SplitAndJoin
@@ -89,7 +88,7 @@ public interface UserMessageHandlerService {
 
     Boolean checkSelfSending(String pmodeKey);
 
-    List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging)
+    List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
             throws EbMS3Exception, SOAPException, TransformerException;
 
     ErrorResult createErrorResult(EbMS3Exception ebm3Exception);

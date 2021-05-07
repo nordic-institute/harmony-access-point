@@ -140,15 +140,15 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     @Column(name = "VERSION")
     protected int version;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MESSAGE_STATUS_ID_FK")
     private MessageStatusEntity messageStatus;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NOTIFICATION_STATUS_ID_FK")
     private NotificationStatusEntity notificationStatus;
 

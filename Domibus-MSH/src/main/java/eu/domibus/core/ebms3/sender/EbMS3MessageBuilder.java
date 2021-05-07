@@ -21,6 +21,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class EbMS3MessageBuilder {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
-    public SOAPMessage buildSOAPMessage(final SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
+    public SOAPMessage buildSOAPMessage(final Ebms3SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPMessage(signalMessage);
     }
 
@@ -93,9 +94,8 @@ public class EbMS3MessageBuilder {
     }
 
     public SOAPMessage getSoapMessage(EbMS3Exception ebMS3Exception) {
-        final SignalMessage signalMessage = new SignalMessage();
-        //TODO check if we still need to add the errors on the Signal Message
-//        signalMessage.getError().add(ebMS3Exception.getFaultInfoError());
+        final Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
+        signalMessage.getError().add(ebMS3Exception.getFaultInfoError());
         try {
             return buildSOAPMessage(signalMessage, null);
         } catch (EbMS3Exception e) {
@@ -109,9 +109,9 @@ public class EbMS3MessageBuilder {
 
     //TODO: If Leg is used in future releases we have to update this method
     public SOAPMessage buildSOAPFaultMessage(final Ebms3Error ebMS3error) throws EbMS3Exception {
-        final SignalMessage signalMessage = new SignalMessage();
+        final Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
         //TODO check if we still need to add the errors on the Signal Message
-//        signalMessage.getError().add(ebMS3error);
+        signalMessage.getError().add(ebMS3error);
 
         final SOAPMessage soapMessage = this.buildSOAPMessage(signalMessage, null);
 
@@ -120,7 +120,7 @@ public class EbMS3MessageBuilder {
             //TODO: locale is static
             soapMessage.getSOAPBody().addFault(SOAPConstants.SOAP_RECEIVER_FAULT, "An error occurred while processing your request. Please check the message header for more details.", Locale.ENGLISH);
         } catch (final SOAPException e) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", signalMessage.getSignalMessageId(), e);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", signalMessage.getMessageInfo().getMessageId(), e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         }
@@ -141,10 +141,14 @@ public class EbMS3MessageBuilder {
             if (userMessage.getTimestamp() == null) {
                 userMessage.setTimestamp(new Date());
             }
-            LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
-            for (final PartInfo partInfo : partInfoList) {
-                this.attachPayload(partInfo, message);
+
+            if(CollectionUtils.isNotEmpty(partInfoList)) {
+                LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
+                for (final PartInfo partInfo : partInfoList) {
+                    this.attachPayload(partInfo, message);
+                }
             }
+
             if (messageGroupEntity != null) {
                 final Ebms3MessageFragmentType messageFragment = createMessageFragment(userMessage, messageFragmentEntity, partInfoList, messageGroupEntity);
                 jaxbContextMessageFragment.createMarshaller().marshal(messageFragment, message.getSOAPHeader());
@@ -177,7 +181,7 @@ public class EbMS3MessageBuilder {
         return message;
     }
 
-    protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) {
+    protected SOAPMessage buildSOAPMessage(final Ebms3SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
             message = xmlUtil.getMessageFactorySoap12().createMessage();
@@ -185,16 +189,17 @@ public class EbMS3MessageBuilder {
 
             if (signalMessage != null) {
                 String messageId = this.messageIdGenerator.generateMessageId();
-                signalMessage.setSignalMessageId(messageId);
-                signalMessage.setTimestamp(new Date());
+                Ebms3MessageInfo messageInfo = new Ebms3MessageInfo();
+                signalMessage.setMessageInfo(messageInfo);
+                messageInfo.setMessageId(messageId);
+                messageInfo.setTimestamp(new Date());
 
                 //Errors are not saved in the database and associated to the Signal Message
-                /*if (signalMessage.getError() != null
+                if (signalMessage.getError() != null
                         && signalMessage.getError().iterator().hasNext()) {
                     signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getError().iterator().next().getRefToMessageInError());
-                }*/
-                Ebms3SignalMessage ebms3SignalMessage = ebms3Converter.convertToEbms3(signalMessage);
-                ebms3Messaging.setSignalMessage(ebms3SignalMessage);
+                }
+                ebms3Messaging.setSignalMessage(signalMessage);
             }
             this.jaxbContext.createMarshaller().marshal(ebms3Messaging, message.getSOAPHeader());
             message.saveChanges();

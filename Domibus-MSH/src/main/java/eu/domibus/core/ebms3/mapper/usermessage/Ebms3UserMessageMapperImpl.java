@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.mapper.usermessage;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -151,6 +152,10 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     private Ebms3PayloadInfo convertPayloadInfo(List<PartInfo> partInfoList) {
+        if(CollectionUtils.isEmpty(partInfoList)) {
+            return null;
+        }
+
         Ebms3PayloadInfo result = new Ebms3PayloadInfo();
         partInfoList.stream().forEach(partInfo -> result.getPartInfo().add(convertEbms3PartInfo(partInfo)));
         return result;
@@ -263,19 +268,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     protected MessageProperty convertToEbms3Property(Ebms3Property partProperty) {
-        MessageProperty result = new MessageProperty();
-        result.setName(partProperty.getName());
-        result.setType(partProperty.getType());
-        result.setValue(partProperty.getValue());
-        return result;
+        return messagePropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
     }
 
     protected PartProperty convertToPartProperty(Ebms3Property partProperty) {
-        PartProperty result = new PartProperty();
-        result.setName(partProperty.getName());
-        result.setType(partProperty.getType());
-        result.setValue(partProperty.getValue());
-        return result;
+        return partPropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
     }
 
 

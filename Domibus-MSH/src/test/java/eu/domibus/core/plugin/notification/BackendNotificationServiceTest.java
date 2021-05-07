@@ -126,7 +126,7 @@ public class BackendNotificationServiceTest {
             new Expectations(backendNotificationService) {{
                 submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
 
-                userMessage.getMessageInfo().getMessageId();
+                userMessage.getMessageId();
                 result = "messageId";
 
                 backendNotificationService.notify(anyString, backendName, notificationType, null);
@@ -148,7 +148,7 @@ public class BackendNotificationServiceTest {
             new Expectations(backendNotificationService) {{
                 submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
 
-                userMessage.getMessageInfo().getMessageId();
+                userMessage.getMessageId();
                 result = "messageId";
 
                 backendNotificationService.notify(anyString, backendName, notificationType, properties);
@@ -1019,7 +1019,7 @@ public class BackendNotificationServiceTest {
                 userMessageHandlerService.checkTestMessage(userMessage);
                 result = false;
 
-                userMessage.getMessageInfo().getMessageId();
+                userMessage.getMessageId();
                 result = MESSAGE_ID;
 
                 backendConnectorProvider.getBackendConnector(BACKEND_NAME);
@@ -1074,7 +1074,7 @@ public class BackendNotificationServiceTest {
                 userMessageHandlerService.checkTestMessage(userMessage);
                 result = false;
 
-                userMessage.getMessageInfo().getMessageId();
+                userMessage.getMessageId();
                 result = MESSAGE_ID;
 
                 backendConnectorProvider.getBackendConnector(BACKEND_NAME);
@@ -1131,7 +1131,7 @@ public class BackendNotificationServiceTest {
                 userMessageServiceHelper.getProperties(userMessage);
                 result = new HashMap<>();
 
-                userMessage.getMessageInfo().getMessageId();
+                userMessage.getMessageId();
                 result = MESSAGE_ID;
             }};
 

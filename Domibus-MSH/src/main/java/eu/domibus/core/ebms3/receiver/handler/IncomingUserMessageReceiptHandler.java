@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
+import java.util.List;
 
 /**
  * Handles the incoming AS4 receipts
@@ -52,6 +54,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
     protected Ebms3Converter ebms3Converter;
+    protected PartInfoDao partInfoDao;
 
     public IncomingUserMessageReceiptHandler(ReliabilityService reliabilityService,
                                              ReliabilityChecker reliabilityChecker,
@@ -62,7 +65,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                                              UserMessageDao userMessageDao,
                                              MessageUtil messageUtil,
                                              SoapUtil soapUtil,
-                                             Ebms3Converter ebms3Converter) {
+                                             Ebms3Converter ebms3Converter,
+                                             PartInfoDao partInfoDao) {
         this.reliabilityService = reliabilityService;
         this.reliabilityChecker = reliabilityChecker;
         this.userMessageLogDao = userMessageLogDao;
@@ -73,6 +77,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
         this.ebms3Converter = ebms3Converter;
+        this.partInfoDao = partInfoDao;
     }
 
     @Transactional
@@ -127,7 +132,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     }
 
     protected SOAPMessage getSoapMessage(LegConfiguration legConfiguration, UserMessage userMessage) throws EbMS3Exception {
-        return messageBuilder.buildSOAPMessage(userMessage, null, legConfiguration);
+        final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        return messageBuilder.buildSOAPMessage(userMessage, partInfoList, legConfiguration);
     }
 
     protected Reliability getSourceMessageReliability() {

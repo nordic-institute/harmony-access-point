@@ -1,4 +1,6 @@
-Domibus 5.0 (from 4.2.1)
+Domibus 5.0 (from 4.2.2)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Run the appropriate DB migration script(mysql-4.2-to-5.0-migration.ddl for MySQL or oracle-4.2-to-5.0-migration.ddl for Oracle)
                 - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.
                 - To execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) use the current 'TIMEZONE' value as IN parameter for mysql and oracle DB.
@@ -19,9 +21,9 @@ Domibus 5.0 (from 4.2.1)
                                         </cache>
                         Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
                     - If you don't use custom caches just replace the old file with the new file version
-                    - [WebLogic only]
+                - [WebLogic only]
                        o execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment
-                    - [Wildfly only]
+                - [Wildfly only]
                        o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                             - add the following queues
                                 .............................
@@ -35,7 +37,7 @@ Domibus 5.0 (from 4.2.1)
                                     </server>
                                 </subsystem>
                                 .............................
-                     [Tomcat only]
+                - [Tomcat only]
                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
                                   - in the destinations section add the following queues:
                                              .............................
@@ -53,18 +55,37 @@ Domibus 5.0 (from 4.2.1)
                                                  .............................
                                              </redeliveryPolicyEntries>
                                              .............................
+                - Non-XA performance improvement:
+                        o Modify the Domibus properties file "\conf\domibus\domibus.properties":
+                                  - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize" (if present)
+                                  - remove these properties:
+                                            - domibus.datasource.xa.*
+                                            - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class
+                                            - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform
+                                  - replace the value of the "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class" property as follows:
+                                            - set the value to "com.mysql.cj.jdbc.Driver" if it was "com.mysql.cj.jdbc.MysqlXADataSource"
+                                            - set the value to "oracle.jdbc.driver.OracleDriver" if it was "oracle.jdbc.xa.client.OracleXADataSource"
+                        o [Tomcat only]
+                            - Remove all properties under the section "Atomikos"( all com.atomikos.* properties)
+                        o [WebLogic only]
+                            - in the WebLogic console, decommission the Domibus XA datasource eDeliveryDs and create a new eDeliveryDs datasource with JNDI name: jdbc/cipaeDeliveryDs (non XA, the same configuration as the existing edeliveryNonXA)
+                            - in the WebLogic console, change the eDeliveryConnectionFactory JMS connection factory from XA to non-XA (section eDeliveryConnectionFactory->Configuration->Transactions: uncheck "XA Connection Factory Enabled")
+                        o [Wildfly only]
+                            - in the file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
+                                    - remove the <xa-datasource jndi-name="java:/jdbc/cipaeDeliveryDs"...> datasource
+                                    - clone the <datasource jndi-name="java:/jdbc/cipaeDeliveryNonXADs"...> datasource and set the jndi-name attribute to "java:/jdbc/cipaeDeliveryDs" and the pool-name attribute to either "eDeliveryMysqlDS" or "eDeliveryOracleDS"
 Domibus 4.2.1 (from 4.2):
-                - [Oracle only]
-                   - Grant access to your user to create stored procedures:
-                        Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
-                            $ sqlplus sys as sysdba
-                        Once logged in Oracle execute:
-                            GRANT CREATE PROCEDURE TO <edelivery_user>
-                - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
-                - Replace the Domibus war
-                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
-                - Replace the default dss extention jar into  "/conf/domibus/extentions/lib"
-Domibus 4.2 (from 4.1.7):
+                                      - [Oracle only]
+                                         - Grant access to your user to create stored procedures:
+                                              Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
+                                                  $ sqlplus sys as sysdba
+                                              Once logged in Oracle execute:
+                                                  GRANT CREATE PROCEDURE TO <edelivery_user>
+                                      - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
+                                      - Replace the Domibus war
+                                      - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                                      - Replace the default dss extention jar into  "/conf/domibus/extentions/lib"
+Domibus 4.2 (from 4.1.7)
                 Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
                   It is mandatory to update to one of the below supported servers and databases.
                     Servers: Tomcat 9.x, WildFly 20.0.x, WebLogic 12.2.1.4

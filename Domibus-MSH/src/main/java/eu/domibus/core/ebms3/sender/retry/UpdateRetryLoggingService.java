@@ -187,7 +187,7 @@ public class UpdateRetryLoggingService {
         LOG.debug("Marking message [{}] as failed in a new transaction", userMessage.getMessageId());
 
         messageFailed(userMessage, userMessageLog);
-        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getMessageId());
+        rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
     }
 
     public void messageFailed(UserMessage userMessage, UserMessageLog userMessageLog) {

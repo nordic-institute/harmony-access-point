@@ -1,9 +1,9 @@
 package eu.domibus.core.message.plugin.handler;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
@@ -60,7 +60,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     }
 
     @Autowired
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     private DataSource dataSource;
 
     @Autowired

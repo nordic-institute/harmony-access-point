@@ -21,7 +21,6 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -330,14 +329,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
-            List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+            List<PartInfo> partInfos = new ArrayList<>();
+            partInfos.add(partInfo);
 
             Party to = messageValidations(userMessage, partInfos, pModeKey, backendName);
             LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             fillMpc(userMessage, legConfiguration, to);
 
             try {
-                messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
                 messageFragmentEntity.setUserMessage(userMessage);
                 messageFragmentDao.create(messageFragmentEntity);
             } catch (CompressionException exc) {
@@ -347,7 +348,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw ex;
             }
             MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
                     backendName, to.getEndpoint(), userMessage.getService().getValue(), userMessage.getActionValue(), null, true);
             prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
@@ -360,12 +361,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
@@ -444,6 +445,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
+            userMessage.setSourceMessage(splitAndJoin);
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
                 LOG.error("SplitAndJoin feature needs payload storage on the file system");
@@ -453,7 +455,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
             try {
-                messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
@@ -490,12 +493,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }

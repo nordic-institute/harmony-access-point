@@ -17,6 +17,7 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -83,19 +84,19 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final int BATCH_SIZE = 100;
 
     @Autowired
-    @Qualifier("sendMessageQueue")
+    @Qualifier(JMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
 
     @Autowired
-    @Qualifier("sendLargeMessageQueue")
+    @Qualifier(JMSConstants.SEND_LARGE_MESSAGE_QUEUE)
     private Queue sendLargeMessageQueue;
 
     @Autowired
-    @Qualifier("splitAndJoinQueue")
+    @Qualifier(JMSConstants.SPLIT_AND_JOIN_QUEUE)
     private Queue splitAndJoinQueue;
 
     @Autowired
-    @Qualifier("sendPullReceiptQueue")
+    @Qualifier(JMSConstants.SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
 
     @Autowired
@@ -153,7 +154,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private MessageCoreMapper messageCoreConverter;
+    private MessageCoreMapper messageCoreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -546,7 +547,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
         final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
-        return messageCoreConverter.userMessageToUserMessageApi(userMessageByMessageId);
+        return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Transactional

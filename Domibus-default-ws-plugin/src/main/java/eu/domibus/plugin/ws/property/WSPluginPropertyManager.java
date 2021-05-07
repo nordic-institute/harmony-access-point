@@ -31,6 +31,10 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String MESSAGE_NOTIFICATIONS = "wsplugin.messages.notifications";
 
     public static final String PUSH_ENABLED = "wsplugin.push.enabled";
+    public static final String PUSH_ALERT_ACTIVE = "wsplugin.push.alert.active";
+    public static final String PUSH_ALERT_LEVEL = "wsplugin.push.alert.level";
+    public static final String PUSH_ALERT_EMAIL_SUBJECT = "wsplugin.push.alert.email.subject";
+    public static final String PUSH_ALERT_EMAIL_BODY = "wsplugin.push.alert.email.body";
     public static final String DISPATCHER_CONNECTION_TIMEOUT = "wsplugin.dispatcher.connectionTimeout";
     public static final String DISPATCHER_RECEIVE_TIMEOUT = "wsplugin.dispatcher.receiveTimeout";
     public static final String DISPATCHER_ALLOW_CHUNKING = "wsplugin.dispatcher.allowChunking";
@@ -50,6 +54,11 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.WS_PLUGIN, Usage.GLOBAL),
 
                 new DomibusPropertyMetadataDTO(PUSH_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
+
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_ACTIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_LEVEL, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_EMAIL_SUBJECT, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_EMAIL_BODY, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
 
                 new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_RECEIVE_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),

@@ -1,12 +1,12 @@
 package eu.domibus.core.ebms3.receiver;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
@@ -30,7 +30,7 @@ public class MSHWebServiceTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebServiceTest.class);
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
-  /*  @Tested
+    @Tested
     MSHWebservice mshWebservice;
 
     @Injectable
@@ -44,7 +44,7 @@ public class MSHWebServiceTest {
 
     @Test
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
-                                    @Injectable Messaging messaging,
+                                    @Injectable Ebms3Messaging messaging,
                                     @Injectable IncomingMessageHandler messageHandler,
                                     @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
         new Expectations() {{
@@ -64,7 +64,7 @@ public class MSHWebServiceTest {
 
     @Test(expected = WebServiceException.class)
     public void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
-                                         @Injectable Messaging messaging,
+                                         @Injectable Ebms3Messaging messaging,
                                          @Injectable IncomingMessageHandler messageHandler,
                                          @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
         new Expectations() {{
@@ -81,5 +81,5 @@ public class MSHWebServiceTest {
             messageHandler.processMessage(request, messaging);
             times = 0;
         }};
-    }*/
+    }
 }

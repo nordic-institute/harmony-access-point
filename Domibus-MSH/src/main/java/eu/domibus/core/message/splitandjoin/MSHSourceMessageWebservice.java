@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -57,6 +58,9 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
+
+    @Autowired
+    protected UserMessageDao userMessageDao;
 
     @WebMethod
     @WebResult(name = "soapMessageResult")

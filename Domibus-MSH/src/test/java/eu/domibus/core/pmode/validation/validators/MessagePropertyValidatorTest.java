@@ -1,8 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.Property;
+import eu.domibus.api.model.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -23,22 +21,18 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class MessagePropertyValidatorTest {
 
-  /*  @Tested
+    @Tested
     MessagePropertyValidator messagePropertyValidator;
 
     @Test
-    public void test_validate_MessageProperty_OK(final @Mocked Messaging messaging,
-                                                 final @Mocked MessageProperties messageProperties,
-                                                 final @Mocked Property property) throws Exception {
+    public void test_validate_MessageProperty_OK(final @Mocked UserMessage userMessage,
+                                                 final @Mocked MessageProperty property) throws Exception {
 
         new Expectations() {{
-            messaging.getUserMessage().getMessageInfo().getMessageId();
+            userMessage.getMessageId();
             result = "message " + UUID.randomUUID();
 
-            messaging.getUserMessage().getMessageProperties();
-            result = messageProperties;
-
-            messaging.getUserMessage().getMessageProperties().getProperty();
+            userMessage.getMessageProperties();
             result = Collections.singleton(property);
 
             property.getValue();
@@ -46,7 +40,7 @@ public class MessagePropertyValidatorTest {
 
         }};
 
-        messagePropertyValidator.validate(messaging, MSHRole.SENDING);
+        messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
         new FullVerifications() {{
 
@@ -54,18 +48,14 @@ public class MessagePropertyValidatorTest {
     }
 
     @Test
-    public void test_validate_MessageProperty_Exception(final @Mocked Messaging messaging,
-                                                        final @Mocked MessageProperties messageProperties,
-                                                        final @Mocked Property property) throws Exception {
+    public void test_validate_MessageProperty_Exception(final @Mocked UserMessage userMessage,
+                                                        final @Mocked MessageProperty property) {
 
         new Expectations() {{
-            messaging.getUserMessage().getMessageInfo().getMessageId();
+            userMessage.getMessageId();
             result = "message " + UUID.randomUUID();
 
-            messaging.getUserMessage().getMessageProperties();
-            result = messageProperties;
-
-            messaging.getUserMessage().getMessageProperties().getProperty();
+            userMessage.getMessageProperties();
             result = Collections.singleton(property);
 
             property.getName();
@@ -77,7 +67,7 @@ public class MessagePropertyValidatorTest {
         }};
 
         try {
-            messagePropertyValidator.validate(messaging, MSHRole.SENDING);
+            messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
             Assert.fail("exception expected");
         } catch (EbMS3Exception e) {
             Assert.assertTrue(e.getMessage().contains("property has a value which exceeds 1024 characters size."));
@@ -85,18 +75,14 @@ public class MessagePropertyValidatorTest {
     }
 
     @Test
-    public void test_validate_MessageProperty_Null(final @Mocked Messaging messaging,
-                                                 final @Mocked MessageProperties messageProperties,
-                                                 final @Mocked Property property) throws Exception {
+    public void test_validate_MessageProperty_Null(final @Mocked UserMessage userMessage,
+                                                 final @Mocked MessageProperty property) throws Exception {
 
         new Expectations() {{
-            messaging.getUserMessage().getMessageInfo().getMessageId();
+            userMessage.getMessageId();
             result = "message " + UUID.randomUUID();
 
-            messaging.getUserMessage().getMessageProperties();
-            result = messageProperties;
-
-            messaging.getUserMessage().getMessageProperties().getProperty();
+            userMessage.getMessageProperties();
             result = Collections.singleton(property);
 
             property.getValue();
@@ -104,10 +90,10 @@ public class MessagePropertyValidatorTest {
 
         }};
 
-        messagePropertyValidator.validate(messaging, MSHRole.SENDING);
+        messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
         new FullVerifications() {{
 
         }};
-    }*/
+    }
 }

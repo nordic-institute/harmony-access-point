@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.*;
@@ -66,7 +65,7 @@ public class UserPersistenceServiceImplTest {
     @Injectable
     UserSessionsService userSessionsService;
 
-    @Autowired
+    @Injectable
     private AuthCoreMapper authCoreMapper;
 
     @Injectable

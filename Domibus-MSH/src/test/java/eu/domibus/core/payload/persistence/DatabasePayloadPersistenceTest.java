@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class DatabasePayloadPersistenceTest {
 
-   /* @Injectable
+    @Injectable
     protected BackendNotificationService backendNotificationService;
 
     @Injectable
@@ -128,7 +128,7 @@ public class DatabasePayloadPersistenceTest {
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
-            compressionService.handleCompression(userMessage.getMessageInfo().getMessageId(), partInfo, legConfiguration);
+            compressionService.handleCompression(userMessage.getMessageId(), partInfo, legConfiguration);
             result = true;
 
             encryptionService.getEncryptCipherForPayload();
@@ -145,5 +145,5 @@ public class DatabasePayloadPersistenceTest {
 
 
         databasePayloadPersistence.getOutgoingBinaryData(partInfo, inputStream, userMessage, legConfiguration, Boolean.TRUE);
-    }*/
+    }
 }

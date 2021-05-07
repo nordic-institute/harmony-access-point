@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.encryption.DecryptDataSource;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.spring.SpringContextProvider;
@@ -16,10 +17,10 @@ import javax.activation.DataSource;
 import javax.crypto.Cipher;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
@@ -34,11 +35,11 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_MESSAGE_ID_FK")
     protected UserMessage userMessage;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "TB_PART_PROPERTIES",
             joinColumns = @JoinColumn(name = "PART_INFO_ID_FK"),
             inverseJoinColumns = @JoinColumn(name = "PART_INFO_PROPERTY_FK")
@@ -76,6 +77,15 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     @Column(name = "ENCRYPTED")
     protected Boolean encrypted;
+
+    public String getMimeProperty() {
+        return partProperties.stream()
+                .filter(partProperty -> partProperty.getName().equals(Ebms3Property.MIME_TYPE))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(Property::getValue)
+                .orElse(null);
+    }
 
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;

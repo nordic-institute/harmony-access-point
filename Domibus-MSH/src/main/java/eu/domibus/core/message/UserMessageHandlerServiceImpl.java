@@ -165,16 +165,19 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MshRoleDao mshRoleDao;
 
+    @Autowired
+    protected MessageFragmentDao messageFragmentDao;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
-    public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
+    public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(userMessage);
 
-        handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, selfSendingFlag, messageExists, testMessage);
+        handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, messageExists, testMessage);
 
         return as4ReceiptService.generateReceipt(
                 request,
@@ -185,6 +188,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 selfSendingFlag);
     }
 
+    @Transactional
     @Override
     public SOAPMessage handleNewSourceUserMessage(final LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, UserMessage userMessage, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         //check if the message is sent to the same Domibus instance
@@ -245,6 +249,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             String pmodeKey,
             final SOAPMessage request,
             final UserMessage userMessage,
+            Ebms3MessageFragmentType ebms3MessageFragmentType,
             List<PartInfo> partInfoList,
             boolean selfSending,
             boolean messageExists,
@@ -272,7 +277,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-                Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName);
 
                 try {
@@ -386,13 +390,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throws SOAPException, TransformerException, EbMS3Exception {
         LOG.info("Persisting received message");
 
+        boolean compressed = compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
+        LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageId(), compressed);
+        final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList);
+
         if (ebms3MessageFragmentType != null) {
             handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
         }
-
-        boolean compressed = compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
-        LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageId(), compressed);
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList);
+        return messageId;
     }
 
     /**
@@ -418,7 +423,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         try {
-            messagingService.storeMessage(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, backendName);
+            messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
         } catch (CompressionException exc) {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "Could not persist message" + exc.getMessage(), userMessage.getMessageId(), exc);
             ex.setMshRole(MSHRole.RECEIVING);
@@ -464,7 +470,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
 
     protected void handleMessageFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
-        userMessage.setMessageFragment(true);
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(ebms3MessageFragmentType.getGroupId());
 
         if (messageGroupEntity == null) {
@@ -476,7 +481,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             messageHeaderEntity.setStart(messageHeader.getStart());
             messageHeaderEntity.setBoundary(messageHeader.getBoundary());
 
-            MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.RECEIVING);
+            MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
             messageGroupEntity.setMshRole(role);
             messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
             messageGroupEntity.setSoapAction(ebms3MessageFragmentType.getAction());
@@ -494,8 +499,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         messageFragmentEntity.setUserMessage(userMessage);
         messageFragmentEntity.setGroup(messageGroupEntity);
         messageFragmentEntity.setFragmentNumber(ebms3MessageFragmentType.getFragmentNum());
+        messageFragmentDao.create(messageFragmentEntity);
 
-        addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+
     }
 
     protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
@@ -537,19 +543,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
     }
 
-    protected void addPartInfoFromFragment(UserMessage userMessage, final Ebms3MessageFragmentType messageFragment) {
-        if (messageFragment == null) {
-            LOG.debug("No message fragment found");
-            return;
-        }
-        PartInfo partInfo = new PartInfo();
-        partInfo.setHref(messageFragment.getHref());
-        partInfo.setUserMessage(userMessage);
-
-        partInfoDao.create(partInfo);
-
-    }
-
     /**
      * If message with same messageId is already in the database return <code>true</code> else <code>false</code>
      *
@@ -561,21 +554,34 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return userMessageLogDao.findByMessageId(userMessage.getMessageId(), MSHRole.RECEIVING) != null;
     }
 
+    protected PartInfo getPartInfoFromFragment(final Ebms3MessageFragmentType messageFragment) {
+        if (messageFragment == null) {
+            LOG.debug("No message fragment found");
+            return null;
+        }
+        PartInfo partInfo = new PartInfo();
+        partInfo.setHref(messageFragment.getHref());
+        partInfo.setMime(messageFragment.getMessageHeader().getType().value());
+
+        return partInfo;
+    }
+
     @Override
-    public List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging)
+    public List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
             throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");
 
         final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
 
-        List<PartInfo> result = new ArrayList<>();
+        List<PartInfo> partInfoList = getPartInfoList(ebms3Messaging);
+        if (ebms3MessageFragmentType != null) {
+            final PartInfo partInfoFromFragment = getPartInfoFromFragment(ebms3MessageFragmentType);
+            partInfoList.add(partInfoFromFragment);
+        }
 
         boolean bodyloadFound = false;
-        for (final Ebms3PartInfo ebms3PartInfo : ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
-            PartInfo partInfo = convert(ebms3PartInfo);
-            result.add(partInfo);
-
-            final String cid = ebms3PartInfo.getHref();
+        for (final PartInfo partInfo : partInfoList) {
+            final String cid = partInfo.getHref();
             LOG.debug("looking for attachment with cid: {}", cid);
             boolean payloadFound = false;
             if (isBodyloadCid(cid)) {
@@ -617,6 +623,25 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
         LOG.debug("Finished handling payloads");
 
+        return partInfoList;
+    }
+
+    protected List<PartInfo> getPartInfoList(Ebms3Messaging ebms3Messaging) {
+        List<PartInfo> result = new ArrayList<>();
+
+        if (ebms3Messaging.getUserMessage().getPayloadInfo() == null) {
+            return result;
+        }
+        final List<Ebms3PartInfo> ebms3PartInfos = ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
+        if (CollectionUtils.isEmpty(ebms3PartInfos)) {
+            return result;
+        }
+
+        for (final Ebms3PartInfo ebms3PartInfo : ebms3PartInfos) {
+            PartInfo partInfo = convert(ebms3PartInfo);
+            result.add(partInfo);
+        }
+
         return result;
     }
 
@@ -634,12 +659,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
         final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
-        if(ebms3PartInfoPartProperties != null || CollectionUtils.isNotEmpty(ebms3Properties)) {
+        if (ebms3PartInfoPartProperties != null || CollectionUtils.isNotEmpty(ebms3Properties)) {
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findPropertyByName(ebms3Property.getName());
-                if(property != null) {
+                final PartProperty property = partPropertyDao.findPropertyByNameValueAndType(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
+                if (property != null) {
                     partProperties.add(property);
                 }
             }

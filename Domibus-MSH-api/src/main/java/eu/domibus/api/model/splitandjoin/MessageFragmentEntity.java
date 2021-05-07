@@ -23,7 +23,7 @@ public class MessageFragmentEntity extends AbstractNoGeneratedPkEntity {
     @MapsId
     private UserMessage userMessage;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "GROUP_ID_FK")
     protected MessageGroupEntity group;
 

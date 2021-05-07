@@ -1,7 +1,7 @@
 package eu.domibus.core.dao;
 
-import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.DomibusBaseEntity;
+import eu.domibus.common.JPAConstants;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -18,7 +18,7 @@ public abstract class BasicDao<T extends DomibusBaseEntity> {
 
     protected final Class<T> typeOfT;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     /**
@@ -71,6 +71,10 @@ public abstract class BasicDao<T extends DomibusBaseEntity> {
 
     public void flush() {
         em.flush();
+    }
+
+    public void merge(final T entity) {
+        em.merge(entity);
     }
 
 }

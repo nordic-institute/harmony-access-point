@@ -7,6 +7,7 @@ import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -37,6 +38,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      *
      */
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);

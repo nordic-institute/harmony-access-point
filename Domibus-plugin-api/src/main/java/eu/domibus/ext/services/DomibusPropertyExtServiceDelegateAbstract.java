@@ -61,6 +61,17 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         return onGetLocalIntegerPropertyValue(propertyName, propMeta);
     }
 
+    @Override
+    public Boolean getKnownBooleanPropertyValue(String propertyName) {
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
+        if (propMeta.isStoredGlobally()) {
+            return domibusPropertyExtService.getBooleanProperty(propertyName);
+        }
+
+        LOG.trace("Property [{}] is not stored globally so onGetLocalBooleanPropertyValue is called.", propertyName);
+        return onGetLocalBooleanPropertyValue(propertyName, propMeta);
+    }
+
     /**
      * Method called for a locally stored property; should be overridden by derived classes for all locally stored properties
      *
@@ -71,6 +82,18 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     protected Integer onGetLocalIntegerPropertyValue(String propertyName, DomibusPropertyMetadataDTO propMeta) {
         LOG.warn("Property [{}] is not stored globally and not handled locally so 0 was returned.", propertyName);
         return 0;
+    }
+
+    /**
+     * Method called for a locally stored property; should be overridden by derived classes for all locally stored properties
+     *
+     * @param propertyName the name of the property
+     * @param propMeta     the property metadata
+     * @return the property value
+     */
+    protected Boolean onGetLocalBooleanPropertyValue(String propertyName, DomibusPropertyMetadataDTO propMeta) {
+        LOG.warn("Property [{}] is not stored globally and not handled locally so 'false' was returned.", propertyName);
+        return false;
     }
 
     @Override
