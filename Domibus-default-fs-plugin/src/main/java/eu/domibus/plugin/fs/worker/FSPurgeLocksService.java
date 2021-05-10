@@ -51,7 +51,7 @@ public class FSPurgeLocksService {
     }
 
     protected void purgeForDomain(String domain) {
-        Integer expirationLimit = fsPluginProperties.getLocksPurgeExpired(domain);
+        int expirationLimit = fsPluginProperties.getLocksPurgeExpired(domain);
         if (expirationLimit == 0) {
             LOG.debug("Exiting purge lock files for domain [{}] as the expiration limit is set to 0.", domain);
             return;
