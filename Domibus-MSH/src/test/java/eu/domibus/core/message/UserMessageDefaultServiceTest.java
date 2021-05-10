@@ -45,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+import javax.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -185,6 +186,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     MessagePropertyDao messagePropertyDao;
+
+    @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
+    EntityManager em;
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
