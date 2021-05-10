@@ -152,7 +152,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     }
 
     @PostLoad
-    public void loadBinaray() {
+    public void loadBinary() {
         if (fileName != null) { /* Create payload data handler from File */
             LOG.debug("LoadBinary from file: " + fileName);
             DataSource fsDataSource = new AutoCloseFileDataSource(fileName);

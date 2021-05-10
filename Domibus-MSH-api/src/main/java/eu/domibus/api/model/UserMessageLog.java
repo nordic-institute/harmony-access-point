@@ -70,7 +70,7 @@ import java.util.Date;
                         "JOIN UserMessage um                                                                                               " +
                         "left join um.messageProperties p                                                                         " +
                         "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) " +
-                        "and uml.deleted is null and um.mpc = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE  "),
+                        "and uml.deleted is null and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE  "),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan",
                 query = "SELECT um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
                         "       um.testMessage          as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
