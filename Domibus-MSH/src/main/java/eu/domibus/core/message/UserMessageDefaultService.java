@@ -18,6 +18,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JMSConstants;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -47,6 +48,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -198,7 +200,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
@@ -620,6 +622,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    @Ignore
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
         em.unwrap(Session.class)
                 .setJdbcBatchSize(BATCH_SIZE);
