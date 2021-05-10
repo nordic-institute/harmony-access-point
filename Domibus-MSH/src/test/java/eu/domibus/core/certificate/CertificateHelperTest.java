@@ -1,7 +1,6 @@
 package eu.domibus.core.certificate;
 
 import junit.framework.TestCase;
-import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -12,6 +11,10 @@ import java.security.InvalidParameterException;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 @RunWith(JMockit.class)
 public class CertificateHelperTest extends TestCase {
 
