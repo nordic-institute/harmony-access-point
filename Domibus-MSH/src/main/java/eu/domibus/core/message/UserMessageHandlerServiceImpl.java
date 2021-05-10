@@ -630,6 +630,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         List<PartInfo> result = new ArrayList<>();
 
         if (ebms3Messaging.getUserMessage().getPayloadInfo() == null) {
+            LOG.trace("UserMessage has no payload info");
             return result;
         }
         final List<Ebms3PartInfo> ebms3PartInfos = ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();

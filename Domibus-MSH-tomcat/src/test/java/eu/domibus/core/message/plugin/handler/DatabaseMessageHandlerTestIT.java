@@ -4,14 +4,15 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.MessagesLogServiceImpl;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -30,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+
+import static org.junit.Assert.assertNotNull;
 
 public class DatabaseMessageHandlerTestIT extends AbstractIT {
 
@@ -72,6 +73,9 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     @Autowired
     MessagesLogServiceImpl messagesLogService;
 
+    @Autowired
+    UserMessageLogDao userMessageLogDao;
+
     @Test
     public void submit() throws MessagingProcessingException, IOException {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
@@ -79,10 +83,10 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
 
         Submission submission = createSubmission();
         uploadPmode();
-        databaseMessageHandler.submit(submission, "mybackend");
+        final String messageId = databaseMessageHandler.submit(submission, "mybackend");
 
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        Assert.assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, "TB_USER_MESSAGE_LOG"));
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        assertNotNull(userMessageLog);
 
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
