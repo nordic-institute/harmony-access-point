@@ -5,6 +5,11 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
+    <!-- step 1:
+     - it will drop any previously created MIGR_ and dictionary tables (5.0 model)
+     - it will create MIGR_ and dictionary tables (5.0 model)
+    -->
+
     <!-- properties - to be used in column definitions -->
     <include file="../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
@@ -598,7 +603,5 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-
-
     </changeSet>
 </databaseChangeLog>

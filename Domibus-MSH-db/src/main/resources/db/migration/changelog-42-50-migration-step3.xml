@@ -5,7 +5,15 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <!-- step 3 -->
+    <!-- step 3:
+     - it will drop any indexes or UQs for 4.2 tables
+     - rename 4.2 migrated tables to OLD_*
+     - rename MIGR_ (5.0 tables) by removing MIGR_ prefix
+     - create the indexes and the constraints on 5.0 new tables
+     - alter the Hibenrate sequence (Oracle only)
+
+     All operations here are not reversible and should be done once step 1 and step 2 are successful
+     -->
 
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
     <changeSet id="EDELIVERY-7970-drop-indexes-uq" author="Catalin Enache">
@@ -32,7 +40,6 @@
         <renameTable oldTableName="TB_RAWENVELOPE_LOG" newTableName="OLD_TB_RAWENVELOPE_LOG"/>
         <renameTable oldTableName="TB_PART_INFO" newTableName="OLD_TB_PART_INFO"/>
 
-        <renameTable oldTableName="TB_PART_PROPERTIES" newTableName="OLD_TB_PART_PROPERTIES"/>
         <renameTable oldTableName="TB_MESSAGE_ACKNW" newTableName="OLD_TB_MESSAGE_ACKNW"/>
         <renameTable oldTableName="TB_ERROR_LOG" newTableName="OLD_TB_ERROR_LOG"/>
     </changeSet>
@@ -302,7 +309,6 @@
         </createIndex>
     </changeSet>
 
-    <!-- TODO - move to step 4 -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence">
         <sql dbms="oracle">
             ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
