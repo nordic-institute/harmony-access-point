@@ -27,7 +27,7 @@ public class FSPurgeFailedService extends FSAbstractPurgeService {
     }
 
     @Override
-    protected Integer getExpirationLimit(String domain) {
+    protected int getExpirationLimit(String domain) {
         return fsPluginProperties.getFailedPurgeExpired(domain);
     }
 

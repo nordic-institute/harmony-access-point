@@ -125,6 +125,27 @@ public class FSPurgeReceivedServiceTest {
             fsFilesManager.deleteFile(oldFile);
         }};
     }
+    @Test
+    public void testPurgeMessages_disabled() throws FileSystemException, FSSetUpException {
+        final List<String> domains = new ArrayList<>();
+        domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
+        FileObject[] contentFiles = new FileObject[]{recentFile, oldFile};
+
+        new Expectations(1, instance) {{
+            fsMultiTenancyService.getDomainsToProcess();
+            result = domains;
+
+            fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
+            result = true;
+
+            fsPluginProperties.getReceivedPurgeExpired(FSSendMessagesService.DEFAULT_DOMAIN);
+            result = 0;
+        }};
+
+        instance.purgeMessages();
+
+        new FullVerifications() {};
+    }
 
     @Test
     public void testPurgeMessages_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
@@ -134,6 +155,9 @@ public class FSPurgeReceivedServiceTest {
 
             fsMultiTenancyService.getDomainsToProcess();
             result = Collections.singletonList("DOMAIN1");
+
+            fsPluginProperties.getReceivedPurgeExpired("DOMAIN1");
+            result = 20;
 
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");
