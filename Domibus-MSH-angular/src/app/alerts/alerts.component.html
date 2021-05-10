@@ -157,6 +157,10 @@
         <span class="text-select">{{value| domibusDate}}</span>
       </ng-template>
 
+      <ng-template #rowWithFutureDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+        <span class="text-select">{{row | domibusFutureDate}}</span>
+      </ng-template>
+
       <ng-template #rowWithSpaceAfterCommaTpl let-row="row" let-value="value" ngx-datatable-cell-template>
         <span class="text-select">{{value.join(', ')}}</span>
       </ng-template>

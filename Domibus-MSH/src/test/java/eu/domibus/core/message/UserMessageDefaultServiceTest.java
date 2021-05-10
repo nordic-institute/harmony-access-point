@@ -35,10 +35,12 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -186,6 +188,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     MessagePropertyDao messagePropertyDao;
+
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
     EntityManager em;
@@ -365,7 +370,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.setMessageStatus(messageStatus);
             userMessageLog.setRestored(withAny(new Date()));
             userMessageLog.setFailed(null);
-            userMessageLog.setNextAttempt(withAny(new Date()));
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
             userMessageLogDao.update(userMessageLog);
@@ -403,7 +408,7 @@ public class UserMessageDefaultServiceTest {
             times = 1;
             userMessageLog.setFailed(null);
             times = 1;
-            userMessageLog.setNextAttempt(withAny(new Date()));
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             times = 1;
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
             times = 1;
@@ -621,8 +626,12 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2, @Injectable Session session) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+
+        new Expectations() {{
+           em.unwrap(Session.class); result = session;
+        }};
 
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
@@ -785,7 +794,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.sendEnqueuedMessage(messageId);
 
         new FullVerifications(userMessageDefaultService) {{
-            userMessageLog.setNextAttempt(withAny(new Date()));
+            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             userMessageLogDao.update(userMessageLog);
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
         }};

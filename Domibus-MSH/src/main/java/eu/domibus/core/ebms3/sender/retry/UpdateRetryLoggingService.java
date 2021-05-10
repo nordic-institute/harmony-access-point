@@ -16,10 +16,10 @@ import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,44 +41,63 @@ public class UpdateRetryLoggingService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UpdateRetryLoggingService.class);
 
-    @Autowired
-    private BackendNotificationService backendNotificationService;
+    private final BackendNotificationService backendNotificationService;
 
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    private final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    protected UserMessageDao userMessageDao;
+    private final UserMessageDao userMessageDao;
 
-    @Autowired
-    private UserMessageLogDefaultService userMessageLogService;
+    private final UserMessageLogDefaultService userMessageLogService;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private final UIReplicationSignalService uiReplicationSignalService;
 
-    @Autowired
-    private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
+    private final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
-    @Autowired
-    protected UserMessageService userMessageService;
+    private final UserMessageService userMessageService;
 
-    @Autowired
-    protected MessageAttemptService messageAttemptService;
+    private final MessageAttemptService messageAttemptService;
 
-    @Autowired
-    protected PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    MessageRetentionService messageRetentionService;
+    private final MessageRetentionService messageRetentionService;
 
-    @Autowired
-    protected MessageGroupDao messageGroupDao;
+    private final MessageGroupDao messageGroupDao;
 
-    @Autowired
-    protected MessageStatusDao messageStatusDao;
+    private final MessageStatusDao messageStatusDao;
+
+    private final ReprogrammableService reprogrammableService;
+
+    public UpdateRetryLoggingService(BackendNotificationService backendNotificationService,
+                                     UserMessageLogDao userMessageLogDao,
+                                     UserMessageDao userMessageDao,
+                                     UserMessageLogDefaultService userMessageLogService,
+                                     DomibusPropertyProvider domibusPropertyProvider,
+                                     UIReplicationSignalService uiReplicationSignalService,
+                                     UserMessageRawEnvelopeDao rawEnvelopeLogDao,
+                                     UserMessageService userMessageService,
+                                     MessageAttemptService messageAttemptService,
+                                     PModeProvider pModeProvider,
+                                     MessageRetentionService messageRetentionService,
+                                     MessageGroupDao messageGroupDao,
+                                     MessageStatusDao messageStatusDao,
+                                     ReprogrammableService reprogrammableService) {
+        this.backendNotificationService = backendNotificationService;
+        this.userMessageLogDao = userMessageLogDao;
+        this.userMessageDao = userMessageDao;
+        this.userMessageLogService = userMessageLogService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.uiReplicationSignalService = uiReplicationSignalService;
+        this.rawEnvelopeLogDao = rawEnvelopeLogDao;
+        this.userMessageService = userMessageService;
+        this.messageAttemptService = messageAttemptService;
+        this.pModeProvider = pModeProvider;
+        this.messageRetentionService = messageRetentionService;
+        this.messageGroupDao = messageGroupDao;
+        this.messageStatusDao = messageStatusDao;
+        this.reprogrammableService = reprogrammableService;
+    }
 
     /**
      * This method is responsible for the handling of retries for a given sent message.
@@ -302,7 +321,7 @@ public class UpdateRetryLoggingService {
         int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
         Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout);
         LOG.debug("Updating next attempt from [{}] to [{}]", nextAttempt, newNextAttempt);
-        userMessageLog.setNextAttempt(newNextAttempt);
+        reprogrammableService.setRescheduleInfo(userMessageLog, newNextAttempt);
     }
 }
 

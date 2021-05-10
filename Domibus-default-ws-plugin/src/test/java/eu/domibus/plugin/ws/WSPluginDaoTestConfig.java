@@ -1,9 +1,12 @@
 package eu.domibus.plugin.ws;
 
+import eu.domibus.ext.services.DateExtService;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Date;
 
 /**
  * @author François Gautier
@@ -13,8 +16,13 @@ import org.springframework.context.annotation.Configuration;
 public class WSPluginDaoTestConfig {
 
     @Bean
-    public WSBackendMessageLogDao wsBackendMessageLogDao(){
-        return new WSBackendMessageLogDao();
+    public DateExtService dateExtService() {
+        return () -> new Date();
+    }
+
+    @Bean
+    public WSBackendMessageLogDao wsBackendMessageLogDao(DateExtService dateExtService){
+        return new WSBackendMessageLogDao(dateExtService);
     }
 
     @Bean

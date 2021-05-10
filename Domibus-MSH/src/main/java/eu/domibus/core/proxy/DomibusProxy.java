@@ -78,4 +78,17 @@ public class DomibusProxy {
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("DomibusProxy{");
+        sb.append("enabled=").append(enabled);
+        sb.append(", httpProxyHost='").append(httpProxyHost).append('\'');
+        sb.append(", httpProxyPort=").append(httpProxyPort);
+        sb.append(", httpProxyUser='").append(httpProxyUser).append('\'');
+        sb.append(", httpProxyPassword='").append(httpProxyPassword != null ? "********" : null).append('\'');
+        sb.append(", nonProxyHosts='").append(nonProxyHosts).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.alerts.dao;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.persist.*;
 import eu.domibus.core.dao.BasicDao;
@@ -25,17 +26,21 @@ public class AlertDao extends BasicDao<Alert> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertDao.class);
 
-    public AlertDao() {
+    private final DateUtil dateUtil;
+
+    public AlertDao(DateUtil dateUtil) {
         super(Alert.class);
+
+        this.dateUtil = dateUtil;
     }
 
     public List<Alert> findRetryAlerts() {
         final TypedQuery<Alert> namedQuery = em.createNamedQuery("Alert.findRetry", Alert.class);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
         return namedQuery.getResultList();
     }
 
     public List<Alert> filterAlerts(AlertCriteria alertCriteria) {
-
         QueryInfo queryInfo = initQuery(alertCriteria, Alert.class);
 
         final Boolean ascending = alertCriteria.getAsc();
