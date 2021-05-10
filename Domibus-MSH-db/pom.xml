@@ -218,13 +218,13 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-migration-step1.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step1.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-migration-step1.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step1.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle-42-50-migration-step1.ddl
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step1.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -236,13 +236,13 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-migration-step2.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step2.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-migration-step2.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step2.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle-42-50-migration-step2.ddl
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step2.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
@@ -254,13 +254,13 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-migration-step3.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step3.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-migration-step3.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step3.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle-42-50-migration-step3.ddl
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step3.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>

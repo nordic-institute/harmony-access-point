@@ -49,8 +49,6 @@
     </changeSet>
     
     <changeSet id="EDELIVERY-4808" author="Catalin Enache">
-        <setColumnRemarks columnName="MESSAGE_ID" tableName="WS_PLUGIN_TB_MESSAGE_LOG"/>
-        <setColumnRemarks columnName="FINAL_RECIPIENT" tableName="WS_PLUGIN_TB_MESSAGE_LOG"/>
         <addColumn tableName="WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
@@ -361,12 +359,8 @@
         </createView>
     </changeSet>
 
-    <!-- Start here 4.2 to new 5.0 -->
-    <!-- TODO EDELIVERY-7970 -->
     <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
     <include file="migration/changelog-utc-conversion-procedures.xml"  relativeToChangelogFile="true"/>
-    <!-- End here 4.2 to new 5.0 -->
-
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
