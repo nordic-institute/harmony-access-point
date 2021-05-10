@@ -10,7 +10,7 @@ Domibus 4.2.2 (from 4.2.1):
 
                 - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-migration.ddl for MySQL or oracle-4.2.1-to-4.2.2-migration.ddl for Oracle)
                 - Replace the Domibus war
-                - Properties for fs-plugin purges (SENT_PURGE_EXPIRED,FAILED_PURGE_EXPIRED,RECEIVED_PURGE_EXPIRED,LOCKS_PURGE_EXPIRED) expiration limit if 0 or empty: purge disabled
+                - Properties for fs-plugin purges (messages.sent.purge.expired, messages.failed.purge.expired, messages.received.purge.expired, messages.locks.purge.expired) expiration limit if 0 or empty: purge disabled
 Domibus 4.2.1 (from 4.2):
                 - [Oracle only]
                    - Grant access to your user to create stored procedures:
