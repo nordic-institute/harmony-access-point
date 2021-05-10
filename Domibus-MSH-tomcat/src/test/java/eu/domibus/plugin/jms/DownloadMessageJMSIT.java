@@ -2,21 +2,16 @@
 package eu.domibus.plugin.jms;
 
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractBackendJMSIT;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.*;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.webService.generated.MshRole;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -24,10 +19,10 @@ import org.springframework.test.annotation.Rollback;
 
 import javax.activation.DataHandler;
 import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -41,7 +36,7 @@ import java.util.Date;
 public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     @Autowired
-    private ConnectionFactory xaJmsConnectionFactory;
+    private ConnectionFactory jmsConnectionFactory;
 
     @Autowired
     JMSPluginImpl backendJms;
@@ -59,8 +54,6 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     /**
      * Negative test: the message is not found in the JMS queue and a specific exception is returned.
-     *
-     * @throws RuntimeException
      */
     @Test(expected = RuntimeException.class)
     public void testDownloadMessageInvalidId() throws RuntimeException {
@@ -73,13 +66,11 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         Assert.fail("DownloadMessageFault was expected but was not raised");
     }
 
-   /* *//**
+   /**
      * Tests that a message is found in the JMS queue and pushed to the business queue.
-     *
-     * @throws RuntimeException
-     * @throws JMSException
-     *//*
+     */
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testDownloadMessageOk() throws Exception {
         String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1",
                 "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
@@ -88,23 +79,29 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setBinaryData(messagePayload.getBytes());
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setMime("text/xml");
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
-        userMessage.getMessageInfo().setMessageId(messageId);
-        Messaging messaging = new Messaging();
-        messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
+        userMessage.setMessageId(messageId);
+        ArrayList<PartInfo> partInfoList = new ArrayList<>();
+        PartInfo partInfo = new PartInfo();
+        partInfo.setBinaryData(messagePayload.getBytes());
+        partInfo.setMime("text/xml");
+        partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
+
+        partInfoList.add(partInfo);
+        messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
-        userMessageLog.setMessageId(messageId);
-        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
-        userMessageLog.setMshRole(MSHRole.RECEIVING);
+        MessageStatusEntity messageStatus = new MessageStatusEntity();
+        messageStatus.setMessageStatus(MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(messageStatus);
+//        userMessageLog.setMessageId(messageId);
+//        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
+        MSHRoleEntity mshRole = new MSHRoleEntity();
+        mshRole.setRole(MSHRole.RECEIVING);
+        userMessageLog.setMshRole(mshRole);
         userMessageLog.setReceived(new Date());
-        userMessageLogService.save(messageId, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
+        userMessageLogService.save(userMessage, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
 
-        javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
+        javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         pushQueueMessage(messageId, connection, JMS_NOT_QUEUE_NAME);
 
@@ -116,7 +113,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         Assert.assertNotNull(message);
 
         connection.close();
-    }*/
+    }
 
 
 }

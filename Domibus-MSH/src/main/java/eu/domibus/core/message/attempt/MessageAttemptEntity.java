@@ -23,7 +23,7 @@ import java.sql.Timestamp;
 })
 public class MessageAttemptEntity extends AbstractBaseEntity {
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_MESSAGE_ID_FK")
     protected UserMessage userMessage;
 

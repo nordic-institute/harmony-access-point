@@ -17,6 +17,8 @@ import java.util.Set;
         @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.messageId in :MESSAGEIDS"),
         @NamedQuery(name = "UserMessage.findUserMessageByGroupId",
                 query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
+        @NamedQuery(name = "UserMessage.find",
+                query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
 })
 @Entity
 @Table(name = "TB_USER_MESSAGE")
@@ -67,7 +69,7 @@ public class UserMessage extends AbstractBaseEntity {
     @JoinColumn(name = "MPC_ID_FK")
     protected MpcEntity mpc;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "TB_MESSAGE_PROPERTIES",
             joinColumns = @JoinColumn(name = "USER_MESSAGE_ID_FK"),
             inverseJoinColumns = @JoinColumn(name = "MESSAGE_PROPERTY_FK")
@@ -123,7 +125,7 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public String getActionValue() {
-        if(action == null) {
+        if (action == null) {
             return null;
         }
         return action.getValue();
@@ -138,7 +140,7 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public String getServiceValue() {
-        if(service == null) {
+        if (service == null) {
             return null;
         }
         return service.getValue();
@@ -161,7 +163,7 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public String getMpcValue() {
-        if(mpc == null) {
+        if (mpc == null) {
             return null;
         }
         return mpc.getValue();

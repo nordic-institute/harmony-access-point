@@ -226,7 +226,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         // Updating the reference to the signal message
 
         MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.ACKNOWLEDGED);
-        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.SENDING);
+        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
 
         // Builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()

@@ -163,7 +163,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();
 
-        MSHRoleEntity mshRoleEntity = mshRoleDao.findByRole(MSHRole.SENDING);
+        MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.SENDING);
         messageGroupEntity.setMshRole(mshRoleEntity);
         messageGroupEntity.setGroupId(userMessage.getMessageId());
         File sourceMessageFile = new File(sourceMessageFileName);
@@ -246,7 +246,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         List<PartInfo> partInfos = null;
         try {
-            partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging);
+            partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             throw new SplitAndJoinException("Error handling payloads", e);
         }
@@ -353,7 +353,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected SOAPMessage rejoinSourceMessage(String groupId, File sourceMessageFile) {
         LOG.debug("Creating the SOAPMessage for group [{}] from file [{}] ", groupId, sourceMessageFile);
 
-        final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(groupId);
+        final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupIdWithMessageHeader(groupId);
         final String contentType = createContentType(messageGroupEntity.getMessageHeaderEntity().getBoundary(), messageGroupEntity.getMessageHeaderEntity().getStart());
 
         return getUserMessage(sourceMessageFile, contentType);
@@ -584,9 +584,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     protected void createLogEntry(String sourceMessageId, String errorDetail) {
         LOG.debug("Creating error entry for message [{}]", sourceMessageId);
-        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.SENDING);
-        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
-        errorService.createErrorLog(errorLogEntry);
+        errorService.createErrorLog(MSHRole.SENDING, sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
     }
 
     @Transactional

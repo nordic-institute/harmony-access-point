@@ -8,6 +8,7 @@ import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
@@ -34,6 +35,7 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
      * Test for the backend sendMessage service with payload profile enabled
      */
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);

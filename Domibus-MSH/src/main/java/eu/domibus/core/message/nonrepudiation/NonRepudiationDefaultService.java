@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -57,6 +58,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Autowired
     private AuditService auditService;
 
+    @Transactional
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
@@ -69,10 +71,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
             UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
             if (userMessage != null) {
-                rawEnvelopeLog.setUserMessage(userMessage);
+                rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
             }
             rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
-            rawEnvelopeLog.setUserMessage(userMessage);
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
@@ -98,6 +99,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         }
     }
 
+    @Transactional
     @Override
     public void saveResponse(SOAPMessage response, String userMessageId) {
         if (isNonRepudiationAuditDisabled()) {
@@ -107,7 +109,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         List<SignalMessage> signalMessages = signalMessageDao.findByRefMessageId(userMessageId);
         if (CollectionUtils.isEmpty(signalMessages)) {
-            LOG.error("Could not find any signal message for ref message [{}]", userMessageId);
+            LOG.warn("Could not find any signal message for ref message [{}]", userMessageId);
             return;
         }
 

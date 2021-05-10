@@ -268,19 +268,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     protected MessageProperty convertToEbms3Property(Ebms3Property partProperty) {
-        MessageProperty result = new MessageProperty();
-        result.setName(partProperty.getName());
-        result.setType(partProperty.getType());
-        result.setValue(partProperty.getValue());
-        return result;
+        return messagePropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
     }
 
     protected PartProperty convertToPartProperty(Ebms3Property partProperty) {
-        PartProperty result = new PartProperty();
-        result.setName(partProperty.getName());
-        result.setType(partProperty.getType());
-        result.setValue(partProperty.getValue());
-        return result;
+        return partPropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
     }
 
 

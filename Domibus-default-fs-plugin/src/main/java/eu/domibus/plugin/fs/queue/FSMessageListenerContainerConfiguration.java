@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
+import javax.jms.Session;
 
 /**
  * Configuration class for JMS queues used in FS Plugin
@@ -41,11 +41,8 @@ public class FSMessageListenerContainerConfiguration {
     private FSSendMessageListener fsSendMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
+    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
-
-    @Autowired
-    protected PlatformTransactionManager transactionManager;
 
     @Autowired
     private FSPluginProperties fsPluginProperties;
@@ -68,10 +65,9 @@ public class FSMessageListenerContainerConfiguration {
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(fsPluginSendQueue);
         messageListenerContainer.setMessageListener(fsSendMessageListener);
-        messageListenerContainer.setTransactionManager(transactionManager);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
-        messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
         messageListenerContainer.afterPropertiesSet();
 

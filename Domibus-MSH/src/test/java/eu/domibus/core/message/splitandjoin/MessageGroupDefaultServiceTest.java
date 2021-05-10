@@ -1,6 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.message.UserMessageDao;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -13,8 +14,11 @@ import org.junit.Test;
  */
 public class MessageGroupDefaultServiceTest {
 
-    /*@Injectable
+    @Injectable
     protected MessageGroupDao messageGroupDao;
+
+    @Injectable
+    protected UserMessageDao userMessageDao;
 
     @Tested
     MessageGroupDefaultService messageGroupDefaultService;
@@ -33,10 +37,10 @@ public class MessageGroupDefaultServiceTest {
         messageGroupDefaultService.setSourceMessageId(sourceMessageId, groupId);
 
         new Verifications() {{
-            messageGroupEntity.setSourceMessageId(sourceMessageId);
+//            messageGroupEntity.setSourceMessageId(sourceMessageId);
             messageGroupDao.update(messageGroupEntity);
         }};
 
 
-    }*/
+    }
 }

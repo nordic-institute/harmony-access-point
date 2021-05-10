@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Topic;
@@ -31,7 +30,6 @@ public class ControllerListenerConfigurationTest {
     public void createDefaultMessageListenerContainer(@Injectable ConnectionFactory connectionFactory,
                                                       @Injectable Topic destination,
                                                       @Injectable ControllerListenerService messageListener,
-                                                      @Injectable PlatformTransactionManager transactionManager,
                                                       @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
                                                       @Injectable DomibusPropertyProvider domibusPropertyProvider) {
         new Expectations() {{
@@ -39,7 +37,7 @@ public class ControllerListenerConfigurationTest {
             result = "2-3";
         }};
 
-        DefaultMessageListenerContainer defaultMessageListenerContainer = controllerListenerConfiguration.createDefaultMessageListenerContainer(connectionFactory, destination, messageListener, transactionManager, internalDestinationResolver, domibusPropertyProvider);
+        DefaultMessageListenerContainer defaultMessageListenerContainer = controllerListenerConfiguration.createDefaultMessageListenerContainer(connectionFactory, destination, messageListener, internalDestinationResolver, domibusPropertyProvider);
         Assert.assertEquals(2, defaultMessageListenerContainer.getConcurrentConsumers());
         Assert.assertEquals(3, defaultMessageListenerContainer.getMaxConcurrentConsumers());
         Assert.assertEquals(destination, defaultMessageListenerContainer.getDestination());

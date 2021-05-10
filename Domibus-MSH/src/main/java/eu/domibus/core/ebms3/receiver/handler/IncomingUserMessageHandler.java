@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -19,6 +20,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -48,12 +50,19 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         LOG.debug("Processing UserMessage");
 
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging);
+        Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
+        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
 
+        if (ebms3MessageFragmentType != null) {
+            userMessage.setMessageFragment(true);
+        }
+
         authorizationService.authorizeUserMessage(request, userMessage);
-        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
+        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, testMessage);
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }
+
+
 }

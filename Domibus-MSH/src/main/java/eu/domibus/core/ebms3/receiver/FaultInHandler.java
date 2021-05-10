@@ -138,7 +138,7 @@ public class FaultInHandler extends AbstractFaultHandler {
             throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
         }
 
-        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.RECEIVING);
+        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
 
         // at this point an EbMS3Exception is available in any case
         SOAPMessage soapMessageWithEbMS3Error = null;

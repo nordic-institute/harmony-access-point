@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -45,6 +46,9 @@ public class TestServiceIT {
 
     @Injectable
     private JsonUtil jsonUtil;
+
+    @Injectable
+    private SignalMessageDao signalMessageDao;
 
     @Test
     public void createSubmission() throws IOException {

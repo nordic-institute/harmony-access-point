@@ -12,6 +12,7 @@ import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -89,13 +90,23 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
      * @param messageId The message id
      * @return The UserMessageLog
      */
+    @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId) {
         try {
-            return findByMessageId(messageId);
+            final UserMessageLog userMessageLog = findByMessageId(messageId);
+            initializeChildren(userMessageLog);
+            return userMessageLog;
         } catch (NoResultException nrEx) {
             LOG.debug("Could not find any result for message with id [" + messageId + "]");
             return null;
         }
+    }
+
+    private void initializeChildren(UserMessageLog userMessageLog) {
+        //initialize values from the second level cache
+        userMessageLog.getMessageStatus();
+        userMessageLog.getMshRole();
+        userMessageLog.getNotificationStatus();
     }
 
     public MessageStatus getMessageStatus(String messageId) {

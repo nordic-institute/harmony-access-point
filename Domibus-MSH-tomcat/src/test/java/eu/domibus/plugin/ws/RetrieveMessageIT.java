@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -32,6 +33,7 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.Holder;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -39,7 +41,7 @@ import java.util.HashMap;
 @Rollback
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
-   /* @Autowired
+    @Autowired
     JMSManager jmsManager;
 
     @Autowired
@@ -74,24 +76,28 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
 
     @DirtiesContext
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testMessageIdNeedsATrimSpaces() throws Exception {
         retrieveMessage("    2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu ");
     }
 
     @DirtiesContext
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testMessageIdNeedsATrimTabs() throws Exception {
         retrieveMessage("\t2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu\t");
     }
 
     @DirtiesContext
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testMessageIdNeedsATrimSpacesAndTabs() throws Exception {
         retrieveMessage(" \t 2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu \t ");
     }
 
     @DirtiesContext
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testRetrieveMessageOk() throws Exception {
         retrieveMessage("2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu");
     }
@@ -120,20 +126,27 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         final String sanitizedMessageId = StringUtils.trim(messageId).replace("\t", "");
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setBinaryData(messagePayload.getBytes());
-        userMessage.getPayloadInfo().getPartInfo().iterator().next().setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
-        userMessage.getMessageInfo().setMessageId(sanitizedMessageId);
+        userMessage.setMessageId(sanitizedMessageId);
         eu.domibus.api.model.Messaging messaging = new eu.domibus.api.model.Messaging();
         messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
+        ArrayList<PartInfo> partInfoList = new ArrayList<>();
+        PartInfo e = new PartInfo();
+        e.setBinaryData(messagePayload.getBytes());
+        e.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
+        partInfoList.add(e);
+        messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
-        userMessageLog.setMessageId(sanitizedMessageId);
-        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
-        userMessageLog.setMshRole(MSHRole.RECEIVING);
+        MessageStatusEntity messageStatus = new MessageStatusEntity();
+        messageStatus.setMessageStatus(MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(messageStatus);
+//        userMessageLog.setMessageId(sanitizedMessageId);
+//        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
+        MSHRoleEntity mshRole = new MSHRoleEntity();
+        mshRole.setRole(MSHRole.RECEIVING);
+        userMessageLog.setMshRole(mshRole);
         userMessageLog.setReceived(new Date());
-        userMessageLogService.save(sanitizedMessageId,
+        userMessageLogService.save(userMessage,
                 eu.domibus.common.MessageStatus.RECEIVED.name(),
                 NotificationStatus.REQUIRED.name(),
                 MshRole.RECEIVING.name(),
@@ -171,5 +184,5 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         RetrieveMessageRequest retrieveMessageRequest = new RetrieveMessageRequest();
         retrieveMessageRequest.setMessageID(messageId);
         return retrieveMessageRequest;
-    }*/
+    }
 }
