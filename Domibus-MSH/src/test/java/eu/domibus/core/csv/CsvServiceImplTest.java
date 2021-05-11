@@ -123,15 +123,15 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Conversation Id,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
-        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",conversationId," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
+        Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Next Attempt Timezone Id,Next Attempt Offset Seconds,Conversation Id,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
+        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
     private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date,
-                "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
+                "Europe/Brussels", 3600, "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
                 "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);
         return result;

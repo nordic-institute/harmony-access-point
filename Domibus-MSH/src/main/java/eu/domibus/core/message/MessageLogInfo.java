@@ -35,6 +35,10 @@ public class MessageLogInfo {
 
     private Date nextAttempt;
 
+    private String nextAttemptTimezoneId;
+
+    private Integer nextAttemptOffsetSeconds;
+
     private String conversationId;
 
     private Boolean testMessage;
@@ -74,6 +78,8 @@ public class MessageLogInfo {
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
+                          final String nextAttemptTimezoneId,
+                          final Integer nextAttemptOffsetSeconds,
                           final String conversationId,
                           final String fromPartyId,
                           final String toPartyId,
@@ -92,6 +98,8 @@ public class MessageLogInfo {
         this.sendAttempts = sendAttempts;
         this.sendAttemptsMax = sendAttemptsMax;
         this.nextAttempt = nextAttempt;
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
         //message information UserMessage/SignalMessage
         this.conversationId = conversationId;
         this.fromPartyId = fromPartyId;
@@ -114,6 +122,8 @@ public class MessageLogInfo {
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
+                          final String nextAttemptTimezoneId,
+                          final Integer nextAttemptOffsetSeconds,
                           final String conversationId,
                           final String fromPartyId,
                           final String toPartyId,
@@ -129,8 +139,8 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue
     ) {
-        this(messageId, messageStatus, notificationStatus, mshRole, deleted, received,
-                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
+        this(messageId, messageStatus, notificationStatus, mshRole, deleted, received, sendAttempts, sendAttemptsMax,
+                nextAttempt, nextAttemptTimezoneId, nextAttemptOffsetSeconds, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, failed, restored, testMessage);
 
         this.messageFragment = messageFragment;
@@ -276,6 +286,14 @@ public class MessageLogInfo {
         return nextAttempt;
     }
 
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public Integer getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
     public Date getFailed() {
         return failed;
     }
@@ -324,6 +342,14 @@ public class MessageLogInfo {
         this.serviceValue = serviceValue;
     }
 
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptOffsetSeconds(Integer nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -343,6 +369,8 @@ public class MessageLogInfo {
                 .append(received, that.received)
                 .append(mshRole, that.mshRole)
                 .append(nextAttempt, that.nextAttempt)
+                .append(nextAttemptTimezoneId, that.nextAttemptTimezoneId)
+                .append(nextAttemptOffsetSeconds, that.nextAttemptOffsetSeconds)
                 .append(conversationId, that.conversationId)
                 .append(deleted, that.deleted)
                 .append(originalSender, that.originalSender)
@@ -370,6 +398,8 @@ public class MessageLogInfo {
                 .append(sendAttempts)
                 .append(sendAttemptsMax)
                 .append(nextAttempt)
+                .append(nextAttemptTimezoneId)
+                .append(nextAttemptOffsetSeconds)
                 .append(conversationId)
                 .append(deleted)
                 .append(originalSender)

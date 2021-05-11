@@ -12,7 +12,10 @@ export class MessageLogEntry {
               public refToMessageId: string,
               public receivedFrom: Date,
               public receivedTo: Date,
-              public isTestMessage: boolean
+              public isTestMessage: boolean,
+              public nextAttempt: Date,
+              public nextAttemptTimezoneId: string,
+              public nextAttemptOffsetSeconds: number
   ) {
 
   }

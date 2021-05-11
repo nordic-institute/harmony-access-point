@@ -51,6 +51,7 @@ public class CommandDaoIT {
     }
 
     @Test
+    @Transactional
     public void createCommand() {
         CommandEntity entity = new CommandEntity();
         entity.setCreationTime(new Date());
@@ -72,7 +73,6 @@ public class CommandDaoIT {
 
     @Test
     @Transactional
-    @Ignore("François Gautier 11-09-20 Fix the test")
     public void deleteCommandAndProperties() {
         CommandEntity entity = new CommandEntity();
         entity.setCreationTime(new Date());

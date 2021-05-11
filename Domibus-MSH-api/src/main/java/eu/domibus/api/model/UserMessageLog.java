@@ -1,5 +1,7 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.scheduler.Reprogrammable;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -87,7 +89,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.userMessage.messageId in :MESSAGEIDS"),
 })
-public class UserMessageLog extends AbstractNoGeneratedPkEntity {
+public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 
     @Column(name = "BACKEND")
     private String backend;
@@ -126,6 +128,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     @Column(name = "NEXT_ATTEMPT")
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
 
     @Column(name = "SEND_ATTEMPTS")
     private int sendAttempts;
@@ -211,12 +217,24 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
         this.deleted = deleted;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public int getSendAttempts() {
@@ -274,9 +292,6 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     public void setNotificationStatus(NotificationStatusEntity notificationStatus) {
         this.notificationStatus = notificationStatus;
     }
-
-
-
 
     public UserMessage getUserMessage() {
         return userMessage;
