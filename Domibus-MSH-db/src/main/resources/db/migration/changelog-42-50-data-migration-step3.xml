@@ -44,6 +44,7 @@
         <renameTable oldTableName="TB_ERROR_LOG" newTableName="OLD_TB_ERROR_LOG"/>
     </changeSet>
 
+    <!-- remove MIGR_ prefix from new tables -->
     <changeSet id="EDELIVERY-7970-rename-MIGR-tables" author="Catalin Enache">
         <renameTable oldTableName="MIGR_TB_USER_MESSAGE" newTableName="TB_USER_MESSAGE"/>
         <renameTable oldTableName="MIGR_TB_SJ_MESSAGE_FRAGMENT" newTableName="TB_SJ_MESSAGE_FRAGMENT"/>
@@ -62,7 +63,7 @@
         <renameTable oldTableName="MIGR_TB_MESSAGE_ACKNW" newTableName="TB_MESSAGE_ACKNW"/>
     </changeSet>
 
-    <!-- put back constraints -->
+    <!-- add constraints and indexes -->
     <changeSet id="EDELIVERY-7970-constraints" author="Catalin Enache">
         <!-- TB_USER_MESSAGE -->
         <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
@@ -309,6 +310,7 @@
         </createIndex>
     </changeSet>
 
+    <!-- alter Oracle sequence -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence">
         <sql dbms="oracle">
             ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
