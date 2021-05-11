@@ -1,5 +1,6 @@
 Domibus 4.2.2
 - Handle runtime error while dispatching SEND_ENQUEUED messages.
+- Add http timeout for certificate CRL download.
 - Renamed procedures and several indexes to match Oracle 11g constraints.
 - Added new property 'domibus.action.resend.wait.minutes' - Minimum expected waiting time for 'Resend' action, for the received messages get stuck in SEND_ENQUEUED status.
 Domibus 4.2.1

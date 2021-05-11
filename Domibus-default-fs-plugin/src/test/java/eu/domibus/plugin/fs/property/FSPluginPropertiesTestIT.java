@@ -1,6 +1,5 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
@@ -16,10 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import static org.mockito.Mockito.when;
 
@@ -148,7 +144,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetSentPurgeExpired() {
-        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired(null));
+        Assert.assertEquals(600, fSPluginProperties.getSentPurgeExpired(null));
     }
 
     @Test
@@ -163,12 +159,12 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetFailedPurgeExpired() {
-        Assert.assertEquals((Integer) 0, fSPluginProperties.getFailedPurgeExpired(null));
+        Assert.assertEquals(0, fSPluginProperties.getFailedPurgeExpired(null));
     }
 
     @Test
     public void testGetReceivedPurgeExpired() {
-        Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired(null));
+        Assert.assertEquals(0, fSPluginProperties.getReceivedPurgeExpired(null));
     }
 
     @Test

@@ -41,14 +41,20 @@ public abstract class FSAbstractPurgeService {
     }
 
     protected void purgeMessages(String domain) {
+        int expirationLimit = getExpirationLimit(domain);
+        if (expirationLimit == 0) {
+            LOG.debug("Exiting purge files for domain [{}] as the expiration limit is set to 0.", domain);
+            return;
+        }
+
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-                FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {
+             FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {
 
             contentFiles = findAllDescendants(targetFolder);
-            LOG.debug("Found files [{}]", contentFiles);
-            
-            Integer expirationLimit = getExpirationLimit(domain);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Found files [{}]", contentFiles);
+            }
 
             for (FileObject processableFile : contentFiles) {
                 checkAndPurge(processableFile, expirationLimit);
@@ -86,7 +92,7 @@ public abstract class FSAbstractPurgeService {
         }
     }
 
-    protected abstract Integer getExpirationLimit(String domain);
+    protected abstract int getExpirationLimit(String domain);
 
     /**
      * Returns all the files (or folders) to be deleted after a period ot time
