@@ -10,9 +10,9 @@
      - rename 4.2 migrated tables to OLD_*
      - rename MIGR_ (5.0 tables) by removing MIGR_ prefix
      - create the indexes and the constraints on 5.0 new tables
-     - alter the Hibenrate sequence (Oracle only)
+     - alter the Hibernate sequence (Oracle only)
 
-     All operations here are not reversible and should be done once step 1 and step 2 are successful
+     All operations here are irreversible and should be done once step 1 and step 2 are successful
      -->
 
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
