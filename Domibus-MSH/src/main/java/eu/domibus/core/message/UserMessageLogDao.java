@@ -2,20 +2,22 @@ package eu.domibus.core.message;
 
 import com.google.common.collect.Maps;
 import eu.domibus.api.model.*;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.procedure.ProcedureOutputs;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -31,24 +33,34 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
-    @Autowired
-    private UserMessageLogInfoFilter userMessageLogInfoFilter;
+    private final DateUtil dateUtil;
 
-    @Autowired
-    protected MessageStatusDao messageStatusDao;
+    private final UserMessageLogInfoFilter userMessageLogInfoFilter;
 
-    @Autowired
-    protected NotificationStatusDao notificationStatusDao;
+    private final MessageStatusDao messageStatusDao;
+
+    private final NotificationStatusDao notificationStatusDao;
+
+    private final ReprogrammableService reprogrammableService;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
-    public UserMessageLogDao() {
+    public UserMessageLogDao(DateUtil dateUtil,
+                             UserMessageLogInfoFilter userMessageLogInfoFilter,
+                             MessageStatusDao messageStatusDao,
+                             NotificationStatusDao notificationStatusDao,
+                             ReprogrammableService reprogrammableService) {
         super(UserMessageLog.class);
+        this.dateUtil = dateUtil;
+        this.userMessageLogInfoFilter = userMessageLogInfoFilter;
+        this.messageStatusDao = messageStatusDao;
+        this.notificationStatusDao = notificationStatusDao;
+        this.reprogrammableService = reprogrammableService;
     }
 
     public List<String> findRetryMessages() {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
-        query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
+        query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
     }
@@ -333,19 +345,19 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
         switch (messageStatus) {
             case DELETED:
                 messageLog.setDeleted(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case DOWNLOADED:
                 messageLog.setDownloaded(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case SEND_FAILURE:
                 messageLog.setFailed(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             default:
         }

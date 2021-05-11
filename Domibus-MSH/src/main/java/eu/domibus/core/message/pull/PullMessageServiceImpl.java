@@ -19,6 +19,7 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -87,6 +88,9 @@ public class PullMessageServiceImpl implements PullMessageService {
     protected UserMessageDao userMessageDao;
 
 
+    @Autowired
+    private ReprogrammableService reprogrammableService;
+
     /**
      * {@inheritDoc}
      */
@@ -117,7 +121,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 break;
             case ABORT:
                 pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
-                lock.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(lock);
                 lock.setMessageState(MessageState.DEL);
                 messagingLockDao.save(lock);
                 break;
@@ -250,10 +254,10 @@ public class PullMessageServiceImpl implements PullMessageService {
                 messageLog.getReceived(),
                 staledDate,
                 messageLog.getNextAttempt() == null ? new Date() : messageLog.getNextAttempt(),
+                messageLog.getTimezoneOffset(),
                 messageLog.getSendAttempts(),
                 messageLog.getSendAttemptsMax());
     }
-
 
     /**
      * {@inheritDoc}
@@ -263,7 +267,6 @@ public class PullMessageServiceImpl implements PullMessageService {
     public void deletePullMessageLock(final String messageId) {
         messagingLockDao.delete(messageId);
     }
-
 
     /**
      * {@inheritDoc}
@@ -286,7 +289,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         if (updateRetryLoggingService.isExpired(legConfiguration, userMessageLog)) {
             LOG.debug("[WAITING_FOR_CALLBACK]:Message:[{}] expired]", userMessage.getMessageId());
             pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
-            lock.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             messagingLockDao.save(lock);
             return;
@@ -304,7 +307,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         }
         lock.setMessageState(MessageState.WAITING);
         lock.setSendAttempts(userMessageLog.getSendAttempts());
-        lock.setNextAttempt(userMessageLog.getNextAttempt());
+        reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
         final MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(waitingForReceipt);
         userMessageLog.setMessageStatus(messageStatus);
         messagingLockDao.save(lock);
@@ -352,9 +355,9 @@ public class PullMessageServiceImpl implements PullMessageService {
             LOG.debug("[PULL_REQUEST]:Message:[{}] will be available for pull at [{}]", userMessage.getMessageId(), userMessageLog.getNextAttempt());
             lock.setMessageState(MessageState.READY);
             lock.setSendAttempts(userMessageLog.getSendAttempts());
-            lock.setNextAttempt(userMessageLog.getNextAttempt());
+            reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
         } else {
-            lock.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
             LOG.debug("[PULL_REQUEST]:Message:[{}] has no more attempt, it has been pulled [{}] times", userMessage.getMessageId(), userMessageLog.getSendAttempts() + 1);
             pullMessageStateService.sendFailed(userMessageLog, userMessage.getMessageId());
@@ -420,7 +423,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         } else {
             LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] send failed.", lock.getMessageId());
             lock.setMessageState(MessageState.DEL);
-            lock.setNextAttempt(null);
+            reprogrammableService.removeRescheduleInfo(lock);
             messagingLockDao.save(lock);
             pullMessageStateService.sendFailed(userMessageLog, messageId);
 
@@ -454,16 +457,16 @@ public class PullMessageServiceImpl implements PullMessageService {
             case READY_TO_PULL:
                 lock.setMessageState(MessageState.READY);
                 lock.setSendAttempts(requestResult.getSendAttempts());
-                lock.setNextAttempt(requestResult.getNextAttempts());
+                reprogrammableService.setRescheduleInfo(lock, requestResult.getNextAttempts());
                 messagingLockDao.save(lock);
                 break;
             case SEND_FAILURE:
                 lock.setMessageState(MessageState.DEL);
-                lock.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(lock);
                 messagingLockDao.save(lock);
                 break;
             case ACKNOWLEDGED:
-                lock.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(lock);
                 lock.setMessageState(MessageState.ACK);
                 messagingLockDao.delete(lock);
                 break;

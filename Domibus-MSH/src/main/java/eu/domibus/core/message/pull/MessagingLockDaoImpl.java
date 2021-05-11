@@ -2,6 +2,7 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageState;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -35,12 +36,20 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
     protected static final String MESSAGE_STATE = "MESSAGE_STATE";
 
-    protected static final String LOCK_BY_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_STATE='READY' and ml.ID_PK=?1 FOR UPDATE";
+    private static final String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
 
-    protected static final String LOCK_BY_MESSAGE_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=?1 FOR UPDATE";
+    protected static final String LOCK_BY_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_STATE='READY' and ml.ID_PK=?1 FOR UPDATE";
+
+    protected static final String LOCK_BY_MESSAGE_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=?1 FOR UPDATE";
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
+
+    private final DateUtil dateUtil;
+
+    public MessagingLockDaoImpl(DateUtil dateUtil) {
+        this.dateUtil = dateUtil;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -130,6 +139,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     @Override
     public List<MessagingLock> findStaledMessages() {
         TypedQuery<MessagingLock> query = entityManager.createNamedQuery("MessagingLock.findStalledMessages", MessagingLock.class);
+        query.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
         return query.getResultList();
     }
 
@@ -146,6 +156,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
         namedQuery.setFirstResult(0);
         namedQuery.setMaxResults(50);
         namedQuery.setParameter(MPC, mpc);
+        namedQuery.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
         namedQuery.setParameter(INITIATOR, initiator);
         return namedQuery.getResultList();
     }
@@ -153,6 +164,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     @Override
     public List<MessagingLock> findWaitingForReceipt() {
         final TypedQuery<MessagingLock> namedQuery = entityManager.createNamedQuery("MessagingLock.findWaitingForReceipt", MessagingLock.class);
+        namedQuery.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
         return namedQuery.getResultList();
     }
 
