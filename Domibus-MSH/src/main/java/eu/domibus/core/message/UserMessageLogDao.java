@@ -80,10 +80,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
         }
         if (failedStartDate != null) {
-            queryString += " and ml.failed >= :START_DATE";
+            queryString += " and ml.received >= :START_DATE";
         }
         if (failedEndDate != null) {
-            queryString += " and ml.failed <= :END_DATE";
+            queryString += " and ml.received <= :END_DATE";
         }
         TypedQuery<String> query = this.em.createQuery(queryString, String.class);
         if (StringUtils.isNotEmpty(finalRecipient)) {

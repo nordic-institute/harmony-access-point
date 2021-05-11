@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -250,7 +250,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
 
-        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES);
         Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
         Date currentDate = new Date();
         if (receivedDateDelta.after(currentDate)) {
@@ -496,25 +496,31 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public List<String> restoreSendEnqueuedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
-        final List<String> sendEnqueuedMessages = userMessageLogDao.findSendEnqueuedMessages(finalRecipient, start, end);
+    public List<String> restoreSendEnqueuedMessagesDuringPeriod(Date startDate, Date endDate, String finalRecipient) {
+        final List<String> sendEnqueuedMessages = userMessageLogDao.findSendEnqueuedMessages(finalRecipient, startDate, endDate);
         if (sendEnqueuedMessages == null) {
             return null;
         }
-        LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient", sendEnqueuedMessages, start, end, finalRecipient);
+        LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient", sendEnqueuedMessages, startDate, endDate, finalRecipient);
 
+        int resendWaitingTimeInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES);
+        ;
+        Date resendDate = DateUtils.addMinutes(endDate, resendWaitingTimeInMinutes);
+        Date currentDate = new Date();
+        if (resendDate.after(currentDate)) {
+            LOG.warn("Minimum expected waiting time not yet reached to resend the messages in SEND_ENQUEUED status");
+        }
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : sendEnqueuedMessages) {
             try {
-                //restoreService.restoreFailedMessage(messageId);
-                sendEnqueuedMessage(messageId);
+                restoreService.restoreSendEnqueuedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
                 LOG.error("Failed to restore message [" + messageId + "]", e);
             }
         }
 
-        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, start, end, finalRecipient);
+        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, startDate, endDate, finalRecipient);
 
         return restoredMessages;
     }

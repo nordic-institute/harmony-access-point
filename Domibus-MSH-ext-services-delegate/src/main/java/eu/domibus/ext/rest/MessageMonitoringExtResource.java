@@ -80,8 +80,8 @@ public class MessageMonitoringExtResource {
     @ApiOperation(value = "Resend all messages with SEND_ENQUEUED status within a certain time interval", notes = "Resend all messages with SEND_ENQUEUED status within a certain time interval",
             authorizations = @Authorization(value = "basicAuth"), tags = "monitoring")
     @PostMapping(path = "/enqueued/restore")
-    public List<String> restoreSendEnqueuedMessages(@RequestBody FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
-        return messageMonitorExtService.restoreSendEnqueuedMessagesDuringPeriod(failedMessagesCriteriaRO.getFromDate(), failedMessagesCriteriaRO.getToDate());
+    public List<String> restoreSendEnqueuedMessages(@RequestBody FailedMessagesCriteriaRO enqueuedMessagesCriteriaRO) {
+        return messageMonitorExtService.restoreSendEnqueuedMessagesDuringPeriod(enqueuedMessagesCriteriaRO.getFromDate(), enqueuedMessagesCriteriaRO.getToDate());
     }
 
     @ApiOperation(value = "Delete failed message payload", notes = "Delete the payload of a message which has a SEND_FAILURE status",

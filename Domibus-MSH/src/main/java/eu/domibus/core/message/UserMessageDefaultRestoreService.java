@@ -79,6 +79,25 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
         }
 
+        restoreMessage(messageId, userMessageLog);
+    }
+
+    @Transactional
+    @Override
+    public void restoreSendEnqueuedMessage(String messageId) {
+        LOG.info("Restoring SendEnqueued message [{}]", messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+
+        if (userMessageLog == null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message doesn't exist");
+        }
+        if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
+        }
+        restoreMessage(messageId, userMessageLog);
+    }
+
+    protected void restoreMessage(String messageId, UserMessageLog userMessageLog) {
         final MessageStatus newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
         backendNotificationService.notifyOfMessageStatusChange(userMessageLog, newMessageStatus, new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(newMessageStatus);
