@@ -153,67 +153,56 @@
         "responses" : {
           "200" : {
             "description" : "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MonitoringInfoDTO"
+            "schema" : {
+              "$ref" : "#/definitions/MonitoringInfoDTO"
             }
           }
         },
-        "security": [
-          {
-            "basicAuth": []
-          }
-        ]
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
       }
     },
-    "/ext/monitoring/messages/enqueued/restore": {
-      "post": {
-        "tags": [
-          "monitoring"
-        ],
-        "summary": "Resend all messages with SEND_ENQUEUED status within a certain time interval",
-        "description": "Resend all messages with SEND_ENQUEUED status within a certain time interval",
-        "operationId": "restoreSendEnqueuedMessages",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/FailedMessagesCriteriaRO"
-            }
+    "/ext/monitoring/messages/enqueued/restore" : {
+      "post" : {
+        "tags" : [ "monitoring" ],
+        "summary" : "Resend all messages with SEND_ENQUEUED status within a certain time interval",
+        "description" : "Resend all messages with SEND_ENQUEUED status within a certain time interval",
+        "operationId" : "restoreSendEnqueuedMessages",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/FailedMessagesCriteriaRO"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
               }
             }
           }
         },
-        "security": [
-          {
-            "basicAuth": []
-          }
-        ]
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
       }
     },
-    "/ext/monitoring/messages/enqueued/{messageId}/send": {
-      "put": {
-        "tags": [
-          "monitoring"
-        ],
-        "summary": "Send enqueued message",
-        "description": "Send a message which has a SEND_ENQUEUED status",
-        "operationId": "sendEnqueuedMessage",
-        "parameters": [
-          {
-            "name": "messageId",
-            "in": "path",
-            "required": true,
+    "/ext/monitoring/messages/enqueued/{messageId}/send" : {
+      "put" : {
+        "tags" : [ "monitoring" ],
+        "summary" : "Send enqueued message",
+        "description" : "Send a message which has a SEND_ENQUEUED status",
+        "operationId" : "sendEnqueuedMessage",
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
           "type" : "string",
           "pattern" : ".+"
         } ],
@@ -644,27 +633,27 @@
           "type" : "string"
         },
         "inputStream" : {
-          "$ref": "#/definitions/InputStream"
+          "$ref" : "#/definitions/InputStream"
         },
-        "url": {
-          "type": "string",
-          "format": "url"
+        "readable" : {
+          "type" : "boolean"
         },
-        "file": {
-          "type": "file"
+        "filename" : {
+          "type" : "string"
         },
-        "open": {
-          "type": "boolean"
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
         },
-        "uri": {
-          "type": "string",
-          "format": "uri"
+        "url" : {
+          "type" : "string",
+          "format" : "url"
         },
-        "filename": {
-          "type": "string"
+        "file" : {
+          "type" : "file"
         },
-        "readable": {
-          "type": "boolean"
+        "open" : {
+          "type" : "boolean"
         }
       }
     },

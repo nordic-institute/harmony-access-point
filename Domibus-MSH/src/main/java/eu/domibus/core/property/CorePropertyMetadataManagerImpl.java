@@ -323,7 +323,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
 
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES, Type.NUMERIC),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

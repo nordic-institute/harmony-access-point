@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ACTION_RESEND_WAIT_MINUTES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -250,7 +250,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
 
-        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES);
+        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
         Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
         Date currentDate = new Date();
         if (receivedDateDelta.after(currentDate)) {
@@ -503,8 +503,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient", sendEnqueuedMessages, startDate, endDate, finalRecipient);
 
-        int resendWaitingTimeInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES);
-        ;
+        int resendWaitingTimeInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
         Date resendDate = DateUtils.addMinutes(endDate, resendWaitingTimeInMinutes);
         Date currentDate = new Date();
         if (resendDate.after(currentDate)) {

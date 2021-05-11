@@ -1,7 +1,7 @@
 Domibus 4.2.2
 - Handle runtime error while dispatching SEND_ENQUEUED messages.
 - Renamed procedures and several indexes to match Oracle 11g constraints.
-- Added new property 'domibus.resend.action.required.waiting.minutes' - Minimum expected waiting time for 'Resend' action, for the received messages get stuck in SEND_ENQUEUED status.
+- Added new property 'domibus.action.resend.wait.minutes' - Minimum expected waiting time for 'Resend' action, for the received messages get stuck in SEND_ENQUEUED status.
 Domibus 4.2.1
 - Use DefaultMPC value for User Messages received without the optional MPC attribute.
 - Improve performance of the default view of the Messages page in Domibus Admin Console.

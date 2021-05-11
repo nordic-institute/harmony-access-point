@@ -44,7 +44,7 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ACTION_RESEND_WAIT_MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -646,7 +646,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_ACTION_REQUIRED_WAITING_MINUTES);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
             result = 2;
 
             userMessageLog.getReceived();

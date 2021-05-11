@@ -120,7 +120,7 @@ public interface MessageMonitorExtService {
      *
      * The method takes into account the user permissions:
      * <ul>
-     * <li>It restores all failed messages matching the criteria if unsecured authorization is allowed or the user has ROLE_ADMIN</li>
+     * <li>It restores all send enqueued messages matching the criteria if unsecured authorization is allowed or the user has ROLE_ADMIN</li>
      * <li>It restores the messages matching the finalRecipient value in case the user has ROLE_USER</li>
      * </ul>
      *
