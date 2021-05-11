@@ -48,7 +48,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -622,7 +621,6 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @Ignore
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
         em.unwrap(Session.class)
                 .setJdbcBatchSize(BATCH_SIZE);

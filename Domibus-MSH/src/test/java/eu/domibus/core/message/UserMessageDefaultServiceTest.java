@@ -621,6 +621,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
+    @Ignore
     public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
