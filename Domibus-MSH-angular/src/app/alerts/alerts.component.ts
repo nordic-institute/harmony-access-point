@@ -39,6 +39,7 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rowWithFutureDateFormatTpl', {static: false}) rowWithFutureDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) rowWithSpaceAfterCommaTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
 
@@ -128,7 +129,7 @@ export class AlertsComponent extends mix(BaseListComponent)
       {name: 'Parameters', cellTemplate: this.rowWithSpaceAfterCommaTpl, sortable: false},
       {name: 'Sent Attempts', width: 50, prop: 'attempts',},
       {name: 'Max Attempts', width: 50},
-      {name: 'Next Attempt', cellTemplate: this.rowWithDateFormatTpl, width: 155},
+      {name: 'Next Attempt', cellTemplate: this.rowWithFutureDateFormatTpl, width: 155},
       {name: 'Reporting Time Failure', cellTemplate: this.rowWithDateFormatTpl, width: 155},
       {name: 'Actions', cellTemplate: this.rowActions, width: 60, canAutoResize: true, sortable: false, showInitially: true}
     ];

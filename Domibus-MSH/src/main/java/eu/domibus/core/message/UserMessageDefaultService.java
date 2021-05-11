@@ -18,6 +18,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JMSConstants;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -42,6 +43,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -51,6 +53,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
@@ -78,6 +83,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
     static final String DOES_NOT_EXIST = "] does not exist";
+    public static final int BATCH_SIZE = 100;
 
     @Autowired
     @Qualifier(JMSConstants.SEND_MESSAGE_QUEUE)
@@ -194,6 +200,12 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
 
+    @Autowired
+    private ReprogrammableService reprogrammableService;
+
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    protected EntityManager em;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
@@ -271,7 +283,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final Date currentDate = new Date();
         userMessageLog.setRestored(currentDate);
         userMessageLog.setFailed(null);
-        userMessageLog.setNextAttempt(currentDate);
+        reprogrammableService.setRescheduleInfo(userMessageLog, currentDate);
 
         Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog, messageId);
         LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
@@ -320,7 +332,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
 
-        userMessageLog.setNextAttempt(new Date());
+        reprogrammableService.setRescheduleInfo(userMessageLog, new Date());
         userMessageLogDao.update(userMessageLog);
         scheduleSending(userMessage, userMessageLog);
     }
@@ -614,6 +626,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
+        em.unwrap(Session.class)
+                .setJdbcBatchSize(BATCH_SIZE);
 
         List<String> userMessageIds = userMessageLogs
                 .stream()
@@ -626,19 +640,25 @@ public class UserMessageDefaultService implements UserMessageService {
         List<String> filenames = partInfoDao.findFileSystemPayloadFilenames(userMessageIds);
         partInfoDao.deletePayloadFiles(filenames);
 
-        List<String> signalMessageIds = signalMessageDao.findSignalMessageIds(userMessageIds);
-        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
-        LOG.trace("Deleting signal messages [{}]", signalMessageIds);
-        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
-        int deleteResult = userMessageDao.deleteMessages(userMessageIds);
-        LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
-        deleteResult = signalMessageDao.deleteMessages(signalMessageIds);
-        LOG.debug("Deleted [{}] messageInfo for signalMessage.", deleteResult);
-        deleteResult = signalMessageDao.deleteReceipts(receiptIds);
-        LOG.debug("Deleted [{}] receipts.", deleteResult);
-        deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
+        List<String> signalMessageId = new ArrayList<>();
+
+        /* --- TODO IOANA fix deletion with new schema
+        List<Messaging> messagings = messagingDao.findMessagings(userMessageIds);
+        LOG.debug("Deleting [{}] messagings", messagings.size());
+        for (Messaging messaging : messagings) {
+            LOG.trace("Deleting messaging [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
+            if (messaging.getSignalMessage() != null) {
+                signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
+            }
+            em.remove(messaging);
+        }
+        */
+
+        em.flush();
+        int deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
         LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
-        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageIds);
+        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageId);
         LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
         deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
@@ -646,12 +666,13 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
-        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageId);
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
+        em.flush();
     }
 
     @Override

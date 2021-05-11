@@ -24,7 +24,6 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
 
     public static final String AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL="domibus.authentication.dss.current.official.journal.url";
     public static final String AUTHENTICATION_DSS_CURRENT_LOTL_URL="domibus.authentication.dss.current.lotl.url";
-    public static final String AUTHENTICATION_DSS_LOTL_COUNTRY_CODE="domibus.authentication.dss.lotl.country.code";
     public static final String AUTHENTICATION_DSS_REFRESH_CRON="domibus.authentication.dss.refresh.cron";
     public static final String AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA="domibus.authentication.dss.exception.on.missing.revocation.data";
     public static final String AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS = "domibus.authentication.dss.check.revocation.for.untrusted.chains";
@@ -62,7 +61,6 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CURRENT_LOTL_URL, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_LOTL_COUNTRY_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_FULL_TLS_REFRESH, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_REFRESH_CRON, DomibusPropertyMetadataDTO.Type.CRON, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_HOST, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),

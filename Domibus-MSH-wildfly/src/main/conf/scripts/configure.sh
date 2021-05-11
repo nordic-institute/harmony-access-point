@@ -13,7 +13,7 @@ SERVER_CONFIG=standalone-full.xml
 # MySQL configuration
 DB_TYPE=MySQL
 DB_HOST=localhost
-DB_NAME=domibus?autoReconnect=true\&useSSL=false
+DB_NAME=domibus?autoReconnect=true\&useSSL=false\&useLegacyDatetimeCode=false\&serverTimezone=UTC
 DB_PORT=3306
 DB_USER=edelivery
 DB_PASS=edelivery

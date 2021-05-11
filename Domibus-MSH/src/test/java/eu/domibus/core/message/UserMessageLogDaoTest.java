@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.scheduler.ReprogrammableService;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -44,6 +46,12 @@ public class UserMessageLogDaoTest {
 
     @Injectable
     private NotificationStatusDao notificationStatusDao;
+
+    @Injectable
+    private DateUtil dateUtil;
+
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     @Test
     public void testFindRetryMessages(@Injectable TypedQuery<String> query, @Injectable List<String> retryMessages) {

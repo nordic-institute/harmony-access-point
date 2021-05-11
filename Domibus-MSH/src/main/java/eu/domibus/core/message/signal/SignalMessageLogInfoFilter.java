@@ -15,6 +15,8 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
     private static final String CONVERSATION_ID = "conversationId";
 
+    private static final String EMPTY_CONVERSATION_ID = "'',";
+
     @Override
     protected String getHQLKey(String originalColumn) {
         if (StringUtils.equals(originalColumn, CONVERSATION_ID)) {
@@ -45,7 +47,9 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
-                "''," +
+                "null," +
+                "null," +
+                EMPTY_CONVERSATION_ID +
                 " partyFrom.value," +
                 " partyTo.value," +
                 (isFourCornerModel() ? " propsFrom.value," : "'',") +
