@@ -516,7 +516,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 restoreService.restoreSendEnqueuedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
-                LOG.error("Failed to restore message [" + messageId + "]", e);
+                LOG.error("Failed to restore message [{}]", messageId, e);
             }
         }
 
