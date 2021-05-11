@@ -6,6 +6,7 @@ import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
 import mockit.*;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @author Ion Perpegel
  * @since 4.1
  */
-public class MultiDomainCryptoEbms3ServiceImplTest {
+public class MultiDomainCryptoServiceImplTest {
 
     @Tested
     MultiDomainCryptoServiceImpl mdCryptoService;
@@ -39,6 +40,9 @@ public class MultiDomainCryptoEbms3ServiceImplTest {
 
     @Injectable
     CertificateService certificateService;
+
+    @Injectable
+    CertificateHelper certificateHelper;
 
     @Test
     public void getX509Certificates() throws WSSecurityException {

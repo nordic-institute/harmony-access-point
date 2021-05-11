@@ -296,7 +296,7 @@ public class UpdateRetryLoggingService {
                                          final LegConfiguration legConfiguration) {
         if (legConfiguration.getReceptionAwareness() != null) {
             final Long scheduledStartTime = getScheduledStartTime(userMessageLog);
-            final int timeOut = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000;
+            final long timeOut = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000L;
             Date result = new Date(scheduledStartTime + timeOut);
             LOG.debug("Message expiration date is [{}]", result);
             return result;
@@ -305,7 +305,7 @@ public class UpdateRetryLoggingService {
     }
 
     public boolean isExpired(LegConfiguration legConfiguration, UserMessageLog userMessageLog) {
-        int delay = domibusPropertyProvider.getIntegerProperty(MESSAGE_EXPIRATION_DELAY);
+        long delay = domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
         Boolean isExpired = (getMessageExpirationDate(userMessageLog, legConfiguration).getTime() + delay) < System.currentTimeMillis();
         LOG.debug("Verify if message expired: [{}]", isExpired);
         return isExpired;
