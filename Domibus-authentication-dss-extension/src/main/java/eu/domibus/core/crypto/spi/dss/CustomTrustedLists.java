@@ -1,6 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.europa.esig.dss.tsl.OtherTrustedList;
+import eu.europa.esig.dss.tsl.source.TLSource;
 
 import java.util.List;
 
@@ -10,13 +10,13 @@ import java.util.List;
  */
 public class CustomTrustedLists {
 
-    private List<OtherTrustedList> otherTrustedLists;
+    private List<TLSource> otherTrustedLists;
 
-    public CustomTrustedLists(List<OtherTrustedList> otherTrustedLists) {
+    public CustomTrustedLists(List<TLSource> otherTrustedLists) {
         this.otherTrustedLists = otherTrustedLists;
     }
 
-    public List<OtherTrustedList> getOtherTrustedLists() {
+    public List<TLSource> getOtherTrustedLists() {
         return otherTrustedLists;
     }
 }

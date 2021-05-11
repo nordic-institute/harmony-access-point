@@ -335,6 +335,16 @@
         <dependency>
             <groupId>eu.europa.ec.dynamic-discovery</groupId>
             <artifactId>dynamic-discovery-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- End eDelivery SMP profile -->
 
