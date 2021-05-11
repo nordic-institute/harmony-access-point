@@ -72,7 +72,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Transient
     private long length = -1;
 
-    @Column(name = "PART_ORDER", nullable = false)
+    @Column(name = "PART_ORDER")
     private int partOrder = 0;
 
     @Column(name = "ENCRYPTED")
