@@ -1,6 +1,6 @@
 package eu.domibus.core.cxf;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.ssl.offload.SslOffloadService;
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -24,14 +24,13 @@ public class DomibusHTTPConduitFactory implements HTTPConduitFactory {
 
     private final ObjectProvider<DomibusURLConnectionHTTPConduit> domibusURLConnectionHTTPConduitProvider;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
+    private final SslOffloadService sslOffloadService;
 
     public DomibusHTTPConduitFactory(DomibusHttpsURLConnectionFactory domibusHttpsURLConnectionFactory,
-                                     ObjectProvider<DomibusURLConnectionHTTPConduit> domibusURLConnectionHTTPConduitProvider,
-                                     DomibusPropertyProvider domibusPropertyProvider) {
+                                     ObjectProvider<DomibusURLConnectionHTTPConduit> domibusURLConnectionHTTPConduitProvider, SslOffloadService sslOffloadService) {
         this.domibusHttpsURLConnectionFactory = domibusHttpsURLConnectionFactory;
         this.domibusURLConnectionHTTPConduitProvider = domibusURLConnectionHTTPConduitProvider;
-        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.sslOffloadService = sslOffloadService;
     }
 
     @Override
@@ -39,6 +38,6 @@ public class DomibusHTTPConduitFactory implements HTTPConduitFactory {
                                      @Qualifier(Bus.DEFAULT_BUS_ID) Bus bus, // Pointing to the DomibusBus but keeping it as Bus for the method overriding
                                      EndpointInfo endpointInfo,
                                      EndpointReferenceType target) {
-         return domibusURLConnectionHTTPConduitProvider.getObject(domibusHttpsURLConnectionFactory, domibusPropertyProvider, bus, endpointInfo, target);
+         return domibusURLConnectionHTTPConduitProvider.getObject(domibusHttpsURLConnectionFactory, sslOffloadService, bus, endpointInfo, target);
     }
 }

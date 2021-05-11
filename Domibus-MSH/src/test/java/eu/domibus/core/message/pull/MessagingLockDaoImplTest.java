@@ -1,6 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageState;
+import eu.domibus.api.util.DateUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
@@ -19,6 +20,8 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class MessagingLockDaoImplTest {
 
+    @Injectable
+    private DateUtil dateUtil;
 
     @Injectable
     private EntityManager entityManager;
@@ -28,11 +31,6 @@ public class MessagingLockDaoImplTest {
 
     @Tested
     private MessagingLockDaoImpl messagingLockDao;
-
-    @Before
-    public void init() {
-
-    }
 
     @Test
     public void getNextPullMessageToProcessFirstAttempt(

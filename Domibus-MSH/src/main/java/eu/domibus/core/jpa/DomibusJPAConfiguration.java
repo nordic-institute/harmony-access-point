@@ -38,7 +38,7 @@ public class DomibusJPAConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
     public static final String JPA_PROPERTIES = "jpaProperties";
-
+    public static final String JPA_PROPERTY_TIMEZONE_UTC = "UTC";
 
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
@@ -84,6 +84,7 @@ public class DomibusJPAConfiguration {
     @Bean(JPA_PROPERTIES)
     public PrefixedProperties jpaProperties(DomibusPropertyProvider domibusPropertyProvider) {
         PrefixedProperties result = new PrefixedProperties(domibusPropertyProvider, "domibus.entityManagerFactory.jpaProperty.");
+        result.setProperty(Environment.JDBC_TIME_ZONE, JPA_PROPERTY_TIMEZONE_UTC);
         return result;
     }
 

@@ -9,7 +9,7 @@ import {Pipe, PipeTransform} from '@angular/core';
  * It's an Angular4 known issue but they didn't solve yet.
  * When they solve it, we can delete this file and use the pipe with date and format again.
  */
-export class DatePipe implements PipeTransform {
+export class DomibusDatePipe implements PipeTransform {
 
   transform(value: string | Date, type: string = 'yyyy-MM-dd HH:mm:ssZ'): string {
     if (value) {
@@ -27,7 +27,7 @@ export class DatePipe implements PipeTransform {
         let mm = ('0' + d.getMinutes()).slice(-2); //minutes
         let ss = ('0' + d.getSeconds()).slice(-2); //seconds
         let currentTimezone = (d.getTimezoneOffset() / 60) * -1;
-        let gmt = 'GMT';
+        let gmt = 'UTC';
         if (currentTimezone !== 0) {
           gmt += currentTimezone > 0 ? '+' : ' ';
           gmt += currentTimezone;

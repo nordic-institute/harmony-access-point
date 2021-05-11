@@ -35,6 +35,10 @@ public class Alert {
 
     private Date nextAttempt;
 
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
+
     private Date reportingTimeFailure;
 
     private AlertStatus alertStatus;
@@ -155,6 +159,22 @@ public class Alert {
         this.properties = properties;
     }
 
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
@@ -165,6 +185,9 @@ public class Alert {
                 .append("reportingTime", reportingTime)
                 .append("attempts", attempts)
                 .append("maxAttempts", maxAttempts)
+                .append("nextAttempt", nextAttempt)
+                .append("nextAttemptTimezoneId", nextAttemptTimezoneId)
+                .append("nextAttemptOffsetSeconds", nextAttemptOffsetSeconds)
                 .append("reportingTimeFailure", reportingTimeFailure)
                 .append("events", events)
                 .toString();

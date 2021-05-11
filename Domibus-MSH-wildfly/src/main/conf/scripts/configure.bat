@@ -14,7 +14,7 @@ SET SERVER_CONFIG=standalone-full.xml
 :: MySQL configuration
 SET DB_TYPE=MySQL
 SET DB_HOST=localhost
-SET "DB_NAME=domibus?autoReconnect=true^&useSSL=false"
+SET "DB_NAME=domibus?autoReconnect=true^&useSSL=false^&useLegacyDatetimeCode=false^&serverTimezone=UTC"
 SET DB_PORT=3306
 SET DB_USER=edelivery
 SET DB_PASS=edelivery

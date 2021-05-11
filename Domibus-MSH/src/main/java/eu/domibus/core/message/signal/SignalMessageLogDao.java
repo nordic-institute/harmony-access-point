@@ -9,7 +9,6 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -26,13 +25,13 @@ import java.util.Map;
 @Repository
 public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
 
-    @Autowired
-    private SignalMessageLogInfoFilter signalMessageLogInfoFilter;
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageLogDao.class);
 
-    public SignalMessageLogDao() {
+    private final SignalMessageLogInfoFilter signalMessageLogInfoFilter;
+
+    public SignalMessageLogDao(SignalMessageLogInfoFilter signalMessageLogInfoFilter) {
         super(SignalMessageLog.class);
+        this.signalMessageLogInfoFilter = signalMessageLogInfoFilter;
     }
 
     public SignalMessageLog findByMessageId(String messageId) {

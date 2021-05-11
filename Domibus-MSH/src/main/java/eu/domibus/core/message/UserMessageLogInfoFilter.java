@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+ package eu.domibus.core.message;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
+                "timezoneOffset.nextAttemptTimezoneId," +
+                "timezoneOffset.nextAttemptOffsetSeconds," +
                 "message.conversationId," +
                 "partyFrom.value," +
                 "partyTo.value," +
@@ -62,6 +64,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                         (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom "  +
                                 "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
+                        "left join log.timezoneOffset timezoneOffset " +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
                         (isFourCornerModel() ?
