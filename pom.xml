@@ -265,6 +265,13 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
+                <!-- This dependency picks up commons-test's calls to Log4J and redirects them to SLF4J -->
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>

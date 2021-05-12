@@ -501,7 +501,7 @@ public class UserMessageDefaultService implements UserMessageService {
         if (sendEnqueuedMessages == null) {
             return null;
         }
-        LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient", sendEnqueuedMessages, startDate, endDate, finalRecipient);
+        LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient [{}]", sendEnqueuedMessages, startDate, endDate, finalRecipient);
 
         int resendWaitingTimeInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
         Date resendDate = DateUtils.addMinutes(endDate, resendWaitingTimeInMinutes);
@@ -519,7 +519,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, startDate, endDate, finalRecipient);
+        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient [{}]", restoredMessages, startDate, endDate, finalRecipient);
 
         return restoredMessages;
     }
