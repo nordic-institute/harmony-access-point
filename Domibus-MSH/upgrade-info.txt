@@ -5,11 +5,13 @@ Domibus 5.0 (from 4.2.2)
                 - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.
                 - To execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) use the current 'TIMEZONE' value as IN parameter for mysql and oracle DB.
                   The current 'TIMEZONE' value should be the timezone in which the date time values have been previously saved (e.g. 'Europe/Brussels').
-                - As in Domibus 5.0 the database schema has several important structural changes the following scripts should be run in order to migrate data from old tables to the new tables (Oracle).
+                - Data migration scripts should be run in order to migrate data from old tables to the new tables (Oracle).
                 Domibus application (.war) should be stopped while running these:
-                        - oracle-4.2.2-to-5.0-data-migration-step1.ddl
-                        - oracle-4.2.2-to-5.0-data-migration-step2.ddl
-                        - oracle-4.2.2-to-5.0-data-migration-step3.ddl
+                        - step 1: oracle-4.2.2-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                        - step 2: oracle-4.2.2-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                        If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
+                        - step 3: oracle-4.2.2-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                        This step isn't reversible so it must be executed once step 1 and step 2 are successful
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"
