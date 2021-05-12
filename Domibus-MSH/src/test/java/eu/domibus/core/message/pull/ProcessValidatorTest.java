@@ -7,7 +7,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.test.util.PojoInstaciatorUtil;
+import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;

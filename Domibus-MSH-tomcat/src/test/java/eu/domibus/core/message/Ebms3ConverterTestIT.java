@@ -5,7 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.test.util.MessageTestUtility;
+import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

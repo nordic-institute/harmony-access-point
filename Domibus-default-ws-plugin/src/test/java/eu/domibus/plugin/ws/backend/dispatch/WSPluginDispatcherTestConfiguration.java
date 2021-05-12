@@ -24,7 +24,7 @@ import java.util.function.Predicate;
  * @author François Gautier
  * @since 5.0
  */
-@Configuration
+//@Configuration
 public class WSPluginDispatcherTestConfiguration extends WSPluginDispatchConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherTestConfiguration.class);

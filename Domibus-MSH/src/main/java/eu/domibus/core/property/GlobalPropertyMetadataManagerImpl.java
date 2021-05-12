@@ -43,7 +43,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     private final NestedPropertiesManager nestedPropertiesManager;
 
-    public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
+    public GlobalPropertyMetadataManagerImpl(@Autowired(required = false) List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
                                              // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
                                              // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
                                              // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider

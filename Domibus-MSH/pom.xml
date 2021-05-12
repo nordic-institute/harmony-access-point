@@ -462,7 +462,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-default-ws-plugin</artifactId>
             <version>${project.version}</version>
@@ -473,13 +473,19 @@
             <artifactId>domibus-default-jms-plugin</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-test-common</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+       <!-- <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-db</artifactId>

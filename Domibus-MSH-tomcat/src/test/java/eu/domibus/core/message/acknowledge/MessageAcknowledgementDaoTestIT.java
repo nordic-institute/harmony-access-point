@@ -11,7 +11,6 @@ import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.ebms3.Ebms3MessagingDocumentParser;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

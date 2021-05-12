@@ -1,15 +1,11 @@
 package eu.domibus.core.audit;
 
+import eu.domibus.AbstractCoreIT;
 import eu.domibus.core.user.ui.User;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceContext;
@@ -18,10 +14,8 @@ import javax.persistence.PersistenceContext;
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-public class AuditIT {
+
+public class AuditIT extends AbstractCoreIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditIT.class);
 

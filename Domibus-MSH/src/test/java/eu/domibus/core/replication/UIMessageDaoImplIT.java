@@ -1,25 +1,20 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.AbstractCoreIT;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -27,11 +22,7 @@ import java.util.*;
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, UIMessageDaoImplIT.UIReplicationConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-@Transactional
-public class UIMessageDaoImplIT {
+public class UIMessageDaoImplIT extends AbstractCoreIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
 

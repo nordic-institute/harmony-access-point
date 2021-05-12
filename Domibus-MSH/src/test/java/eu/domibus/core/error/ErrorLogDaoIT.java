@@ -1,10 +1,10 @@
 package eu.domibus.core.error;
 
 
+import eu.domibus.AbstractCoreIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
@@ -12,11 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.transaction.Transactional;
 import java.util.Date;
@@ -25,10 +21,8 @@ import java.util.Date;
  * @author Catalin Enache
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, ErrorLogDaoConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-public class ErrorLogDaoIT {
+
+public class ErrorLogDaoIT extends AbstractCoreIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
 

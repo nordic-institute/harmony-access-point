@@ -1,20 +1,16 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.AbstractCoreIT;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceContext;
@@ -33,11 +29,7 @@ import static org.junit.Assert.assertNull;
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class,
-        CertificateDaoImplIT.CertificateDaoConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-public class CertificateDaoImplIT {
+public class CertificateDaoImplIT extends AbstractCoreIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImplIT.class);
 

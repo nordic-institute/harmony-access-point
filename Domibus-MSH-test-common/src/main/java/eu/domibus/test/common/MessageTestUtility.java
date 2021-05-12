@@ -1,4 +1,4 @@
-package eu.domibus.test.util;
+package eu.domibus.test.common;
 
 import eu.domibus.api.model.*;
 import org.apache.cxf.staxutils.StaxUtils;

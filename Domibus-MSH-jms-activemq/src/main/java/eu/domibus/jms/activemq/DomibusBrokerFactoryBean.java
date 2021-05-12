@@ -1,4 +1,4 @@
-package eu.domibus.tomcat.activemq;
+package eu.domibus.jms.activemq;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.jms.spi.InternalJMSManager;

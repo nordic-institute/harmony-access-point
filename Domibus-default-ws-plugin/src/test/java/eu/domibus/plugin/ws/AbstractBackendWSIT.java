@@ -1,4 +1,4 @@
-package eu.domibus;
+package eu.domibus.plugin.ws;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.api.model.MessageStatus;
@@ -11,6 +11,7 @@ import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
+import eu.domibus.test.AbstractIT;
 import org.apache.commons.codec.binary.Base64;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;

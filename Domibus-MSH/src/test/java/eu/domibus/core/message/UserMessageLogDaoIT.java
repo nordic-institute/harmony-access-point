@@ -1,22 +1,14 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.property.PropertyConfig;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.core.scheduler.SchedulerConfig;
-import eu.domibus.core.time.TimeConfig;
-import eu.domibus.core.util.UtilConfig;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.junit.*;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -33,9 +25,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, MessageConfig.class, PropertyConfig.class, UtilConfig.class, SchedulerConfig.class, TimeConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
+//TODO extends AbstractIT
 @Transactional
 @Ignore("EDELIVERY-8052 Failing tests must be ignored")
 public class UserMessageLogDaoIT {
@@ -45,14 +35,13 @@ public class UserMessageLogDaoIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
 
     public static final String MPC = "mpc";
-
     public static final String BACKEND = "backend";
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
-
     @Autowired
     private UserMessageDao userMessageDao;
+
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;

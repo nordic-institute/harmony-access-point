@@ -1,4 +1,4 @@
-package eu.domibus.test.util;
+package eu.domibus.test.common;
 
 /**
  * Created by migueti on 10/07/2017.

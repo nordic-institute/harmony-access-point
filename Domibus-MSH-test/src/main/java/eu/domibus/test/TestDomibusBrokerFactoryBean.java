@@ -1,7 +1,8 @@
-package eu.domibus.jms;
+package eu.domibus.test;
 
 import java.util.List;
 
+import eu.domibus.jms.activemq.DomibusBrokerFactoryBean;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
@@ -11,7 +12,6 @@ import org.springframework.core.io.Resource;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.tomcat.activemq.DomibusBrokerFactoryBean;
 
 /**
  * <p>Test specific broker factory bean required to allow broker plugin registration needed in the tests.</p><br />

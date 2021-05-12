@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.receiver.token;
 
 import com.sun.xml.messaging.saaj.soap.impl.TextImpl;
 import eu.domibus.core.ebms3.receiver.interceptor.TrustSenderInterceptor;
-import eu.domibus.test.util.MessageTestUtility;
+import eu.domibus.test.common.MessageTestUtility;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;

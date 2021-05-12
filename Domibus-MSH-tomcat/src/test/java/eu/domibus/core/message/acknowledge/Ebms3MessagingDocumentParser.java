@@ -1,4 +1,4 @@
-package eu.domibus.test.ebms3;
+package eu.domibus.core.message.acknowledge;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import org.springframework.stereotype.Service;

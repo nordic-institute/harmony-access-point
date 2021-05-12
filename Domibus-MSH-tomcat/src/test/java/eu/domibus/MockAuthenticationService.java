@@ -1,4 +1,4 @@
-package eu.domibus.user;
+package eu.domibus;
 
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.UserDetail;

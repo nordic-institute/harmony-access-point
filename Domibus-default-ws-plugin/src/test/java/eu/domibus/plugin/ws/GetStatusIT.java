@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws;
 
-import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.StatusFault;

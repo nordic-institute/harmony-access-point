@@ -22,7 +22,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.test.util.PojoInstaciatorUtil;
+import eu.domibus.test.common.PojoInstaciatorUtil;
 import org.junit.Ignore;
 import org.apache.commons.lang3.Validate;
 import org.junit.Before;

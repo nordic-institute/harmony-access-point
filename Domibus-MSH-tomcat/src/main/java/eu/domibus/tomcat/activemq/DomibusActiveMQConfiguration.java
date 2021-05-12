@@ -1,6 +1,7 @@
 package eu.domibus.tomcat.activemq;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.activemq.DomibusBrokerFactoryBean;
 import eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

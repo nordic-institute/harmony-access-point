@@ -1,22 +1,20 @@
 package eu.domibus.core.alerts.dao;
 
+import eu.domibus.AbstractCoreIT;
 import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.model.common.*;
+import eu.domibus.core.alerts.model.common.AlertCriteria;
+import eu.domibus.core.alerts.model.common.AlertStatus;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
-import eu.domibus.core.util.UtilConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -31,10 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, AlertDaoConfig.class, UtilConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-public class AlertDaoIT {
+public class AlertDaoIT extends AbstractCoreIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
 

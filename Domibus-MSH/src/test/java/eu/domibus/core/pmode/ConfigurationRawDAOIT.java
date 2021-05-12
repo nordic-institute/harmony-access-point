@@ -1,16 +1,12 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.AbstractCoreIT;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.transaction.Transactional;
 import java.util.Date;
@@ -22,10 +18,7 @@ import static org.junit.Assert.assertEquals;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, PModeConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-public class ConfigurationRawDAOIT {
+public class ConfigurationRawDAOIT  extends AbstractCoreIT  {
 
     public static final String LAST_DESCRIPTION = "Last and current";
 
@@ -37,7 +30,7 @@ public class ConfigurationRawDAOIT {
     private ConfigurationRawTestService configurationRawServiceTest;
 
     @Before
-    public void init() {
+    public void initialize() {
         configurationRawServiceTest.createConfigurationRawAudited(persistEntity("1st Created never updated"));
 
         configurationRawServiceTest.createConfigurationRawAudited(persistEntity(LAST_DESCRIPTION));

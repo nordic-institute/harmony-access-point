@@ -5,7 +5,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.NotificationType;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -16,10 +16,8 @@ import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.spring.DomibusWebConfiguration;
-import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +32,9 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -42,8 +42,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -51,7 +49,6 @@ import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.jms.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -68,13 +65,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI;
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
-import static org.awaitility.Awaitility.with;
 
 /**
  * Created by feriaad on 02/02/2016.
@@ -84,8 +74,6 @@ import static org.awaitility.Awaitility.with;
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
                 DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
-//@DirtiesContext
-//@Rollback
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -123,9 +111,9 @@ public abstract class AbstractIT {
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
-        System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
-        LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
+//        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL, "service:jmx:rmi:///jndi/rmi://localhost:" + activeMQBrokerPort + "/jmxrmi");
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
         SecurityContextHolder.getContext()
@@ -140,11 +128,6 @@ public abstract class AbstractIT {
     @Before
     public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
-    }
-
-//    @AfterClass
-    public static void cleanTransactionsLog() {
-        deleteTransactionLock();
     }
 
     public static void deleteTransactionLock() {
@@ -180,7 +163,7 @@ public abstract class AbstractIT {
 
 
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+//        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
@@ -233,9 +216,9 @@ public abstract class AbstractIT {
      * @return
      * @throws Exception
      */
-    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
+//    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
-        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
+    /*    // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
         if (connection instanceof ActiveMQXAConnection) {
             ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         }
@@ -253,20 +236,17 @@ public abstract class AbstractIT {
         producer.send(msg);
         System.out.println("Message with ID [" + messageId + "] sent in queue!");
         producer.close();
-        session.close();
+        session.close();*/
 
-    }
+//    }
 
     /**
      * The connection must be started and stopped before and after the method call.
      *
-     * @param connection
-     * @param queueName
-     * @param mSecs
      * @return Message
      * @throws Exception
      */
-    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
+/*    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
         if (connection instanceof ActiveMQXAConnection) {
@@ -277,12 +257,12 @@ public abstract class AbstractIT {
         MessageConsumer consumer = session.createConsumer(destination);
         Message message = consumer.receive(mSecs);
         if (message != null) {
-            System.out.println("Message with ID [:" + message.getStringProperty(MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
+            System.out.println("Message with ID [:" + message.getStringProperty(JMSMessageConstants.MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
         }
         consumer.close();
         session.close();
         return message;
-    }
+    }*/
 
     //TODO move this method into a class in the domibus-MSH-test module in order to be reused
     public SOAPMessage createSOAPMessage(String dataset) throws SOAPException, IOException, ParserConfigurationException, SAXException {
@@ -330,15 +310,15 @@ public abstract class AbstractIT {
     public void prepareSendMessage(String responseFileName) {
         /* Initialize the mock objects */
 //        MockitoAnnotations.initMocks(this);
-
+/*
         String body = getAS4Response(responseFileName);
 
         // Mock the response from the recipient MSH
-        stubFor(post(urlEqualTo("/domibus/services/msh"))
-                .willReturn(aResponse()
+        WireMock.stubFor(WireMock.post(WireMock.urlEqualTo("/domibus/services/msh"))
+                .willReturn(WireMock.aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/soap+xml")
-                        .withBody(body)));
+                        .withBody(body)));*/
     }
 
 

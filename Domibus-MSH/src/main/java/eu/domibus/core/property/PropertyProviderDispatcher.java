@@ -36,20 +36,20 @@ public class PropertyProviderDispatcher {
 
     private final PropertyChangeManager propertyChangeManager;
 
-    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
+//    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     private final PropertyProviderHelper propertyProviderHelper;
 
     public PropertyProviderDispatcher(GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                       PropertyRetrieveManager propertyRetrieveManager,
                                       PropertyChangeManager propertyChangeManager, ClassUtil classUtil,
-                                      PrimitivePropertyTypesManager primitivePropertyTypesManager,
+//                                      PrimitivePropertyTypesManager primitivePropertyTypesManager,
                                       PropertyProviderHelper propertyProviderHelper) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyRetrieveManager = propertyRetrieveManager;
         this.propertyChangeManager = propertyChangeManager;
         this.classUtil = classUtil;
-        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
+//        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
         this.propertyProviderHelper = propertyProviderHelper;
     }
 

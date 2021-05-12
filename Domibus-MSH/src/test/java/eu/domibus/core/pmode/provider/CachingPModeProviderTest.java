@@ -25,7 +25,7 @@ import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.util.PojoInstaciatorUtil;
+import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;

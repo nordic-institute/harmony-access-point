@@ -2,17 +2,13 @@ package eu.domibus;
 
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import org.h2.jdbcx.JdbcDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu
@@ -21,13 +17,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class DomibusTestDatasourceConfiguration {
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
-
     @Primary
     @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, destroyMethod = "close")
-    public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        HikariDataSource dataSource = createDataSource(domibusPropertyProvider);
+    public DataSource domibusDatasource() {
+        HikariDataSource dataSource = createDataSource();
 
         dataSource.setIdleTimeout(60000);
         dataSource.setConnectionTimeout(30000);
@@ -38,12 +31,12 @@ public class DomibusTestDatasourceConfiguration {
     @Primary
     @Bean(name = DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, destroyMethod = "close")
     @DependsOn(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
-    public DataSource quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        HikariDataSource dataSource = createDataSource(domibusPropertyProvider);
+    public DataSource quartzDatasource() {
+        HikariDataSource dataSource = createDataSource();
         return dataSource;
     }
 
-    private HikariDataSource createDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+    private HikariDataSource createDataSource() {
         JdbcDataSource h2DataSource = createH2Datasource();
 
         HikariDataSource dataSource = new HikariDataSource();
@@ -52,9 +45,9 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setUsername(h2DataSource.getUser());
         dataSource.setPassword(h2DataSource.getPassword());
 
-        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
+        final Integer maxPoolSize = 20;
         dataSource.setMaximumPoolSize(maxPoolSize);
-        final Integer maxLifetimeInSecs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
+        final Integer maxLifetimeInSecs = 10;
         dataSource.setMaxLifetime(maxLifetimeInSecs * 1000);
         return dataSource;
     }

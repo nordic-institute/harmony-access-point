@@ -12,7 +12,7 @@ import java.util.Date;
  * @author François Gautier
  * @since 5.0
  */
-@Configuration
+//@Configuration
 public class WSPluginDaoTestConfig {
 
     @Bean
