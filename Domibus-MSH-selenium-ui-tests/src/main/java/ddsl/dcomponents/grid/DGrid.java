@@ -140,12 +140,11 @@ public class DGrid extends DComponent {
 				Object tmp = ((JavascriptExecutor) driver).executeScript("return document.querySelectorAll('datatable-progress').length;");
 				bars = Integer.valueOf(tmp.toString());
 				waits++;
-				wait.forXMillis(500);
+				wait.forXMillis(200);
 			}
-			log.debug("waited for rows to load for ms = 500*" + waits);
-			wait.forXMillis(500);
-		} catch (Exception e) {
-		}
+			log.debug("waited for rows to load for ms = 200*" + waits);
+			wait.forXMillis(200);
+		} catch (Exception e) {	}
 	}
 
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
@@ -188,7 +187,7 @@ public class DGrid extends DComponent {
 	}
 
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
-		waitForRowsToLoad();
+//		waitForRowsToLoad();
 		int index = scrollTo(columnName, value);
 		if (index < 0) {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");

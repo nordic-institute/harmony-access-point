@@ -41,6 +41,20 @@
                     <exclude name="verifyConfPopUp"></exclude>
                 </methods>
             </class>
+            <class name="domibus.ui.ux.PluginUsersPg2UXTest">
+                <methods>
+                    <!--                    excluded due to CSV header issues-->
+                    <exclude name="downloadAsCSV"></exclude>
+                    <exclude name="verifyCSVHeaders"></exclude>
+
+                    <exclude name="createPluginUserFieldValidations"/>
+                    <!--                    bug EDELIVERY-7872 - 4 methods -->
+                    <exclude name="originalUserOnRoleChange"></exclude>
+                    <exclude name="delCertificateUsr"></exclude>
+                    <exclude name="editCertificateUsr"></exclude>
+                    <exclude name="verifyConfPopUp"></exclude>
+                </methods>
+            </class>
             <class name="domibus.ui.ux.PmodePartiesPgUXTest">
                 <methods>
                     <!--                    CSV header incosistency-->
@@ -110,9 +124,18 @@
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests">
             </class>
-            <class name="domibus.ui.functional.PmodePartiesPgTest">
+            <class name="domibus.ui.functional.PmodePartiesPgTest"/>
+            <class name="domibus.ui.functional.PmodeParties2PgTest">
+                <methods>
+                    <!-- disabled due to XML error, needs more investigating-->
+                    <exclude name="initiatorResponderAdditionCurrentPmode"/>
+                </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilterPgTest">
+                <methods>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessageFilter2PgTest">
                 <methods>
                 </methods>
             </class>
@@ -125,9 +148,13 @@
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
                     <!--                    need fixes -->
+                    <exclude name="updateAndSave"/>
+                </methods></class>
+            <class name="domibus.ui.functional.Properties2PgTest">
+                <methods>
+                    <!--                    need fixes -->
                     <exclude name="checkDefaultPassword"/>
                     <exclude name="dontReuseLastPass"/>
-                    <exclude name="updateAndSave"/>
                     <exclude name="monitoringParty"/>
                     <!--                    EDELIVERY-7956-->
                     <exclude name="checkPropertyLengthMax"/>

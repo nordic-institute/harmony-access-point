@@ -33,32 +33,32 @@ import java.util.Random;
  * @version 4.1
  */
 public class SeleniumTest extends BaseTest {
-	
+
 	static int methodCount = 1;
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	public String logFilename;
 
-	
-	
+
+
 	@BeforeSuite(alwaysRun = true)
 	public void beforeSuite() throws Exception {
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
 		generateTestData();
 	}
-	
+
 	@BeforeClass(alwaysRun = true)
 	public void beforeClass() throws Exception {
 		log.info("--------Initialize test class-------");
-		
+
 		driver = DriverManager.getDriver();
-		driver.get(data.getUiBaseUrl());
-		
+//		driver.get(data.getUiBaseUrl());
+
 	}
-	
+
 	@BeforeMethod(alwaysRun = true)
-	protected void logSeparator(Method method) throws Exception {
-		
+	protected void beforeMethod(Method method) throws Exception {
+
 		log.info("--------------------------- Running test number: " + methodCount);
 		log.info("--------------------------- Running test method: " + method.getDeclaringClass().getSimpleName() + "." + method.getName());
 		methodCount++;
@@ -136,26 +136,12 @@ public class SeleniumTest extends BaseTest {
 			log.info("running in singletenancy mode, no domain to select");
 			return null;
 		}
-		
-		List<String> domains = rest.getDomainCodes();
-		log.debug("got domains: " + domains);
-		
-		int index = new Random().nextInt(domains.size());
-		
-		String domain = domains.get(index);
-		log.info("will select domain " +domain);
-		
 		DomibusPage page = new DomibusPage(driver);
-//		page.getDomainSelector().selectOptionByText(domain);
-//		page.wait.forXMillis(500);
-		
-//		return domain;
-
 		return page.getDomainFromTitle();
 	}
-	
+
 	protected <T extends FilterArea> void basicFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {
-		
+
 		log.info("checking basic filter presence");
 		Field[] fields = filtersArea.getClass().getDeclaredFields();
 		for (Field field : fields) {
@@ -163,17 +149,17 @@ public class SeleniumTest extends BaseTest {
 				log.info(String.format("Skipping filed %s because it is not of type WebElement.", field.getName()));
 				continue;
 			}
-			
+
 			for (int i = 0; i < filtersDescription.length(); i++) {
 				JSONObject currentNode = filtersDescription.getJSONObject(i);
-				
+
 				if (StringUtils.equalsIgnoreCase(currentNode.getString("name"), field.getName())) {
-					
+
 					log.info(String.format("Evaluating filter with description %s", currentNode.toString()));
-					
+
 					WebElement element = (WebElement) field.get(filtersArea);
 					DObject object = new DObject(filtersArea.getDriver(), element);
-					
+
 					soft.assertEquals(object.isPresent(), currentNode.getBoolean("isDefault"),
 							String.format("Filter %s isChangePassLnkPresent = %s as expected", field.getName(), currentNode.getBoolean("isDefault")));
 					if (currentNode.getBoolean("isDefault")) {
@@ -183,91 +169,91 @@ public class SeleniumTest extends BaseTest {
 					continue;
 				}
 			}
-			
+
 		}
 	}
-	
+
 	protected <T extends FilterArea> void advancedFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {
-		
+
 		log.info("checking advanced filter presence");
-		
+
 		Field[] fields = filtersArea.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			if (!field.getType().toString().contains("WebElement")) {
 				log.info(String.format("Skipping filed %s because it is not of type WebElement.", field.getName()));
 				continue;
 			}
-			
+
 			for (int i = 0; i < filtersDescription.length(); i++) {
 				JSONObject currentNode = filtersDescription.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(currentNode.getString("name"), field.getName())) {
-					
+
 					log.info(String.format("Evaluating filter with description %s", currentNode.toString()));
-					
+
 					WebElement element = (WebElement) field.get(filtersArea);
 					DObject object = new DObject(filtersArea.getDriver(), element);
-					
+
 					soft.assertEquals(object.isPresent(), true,
 							String.format("Filter %s as expected", field.getName()));
-					
+
 					String expected = currentNode.getString("placeholder");
 					String actual = object.getAttribute("placeholder");
-					
+
 					if (StringUtils.isEmpty(expected) && StringUtils.isEmpty(actual)) {
 						continue;
 					}
-					
+
 					log.debug("placeholder: " + actual);
 					soft.assertEquals(actual, expected, "Placeholder text is correct - " + expected);
 				}
 			}
 		}
 	}
-	
+
 	public <T extends DGrid> void testDefaultColumnPresence(SoftAssert soft, T grid, JSONArray gridDesc) throws Exception {
 		log.info("Asserting grid default state");
 		List<String> columns = new ArrayList<>();
 		List<String> visibleColumns = grid.getColumnNames();
-		
+
 		for (int i = 0; i < gridDesc.length(); i++) {
 			JSONObject colDesc = gridDesc.getJSONObject(i);
 			if (colDesc.getBoolean("visibleByDefault")) {
 				columns.add(colDesc.getString("name"));
 			}
 		}
-		
+
 		for (String column : columns) {
 			soft.assertTrue(visibleColumns.contains(column), String.format("Column %s is found to be visible", column));
 		}
 	}
-	
+
 	public <T extends DomibusPage> void testButtonPresence(SoftAssert soft, T page, JSONArray buttons) throws Exception {
 		log.info("Asserting button default state");
-		
+
 		Field[] fields = page.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			if (!field.getType().toString().contains("WebElement")) {
 				log.info(String.format("Skipping filed %s because it is not of type WebElement.", field.getName()));
 				continue;
 			}
-			
+
 			for (int i = 0; i < buttons.length(); i++) {
 				JSONObject curButton = buttons.getJSONObject(i);
 				if (StringUtils.equalsIgnoreCase(curButton.getString("name"), field.getName())) {
 					log.info(String.format("Evaluating button with description %s", curButton.toString()));
-					
+
 					WebElement element = (WebElement) field.get(page);
 					DButton dButton = new DButton(driver, element);
-					
+
 					soft.assertEquals(dButton.isVisible(), curButton.getBoolean("visibleByDefault"), String.format("Button %s visibility is as described", curButton.getString("label")));
 					soft.assertEquals(dButton.isEnabled(), curButton.getBoolean("enabledByDefault"), String.format("Button %s is enabled/disabled as described", curButton.getString("label")));
 					soft.assertEquals(dButton.getText(), curButton.getString("label"), String.format("Button %s has expected label", curButton.getString("label")));
 				}
 			}
-			
+
 		}
 	}
-	
+
 	protected <T extends DGrid> void testColumnControlsAvailableOptions(SoftAssert soft, T grid, JSONArray columns) throws Exception {
 		log.info("checking column controls and available options");
 		List<String> controlOptions = new ArrayList<>(grid.getGridCtrl().getAllCheckboxStatuses().keySet());
@@ -278,6 +264,6 @@ public class SeleniumTest extends BaseTest {
 					String.format("Column %s present in the list of options in column controls", currentColumn));
 		}
 	}
-	
-	
+
+
 }

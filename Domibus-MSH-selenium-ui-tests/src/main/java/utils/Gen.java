@@ -53,9 +53,7 @@ public class Gen {
 	}
 
 	public static String randomOrigUsrStr() {
-		StringBuilder build = new StringBuilder();
-		String.format("urn:oasis:names:tc:ebcore:partyid-type:%s:%s", rndStr(5), rndStr(5));
-		return build.toString();
+		return String.format("urn:oasis:names:tc:ebcore:partyid-type:%s:%s", rndStr(5), rndStr(5));
 	}
 
 	public static String randomPartyIdValStr() {

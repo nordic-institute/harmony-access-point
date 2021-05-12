@@ -7,6 +7,7 @@ import domibus.ui.SeleniumTest;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.connectionMon.ConMonGrid;
 import pages.connectionMon.ConnectionMonitoringPage;
 import pages.connectionMon.TestMessDetailsModal;
 import pages.pmode.parties.PModePartiesPage;
@@ -109,20 +110,20 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
-		int size = page.grid().getPagination().getTotalItems();
+		ConMonGrid grid = page.grid();
 
-		for (int i = 0; i < size; i++) {
-			if (page.grid().connectionStatusIcons.get(i).getText().equals("indeterminate_check_box")
-					|| page.grid().connectionStatusIcons.get(i).getText().equals("error")) {
-				String partyName = page.grid().getRowSpecificColumnVal(i, "Party");
-				log.info("party" + partyName);
+		if (grid.connectionStatusIcons.get(0).getText().equals("indeterminate_check_box")
+					|| grid.connectionStatusIcons.get(0).getText().equals("error")) {
+
+				String partyName = grid.getRowSpecificColumnVal(0, "Party");
+				log.info("party " + partyName);
 				TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
-				page.grid().getActionButton("Details", i).click();
+				grid.getActionButton("Details", 0).click();
+
 				page.getAlertArea().closeButton.click();
 				modalTest.getTestbutton().click();
 
 				page.getAlertArea().isShown();
-
 				soft.assertFalse(modalTest.isMessInfoPresent("send"), "Sent message Info fields have data present");
 
 				if (page.getAlertArea().isError()) {
@@ -131,8 +132,6 @@ public class ConnectionMonitorTest extends SeleniumTest {
 					soft.assertFalse(modalTest.isMessInfoPresent("receive"), "Received info fields are not blank");
 				}
 				modalTest.getCloseBtn().click();
-			}
-
 		}
 		soft.assertAll();
 	}
