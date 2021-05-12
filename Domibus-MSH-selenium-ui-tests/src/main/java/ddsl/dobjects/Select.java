@@ -121,10 +121,10 @@ public class Select extends DComponent {
 	
 	public boolean selectOptionByIndex(int index) throws Exception {
 		if (index >= optionIDs.size() || index < 0) {
-			return false;
+			throw new Exception(String.format("Could not select, index is %s and we got %s options", index, optionIDs.size()));
 		}
 		
-		log.info("selectOptionByIndex:" + getOptionElements().get(index).getText());
+		log.info("selectOptionByIndex : " + getOptionElements().get(index).getText());
 		getOptionElements().get(index).click();
 		return true;
 	}
