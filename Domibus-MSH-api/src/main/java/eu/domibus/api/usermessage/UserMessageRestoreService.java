@@ -7,4 +7,6 @@ package eu.domibus.api.usermessage;
 public interface UserMessageRestoreService {
 
     void restoreFailedMessage(String messageId);
+
+    void restoreSendEnqueuedMessage(String messageId);
 }

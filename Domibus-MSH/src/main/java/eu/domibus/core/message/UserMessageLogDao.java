@@ -72,6 +72,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
+    public List<String> findSendEnqueuedMessages(String finalRecipient, Date startDate, Date endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findSendEnqueuedMessages", String.class);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", startDate);
+        query.setParameter("END_DATE", endDate);
+        return query.getResultList();
+    }
+
     /**
      * Finds a UserMessageLog by message id. If the message id is not found it catches the exception raised Hibernate and returns null.
      *

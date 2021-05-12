@@ -163,6 +163,36 @@
         } ]
       }
     },
+    "/ext/monitoring/messages/enqueued/restore" : {
+      "post" : {
+        "tags" : [ "monitoring" ],
+        "summary" : "Resend all messages with SEND_ENQUEUED status within a certain time interval",
+        "description" : "Resend all messages with SEND_ENQUEUED status within a certain time interval",
+        "operationId" : "restoreSendEnqueuedMessages",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/FailedMessagesCriteriaRO"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/monitoring/messages/enqueued/{messageId}/send" : {
       "put" : {
         "tags" : [ "monitoring" ],

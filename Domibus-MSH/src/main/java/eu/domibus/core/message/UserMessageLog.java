@@ -41,6 +41,14 @@ import java.util.Date;
                 query = "update UserMessageLog userMessageLog set userMessageLog.deleted=:TIMESTAMP, userMessageLog.messageStatus=:MESSAGE_STATUS, userMessageLog.notificationStatus=:NOTIFICATION_STATUS where userMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.messageId in :MESSAGEIDS"),
+        @NamedQuery(name = "UserMessageLog.findSendEnqueuedMessages",
+                query = "select distinct m.messageInfo.messageId from UserMessage m " +
+                        "left join m.messageProperties.property p, UserMessageLog ml " +
+                        "where ml.messageId = m.messageInfo.messageId  and ml.messageStatus =  eu.domibus.common.MessageStatus.SEND_ENQUEUED " +
+                        "and ml.messageType = eu.domibus.ebms3.common.model.MessageType.USER_MESSAGE and ml.deleted is null " +
+                        "and (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
+                        "and (:START_DATE is null or ml.received >= :START_DATE) " +
+                        "and (:END_DATE is null or ml.received <= :END_DATE)"),
 
 })
 public class UserMessageLog extends MessageLog {

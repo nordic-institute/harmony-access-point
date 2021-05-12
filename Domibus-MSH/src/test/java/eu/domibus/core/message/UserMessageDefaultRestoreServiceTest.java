@@ -217,4 +217,73 @@ public class UserMessageDefaultRestoreServiceTest {
             times = 1;
         }};
     }
+
+    @Test
+    public void restoreSendEnqueuedMessage(@Injectable final UserMessageLog userMessageLog,
+                                           @Injectable final UserMessage userMessage) {
+        final String messageId = "1";
+
+        new Expectations(restoreService) {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+        }};
+
+        restoreService.restoreSendEnqueuedMessage(messageId);
+
+        new Verifications() {{
+            restoreService.restoreMessage(messageId, userMessageLog);
+        }};
+    }
+
+    @Test
+    public void restoreMessage(@Injectable final UserMessageLog userMessageLog,
+                               @Injectable final UserMessage userMessage) {
+        final String messageId = "1";
+        final Integer newMaxAttempts = 5;
+
+        new Expectations(restoreService) {{
+
+            messageExchangeService.retrieveMessageRestoreStatus(messageId);
+            result = MessageStatus.READY_TO_PULL;
+
+            restoreService.computeNewMaxAttempts(userMessageLog, messageId);
+            result = newMaxAttempts;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+
+        }};
+
+        restoreService.restoreMessage(messageId, userMessageLog);
+
+        new Verifications() {{
+            userMessageLog.setMessageStatus(MessageStatus.READY_TO_PULL);
+            times = 1;
+            userMessageLog.setRestored(withAny(new Date()));
+            times = 1;
+            userMessageLog.setFailed(null);
+            times = 1;
+            userMessageLog.setNextAttempt(withAny(new Date()));
+            times = 1;
+            userMessageLog.setSendAttemptsMax(newMaxAttempts);
+            times = 1;
+
+            userMessageLogDao.update(userMessageLog);
+            times = 1;
+
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+            times = 0;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            times = 1;
+
+            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
+            times = 1;
+        }};
+    }
+
 }

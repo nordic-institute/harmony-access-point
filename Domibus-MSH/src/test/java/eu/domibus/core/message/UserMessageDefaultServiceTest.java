@@ -44,7 +44,7 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ACTION_RESEND_WAIT_MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -646,7 +646,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
             result = 2;
 
             userMessageLog.getReceived();
@@ -950,6 +950,30 @@ public class UserMessageDefaultServiceTest {
             auditService.addMessageDownloadedAudit(messageId);
             times = 0;
         }};
+    }
+
+    @Test
+    public void restoreSendEnqueuedMessagesDuringPeriod() {
+        final String finalRecipient = "C4";
+        final Date startDate = new Date();
+        final Date endDate = new Date();
+
+        final String sendEnqueuedMessage1 = "1";
+        final String sendEnqueuedMessage2 = "2";
+        final List<String> sendEnqueuedMessages = new ArrayList<>();
+        sendEnqueuedMessages.add(sendEnqueuedMessage1);
+        sendEnqueuedMessages.add(sendEnqueuedMessage2);
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findSendEnqueuedMessages(finalRecipient, startDate, endDate);
+            result = sendEnqueuedMessages;
+
+            restoreService.restoreSendEnqueuedMessage(anyString);
+        }};
+
+        final List<String> restoredMessages = userMessageDefaultService.restoreSendEnqueuedMessagesDuringPeriod(startDate, endDate, finalRecipient);
+        assertNotNull(restoredMessages);
+        assertEquals(restoredMessages, sendEnqueuedMessages);
     }
 
 }

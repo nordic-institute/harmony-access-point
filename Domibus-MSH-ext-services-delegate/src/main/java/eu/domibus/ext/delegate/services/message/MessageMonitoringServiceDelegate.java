@@ -81,6 +81,12 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     }
 
     @Override
+    public List<String> restoreSendEnqueuedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException {
+        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
+        return userMessageService.restoreSendEnqueuedMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+    }
+
+    @Override
     public void deleteFailedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
         userMessageService.deleteFailedMessage(messageId);
