@@ -7,9 +7,8 @@ import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,8 +18,9 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-@DirtiesContext
-@Rollback
+//@DirtiesContext
+//@Rollback
+@Ignore
 public class DeleteSentFailedMessageIT extends DeleteMessageIT {
 
     @Before

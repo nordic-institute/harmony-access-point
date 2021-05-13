@@ -4,9 +4,8 @@ package eu.domibus.plugin;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,8 +17,9 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-@DirtiesContext
-@Rollback
+//@DirtiesContext
+//@Rollback
+@Ignore
 public class DeleteReceivedMessageIT extends DeleteMessageIT {
 
     /**

@@ -62,7 +62,6 @@ public class WSPluginLoggingApacheCXFChangeListenerTest {
         @Test
         public void propertyValueChanged_invalid() {
             listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "nope");
-            listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "nope");
 
             new FullVerifications() {{
                 loggingSender.setPrintMetadata(false);

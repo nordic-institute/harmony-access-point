@@ -10,9 +10,8 @@ import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,8 +31,9 @@ import static org.junit.Assert.assertNotNull;
  * @author idragusa
  * @since 5.0
  */
-@DirtiesContext
-@Rollback
+//@DirtiesContext
+//@Rollback
+@Ignore
 public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
     @Autowired
