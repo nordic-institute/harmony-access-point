@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- step 1:
+     - it will drop any previously created MIGR_ and dictionary tables (5.0 model)
+     - it will create MIGR_ and dictionary tables (5.0 model)
+    -->
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- drop previously created tables for migration - MIGR_* and TB_D tables -->
+    <changeSet id="EDELIVERY-7970" author="Catalin Enache">
+        <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
+        <dropTable tableName="MIGR_TB_USER_MESSAGE"/>
+        <dropTable tableName="MIGR_TB_SIGNAL_MESSAGE"/>
+
+        <dropTable tableName="MIGR_TB_SJ_MESSAGE_FRAGMENT"/>
+        <dropTable tableName="MIGR_TB_SJ_MESSAGE_GROUP"/>
+        <dropTable tableName="MIGR_TB_SJ_MESSAGE_HEADER"/>
+
+        <dropTable tableName="MIGR_TB_USER_MESSAGE_LOG"/>
+        <dropTable tableName="MIGR_TB_SIGNAL_MESSAGE_LOG"/>
+
+        <dropTable tableName="MIGR_TB_USER_MESSAGE_RAW"/>
+        <dropTable tableName="MIGR_TB_SIGNAL_MESSAGE_RAW"/>
+
+        <dropTable tableName="MIGR_TB_RECEIPT"/>
+
+        <dropTable tableName="MIGR_TB_MESSAGE_PROPERTIES"/>
+        <dropTable tableName="MIGR_TB_PART_INFO"/>
+        <dropTable tableName="MIGR_TB_PART_PROPERTIES"/>
+
+        <dropTable tableName="MIGR_TB_ERROR_LOG"/>
+        <dropTable tableName="MIGR_TB_MESSAGE_ACKNW"/>
+
+        <dropTable tableName="TB_D_MPC"/>
+        <dropTable tableName="TB_D_ROLE"/>
+        <dropTable tableName="TB_D_SERVICE"/>
+        <dropTable tableName="TB_D_AGREEMENT"/>
+        <dropTable tableName="TB_D_ACTION"/>
+        <dropTable tableName="TB_D_PARTY"/>
+        <dropTable tableName="TB_D_MESSAGE_STATUS"/>
+        <dropTable tableName="TB_D_NOTIFICATION_STATUS"/>
+        <dropTable tableName="TB_D_MESSAGE_PROPERTY"/>
+        <dropTable tableName="TB_D_PART_PROPERTY"/>
+        <dropTable tableName="TB_D_MSH_ROLE"/>
+    </changeSet>
+
+    <!-- Start Dictionary Tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-dictionary-tables">
+        <createTable tableName="TB_D_MSH_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MSH_ROLE"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
+
+        <createTable tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MSG_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_PART_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_PART_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_MPC">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MPC"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_MPC_VALUE" tableName="TB_D_MPC"/>
+
+        <createTable tableName="TB_D_SERVICE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_SERVICE"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_SERVICE_VALUE" tableName="TB_D_SERVICE"/>
+
+        <createTable tableName="TB_D_PARTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_PARTY"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_PARTY_VALUE" tableName="TB_D_PARTY"/>
+
+        <createTable tableName="TB_D_ACTION">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_ACTION"/>
+            </column>
+            <column name="ACTION" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ACTION" constraintName="UK_D_PARTY_ACTION" tableName="TB_D_ACTION"/>
+
+        <createTable tableName="TB_D_AGREEMENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_AGREEMENT"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT"/>
+
+        <createTable tableName="TB_D_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_ROLE"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_ROLE_VALUE" tableName="TB_D_ROLE"/>
+
+        <createTable tableName="TB_D_NOTIFICATION_STATUS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_NOTIFICATION_STATUS"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_NOTIF_STATUS" tableName="TB_D_NOTIFICATION_STATUS"/>
+
+        <createTable tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MESSAGE_STATUS"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS"/>
+    </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-MIGR-tables">
+        <createTable tableName="MIGR_TB_USER_MESSAGE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="SOURCE_MESSAGE" type="BOOLEAN" remarks="true if the message is a SourceMessage"/>
+            <column name="MESSAGE_FRAGMENT" type="BOOLEAN" remarks="true if the message is a message fragment"/>
+            <column name="TEST_MESSAGE" type="BOOLEAN"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP"
+                    remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
+            <column name="ACTION_ID_FK" type="BIGINT"/>
+            <column name="AGREEMENT_ID_FK" type="BIGINT"/>
+            <column name="SERVICE_ID_FK" type="BIGINT"/>
+            <column name="MPC_ID_FK" type="BIGINT"/>
+            <column name="FROM_PARTY_ID_FK" type="BIGINT"/>
+            <column name="FROM_ROLE_ID_FK" type="BIGINT"/>
+            <column name="TO_PARTY_ID_FK" type="BIGINT"/>
+            <column name="TO_ROLE_ID_FK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_SJ_MESSAGE_FRAGMENT -->
+        <createTable tableName="MIGR_TB_SJ_MESSAGE_FRAGMENT">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_FRAGMENT"/>
+            </column>
+            <column name="FRAGMENT_NUMBER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="GROUP_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_SJ_MESSAGE_GROUP -->
+        <createTable tableName="MIGR_TB_SJ_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin" >
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_GROUP"/>
+            </column>
+            <column name="GROUP_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_SIZE" type="BIGINT" remarks="The message size before compression"/>
+            <column name="FRAGMENT_COUNT" type="INT"/>
+            <column name="SENT_FRAGMENTS" type="INT"/>
+            <column name="RECEIVED_FRAGMENTS" type="INT"/>
+            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)"/>
+            <column name="COMPRESSED_MESSAGE_SIZE" type="BIGINT" remarks="The size of the message after compression"/>
+            <column name="SOAP_ACTION" type="VARCHAR(255)"/>
+            <column name="REJECTED" type="BOOLEAN" remarks="True if the message group has been rejected"/>
+            <column name="EXPIRED" type="BOOLEAN" remarks="True if the message group has expired"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SOURCE_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_SJ_MESSAGE_HEADER -->
+        <createTable tableName="MIGR_TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
+            <column name="ID_PK" type="BIGINT"  autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_HEADER"/>
+            </column>
+            <column name="BOUNDARY" type="VARCHAR(255)" remarks="The multipart boundary value"/>
+            <column name="START_MULTIPART" type="VARCHAR(255)" remarks="The multipart start value"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_SIGNAL_MESSAGE -->
+        <createTable tableName="MIGR_TB_SIGNAL_MESSAGE">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
+            </column>
+            <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_RECEIPT -->
+        <createTable tableName="MIGR_TB_RECEIPT">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
+            </column>
+            <column name="RAW_XML" type="BLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_MESSAGE_LOG -->
+        <createTable tableName="MIGR_TB_USER_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_LOG"/>
+            </column>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DOWNLOADED" type="TIMESTAMP"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent" />
+            <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTIFICATION_STATUS_ID_FK" type="BIGINT"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_SIGNAL_MESSAGE_LOG -->
+        <createTable tableName="MIGR_TB_SIGNAL_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_LOG"/>
+            </column>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_MESSAGE_RAW -->
+        <createTable tableName="MIGR_TB_USER_MESSAGE_RAW">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
+            </column>
+            <column name="RAW_XML" type="BLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_SIGNAL_MESSAGE_RAW -->
+        <createTable tableName="MIGR_TB_SIGNAL_MESSAGE_RAW">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
+            </column>
+            <column name="RAW_XML" type="BLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_MESSAGE_PROPERTIES -->
+        <createTable tableName="MIGR_TB_MESSAGE_PROPERTIES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MSG_PROPERTIES"/>
+            </column>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_PART_INFO -->
+        <createTable tableName="MIGR_TB_PART_INFO">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PART_INFO"/>
+            </column>
+            <column name="BINARY_DATA" type="LONGBLOB"/>
+            <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
+            <column name="DESCRIPTION_VALUE" type="VARCHAR(255)"/>
+            <column name="HREF" type="VARCHAR(255)"/>
+            <column name="IN_BODY" type="BOOLEAN"/>
+            <column name="FILENAME" type="VARCHAR(255)"/>
+            <column name="MIME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+            <column defaultValueNumeric="0" name="PART_ORDER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_PART_PROPERTIES -->
+        <createTable tableName="MIGR_TB_PART_PROPERTIES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PART_PROPERTIES"/>
+            </column>
+            <column name="PART_INFO_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PART_INFO_PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_ERROR_LOG -->
+        <createTable tableName="MIGR_TB_ERROR_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ERROR_LOG"/>
+            </column>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
+            <column name="NOTIFIED" type="TIMESTAMP"/>
+            <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_MESSAGE_ACKNW -->
+        <createTable tableName="MIGR_TB_MESSAGE_ACKNW">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_ACKNW"/>
+            </column>
+            <column name="FROM_VALUE" type="VARCHAR(255)"/>
+            <column name="TO_VALUE" type="VARCHAR(255)"/>
+            <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
