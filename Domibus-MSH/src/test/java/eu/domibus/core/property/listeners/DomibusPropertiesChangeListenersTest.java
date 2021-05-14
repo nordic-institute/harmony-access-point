@@ -47,8 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-;
-
 /**
  * @author Ion Perpegel
  * @since 4.1.1
