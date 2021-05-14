@@ -426,7 +426,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>../Domibus-MSH-db/target/test-sql-scripts</additionalClasspathElement>
+                        <additionalClasspathElement>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
