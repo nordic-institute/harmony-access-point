@@ -33,7 +33,7 @@ public class UserMessageLogDto {
         this.messageId = (String) tuple[aliasToIndexMap.get(MESSAGE_ID)];
         Object subtype = tuple[aliasToIndexMap.get(TEST_MESSAGE)];
         if(subtype != null) {
-            this.testMessage = BooleanUtils.toBoolean((String) subtype);
+            this.testMessage = (Boolean) subtype;
         }
         this.backend = (String) tuple[aliasToIndexMap.get(MESSAGE_BACKEND)];
     }

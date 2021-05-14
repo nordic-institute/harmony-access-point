@@ -1,11 +1,5 @@
 package eu.domibus.core.message.retention;
 
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLogDto;
-
-import java.util.List;
-
 /**
  * Responsible for the retention and clean up of Domibus messages, including signal messages. *
  *
@@ -15,19 +9,15 @@ import java.util.List;
 public interface MessageRetentionService {
 
     /**
-     * Deletes the expired messages(downloaded or not) using the configured limits
+     * Deletes the expired messages using the configured limits
      */
     void deleteExpiredMessages();
 
-    void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit);
+    /**
+     * If the class handles the deletion strategy
+     * @param retentionStrategy
+     * @return
+     */
+    boolean handlesDeletionStrategy(String retentionStrategy);
 
-    void scheduleDeleteMessages(List<UserMessage> messageIds);
-
-    void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs);
-
-    void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs, int maxBatch);
-
-    void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog);
-
-    void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog);
 }

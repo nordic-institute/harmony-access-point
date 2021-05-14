@@ -9,9 +9,12 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -20,6 +23,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +65,8 @@ public class UpdateRetryLoggingService {
 
     private final PModeProvider pModeProvider;
 
-    private final MessageRetentionService messageRetentionService;
+    @Autowired
+    MessageRetentionDefaultService messageRetentionService;
 
     private final MessageGroupDao messageGroupDao;
 
@@ -79,7 +84,7 @@ public class UpdateRetryLoggingService {
                                      UserMessageService userMessageService,
                                      MessageAttemptService messageAttemptService,
                                      PModeProvider pModeProvider,
-                                     MessageRetentionService messageRetentionService,
+                                     MessageRetentionDefaultService messageRetentionService,
                                      MessageGroupDao messageGroupDao,
                                      MessageStatusDao messageStatusDao,
                                      ReprogrammableService reprogrammableService) {
