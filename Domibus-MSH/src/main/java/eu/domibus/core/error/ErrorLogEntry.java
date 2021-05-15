@@ -49,7 +49,7 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     @Column(name = "NOTIFIED")
     private Date notified;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 
