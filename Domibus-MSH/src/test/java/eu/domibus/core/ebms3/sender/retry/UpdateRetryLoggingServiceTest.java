@@ -13,7 +13,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -76,7 +76,7 @@ public class UpdateRetryLoggingServiceTest {
     PModeProvider pModeProvider;
 
     @Injectable
-    MessageRetentionService messageRetentionService;
+    MessageRetentionDefaultService messageRetentionService;
 
     @Injectable
     UserMessageDao userMessageDao;
@@ -358,17 +358,16 @@ public class UpdateRetryLoggingServiceTest {
 
     @Test
     public void testMessageExpirationDate(@Injectable final UserMessageLog userMessageLog,
-                                          @Injectable final LegConfiguration legConfiguration,
-                                          @Injectable ReceptionAwareness receptionAwareness) throws InterruptedException {
-        final int timeOut = 10;
-        final long timeOutInMillis = 60000 * timeOut;
-        final long restoredTime = System.currentTimeMillis();// - (timeOutInMillis + delay);
+                                          @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+        final int timeOutInMin = 10; // in minutes
+        final long timeOutInMillis = 60000L * timeOutInMin;
+        final long restoredTime = System.currentTimeMillis();
         final Date expectedDate = new Date(restoredTime + timeOutInMillis);
 
 
         new Expectations(updateRetryLoggingService) {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
-            result = timeOut;
+            result = timeOutInMin;
 
             updateRetryLoggingService.getScheduledStartTime(userMessageLog);
             result = restoredTime;
@@ -380,20 +379,33 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void testIsExpired(@Injectable final UserMessageLog userMessageLog,
-                              @Injectable final LegConfiguration legConfiguration,
-                              @Injectable ReceptionAwareness receptionAwareness) throws InterruptedException {
-
-        int delay = 10;
-
-        final int timeOut = 10;
-        final long timeOutInMillis = 60000 * timeOut;
-        final long restoredTime = System.currentTimeMillis();// - (timeOutInMillis + delay);
+    public void testMessageExpirationDateInTheFarFuture(@Injectable final UserMessageLog userMessageLog,
+                              @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+        final int timeOutInMin = 90 * 24 * 60; // 90 days in minutes
+        final long timeOutInMillis = 60000L * timeOutInMin;
+        final long restoredTime = System.currentTimeMillis();
         final Date expectedDate = new Date(restoredTime + timeOutInMillis);
 
+        new Expectations(updateRetryLoggingService) {{
+            legConfiguration.getReceptionAwareness().getRetryTimeout();
+            result = timeOutInMin;
+
+            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
+            result = restoredTime;
+        }};
+        Date messageExpirationDate = updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);
+
+        assertEquals(expectedDate, messageExpirationDate);
+    }
+
+    @Test
+    public void testIsExpired(@Injectable final UserMessageLog userMessageLog,
+                              @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+
+        long delay = 10;
 
         new Expectations(updateRetryLoggingService) {{
-            domibusPropertyProvider.getIntegerProperty(UpdateRetryLoggingService.MESSAGE_EXPIRATION_DELAY);
+            domibusPropertyProvider.getLongProperty(UpdateRetryLoggingService.MESSAGE_EXPIRATION_DELAY);
             result = delay;
 
             updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);

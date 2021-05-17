@@ -16,8 +16,10 @@ import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.spring.DomibusWebConfiguration;
+import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,6 +51,7 @@ import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.jms.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -130,6 +133,11 @@ public abstract class AbstractIT {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }
 
+//    @AfterClass
+    public static void cleanTransactionsLog() {
+        deleteTransactionLock();
+    }
+
     public static void deleteTransactionLock() {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
@@ -139,8 +147,16 @@ public abstract class AbstractIT {
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
+        uploadPmode(redHttpPort, null);
+    }
+
+    protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
+
         String pmodeText = IOUtils.toString(inputStream, "UTF-8");
+        if (toReplace != null) {
+            pmodeText = replace(pmodeText, toReplace);
+        }
         if (redHttpPort != null) {
             LOG.info("Using wiremock http port [{}]", redHttpPort);
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
@@ -163,7 +179,7 @@ public abstract class AbstractIT {
 
 
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-//        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
@@ -216,9 +232,9 @@ public abstract class AbstractIT {
      * @return
      * @throws Exception
      */
-//    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
+    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
-    /*    // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
+        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
         if (connection instanceof ActiveMQXAConnection) {
             ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         }
@@ -236,17 +252,20 @@ public abstract class AbstractIT {
         producer.send(msg);
         System.out.println("Message with ID [" + messageId + "] sent in queue!");
         producer.close();
-        session.close();*/
+        session.close();
 
-//    }
+    }
 
     /**
      * The connection must be started and stopped before and after the method call.
      *
+     * @param connection
+     * @param queueName
+     * @param mSecs
      * @return Message
      * @throws Exception
      */
-/*    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
+    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
         if (connection instanceof ActiveMQXAConnection) {
@@ -257,12 +276,12 @@ public abstract class AbstractIT {
         MessageConsumer consumer = session.createConsumer(destination);
         Message message = consumer.receive(mSecs);
         if (message != null) {
-            System.out.println("Message with ID [:" + message.getStringProperty(JMSMessageConstants.MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
+            System.out.println("Message with ID [:" + message.getStringProperty(MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
         }
         consumer.close();
         session.close();
         return message;
-    }*/
+    }
 
     //TODO move this method into a class in the domibus-MSH-test module in order to be reused
     public SOAPMessage createSOAPMessage(String dataset) throws SOAPException, IOException, ParserConfigurationException, SAXException {
@@ -308,19 +327,29 @@ public abstract class AbstractIT {
     }
 
     public void prepareSendMessage(String responseFileName) {
-        /* Initialize the mock objects */
-//        MockitoAnnotations.initMocks(this);
-/*
-        String body = getAS4Response(responseFileName);
-
-        // Mock the response from the recipient MSH
-        WireMock.stubFor(WireMock.post(WireMock.urlEqualTo("/domibus/services/msh"))
-                .willReturn(WireMock.aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/soap+xml")
-                        .withBody(body)));*/
+        prepareSendMessage(responseFileName, null);
     }
 
+    public void prepareSendMessage(String responseFileName, Map<String, String> toReplace) {
+        String body = getAS4Response(responseFileName);
+        if (toReplace != null) {
+            body = replace(body, toReplace);
+        }
+
+        // Mock the response from the recipient MSH
+        stubFor(post(urlEqualTo("/domibus/services/msh"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/soap+xml")
+                        .withBody(body)));
+    }
+
+    protected String replace(String body, Map<String, String> toReplace) {
+        for (String key : toReplace.keySet()) {
+            body = body.replaceAll(key, toReplace.get(key));
+        }
+        return body;
+    }
 
     public String composePModeKey(final String senderParty, final String receiverParty, final String service,
                                   final String action, final String agreement, final String legName) {

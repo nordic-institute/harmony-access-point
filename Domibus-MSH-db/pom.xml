@@ -98,6 +98,25 @@
                </configuration>
                <executions>
 
+                   <execution>
+                       <id>generate-h2-script-data</id>
+                       <phase>pre-integration-test</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog.xml
+                           </changeLogFile>
+                           <url>
+                               offline:h2?version=1.3&amp;caseSensitive=true&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}.h2
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/test-sql-scripts/h2.sql
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+
                    <!-- 5.0 starts here -->
                    <execution>
                        <id>generate-mysql-script-data</id>
@@ -208,6 +227,63 @@
                        </configuration>
                    </execution>
                    <!-- 5.0 ends here -->
+
+                   <!-- data migration 4.2 to 5.0 starts here -->
+                   <execution>
+                       <id>generate-oracle-script-migration-step1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step1.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step1.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step1.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-migration-step2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step2.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step2.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step2.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-migration-step3</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step3.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step3.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step3.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- data migration 4.2 to 5.0 ends here -->
 
                    <!-- delta 4.2.2 to 5.0 starts here -->
                    <execution>

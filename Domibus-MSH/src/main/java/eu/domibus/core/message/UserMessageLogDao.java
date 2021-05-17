@@ -12,12 +12,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -171,6 +170,45 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
         }
         // return only messages with payload not already cleared
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
+    }
+
+    public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        StoredProcedureQuery query = em.createStoredProcedureQuery(queryName)
+                .registerStoredProcedureParameter(
+                        "MPC",
+                        String.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "STARTDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "ENDDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "MAXCOUNT",
+                        Integer.class,
+                        ParameterMode.IN
+                )
+                .setParameter("MPC", mpc)
+                .setParameter("STARTDATE", startDate)
+                .setParameter("ENDDATE", endDate)
+                .setParameter("MAXCOUNT", expiredMessagesLimit);
+
+        try {
+            query.execute();
+        } finally {
+            try {
+                query.unwrap(ProcedureOutputs.class).release();
+                LOG.debug("Finished releasing delete procedure");
+            } catch (Exception ex) {
+                LOG.error("Finally exception when using the stored procedure to delete", ex);
+            }
+        }
     }
 
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {

@@ -1,11 +1,10 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.SpringTestConfiguration;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
-import eu.domibus.core.certificate.CertificateServiceImpl;
+import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.property.*;
 import eu.domibus.logging.DomibusLogger;
@@ -67,11 +66,6 @@ public class CRLEbms3ServiceImplIT {
             return Arrays.asList(Mockito.mock(DomibusPropertyMetadataManagerSPI.class));
         }
 
-//        @Bean
-//        public DomainCoreConverter domainConverter() {
-//            return Mockito.mock(DomainCoreConverter.class);
-//        }
-
         @Bean
         public PropertyProviderDispatcher domibusPropertyProviderDispatcher() {
             return Mockito.mock(PropertyProviderDispatcher.class);
@@ -103,8 +97,8 @@ public class CRLEbms3ServiceImplIT {
         }
 
         @Bean
-        public CertificateService certificateService(){
-            return Mockito.mock(CertificateServiceImpl.class);
+        public CertificateHelper certificateHelper(){
+            return Mockito.mock(CertificateHelper.class);
         }
     }
 

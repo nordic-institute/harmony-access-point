@@ -1,6 +1,5 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import mockit.Expectations;
