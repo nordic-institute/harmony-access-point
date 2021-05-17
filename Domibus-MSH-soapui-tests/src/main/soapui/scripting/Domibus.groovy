@@ -51,6 +51,9 @@ class Domibus{
     static def XSFRTOKEN_C2 = null
     static def XSFRTOKEN_C3 = null
     static def XSFRTOKEN_C_Other = null
+	static def MSG_STATUS_MAX_WAIT_TIME = 120_000 // Maximum time to wait to check the message status.
+	static def MSG_STATUS_MAX_WAIT_TIME_EXT = 180_000 // Maximum time to wait to check the message status extended.
+	static def MSG_STATUS_STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
     static def CLEAR_CACHE_COMMAND_TOMCAT = $/rmdir /S /Q ..\work & rmdir /S /Q ..\logs & del /S /Q ..\temp\* & FOR /D %p IN ("..\temp\*.*") DO rmdir /s /q "%p"  & rmdir /S /Q ..\webapps\domibus & rmdir /S /Q ..\conf\domibus\work/$
 
     // Short constructor of the Domibus Class
@@ -344,24 +347,25 @@ class Domibus{
     def cleanDatabaseForDomains(domainIdList) {
         debugLog("  ====  Calling \"cleanDatabaseForDomains\" ${domainIdList}.", log)
         def sqlQueriesList = [
-                "delete from TB_RAWENVELOPE_LOG",
-                "delete from TB_RECEIPT_DATA",
-                "delete from TB_PROPERTY",
-                "delete from TB_PART_INFO",
-                "delete from TB_PARTY_ID",
-                "delete from TB_MESSAGING",
-                "delete from TB_ERROR",
-                "delete from TB_USER_MESSAGE",
-                "delete from TB_SIGNAL_MESSAGE",
-                "delete from TB_RECEIPT",
-                "delete from TB_MESSAGE_INFO",
-                "delete from TB_ERROR_LOG",
-                "delete from TB_SEND_ATTEMPT",
-                "delete from TB_MESSAGE_ACKNW_PROP",
-                "delete from TB_MESSAGE_ACKNW",
-                "delete from TB_MESSAGING_LOCK",
-                "delete from TB_MESSAGE_LOG",
-                "delete from TB_MESSAGE_UI"
+		        "delete from TB_USER_MESSAGE_RAW",				
+				"delete from TB_SEND_ATTEMPT",
+				"delete from TB_PART_PROPERTIES",
+				"delete from TB_PART_INFO",
+				"delete from TB_RECEIPT",
+				"delete from TB_SIGNAL_MESSAGE_RAW",
+				"delete from TB_SIGNAL_MESSAGE_LOG",
+				"delete from TB_SIGNAL_MESSAGE",
+				"delete from TB_USER_MESSAGE_LOG",
+				"delete from TB_SJ_MESSAGE_FRAGMENT",
+				"delete from TB_SJ_MESSAGE_GROUP",
+				"delete from TB_MESSAGE_PROPERTIES",
+				"delete from TB_MESSAGE_ACKNW_PROP",
+				"delete from TB_MESSAGE_ACKNW",
+				"delete from TB_ERROR_LOG",
+				"delete from TB_USER_MESSAGE",	
+                "delete from TB_MESSAGING_LOCK",				
+                "delete from WS_PLUGIN_TB_MESSAGE_LOG",
+				"delete from WS_PLUGIN_TB_BACKEND_MSG_LOG"
         ] as String[]
 
 
@@ -409,26 +413,27 @@ class Domibus{
         def messageIDCheck = "= '${messageID}'" //default comparison method use equal operator
         if (messgaeIDStartWithProvidedValue) messageIDCheck = "like '${messageID}%'" //if cleanDBMessageIDStartsWith method was called change method for comparison
 
-        def select_ID_PK = "select ID_PK from TB_MESSAGE_INFO where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries below
+        def select_ID_PK = "select ID_PK from TB_USER_MESSAGE where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries below
         def sqlQueriesList = [
-                "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + ")) or MESSAGE_ID ${messageIDCheck}",
-                "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ") or messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
-                "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
-                "delete from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-                "delete from TB_PARTY_ID where FROM_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or TO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-                "delete from TB_MESSAGING where (SIGNAL_MESSAGE_ID IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))) OR (USER_MESSAGE_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
-                "delete from TB_ERROR where SIGNALMESSAGE_ID IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-                "delete from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")",
-                "delete from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + ")",
-                "delete from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-                "delete from TB_MESSAGE_INFO where MESSAGE_ID " + messageIDCheck + " OR REF_TO_MESSAGE_ID " + messageIDCheck + "",
-                "delete from TB_SEND_ATTEMPT where MESSAGE_ID " + messageIDCheck + "",
-                "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where MESSAGE_ID " + messageIDCheck + ")",
-                "delete from TB_MESSAGE_ACKNW where MESSAGE_ID " + messageIDCheck + "",
-                "delete from TB_MESSAGING_LOCK where MESSAGE_ID " + messageIDCheck + "",
-                "delete from TB_MESSAGE_LOG where MESSAGE_ID " + messageIDCheck + "",
-                "delete from WS_PLUGIN_TB_MESSAGE_LOG where MESSAGE_ID " + messageIDCheck + "",
-                "delete from TB_MESSAGE_UI where MESSAGE_ID " + messageIDCheck + ""
+				"delete from TB_USER_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")",
+		        "delete from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+		        "delete from TB_PART_PROPERTIES where PART_INFO_ID_FK IN (select ID_PK from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+				"delete from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+		        "delete from TB_RECEIPT where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",		
+                "delete from TB_SIGNAL_MESSAGE_RAW where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",
+				"delete from TB_SIGNAL_MESSAGE_LOG where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",				
+				"delete from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + ")",
+				"delete from TB_USER_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")",
+				"delete from TB_SJ_MESSAGE_FRAGMENT where ID_PK IN (" + select_ID_PK + ")",
+				"delete from TB_SJ_MESSAGE_GROUP where ID_PK IN (" + select_ID_PK + ")",
+				"delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+		        "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+				"delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+				"delete from TB_ERROR_LOG where (USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")) OR (MESSAGE_IN_ERROR_ID "+messageIDCheck+")",
+				"delete from TB_USER_MESSAGE where MESSAGE_ID " + messageIDCheck + "",
+				"delete from TB_MESSAGING_LOCK where MESSAGE_ID " + messageIDCheck + "",
+				"delete from WS_PLUGIN_TB_MESSAGE_LOG where MESSAGE_ID " + messageIDCheck + "",
+				"delete from WS_PLUGIN_TB_BACKEND_MSG_LOG where MESSAGE_ID " + messageIDCheck + ""
         ] as String[]
 
         domainIdList.each { domainName ->
@@ -495,7 +500,7 @@ class Domibus{
         openDbConnections(usedDomains)
 
         // Sender DB
-        sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+        sqlSender.eachRow("Select count(*) lignes from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
             total = it.lignes
         }
         if (presence1 == 1) {
@@ -509,7 +514,7 @@ class Domibus{
         // Receiver DB
         total = 0
         sleep(sleepDelay)
-        sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+        sqlReceiver.eachRow("Select count(*) lignes from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
             total = it.lignes
         }
         if (presence2 == 1) {
@@ -536,7 +541,7 @@ class Domibus{
         def sql = retrieveSqlConnectionRefFromDomainId(domainId)
 
         // Sender DB
-        sql.eachRow("Select count(*) number_of_lines from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+        sql.eachRow("Select count(*) number_of_lines from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
             total = it.number_of_lines
         }
         if (presence == 1) {
@@ -567,30 +572,102 @@ class Domibus{
         def usedDomains = [senderDomainId, receiverDomainId]
         openDbConnections(usedDomains)
 
-        sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+        sqlSender.eachRow("Select count(*) lignes from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
             total = it.lignes
         }
         assert(total == 1),locateTest(context) + "Error:verifyMessageUnicity: Message found " + total + " times in sender side."
         sleep(sleepDelay)
-        sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+        sqlReceiver.eachRow("Select count(*) lignes from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
             total = it.lignes
         }
         assert(total == 1),locateTest(context) + "Error:verifyMessageUnicity: Message found " + total + " times in receiver side."
         closeDbConnections(usedDomains)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    // Wait until status or timer expire
-    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeForSender = null, String bonusTimeForReceiver = null, String senderDomainId = blueDomainID, String receiverDomainId =  redDomainID) {
-        debugLog("  ====  Calling \"waitForStatus\".", log)
-        def MAX_WAIT_TIME = 100_000 // Maximum time to wait to check the message status.
-        def RECEIVER_MAX_WAIT_TIME = 60_000
-        def RECEIVER_MAX_WAIT_TIME_EXTENDED = 120_000
-        def STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
-        def messageID
-        def numberAttempts = 0
-        def maxNumberAttempts = 5
-        def messageStatus = "INIT"
+    def getMsgStatusNames(sqlConn){
+		debugLog("  ====  Calling \"getMsgStatusNames\".", log)
+		def STATUS_MAP = [:]
+		
+		sqlConn.eachRow("Select * from TB_D_MESSAGE_STATUS") {
+			STATUS_MAP[it.ID_PK] = it.STATUS
+		}
+		
+		STATUS_MAP.each { key, val ->
+			debugLog("  $key:$val", log)
+		}
+		debugLog("  ====  ENDING \"getMsgStatusNames\".", log)
+		return STATUS_MAP		
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
+		debugLog("  ====  Calling \"checkStatus\".", log)
+		debugLog("  checkStatus  [][]  params: sideName: " + sideName + " targetStatus: " + targetStatus + " messageID: " + messageID + " bonusTime: " + bonusTime,log)
+	    def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME 
+        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
+		def messageStatus = "INIT"
         def wait = false
+		def msgPK=null
+		def statusMap=[:]
+		def numberAttempts = 0
+        def maxNumberAttempts = 5	
+		
+        if (bonusTime) {
+            if (bonusTime.isInteger()) MAX_WAIT_TIME = (bonusTime as Integer) * 1000
+            else MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME_EXT
+
+            log.info "  checkStatus  [][]  Waiting time for $sideName extended to ${MAX_WAIT_TIME/1000} seconds"
+        }
+		
+		// Get Message status names and IDs in a map
+		statusMap=getMsgStatusNames(sqlConn)
+			
+			
+        while ( ( (messageStatus != targetStatus) && (MAX_WAIT_TIME > 0) ) || (wait) ) {
+            sleep(STEP_WAIT_TIME)
+            if (MAX_WAIT_TIME > 0) {
+                MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+            }
+            log.info "  checkStatus  [][]  WAIT: " + MAX_WAIT_TIME
+			// Extract message ID PK
+			if(msgPK==null){
+				sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+					msgPK = it.ID_PK
+				}
+			}
+            sqlConn.eachRow("Select * from TB_USER_MESSAGE_LOG where ID_PK = ${msgPK}") {
+                messageStatus = statusMap[it.MESSAGE_STATUS_ID_FK]
+                numberAttempts = it.SEND_ATTEMPTS
+            }
+            log.info "|MSG_ID: " + messageID + " | $sideName: Expected MSG Status =" + targetStatus + "-- Current MSG Status = " + messageStatus + " | maxNumbAttempts: " + maxNumberAttempts + "-- numbAttempts: " + numberAttempts
+            if (targetStatus == "SEND_FAILURE") {
+                if (messageStatus == "WAITING_FOR_RETRY") {
+                    if ( ( (maxNumberAttempts - numberAttempts) > 0) && (!wait) ) {
+                        wait = true
+                    }
+                    if ( (maxNumberAttempts - numberAttempts) <= 0) {
+                        wait = false
+                    }
+                } else {
+                    if (messageStatus == targetStatus) {
+                        wait = false
+                    }
+                }
+            }
+        }
+        log.info "  checkStatus  [][]  finished checking $sideName, messageStatus: " + messageStatus + " MAX_WAIT_TIME: " + MAX_WAIT_TIME
+		assert(msgPK != null),locateTest(context) + "Error:checkStatus: Message " + messageID + " is not present in $sideName side."
+        assert(messageStatus.toLowerCase() == targetStatus.toLowerCase()),locateTest(context) + "Error:checkStatus: Message in $sideName side has status " + messageStatus + " instead of " + targetStatus + "."
+		debugLog("  ====  END \"checkStatus\".", log)
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+
+    // Wait until status or timer expire
+    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID) {
+        debugLog("  ====  Calling \"waitForStatus\".", log)
+	    def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME 
+        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
+        def messageID=null;
+
 
         if (IDMes != null) {
             messageID = IDMes
@@ -598,98 +675,64 @@ class Domibus{
             messageID = findReturnedMessageID()
         }
 
-        log.info "  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForSender: " + bonusTimeForSender + " bonusTimeForReceiver: " + bonusTimeForReceiver
+        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3,log)
 
-        if (bonusTimeForSender) {
-            if (bonusTimeForSender.isInteger()) MAX_WAIT_TIME = (bonusTimeForSender as Integer) * 1000
-            else MAX_WAIT_TIME = 500_000
-
-            log.info "  waitForStatus  [][]  Waiting time for Sender extended to ${MAX_WAIT_TIME/1000} seconds"
-        }
-
-        debugLog("  waitForStatus  [][]  senderDomainId = " + senderDomainId + " receiverDomaindId = " + receiverDomainId, log)
-        def sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
-        def sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomainId)
-        def usedDomains = [senderDomainId, receiverDomainId]
-        openDbConnections(usedDomains)
+        debugLog("  waitForStatus  [][]  C2DomainId = " + C2DomainId + " C3DomainId = " + C3DomainId, log)
+        def sqlC2 = retrieveSqlConnectionRefFromDomainId(C2DomainId)
+        def sqlC3 = retrieveSqlConnectionRefFromDomainId(C3DomainId)
+        def usedDomains = [C2DomainId, C3DomainId]
+		
+        openDbConnections(usedDomains)		
 
         if (SMSH) {
-            while ( ( (messageStatus != SMSH) && (MAX_WAIT_TIME > 0) ) || (wait) ) {
-                sleep(STEP_WAIT_TIME)
-                if (MAX_WAIT_TIME > 0) {
-                    MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
-                }
-                log.info "  waitForStatus  [][]  WAIT: " + MAX_WAIT_TIME
-                sqlSender.eachRow("Select * from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    messageStatus = it.MESSAGE_STATUS
-                    numberAttempts = it.SEND_ATTEMPTS
-                }
-                log.info "|MSG_ID: " + messageID + " | SENDER: Expected MSG Status =" + SMSH + "-- Current MSG Status = " + messageStatus + " | maxNumbAttempts: " + maxNumberAttempts + "-- numbAttempts: " + numberAttempts
-                if (SMSH == "SEND_FAILURE") {
-                    if (messageStatus == "WAITING_FOR_RETRY") {
-                        if ( ( (maxNumberAttempts - numberAttempts) > 0) && (!wait) ) {
-                            wait = true
-                        }
-                        if ( (maxNumberAttempts - numberAttempts) <= 0) {
-                            wait = false
-                        }
-                    } else {
-                        if (messageStatus == SMSH) {
-                            wait = false
-                        }
-                    }
-                }
-            }
-            log.info "  waitForStatus  [][]  finished checking sender, messageStatus: " + messageStatus + " MAX_WAIT_TIME: " + MAX_WAIT_TIME
-
-            assert(messageStatus != "INIT"),locateTest(context) + "Error:waitForStatus: Message " + messageID + " is not present in the sender side."
-            assert(messageStatus.toLowerCase() == SMSH.toLowerCase()),locateTest(context) + "Error:waitForStatus: Message in the sender side has status " + messageStatus + " instead of " + SMSH + "."
+		    try {
+                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2)
+            } catch (SQLException ex) {
+                closeDbConnections(usedDomains)
+                assert 0,"SQLException occurred: " + ex
+            }			
         }
-        if (bonusTimeForReceiver) {
-            if (bonusTimeForReceiver.isInteger()) MAX_WAIT_TIME = (bonusTimeForReceiver as Integer) * 1000
-            else MAX_WAIT_TIME = RECEIVER_MAX_WAIT_TIME_EXTENDED
-
-            log.info "  waitForStatus  [][]  Waiting time for Receiver extended to ${MAX_WAIT_TIME/1000} seconds"
-
-        } else {
-            MAX_WAIT_TIME = RECEIVER_MAX_WAIT_TIME
+		
+		if (RMSH) {
+			try {
+                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3)
+            } catch (SQLException ex) {
+                closeDbConnections(usedDomains)
+                assert 0,"SQLException occurred: " + ex
+            }			
         }
-        messageStatus = "INIT"
-        if (RMSH) {
-            while ( (messageStatus != RMSH) && (MAX_WAIT_TIME > 0) ) {
-                sleep(STEP_WAIT_TIME)
-                MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
-                sqlReceiver.eachRow("Select * from TB_MESSAGE_LOG where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    messageStatus = it.MESSAGE_STATUS
-                }
-                log.info "  waitForStatus  [][]  W:" + MAX_WAIT_TIME + " M:" + messageStatus
-            }
-            log.info "  waitForStatus  [][]  finished checking receiver, messageStatus: " + messageStatus + " MAX_WAIT_TIME: " + MAX_WAIT_TIME
-            assert(messageStatus != "INIT"),locateTest(context) + "Error:waitForStatus: Message " + messageID + " is not present in the receiver side."
-            assert(messageStatus.toLowerCase() == RMSH.toLowerCase()),locateTest(context) + "Error:waitForStatus: Message in the receiver side has status " + messageStatus + " instead of " + RMSH + "."
-        }
+		
         closeDbConnections(usedDomains)
+		debugLog("  ====  END \"waitForStatus\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema = "BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
-        def MAX_WAIT_TIME = 50_000
-        def STEP_WAIT_TIME = 2000
+        def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
+        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         int total = 0
+		def msgPK=null
         openAllDbConnections()
 
         def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
+		
 
         while ( (MAX_WAIT_TIME > 0) && (total == 0) ) {
-            sqlSender.eachRow("Select count(*) lignes from tb_send_attempt where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+			// Extract message ID PK
+			if(msgPK==null){
+				sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+					msgPK = it.ID_PK
+				}
+			}
+            sqlSender.eachRow("Select count(*) lignes from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK = ${msgPK}") {
                 total = it.lignes
             }
             log.info "  checkSendAttempt  [][]  W: " + MAX_WAIT_TIME
             sleep(STEP_WAIT_TIME)
             MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
         }
-        assert(total > 0),locateTest(context) + "Error: Message " + messageID + " is not present in the table tb_send_attempt."
+        assert(total > 0),locateTest(context) + "Error: Message " + messageID + " is not present in the table TB_SEND_ATTEMPT."
         closeAllDbConnections()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -1231,7 +1274,7 @@ class Domibus{
             log.info "  domibusHealthMonitor  [][]  =================================="
             log.info "  domibusHealthMonitor  [][]  Checking the Database ..."
 
-            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter = db",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=db",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                              "-H", "Content-Type: application/json",
                              "-u", pluginUsername + ":" + pluginPassword,
@@ -1262,7 +1305,7 @@ class Domibus{
             log.info "  domibusHealthMonitor  [][]  =================================="
             log.info "  domibusHealthMonitor  [][]  Checking the quartz trigger ..."
 
-            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter = quartzTrigger",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=quartzTrigger",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                              "-H", "Content-Type: application/json",
                              "-u", pluginUsername + ":" + pluginPassword,
@@ -1291,7 +1334,7 @@ class Domibus{
             log.info "\n\n"
             log.info "  domibusHealthMonitor  [][]  =================================="
             log.info "  domibusHealthMonitor  [][]  Checking the jms broker ..."
-            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter = jmsBroker",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=jmsBroker",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                              "-H", "Content-Type: application/json",
                              "-u", pluginUsername + ":" + pluginPassword,
@@ -1612,7 +1655,7 @@ class Domibus{
 
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
-        def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize = 10000",
+        def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize=10000",
                              "--cookie", context.expand( '${projectDir}')+ File.separator + "cookie.txt",
                              "-H", 'Content-Type: application/json',
                              "-H", "\"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\"",
@@ -1862,11 +1905,14 @@ class Domibus{
         debugLog("  ====  Calling \"adminConsoleUserSuspended\".", log)
         def jsonSlurper = new JsonSlurper()
         def userStatus = null
+		def authenticationUser = authUser
+        def authenticationPwd = authPwd
         int i = 0
 
         try{
+			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
-            def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authUser, authPwd))
+            def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authenticationUser,authenticationPwd))
             debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
             assert(usersMap != null),"Error:adminConsoleUserSuspended: Error while parsing the list of admin console users."
             while ( (i < usersMap.size()) && (userStatus == null) ) {
@@ -1889,11 +1935,15 @@ class Domibus{
         debugLog("  ====  Calling \"pluginUserSuspended\".", log)
         def jsonSlurper = new JsonSlurper()
         def userStatus = null
+		def authenticationUser = authUser
+        def authenticationPwd = authPwd
+
         int i = 0
 
         try{
+		    (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  pluginUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
-            def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authUser, authPwd))
+            def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authenticationUser, authenticationPwd))
             debugLog("  pluginUserSuspended  [][]  Plugin users map: $usersMap.", log)
             assert(usersMap != null),"Error:pluginUserSuspended: Error while parsing the list of plugin users."
             while ( (i < usersMap.entries.size()) && (userStatus == null) ) {
@@ -2383,6 +2433,14 @@ class Domibus{
             testRunner.cancel( "One of smoke tests failed. Aborting whole test suite run." )
         }
     }
+	
+    static void  skipIfOldPluginSelected(testRunner, context, log) {
+        debugLog("  ====  Calling \"skipIfOldPluginSelected\".", log)
+        if (context.expand('${#Project#endpointUrl}').contains("backend")) {
+            debugLog("The old plugin is currently used: this testCase is not supported.", log)
+            testRunner.cancel( "The old plugin is currently used: this testCase will be skipped." )
+        }
+    }
 
     //---------------------------------------------------------------------------------------------------------------------------------
     // Support enabling and disabling the authentication for SOAP requests.
@@ -2406,10 +2464,10 @@ class Domibus{
             if (testSuite.getLabel() =~ filterForTestSuite) {
                 debugLog("test suite: " + testSuite.getLabel(), log)
                 testSuite.getTestCaseList().findAll{ ! it.isDisabled() }.each { testCase ->
-                    debugLog("test label:" + testCase.getLabel(), log)
+                    //debugLog("test label:" + testCase.getLabel(), log)
                     testCase.getTestStepList().findAll{ ! it.isDisabled() }.each { testStep ->
                         if (testStep instanceof WsdlTestRequestStep) {
-                            debugLog("Ammending test step: " + testStep.name, log)
+                            //debugLog("Ammending test step: " + testStep.name, log)
                             def httpRequest = testStep.getHttpRequest()
                             def endpoint = testStep.getPropertyValue("Endpoint")
                             if ( endpoint =~ endpointPattern) {
@@ -2420,8 +2478,8 @@ class Domibus{
                                     httpRequest.removeBasicAuthenticationProfile(authProfile)
                                 }
                             }
-                            else
-                                debugLog("Endpoint is not refering to provided patern.", log)
+//                            else
+//                                debugLog("Endpoint is not refering to provided patern.", log)
                         }
                     }
 
@@ -2490,6 +2548,63 @@ class Domibus{
         assert(mockRunner!= null),"  startRestMockService  [][]  Can't get mock runner: mock service did not start."
         assert(mockRunner.isRunning()),"  startRestMockService  [][]  Mock service did not start."
         log.info ("  startRestMockService  [][]  Rest mock service " + restMockServiceName + " is running.")
+    }
+	
+	// Handle soap mock service
+    static void  stopAllMockService(log,testRunner) {
+        log.info("  ====  Calling \"stopAllMockService\".")
+        def project = testRunner.testCase.testSuite.project
+        def mockServicesCount = project.getMockServiceCount()
+        for (i in 0..(mockServicesCount-1)){
+            // Stop each mock service
+            def mockServiceName = project.getMockServiceAt(i).getName()
+            debugLog("  stopAllMockService  [][]  Stopping service: \"" + mockServiceName+"\"",log)
+            stopMockService(mockServiceName,log,testRunner)
+        }
+        log.info ("  stopAllMockService  [][]  All mock services are stopped.")
+    }
+	
+    static void  stopMockService(String mockServiceName,log,testRunner) {
+        log.info("  ====  Calling \"stopMockService\".")
+        debugLog("  stopMockService  [][]  Mock service name: \"" + mockServiceName+"\"",log)
+        def mockService = null
+        try{
+            mockService = testRunner.testCase.testSuite.project.getMockServiceByName(mockServiceName)
+        }
+        catch (Exception ex) {
+            log.error "  stopMockService  [][]  Can't find mock service called: " + mockServiceName
+            assert 0,"Exception occurred: " + ex
+        }
+        def mockRunner = mockService.getMockRunner()
+        if(mockRunner!= null){
+            mockRunner.stop()
+            assert(!mockRunner.isRunning()),"  stopMockService  [][]  Mock service is still running."
+            mockRunner.release()
+        }
+        log.info ("  stopMockService  [][]  Mock service \"" + mockServiceName + "\" is stopped.")
+    }
+	
+    static void  startMockService(String mockServiceName,log,testRunner,stopAll=true) {
+        log.info("  ====  Calling \"startMockService\".")
+        debugLog("  startMockService  [][]  Mock service name: \"" + mockServiceName+"\"",log)
+        if(stopAll==true){
+            stopAllMockService(log,testRunner)
+        }else{
+            stopMockService(mockServiceName,log,testRunner)
+        }
+        def mockService = null
+        try{
+            mockService = testRunner.testCase.testSuite.project.getMockServiceByName(mockServiceName)
+        }
+        catch (Exception ex) {
+            log.error "  startMockService  [][]  Can't find mock service called: " + mockServiceName
+            assert 0,"Exception occurred: " + ex
+        }
+        mockService.start()
+        def mockRunner = mockService.getMockRunner()
+        assert(mockRunner!= null),"  startMockService  [][]  Can't get mock runner: mock service did not start."
+        assert(mockRunner.isRunning()),"  startMockService  [][]  Mock service did not start."
+        log.info ("  startMockService  [][]  Mock service \"" + mockServiceName + "\" is running.")
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
@@ -2852,7 +2967,7 @@ class Domibus{
         try{
             //(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagelog?orderBy = received&asc = false&messageId = " + data + "&messageType = USER_MESSAGE&page = 0&pageSize = 10 -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) + "\" -X GET "
+            def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagelog?orderBy=received&asc=false&messageId="+ data +"&messageType=USER_MESSAGE&page=0&pageSize=10 -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) + "\" -X GET "
             def commandResult = runCommandInShell(commandString, log)
             if(listType.toLowerCase() == "blacklist"){
                 assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:userInputCheck_GET: Forbidden character not detected."
@@ -2945,7 +3060,7 @@ class Domibus{
             def detailedQueueName = retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log)
             debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName + "\".", log)
 
-            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages?source = $detailedQueueName",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages?source=$detailedQueueName",
                              "-H",  "Content-Type: application/json",
                              "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                              "-X", "GET",
@@ -3079,7 +3194,7 @@ class Domibus{
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?orderBy = loggerName&asc = false&loggerName = $packageName&page = 0&pageSize = 500",
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?loggerName=$packageName&showClasses=false&page=0&pageSize=500&orderBy=name&asc=false",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                                  "-H",  "Content-Type: text/xml",
@@ -3326,17 +3441,20 @@ class Domibus{
     def countCurrentMessagesNumber(testRunner,C2Status = "acknowledged", C3Status = "received",String senderDomainId = blueDomainID, String receiverDomanId = redDomainID){
         debugLog("  ====  Calling \"countCurrentMessagesNumber\".", log)
         def countC2 = 0; def countC3 = 0
+		def statusMap=[:]
+		
 
         def sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
         def sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
         def usedDomains = [senderDomainId, receiverDomanId]
         openDbConnections(usedDomains)
-
-        sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C2Status})") {
+        
+		statusMap=getMsgStatusNames(sqlSender)
+        sqlSender.eachRow("Select count(*) lignes from TB_USER_MESSAGE_LOG where LOWER(${statusMap[${MESSAGE_STATUS_ID_FK}]}) = LOWER(${C2Status})") {
             countC2 = it.lignes
         }
 
-        sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C3Status})") {
+        sqlReceiver.eachRow("Select count(*) lignes from TB_USER_MESSAGE_LOG where LOWER(${statusMap[${MESSAGE_STATUS_ID_FK}]}) = LOWER(${C3Status})") {
             countC3 = it.lignes
         }
 
@@ -3864,7 +3982,7 @@ class Domibus{
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize = 100",
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize=100",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H", "Content-Type: application/json",
                                  "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
