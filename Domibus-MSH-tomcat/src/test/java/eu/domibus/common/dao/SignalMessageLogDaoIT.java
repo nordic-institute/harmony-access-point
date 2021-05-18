@@ -77,6 +77,21 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void testCountAllInfoWithFilters() {
+        Map<String, Object> filters = Stream.of(new Object[][]{
+                {"receivedFrom", before},
+                {"receivedTo", after},
+                {"mshRole", MSHRole.RECEIVING},
+                {"messageStatus", MessageStatus.RECEIVED},
+        }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
+
+        int count = signalMessageLogDao.countAllInfo(true, filters);
+
+        Assert.assertEquals(2, count);
+    }
+
+    @Test
+    @Transactional
     public void testFindAllInfoPaged() {
         Map<String, Object> filters = Stream.of(new Object[][]{
                 {"receivedFrom", before},

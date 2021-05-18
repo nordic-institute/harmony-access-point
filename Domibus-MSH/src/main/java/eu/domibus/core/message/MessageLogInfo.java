@@ -71,51 +71,6 @@ public class MessageLogInfo {
     //constructor for signal messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,
-                          final NotificationStatus notificationStatus,
-                          final MSHRole mshRole,
-                          final Date deleted,
-                          final Date received,
-                          final int sendAttempts,
-                          final int sendAttemptsMax,
-                          final Date nextAttempt,
-                          final String nextAttemptTimezoneId,
-                          final Integer nextAttemptOffsetSeconds,
-                          final String conversationId,
-                          final String fromPartyId,
-                          final String toPartyId,
-                          final String originalSender,
-                          final String finalRecipient,
-                          final String refToMessageId,
-                          final Date failed,
-                          final Date restored,
-                          final Boolean testMessage) {
-        this.messageId = messageId;
-        this.messageStatus = messageStatus;
-        this.notificationStatus = notificationStatus;
-        this.mshRole = mshRole;
-        this.deleted = deleted;
-        this.received = received;
-        this.sendAttempts = sendAttempts;
-        this.sendAttemptsMax = sendAttemptsMax;
-        this.nextAttempt = nextAttempt;
-        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
-        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
-        //message information UserMessage/SignalMessage
-        this.conversationId = conversationId;
-        this.fromPartyId = fromPartyId;
-        this.toPartyId = toPartyId;
-        this.originalSender = originalSender;
-        this.finalRecipient = finalRecipient;
-        this.refToMessageId = refToMessageId;
-        this.failed = failed;
-        this.restored = restored;
-        this.testMessage = testMessage;
-    }
-
-
-    //constructor for signal messages
-    public MessageLogInfo(final String messageId,
-                          final MessageStatus messageStatus,
                           final MSHRole mshRole,
                           final Date deleted,
                           final Date received,
@@ -168,15 +123,22 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue
     ) {
-        this(messageId, messageStatus, notificationStatus, mshRole, deleted, received, sendAttempts, sendAttemptsMax,
-                nextAttempt, nextAttemptTimezoneId, nextAttemptOffsetSeconds, conversationId, fromPartyId, toPartyId,
-                originalSender, finalRecipient, refToMessageId, failed, restored, testMessage);
+        this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
+                originalSender, finalRecipient, refToMessageId, testMessage);
 
+        this.notificationStatus = notificationStatus;
+        this.sendAttempts = sendAttempts;
+        this.sendAttemptsMax = sendAttemptsMax;
+        this.nextAttempt = nextAttempt;
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
         this.messageFragment = messageFragment;
         this.sourceMessage = sourceMessage;
         this.action = action;
         this.serviceType = serviceType;
         this.serviceValue = serviceValue;
+        this.failed = failed;
+        this.restored = restored;
     }
 
     public void setMessageId(String messageId) {
