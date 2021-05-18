@@ -59,6 +59,11 @@ public interface SignalService {
     void signalClearCaches();
 
     /**
+     * Signals the clearing of the Second Level Caches
+     */
+    void signalClear2LCCaches();
+
+    /**
      * Signals the change of the TLS truststore
      */
     void signalTLSTrustStoreUpdate(Domain currentDomain);

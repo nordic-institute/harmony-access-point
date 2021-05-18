@@ -1,14 +1,18 @@
 package eu.domibus.core.cache;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.SessionFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,6 +27,9 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheServiceImpl.class);
 
     protected CacheManager cacheManager;
+
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    private EntityManager entityManager;
     protected List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList;
 
     public DomibusCacheServiceImpl(CacheManager cacheManager,
@@ -56,10 +63,21 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         notifyClearAllCaches();
     }
 
+    // TODO: François Gautier 18-05-21      EDELIVERY-8077 Activate second level cache for all dictionary entities to end to end test
+    @Override
+    public void clear2LCCaches() throws DomibusCoreException {
+        entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getCache().evictAll();
+        notifyClear2LCaches();
+    }
+
     protected void notifyClearAllCaches() {
         LOG.debug("Notifying cache subscribers about clear all caches event");
         domibusCacheServiceNotifierList
-                .stream()
-                .forEach(domibusCacheServiceNotifier -> domibusCacheServiceNotifier.notifyClearAllCaches());
+                .forEach(DomibusCacheServiceNotifier::notifyClearAllCaches);
+    }
+    protected void notifyClear2LCaches() {
+        LOG.debug("Notifying cache subscribers about clear second level caches event");
+        domibusCacheServiceNotifierList
+                .forEach(DomibusCacheServiceNotifier::notifyClear2LCaches);
     }
 }

@@ -51,13 +51,14 @@ public class DomibusCacheConfiguration {
     @Bean(name = "cacheManager")
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
         CachingProvider provider = Caching.getCachingProvider();
-
+        ClassLoader classLoader = getClass().getClassLoader();
+        DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
         //default cache
         final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
 
         CacheManager cacheManager = provider.getCacheManager(
                 classPathResource.getURL().toURI(),
-                getClass().getClassLoader());
+                classLoader);
 
         //external cache file
         if (externalCacheFileExists()) {

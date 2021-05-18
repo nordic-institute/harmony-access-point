@@ -231,4 +231,21 @@ public class ApplicationResource {
         return ResponseEntity.badRequest()
                 .body("User does not have privilege to clear caches.");
     }
+
+    /**
+     * Rest method to clear all caches.
+     */
+    @DeleteMapping(value = "/2Lcache")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
+    public ResponseEntity<String> evict2LCaches() {
+        LOG.debug("Clearing second level caches..");
+        if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
+            domibusCacheService.clear2LCCaches();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("Cleared second level caches successfully.");
+        }
+        return ResponseEntity.badRequest()
+                .body("User does not have privilege to clear second level caches.");
+    }
 }

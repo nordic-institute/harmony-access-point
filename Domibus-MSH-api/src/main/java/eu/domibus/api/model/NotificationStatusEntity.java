@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
@@ -12,9 +13,10 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_NOTIFICATION_STATUS")
-@NamedQueries({
-        @NamedQuery(name = "NotificationStatusEntity.findByStatus", query = "select ms from NotificationStatusEntity ms where ms.status=:NOTIFICATION_STATUS"),
-})
+@NamedQuery(name = "NotificationStatusEntity.findByStatus", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select ms from NotificationStatusEntity ms where ms.status=:NOTIFICATION_STATUS")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class NotificationStatusEntity extends AbstractBaseEntity {
 
     @Enumerated(EnumType.STRING)

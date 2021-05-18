@@ -2,6 +2,7 @@ package eu.domibus.api.model;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
@@ -11,9 +12,10 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_SERVICE")
-@NamedQueries({
-        @NamedQuery(name = "Service.findByValue", query = "select serv from ServiceEntity serv where serv.value=:VALUE"),
-})
+@NamedQuery(name = "Service.findByValue", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ServiceEntity extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)

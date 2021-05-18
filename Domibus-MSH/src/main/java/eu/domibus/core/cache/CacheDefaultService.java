@@ -23,4 +23,12 @@ public class CacheDefaultService implements CacheService {
     public void evictCaches() {
         domibusCacheService.clearAllCaches();
     }
+
+    /**
+     * Clearing second level caches
+     */
+    @Override
+    public void evict2LCaches() {
+        domibusCacheService.clear2LCCaches();
+    }
 }

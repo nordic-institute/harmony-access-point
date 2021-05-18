@@ -46,7 +46,7 @@ public class DomibusJPAConfiguration {
     }
 
     @Bean
-    @DependsOn({DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE})
+    @DependsOn({DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, "cacheManager"})
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,

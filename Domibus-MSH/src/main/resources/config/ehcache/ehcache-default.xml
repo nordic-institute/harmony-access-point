@@ -60,11 +60,31 @@
 
     <cache alias="domibusProperties" uses-template="ttl-3600-heap-5mb"/>
 
+    <cache alias="dictionary-queries" uses-template="no-expiry"/>
+
+    <cache alias="eu.domibus.api.model.PartProperty" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.PartyRole" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.ServiceEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.MessageStatusEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.MpcEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.ActionEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.MSHRoleEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.MessageProperty" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.NotificationStatusEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.AgreementRefEntity" uses-template="no-expiry"/>
+    <cache alias="eu.domibus.api.model.PartyId" uses-template="no-expiry"/>
+
     <!-- cache definitions ends here -->
 
     <cache-template name="ttl-3600-heap-5mb">
         <expiry>
             <ttl>3600</ttl>
+        </expiry>
+        <heap unit="MB">5</heap>
+    </cache-template>
+    <cache-template name="no-expiry">
+        <expiry>
+            <none/>
         </expiry>
         <heap unit="MB">5</heap>
     </cache-template>
