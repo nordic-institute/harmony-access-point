@@ -112,6 +112,35 @@ public class MessageLogInfo {
         this.testMessage = testMessage;
     }
 
+
+    //constructor for signal messages
+    public MessageLogInfo(final String messageId,
+                          final MessageStatus messageStatus,
+                          final MSHRole mshRole,
+                          final Date deleted,
+                          final Date received,
+                          final String conversationId,
+                          final String fromPartyId,
+                          final String toPartyId,
+                          final String originalSender,
+                          final String finalRecipient,
+                          final String refToMessageId,
+                          final Boolean testMessage) {
+        this.messageId = messageId;
+        this.messageStatus = messageStatus;
+        this.mshRole = mshRole;
+        this.deleted = deleted;
+        this.received = received;
+        //message information UserMessage/SignalMessage
+        this.conversationId = conversationId;
+        this.fromPartyId = fromPartyId;
+        this.toPartyId = toPartyId;
+        this.originalSender = originalSender;
+        this.finalRecipient = finalRecipient;
+        this.refToMessageId = refToMessageId;
+        this.testMessage = testMessage;
+    }
+
     //constructor for user messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,

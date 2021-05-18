@@ -18,7 +18,7 @@ import java.util.HashMap;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class Ebms3SignalMessageLogInfoFilterTest {
+public class SignalMessageLogInfoFilterTest {
 
     @Injectable
     private DomibusPropertyProvider domibusProperties;
