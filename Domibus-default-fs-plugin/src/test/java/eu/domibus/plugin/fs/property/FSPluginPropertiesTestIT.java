@@ -164,7 +164,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetReceivedPurgeExpired() {
-        Assert.assertEquals(0, fSPluginProperties.getReceivedPurgeExpired(null));
+        Assert.assertEquals(600, fSPluginProperties.getReceivedPurgeExpired(null));
     }
 
     @Test
