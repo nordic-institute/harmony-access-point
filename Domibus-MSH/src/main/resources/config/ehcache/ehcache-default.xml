@@ -12,31 +12,23 @@
     </service>
 
     <!-- cache definitions start here -->
-    <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="backendFilterCache" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="tlsCache" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="certValidationByAlias" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="crlByCert" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="lookupInfo" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="dispatchClient" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="auditTarget" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="userDomain" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="preferredUserDomain" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="allDomains" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="domainByCode" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="domainByScheduler" uses-template="ttl-3600-heap-5mb"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="policyCache"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="backendFilterCache"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="tlsCache"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="certValidationByAlias"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="crlByCert"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="lookupInfo"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="dispatchClient"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="auditTarget"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="userDomain"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="preferredUserDomain"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="allDomains"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="domainByCode"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="domainByScheduler"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="domibusProperties"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="encryptionKey"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="passwordEncryptionKey"/>
+    <cache uses-template="ttl-3600-heap-5mb" alias="multitenantCache"/>
 
     <cache alias="dss-cache">
         <expiry>
@@ -45,12 +37,6 @@
         <heap unit="MB">5</heap>
     </cache>
 
-    <cache alias="encryptionKey" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="passwordEncryptionKey" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="multitenantCache" uses-template="ttl-3600-heap-5mb"/>
-
     <cache alias="jmsDestinations">
         <expiry>
             <ttl>300</ttl>
@@ -58,21 +44,19 @@
         <heap unit="MB">5</heap>
     </cache>
 
-    <cache alias="domibusProperties" uses-template="ttl-3600-heap-5mb"/>
-
-    <cache alias="dictionary-queries" uses-template="no-expiry"/>
-
-    <cache alias="eu.domibus.api.model.PartProperty" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.PartyRole" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.ServiceEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.MessageStatusEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.MpcEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.ActionEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.MSHRoleEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.MessageProperty" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.NotificationStatusEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.AgreementRefEntity" uses-template="no-expiry"/>
-    <cache alias="eu.domibus.api.model.PartyId" uses-template="no-expiry"/>
+    <cache uses-template="no-expiry" alias="dictionary-queries"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.TimezoneOffset"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartProperty"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartyRole"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.ServiceEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MessageStatusEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MpcEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.ActionEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MSHRoleEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MessageProperty"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.NotificationStatusEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.AgreementRefEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartyId"/>
 
     <!-- cache definitions ends here -->
 
@@ -82,6 +66,7 @@
         </expiry>
         <heap unit="MB">5</heap>
     </cache-template>
+
     <cache-template name="no-expiry">
         <expiry>
             <none/>

@@ -63,10 +63,11 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         notifyClearAllCaches();
     }
 
-    // TODO: François Gautier 18-05-21      EDELIVERY-8077 Activate second level cache for all dictionary entities to end to end test
     @Override
     public void clear2LCCaches() throws DomibusCoreException {
-        entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getCache().evictAll();
+        SessionFactory sessionFactory = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class);
+        sessionFactory.getStatistics().logSummary();
+        sessionFactory.getCache().evictAll();
         notifyClear2LCaches();
     }
 
