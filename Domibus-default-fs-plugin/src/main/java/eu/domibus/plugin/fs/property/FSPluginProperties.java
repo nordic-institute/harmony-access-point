@@ -175,7 +175,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public int getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
-        if(StringUtils.isNotBlank(value)){
+        if(StringUtils.isBlank(value)){
             return 0;
         }
         return NumberUtils.toInt(value);
@@ -187,7 +187,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public int getLocksPurgeExpired(String domain) {
         String value = getDomainProperty(domain, LOCKS_PURGE_EXPIRED, "600");
-        if(StringUtils.isNotBlank(value)){
+        if(StringUtils.isBlank(value)){
             return 0;
         }
         return NumberUtils.toInt(value);
