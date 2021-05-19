@@ -1,6 +1,8 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.core.converter.MessageCoreMapper;
+import eu.domibus.core.message.MessageLogDaoBase;
+import eu.domibus.core.message.MessagesLogServiceHelper;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -18,13 +20,16 @@ import java.util.Map;
  * @author Catalin Enache
  * @since 4.1
  */
-public class UIMessageEbms3ServiceImplTest {
+public class UIMessageServiceImplTest {
 
     @Injectable
     private UIMessageDao uiMessageDao;
 
     @Injectable
     private MessageCoreMapper messageCoreConverter;
+
+    @Injectable
+    MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Tested
     UIMessageServiceImpl uiMessageService;
@@ -58,7 +63,7 @@ public class UIMessageEbms3ServiceImplTest {
         final long count = 20;
 
         new Expectations() {{
-            uiMessageDao.countEntries(filters);
+            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
             result = count;
 
             uiMessageDao.findPaged(from, max, column, asc, filters);
@@ -68,7 +73,6 @@ public class UIMessageEbms3ServiceImplTest {
         //tested method
         final MessageLogResultRO messageLogResultRO = uiMessageService.countAndFindPaged(from, max, column, asc, filters);
         Assert.assertNotNull(messageLogResultRO);
-        Assert.assertSame(count, messageLogResultRO.getCount());
         Assert.assertEquals(uiMessageEntityList.size(), messageLogResultRO.getMessageLogEntries().size());
 
         new Verifications() {{

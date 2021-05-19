@@ -1,5 +1,6 @@
 package eu.domibus.core.message.signal;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessageLogInfoFilterTest;
 import mockit.Expectations;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Tiago Miguel
@@ -95,5 +97,28 @@ public class SignalMessageLogInfoFilterTest {
 
         Assert.assertFalse(resultQueryString.contains("conversationId"));
         Assert.assertFalse(resultQueryString.contains("message.collaborationInfo.conversationId"));
+    }
+
+    @Test
+    public void createFromClause_MessageTableNotDirectly() {
+        Map<String, Object> filters = ImmutableMap.of(
+                "messageId", "111",
+                "fromPartyId", "222",
+                "originalSender", "333");
+
+        String messageTable = ", Messaging messaging inner join messaging.signalMessage signal inner join messaging.userMessage message left join signal.messageInfo info ";
+        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
+
+        String messageCriteria = "signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId ";
+        String propsCriteria = "and propsFrom.name = 'originalSender' ";
+
+        String result = signalMessageLogInfoFilter.getCountQueryBody(filters);
+
+        Assert.assertTrue(result.contains(signalMessageLogInfoFilter.getMainTable()));
+        Assert.assertTrue(result.contains(messageTable));
+        Assert.assertTrue(result.contains(partyFromTable));
+
+        Assert.assertTrue(result.contains(messageCriteria));
+        Assert.assertTrue(result.contains(propsCriteria));
     }
 }

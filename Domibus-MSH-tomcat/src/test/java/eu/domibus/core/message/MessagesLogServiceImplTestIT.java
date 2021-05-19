@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MessagesLogServiceImplTest extends AbstractIT {
+public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Autowired
     MessagesLogServiceImpl messagesLogService;
