@@ -24,4 +24,14 @@ public interface PModeService {
      * @throws PModeException In case there are any validation errors amongst the issues, an exception is raised
      */
     List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeException;
+
+    String findPartyName(String partyId,String partyIdType);
+
+    String findActionName(String action);
+
+    String findServiceName(String service, String serviceType);
+
+    String findMpcName(String mpc);
+
+
 }

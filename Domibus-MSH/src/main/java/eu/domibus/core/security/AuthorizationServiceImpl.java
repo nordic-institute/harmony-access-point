@@ -5,14 +5,13 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.certificate.CertificateExchangeType;
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
-import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
@@ -35,9 +33,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * call to the configured SPI.
  */
 @Component
-public class AuthorizationService {
+public class AuthorizationServiceImpl {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceImpl.class);
 
     protected static final String IAM_AUTHORIZATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 
@@ -53,41 +51,18 @@ public class AuthorizationService {
     @Autowired
     private PModeProvider pModeProvider;
 
-    protected AuthorizationServiceSpi getAuthorizationService() {
-        final String authorizationServiceIdentifier = domibusPropertyProvider.getProperty(IAM_AUTHORIZATION_IDENTIFIER);
-        final List<AuthorizationServiceSpi> authorizationServiceList = this.authorizationServiceSpis.stream().
-                filter(authorizationServiceSpi -> authorizationServiceIdentifier.equals(authorizationServiceSpi.getIdentifier())).
-                collect(Collectors.toList());
+    @Autowired
+    private MessageCoreMapper messageCoreMapper;
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Authorization spi:");
-            authorizationServiceList.forEach(authorizationServiceSpi -> LOG.debug(" identifier:[{}] for class:[{}]", authorizationServiceSpi.getIdentifier(), authorizationServiceSpi.getClass()));
-        }
+    private eu.domibus.api.authorization.AuthorizationService authorizationService;
 
-        if (authorizationServiceList.size() > 1) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIdentifier));
-        }
-        if (authorizationServiceList.isEmpty()) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIdentifier));
-        }
-        return authorizationServiceList.get(0);
-    }
 
     public void authorizePullRequest(SOAPMessage request, String mpc) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
-        final PullRequestPmodeData pullRequestPmodeData;
-        try {
-            pullRequestPmodeData = pModeProvider.getPullRequestMapping(mpc);
-        } catch (EbMS3Exception e) {
-            throw new AuthorizationException(e);
-        }
-        final PullRequestDTO pullRequestDTO = new PullRequestDTO();
-        pullRequestDTO.setMpc(mpc);
-        getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
-                pullRequestDTO, pullRequestPmodeData);
+        authorizationService.authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(), mpc);
     }
 
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
@@ -95,10 +70,7 @@ public class AuthorizationService {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
-        final UserMessagePmodeData userMessagePmodeData= pModeProvider.getUserMessagePmodeData(userMessage);
-
-        getAuthorizationService().authorize(certificateTrust.getSigningCertificate(), userMessagePmodeData);
-
+        authorizationService.authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),messageCoreMapper.userMessageToUserMessageApi(userMessage));
     }
 
     private boolean isAuthorizationEnabled(SOAPMessage request) {

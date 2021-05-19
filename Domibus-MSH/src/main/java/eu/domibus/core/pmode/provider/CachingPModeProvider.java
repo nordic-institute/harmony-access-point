@@ -447,35 +447,42 @@ public class CachingPModeProvider extends PModeProvider {
         if (service == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Service is not found in the message", null, null);
         }
+        String type = service.getType();
+        String value = service.getValue();
+        return findServiceName(value, type);
+    }
 
-        for (final Service service1 : this.getConfiguration().getBusinessProcesses().getServices()) {
-            if ((equalsIgnoreCase(service1.getServiceType(), service.getType()) ||
-                    (!StringUtils.isNotEmpty(service1.getServiceType()) && !StringUtils.isNotEmpty(service.getType()))) &&
-                    equalsIgnoreCase(service1.getValue(), service.getValue()))
-                return service1.getName();
+    public String findServiceName(String service, String serviceType) throws EbMS3Exception {
+        for (final Service pmodeService : this.getConfiguration().getBusinessProcesses().getServices()) {
+            if ((equalsIgnoreCase(pmodeService.getServiceType(), serviceType) ||
+                    (!StringUtils.isNotEmpty(pmodeService.getServiceType()) && !StringUtils.isNotEmpty(serviceType))) &&
+                    equalsIgnoreCase(pmodeService.getValue(), service))
+                return pmodeService.getName();
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found for type [" + service.getType() + "] and value [" + service.getValue() + "]", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found for type [" + serviceType + "] and value [" + service + "]", null, null);
     }
 
     @Override
     public String findPartyName(final PartyId partyId) throws EbMS3Exception {
-        String partyIdType = null;
-        String partyIdValue = StringUtils.EMPTY;
+        String partyIdType = partyId.getType();
+        validateURI(partyId.getValue(),partyId.getType());
+        String partyIdValue = partyId.getValue();
+        return findPartyName(partyIdValue,partyIdType);
+    }
+
+    @Override
+    public String findPartyName(String partyId,String partyIdType) throws EbMS3Exception {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final Identifier identifier : party.getIdentifiers()) {
-                partyIdType = partyId.getType();
-                validateURI(partyId);
-                // identifierPartyIdType can be also null!
-                partyIdValue = partyId.getValue();
                 String identifierPartyIdType = getIdentifierPartyIdType(identifier);
-                LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId.getValue(), identifierPartyIdType, identifier.getPartyId());
-                if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId.getValue(), identifier.getPartyId())) {
-                    LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId.getValue());
+                LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId, identifierPartyIdType, identifier.getPartyId());
+                if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId, identifier.getPartyId())) {
+                    LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId);
                     return party.getName();
                 }
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyIdValue + "]", null, null);
+        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyId + "]", null, null);
     }
 
     /**
@@ -497,15 +504,15 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
-    protected void validateURI(PartyId id) throws EbMS3Exception {
-        if (id.getType() == null) {
+    protected void validateURI(String partyId, String partyIdType) throws EbMS3Exception {
+        if (partyIdType == null) {
             return;
         }
         try {
-            URI.create(id.getType());
+            URI.create(partyIdType);
         } catch (final IllegalArgumentException e) {
             final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
-            ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
+            ex.setErrorDetail("PartyId " + partyId + " is not a valid URI [CORE]");
             throw ex;
         }
     }

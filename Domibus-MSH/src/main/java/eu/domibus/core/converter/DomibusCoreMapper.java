@@ -62,5 +62,4 @@ public interface DomibusCoreMapper {
 
     List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
 
-
 }

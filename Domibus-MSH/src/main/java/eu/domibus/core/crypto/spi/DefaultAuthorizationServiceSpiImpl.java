@@ -15,6 +15,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ext.domain.PullRequestDTO;
+import eu.domibus.ext.domain.UserMessageDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * Default authorization implementation.
  */
 @Component
-public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceSpi {
+public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceSpi{
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAuthorizationServiceSpiImpl.class);
 
@@ -63,14 +64,13 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
      * {@inheritDoc}
      */
     @Override
-    public void authorize(X509Certificate signingCertificate, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
+    public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, UserMessageDTO userMessageDTO, UserMessagePmodeData userMessagePmodeData) throws AuthorizationException {
         doAuthorize(signingCertificate, userMessagePmodeData.getPartyName());
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
     public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, PullRequestDTO pullRequestDTO, PullRequestPmodeData pullRequestPmodeData) throws AuthorizationException {
         String mpc = pullRequestPmodeData.getMpcName();
         if (mpc == null) {
@@ -109,13 +109,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         authorizeAgainstCertificateCNMatch(signingCertificate, initiatorName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getIdentifier() {
-        return DEFAULT_IAM_AUTHORIZATION_IDENTIFIER;
-    }
+
 
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS)) {
@@ -188,5 +182,13 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         String excMessage = String.format("Sender alias verification failed. Signing certificate CN does not contain the alias [%s]: %s ", alias, signingCertificate);
         throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getIdentifier() {
+        return DEFAULT_IAM_AUTHORIZATION_IDENTIFIER;
     }
 }
