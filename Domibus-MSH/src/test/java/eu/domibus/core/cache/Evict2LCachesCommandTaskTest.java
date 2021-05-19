@@ -18,31 +18,30 @@ import static org.junit.Assert.assertTrue;
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class EvictCachesCommandTaskTest {
+public class Evict2LCachesCommandTaskTest {
 
     @Tested
-    private EvictCachesCommandTask evictCachesCommandTask;
+    private Evict2LCachesCommandTask evict2LCachesCommandTask;
 
     @Injectable
     protected DomibusCacheService domibusCacheService;
 
     @Test
     public void canHandle() {
-        assertTrue(evictCachesCommandTask.canHandle(Command.EVICT_CACHES));
+        assertTrue(evict2LCachesCommandTask.canHandle(Command.EVICT_2LC_CACHES));
     }
 
     @Test
     public void canHandleWithDifferentCommand() {
-        assertFalse(evictCachesCommandTask.canHandle("anothercommand"));
+        assertFalse(evict2LCachesCommandTask.canHandle("anothercommand"));
     }
 
     @Test
     public void execute(@Injectable Map<String, String> properties) {
-
-        evictCachesCommandTask.execute(properties);
+        evict2LCachesCommandTask.execute(properties);
 
         new FullVerifications() {{
-            domibusCacheService.clearAllCaches();
+            domibusCacheService.clear2LCCaches();
         }};
     }
 }

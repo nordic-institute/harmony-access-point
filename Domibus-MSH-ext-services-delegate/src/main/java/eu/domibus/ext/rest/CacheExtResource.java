@@ -42,7 +42,7 @@ public class CacheExtResource {
         return extExceptionHelper.handleExtException(e);
     }
 
-    @ApiOperation(value = "[ADMIN] Delete all Caches",
+    @ApiOperation(value = "[ADMIN] Evict all Caches",
             notes = "Clear all caches from the cacheManager (Admin rights needed)",
             authorizations = @Authorization(value = "basicAuth"), tags = "cache")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
@@ -55,7 +55,7 @@ public class CacheExtResource {
         cacheExtService.evictCaches();
     }
 
-    @ApiOperation(value = "[ADMIN] Delete Second Level Caches",
+    @ApiOperation(value = "[ADMIN] Evict Second Level Caches",
             notes = "[ADMIN] Clear second level caches including query caches (Admin rights needed)",
             authorizations = @Authorization(value = "basicAuth"), tags = "cache")
     @DeleteMapping(path = "/2LCache")

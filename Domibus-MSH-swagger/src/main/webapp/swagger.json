@@ -34,7 +34,7 @@
     "/ext/2LCache" : {
       "delete" : {
         "tags" : [ "cache" ],
-        "summary" : "[ADMIN] Delete Second Level Caches",
+        "summary" : "[ADMIN] Evict Second Level Caches",
         "description" : "[ADMIN] Clear second level caches including query caches (Admin rights needed)",
         "operationId" : "evictTechnicalCaches",
         "responses" : {
@@ -50,7 +50,7 @@
     "/ext/cache" : {
       "delete" : {
         "tags" : [ "cache" ],
-        "summary" : "[ADMIN] Delete all Caches",
+        "summary" : "[ADMIN] Evict all Caches",
         "description" : "Clear all caches from the cacheManager (Admin rights needed)",
         "operationId" : "evictCaches",
         "responses" : {

@@ -4,8 +4,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.cache.CacheManager;
@@ -23,17 +21,12 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheRegionFactory.class);
 
     private static volatile ClassLoader classLoader;
-    protected String defaultEhCacheFile = "config/ehcache/ehcache-default.xml";
-
-    @Autowired
-    @Qualifier("cacheManager")
-    public org.springframework.cache.CacheManager domibusCacheManager;
 
     protected CacheManager resolveCacheManager(SessionFactoryOptions settings, Map properties) {
         Objects.requireNonNull(classLoader, "Please set Spring's classloader in the setBeanClassLoader " +
                 "method before using this class in Hibernate");
 
-        final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
+        final ClassPathResource classPathResource = new ClassPathResource(DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML);
         CachingProvider provider = Caching.getCachingProvider();
 
         CacheManager cacheManager;
@@ -43,7 +36,7 @@ public class DomibusCacheRegionFactory extends JCacheRegionFactory {
                     classLoader);
         } catch (Exception e) {
             LOG.error("Cache manager could not be retrieved with defaultEhCacheFile [{}] and classloader [{}]. Use default cacheManager creation.",
-                    defaultEhCacheFile,
+                    DomibusCacheConfiguration.CONFIG_EHCACHE_EHCACHE_DEFAULT_XML,
                     classLoader,
                     e);
             cacheManager = super.resolveCacheManager(settings, properties);
