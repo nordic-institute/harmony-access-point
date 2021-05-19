@@ -19,6 +19,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 public class SignalMessageLogDaoIT extends AbstractIT {
 
     @Autowired
@@ -32,9 +36,6 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
     @Autowired
     MessagePropertyDao propertyDao;
-
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private EntityManager entityManager;
 
     @Autowired
     private DateUtil dateUtil;
@@ -55,7 +56,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         now = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
-        old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24));
+        old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
         createSignalMessageLog("msg1", now);
         createSignalMessageLog("msg2", now);
