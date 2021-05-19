@@ -25,6 +25,9 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         if (StringUtils.equals(originalColumn, CONVERSATION_ID)) {
             return "";
         }
+        if (StringUtils.equals(originalColumn, "notificationStatus")) {
+            return "";
+        }
         if (StringUtils.equals(originalColumn, "messageId")) {
             return "signal.signalMessageId";
         }
@@ -36,9 +39,10 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
     @Override
     protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
-        if (StringUtils.isNotEmpty(String.valueOf(filters.get(CONVERSATION_ID)))) {
-            filters.put(CONVERSATION_ID, null);
-        }
+        // these filters are not applicable to signal messages:
+        filters.put(CONVERSATION_ID, null);
+        filters.put("notificationStatus", null);
+
         return super.filterQuery(query, column, asc, filters);
     }
 

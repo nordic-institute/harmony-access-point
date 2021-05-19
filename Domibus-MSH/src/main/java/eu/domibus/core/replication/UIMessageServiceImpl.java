@@ -58,14 +58,12 @@ public class UIMessageServiceImpl implements UIMessageService {
         List<UIMessageEntity> uiMessageEntityList = new ArrayList<>();
 
         //make the count
-        long numberOfMessages = uiMessageDao.countEntries(filters);
-
-        if (numberOfMessages != 0) {
+        long number = messagesLogServiceHelper.calculateNumberOfMessages(uiMessageDao, filters, result);
+        if (number != 0) {
             //query for the page results
             uiMessageEntityList = uiMessageDao.findPaged(from, max, column, asc, filters);
         }
 
-        result.setCount(numberOfMessages);
         result.setMessageLogEntries(uiMessageEntityList
                 .stream()
                 .map(messageCoreConverter::uiMessageEntityToMessageLogRO)

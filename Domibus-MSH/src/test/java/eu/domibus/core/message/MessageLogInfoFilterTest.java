@@ -78,7 +78,7 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
-        Assert.assertTrue(filterQueryString.contains("log.messageId = :messageId"));
+        Assert.assertTrue(filterQueryString.contains("message.messageId = :messageId"));
         Assert.assertTrue(filterQueryString.contains("message.refToMessageId = :refToMessageId"));
         Assert.assertTrue(filterQueryString.contains("log.received = :received"));
         Assert.assertTrue(filterQueryString.contains("log.sendAttempts = :sendAttempts"));
@@ -104,7 +104,7 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
-        Assert.assertTrue(filterQueryString.contains("log.messageId = :messageId"));
+        Assert.assertTrue(filterQueryString.contains("message.messageId = :messageId"));
         Assert.assertTrue(filterQueryString.contains("message.refToMessageId = :refToMessageId"));
         Assert.assertTrue(filterQueryString.contains("log.received = :received"));
         Assert.assertTrue(filterQueryString.contains("log.sendAttempts = :sendAttempts"));
@@ -177,7 +177,7 @@ public class MessageLogInfoFilterTest {
     @Test
     public void createFromClause_MainTableOnly() {
         Map<String, Object> filters = ImmutableMap.of(
-                "messageId", "111",
+                "messageStatus", "SEND_FAILURE",
                 "mshRole", "AP Role",
                 "messageType", "type1");
 
