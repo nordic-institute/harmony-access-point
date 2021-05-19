@@ -15,11 +15,11 @@
 
     <changeSet id="EDELIVERY_8033" author="idragusa">
 
-        <renameTable oldTableName="TB_USER_MESSAGE_DELETION_JOB" newTableName="TB_USER_MSG_DELETION_JOB"/>
-
         <sql dbms="oracle">
             ALTER TABLE TB_USER_MESSAGE_DELETION_JOB RENAME CONSTRAINT PK_TB_USER_MESSAGE_DELETION_JOB TO PK_TB_USER_MSG_DELETION_JOB;
         </sql>
+
+        <renameTable oldTableName="TB_USER_MESSAGE_DELETION_JOB" newTableName="TB_USER_MSG_DELETION_JOB"/>
 
         <dropIndex indexName="IDX_MESSAGE_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG"/>
 
