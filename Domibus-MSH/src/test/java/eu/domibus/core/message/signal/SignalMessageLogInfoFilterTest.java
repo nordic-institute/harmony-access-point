@@ -18,7 +18,7 @@ import java.util.HashMap;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class Ebms3SignalMessageLogInfoFilterTest {
+public class SignalMessageLogInfoFilterTest {
 
     @Injectable
     private DomibusPropertyProvider domibusProperties;
@@ -74,7 +74,7 @@ public class Ebms3SignalMessageLogInfoFilterTest {
         StringBuilder resultQuery = signalMessageLogInfoFilter.filterQuery("select * from table where column = ''","messageId", true, filters);
         String resultQueryString = resultQuery.toString();
 
-        Assert.assertTrue(resultQueryString.contains("log.notificationStatus = :notificationStatus"));
+        Assert.assertTrue(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
         Assert.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
@@ -85,12 +85,12 @@ public class Ebms3SignalMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(resultQueryString.contains("propsTo.value = :finalRecipient"));
         Assert.assertTrue(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
-        Assert.assertTrue(resultQueryString.contains("log.messageStatus = :messageStatus"));
+        Assert.assertTrue(resultQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(resultQueryString.contains("log.deleted = :deleted"));
         Assert.assertTrue(resultQueryString.contains("log.messageType = :messageType"));
         Assert.assertTrue(resultQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(resultQueryString.contains("partyTo.value = :toPartyId"));
-        Assert.assertTrue(resultQueryString.contains("log.mshRole = :mshRole"));
+        Assert.assertTrue(resultQueryString.contains("log.mshRole.role = :mshRole"));
         Assert.assertTrue(resultQueryString.contains("order by log.messageId asc"));
 
         Assert.assertFalse(resultQueryString.contains("conversationId"));

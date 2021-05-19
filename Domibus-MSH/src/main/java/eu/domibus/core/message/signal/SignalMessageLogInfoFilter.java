@@ -37,49 +37,42 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         String query = "select new eu.domibus.core.message.MessageLogInfo(" +
-                "log.messageId," +
-                "log.messageStatus," +
-                "log.notificationStatus," +
-                "log.mshRole," +
-                "log.messageType," +
+                "signal.signalMessageId," +
+                "log.messageStatus.messageStatus," +
+                "log.mshRole.role," +
                 "log.deleted," +
                 "log.received," +
-                "log.sendAttempts," +
-                "log.sendAttemptsMax," +
-                "log.nextAttempt," +
-                "null," +
-                "null," +
                 EMPTY_CONVERSATION_ID +
                 " partyFrom.value," +
                 " partyTo.value," +
                 (isFourCornerModel() ? " propsFrom.value," : "'',") +
                 (isFourCornerModel() ? " propsTo.value," : "'',") +
-                " info.refToMessageId," +
-                "log.failed," +
-                "log.restored," +
-                "log.testMessage" +
-                ")" + getQueryBody(filters);
+                "signal.refToMessageId," +
+                "message.testMessage" +
+                ")" + getQueryBody();
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
     }
 
     public String countSignalMessageLogQuery(boolean asc, Map<String, Object> filters) {
-        String query = "select count(message.id)" + getQueryBody(filters);
+        String query = "select count(message.id)" + getQueryBody();
         StringBuilder result = filterQuery(query, null, asc, filters);
         return result.toString();
     }
 
-    private String getQueryBody(Map<String, Object> filters) {
+    private String getQueryBody() {
         return
-                " from SignalMessageLog log, " +
-                        "Messaging messaging inner join messaging.signalMessage signal " +
-                        "inner join messaging.userMessage message " +
-                        "left join signal.messageInfo info " +
-                        (isFourCornerModel() ? "left join message.messageProperties.property propsFrom " +
-                        "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                " from SignalMessageLog log " +
+                        "join log.signalMessage signal " +
+                        "join signal.userMessage message " +
+                        (isFourCornerModel() ?
+                                "left join message.messageProperties propsFrom "  +
+                                        "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
-                        "where signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId " +
-                        (isFourCornerModel() ? "and propsFrom.name = 'originalSender' and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+                        (isFourCornerModel() ?
+                                "where propsFrom.name = 'originalSender' "  +
+                                        "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
     }
+
 }
