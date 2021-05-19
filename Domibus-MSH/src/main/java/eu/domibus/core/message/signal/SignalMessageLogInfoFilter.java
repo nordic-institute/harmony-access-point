@@ -92,8 +92,8 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         mappings.put("message", Arrays.asList(messageTable));
         mappings.put("signal", Arrays.asList(messageTable));
         //  mappings.put("info", Arrays.asList(messageTable));
-        mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties.property propsFrom "));
-        mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties.property propsTo "));
+        mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
+        mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
         mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
         mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.partyId partyTo "));
         return mappings;
