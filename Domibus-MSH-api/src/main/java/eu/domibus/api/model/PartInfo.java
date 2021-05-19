@@ -72,7 +72,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Transient
     private long length = -1;
 
-    @Column(name = "PART_ORDER", nullable = false)
+    @Column(name = "PART_ORDER")
     private int partOrder = 0;
 
     @Column(name = "ENCRYPTED")
@@ -152,7 +152,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     }
 
     @PostLoad
-    public void loadBinaray() {
+    public void loadBinary() {
         if (fileName != null) { /* Create payload data handler from File */
             LOG.debug("LoadBinary from file: " + fileName);
             DataSource fsDataSource = new AutoCloseFileDataSource(fileName);

@@ -1,22 +1,22 @@
 package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.message.retention.MessageRetentionService;
-import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
+import eu.domibus.core.message.splitandjoin.MessageGroupDao;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -69,7 +69,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    MessageRetentionService messageRetentionService;
+    MessageRetentionDefaultService messageRetentionService;
 
 
     /**

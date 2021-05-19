@@ -15,10 +15,10 @@ import java.util.Map;
 public class MessageLogInfoFilter {
 
     private static final String LOG_MESSAGE_ID = "log.messageId";
-    private static final String LOG_MSH_ROLE = "log.mshRole";
+    private static final String LOG_MSH_ROLE = "log.mshRole.role";
     private static final String LOG_MESSAGE_TYPE = "log.messageType";
-    private static final String LOG_MESSAGE_STATUS = "log.messageStatus";
-    private static final String LOG_NOTIFICATION_STATUS = "log.notificationStatus";
+    private static final String LOG_MESSAGE_STATUS = "log.messageStatus.messageStatus";
+    private static final String LOG_NOTIFICATION_STATUS = "log.notificationStatus.status";
     private static final String LOG_DELETED = "log.deleted";
     private static final String LOG_RECEIVED = "log.received";
     private static final String LOG_SEND_ATTEMPTS = "log.sendAttempts";
@@ -42,7 +42,7 @@ public class MessageLogInfoFilter {
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
-
+    
     protected String getHQLKey(String originalColumn) {
         switch (originalColumn) {
             case "messageId":
@@ -149,7 +149,7 @@ public class MessageLogInfoFilter {
     }
 
     /**
-     * in four corner model finalRecipient and originalSender exists as default properties
+     * in four corner model finalRecipient and originalSender exist as default properties
      *
      * @return true by default
      */

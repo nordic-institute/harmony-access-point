@@ -1,11 +1,14 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.SignalMessageLog;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.MshRoleDao;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -18,13 +21,19 @@ import java.util.Collection;
  * @since 4.0
  */
 @RunWith(Parameterized.class)
-public class Ebms3SignalMessageLogDefaultServiceTest {
+public class SignalMessageLogDefaultServiceTest {
 
     @Tested
     SignalMessageLogDefaultService signalMessageLogDefaultService;
 
     @Injectable
     SignalMessageLogDao signalMessageLogDao;
+
+    @Injectable
+    MessageStatusDao messageStatusDao;
+
+    @Injectable
+    MshRoleDao mshRoleDao;
 
     @Parameterized.Parameter(0)
     public String userMessageService;
@@ -35,26 +44,26 @@ public class Ebms3SignalMessageLogDefaultServiceTest {
     @Parameterized.Parameters(name = "{index}: usermessageService=\"{0}\" usermessageAction=\"{1}\"")
     public static Collection<Object[]> values() {
         return Arrays.asList(new Object[][]{
-                {"service","action"},
+                {"service", "action"},
                 {Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION}
         });
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSave() {
         final String messageId = "1";
-//        signalMessageLogDefaultService.save(messageId, userMessageService, userMessageAction);
+        final String signalMessageId = "signal-" + messageId;
+        SignalMessage signalMessage = new SignalMessage();
+        signalMessage.setSignalMessageId(signalMessageId);
+        signalMessage.setRefToMessageId(messageId);
+        signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
         new Verifications() {{
             SignalMessageLog signalMessageLog;
             signalMessageLogDao.create(signalMessageLog = withCapture());
 
-//            Assert.assertEquals(messageId, signalMessageLog.getMessageId());
-//            MessageSubtype messageSubtype = signalMessageLogDefaultService.checkTestMessage(userMessageService, userMessageAction) ?
-//                    MessageSubtype.TEST : null;
-//            Assert.assertEquals(messageSubtype, signalMessageLog.getMessageSubtype());
+            Assert.assertEquals(signalMessageId, signalMessageLog.getSignalMessage().getSignalMessageId());
+            Assert.assertEquals(messageId, signalMessageLog.getSignalMessage().getRefToMessageId());
         }};
-
     }
 }
