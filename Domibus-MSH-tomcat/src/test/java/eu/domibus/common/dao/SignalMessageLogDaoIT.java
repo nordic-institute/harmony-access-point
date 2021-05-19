@@ -1,11 +1,11 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.JPAConstants;
-import eu.domibus.core.message.*;
-import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,9 +13,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,22 +29,10 @@ public class SignalMessageLogDaoIT extends AbstractIT {
     SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    SignalMessageDao signalMessageDao;
+    DateUtil dateUtil;
 
     @Autowired
-    UserMessageDao userMessageDao;
-
-    @Autowired
-    MessagePropertyDao propertyDao;
-
-    @Autowired
-    private DateUtil dateUtil;
-
-    @Autowired
-    protected MshRoleDao mshRoleDao;
-
-    @Autowired
-    protected MessageStatusDao messageStatusDao;
+    MessageDaoTestUtil messageDaoTestUtil;
 
     private Date before;
     private Date now;
@@ -58,9 +46,9 @@ public class SignalMessageLogDaoIT extends AbstractIT {
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        createSignalMessageLog("msg1", now);
-        createSignalMessageLog("msg2", now);
-        createSignalMessageLog("msg3", old);
+        messageDaoTestUtil.createSignalMessageLog("msg1", now);
+        messageDaoTestUtil.createSignalMessageLog("msg2", now);
+        messageDaoTestUtil.createSignalMessageLog("msg3", old);
     }
 
     @Test
@@ -104,27 +92,4 @@ public class SignalMessageLogDaoIT extends AbstractIT {
         Assert.assertEquals(2, messages.size());
     }
 
-
-    private void createSignalMessageLog(String msgId, Date received) {
-        UserMessage userMessage = new UserMessage();
-        userMessage.setMessageId(msgId);
-        userMessage.setConversationId("conversation-" + msgId);
-
-        MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "originalSender1", "");
-        MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", "finalRecipient2", "");
-        userMessage.setMessageProperties(new HashSet<>(Arrays.asList(messageProperty1, messageProperty2)));
-
-        SignalMessage signal = new SignalMessage();
-        signal.setUserMessage(userMessage);
-        signal.setSignalMessageId("signal-" + msgId);
-        signalMessageDao.create(signal);
-
-        SignalMessageLog signalMessageLog = new SignalMessageLog();
-        signalMessageLog.setReceived(received);
-        signalMessageLog.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
-        signalMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.RECEIVED));
-
-        signalMessageLog.setSignalMessage(signal);
-        signalMessageLogDao.create(signalMessageLog);
-    }
 }
