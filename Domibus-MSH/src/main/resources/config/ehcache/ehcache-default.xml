@@ -44,7 +44,8 @@
         <heap unit="MB">5</heap>
     </cache>
 
-    <cache uses-template="no-expiry" alias="dictionary-queries"/>
+    <cache uses-template="no-expiry-queries" alias="dictionary-queries"/>
+
     <cache uses-template="no-expiry" alias="eu.domibus.api.model.TimezoneOffset"/>
     <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartProperty"/>
     <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartyRole"/>
@@ -72,5 +73,11 @@
             <none/>
         </expiry>
         <heap unit="MB">5</heap>
+    </cache-template>
+    <cache-template name="no-expiry-queries">
+        <expiry>
+            <none/>
+        </expiry>
+        <heap unit="MB">20</heap>
     </cache-template>
 </config>

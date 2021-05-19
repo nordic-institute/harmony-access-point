@@ -66,7 +66,6 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     @Override
     public void clear2LCCaches() throws DomibusCoreException {
         SessionFactory sessionFactory = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class);
-        sessionFactory.getStatistics().logSummary();
         sessionFactory.getCache().evictAll();
         notifyClear2LCaches();
     }
