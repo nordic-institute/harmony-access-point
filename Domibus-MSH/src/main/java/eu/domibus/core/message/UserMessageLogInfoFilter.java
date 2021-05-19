@@ -79,10 +79,10 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     protected Map<String, List<String>> createFromMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageTable = ", UserMessage message left join log.messageInfo info ";
+        String messageTable = " join log.userMessage message ";
 
         mappings.put("message", Arrays.asList(messageTable));
-        mappings.put("info", Arrays.asList(messageTable));
+       // mappings.put("info", Arrays.asList(messageTable));
         mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties.property propsFrom "));
         mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties.property propsTo "));
         mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
@@ -93,7 +93,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     protected Map<String, List<String>> createWhereMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "message.messageInfo = info ";
+        String messageCriteria = "1=1" ; // "message.messageInfo = info ";
         mappings.put("message", Arrays.asList(messageCriteria));
         mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
         mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));

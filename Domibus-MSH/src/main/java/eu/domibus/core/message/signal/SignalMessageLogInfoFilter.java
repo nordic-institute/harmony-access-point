@@ -24,9 +24,14 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
     protected String getHQLKey(String originalColumn) {
         if (StringUtils.equals(originalColumn, CONVERSATION_ID)) {
             return "";
-        } else {
-            return super.getHQLKey(originalColumn);
         }
+        if (StringUtils.equals(originalColumn, "messageId")) {
+            return "signal.signalMessageId";
+        }
+        if (StringUtils.equals(originalColumn, "refToMessageId")) {
+            return "signal.refToMessageId";
+        }
+        return super.getHQLKey(originalColumn);
     }
 
     @Override
@@ -64,12 +69,12 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                         "join log.signalMessage signal " +
                         "join signal.userMessage message " +
                         (isFourCornerModel() ?
-                                "left join message.messageProperties propsFrom "  +
+                                "left join message.messageProperties propsFrom " +
                                         "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
                         (isFourCornerModel() ?
-                                "where propsFrom.name = 'originalSender' "  +
+                                "where propsFrom.name = 'originalSender' " +
                                         "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
     }
 
@@ -81,11 +86,12 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     protected Map<String, List<String>> createFromMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageTable = ", Messaging messaging inner join messaging.signalMessage signal inner join messaging.userMessage message left join signal.messageInfo info ";
+        String messageTable = " join log.signalMessage signal join signal.userMessage message ";
 
         mappings.put("messaging", Arrays.asList(messageTable));
         mappings.put("message", Arrays.asList(messageTable));
-        mappings.put("info", Arrays.asList(messageTable));
+        mappings.put("signal", Arrays.asList(messageTable));
+        //  mappings.put("info", Arrays.asList(messageTable));
         mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties.property propsFrom "));
         mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties.property propsTo "));
         mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
@@ -96,8 +102,9 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     protected Map<String, List<String>> createWhereMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId ";
+        String messageCriteria = "1=1"; // signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId ";
         mappings.put("message", Arrays.asList(messageCriteria));
+        mappings.put("signal", Arrays.asList(messageCriteria));
         mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
         mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));
         return mappings;

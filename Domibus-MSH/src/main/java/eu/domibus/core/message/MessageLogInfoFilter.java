@@ -15,7 +15,7 @@ import java.util.*;
  */
 public abstract class MessageLogInfoFilter {
 
-    private static final String LOG_MESSAGE_ID = "log.messageId";
+    private static final String LOG_MESSAGE_ID = "message.messageId";
     private static final String LOG_MSH_ROLE = "log.mshRole.role";
     private static final String LOG_MESSAGE_TYPE = "log.messageType";
     private static final String LOG_MESSAGE_STATUS = "log.messageStatus.messageStatus";
