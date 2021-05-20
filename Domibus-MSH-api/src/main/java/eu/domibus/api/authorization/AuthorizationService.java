@@ -11,11 +11,18 @@ import java.util.List;
  */
 public interface AuthorizationService {
 
+    /**
+     * Authorize a UserMessage
+     * @param signingCertificateTrustChain the
+     * @param signingCertificate
+     * @param userMessage
+     */
     void authorize(
             List<X509Certificate> signingCertificateTrustChain,
             X509Certificate signingCertificate,
             UserMessage userMessage);
 
+    
     void authorize(
             List<X509Certificate> signingCertificateTrustChain,
             X509Certificate signingCertificate,
