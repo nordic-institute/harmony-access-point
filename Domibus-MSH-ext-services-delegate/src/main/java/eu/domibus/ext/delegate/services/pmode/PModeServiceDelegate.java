@@ -57,6 +57,4 @@ public class PModeServiceDelegate implements PModeExtService {
         List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
         return domibusExtMapper.validationIssueToValidationIssueDTO(issues);
     }
-
-
 }
