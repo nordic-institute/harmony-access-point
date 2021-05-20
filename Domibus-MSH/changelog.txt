@@ -4,6 +4,11 @@ Domibus 5.0
 - Added a new property domibus.connection.cxf.ssl.offload.enable to allow support for offloading the SSL onto a forward SSL proxy
 - WS Plugin listPendingMessages Request will accept following optional parameters in order to filter the pending messages: messageId, conversationId, refToMessageId, fromPartyId, finalRecipient, originalSender, receivedFrom and receivedTo
 - WS Plugin can push notifications to a backend web service (notifications and submit message)
+- [Mysql8 only]
+    - Mysql8 versions older than 8.0.24 throw "ERROR 1067: Invalid default value", if UTC_TIMESTAMP set as default value for timestamp columns when execute 'mysql-5.0-SNAPSHOT.ddl' scripts.
+        - This is due to a bug(#101486) in the older mysql8 versions.
+        - Execute below command as a workaround to run the 'mysql-5.0-SNAPSHOT.ddl' script.
+            - set global sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:
