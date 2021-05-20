@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,6 +36,9 @@ public class DeleteSentFailedMessageIT extends DeleteMessageIT {
      */
     @Test
     public void testDeleteFailedMessage() throws SubmitMessageFault {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         sendMessageToDelete(MessageStatus.SEND_FAILURE);
 
