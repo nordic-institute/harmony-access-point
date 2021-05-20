@@ -10,7 +10,7 @@ Domibus 4.2.2 (from 4.2.1):
 
                 - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-migration.ddl for MySQL or oracle-4.2.1-to-4.2.2-migration.ddl for Oracle)
                 - Replace the Domibus war
-                - Properties for fs-plugin purges (messages.sent.purge.expired, messages.failed.purge.expired, messages.received.purge.expired, messages.locks.purge.expired) expiration limit if 0 or empty: purge disabled
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Change the name of 'domibus.ui.resend.action.enabled.received.minutes' property to 'domibus.action.resend.wait.minutes' in domibus.properties file.
 Domibus 4.2.1 (from 4.2):
                 - [Oracle only]
