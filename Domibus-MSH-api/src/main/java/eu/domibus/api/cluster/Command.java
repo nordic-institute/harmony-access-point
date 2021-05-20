@@ -16,6 +16,7 @@ public class Command {
     public static final String COMMAND = "COMMAND";
     public static final String RELOAD_PMODE = "RELOAD_PMODE";
     public static final String EVICT_CACHES = "EVICT_CACHES";
+    public static final String EVICT_2LC_CACHES = "EVICT_2LC_CACHES";
     public static final String RELOAD_TRUSTSTORE = "RELOAD_TRUSTSTORE";
     public static final String LOGGING_RESET = "LOGGING_RESET";
     public static final String LOGGING_SET_LEVEL = "LOGGING_SET_LEVEL";

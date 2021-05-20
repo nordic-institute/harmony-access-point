@@ -16,13 +16,12 @@ import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,7 +65,7 @@ public class ApplicationResourceTest {
     DomibusCacheService domibusCacheService;
 
     @Test
-    public void testGetDomibusInfo() throws Exception {
+    public void testGetDomibusInfo() {
         // Given
         new Expectations() {{
             domibusVersionService.getDisplayVersion();
@@ -108,11 +107,11 @@ public class ApplicationResourceTest {
     @Test
     public void testGetDomains() {
         // Given
-        final List<Domain> domainEntries = Arrays.asList(DomainService.DEFAULT_DOMAIN);
+        final List<Domain> domainEntries = Collections.singletonList(DomainService.DEFAULT_DOMAIN);
         final DomainRO domainRO = new DomainRO();
         domainRO.setCode(DomainService.DEFAULT_DOMAIN.getCode());
         domainRO.setName(DomainService.DEFAULT_DOMAIN.getName());
-        final List<DomainRO> domainROEntries = Arrays.asList(domainRO);
+        final List<DomainRO> domainROEntries = Collections.singletonList(domainRO);
 
         new Expectations(applicationResource) {{
             domainService.getDomains();
@@ -147,7 +146,7 @@ public class ApplicationResourceTest {
     }
 
     @Test
-    public void testGetFourCornerEnabled() throws Exception {
+    public void testGetFourCornerEnabled() {
 
         new Expectations() {{
             domibusConfigurationService.isFourCornerEnabled();
@@ -157,7 +156,7 @@ public class ApplicationResourceTest {
         //tested method
         boolean isFourCornerEnabled = applicationResource.getFourCornerModelEnabled();
 
-        Assert.assertEquals(false, isFourCornerEnabled);
+        Assert.assertFalse(isFourCornerEnabled);
     }
 
     @Test
@@ -178,39 +177,5 @@ public class ApplicationResourceTest {
         Assert.assertNotNull(supportTeamInfoRO);
         Assert.assertEquals(supportTeamName, supportTeamInfoRO.getName());
         Assert.assertEquals(supportTeamEmail, supportTeamInfoRO.getEmail());
-    }
-
-    @Test
-    public void evictCachesInSingleTenancy() {
-
-        new Expectations() {{
-            domibusConfigurationService.isSingleTenantAware();
-            result = true;
-        }};
-
-        applicationResource.evictCaches();
-
-        new Verifications() {{
-            domibusCacheService.clearAllCaches();
-        }};
-    }
-
-    @Test
-    public void evictCachesInMultiTenancy() {
-
-        new Expectations() {{
-            domibusConfigurationService.isSingleTenantAware();
-            result = false;
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            authUtils.isSuperAdmin();
-            result = true;
-        }};
-
-        applicationResource.evictCaches();
-
-        new Verifications() {{
-            domibusCacheService.clearAllCaches();
-        }};
     }
 }

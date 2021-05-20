@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
@@ -12,9 +13,11 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_ACTION")
-@NamedQueries({
-        @NamedQuery(name = "Action.findByValue", query = "select serv from ActionEntity serv where serv.value=:VALUE"),
-})
+@NamedQuery(name = "Action.findByValue", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")},
+        query = "select serv from ActionEntity serv where serv.value=:VALUE")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ActionEntity extends AbstractBaseEntity {
 
     @Column(name = "ACTION", unique = true)
