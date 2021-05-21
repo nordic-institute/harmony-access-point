@@ -8,11 +8,7 @@ import {PluginUserRO} from "./pluginuser";
 @Injectable()
 export class PluginUserValidatorService {
 
-  validatePluginUsers(users: PluginUserRO[]) {
-    this.checkPluginUserNameDuplication(users);
-  }
-
-  private checkPluginUserNameDuplication(allPluginUsers: PluginUserRO[]) {
+  checkPluginUserNameDuplication(allPluginUsers: PluginUserRO[]) {
     let uniqValues = []
     let dupValues = []
     for (let user of allPluginUsers) {
@@ -24,6 +20,21 @@ export class PluginUserValidatorService {
     }
     if (dupValues.length > 0) {
       throw new Error('Duplicate user name for plugin users: ' + dupValues);
+    }
+  }
+
+  checkPluginUserCertificateDuplication(allPluginUsers: PluginUserRO[]) {
+    let uniqValues = []
+    let dupValues = []
+    for (let user of allPluginUsers) {
+      if (uniqValues.indexOf(user.certificateId) != -1) {
+        dupValues.push(user.certificateId)
+      } else {
+        uniqValues.push(user.certificateId)
+      }
+    }
+    if (dupValues.length > 0) {
+      throw new Error('Duplicate certificate id for plugin users: ' + dupValues);
     }
   }
 }
