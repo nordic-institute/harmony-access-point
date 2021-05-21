@@ -23,4 +23,6 @@ public interface DomibusCacheService {
 
     void clearAllCaches() throws DomibusCoreException;
 
+    void clear2LCCaches() throws DomibusCoreException;
+
 }

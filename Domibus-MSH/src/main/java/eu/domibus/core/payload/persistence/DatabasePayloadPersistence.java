@@ -78,7 +78,7 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
 
 
         //initialize the payloadDatahandler with the binaryData in order to avoid that the payload is decompressed again
-        partInfo.loadBinaray();
+        partInfo.loadBinary();
         payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfoLength);
     }
 

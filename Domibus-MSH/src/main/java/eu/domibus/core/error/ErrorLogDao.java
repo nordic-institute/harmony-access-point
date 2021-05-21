@@ -41,7 +41,28 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
         query.setParameter("MESSAGE_ID", messageId);
-        return query.getResultList();
+
+        List<ErrorLogEntry> list = query.getResultList();
+        initializeChildren(list);
+        return list;
+    }
+
+    @Override
+    public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
+        List<ErrorLogEntry> list = super.findPaged(from, max, sortColumn, asc, filters);
+        initializeChildren(list);
+        return list;
+    }
+
+    private void initializeChildren(List<ErrorLogEntry> errorLogEntries) {
+        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
+            initializeChildren(errorLogEntry);
+        }
+    }
+
+    private void initializeChildren(ErrorLogEntry errorLogEntry) {
+        //initialize values from the second level cache
+        errorLogEntry.getMshRole();
     }
 
     @Override
@@ -105,12 +126,12 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         super.create(errorLogEntry);
     }
 
-    @Timer(clazz = ErrorLogDao.class,value = "deleteMessages.deleteErrorLogsByMessageIdInError")
-    @Counter(clazz = ErrorLogDao.class,value = "deleteMessages.deleteErrorLogsByMessageIdInError")
+    @Timer(clazz = ErrorLogDao.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
+    @Counter(clazz = ErrorLogDao.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageIdsInError");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteErrorLogsByMessageIdInError result [{}]", result);
         return result;
     }
@@ -134,7 +155,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         if (CollectionUtils.isNotEmpty(errorLogEntriesEntityIds)) {
             final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteErrorsWithoutMessageIds");
             deleteQuery.setParameter("ENTITY_IDS", errorLogEntriesEntityIds);
-            result  = deleteQuery.executeUpdate();
+            result = deleteQuery.executeUpdate();
             LOG.debug("Cleaned [{}] ErrorLogs without messageIds", result);
         }
         return result;

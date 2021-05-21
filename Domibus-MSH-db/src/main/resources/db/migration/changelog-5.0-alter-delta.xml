@@ -5,10 +5,6 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <!-- properties - to be used in column definitions -->
-    <include file="../common/changelog-properties.xml" relativeToChangelogFile="true"/>
-
-    <!-- Start here 4.2 to new 5.0 -->
     <!-- Start migration for renamed unique key constraints  -->
     <changeSet author="Soumya" id="EDELIVERY-7840-Rename-unique-key-constraints">
         <sql dbms="oracle">
@@ -815,5 +811,4 @@
         </sql>
     </changeSet>
     <!-- End migration for renamed foreign key constraints and indexes -->
-    <!-- End here 4.2 to new 5.0 -->
 </databaseChangeLog>

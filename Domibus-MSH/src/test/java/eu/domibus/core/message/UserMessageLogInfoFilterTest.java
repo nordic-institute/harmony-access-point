@@ -64,14 +64,14 @@ public class UserMessageLogInfoFilterTest {
 
     @Test
     public void testGetHQLKeyMessageId() {
-        Assert.assertEquals("log.messageStatus", userMessageLogInfoFilter.getHQLKey("messageStatus"));
+        Assert.assertEquals("log.messageStatus.messageStatus", userMessageLogInfoFilter.getHQLKey("messageStatus"));
     }
 
     @Test
     public void testFilterQuery() {
         StringBuilder resultQuery = userMessageLogInfoFilter.filterQuery("select * from table where column = ''","messageId", true, filters);
         String resultQueryString = resultQuery.toString();
-        Assert.assertTrue(resultQueryString.contains("log.notificationStatus = :notificationStatus"));
+        Assert.assertTrue(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
         Assert.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
@@ -82,12 +82,12 @@ public class UserMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(resultQueryString.contains("propsTo.value = :finalRecipient"));
         Assert.assertTrue(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
-        Assert.assertTrue(resultQueryString.contains("log.messageStatus = :messageStatus"));
+        Assert.assertTrue(resultQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(resultQueryString.contains("log.deleted = :deleted"));
         Assert.assertTrue(resultQueryString.contains("log.messageType = :messageType"));
         Assert.assertTrue(resultQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(resultQueryString.contains("partyTo.value = :toPartyId"));
-        Assert.assertTrue(resultQueryString.contains("log.mshRole = :mshRole"));
+        Assert.assertTrue(resultQueryString.contains("log.mshRole.role = :mshRole"));
         Assert.assertTrue(resultQueryString.contains("order by log.messageId asc"));
     }
 

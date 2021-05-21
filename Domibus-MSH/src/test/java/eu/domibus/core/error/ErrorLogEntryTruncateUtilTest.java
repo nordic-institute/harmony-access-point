@@ -1,5 +1,6 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogEntryTruncateUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -13,8 +14,8 @@ import static org.junit.Assert.assertEquals;
  * @since 3.3
  */
 
-public class Ebms3ErrorLogEntryTruncateUtilTest {
-    /*@Test
+public class ErrorLogEntryTruncateUtilTest {
+    @Test
     public void truncate257CharacterLongMessageId() throws Exception {
         final String messageId = "-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-";
         final String transformedmessageId = "-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789";
@@ -52,13 +53,13 @@ public class Ebms3ErrorLogEntryTruncateUtilTest {
         EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0006, errorDetail, messageID, null);
         ebMS3Exception.setSignalMessageId(signalMessageID);
 
-        ErrorLogEntry errorLogEntry = new ErrorLogEntry(ebMS3Exception);
+        ErrorLogEntry errorLogEntry = new ErrorLogEntry(ebMS3Exception, new MSHRoleEntity());
 
         new ErrorLogEntryTruncateUtil().truncate(errorLogEntry);
 
         assertEquals(messageID, errorLogEntry.getMessageInErrorId());
         assertEquals(errorDetail, errorLogEntry.getErrorDetail());
         assertEquals(transformedSignalMessageID, errorLogEntry.getErrorSignalMessageId());
-    }*/
+    }
 
 }
