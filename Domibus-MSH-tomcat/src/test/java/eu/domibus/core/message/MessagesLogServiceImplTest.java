@@ -14,26 +14,10 @@ public class MessagesLogServiceImplTest extends AbstractIT {
     MessagesLogServiceImpl messagesLogService;
 
     @Test
-    public void countMessages() {
-    }
-
-    @Test
     public void countAndFindPaged() {
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
         filters.put("messageSubtype", null);
         messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
-    }
-
-    @Test
-    public void findAllInfoCSV() {
-    }
-
-    @Test
-    public void convertMessageLogInfo() {
-    }
-
-    @Test
-    public void findUserMessageById() {
     }
 }

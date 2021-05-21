@@ -277,12 +277,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-       <!-- <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>-->
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-test-common</artifactId>
@@ -331,6 +325,11 @@
             <testResource>
                 <directory>src/main/conf/domibus/internal</directory>
                 <targetPath>internal</targetPath>
+            </testResource>
+            <testResource>
+                <directory>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</directory>
+                <targetPath>config/database</targetPath>
+                <filtering>true</filtering>
             </testResource>
         </testResources>
         <plugins>
@@ -408,11 +407,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
+              <!--  <configuration>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</additionalClasspathElement>
                     </additionalClasspathElements>
-                </configuration>
+                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

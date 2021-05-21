@@ -44,10 +44,6 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     protected SubmissionUtil submissionUtil;
 
     @Autowired
-    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
-    private DataSource dataSource;
-
-    @Autowired
     BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
