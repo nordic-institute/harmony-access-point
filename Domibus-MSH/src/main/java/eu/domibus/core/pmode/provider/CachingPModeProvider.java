@@ -454,12 +454,16 @@ public class CachingPModeProvider extends PModeProvider {
 
     public String findServiceName(String service, String serviceType) throws EbMS3Exception {
         for (final Service pmodeService : this.getConfiguration().getBusinessProcesses().getServices()) {
-            if ((equalsIgnoreCase(pmodeService.getServiceType(), serviceType) ||
-                    (!StringUtils.isNotEmpty(pmodeService.getServiceType()) && !StringUtils.isNotEmpty(serviceType))) &&
-                    equalsIgnoreCase(pmodeService.getValue(), service))
+            if (serviceMatching(service, serviceType, pmodeService))
                 return pmodeService.getName();
         }
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found for type [" + serviceType + "] and value [" + service + "]", null, null);
+    }
+
+    private boolean serviceMatching(String service, String serviceType, Service pmodeService) {
+        return (equalsIgnoreCase(pmodeService.getServiceType(), serviceType) ||
+                (!StringUtils.isNotEmpty(pmodeService.getServiceType()) && !StringUtils.isNotEmpty(serviceType))) &&
+                equalsIgnoreCase(pmodeService.getValue(), service);
     }
 
     @Override
@@ -473,21 +477,26 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public String findPartyName(String partyId, String partyIdType) throws EbMS3Exception {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            if (identifierMatching(partyId, partyIdType, party.getIdentifiers())) {
+            if (identifiersMatching(partyId, partyIdType, party.getIdentifiers())) {
                 return party.getName();
             }
         }
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyId + "]", null, null);
     }
 
-    protected boolean identifierMatching(String partyId, String partyIdType, List<Identifier> identifiers) {
+    protected boolean identifiersMatching(String partyId, String partyIdType, List<Identifier> identifiers) {
         for (final Identifier identifier : identifiers) {
-            String identifierPartyIdType = getIdentifierPartyIdType(identifier);
-            LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId, identifierPartyIdType, identifier.getPartyId());
-            if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId, identifier.getPartyId())) {
-                LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId);
-                return true;
-            }
+            if (identifierMatching(partyId, partyIdType, identifier)) return true;
+        }
+        return false;
+    }
+
+    private boolean identifierMatching(String partyId, String partyIdType, Identifier identifier) {
+        String identifierPartyIdType = getIdentifierPartyIdType(identifier);
+        LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId, identifierPartyIdType, identifier.getPartyId());
+        if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId, identifier.getPartyId())) {
+            LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId);
+            return true;
         }
         return false;
     }
