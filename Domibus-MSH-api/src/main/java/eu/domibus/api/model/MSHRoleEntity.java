@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
@@ -10,10 +11,12 @@ import javax.persistence.*;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@NamedQueries({@NamedQuery(name = "MSHRoleEntity.findByValue", query = "select role from MSHRoleEntity role where role.role=:ROLE"),
-       })
 @Entity
 @Table(name = "TB_D_MSH_ROLE")
+@NamedQuery(name = "MSHRoleEntity.findByValue", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select role from MSHRoleEntity role where role.role=:ROLE")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MSHRoleEntity extends AbstractBaseEntity {
 
     @Enumerated(EnumType.STRING)

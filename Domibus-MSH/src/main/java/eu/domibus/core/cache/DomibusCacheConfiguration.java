@@ -39,6 +39,8 @@ import java.util.stream.StreamSupport;
 public class DomibusCacheConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheConfiguration.class);
+    public static final String CACHE_MANAGER = "cacheManager";
+    public static final String CONFIG_EHCACHE_EHCACHE_DEFAULT_XML = "config/ehcache/ehcache-default.xml";
 
     @Value("${domibus.config.location}/internal/ehcache.xml")
     protected String externalEhCacheFile;
@@ -46,18 +48,19 @@ public class DomibusCacheConfiguration {
     @Value("${domibus.config.location}/plugins/config")
     protected String pluginsConfigLocation;
 
-    protected String defaultEhCacheFile = "config/ehcache/ehcache-default.xml";
+    protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;
 
-    @Bean(name = "cacheManager")
+    @Bean(name = CACHE_MANAGER)
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
         CachingProvider provider = Caching.getCachingProvider();
-
+        ClassLoader classLoader = getClass().getClassLoader();
+        DomibusCacheRegionFactory.setBeanClassLoader(classLoader);
         //default cache
         final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
 
         CacheManager cacheManager = provider.getCacheManager(
                 classPathResource.getURL().toURI(),
-                getClass().getClassLoader());
+                classLoader);
 
         //external cache file
         if (externalCacheFileExists()) {

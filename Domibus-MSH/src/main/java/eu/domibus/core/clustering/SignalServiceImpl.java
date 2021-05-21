@@ -143,6 +143,18 @@ public class SignalServiceImpl implements SignalService {
     }
 
     @Override
+    public void signalClear2LCCaches() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.EVICT_2LC_CACHES);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+        sendMessage(commandProperties);
+    }
+
+    @Override
     public void signalTLSTrustStoreUpdate(Domain domain) {
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_TLS_TRUSTSTORE);

@@ -31,7 +31,7 @@ import java.util.*;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class Ebms3ErrorLogResourceTest {
+public class ErrorLogResourceTest {
 
     private static final String CSV_TITLE = "Error Signal Message Id, Msh Role, Message In Error Id, Error Code, Error Detail, Timestamp, Notified";
 
@@ -43,9 +43,6 @@ public class Ebms3ErrorLogResourceTest {
 
     @Injectable
     DateUtil dateUtil;
-
-    @Injectable
-    DomibusCoreMapper coreMapper;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
@@ -98,7 +95,6 @@ public class Ebms3ErrorLogResourceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetCsv() throws CsvException {
         // Given
         Date date = new Date();
@@ -133,8 +129,8 @@ public class Ebms3ErrorLogResourceTest {
             errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
 
-//            coreMapper.errorLogEntryListToErrorLogROList(errorLogEntries);
-//            result = errorLogROEntries;
+            auditLogCoreMapper.errorLogEntryListToErrorLogROList(errorLogEntries);
+            result = errorLogROEntries;
 
             csvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +

@@ -24,4 +24,9 @@ public class CacheServiceDelegate implements CacheExtService {
     public void evictCaches() throws CacheExtServiceException {
         cacheService.evictCaches();
     }
+
+    @Override
+    public void evict2LCaches() throws CacheExtServiceException {
+        cacheService.evict2LCaches();
+    }
 }

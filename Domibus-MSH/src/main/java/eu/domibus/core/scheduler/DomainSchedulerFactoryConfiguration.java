@@ -537,7 +537,7 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setApplicationContext(applicationContext);
         scheduler.setWaitForJobsToCompleteOnShutdown(true);
         scheduler.setOverwriteExistingJobs(true);
-        scheduler.setDataSource(dataSource);
+        scheduler.setDataSource(new QuartzDataSource(dataSource));
         scheduler.setNonTransactionalDataSource(nonTransactionalDataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();

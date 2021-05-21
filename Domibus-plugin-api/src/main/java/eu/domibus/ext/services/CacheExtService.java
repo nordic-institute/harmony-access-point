@@ -9,4 +9,6 @@ import eu.domibus.ext.exceptions.CacheExtServiceException;
 public interface CacheExtService {
 
     void evictCaches() throws CacheExtServiceException;
+
+    void evict2LCaches() throws CacheExtServiceException;
 }

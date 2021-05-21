@@ -1,5 +1,7 @@
 package eu.domibus.api.model;
 
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.*;
 
 /**
@@ -9,10 +11,14 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_PART_PROPERTY")
 @NamedQueries({
-        @NamedQuery(name = "PartProperty.findPartProperties", query = "select props from UserMessage um left join um.messageProperties props where um.entityId= :ENTITY_ID"),
-        @NamedQuery(name = "PartProperty.findByValue", query = "select prop from PartProperty prop where prop.value=:VALUE"),
-        @NamedQuery(name = "PartProperty.findByNameValueAndType", query = "select prop from PartProperty prop where prop.name=:NAME and prop.value=:VALUE and (prop.type=:TYPE or prop.type is null)"),
+        @NamedQuery(name = "PartProperty.findByValue", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartProperty prop where prop.value=:VALUE"),
+        @NamedQuery(name = "PartProperty.findByNameValueAndType", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartProperty prop where prop.name=:NAME and prop.value=:VALUE and (prop.type=:TYPE or prop.type is null)"),
 })
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PartProperty extends Property {
 
 
