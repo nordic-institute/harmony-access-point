@@ -3154,7 +3154,12 @@
         </insert>
     </changeSet>
 
-
+    <changeSet author="thomas dussart" id="EDELIVERY-8148">
+        <dropUniqueConstraint uniqueColumns="VALUE" constraintName="UK_D_PARTY_VALUE" tableName="TB_D_PARTY"/>
+        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_PARTY_VALUE_TYPE" tableName="TB_D_PARTY"/>
+        <dropUniqueConstraint uniqueColumns="VALUE" constraintName="UK_D_SERVICE_VALUE" tableName="TB_D_SERVICE"/>
+        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_SERVICE_VALUE_TYPE" tableName="TB_D_SERVICE"/>
+    </changeSet>
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

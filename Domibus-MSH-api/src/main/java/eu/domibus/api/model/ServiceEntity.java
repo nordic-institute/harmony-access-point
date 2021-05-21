@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_SERVICE")
 @NamedQueries({
-        @NamedQuery(name = "Service.findByValue", query = "select serv from ServiceEntity serv where serv.value=:VALUE"),
+        @NamedQuery(name = "Service.findByValueAndType", query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type=:TYPE"),
 })
 public class ServiceEntity extends AbstractBaseEntity {
 
