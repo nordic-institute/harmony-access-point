@@ -1,41 +1,31 @@
-package eu.domibus.plugin.ws;
+package eu.domibus.core.message;
 
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.SOAPException;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
 *
- * @author idragusa
- * @since 5.0
- */
+* @author idragusa
+* @since 5.0
+*/
 
-//@DirtiesContext
-//@Rollback
-@Ignore
-public class DeleteSentFailedMessageIT extends DeleteMessageIT {
+public class DeleteReceivedMessageIT extends DeleteMessageIT {
 
-    @Before
-    public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
-        Map<String, String> toReplace = new HashMap<>();
-        toReplace.put("retry=\"12;4;CONSTANT\"", "retry=\"1;0;CONSTANT\"");
-        uploadPmode(wireMockRule.port(), toReplace);
-    }
-
+    @Ignore
     @Test
-    public void testDeleteFailedMessage() throws SubmitMessageFault {
+    public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
-        sendMessageToDelete(MessageStatus.SEND_FAILURE);
+        receiveMessageToDelete();
 
         Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
         deleteMessages();
@@ -47,5 +37,4 @@ public class DeleteSentFailedMessageIT extends DeleteMessageIT {
         Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
         Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
     }
-
 }

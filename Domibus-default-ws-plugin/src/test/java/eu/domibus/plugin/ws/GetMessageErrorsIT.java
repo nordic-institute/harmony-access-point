@@ -1,7 +1,6 @@
 
 package eu.domibus.plugin.ws;
 
-import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
@@ -10,7 +9,6 @@ import eu.domibus.core.message.MshRoleDao;
 import eu.domibus.plugin.ws.generated.body.ErrorResultImplArray;
 import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
