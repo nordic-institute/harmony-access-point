@@ -39,7 +39,7 @@
             <column name="MESSAGE_TYPE"/>
         </createIndex>
 
-        <sql dbms="oracle" endDelimiter="\n/">
+        <sql dbms="oracle">
             DROP PROCEDURE DeleteExpiredDownloadedMessages;
             DROP PROCEDURE DeleteExpiredSentMessages;
         </sql>
