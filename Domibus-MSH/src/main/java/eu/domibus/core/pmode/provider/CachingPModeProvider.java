@@ -1,6 +1,9 @@
 package eu.domibus.core.pmode.provider;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.model.AgreementRefEntity;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -14,9 +17,6 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.api.model.AgreementRefEntity;
-import eu.domibus.api.ebms3.MessageExchangePattern;
-import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -465,24 +465,31 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public String findPartyName(final PartyId partyId) throws EbMS3Exception {
         String partyIdType = partyId.getType();
-        validateURI(partyId.getValue(),partyId.getType());
+        validateURI(partyId.getValue(), partyId.getType());
         String partyIdValue = partyId.getValue();
-        return findPartyName(partyIdValue,partyIdType);
+        return findPartyName(partyIdValue, partyIdType);
     }
 
     @Override
-    public String findPartyName(String partyId,String partyIdType) throws EbMS3Exception {
+    public String findPartyName(String partyId, String partyIdType) throws EbMS3Exception {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            for (final Identifier identifier : party.getIdentifiers()) {
-                String identifierPartyIdType = getIdentifierPartyIdType(identifier);
-                LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId, identifierPartyIdType, identifier.getPartyId());
-                if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId, identifier.getPartyId())) {
-                    LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId);
-                    return party.getName();
-                }
+            if (identifierMatching(partyId, partyIdType, party.getIdentifiers())) {
+                return party.getName();
             }
         }
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyId + "]", null, null);
+    }
+
+    protected boolean identifierMatching(String partyId, String partyIdType, List<Identifier> identifiers) {
+        for (final Identifier identifier : identifiers) {
+            String identifierPartyIdType = getIdentifierPartyIdType(identifier);
+            LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId, identifierPartyIdType, identifier.getPartyId());
+            if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId, identifier.getPartyId())) {
+                LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
