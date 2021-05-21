@@ -36,7 +36,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * Default authorization implementation.
  */
 @Component
-public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceSpi{
+public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceSpi {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultAuthorizationServiceSpiImpl.class);
 
@@ -108,7 +108,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         authorizeAgainstCertificateSubjectExpression(signingCertificate);
         authorizeAgainstCertificateCNMatch(signingCertificate, initiatorName);
     }
-
 
 
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {

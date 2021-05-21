@@ -27,12 +27,12 @@ public class AuthorizationServiceDelegate implements eu.domibus.api.authorizatio
 
     protected PModeService pModeService;
 
-    protected AuthorizationSpiProvider authorizationSpiProvider;
+    protected AuthorizationSpiProviderImpl authorizationSpiProviderImpl;
 
-    public AuthorizationServiceDelegate(DomibusExtMapper domibusExtMapper, PModeService pModeService, AuthorizationSpiProvider authorizationSpiProvider) {
+    public AuthorizationServiceDelegate(DomibusExtMapper domibusExtMapper, PModeService pModeService, AuthorizationSpiProviderImpl authorizationSpiProviderImpl) {
         this.domibusExtMapper = domibusExtMapper;
         this.pModeService = pModeService;
-        this.authorizationSpiProvider = authorizationSpiProvider;
+        this.authorizationSpiProviderImpl = authorizationSpiProviderImpl;
     }
 
     public void authorize(
@@ -52,7 +52,7 @@ public class AuthorizationServiceDelegate implements eu.domibus.api.authorizatio
         }
         UserMessageDTO userMessageDTO = domibusExtMapper.userMessageToUserMessageDTO(userMessage);
         UserMessagePmodeData userMessagePmodeData = new UserMessagePmodeData(serviceName, actionName, partyName);
-        authorizationSpiProvider.getAuthorizationService().authorize(signingCertificateTrustChain, signingCertificate, userMessageDTO, userMessagePmodeData);
+        authorizationSpiProviderImpl.getAuthorizationService().authorize(signingCertificateTrustChain, signingCertificate, userMessageDTO, userMessagePmodeData);
     }
 
     @Override
@@ -66,6 +66,6 @@ public class AuthorizationServiceDelegate implements eu.domibus.api.authorizatio
         final PullRequestPmodeData pullRequestPmodeData=new PullRequestPmodeData(mpcName);
         final PullRequestDTO pullRequestDTO = new PullRequestDTO();
         pullRequestDTO.setMpc(mpc);
-        authorizationSpiProvider.getAuthorizationService().authorize(signingCertificateTrustChain, signingCertificate,pullRequestDTO,pullRequestPmodeData);
+        authorizationSpiProviderImpl.getAuthorizationService().authorize(signingCertificateTrustChain, signingCertificate,pullRequestDTO,pullRequestPmodeData);
     }
 }

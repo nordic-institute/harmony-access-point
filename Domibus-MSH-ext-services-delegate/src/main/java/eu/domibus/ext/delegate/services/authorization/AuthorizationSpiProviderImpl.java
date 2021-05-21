@@ -4,7 +4,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
-import eu.domibus.ext.delegate.services.property.DomibusPropertyServiceDelegate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,9 +19,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 
 @Service
-public class AuthorizationSpiProvider {
+public class AuthorizationSpiProviderImpl {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationSpiProvider.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationSpiProviderImpl.class);
 
     protected static final String IAM_AUTHORIZATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 
@@ -30,7 +29,7 @@ public class AuthorizationSpiProvider {
 
     private List<AuthorizationServiceSpi> authorizationServiceSpis;
 
-    public AuthorizationSpiProvider(DomibusPropertyProvider domibusPropertyProvider, List<AuthorizationServiceSpi> authorizationServiceSpis) {
+    public AuthorizationSpiProviderImpl(DomibusPropertyProvider domibusPropertyProvider, List<AuthorizationServiceSpi> authorizationServiceSpis) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.authorizationServiceSpis = authorizationServiceSpis;
     }
