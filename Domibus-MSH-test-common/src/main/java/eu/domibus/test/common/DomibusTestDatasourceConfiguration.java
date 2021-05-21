@@ -1,4 +1,4 @@
-package eu.domibus.test;
+package eu.domibus.test.common;
 
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
@@ -54,7 +54,7 @@ public class DomibusTestDatasourceConfiguration {
 
     private JdbcDataSource createH2Datasource() {
         JdbcDataSource result = new JdbcDataSource();
-        result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
+        result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'");
         result.setUser("sa");
         result.setPassword("");
         return result;

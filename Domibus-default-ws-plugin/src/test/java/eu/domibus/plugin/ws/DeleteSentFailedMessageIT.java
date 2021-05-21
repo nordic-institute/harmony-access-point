@@ -1,4 +1,4 @@
-package eu.domibus.plugin;
+package eu.domibus.plugin.ws;
 
 
 import eu.domibus.api.model.MessageStatus;
@@ -15,9 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+*
  * @author idragusa
  * @since 5.0
  */
+
 //@DirtiesContext
 //@Rollback
 @Ignore
@@ -30,9 +32,6 @@ public class DeleteSentFailedMessageIT extends DeleteMessageIT {
         uploadPmode(wireMockRule.port(), toReplace);
     }
 
-    /**
-     * Test to delete a sent success message
-     */
     @Test
     public void testDeleteFailedMessage() throws SubmitMessageFault {
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);

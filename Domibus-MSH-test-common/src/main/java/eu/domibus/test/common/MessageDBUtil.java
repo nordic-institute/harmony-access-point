@@ -1,5 +1,6 @@
-package eu.domibus.common;
+package eu.domibus.test.common;
 
+import eu.domibus.common.JPAConstants;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;

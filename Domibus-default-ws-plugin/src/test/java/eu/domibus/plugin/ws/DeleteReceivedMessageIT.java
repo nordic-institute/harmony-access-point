@@ -1,4 +1,4 @@
-package eu.domibus.plugin;
+package eu.domibus.plugin.ws;
 
 
 import eu.domibus.messaging.XmlProcessingException;
@@ -14,17 +14,16 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @author idragusa
- * @since 5.0
- */
+*
+* @author idragusa
+* @since 5.0
+*/
+
 //@DirtiesContext
 //@Rollback
-@Ignore
 public class DeleteReceivedMessageIT extends DeleteMessageIT {
 
-    /**
-     * Test to delete a received message
-     */
+    @Ignore
     @Test
     public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
         uploadPmode(wireMockRule.port());

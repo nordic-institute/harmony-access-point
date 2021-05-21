@@ -1,11 +1,13 @@
 package eu.domibus;
 
 import com.google.gson.Gson;
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -14,10 +16,13 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
+import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.codec.binary.Base64;
@@ -39,6 +44,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,6 +58,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.jms.*;
+import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -67,7 +74,13 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static eu.domibus.messaging.MessageConstants.MESSAGE_ID;
+import static org.awaitility.Awaitility.with;
 
 /**
  * Created by feriaad on 02/02/2016.
@@ -98,6 +111,9 @@ public abstract class AbstractIT {
     @Autowired
     protected DomibusProxyService domibusProxyService;
 
+    @Autowired
+    protected UserRoleDao userRoleDao;
+
     private static boolean springContextInitialized = false;
 
     @BeforeClass
@@ -105,8 +121,6 @@ public abstract class AbstractIT {
         if(springContextInitialized) {
             return;
         }
-
-        deleteTransactionLock();
 
         FileUtils.deleteDirectory(new File("target/temp"));
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
@@ -131,20 +145,9 @@ public abstract class AbstractIT {
     @Before
     public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+        waitUntilDatabaseIsInitialized();
     }
 
-//    @AfterClass
-    public static void cleanTransactionsLog() {
-        deleteTransactionLock();
-    }
-
-    public static void deleteTransactionLock() {
-        try {
-            FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
-        } catch (IOException exc) {
-            LOG.trace("No tmlog.lck to delete");
-        }
-    }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
         uploadPmode(redHttpPort, null);
@@ -178,6 +181,10 @@ public abstract class AbstractIT {
     }
 
 
+    protected void waitUntilDatabaseIsInitialized() {
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(databaseIsInitialized());
+    }
+
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
         with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
@@ -196,6 +203,16 @@ public abstract class AbstractIT {
 
     protected Callable<Boolean> messageHasStatus(String messageId, MessageStatus messageStatus) {
         return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId);
+    }
+
+    protected Callable<Boolean> databaseIsInitialized() {
+        return () -> {
+            try {
+                return userRoleDao.listRoles().size() > 0;
+            } catch (Exception e) {
+            }
+            return false;
+        };
     }
 
     /**
@@ -245,7 +262,7 @@ public abstract class AbstractIT {
 //        NotifyMessageCreator messageCreator = new NotifyMessageCreator(messageId, NotificationType.MESSAGE_RECEIVED);
         Message msg = session.createTextMessage();
         msg.setStringProperty(MessageConstants.DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
-        msg.setStringProperty(MessageConstants.MESSAGE_ID, messageId);
+        msg.setStringProperty(MESSAGE_ID, messageId);
         msg.setObjectProperty(MessageConstants.NOTIFICATION_TYPE, NotificationType.MESSAGE_RECEIVED.name());
         msg.setStringProperty(MessageConstants.ENDPOINT, "backendInterfaceEndpoint");
         msg.setStringProperty(MessageConstants.FINAL_RECIPIENT, "testRecipient");

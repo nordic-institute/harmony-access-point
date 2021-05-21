@@ -1,6 +1,6 @@
 package eu.domibus.core.certificate;
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNull;
  * @author Thomas Dussart
  * @since 4.0
  */
-public class CertificateDaoImplIT extends AbstractCoreIT {
+public class CertificateDaoImplIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImplIT.class);
 

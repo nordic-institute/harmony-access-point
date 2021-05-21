@@ -1,6 +1,6 @@
 package eu.domibus.core.audit;
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,7 +15,7 @@ import javax.persistence.PersistenceContext;
  * @since 4.0
  */
 
-public class AuditIT extends AbstractCoreIT {
+public class AuditIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditIT.class);
 

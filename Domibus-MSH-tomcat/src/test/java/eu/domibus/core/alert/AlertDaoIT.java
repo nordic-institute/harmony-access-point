@@ -1,8 +1,10 @@
-package eu.domibus.core.alerts.dao;
+package eu.domibus.core.alert;
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.alerts.dao.AlertDao;
+import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -29,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Thomas Dussart
  * @since 4.0
  */
-public class AlertDaoIT extends AbstractCoreIT {
+public class AlertDaoIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
 

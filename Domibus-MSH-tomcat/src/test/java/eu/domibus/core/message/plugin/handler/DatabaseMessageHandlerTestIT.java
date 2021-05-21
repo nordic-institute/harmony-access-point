@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertNotNull;
 
+@Transactional
 public class DatabaseMessageHandlerTestIT extends AbstractIT {
 
     private static final String MIME_TYPE = "MimeType";

@@ -13,7 +13,7 @@ import javax.xml.ws.WebServiceException;
 
 @Primary
 @Service
-public class MSHWebserviceTest extends MSHWebservice {
+public class MSHWebserviceOverride extends MSHWebservice {
 
     protected Ebms3Messaging ebms3Messaging;
 

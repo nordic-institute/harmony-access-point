@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.NotificationStatus;
@@ -22,7 +22,8 @@ import java.util.*;
  * @author Catalin Enache
  * @since 4.1
  */
-public class UIMessageDaoImplIT extends AbstractCoreIT {
+@Ignore
+public class UIMessageDaoImplIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
 

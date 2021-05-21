@@ -1,11 +1,13 @@
 package eu.domibus.test;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.gson.Gson;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -16,8 +18,11 @@ import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
+import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +37,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
+import org.awaitility.Awaitility;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,6 +55,7 @@ import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.jms.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -64,7 +71,9 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by feriaad on 02/02/2016.
@@ -103,17 +112,24 @@ public abstract class AbstractIT {
             return;
         }
 
-        deleteTransactionLock();
+        final File domibusConfigLocation = new File("target/test-classes");
+        System.setProperty("domibus.config.location", domibusConfigLocation.getAbsolutePath());
+
+        final File projectRoot = new File("").getAbsoluteFile().getParentFile();
+
+        copyActiveMQFile(domibusConfigLocation, projectRoot);
+        copyKeystores(domibusConfigLocation, projectRoot);
+        copyPolicies(domibusConfigLocation, projectRoot);
+        copyDomibusProperties(domibusConfigLocation, projectRoot);
 
         FileUtils.deleteDirectory(new File("target/temp"));
-        System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
 
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
-//        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL, "service:jmx:rmi:///jndi/rmi://localhost:" + activeMQBrokerPort + "/jmxrmi");
+        System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_PERSISTENT, "false");
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
         SecurityContextHolder.getContext()
@@ -125,17 +141,37 @@ public abstract class AbstractIT {
         springContextInitialized = true;
     }
 
+    private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {
+        final File policiesDirectory = new File(projectRoot, "Domibus-MSH/src/main/conf/domibus/policies");
+        final File destPoliciesDirectory = new File(domibusConfigLocation, "policies");
+        FileUtils.forceMkdir(destPoliciesDirectory);
+        FileUtils.copyDirectory(policiesDirectory, destPoliciesDirectory);
+    }
+
+    private static void copyDomibusProperties(File domibusConfigLocation, File projectRoot) throws IOException {
+        final File domibusPropertiesFile = new File(projectRoot, "Domibus-MSH-test/src/main/conf/domibus.properties");
+        final File destDomibusPropertiesFile = new File(domibusConfigLocation, "domibus.properties");
+        FileUtils.copyFile(domibusPropertiesFile, destDomibusPropertiesFile);
+    }
+
+    private static void copyKeystores(File domibusConfigLocation, File projectRoot) throws IOException {
+        final File keystoresDirectory = new File(projectRoot, "Domibus-MSH-tomcat/src/test/resources/keystores");
+        final File destKeystoresDirectory = new File(domibusConfigLocation, "keystores");
+        FileUtils.forceMkdir(destKeystoresDirectory);
+        FileUtils.copyDirectory(keystoresDirectory, destKeystoresDirectory);
+    }
+
+    private static void copyActiveMQFile(File domibusConfigLocation, File projectRoot) throws IOException {
+        final File activeMQFile = new File(projectRoot, "Domibus-MSH-tomcat/src/main/conf/domibus/internal/activemq.xml");
+        final File internalDirectory = new File(domibusConfigLocation, "internal");
+        FileUtils.forceMkdir(internalDirectory);
+        final File destActiveMQ = new File(internalDirectory, "activemq.xml");
+        FileUtils.copyFile(activeMQFile, destActiveMQ);
+    }
+
     @Before
     public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
-    }
-
-    public static void deleteTransactionLock() {
-        try {
-            FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
-        } catch (IOException exc) {
-            LOG.trace("No tmlog.lck to delete");
-        }
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
@@ -150,8 +186,31 @@ public abstract class AbstractIT {
         configurationDAO.updateConfiguration(pModeConfiguration);
     }
 
+    protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
+        final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
+
+        String pmodeText = IOUtils.toString(inputStream, "UTF-8");
+        if (toReplace != null) {
+            pmodeText = replace(pmodeText, toReplace);
+        }
+        if (redHttpPort != null) {
+            LOG.info("Using wiremock http port [{}]", redHttpPort);
+            pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
+        }
+
+        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes("UTF-8"));
+        configurationDAO.updateConfiguration(pModeConfiguration);
+    }
+
     protected void uploadPmode() throws IOException, XmlProcessingException {
         uploadPmode(null);
+    }
+
+    protected String replace(String body, Map<String, String> toReplace) {
+        for (String key : toReplace.keySet()) {
+            body = body.replaceAll(key, toReplace.get(key));
+        }
+        return body;
     }
 
     protected UserMessage getUserMessageTemplate() throws IOException {
@@ -163,7 +222,7 @@ public abstract class AbstractIT {
 
 
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-//        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
@@ -216,9 +275,9 @@ public abstract class AbstractIT {
      * @return
      * @throws Exception
      */
-//    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
+    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
-    /*    // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
+        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
         if (connection instanceof ActiveMQXAConnection) {
             ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         }
@@ -236,9 +295,9 @@ public abstract class AbstractIT {
         producer.send(msg);
         System.out.println("Message with ID [" + messageId + "] sent in queue!");
         producer.close();
-        session.close();*/
+        session.close();
 
-//    }
+    }
 
     /**
      * The connection must be started and stopped before and after the method call.
@@ -246,7 +305,7 @@ public abstract class AbstractIT {
      * @return Message
      * @throws Exception
      */
-/*    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
+    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
         if (connection instanceof ActiveMQXAConnection) {
@@ -257,12 +316,12 @@ public abstract class AbstractIT {
         MessageConsumer consumer = session.createConsumer(destination);
         Message message = consumer.receive(mSecs);
         if (message != null) {
-            System.out.println("Message with ID [:" + message.getStringProperty(JMSMessageConstants.MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
+//            System.out.println("Message with ID [:" + message.getStringProperty(JMSMessageConstants.MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
         }
         consumer.close();
         session.close();
         return message;
-    }*/
+    }
 
     //TODO move this method into a class in the domibus-MSH-test module in order to be reused
     public SOAPMessage createSOAPMessage(String dataset) throws SOAPException, IOException, ParserConfigurationException, SAXException {
@@ -309,8 +368,6 @@ public abstract class AbstractIT {
 
     public void prepareSendMessage(String responseFileName) {
         /* Initialize the mock objects */
-//        MockitoAnnotations.initMocks(this);
-/*
         String body = getAS4Response(responseFileName);
 
         // Mock the response from the recipient MSH
@@ -318,7 +375,7 @@ public abstract class AbstractIT {
                 .willReturn(WireMock.aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/soap+xml")
-                        .withBody(body)));*/
+                        .withBody(body)));
     }
 
 

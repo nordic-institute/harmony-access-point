@@ -6,6 +6,11 @@ import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
@@ -16,7 +21,13 @@ import java.util.Collections;
  * @author François Gautier
  * @since 5.0
  */
-@SpringBootApplication
+/*@SpringBootApplication(exclude = {
+        DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        FreeMarkerAutoConfiguration.class,
+        JmsAutoConfiguration.class
+})*/
 public class BackendApplication {
 
     public static final String DEFAULT_PORT = "8080";
@@ -42,14 +53,14 @@ public class BackendApplication {
     public ServletRegistrationBean<CXFServlet> cxfServlet() {
         return new ServletRegistrationBean<>(new CXFServlet(), "/*");
     }
-
+/*
     @Bean
     public BackendWebservice createWSPlugin() {
         return new BackendWebservice();
-    }
+    }*/
 
-    @Bean
+    /*@Bean
     public Endpoint backendInterfaceEndpoint(BackendWebservice backendWebService) {
         return Endpoint.publish("/backend", backendWebService);
-    }
+    }*/
 }

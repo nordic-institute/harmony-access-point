@@ -7,7 +7,6 @@
         </encoder>
     </appender>
     <logger name="eu.domibus" level="INFO"/>
-    <logger name="org.springframework" level="TRACE"/>
     <root level="INFO">
         <appender-ref ref="stdout"/>
     </root>

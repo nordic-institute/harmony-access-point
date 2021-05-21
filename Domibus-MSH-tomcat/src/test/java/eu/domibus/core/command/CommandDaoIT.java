@@ -1,23 +1,19 @@
-package eu.domibus.core.clustering;
+package eu.domibus.core.command;
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.core.clustering.CommandDao;
+import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,15 +25,12 @@ import static junit.framework.TestCase.assertNotNull;
  * @author Cosmin Baciu
  * @since 4.0.1
  */
-public class CommandDaoIT extends AbstractCoreIT {
+public class CommandDaoIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandDaoIT.class);
 
     @Autowired
     private CommandDao commandDao;
-
-    @Autowired
-    protected DataSource dataSource;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;

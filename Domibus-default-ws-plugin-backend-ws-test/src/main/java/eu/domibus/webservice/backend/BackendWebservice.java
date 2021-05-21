@@ -20,12 +20,12 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
-@javax.jws.WebService(
+/*@javax.jws.WebService(
         serviceName = "BackendService",
         portName = "BACKEND_PORT",
         targetNamespace = "eu.domibus",
         endpointInterface = "eu.domibus.webservice.backend.generated.BackendInterface")
-@BindingType(SOAPBinding.SOAP12HTTP_BINDING)
+@BindingType(SOAPBinding.SOAP12HTTP_BINDING)*/
 public class BackendWebservice implements BackendInterface {
     private static final Logger LOG = LoggerFactory.getLogger(BackendWebservice.class);
     public static final String OUT = "out";

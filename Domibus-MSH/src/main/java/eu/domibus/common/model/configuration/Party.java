@@ -55,6 +55,7 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
         @NamedQuery(name = "Party.findByName", query = "select p from Party p where p.name = :NAME"),
         @NamedQuery(name = "Party.findAll", query = "select p from Party p"),
         @NamedQuery(name = "Party.findPartyIdentifiersByEndpoint", query = "select p.identifiers from Party p where p.endpoint = :ENDPOINT"),
+        @NamedQuery(name = "Party.deleteAll", query = "delete from Party"),
         @NamedQuery(name = "Party.findByPartyId", query = "select p from Party p, Identifier i where p.entityId = i.entityId and i.partyId = :PARTY_ID")})
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName(value = "Party", auditOrder = 1)

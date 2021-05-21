@@ -1,4 +1,6 @@
-package eu.domibus;
+package eu.domibus.plugin.jms;
+
+import eu.domibus.test.AbstractIT;
 
 /**
  * @author Cosmin Baciu

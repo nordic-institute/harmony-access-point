@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode;
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import org.junit.Before;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * @author François Gautier
  * @since 5.0
  */
-public class ConfigurationRawDAOIT  extends AbstractCoreIT  {
+public class ConfigurationRawDAOIT  extends AbstractIT {
 
     public static final String LAST_DESCRIPTION = "Last and current";
 

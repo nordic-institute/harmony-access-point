@@ -1,16 +1,14 @@
-package eu.domibus.plugin;
+package eu.domibus.plugin.ws;
 
 
-import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.common.MessageDBUtil;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
+import eu.domibus.test.common.MessageDBUtil;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
@@ -31,9 +29,9 @@ import static org.junit.Assert.assertNotNull;
  * @author idragusa
  * @since 5.0
  */
+
 //@DirtiesContext
 //@Rollback
-@Ignore
 public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
     @Autowired

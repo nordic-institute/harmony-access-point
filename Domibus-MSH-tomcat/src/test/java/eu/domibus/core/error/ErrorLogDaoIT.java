@@ -1,7 +1,7 @@
 package eu.domibus.core.error;
 
 
-import eu.domibus.AbstractCoreIT;
+import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
@@ -22,7 +22,7 @@ import java.util.Date;
  * @since 5.0
  */
 
-public class ErrorLogDaoIT extends AbstractCoreIT {
+public class ErrorLogDaoIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
 
