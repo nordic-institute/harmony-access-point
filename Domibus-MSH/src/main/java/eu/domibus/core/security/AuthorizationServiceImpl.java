@@ -1,6 +1,7 @@
 package eu.domibus.core.security;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.authorization.AuthorizationService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -54,7 +55,8 @@ public class AuthorizationServiceImpl {
     @Autowired
     private MessageCoreMapper messageCoreMapper;
 
-    private eu.domibus.api.authorization.AuthorizationService authorizationService;
+    @Autowired
+    private AuthorizationService authorizationService;
 
 
     public void authorizePullRequest(SOAPMessage request, String mpc) throws EbMS3Exception {

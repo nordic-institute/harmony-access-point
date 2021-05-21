@@ -1,4 +1,4 @@
-package eu.domibus.ext.delegate.authorization;
+package eu.domibus.ext.delegate.services.authorization;
 
 import com.mchange.v2.lang.StringUtils;
 import eu.domibus.api.pmode.PModeService;
@@ -20,6 +20,7 @@ import java.util.Set;
  * @author Thomas Dussart
  * @since 4.2
  */
+@org.springframework.stereotype.Service
 public class AuthorizationServiceDelegate implements eu.domibus.api.authorization.AuthorizationService{
 
     protected DomibusExtMapper domibusExtMapper;
