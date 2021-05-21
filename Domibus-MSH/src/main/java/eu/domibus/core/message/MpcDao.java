@@ -22,7 +22,7 @@ public class MpcDao extends BasicDao<MpcEntity> {
 
     @Transactional
     public MpcEntity findOrCreateMpc(String value) {
-        if(StringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
 
