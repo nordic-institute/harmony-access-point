@@ -194,6 +194,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-test-common</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-default-ws-plugin-backend-ws-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -201,6 +207,16 @@
         <!--        END TEST        -->
     </dependencies>
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</directory>
+                <targetPath>config/database</targetPath>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -31,6 +31,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
 
     @Before
     public void before() throws IOException, XmlProcessingException {
+        waitUntilDatabaseIsInitialized();
         uploadPmode(wireMockRule.port());
     }
 

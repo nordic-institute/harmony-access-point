@@ -16,6 +16,7 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
+import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -75,6 +76,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.with;
+
 /**
  * Created by feriaad on 02/02/2016.
  */
@@ -103,6 +106,9 @@ public abstract class AbstractIT {
 
     @Autowired
     protected DomibusProxyService domibusProxyService;
+
+    @Autowired
+    protected UserRoleDao userRoleDao;
 
     private static boolean springContextInitialized = false;
 
@@ -141,6 +147,12 @@ public abstract class AbstractIT {
         springContextInitialized = true;
     }
 
+    @Before
+    public void setDomain() {
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+        waitUntilDatabaseIsInitialized();
+    }
+
     private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {
         final File policiesDirectory = new File(projectRoot, "Domibus-MSH/src/main/conf/domibus/policies");
         final File destPoliciesDirectory = new File(domibusConfigLocation, "policies");
@@ -167,11 +179,6 @@ public abstract class AbstractIT {
         FileUtils.forceMkdir(internalDirectory);
         final File destActiveMQ = new File(internalDirectory, "activemq.xml");
         FileUtils.copyFile(activeMQFile, destActiveMQ);
-    }
-
-    @Before
-    public void setDomain() {
-        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
@@ -220,6 +227,19 @@ public abstract class AbstractIT {
         return userMessage;
     }
 
+    protected void waitUntilDatabaseIsInitialized() {
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(databaseIsInitialized());
+    }
+
+    protected Callable<Boolean> databaseIsInitialized() {
+        return () -> {
+            try {
+                return userRoleDao.listRoles().size() > 0;
+            } catch (Exception e) {
+            }
+            return false;
+        };
+    }
 
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
         Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
