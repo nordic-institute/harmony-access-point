@@ -10,7 +10,7 @@
      - run the migration procedure
      If this step fails the user could execute again: Step 1 and this step
     -->
-    
+
     <!-- add migration package and execute it -->
     <changeSet id="EDELIVERY-7970" author="Catalin Enache">
         <sqlFile path="src/main/resources/db/migration/oracle/db-migration-package.sql" endDelimiter="\n/" dbms="oracle"/>
@@ -18,6 +18,14 @@
             BEGIN
                 MIGRATE_42_TO_50.MIGRATE;
             END;
+        </sql>
+
+        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-package.sql" endDelimiter="\n//" dbms="mysql"/>
+        <sql dbms="mysql" endDelimiter="\n//">
+DELIMITER //
+
+CALL MIGRATE_42_TO_50_migrate
+//
         </sql>
     </changeSet>
 </databaseChangeLog>
