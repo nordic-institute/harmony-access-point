@@ -43,14 +43,14 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
-        LOG.info("Initial map - ########1");
+        LOG.trace("Get counters of the db tables, initial state");
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         sendMessageToDelete(MessageStatus.ACKNOWLEDGED);
 
-        LOG.info("After sending - ########2");
+        LOG.trace("Get counters of the db tables, after sending");
         Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
         deleteMessages();
-        LOG.info("After deleting - ########3");
+        LOG.trace("Get counters of the db tables, after deletion");
 
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
 

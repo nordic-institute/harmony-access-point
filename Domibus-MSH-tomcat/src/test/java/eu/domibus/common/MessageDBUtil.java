@@ -39,17 +39,10 @@ public class MessageDBUtil {
     }
 
     public Integer getCounter(String tableName) {
-        LOG.info("~~~~~~~~~~~~~~ " + tableName);
         String selectStr = "SELECT count(*) from " + tableName;
         Query query = entityManager.createNativeQuery(selectStr);
         BigInteger counter = (BigInteger)query.getSingleResult();
-        LOG.info("~~~~~~~~~~~~~~ " + counter);
-
-        String selectAllStr = "SELECT * from " + tableName;
-        query = entityManager.createNativeQuery(selectAllStr);
-        List<Object> s = query.getResultList();
-
-        LOG.info("~~~~~~~~~~~~~~ " + s) ;
+        LOG.trace("Table [{}] has counter [{}]", tableName, counter);
 
         return counter.intValue();
     }
