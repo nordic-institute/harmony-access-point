@@ -79,7 +79,8 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.with;
 
 /**
- * Created by feriaad on 02/02/2016.
+ * @author Cosmin Baciu
+ * @since 5.0
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)

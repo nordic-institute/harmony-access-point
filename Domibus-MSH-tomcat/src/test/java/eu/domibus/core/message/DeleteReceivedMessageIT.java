@@ -24,7 +24,6 @@ public class DeleteReceivedMessageIT extends DeleteMessageIT {
     @Ignore
     @Test
     public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         receiveMessageToDelete();
 
