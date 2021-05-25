@@ -3,6 +3,7 @@ package eu.domibus.core.message.signal;
 import com.google.common.collect.Maps;
 import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
 import eu.domibus.core.metrics.Counter;
@@ -23,7 +24,7 @@ import java.util.Map;
  * @since 3.2
  */
 @Repository
-public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
+public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageLogDao.class);
 
@@ -53,18 +54,7 @@ public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
         }
     }
 
-    public int countAllInfo(boolean asc, Map<String, Object> filters) {
-        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-        if (filteredEntries.size() == 0) {
-            return countAll();
-        }
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.countSignalMessageLogQuery(asc, filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredSignalMessageLogQuery, Number.class);
-        countQuery = signalMessageLogInfoFilter.applyParameters(countQuery, filters);
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
-
+    @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredSignalMessageLogQuery, MessageLogInfo.class);

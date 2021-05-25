@@ -3,9 +3,7 @@ package eu.domibus.common;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
-import eu.domibus.core.message.MessagePropertyDao;
-import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +21,25 @@ import java.util.HashSet;
 public class MessageDaoTestUtil {
 
     @Autowired
-    MessagePropertyDao propertyDao;
+    UserMessageLogDao userMessageLogDao;
+
+    @Autowired
+    SignalMessageLogDao signalMessageLogDao;
+
+    @Autowired
+    UserMessageDao userMessageDao;
 
     @Autowired
     SignalMessageDao signalMessageDao;
+
+    @Autowired
+    MessagePropertyDao propertyDao;
+
+    @Autowired
+    ActionDao actionDao;
+
+    @Autowired
+    ServiceDao serviceDao;
 
     @Autowired
     MshRoleDao mshRoleDao;
@@ -35,7 +48,19 @@ public class MessageDaoTestUtil {
     MessageStatusDao messageStatusDao;
 
     @Autowired
-    SignalMessageLogDao signalMessageLogDao;
+    NotificationStatusDao notificationStatusDao;
+
+    @Autowired
+    PartyRoleDao partyRoleDao;
+
+    @Autowired
+    PartyIdDao partyIdDao;
+
+
+    final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
+    final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
+    final static String RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
+
 
     public void createSignalMessageLog(String msgId, Date received) {
         createSignalMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED);
@@ -63,4 +88,48 @@ public class MessageDaoTestUtil {
         signalMessageLog.setSignalMessage(signal);
         signalMessageLogDao.create(signalMessageLog);
     }
+
+    public void createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
+        UserMessage userMessage = new UserMessage();
+        userMessage.setMessageId(msgId);
+        userMessage.setConversationId("conversation-" + msgId);
+
+        MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "originalSender1", "");
+        MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", "finalRecipient2", "");
+        userMessage.setMessageProperties(new HashSet<>(Arrays.asList(messageProperty1, messageProperty2)));
+
+        PartyInfo partyInfo = new PartyInfo();
+        partyInfo.setFrom(createFrom(INITIATOR_ROLE, "domibus-blue"));
+        partyInfo.setTo(createTo(RESPONDER_ROLE, "domibus-red"));
+        userMessage.setPartyInfo(partyInfo);
+
+        userMessage.setService(serviceDao.findOrCreateService("bdx:noprocess", "tc1"));
+        userMessage.setAction(actionDao.findOrCreateAction("TC1Leg1"));
+
+        userMessageDao.create(userMessage);
+
+        UserMessageLog userMessageLog = new UserMessageLog();
+        userMessageLog.setReceived(received);
+        userMessageLog.setMshRole(mshRoleDao.findOrCreate(mshRole));
+        userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
+        userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
+
+        userMessageLog.setUserMessage(userMessage);
+        userMessageLogDao.create(userMessageLog);
+    }
+
+    private To createTo(String role, String partyId) {
+        To to = new To();
+        to.setRole(partyRoleDao.findOrCreateRole(role));
+        to.setPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
+        return to;
+    }
+
+    private From createFrom(String role, String partyId) {
+        From from = new From();
+        from.setRole(partyRoleDao.findOrCreateRole(role));
+        from.setPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
+        return from;
+    }
+
 }
