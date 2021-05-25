@@ -6,6 +6,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,10 +24,10 @@ import java.util.stream.Stream;
  * @author Ion Perpegel
  * @since 5.0
  */
-public class SignalMessageLogDaoIT extends AbstractIT {
+public class UserMessageLogDaoIT extends AbstractIT {
 
     @Autowired
-    SignalMessageLogDao signalMessageLogDao;
+    UserMessageLogDao userMessageLogDao;
 
     @Autowired
     DateUtil dateUtil;
@@ -46,9 +47,9 @@ public class SignalMessageLogDaoIT extends AbstractIT {
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        messageDaoTestUtil.createSignalMessageLog("msg1", now);
-        messageDaoTestUtil.createSignalMessageLog("msg2", now);
-        messageDaoTestUtil.createSignalMessageLog("msg3", old);
+        messageDaoTestUtil.createUserMessageLog("msg1", now);
+        messageDaoTestUtil.createUserMessageLog("msg2", now);
+        messageDaoTestUtil.createUserMessageLog("msg3", old);
     }
 
     @Test
@@ -59,7 +60,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"receivedTo", after},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        long count = signalMessageLogDao.countEntries(filters);
+        long count = userMessageLogDao.countEntries(filters);
 
         Assert.assertEquals(2, count);
     }
@@ -74,7 +75,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"messageStatus", MessageStatus.RECEIVED},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        long count = signalMessageLogDao.countEntries(filters);
+        long count = userMessageLogDao.countEntries(filters);
 
         Assert.assertEquals(2, count);
     }
@@ -87,7 +88,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"receivedTo", after},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
+        List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
 
         Assert.assertEquals(2, messages.size());
     }
@@ -97,7 +98,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
     public void testFindLastTestMessageId() {
         messageDaoTestUtil.createTestMessage("msg-test-1");
 
-        String messageId = signalMessageLogDao.findLastTestMessageId("domibus-red");
-        Assert.assertEquals("signal-msg-test-1", messageId);
+        String messageId = userMessageLogDao.findLastTestMessageId("domibus-red");
+        Assert.assertEquals("msg-test-1", messageId);
     }
 }
