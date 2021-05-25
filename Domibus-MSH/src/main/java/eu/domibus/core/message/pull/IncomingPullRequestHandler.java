@@ -7,7 +7,7 @@ import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.security.AuthorizationService;
+import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class IncomingPullRequestHandler implements IncomingMessageHandler {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private AuthorizationService authorizationService;
+    private AuthorizationServiceImpl authorizationService;
 
     @Override
     @Timer(clazz = IncomingPullRequestHandler.class, value = "incoming_pull_request")

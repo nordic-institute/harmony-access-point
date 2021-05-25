@@ -19,15 +19,16 @@ public class PartyIdDao extends BasicDao<PartyId> {
         super(PartyId.class);
     }
 
-    public PartyId findPartyByValue(final String value) {
-        final TypedQuery<PartyId> query = this.em.createNamedQuery("PartyId.findByValue", PartyId.class);
+    public PartyId findPartyByValueAndType(final String value,final String type) {
+        final TypedQuery<PartyId> query = this.em.createNamedQuery("PartyId.findByValueAndType", PartyId.class);
         query.setParameter("VALUE", value);
+        query.setParameter("TYPE", type);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
     @Transactional
     public PartyId findOrCreateParty(String value, String type) {
-        PartyId party = findPartyByValue(value);
+        PartyId party = findPartyByValueAndType(value,type);
         if (party != null) {
             return party;
         }

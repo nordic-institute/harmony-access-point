@@ -28,7 +28,7 @@ import java.util.*;
  * @since 3.0
  */
 @Repository
-public class UserMessageLogDao extends ListDao<UserMessageLog> {
+public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
@@ -246,27 +246,8 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
         messageLog.setNotificationStatus(status);
     }
 
-    public int countAllInfo(boolean asc, Map<String, Object> filters) {
-        LOG.debug("Count all");
-        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-        if (filteredEntries.size() == 0) {
-            LOG.debug("Filter empty");
-            return countAll();
-        }
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.countUserMessageLogQuery(asc, filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-        countQuery = userMessageLogInfoFilter.applyParameters(countQuery, filters);
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
 
-    public Integer countAll() {
-        LOG.debug("Executing native query");
-        final Query nativeQuery = em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
-        final Number singleResult = (Number) nativeQuery.getSingleResult();
-        return singleResult.intValue();
-    }
-
+    @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);

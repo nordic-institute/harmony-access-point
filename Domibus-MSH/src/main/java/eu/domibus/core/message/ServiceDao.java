@@ -21,20 +21,21 @@ public class ServiceDao extends BasicDao<ServiceEntity> {
 
     @Transactional
     public ServiceEntity findOrCreateService(String value, String type) {
-        ServiceEntity service = findByValue(value);
+        ServiceEntity service = findByValueAndType(value,type);
         if (service != null) {
             return service;
         }
         ServiceEntity newService = new ServiceEntity();
         newService.setValue(value);
         newService.setType(type);
-         create(newService);
+        create(newService);
         return newService;
     }
 
-    public ServiceEntity findByValue(final String value) {
-        final TypedQuery<ServiceEntity> query = this.em.createNamedQuery("Service.findByValue", ServiceEntity.class);
+    public ServiceEntity findByValueAndType(final String value, final String type) {
+        final TypedQuery<ServiceEntity> query = this.em.createNamedQuery("Service.findByValueAndType", ServiceEntity.class);
         query.setParameter("VALUE", value);
+        query.setParameter("TYPE", type);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 }

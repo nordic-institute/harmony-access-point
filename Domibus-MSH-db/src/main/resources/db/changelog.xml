@@ -189,7 +189,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_SERVICE_VALUE" tableName="TB_D_SERVICE"/>
+        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_SERVICE_VALUE_TYPE" tableName="TB_D_SERVICE"/>
 
         <createTable tableName="TB_D_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -208,7 +208,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_PARTY_VALUE" tableName="TB_D_PARTY"/>
+        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_PARTY_VALUE_TYPE" tableName="TB_D_PARTY"/>
 
         <createTable tableName="TB_D_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -3153,7 +3153,6 @@
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
-
 
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>

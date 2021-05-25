@@ -1,5 +1,6 @@
 package eu.domibus.core.message.signal;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessageLogInfoFilterTest;
 import mockit.Expectations;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Tiago Miguel
@@ -66,7 +68,7 @@ public class SignalMessageLogInfoFilterTest {
 
     @Test
     public void testGetHQLKeyMessageId() {
-        Assert.assertEquals("log.messageId", signalMessageLogInfoFilter.getHQLKey("messageId"));
+        Assert.assertEquals("signal.signalMessageId", signalMessageLogInfoFilter.getHQLKey("messageId"));
     }
 
     @Test
@@ -74,13 +76,13 @@ public class SignalMessageLogInfoFilterTest {
         StringBuilder resultQuery = signalMessageLogInfoFilter.filterQuery("select * from table where column = ''","messageId", true, filters);
         String resultQueryString = resultQuery.toString();
 
-        Assert.assertTrue(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
+        Assert.assertFalse(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
         Assert.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(resultQueryString.contains("log.received <= :receivedTo"));
-        Assert.assertTrue(resultQueryString.contains("log.messageId = :messageId"));
-        Assert.assertTrue(resultQueryString.contains("message.refToMessageId = :refToMessageId"));
+        Assert.assertTrue(resultQueryString.contains("signal.signalMessageId = :messageId"));
+        Assert.assertTrue(resultQueryString.contains("signal.refToMessageId = :refToMessageId"));
         Assert.assertTrue(resultQueryString.contains("log.received = :received"));
         Assert.assertTrue(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(resultQueryString.contains("propsTo.value = :finalRecipient"));
@@ -91,9 +93,28 @@ public class SignalMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(resultQueryString.contains("partyTo.value = :toPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.mshRole.role = :mshRole"));
-        Assert.assertTrue(resultQueryString.contains("order by log.messageId asc"));
+        Assert.assertTrue(resultQueryString.contains("order by signal.signalMessageId asc"));
 
         Assert.assertFalse(resultQueryString.contains("conversationId"));
         Assert.assertFalse(resultQueryString.contains("message.collaborationInfo.conversationId"));
+    }
+
+    @Test
+    public void createFromClause_MessageTableNotDirectly() {
+        Map<String, Object> filters = ImmutableMap.of(
+                "messageId", "111",
+                "fromPartyId", "222",
+                "originalSender", "333");
+
+        String messageTable = "join log.signalMessage signal join signal.userMessage message";
+        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
+        String propsCriteria = "and propsFrom.name = 'originalSender' ";
+
+        String result = signalMessageLogInfoFilter.getCountQueryBody(filters);
+
+        Assert.assertTrue(result.contains(signalMessageLogInfoFilter.getMainTable()));
+        Assert.assertTrue(result.contains(messageTable));
+        Assert.assertTrue(result.contains(partyFromTable));
+        Assert.assertTrue(result.contains(propsCriteria));
     }
 }

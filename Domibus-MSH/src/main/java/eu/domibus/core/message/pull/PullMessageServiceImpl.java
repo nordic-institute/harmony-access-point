@@ -308,7 +308,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         lock.setMessageState(MessageState.WAITING);
         lock.setSendAttempts(userMessageLog.getSendAttempts());
         reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
-        final MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(waitingForReceipt);
+        final MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(waitingForReceipt);
         userMessageLog.setMessageStatus(messageStatus);
         messagingLockDao.save(lock);
         userMessageLogDao.update(userMessageLog);

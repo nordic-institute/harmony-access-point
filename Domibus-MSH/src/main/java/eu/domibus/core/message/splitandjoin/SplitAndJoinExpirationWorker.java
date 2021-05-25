@@ -40,7 +40,7 @@ public class SplitAndJoinExpirationWorker extends DomibusQuartzJobBean {
     }
 
     @Override
-    protected void setQuartzJobSecurityContext() {
+    public void setQuartzJobSecurityContext() {
         authUtils.setAuthenticationToSecurityContext("splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
     }
 }
