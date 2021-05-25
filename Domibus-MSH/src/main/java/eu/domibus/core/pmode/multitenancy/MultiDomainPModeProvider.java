@@ -119,8 +119,18 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public String findServiceName(String service, String serviceType) throws EbMS3Exception {
+        return getCurrentPModeProvider().findServiceName(service,serviceType);
+    }
+
+    @Override
     public String findPartyName(PartyId partyId) throws EbMS3Exception {
         return getCurrentPModeProvider().findPartyName(partyId);
+    }
+
+    @Override
+    public String findPartyName(String partyId,String partyIdType) throws EbMS3Exception {
+        return getCurrentPModeProvider().findPartyName(partyId,partyIdType);
     }
 
     @Override

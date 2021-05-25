@@ -24,7 +24,7 @@ import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.security.AuthorizationService;
+import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.logging.DomibusLogger;
@@ -143,7 +143,7 @@ public class IncomingEbms3PullRequestHandlerTest {
     MessageUtil messageUtil;
 
     @Injectable
-    AuthorizationService authorizationService;
+    AuthorizationServiceImpl authorizationService;
 
     @Test
     public void testHandlePullRequest(

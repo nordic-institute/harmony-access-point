@@ -17,7 +17,6 @@ import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.api.ebms3.Ebms3Constants;
@@ -390,20 +389,15 @@ public abstract class PModeProvider {
 
     public abstract String findServiceName(ServiceEntity service) throws EbMS3Exception;
 
+    public abstract String findServiceName(String service,String serviceType) throws EbMS3Exception;
+
     public abstract String findPartyName(PartyId partyId) throws EbMS3Exception;
+
+    public abstract String findPartyName(String partyId,String partyIdType) throws EbMS3Exception;
 
     public abstract String findAgreement(AgreementRefEntity agreementRef) throws EbMS3Exception;
 
-    public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
-        final String actionValue = userMessage.getActionValue();
-        final String actionName = findActionName(actionValue);
-        final ServiceEntity service = userMessage.getService();
-        final String serviceName = findServiceName(service);
-        final String partyName = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
-        return new UserMessagePmodeData(serviceName, actionName, partyName);
-    }
-
-    public PullRequestPmodeData getPullRequestMapping(String mpcValue) throws EbMS3Exception {
+    public String findMpcName(String mpcValue) throws EbMS3Exception {
         Mpc mpc;
         try {
             LOG.debug("Find the mpc based on the pullRequest mpc [{}]", mpcValue);
@@ -419,7 +413,7 @@ public abstract class PModeProvider {
                 throw e;
             }
         }
-        return new PullRequestPmodeData(mpc.getName());
+        return mpc.getName();
     }
 
     public abstract Party getGatewayParty();
