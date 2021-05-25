@@ -552,7 +552,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDao.findMpc(mpc);
+        MpcEntity mpcObject = mpcDao.findOrCreateMpc(mpc);
         userMessage.setMpc(mpcObject);
     }
 
