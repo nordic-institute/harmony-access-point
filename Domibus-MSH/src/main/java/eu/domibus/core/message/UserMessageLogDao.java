@@ -291,15 +291,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public String findLastTestMessageId(String party) {
-        return findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
-    }
-
-    protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
         Map<String, Object> filters = new HashMap<>();
         filters.put("testMessage", true);
-        filters.put("mshRole", mshRole);
+        filters.put("mshRole", MSHRole.SENDING);
         filters.put("toPartyId", party);
-        filters.put("messageType", messageType);
         String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
         TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
