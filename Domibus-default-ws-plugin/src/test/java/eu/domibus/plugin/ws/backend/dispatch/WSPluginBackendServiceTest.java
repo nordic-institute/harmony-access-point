@@ -248,11 +248,9 @@ public class WSPluginBackendServiceTest {
 
         Map<String, List<String>> stringListMap = wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageDeletedBatchEvent);
 
-        //todo fix it
-//        Assert.assertThat(stringListMap.get(FINAL_RECIPIENT), CoreMatchers.hasItems("1", "2"));
+        Assert.assertThat(stringListMap.get(FINAL_RECIPIENT), CoreMatchers.hasItems("1", "2"));
         Assert.assertEquals(2, stringListMap.get(FINAL_RECIPIENT).size());
-        //todo fix it
-//        Assert.assertThat(stringListMap.get(FINAL_RECIPIENT2), CoreMatchers.hasItems("3"));
+        Assert.assertThat(stringListMap.get(FINAL_RECIPIENT2), CoreMatchers.hasItems("3"));
         Assert.assertEquals(1, stringListMap.get(FINAL_RECIPIENT2).size());
         new FullVerifications() {
         };

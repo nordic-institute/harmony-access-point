@@ -24,12 +24,6 @@ public class WSPluginDispatcherIT extends AbstractBackendWSIT {
     @Autowired
     private WSPluginDispatcher wsPluginDispatcher;
 
-   /* @Before
-    public void setUp() {
-        backendPort = SocketUtils.findAvailableTcpPort(3000, 3100);
-        BackendApplication.main(new String[]{"" + backendPort});
-    }*/
-
     @Ignore
     @Test
     public void sendSuccess() {

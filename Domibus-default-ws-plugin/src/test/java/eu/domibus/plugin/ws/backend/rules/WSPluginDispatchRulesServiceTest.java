@@ -165,8 +165,7 @@ public class WSPluginDispatchRulesServiceTest {
     @Test
     public void getTypes_ok() {
         List<WSBackendMessageType> types = rulesService.getTypes("SEND_SUCCESS,RECEIVE_FAIL");
-        assertTrue(types.contains(WSBackendMessageType.SEND_SUCCESS));
-        assertTrue(types.contains(WSBackendMessageType.RECEIVE_FAIL));
+        assertThat(types, CoreMatchers.hasItems(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.RECEIVE_FAIL));
     }
 
     @Test(expected = WSPluginException.class)
