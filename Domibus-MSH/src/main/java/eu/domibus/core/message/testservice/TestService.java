@@ -183,7 +183,7 @@ public class TestService {
 
         UserMessageLog userMessageLog = null;
         try {
-            userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
+            userMessageLog = userMessageLogDao.findByMessageIdSafely(userMessageId);
         } catch (NoResultException ex) {
             LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
         }
