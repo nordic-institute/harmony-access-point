@@ -9,6 +9,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
+import java.util.TimeZone;
 
 /**
  * @author Cosmin Baciu
@@ -54,6 +55,7 @@ public class DomibusTestDatasourceConfiguration {
 
     private JdbcDataSource createH2Datasource() {
         JdbcDataSource result = new JdbcDataSource();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'");
         result.setUser("sa");
         result.setPassword("");
