@@ -56,7 +56,7 @@ public class MessageFilterGrid extends DGrid {
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}
-		if (rowNumber > gridRows.size()) {
+		if (rowNumber >= gridRows.size()) {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 		HashMap<String, String> info = new HashMap<>();

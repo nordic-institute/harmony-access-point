@@ -4,6 +4,7 @@ import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -110,7 +111,18 @@ public class DomibusPage extends DComponent {
 		}
 		return false;
 	}
-	
+
+	public String getCurrentLoggedInUser() {
+		log.info("getting user form local storage");
+		String username = null;
+
+		try {
+			username = ((JavascriptExecutor) driver).executeScript("return JSON.parse(localStorage.currentUser).username").toString();
+		} catch (Exception e) {}
+
+		return username;
+	}
+
 	public DButton getSaveCSVButton() {
 		return weToDButton(saveCSV);
 	}

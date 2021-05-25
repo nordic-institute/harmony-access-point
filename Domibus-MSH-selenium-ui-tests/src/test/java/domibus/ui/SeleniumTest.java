@@ -52,8 +52,6 @@ public class SeleniumTest extends BaseTest {
 		log.info("--------Initialize test class-------");
 
 		driver = DriverManager.getDriver();
-//		driver.get(data.getUiBaseUrl());
-
 	}
 
 	@BeforeMethod(alwaysRun = true)
@@ -72,6 +70,7 @@ public class SeleniumTest extends BaseTest {
 	protected DomibusPage login(HashMap<String, String> user) {
 		log.info("login started");
 		LoginPage loginPage = new LoginPage(driver);
+		loginPage.refreshPage();
 
 		try {
 
