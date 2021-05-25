@@ -5,13 +5,18 @@ import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.MessageDBUtil;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,7 +50,20 @@ public abstract class DeleteMessageIT extends AbstractBackendWSIT {
     @Autowired
     MessageDBUtil messageDBUtil;
 
+    @Autowired
+    BackendConnectorProvider backendConnectorProvider;
+
     protected static List<String> tablesToExclude;
+
+    @Configuration
+    static class ContextConfiguration {
+
+        @Primary
+        @Bean
+        public BackendConnectorProvider backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorProvider.class);
+        }
+    }
 
     @BeforeClass
     public static void initTablesToExclude() {

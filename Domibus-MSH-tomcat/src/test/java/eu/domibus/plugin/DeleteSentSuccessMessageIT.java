@@ -2,6 +2,8 @@ package eu.domibus.plugin;
 
 
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import org.apache.commons.collections.CollectionUtils;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,6 +26,8 @@ import java.util.Map;
 @Ignore
 public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentSuccessMessageIT.class);
+
     @Before
     public void updatePmodeForAcknowledged() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
@@ -35,11 +40,17 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
      */
     @Test
     public void testDeleteSentMessage() throws SubmitMessageFault {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+
+        LOG.trace("Get counters of the db tables, initial state");
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         sendMessageToDelete(MessageStatus.ACKNOWLEDGED);
 
+        LOG.trace("Get counters of the db tables, after sending");
         Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
         deleteMessages();
+        LOG.trace("Get counters of the db tables, after deletion");
 
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
 

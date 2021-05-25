@@ -1,5 +1,7 @@
 package eu.domibus.common;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -17,6 +19,8 @@ import java.util.Map;
  */
 @Component
 public class MessageDBUtil {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageDBUtil.class);
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
@@ -38,6 +42,7 @@ public class MessageDBUtil {
         String selectStr = "SELECT count(*) from " + tableName;
         Query query = entityManager.createNativeQuery(selectStr);
         BigInteger counter = (BigInteger)query.getSingleResult();
+        LOG.trace("Table [{}] has counter [{}]", tableName, counter);
 
         return counter.intValue();
     }
