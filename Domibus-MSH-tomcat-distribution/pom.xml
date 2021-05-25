@@ -29,6 +29,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-angular</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -38,6 +44,14 @@
             <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->
+
+        <!-- Spring Session -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- End Spring Session -->
     </dependencies>
 
     <build>
