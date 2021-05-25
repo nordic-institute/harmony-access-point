@@ -75,12 +75,6 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
     }
 
 
-    public Integer countAll() {
-        final Query nativeQuery = em.createNativeQuery("SELECT count(sm.ID_PK) FROM  TB_SIGNAL_MESSAGE sm");
-        final Number singleResult = (Number) nativeQuery.getSingleResult();
-        return singleResult.intValue();
-    }
-
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return signalMessageLogInfoFilter;
     }
