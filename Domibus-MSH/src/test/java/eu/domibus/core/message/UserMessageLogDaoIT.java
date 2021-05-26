@@ -215,9 +215,9 @@ public class UserMessageLogDaoIT {
         Assert.assertNotNull("Should have correctly saved the next attempt timezone offset considering the server timezone",
                 retryMessage.getTimezoneOffset());
         Assert.assertEquals("Should have correctly saved the next attempt timezone ID considering the server timezone",
-                "America/Los_Angeles", retryMessage.getTimezoneOffset().getNextAttemptTimezoneId());
+                "UTC", retryMessage.getTimezoneOffset().getNextAttemptTimezoneId());
         Assert.assertTrue("Should have correctly saved the next attempt timezone offset in seconds considering the server timezone",
-                retryMessage.getTimezoneOffset().getNextAttemptOffsetSeconds() != 0);
+                retryMessage.getTimezoneOffset().getNextAttemptOffsetSeconds() == 0);
     }
 
     private Map<String, String> getProperties(List<UserMessageLogDto> deletedUserMessagesOlderThan, String deletedWithProperties) {

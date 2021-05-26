@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.TimeZone;
 
 /**
  * @author Thomas Dussart
@@ -14,6 +15,7 @@ import javax.sql.DataSource;
 public class InMemoryDatabaseMshConfig extends AbstractDatabaseMshConfig {
 
     public DataSource dataSource() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         return getH2DataSource();
     }
 

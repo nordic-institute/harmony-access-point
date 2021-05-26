@@ -29,7 +29,7 @@ import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.security.AuthorizationService;
+import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import mockit.Expectations;
@@ -157,7 +157,7 @@ public class IncomingEbms3UserMessageHandlerTest {
     AttachmentCleanupService attachmentCleanupService;
 
     @Injectable
-    AuthorizationService authorizationService;
+    AuthorizationServiceImpl authorizationService;
     @Injectable
     Ebms3Converter ebms3Converter;
 

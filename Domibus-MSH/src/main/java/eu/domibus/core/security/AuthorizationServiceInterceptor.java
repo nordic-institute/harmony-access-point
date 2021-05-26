@@ -28,7 +28,7 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
         super(aopUtil);
     }
 
-    @Around(value = "execution(public * eu.domibus.core.security.AuthorizationService.*(..))")
+    @Around(value = "execution(public * eu.domibus.core.security.AuthorizationServiceImpl.*(..))")
     @Override
     public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();

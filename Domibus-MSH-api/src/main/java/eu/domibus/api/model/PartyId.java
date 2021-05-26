@@ -12,9 +12,9 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_PARTY")
-@NamedQuery(name = "PartyId.findByValue", hints = {
+@NamedQuery(name = "PartyId.findByValueAndType", hints = {
         @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyId prop where prop.value=:VALUE")
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyId prop where prop.value=:VALUE and prop.type=:TYPE")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PartyId extends AbstractBaseEntity implements Comparable<PartyId> {
 

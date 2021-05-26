@@ -1,17 +1,17 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.pmode.domain.ReceptionAwareness;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -46,7 +46,7 @@ public class PModeDefaultService implements PModeService {
     public LegConfiguration getLegConfiguration(String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         boolean isPull = messageExchangeService.forcePullOnMpc(userMessage);
-        String pModeKey = null;
+        String pModeKey;
         try {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, isPull).getPmodeKey();
         } catch (EbMS3Exception e) {
@@ -75,6 +75,44 @@ public class PModeDefaultService implements PModeService {
             LOG.warn("Xml processing issue while trying to upload pmode with description [{}]", description, e);
             throw pModeValidationHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
         }
+    }
+
+    @Override
+    public String findPartyName(String partyId, String partyIdType) {
+        try {
+            return pModeProvider.findPartyName(partyId, partyIdType);
+        } catch (EbMS3Exception e) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not find party for id:[" + partyId + "] and type:[" + partyIdType + "]", e);
+        }
+
+    }
+
+    @Override
+    public String findActionName(String action) {
+        try {
+            return pModeProvider.findActionName(action);
+        } catch (EbMS3Exception e) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not find action for value:[" + action + "]", e);
+        }
+    }
+
+    @Override
+    public String findServiceName(String service, String serviceType) {
+        try {
+            return pModeProvider.findServiceName(service, serviceType);
+        } catch (EbMS3Exception e) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not find service:[" + service + "] with type:[" + serviceType + "]", e);
+        }
+    }
+
+    @Override
+    public String findMpcName(String mpc) {
+        try {
+            return pModeProvider.findMpcName(mpc);
+        } catch (EbMS3Exception e) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not find mpc:[" + mpc + "]", e);
+        }
+
     }
 
     protected LegConfiguration convert(eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) {
