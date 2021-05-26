@@ -24,9 +24,11 @@ public class MtomEnabledChangeListener implements PluginPropertyChangeListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MtomEnabledChangeListener.class);
 
     private final Endpoint backendInterfaceEndpoint;
+    private final Endpoint backendInterfaceEndpointDeprecated;
 
-    public MtomEnabledChangeListener(@Qualifier("backendInterfaceEndpoint") Endpoint backendInterfaceEndpoint) {
+    public MtomEnabledChangeListener(@Qualifier("backendInterfaceEndpoint") Endpoint backendInterfaceEndpoint, @Qualifier("backendInterfaceEndpointDeprecated") Endpoint backendInterfaceEndpointDeprecated) {
         this.backendInterfaceEndpoint = backendInterfaceEndpoint;
+        this.backendInterfaceEndpointDeprecated = backendInterfaceEndpointDeprecated;
     }
 
     @Override
@@ -38,8 +40,8 @@ public class MtomEnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        Boolean val = Boolean.valueOf(propertyValue);
-        LOG.trace("Setting [{}] property to [{}] on domain: [{}]", propertyName, val, domainCode);
-        ((SOAPBinding) backendInterfaceEndpoint.getBinding()).setMTOMEnabled(val);
+        LOG.trace("Setting [{}] property to [{}] on domain: [{}]", propertyName, propertyValue, domainCode);
+        backendInterfaceEndpoint.getProperties().put("mtom-enabled", propertyValue);
+        backendInterfaceEndpointDeprecated.getProperties().put("mtom-enabled", propertyValue);
     }
 }
