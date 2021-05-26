@@ -1,3 +1,13 @@
+Domibus 4.2.2
+- Handle runtime error while dispatching SEND_ENQUEUED messages.
+- Add http timeout for certificate CRL download.
+- Renamed procedures and several indexes to match Oracle 11g constraints.
+- Added new property 'domibus.action.resend.wait.minutes' - Minimum expected waiting time for 'Resend' action, for the received messages get stuck in SEND_ENQUEUED status.
+- Properties for fs-plugin purges (messages.sent.purge.expired, messages.failed.purge.expired, messages.received.purge.expired, messages.locks.purge.expired) expiration limit if 0 or empty: purge disabled
+- Resend failed messages is not stable
+- NullPointer for default delete message mechanism for messages in SEND_FAILURE
+- Fixed REST endpoint for SEND_FAILURE Messages
+- Fixed issue in the  mysql-4.2.1-to-4.2.2-migration.ddl
 Domibus 4.2.1
 - Use DefaultMPC value for User Messages received without the optional MPC attribute.
 - Improve performance of the default view of the Messages page in Domibus Admin Console.

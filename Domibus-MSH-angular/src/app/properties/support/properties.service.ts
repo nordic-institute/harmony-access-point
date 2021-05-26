@@ -73,7 +73,7 @@ export class PropertiesService {
   }
 
   async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
-    return this.getProperty('domibus.ui.resend.action.enabled.received.minutes');
+    return this.getProperty('domibus.action.resend.wait.minutes');
   }
 
   private async isPropertyValidationEnabled(): Promise<boolean> {

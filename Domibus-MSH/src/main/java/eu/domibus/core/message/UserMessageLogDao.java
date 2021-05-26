@@ -48,7 +48,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
         String queryString = "select distinct m.messageInfo.messageId from UserMessage m " +
-                "inner join m.messageProperties.property p, UserMessageLog ml " +
+                "left join m.messageProperties.property p, UserMessageLog ml " +
                 "where ml.messageId = m.messageInfo.messageId and ml.messageStatus = 'SEND_FAILURE' and ml.messageType = 'USER_MESSAGE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
@@ -69,6 +69,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         if (failedEndDate != null) {
             query.setParameter("END_DATE", failedEndDate);
         }
+        return query.getResultList();
+    }
+
+    public List<String> findSendEnqueuedMessages(String finalRecipient, Date startDate, Date endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findSendEnqueuedMessages", String.class);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", startDate);
+        query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
 

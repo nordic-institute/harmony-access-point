@@ -10,16 +10,12 @@ import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
-import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
@@ -63,13 +59,12 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ACTION_RESEND_WAIT_MINUTES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -190,6 +185,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private UserMessageDao userMessageDao;
 
+    @Autowired
+    private UserMessageDefaultRestoreService restoreService;
+
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager em;
 
@@ -240,47 +238,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
-    @Transactional
-    @Override
-    public void restoreFailedMessage(String messageId) {
-        LOG.info("Restoring message [{}]", messageId);
-        final UserMessageLog userMessageLog = getFailedMessage(messageId);
-
-        if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
-        }
-
-        final MessageStatus newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
-        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, newMessageStatus, new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(newMessageStatus);
-        final Date currentDate = new Date();
-        userMessageLog.setRestored(currentDate);
-        userMessageLog.setFailed(null);
-        userMessageLog.setNextAttempt(currentDate);
-
-        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog, messageId);
-        LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
-        userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-        userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
-
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(userMessage, userMessageLog);
-        } else {
-            try {
-                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-                Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
-                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            } catch (EbMS3Exception ebms3Ex) {
-                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
-            }
-        }
-    }
-
     @Override
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);
@@ -293,7 +250,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
 
-        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
         Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
         Date currentDate = new Date();
         if (receivedDateDelta.after(currentDate)) {
@@ -320,27 +277,10 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
             sendEnqueuedMessage(messageId);
         } else {
-            restoreFailedMessage(messageId);
+            restoreService.restoreFailedMessage(messageId);
         }
 
         auditService.addMessageResentAudit(messageId);
-    }
-
-    protected Integer getMaxAttemptsConfiguration(final String messageId) {
-        final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageId);
-        Integer result = 1;
-        if (legConfiguration == null) {
-            LOG.warn("Could not get the leg configuration for message [{}]. Using the default maxAttempts configuration [{}]", messageId, result);
-        } else {
-            result = pModeServiceHelper.getMaxAttempts(legConfiguration);
-        }
-        return result;
-    }
-
-    protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog, final String messageId) {
-        Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(messageId);
-        // always increase maxAttempts (even when not reached by sendAttempts)
-        return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
     protected Integer getUserMessagePriority(UserMessage userMessage) {
@@ -532,7 +472,6 @@ public class UserMessageDefaultService implements UserMessageService {
         return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
-    @Transactional
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
@@ -544,7 +483,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
             try {
-                restoreFailedMessage(messageId);
+                restoreService.restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
                 LOG.error("Failed to restore message [" + messageId + "]", e);
@@ -552,6 +491,35 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, start, end, finalRecipient);
+
+        return restoredMessages;
+    }
+
+    @Override
+    public List<String> restoreSendEnqueuedMessagesDuringPeriod(Date startDate, Date endDate, String finalRecipient) {
+        final List<String> sendEnqueuedMessages = userMessageLogDao.findSendEnqueuedMessages(finalRecipient, startDate, endDate);
+        if (sendEnqueuedMessages == null) {
+            return null;
+        }
+        LOG.debug("Found send enqueued messages [{}] using start date [{}], end date [{}] and final recipient [{}]", sendEnqueuedMessages, startDate, endDate, finalRecipient);
+
+        int resendWaitingTimeInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES);
+        Date resendDate = DateUtils.addMinutes(endDate, resendWaitingTimeInMinutes);
+        Date currentDate = new Date();
+        if (resendDate.after(currentDate)) {
+            LOG.warn("Minimum expected waiting time not yet reached to resend the messages in SEND_ENQUEUED status");
+        }
+        final List<String> restoredMessages = new ArrayList<>();
+        for (String messageId : sendEnqueuedMessages) {
+            try {
+                restoreService.restoreSendEnqueuedMessage(messageId);
+                restoredMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [{}]", messageId, e);
+            }
+        }
+
+        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient [{}]", restoredMessages, startDate, endDate, finalRecipient);
 
         return restoredMessages;
     }
@@ -586,7 +554,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
 
-        if(userMessageLog == null) {
+        if (userMessageLog == null) {
             LOG.debug("Trying to delete a non-existent message [{}]", messageId);
             return;
         }
@@ -627,7 +595,9 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] messagings", messagings.size());
         for (Messaging messaging : messagings) {
             LOG.trace("Deleting messaging [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
-            signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
+            if (messaging.getSignalMessage() != null) {
+                signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
+            }
             em.remove(messaging);
         }
         em.flush();

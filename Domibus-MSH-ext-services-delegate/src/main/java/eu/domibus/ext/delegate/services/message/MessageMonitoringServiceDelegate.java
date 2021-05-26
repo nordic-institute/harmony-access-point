@@ -1,10 +1,11 @@
 package eu.domibus.ext.delegate.services.message;
 
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.usermessage.UserMessageRestoreService;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
@@ -38,6 +39,9 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Autowired
     UserMessageSecurityService userMessageSecurityService;
 
+    @Autowired
+    UserMessageRestoreService restoreService;
+
     @Override
     public List<String> getFailedMessages() throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
@@ -61,7 +65,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void restoreFailedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
-        userMessageService.restoreFailedMessage(messageId);
+        restoreService.restoreFailedMessage(messageId);
     }
 
     @Override
@@ -74,6 +78,12 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     public List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
         return userMessageService.restoreFailedMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+    }
+
+    @Override
+    public List<String> restoreSendEnqueuedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException {
+        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
+        return userMessageService.restoreSendEnqueuedMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
     }
 
     @Override

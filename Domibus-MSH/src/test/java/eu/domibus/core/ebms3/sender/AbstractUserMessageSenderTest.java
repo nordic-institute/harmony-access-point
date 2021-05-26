@@ -452,13 +452,8 @@ public class AbstractUserMessageSenderTest {
 
         }};
 
-        try {
-            //tested method
-            abstractUserMessageSender.sendMessage(messaging, userMessageLog);
-            Assert.fail("exception expected");
-        } catch (Throwable t) {
-            Assert.assertTrue(t instanceof OutOfMemoryError);
-        }
+        //tested method
+        abstractUserMessageSender.sendMessage(messaging, userMessageLog);
 
         new Verifications() {{
             String messageIdActual;

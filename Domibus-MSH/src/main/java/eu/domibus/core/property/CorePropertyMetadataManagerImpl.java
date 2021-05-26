@@ -316,6 +316,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
@@ -323,7 +324,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
 
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ACTION_RESEND_WAIT_MINUTES, Type.NUMERIC),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

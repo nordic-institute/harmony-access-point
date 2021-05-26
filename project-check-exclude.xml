@@ -69,4 +69,12 @@
         <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>
         <cpe>cpe:/a:google:guava</cpe>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hibernate-validator-5.1.2.Final.jar
+   ]]></notes>
+        <!-- we are not affected by this CVE as we don't manipulate the validated value-->
+        <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-validator@.*$</packageUrl>
+        <cve>CVE-2020-10693</cve>
+    </suppress>
 </suppressions>

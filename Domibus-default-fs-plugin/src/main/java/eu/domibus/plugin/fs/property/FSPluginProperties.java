@@ -107,10 +107,13 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     /**
      * @param domain The domain property qualifier
-     * @return The time interval (seconds) to purge sent messages
+     * @return The time interval (seconds) to purge sent messages or 0 for purge disabled
      */
-    public Integer getSentPurgeExpired(String domain) {
+    public int getSentPurgeExpired(String domain) {
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
+        if(StringUtils.isBlank(value)){
+            return 0;
+        }
         return NumberUtils.toInt(value);
     }
 
@@ -156,28 +159,37 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     /**
      * @param domain The domain property qualifier
-     * @return The time interval (seconds) to purge failed messages
+     * @return The time interval (seconds) to purge failed messages or 0 for purge disabled
      */
-    public Integer getFailedPurgeExpired(String domain) {
+    public int getFailedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, FAILED_PURGE_EXPIRED, "600");
+        if(StringUtils.isBlank(value)){
+            return 0;
+        }
         return NumberUtils.toInt(value);
     }
 
     /**
      * @param domain The domain property qualifier
-     * @return The time interval (seconds) to purge received messages
+     * @return The time interval (seconds) to purge received messages or 0 for purge disabled
      */
-    public Integer getReceivedPurgeExpired(String domain) {
+    public int getReceivedPurgeExpired(String domain) {
         String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
+        if(StringUtils.isBlank(value)){
+            return 0;
+        }
         return NumberUtils.toInt(value);
     }
 
     /**
      * @param domain The domain property qualifier
-     * @return The time interval (seconds) to purge orphan lock files
+     * @return The time interval (seconds) to purge orphan lock files or 0 for purge disabled
      */
-    public Integer getLocksPurgeExpired(String domain) {
+    public int getLocksPurgeExpired(String domain) {
         String value = getDomainProperty(domain, LOCKS_PURGE_EXPIRED, "600");
+        if(StringUtils.isBlank(value)){
+            return 0;
+        }
         return NumberUtils.toInt(value);
     }
 

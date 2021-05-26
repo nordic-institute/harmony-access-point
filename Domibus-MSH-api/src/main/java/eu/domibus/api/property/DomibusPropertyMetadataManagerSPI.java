@@ -60,6 +60,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME = "domibus.console.login.suspension.time";
     String DOMIBUS_CERTIFICATE_REVOCATION_OFFSET = "domibus.certificate.revocation.offset";
     String DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
+    String DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT = "domibus.certificate.crl.http.timeout";
     String DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT = "domibus.plugin.login.maximum.attempt";
     String DOMIBUS_PLUGIN_LOGIN_SUSPENSION_TIME = "domibus.plugin.login.suspension.time";
     String DOMIBUS_PASSWORD_POLICY_PATTERN = "domibus.passwordPolicy.pattern";//NOSONAR
@@ -331,7 +332,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
-    String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
+    String DOMIBUS_ACTION_RESEND_WAIT_MINUTES = "domibus.action.resend.wait.minutes";
     String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
 
 }

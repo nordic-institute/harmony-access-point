@@ -39,8 +39,6 @@ public interface UserMessageService {
 
     Long getFailedMessageElapsedTime(String messageId);
 
-    void restoreFailedMessage(String messageId);
-
     void sendEnqueuedMessage(String messageId);
 
     /**
@@ -52,6 +50,8 @@ public interface UserMessageService {
     void resendFailedOrSendEnqueuedMessage(final String messageId);
 
     List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end, String finalRecipient);
+
+    List<String> restoreSendEnqueuedMessagesDuringPeriod(Date begin, Date end, String finalRecipient);
 
     void deleteFailedMessage(String messageId);
 
