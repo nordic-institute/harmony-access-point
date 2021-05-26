@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
+import java.util.TimeZone;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -61,6 +62,7 @@ public class DomibusTestDatasourceConfiguration {
 
     private JdbcDataSource createH2Datasource() {
         JdbcDataSource result = new JdbcDataSource();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:dataset/database/create_schema.sql'\\;runscript from 'classpath:h2.sql'");
         result.setUser("sa");
         result.setPassword("");
