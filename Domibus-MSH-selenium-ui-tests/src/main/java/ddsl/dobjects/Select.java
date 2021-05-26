@@ -26,8 +26,10 @@ public class Select extends DComponent {
 
 	public WebElement selectContainer;
 	protected List<String> optionIDs = new ArrayList<String>();
+
 	@FindBy(css = "[class*=\"select-arrow\"]")
 	protected WebElement expandBtn;
+
 	private By options = By.cssSelector(".mat-select-panel > mat-option");
 	private By selectedOption = By.cssSelector("[class*=\"-select-value\"]");
 
@@ -39,12 +41,27 @@ public class Select extends DComponent {
 
 		this.selectContainer = container;
 		try {
-			expand();
-		} catch (Exception e) {		}
+			if(isDisplayed() && isEnabled()){
+				expand();
+				extractOptionIDs();
+				contract();
+			}
+		} catch (Exception e) {}
 	}
 
 	public boolean isDisplayed() throws Exception {
 		return weToDButton(expandBtn).isEnabled();
+	}
+
+	public boolean isEnabled() {
+//		aria-disabled="true"
+		boolean isEnabled = true;
+		try {
+			isEnabled = !Boolean.valueOf(weToDobject(selectContainer).getAttribute("aria-disabled"));
+		} catch (Exception e) {
+		}
+
+		return isEnabled;
 	}
 
 	public String getSelectedValue() throws Exception {
@@ -64,26 +81,23 @@ public class Select extends DComponent {
 		log.debug(optionIDs.size() + " option ids identified : " + optionIDs);
 	}
 
-	public void expand() throws Exception {
+	private void expand() throws Exception {
 		try {
 			weToDButton(expandBtn).click();
-			wait.forAttributeToContain(selectContainer, "aria-owns", "mat-option");
-			wait.forXMillis(200);
-			if (this.optionIDs.size() == 0) extractOptionIDs();
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {e.printStackTrace();}
 	}
 
-	public void contract() throws Exception {
+	private void contract() throws Exception {
 		try {
 			wait.forXMillis(200);
 
 			selectContainer.sendKeys(Keys.ESCAPE);
 			wait.forXMillis(200);
 
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {	}
 	}
+
+//	-----------------------------------------------------------------
 
 	protected List<DObject> getOptionElements() throws Exception {
 		expand();
@@ -110,7 +124,7 @@ public class Select extends DComponent {
 			log.warn("select has no options - " + text);
 		}
 
-		wait.forElementToHaveText(optionObj.get(optionObj.size() - 1).element);
+//		wait.forElementToHaveText(optionObj.get(optionObj.size() - 1).element);
 
 		for (DObject dObject : optionObj) {
 			if (StringUtils.equalsIgnoreCase(dObject.getText(), text)) {
@@ -127,7 +141,7 @@ public class Select extends DComponent {
 			throw new Exception(String.format("Could not select, index is %s and we got %s options", index, optionIDs.size()));
 		}
 
-		log.info("selectOptionByIndex : " + getOptionElements().get(index).getText());
+		log.info("selectOptionByIndex : " + index);
 		getOptionElements().get(index).click();
 		return true;
 	}
@@ -143,14 +157,5 @@ public class Select extends DComponent {
 		return texts;
 	}
 
-	public boolean isEnabled() {
-//		aria-disabled="true"
-		boolean isEnabled = true;
-		try {
-			isEnabled = !Boolean.valueOf(weToDobject(selectContainer).getAttribute("aria-disabled"));
-		} catch (Exception e) {
-		}
 
-		return isEnabled;
-	}
 }
