@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.soap.SOAPBinding;
+import java.util.HashMap;
 
 /**
  * @author Ion Perpegel
@@ -20,11 +21,14 @@ public class MtomEnabledChangeListenerTest {
     @Mocked
     private Endpoint backendInterfaceEndpoint;
 
+    @Mocked
+    private Endpoint backendInterfaceEndpointDeprecated;
+
     private MtomEnabledChangeListener listener;
 
     @Before
     public void setUp() {
-        listener = new MtomEnabledChangeListener(backendInterfaceEndpoint);
+        listener = new MtomEnabledChangeListener(backendInterfaceEndpoint, backendInterfaceEndpointDeprecated);
     }
 
     @Test
@@ -40,16 +44,22 @@ public class MtomEnabledChangeListenerTest {
     }
 
     @Test
-    public void propertyValueChanged(@Mocked SOAPBinding soapBinding) {
+    public void propertyValueChanged() {
+        HashMap<String, Object> prop = new HashMap<>();
+        HashMap<String, Object> propDeprecated = new HashMap<>();
         new Expectations() {{
-            backendInterfaceEndpoint.getBinding();
-            result = soapBinding;
+            backendInterfaceEndpoint.getProperties();
+            result = prop;
+            backendInterfaceEndpointDeprecated.getProperties();
+            result = propDeprecated;
         }};
 
         listener.propertyValueChanged("default", "wsplugin.mtom.enabled", "true");
-        new FullVerifications() {{
-            soapBinding.setMTOMEnabled(true);
-        }};
 
+        Assert.assertEquals("true", prop.get("mtom-enabled"));
+        Assert.assertEquals("true", propDeprecated.get("mtom-enabled"));
+
+        new FullVerifications() {
+        };
     }
 }

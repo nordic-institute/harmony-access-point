@@ -1,4 +1,4 @@
-import {AfterViewChecked, ChangeDetectorRef, Component, Input, ViewChild} from '@angular/core';
+import {AfterViewChecked, ChangeDetectorRef, Component, Input, OnInit, ViewChild} from '@angular/core';
 import {IPageableList, PaginationType} from '../mixins/ipageable-list';
 import BaseListComponent from '../mixins/base-list.component';
 import {ISortableList} from '../mixins/isortable-list';
@@ -16,6 +16,8 @@ export class PageGridComponent implements AfterViewChecked {
   @ViewChild(DatatableComponent, {static: false}) table: DatatableComponent;
   private currentComponentWidth;
 
+  messages = {};
+
   constructor(private changeDetector: ChangeDetectorRef) {
   }
 
@@ -30,6 +32,9 @@ export class PageGridComponent implements AfterViewChecked {
 
   @Input()
   rowClassFn: Function;
+
+  @Input()
+  totalMessage = `$1 total`;
 
   // ugly hack but otherwise the ng-datatable doesn't resize when collapsing the menu
   ngAfterViewChecked() {

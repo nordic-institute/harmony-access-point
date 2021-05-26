@@ -6,6 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,6 +28,9 @@ public class DeleteReceivedMessageIT extends DeleteMessageIT {
      */
     @Test
     public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+
         uploadPmode(wireMockRule.port());
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         receiveMessageToDelete();

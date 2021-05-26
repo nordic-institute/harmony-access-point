@@ -2,6 +2,7 @@ package eu.domibus.core.replication;
 
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessagesLogServiceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
@@ -32,6 +33,9 @@ public class UIMessageServiceImpl implements UIMessageService {
     @Autowired
     private MessageCoreMapper messageCoreConverter;
 
+    @Autowired
+    MessagesLogServiceHelper messagesLogServiceHelper;
+
     @Override
     @Transactional(readOnly = true)
     public long countMessages(Map<String, Object> filters) {
@@ -54,14 +58,12 @@ public class UIMessageServiceImpl implements UIMessageService {
         List<UIMessageEntity> uiMessageEntityList = new ArrayList<>();
 
         //make the count
-        long numberOfMessages = uiMessageDao.countEntries(filters);
-
-        if (numberOfMessages != 0) {
+        long number = messagesLogServiceHelper.calculateNumberOfMessages(uiMessageDao, filters, result);
+        if (number != 0) {
             //query for the page results
             uiMessageEntityList = uiMessageDao.findPaged(from, max, column, asc, filters);
         }
 
-        result.setCount(numberOfMessages);
         result.setMessageLogEntries(uiMessageEntityList
                 .stream()
                 .map(messageCoreConverter::uiMessageEntityToMessageLogRO)

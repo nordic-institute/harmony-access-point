@@ -49,6 +49,17 @@
         </dependency>
         <!-- End Domibus modules -->
 
+        <!-- Hibernate -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jcache</artifactId>
+        </dependency>
+        <!-- End Hibernate -->
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.security</groupId>

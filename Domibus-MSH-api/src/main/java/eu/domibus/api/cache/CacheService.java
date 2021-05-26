@@ -11,4 +11,9 @@ public interface CacheService {
      */
     void evictCaches();
 
+    /**
+     * Clear Second Level caches
+     */
+    void evict2LCaches();
+
 }

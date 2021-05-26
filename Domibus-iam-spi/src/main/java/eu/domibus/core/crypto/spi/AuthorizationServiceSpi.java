@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.ext.domain.PullRequestDTO;
+import eu.domibus.ext.domain.UserMessageDTO;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -21,11 +22,13 @@ public interface AuthorizationServiceSpi {
      * @param signingCertificateTrustChain the signing certificate trust chain.
      * @param signingCertificate           the signing certificate
      * @param userMessageDTO               the UserMessage information.
-     * @param userMessagePmodeData              a class containing information from domibus configuration.
+     * @param userMessagePmodeData         a class containing information from domibus configuration.
      * @throws AuthorizationException if the message is not authorized.
      */
     void authorize(
+            List<X509Certificate> signingCertificateTrustChain,
             X509Certificate signingCertificate,
+            UserMessageDTO userMessageDTO,
             UserMessagePmodeData userMessagePmodeData) throws AuthorizationException;
 
     /**
@@ -34,7 +37,7 @@ public interface AuthorizationServiceSpi {
      * @param signingCertificateTrustChain the signing certificate trust chain.
      * @param signingCertificate           the signing certificate.
      * @param pullRequestDTO               the PullRequest information.
-     * @param pullRequestPmodeData           a class containing information from domibus configuration.
+     * @param pullRequestPmodeData         a class containing information from domibus configuration.
      * @throws AuthorizationException if the message is not authorized.
      */
     void authorize(List<X509Certificate> signingCertificateTrustChain,

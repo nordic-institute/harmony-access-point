@@ -26,4 +26,11 @@ public class ClusterCacheServiceNotifier implements DomibusCacheServiceNotifier 
 
         signalService.signalClearCaches();
     }
+
+    @Override
+    public void notifyClear2LCaches() {
+        LOG.debug("Received notification to clear all caches");
+
+        signalService.signalClear2LCCaches();
+    }
 }

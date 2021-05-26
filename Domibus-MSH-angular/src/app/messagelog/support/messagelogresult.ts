@@ -1,9 +1,10 @@
-import {MessageLogEntry} from "./messagelogentry";
+import {MessageLogEntry} from './messagelogentry';
 export class MessageLogResult {
 
   constructor(public messageLogEntries: Array<MessageLogEntry>,
               public pageSize: number,
               public count: number,
+              public estimatedCount: boolean,
               public filter: any,
               public mshRoles: Array<string>,
               public msgTypes: Array<string>,

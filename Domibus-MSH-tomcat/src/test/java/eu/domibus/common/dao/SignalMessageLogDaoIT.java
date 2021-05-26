@@ -53,20 +53,20 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testCountAllInfo() {
+    public void testCount() {
         Map<String, Object> filters = Stream.of(new Object[][]{
                 {"receivedFrom", before},
                 {"receivedTo", after},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        int count = signalMessageLogDao.countAllInfo(true, filters);
+        long count = signalMessageLogDao.countEntries(filters);
 
         Assert.assertEquals(2, count);
     }
 
     @Test
     @Transactional
-    public void testCountAllInfoWithFilters() {
+    public void testCountWithMoreFilters() {
         Map<String, Object> filters = Stream.of(new Object[][]{
                 {"receivedFrom", before},
                 {"receivedTo", after},
@@ -74,7 +74,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"messageStatus", MessageStatus.RECEIVED},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
-        int count = signalMessageLogDao.countAllInfo(true, filters);
+        long count = signalMessageLogDao.countEntries(filters);
 
         Assert.assertEquals(2, count);
     }

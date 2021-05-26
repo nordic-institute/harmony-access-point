@@ -7,9 +7,8 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.security.AuthorizationService;
+import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -40,7 +38,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected AttachmentCleanupService attachmentCleanupService;
 
     @Autowired
-    protected AuthorizationService authorizationService;
+    protected AuthorizationServiceImpl authorizationService;
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
