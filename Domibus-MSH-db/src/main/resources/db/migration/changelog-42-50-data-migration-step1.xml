@@ -394,7 +394,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -470,7 +470,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -486,7 +486,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -521,7 +521,7 @@
         <!-- TB_PART_INFO -->
         <createTable tableName="MIGR_TB_PART_INFO">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_PART_INFO"/>
+                <constraints primaryKey="true" primaryKeyName=  "PK_PART_INFO"/>
             </column>
             <column name="BINARY_DATA" type="LONGBLOB"/>
             <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
