@@ -8,12 +8,12 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageHandlerService;
@@ -94,7 +94,7 @@ public class PullReceiptListener implements MessageListener {
             }
             domainContextProvider.setCurrentDomain(domainCode);
             final String refToMessageId = message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
-            final String pModeKey = message.getStringProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+            final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             LOG.info("Sending pull receipt for pulled UserMessage [{}], domain [{}].", refToMessageId, domainCode);
             LOG.debug("pModekey is [{}]", pModeKey);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);

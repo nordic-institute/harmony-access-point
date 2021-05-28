@@ -1,3 +1,4 @@
+/*
 package eu.domibus.plugin;
 
 
@@ -17,10 +18,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * @author idragusa
  * @since 5.0
- */
+ *//*
+
 //@DirtiesContext
 //@Rollback
 @Ignore
@@ -35,9 +38,11 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
         uploadPmode(wireMockRule.port(), toReplace);
     }
 
-    /**
+    */
+/**
      * Test to delete a sent success message
-     */
+     *//*
+
     @Test
     public void testDeleteSentMessage() throws SubmitMessageFault {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
@@ -59,4 +64,4 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
         Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
         Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
     }
-}
+}*/

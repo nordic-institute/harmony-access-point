@@ -1,0 +1,67 @@
+{
+  "messageId": "id123456",
+  "refToMessageId": "321",
+  "conversationId": "123",
+  "timestamp": "May 26, 2021 3:51:08 PM",
+  "partyInfo": {
+    "from": {
+      "partyId": {
+        "value": "blue_gw",
+        "type": "urn:oasis:names:tc:ebcore:partyid-type:unregistered",
+        "entityId": 0
+      },
+      "role": {
+        "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",
+        "entityId": 0
+      }
+    },
+    "to": {
+      "partyId": {
+        "value": "red_gw",
+        "type": "urn:oasis:names:tc:ebcore:partyid-type:unregistered",
+        "entityId": 0
+      },
+      "role": {
+        "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",
+        "entityId": 0
+      }
+    }
+  },
+  "action": {
+    "value": "TC1Leg1",
+    "entityId": 0
+  },
+  "service": {
+    "value": "bdx:noprocess",
+    "type": "tc1",
+    "entityId": 0
+  },
+  "agreementRef": {
+    "value": "agreement1",
+    "type": "agreementType",
+    "entityId": 0
+  },
+  "mpc": {
+    "value": "myMpc",
+    "entityId": 0
+  },
+  "messageProperties": [
+    {
+      "name": "finalRecipient",
+      "value": "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4",
+      "type": "string",
+      "entityId": 0
+    },
+    {
+      "name": "originalSender",
+      "value": "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",
+      "type": "string",
+      "entityId": 0
+    }
+  ],
+  "entityId": 0,
+  "creationTime": "May 26, 2021 3:51:08 PM",
+  "modificationTime": "May 26, 2021 3:51:08 PM",
+  "createdBy": "baciuco",
+  "modifiedBy": "baciuco"
+}

@@ -29,7 +29,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.util.MessageTestUtility;
+import eu.domibus.test.common.MessageTestUtility;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.phase.PhaseInterceptorChain;

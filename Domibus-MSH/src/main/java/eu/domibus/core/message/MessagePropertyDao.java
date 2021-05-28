@@ -13,7 +13,7 @@ import javax.persistence.TypedQuery;
  * @since 5.0
  */
 @Repository
-public class MessagePropertyDao extends BasicDao<MessageProperty> {
+public class  MessagePropertyDao extends BasicDao<MessageProperty> {
 
     public MessagePropertyDao() {
         super(MessageProperty.class);

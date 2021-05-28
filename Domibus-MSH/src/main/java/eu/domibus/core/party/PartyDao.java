@@ -40,4 +40,9 @@ public class PartyDao extends BasicDao<Party> {
         query.setParameter("PARTY_ID", id);
         return (Party) query.getSingleResult();
     }
+
+    public void deleteAll() {
+        Query query = em.createNamedQuery("Party.deleteAll");
+        query.executeUpdate();
+    }
 }

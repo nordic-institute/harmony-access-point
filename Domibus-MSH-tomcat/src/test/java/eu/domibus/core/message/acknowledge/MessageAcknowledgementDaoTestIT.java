@@ -11,7 +11,7 @@ import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.ebms3.Ebms3MessagingDocumentParser;
+import mockit.Injectable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSaveMessageAcknowledge() {
+    public void testSaveMessageAcknowledge(@Injectable UserMessage userMessage) {
         String user = "baciuco";
         String messageId = "123";
         Timestamp acknowledgetTimestamp = new Timestamp(System.currentTimeMillis());
@@ -73,7 +73,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         properties.put("prop1", "value1");
         properties.put("prop1", "value1");
 
-        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, messageId, acknowledgetTimestamp, from, to);
+        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage, acknowledgetTimestamp, from, to);
         messageAcknowledgementDao.create(entity);
 
         final List<MessageAcknowledgementEntity> retrievedEntityList = messageAcknowledgementDao.findByMessageId(messageId);
@@ -83,7 +83,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
         final MessageAcknowledgementEntity retrievedEntity = retrievedEntityList.get(0);
         assertEquals(entity.getEntityId(), retrievedEntity.getEntityId());
-        assertEquals(entity.getCreateUser(), retrievedEntity.getCreateUser());
+        assertEquals(entity.getCreatedBy(), retrievedEntity.getCreatedBy());
 //        assertEquals(entity.getMessageId(), retrievedEntity.getMessageId());
         assertEquals(entity.getAcknowledgeDate(), retrievedEntity.getAcknowledgeDate());
         assertEquals(entity.getFrom(), retrievedEntity.getFrom());

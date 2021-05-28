@@ -7,6 +7,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
@@ -17,7 +18,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
@@ -238,7 +238,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
             legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
-            sourceRequest.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, sourcePmodeKey);
+            sourceRequest.setProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, sourcePmodeKey);
         } catch (EbMS3Exception | SOAPException e) {
             throw new SplitAndJoinException("Error getting the pmodeKey", e);
         }

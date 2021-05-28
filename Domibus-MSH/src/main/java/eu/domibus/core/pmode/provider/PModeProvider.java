@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -17,7 +18,6 @@ import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -451,27 +451,27 @@ public abstract class PModeProvider {
     public abstract Role getBusinessProcessRole(String roleValue) throws EbMS3Exception;
 
     public String getSenderPartyNameFromPModeKey(final String pModeKey) {
-        return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[0];
+        return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[0];
     }
 
     public String getReceiverPartyNameFromPModeKey(final String pModeKey) {
-        return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[1];
+        return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[1];
     }
 
     public String getServiceNameFromPModeKey(final String pModeKey) {
-        return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[2];
+        return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[2];
     }
 
     public String getActionNameFromPModeKey(final String pModeKey) {
-        return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[3];
+        return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[3];
     }
 
     public String getAgreementRefNameFromPModeKey(final String pModeKey) {
-        return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[4];
+        return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[4];
     }
 
     public String getLegConfigurationNameFromPModeKey(final String pModeKey) {
-        return pModeKey.split(MessageExchangeConfiguration.PMODEKEY_SEPARATOR)[5];
+        return pModeKey.split(PModeConstants.PMODEKEY_SEPARATOR)[5];
     }
 
     public abstract List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration);

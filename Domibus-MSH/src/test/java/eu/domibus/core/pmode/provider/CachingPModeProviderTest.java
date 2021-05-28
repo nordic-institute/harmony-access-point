@@ -25,7 +25,7 @@ import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.util.PojoInstaciatorUtil;
+import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
-import static eu.domibus.core.message.MessageExchangeConfiguration.PMODEKEY_SEPARATOR;
+import static eu.domibus.api.pmode.PModeConstants.PMODEKEY_SEPARATOR;
 import static org.junit.Assert.*;
 
 /**

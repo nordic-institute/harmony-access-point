@@ -16,7 +16,7 @@ import javax.persistence.*;
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartProperty prop where prop.value=:VALUE"),
         @NamedQuery(name = "PartProperty.findByNameValueAndType", hints = {
         @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartProperty prop where prop.name=:NAME and prop.value=:VALUE and (prop.type=:TYPE or prop.type is null)"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartProperty prop where prop.name=:NAME and prop.value=:VALUE and prop.type=:TYPE"),
 })
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PartProperty extends Property {

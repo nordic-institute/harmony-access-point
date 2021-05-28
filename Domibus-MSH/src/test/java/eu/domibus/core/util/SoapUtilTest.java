@@ -1,9 +1,9 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -81,7 +81,7 @@ public class SoapUtilTest {
         attachment.setContentId("sbdh-order");
         message.addAttachmentPart(attachment);
 
-        message.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, "blue_gw:red_gw:testService1:tc1Action::pushTestcase1tc1Action");
+        message.setProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, "blue_gw:red_gw:testService1:tc1Action::pushTestcase1tc1Action");
         try {
             SOAPHeader soapHeader = message.getSOAPHeader();
         } catch (Exception e) {

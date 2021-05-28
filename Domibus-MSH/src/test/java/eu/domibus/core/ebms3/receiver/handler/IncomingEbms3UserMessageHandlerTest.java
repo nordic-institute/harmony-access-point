@@ -3,13 +3,13 @@ package eu.domibus.core.ebms3.receiver.handler;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.MessageExchangeService;
@@ -174,7 +174,7 @@ public class IncomingEbms3UserMessageHandlerTest {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations(incomingUserMessageHandler) {{
-            soapRequestMessage.getProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+            soapRequestMessage.getProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = pmodeKey;
 
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withEqual(pmodeKey), withEqual(soapRequestMessage), withEqual(userMessage), null, null, false);
