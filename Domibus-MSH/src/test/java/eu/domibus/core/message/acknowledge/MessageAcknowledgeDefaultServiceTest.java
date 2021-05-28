@@ -157,9 +157,6 @@ public class MessageAcknowledgeDefaultServiceTest {
             authUtils.getAuthenticatedUser();
             result = user;
 
-            userMessage.getMessageId();
-            result = messageId;
-
             messageAcknowledgeConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
             result = entity;
 
