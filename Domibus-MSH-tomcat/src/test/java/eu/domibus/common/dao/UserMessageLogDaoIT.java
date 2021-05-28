@@ -3,6 +3,7 @@ package eu.domibus.common.dao;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
@@ -96,9 +97,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindLastTestMessageId() {
-        messageDaoTestUtil.createTestMessage("msg-test-1");
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+        String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
 
-        String messageId = userMessageLogDao.findLastTestMessageId("domibus-red");
+        String messageId = userMessageLogDao.findLastTestMessageId(testParty);
         Assert.assertEquals("msg-test-1", messageId);
     }
 }

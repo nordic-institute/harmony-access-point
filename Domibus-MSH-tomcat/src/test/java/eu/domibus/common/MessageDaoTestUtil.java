@@ -133,7 +133,7 @@ public class MessageDaoTestUtil {
         return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false);
     }
 
-    public void createTestMessage(String msgId) {
+    public UserMessageLog createTestMessage(String msgId) {
         UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true);
 
         SignalMessage signal = new SignalMessage();
@@ -148,6 +148,8 @@ public class MessageDaoTestUtil {
 
         signalMessageLog.setSignalMessage(signal);
         signalMessageLogDao.create(signalMessageLog);
+
+        return userMessageLog;
     }
 
     private To createTo(String role, String partyId) {
