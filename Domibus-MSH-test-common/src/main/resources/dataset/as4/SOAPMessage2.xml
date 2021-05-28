@@ -6,7 +6,7 @@
             <eb:UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC">
                 <eb:MessageInfo>
                     <eb:Timestamp>2016-09-28T18:13:04.000Z</eb:Timestamp>
-                    <eb:MessageId>43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu</eb:MessageId>
+                    <eb:MessageId>MESSAGE_ID</eb:MessageId>
                 </eb:MessageInfo>
                 <eb:PartyInfo>
                     <eb:From>

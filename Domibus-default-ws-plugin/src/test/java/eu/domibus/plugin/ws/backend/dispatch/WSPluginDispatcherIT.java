@@ -13,7 +13,6 @@ import java.util.UUID;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore
 public class WSPluginDispatcherIT extends AbstractBackendWSIT {
 
     private int backendPort;

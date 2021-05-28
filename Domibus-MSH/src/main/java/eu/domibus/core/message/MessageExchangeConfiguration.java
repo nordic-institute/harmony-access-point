@@ -1,5 +1,7 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.pmode.PModeConstants;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -16,7 +18,6 @@ public class MessageExchangeConfiguration {
     private final String mpc;
     private final String pmodeKey;
     private final String reversePmodeKey;
-    public final static String PMODEKEY_SEPARATOR = "_pMK_SEP_";
 
     public MessageExchangeConfiguration(final String agreementName, final String senderParty, final String receiverParty, final String service, final String action, final String leg, final String mpc) {
         this.agreementName = agreementName;
@@ -26,8 +27,8 @@ public class MessageExchangeConfiguration {
         this.action = action;
         this.mpc = mpc;
         this.leg = leg;
-        this.pmodeKey = senderParty + PMODEKEY_SEPARATOR + receiverParty + PMODEKEY_SEPARATOR + service + PMODEKEY_SEPARATOR + action + PMODEKEY_SEPARATOR + agreementName + PMODEKEY_SEPARATOR + leg;
-        this.reversePmodeKey = receiverParty + PMODEKEY_SEPARATOR + senderParty + PMODEKEY_SEPARATOR + service + PMODEKEY_SEPARATOR + action + PMODEKEY_SEPARATOR + agreementName + PMODEKEY_SEPARATOR + leg;
+        this.pmodeKey = senderParty + PModeConstants.PMODEKEY_SEPARATOR + receiverParty + PModeConstants.PMODEKEY_SEPARATOR + service + PModeConstants.PMODEKEY_SEPARATOR + action + PModeConstants.PMODEKEY_SEPARATOR + agreementName + PModeConstants.PMODEKEY_SEPARATOR + leg;
+        this.reversePmodeKey = receiverParty + PModeConstants.PMODEKEY_SEPARATOR + senderParty + PModeConstants.PMODEKEY_SEPARATOR + service + PModeConstants.PMODEKEY_SEPARATOR + action + PModeConstants.PMODEKEY_SEPARATOR + agreementName + PModeConstants.PMODEKEY_SEPARATOR + leg;
     }
 
     public MessageExchangeConfiguration(final String agreementName, final String senderParty, final String receiverParty, final String service, final String action, final String leg) {

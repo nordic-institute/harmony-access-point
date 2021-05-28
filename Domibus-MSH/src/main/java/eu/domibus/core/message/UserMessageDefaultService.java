@@ -11,6 +11,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
@@ -23,7 +24,6 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
@@ -491,7 +491,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, messageId)
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }
@@ -504,7 +504,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
@@ -531,7 +531,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
         jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
@@ -543,7 +543,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
         jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);

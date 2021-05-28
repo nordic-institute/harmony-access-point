@@ -5,7 +5,8 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
-import eu.domibus.core.message.util.SubmissionUtil;
+import eu.domibus.test.common.SoapSampleUtil;
+import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -29,8 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
  * @author idragusa
@@ -74,6 +73,9 @@ public abstract class DeleteMessageIT extends AbstractIT {
     @Autowired
     DatabaseMessageHandler databaseMessageHandler;
 
+    @Autowired
+    SoapSampleUtil soapSampleUtil;
+
     protected static List<String> tablesToExclude;
 
     @BeforeClass
@@ -95,7 +97,7 @@ public abstract class DeleteMessageIT extends AbstractIT {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
 
-        SOAPMessage soapMessage = createSOAPMessage(filename);
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
         waitUntilMessageIsReceived(messageId);

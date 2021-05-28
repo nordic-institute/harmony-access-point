@@ -8,6 +8,7 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -45,6 +46,9 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     MessageUtil messageUtil;
 
+    @Autowired
+    SoapSampleUtil soapSampleUtil;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
@@ -57,7 +61,7 @@ public class MshWebServiceTestIT extends AbstractIT {
 
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
-        SOAPMessage soapMessage = createSOAPMessage(filename);
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         waitUntilMessageIsReceived(messageId);

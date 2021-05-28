@@ -51,11 +51,14 @@ public class DomibusContextRefreshedListener {
             return;
         }
 
-        executeWithLockIfNeeded(this::executeSynchronized);
-
-        executeNonSynchronized();
+        doInitialize();
 
         LOG.info("Finished processing ContextRefreshedEvent");
+    }
+
+    public void doInitialize() {
+        executeWithLockIfNeeded(this::executeSynchronized);
+        executeNonSynchronized();
     }
 
     /**

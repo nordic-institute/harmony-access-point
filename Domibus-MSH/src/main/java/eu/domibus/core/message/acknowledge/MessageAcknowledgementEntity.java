@@ -34,12 +34,6 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
     @Column(name = "TO_VALUE")
     private String to;
 
-    @Column(name = "CREATE_DATE")
-    private Timestamp createDate;
-
-    @Column(name = "CREATE_USER")
-    private String createUser;
-
     @Column(name = "ACKNOWLEDGE_DATE")
     private Timestamp acknowledgeDate;
 
@@ -57,22 +51,6 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
 
     public void setTo(String to) {
         this.to = to;
-    }
-
-    public Timestamp getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Timestamp createDate) {
-        this.createDate = createDate;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
     }
 
     public Timestamp getAcknowledgeDate() {
@@ -103,8 +81,6 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
                 .appendSuper(super.equals(o))
                 .append(from, that.from)
                 .append(to, that.to)
-                .append(createDate, that.createDate)
-                .append(createUser, that.createUser)
                 .append(acknowledgeDate, that.acknowledgeDate)
                 .isEquals();
     }
@@ -115,8 +91,6 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
                 .appendSuper(super.hashCode())
                 .append(from)
                 .append(to)
-                .append(createDate)
-                .append(createUser)
                 .append(acknowledgeDate)
                 .toHashCode();
     }
@@ -126,8 +100,6 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
         return new ToStringBuilder(this)
                 .append("from", from)
                 .append("to", to)
-                .append("createDate", createDate)
-                .append("createUser", createUser)
                 .append("acknowledgeDate", acknowledgeDate)
                 .toString();
     }

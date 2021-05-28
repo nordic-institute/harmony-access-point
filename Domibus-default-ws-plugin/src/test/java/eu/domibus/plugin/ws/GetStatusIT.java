@@ -5,14 +5,13 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.body.MessageStatus;
 import eu.domibus.plugin.ws.generated.body.StatusRequest;
+import eu.domibus.test.DomibusConditionUtil;
+import eu.domibus.test.PModeUtil;
+import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,21 +28,29 @@ public class GetStatusIT extends AbstractBackendWSIT {
     @Autowired
     Provider<SOAPMessage> mshWebserviceTest;
 
+    @Autowired
+    DomibusConditionUtil domibusConditionUtil;
+
+    @Autowired
+    PModeUtil pModeUtil;
+
+    @Autowired
+    SoapSampleUtil soapSampleUtil;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
-        waitUntilDatabaseIsInitialized();
-        uploadPmode(wireMockRule.port());
+        domibusConditionUtil.waitUntilDatabaseIsInitialized();
+        pModeUtil.uploadPmode(wireMockRule.port());
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetStatusReceived() throws StatusFault, IOException, SOAPException, SAXException, ParserConfigurationException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
-        SOAPMessage soapMessage = createSOAPMessage(filename);
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageIsReceived(messageId);
+        domibusConditionUtil.waitUntilMessageIsReceived(messageId);
 
         StatusRequest messageStatusRequest = createMessageStatusRequest(messageId);
         MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);

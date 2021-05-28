@@ -1,12 +1,12 @@
 package eu.domibus.pmode;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.messaging.XmlProcessingException;
@@ -23,8 +23,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,11 +49,11 @@ public class UploadPModeIT extends AbstractIT {
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
 
-    private static final String BLUE_2_RED_SERVICE1_ACTION1_PMODE_KEY = "blue_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "red_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "testService1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "tc1Action" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "agreement1110" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR + "pushTestcase1tc1Action";
+    private static final String BLUE_2_RED_SERVICE1_ACTION1_PMODE_KEY = "blue_gw" + PModeConstants.PMODEKEY_SEPARATOR +
+            "red_gw" + PModeConstants.PMODEKEY_SEPARATOR +
+            "testService1" + PModeConstants.PMODEKEY_SEPARATOR +
+            "tc1Action" + PModeConstants.PMODEKEY_SEPARATOR +
+            "agreement1110" + PModeConstants.PMODEKEY_SEPARATOR + "pushTestcase1tc1Action";
 
     private static final String PREFIX_MPC_URI = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/";
     public static final String SAMPLE_PMODES_DOMIBUS_CONFIGURATION_VALID_XML = "samplePModes/domibus-configuration-valid.xml";

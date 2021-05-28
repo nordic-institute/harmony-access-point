@@ -3,10 +3,10 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -98,7 +98,7 @@ public class SplitAndJoinListener implements MessageListener {
                 final String sourceMessageId = message.getStringProperty(UserMessageService.MSG_SOURCE_MESSAGE_ID);
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, sourceMessageId);
 
-                final String pModeKey = message.getStringProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+                final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
 
                 splitAndJoinService.sendSourceMessageReceipt(sourceMessageId, pModeKey);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SPLIT_AND_JOIN_SEND_FAILED)) {
@@ -117,7 +117,7 @@ public class SplitAndJoinListener implements MessageListener {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
                 final String ebms3ErrorCode = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_CODE);
                 final String ebms3ErrorDetail = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_DETAIL);
-                final String pModeKey = message.getStringProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+                final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
 
                 splitAndJoinService.sendSignalError(messageId, ebms3ErrorCode, ebms3ErrorDetail, pModeKey);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)) {

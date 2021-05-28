@@ -1,13 +1,13 @@
 package eu.domibus.core.message.acknowledge;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeException;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,17 +87,20 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     protected MessageAcknowledgement acknowledgeMessage(final UserMessage userMessage, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties) throws MessageAcknowledgeException {
         final String user = authUtils.getAuthenticatedUser();
-        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage.getMessageId(), acknowledgeTimestamp, from, to);
+        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
         messageAcknowledgementDao.create(entity);
-        properties.entrySet().stream().forEach(entry -> {
-            String name = entry.getKey();
-            String value = entry.getValue();
-            MessageAcknowledgementProperty property = new MessageAcknowledgementProperty();
-            property.setName(name);
-            property.setValue(value);
-            property.setAcknowledgementEntity(entity);
-            messageAcknowledgementPropertyDao.create(property);
-        });
+
+        if(properties != null) {
+            properties.entrySet().stream().forEach(entry -> {
+                String name = entry.getKey();
+                String value = entry.getValue();
+                MessageAcknowledgementProperty property = new MessageAcknowledgementProperty();
+                property.setName(name);
+                property.setValue(value);
+                property.setAcknowledgementEntity(entity);
+                messageAcknowledgementPropertyDao.create(property);
+            });
+        }
 
         return messageAcknowledgeConverter.convert(entity);
     }

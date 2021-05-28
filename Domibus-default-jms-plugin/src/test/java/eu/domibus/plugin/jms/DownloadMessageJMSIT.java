@@ -7,13 +7,14 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.test.PModeUtil;
+import eu.domibus.test.UserMessageSampleUtil;
+import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 
 import javax.activation.DataHandler;
 import javax.jms.ConnectionFactory;
@@ -43,9 +44,18 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     @Autowired
     UserMessageLogDefaultService userMessageLogService;
 
+    @Autowired
+    PModeUtil pModeUtil;
+
+    @Autowired
+    SoapSampleUtil soapSampleUtil;
+
+    @Autowired
+    UserMessageSampleUtil userMessageSampleUtil;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
-        uploadPmode();
+        pModeUtil.uploadPmode();
     }
 
     /**
@@ -68,12 +78,12 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testDownloadMessageOk() throws Exception {
-        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1",
+        String pModeKey = soapSampleUtil.composePModeKey("blue_gw", "red_gw", "testService1",
                 "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
 
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
-        final UserMessage userMessage = getUserMessageTemplate();
+        final UserMessage userMessage = userMessageSampleUtil.getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
         userMessage.setMessageId(messageId);
         ArrayList<PartInfo> partInfoList = new ArrayList<>();

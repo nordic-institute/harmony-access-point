@@ -12,6 +12,7 @@ import eu.domibus.plugin.webService.generated.SubmitResponse;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.test.AbstractIT;
+import eu.domibus.test.DomibusConditionUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
@@ -55,6 +56,9 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     @Autowired
     WSMessageLogDao wsMessageLogDao;
 
+    @Autowired
+    DomibusConditionUtil domibusConditionUtil;
+
     protected void verifySendMessageAck(eu.domibus.plugin.ws.generated.body.SubmitResponse response) {
         final List<String> messageID = response.getMessageID();
         assertNotNull(response);
@@ -62,7 +66,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         assertEquals(1, messageID.size());
         final String messageId = messageID.iterator().next();
 
-        waitUntilMessageIsAcknowledged(messageId);
+        domibusConditionUtil.waitUntilMessageIsAcknowledged(messageId);
 
         verify(postRequestedFor(urlMatching("/domibus/services/msh"))
                 .withRequestBody(matching(".*"))
@@ -83,7 +87,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         assertEquals(1, messageID.size());
         final String messageId = messageID.iterator().next();
 
-        waitUntilMessageIsAcknowledged(messageId);
+        domibusConditionUtil.waitUntilMessageIsAcknowledged(messageId);
 
         verify(postRequestedFor(urlMatching("/domibus/services/msh"))
                 .withRequestBody(matching(".*"))

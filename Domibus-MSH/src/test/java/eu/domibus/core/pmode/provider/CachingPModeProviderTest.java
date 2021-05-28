@@ -45,7 +45,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
-import static eu.domibus.core.message.MessageExchangeConfiguration.PMODEKEY_SEPARATOR;
+import static eu.domibus.api.pmode.PModeConstants.PMODEKEY_SEPARATOR;
 import static org.junit.Assert.*;
 
 /**

@@ -1,4 +1,4 @@
-package eu.domibus.core.message.util;
+package eu.domibus.test.common;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.messaging.MessageConstants;

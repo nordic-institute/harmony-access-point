@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.proxy.DomibusProxy;
@@ -183,6 +184,6 @@ public class DispatchClientDefaultProviderTest {
 
         assertEquals(requestContext.get(PolicyConstants.POLICY_OVERRIDE), policy);
         assertEquals(requestContext.get(DispatchClientDefaultProvider.ASYMMETRIC_SIG_ALGO_PROPERTY), algorithm);
-        assertEquals(requestContext.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY), pModeKey);
+        assertEquals(requestContext.get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY), pModeKey);
     }
 }

@@ -1,12 +1,11 @@
 package eu.domibus.core.message.plugin.handler;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.util.SubmissionUtil;
+import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -15,13 +14,11 @@ import eu.domibus.plugin.Submission;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;

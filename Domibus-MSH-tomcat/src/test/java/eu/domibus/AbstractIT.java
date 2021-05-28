@@ -15,6 +15,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRoleDao;
@@ -45,6 +46,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -95,6 +97,9 @@ public abstract class AbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
 
     protected static final int SERVICE_PORT = 8892;
+
+    @Autowired
+    protected DomibusContextRefreshedListener domibusContextRefreshedListener;
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
@@ -273,76 +278,6 @@ public abstract class AbstractIT {
 
     }
 
-    /**
-     * The connection must be started and stopped before and after the method call.
-     *
-     * @param connection
-     * @param queueName
-     * @param mSecs
-     * @return Message
-     * @throws Exception
-     */
-    protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
-
-        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        if (connection instanceof ActiveMQXAConnection) {
-            ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
-        }
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        Destination destination = session.createQueue(queueName);
-        MessageConsumer consumer = session.createConsumer(destination);
-        Message message = consumer.receive(mSecs);
-        if (message != null) {
-            System.out.println("Message with ID [:" + message.getStringProperty(MESSAGE_ID) + "] consumed from queue [" + message.getJMSDestination() + "]");
-        }
-        consumer.close();
-        session.close();
-        return message;
-    }
-
-    //TODO move this method into a class in the domibus-MSH-test module in order to be reused
-    public SOAPMessage createSOAPMessage(String dataset) throws SOAPException, IOException, ParserConfigurationException, SAXException {
-
-        MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
-        SOAPMessage message = factory.createMessage();
-
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        dbFactory.setNamespaceAware(true);
-        DocumentBuilder builder = dbFactory.newDocumentBuilder();
-        Document document = builder.parse(getClass().getClassLoader().getResourceAsStream("dataset/as4/" + dataset));
-        DOMSource domSource = new DOMSource(document);
-        SOAPPart soapPart = message.getSOAPPart();
-        soapPart.setContent(domSource);
-
-        AttachmentPart attachment = message.createAttachmentPart();
-        attachment.setContent(Base64.decodeBase64("PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=".getBytes()), "text/xml");
-        attachment.setContentId("cid:message");
-        message.addAttachmentPart(attachment);
-
-        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1", "tc1Action", "", "pushTestcase1tc1Action");
-
-        message.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
-        message.setProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
-
-        return message;
-    }
-
-    protected SoapMessage createSoapMessage(String dataset) {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("dataset/as4/" + dataset);
-
-        SoapMessage sm = new SoapMessage(new MessageImpl());
-        sm.setContent(InputStream.class, is);
-        InterceptorChain ic = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
-        sm.setInterceptorChain(ic);
-        ExchangeImpl exchange = new ExchangeImpl();
-        Bus bus = new ExtensionManagerBus();
-        bus.setExtension(new PolicyBuilderImpl(bus), PolicyBuilder.class);
-        exchange.put(Bus.class, bus);
-        sm.setExchange(exchange);
-
-        return sm;
-    }
-
     public void prepareSendMessage(String responseFileName) {
         prepareSendMessage(responseFileName, null);
     }
@@ -368,9 +303,5 @@ public abstract class AbstractIT {
         return body;
     }
 
-    public String composePModeKey(final String senderParty, final String receiverParty, final String service,
-                                  final String action, final String agreement, final String legName) {
-        return StringUtils.joinWith(MessageExchangeConfiguration.PMODEKEY_SEPARATOR, senderParty,
-                receiverParty, service, action, agreement, legName);
-    }
+
 }

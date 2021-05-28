@@ -8,7 +8,7 @@ import java.util.UUID;
 public class SendJMSMessageOnTomcat {
 
     public static void main(String[] args) {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
         Connection connection;
         MessageProducer producer;
         try {
@@ -78,6 +78,9 @@ public class SendJMSMessageOnTomcat {
             //messageMap.setString("payload_1", "file:////C:/DEV/testJMS.txt");
 
             producer.send(messageMap);
+
+            MessageConsumer consumer = session.createConsumer(destination);
+            Message message = consumer.receive(6000);
 
             connection.close();
         } catch (JMSException e) {

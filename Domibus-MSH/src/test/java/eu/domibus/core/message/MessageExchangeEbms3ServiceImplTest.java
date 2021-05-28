@@ -10,6 +10,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -194,18 +195,18 @@ public class MessageExchangeEbms3ServiceImplTest {
         messageExchangeService.initiatePullRequest();
         verify(pModeProvider, times(1)).getGatewayParty();
         verify(jmsManager, times(25)).sendMapMessageToQueue(mapArgumentCaptor.capture(), any(Queue.class));
-        String pModeKeyResult = "party1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "responder" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "service1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "Mock" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "Mock" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR + "leg1";
+        String pModeKeyResult = "party1" + PModeConstants.PMODEKEY_SEPARATOR +
+                "responder" + PModeConstants.PMODEKEY_SEPARATOR +
+                "service1" + PModeConstants.PMODEKEY_SEPARATOR +
+                "Mock" + PModeConstants.PMODEKEY_SEPARATOR +
+                "Mock" + PModeConstants.PMODEKEY_SEPARATOR + "leg1";
 
         TestResult testResult = new TestResult("qn1", pModeKeyResult, "false");
-        pModeKeyResult = "party1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "responder" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "service2" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "Mock" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-                "Mock" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR + "leg2";
+        pModeKeyResult = "party1" + PModeConstants.PMODEKEY_SEPARATOR +
+                "responder" + PModeConstants.PMODEKEY_SEPARATOR +
+                "service2" + PModeConstants.PMODEKEY_SEPARATOR +
+                "Mock" + PModeConstants.PMODEKEY_SEPARATOR +
+                "Mock" + PModeConstants.PMODEKEY_SEPARATOR + "leg2";
 
         testResult.chain(new TestResult("qn2", pModeKeyResult, "false"));
         final List<JmsMessage> allValues = mapArgumentCaptor.getAllValues();

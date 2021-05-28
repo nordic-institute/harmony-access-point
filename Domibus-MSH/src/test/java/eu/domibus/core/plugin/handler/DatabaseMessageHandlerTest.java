@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.*;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
@@ -70,11 +71,11 @@ public class DatabaseMessageHandlerTest {
     private static final String ACTION = "TC2Leg1";
     private static final String LEG = "pushTestcase1tc2Action";
 
-    private String pModeKey = GREEN + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            RED + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            SERVICE + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            ACTION + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            AGREEMENT + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
+    private String pModeKey = GREEN + PModeConstants.PMODEKEY_SEPARATOR +
+            RED + PModeConstants.PMODEKEY_SEPARATOR +
+            SERVICE + PModeConstants.PMODEKEY_SEPARATOR +
+            ACTION + PModeConstants.PMODEKEY_SEPARATOR +
+            AGREEMENT + PModeConstants.PMODEKEY_SEPARATOR +
             LEG;
 
     @Injectable

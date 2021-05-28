@@ -160,7 +160,7 @@ public class MessageAcknowledgeDefaultServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            messageAcknowledgeConverter.create(user, messageId, acknowledgeTimestamp, from, to);
+            messageAcknowledgeConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
             result = entity;
 
         }};
