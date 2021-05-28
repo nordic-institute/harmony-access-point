@@ -67,7 +67,7 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
         List<WSBackendMessageLogEntity> messages = wsBackendMessageLogDao.findRetryMessages();
         Assert.assertNotNull(messages);
         Assert.assertEquals(2, messages.size());
-        //todo fix it
+        //TODO FIXME
 //        Assert.assertThat(messages, CoreMatchers.hasItems(entityRetried1, entityRetried2));
     }
 
