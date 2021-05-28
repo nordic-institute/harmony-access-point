@@ -8,7 +8,7 @@ import java.util.UUID;
 public class SendJMSMessageOnTomcat {
 
     public static void main(String[] args) {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         Connection connection;
         MessageProducer producer;
         try {
