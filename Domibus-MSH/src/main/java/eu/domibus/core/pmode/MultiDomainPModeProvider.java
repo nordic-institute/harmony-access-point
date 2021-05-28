@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -16,6 +17,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -119,11 +122,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    @Transactional(noRollbackFor = ConfigurationException.class, propagation = Propagation.SUPPORTS)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
         return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull);
     }
 
     @Override
+    @Transactional(noRollbackFor = ConfigurationException.class, propagation = Propagation.SUPPORTS)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole);
     }
