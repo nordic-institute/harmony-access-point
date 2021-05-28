@@ -32,6 +32,8 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
 
     @Before
     public void setUp() throws Exception {
+        wsMessageLogDao.deleteAll(wsMessageLogDao.findAll());
+
         WSMessageLogEntity entity1 = new WSMessageLogEntity();
         entity1.setMessageId("messageID_1");
         entity1.setOriginalSender("urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
@@ -68,8 +70,6 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
         entity4.setFromPartyId("domibus-blue2");
         entity4.setReceived(new Date());
         wsMessageLogDao.create(entity4);
-
-
     }
 
     @Test
