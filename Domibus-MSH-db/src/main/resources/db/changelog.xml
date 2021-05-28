@@ -778,7 +778,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -862,7 +862,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -881,7 +881,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -1099,10 +1099,10 @@
                 <constraints primaryKey="true" primaryKeyName="PK_ENCRYPTION_KEY"/>
             </column>
             <column name="KEY_USAGE" type="VARCHAR(255)" remarks="The encryption usage: PAYLOAD"/>
-            <column name="SECRET_KEY" type="BLOB"  remarks="The secret key used for symmetric encryption">
+            <column name="SECRET_KEY" type="LONGBLOB"  remarks="The secret key used for symmetric encryption">
                 <constraints nullable="false"/>
             </column>
-            <column name="INIT_VECTOR" type="BLOB" remarks="The initialization vector used for encryption">
+            <column name="INIT_VECTOR" type="LONGBLOB" remarks="The initialization vector used for encryption">
                 <constraints nullable="false"/>
             </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -1747,7 +1747,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_PM_CONFIGURATION_RAW"/>
             </column>
             <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
-            <column name="XML" type="BLOB"/>
+            <column name="XML" type="LONGBLOB"/>
             <column defaultValue="" name="DESCRIPTION" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -1771,7 +1771,7 @@
             <column name="CONFIGURATIONDATE_MOD" type="BOOLEAN"/>
             <column name="DESCRIPTION" type="VARCHAR(255)"/>
             <column name="DESCRIPTION_MOD" type="VARCHAR(255)"/>
-            <column name="XML" type="BLOB"/>
+            <column name="XML" type="LONGBLOB"/>
             <column name="XML_MOD" type="BOOLEAN"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_RAW_AUD"

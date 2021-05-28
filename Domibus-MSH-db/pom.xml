@@ -248,6 +248,61 @@
 
                    <!-- data migration 4.2 to 5.0 starts here -->
                    <execution>
+                       <id>generate-mysql-script-migration-step1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step1.xml
+                           </changeLogFile>
+                           <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step1.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.2-to-5.0-data-migration-step1.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-step2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step2.xml
+                           </changeLogFile>
+                           <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step2.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.2-to-5.0-data-migration-step2.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-step3</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step3.xml
+                           </changeLogFile>
+                           <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step3.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.2-to-5.0-data-migration-step3.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+
+                   <execution>
                        <id>generate-oracle-script-migration-step1</id>
                        <phase>generate-resources</phase>
                        <goals>

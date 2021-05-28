@@ -23,9 +23,12 @@ public class SchemaValidationEnabledChangeListener implements PluginPropertyChan
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaValidationEnabledChangeListener.class);
 
     private final Endpoint backendInterfaceEndpoint;
+    private final Endpoint backendInterfaceEndpointDeprecated;
 
-    public SchemaValidationEnabledChangeListener(@Qualifier("backendInterfaceEndpoint") Endpoint backendInterfaceEndpoint) {
+    public SchemaValidationEnabledChangeListener(@Qualifier("backendInterfaceEndpoint") Endpoint backendInterfaceEndpoint,
+                                                 @Qualifier("backendInterfaceEndpointDeprecated") Endpoint backendInterfaceEndpointDeprecated) {
         this.backendInterfaceEndpoint = backendInterfaceEndpoint;
+        this.backendInterfaceEndpointDeprecated = backendInterfaceEndpointDeprecated;
     }
 
     @Override
@@ -39,5 +42,6 @@ public class SchemaValidationEnabledChangeListener implements PluginPropertyChan
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         LOG.trace("Setting [{}] property to [{}] on domain: [{}]", propertyName, propertyValue, domainCode);
         backendInterfaceEndpoint.getProperties().put("schema-validation-enabled", propertyValue);
+        backendInterfaceEndpointDeprecated.getProperties().put("schema-validation-enabled", propertyValue);
     }
 }

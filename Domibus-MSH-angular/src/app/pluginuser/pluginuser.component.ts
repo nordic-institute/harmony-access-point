@@ -225,7 +225,11 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   async doSave(): Promise<any> {
     try {
-      await this.pluginUserValidatorService.validatePluginUsers(this.rows);
+      if (this.inBasicMode()) {
+        await this.pluginUserValidatorService.checkPluginUserNameDuplication(this.rows);
+      } else {
+        await this.pluginUserValidatorService.checkPluginUserCertificateDuplication(this.rows);
+      }
       return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
     } catch (ex) {
       this.alertService.exception('Cannot save users:', ex);
