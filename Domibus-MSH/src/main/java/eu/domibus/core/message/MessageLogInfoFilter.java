@@ -17,7 +17,6 @@ public abstract class MessageLogInfoFilter {
 
     private static final String LOG_MESSAGE_ID = "message.messageId";
     private static final String LOG_MSH_ROLE = "log.mshRole.role";
-    private static final String LOG_MESSAGE_TYPE = "log.messageType";
     private static final String LOG_MESSAGE_STATUS = "log.messageStatus.messageStatus";
     private static final String LOG_NOTIFICATION_STATUS = "log.notificationStatus.status";
     private static final String LOG_DELETED = "log.deleted";
@@ -50,8 +49,6 @@ public abstract class MessageLogInfoFilter {
                 return LOG_MESSAGE_ID;
             case "mshRole":
                 return LOG_MSH_ROLE;
-            case "messageType":
-                return LOG_MESSAGE_TYPE;
             case "messageStatus":
                 return LOG_MESSAGE_STATUS;
             case "notificationStatus":

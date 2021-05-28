@@ -181,12 +181,7 @@ public class TestService {
             return null;
         }
 
-        UserMessageLog userMessageLog = null;
-        try {
-            userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
-        } catch (NoResultException ex) {
-            LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
-        }
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(userMessageId);
 
         return getTestServiceMessageInfoRO(partyId, userMessageId, userMessageLog);
     }
