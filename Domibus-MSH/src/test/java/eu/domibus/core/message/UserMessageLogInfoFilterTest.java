@@ -86,7 +86,6 @@ public class UserMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
         Assert.assertTrue(resultQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(resultQueryString.contains("log.deleted = :deleted"));
-        Assert.assertTrue(resultQueryString.contains("log.messageType = :messageType"));
         Assert.assertTrue(resultQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(resultQueryString.contains("partyTo.value = :toPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.mshRole.role = :mshRole"));
