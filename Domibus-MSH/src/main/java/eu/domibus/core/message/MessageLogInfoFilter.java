@@ -42,7 +42,7 @@ public abstract class MessageLogInfoFilter {
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
-    
+
     protected String getHQLKey(String originalColumn) {
         switch (originalColumn) {
             case "messageId":
@@ -56,6 +56,8 @@ public abstract class MessageLogInfoFilter {
             case "deleted":
                 return LOG_DELETED;
             case "received":
+            case "receivedFrom":
+            case "receivedTo":
                 return LOG_RECEIVED;
             case "sendAttempts":
                 return LOG_SEND_ATTEMPTS;
@@ -112,19 +114,23 @@ public abstract class MessageLogInfoFilter {
 
     private void handleFilter(StringBuilder result, String query, Map.Entry<String, Object> filter) {
         if (filter.getValue() != null) {
+            String tableName = getHQLKey(filter.getKey());
+            if (StringUtils.isBlank(tableName)) {
+                return;
+            }
+
             setSeparator(query, result);
             if (!(filter.getValue() instanceof Date)) {
                 if (!(filter.getValue().toString().isEmpty())) {
-                    String tableName = getHQLKey(filter.getKey());
                     result.append(tableName).append(" = :").append(filter.getKey());
                 }
             } else {
                 if (!(filter.getValue().toString().isEmpty())) {
                     String s = filter.getKey();
                     if (s.equals("receivedFrom")) {
-                        result.append(LOG_RECEIVED).append(" >= :").append(filter.getKey());
+                        result.append(tableName).append(" >= :").append(filter.getKey());
                     } else if (s.equals("receivedTo")) {
-                        result.append(LOG_RECEIVED).append(" <= :").append(filter.getKey());
+                        result.append(tableName).append(" <= :").append(filter.getKey());
                     }
                 }
             }
