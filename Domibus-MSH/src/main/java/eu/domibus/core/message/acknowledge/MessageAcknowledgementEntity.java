@@ -19,7 +19,7 @@ import java.sql.Timestamp;
         @NamedQuery(name = "MessageAcknowledgement.findMessageAcknowledgementByMessageId",
                 query = "select messageAcknowledge from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.messageId = :MESSAGE_ID"),
         @NamedQuery(name = "MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds",
-                query = "delete from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.messageId IN :MESSAGEIDS")
+                query = "delete from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.entityId IN :IDS")
 
 })
 public class MessageAcknowledgementEntity extends AbstractBaseEntity {

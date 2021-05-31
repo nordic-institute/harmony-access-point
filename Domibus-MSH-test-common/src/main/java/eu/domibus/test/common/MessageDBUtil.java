@@ -28,7 +28,7 @@ public class MessageDBUtil {
 
     public Map<String, Integer> getTableCounts(List<String> tablesToExclude) {
         Map<String, Integer> rownums = new HashMap<>();
-        Query query = entityManager.createNativeQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_name LIKE 'TB_%'");
+        Query query = entityManager.createNativeQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_name LIKE 'TB_%' and table_name not like 'TB_D_%' and TABLE_NAME not like 'TB_PM_%'");
         try {
             List<String> tableNames = query.getResultList();
             tableNames.stream().forEach(tableName -> rownums.put(tableName, getCounter(tableName)));
@@ -43,7 +43,7 @@ public class MessageDBUtil {
         String selectStr = "SELECT count(*) from " + tableName;
         Query query = entityManager.createNativeQuery(selectStr);
         BigInteger counter = (BigInteger)query.getSingleResult();
-        LOG.trace("Table [{}] has counter [{}]", tableName, counter);
+        LOG.info("Table [{}] has counter [{}]", tableName, counter);
 
         return counter.intValue();
     }

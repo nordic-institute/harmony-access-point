@@ -24,7 +24,7 @@ import java.util.Date;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
                 query = "select receipt.entityId from ReceiptEntity receipt where receipt.signalMessage.signalMessageId IN :MESSAGEIDS"),
-        @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage mi where mi.signalMessageId in :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage mi where mi.entityId in :IDS"),
         @NamedQuery(name = "SignalMessage.find",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId IN :MESSAGEIDS"),
 })

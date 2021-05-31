@@ -3,6 +3,8 @@ package eu.domibus.core.message.nonrepudiation;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * @author idragusa
@@ -59,4 +62,14 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
         query.executeUpdate();
     }
 
+    @Timer(clazz = UserMessageRawEnvelopeDao.class, value = "deleteMessages")
+    @Counter(clazz = UserMessageRawEnvelopeDao.class, value = "deleteMessages")
+    public int deleteMessages(List<Long> ids) {
+        LOG.debug("deleteMessages [{}]", ids.size());
+        final Query deleteQuery = em.createNamedQuery("UserMessageRaw.deleteMessages");
+        deleteQuery.setParameter("IDS", ids);
+        int result = deleteQuery.executeUpdate();
+        LOG.debug("deleteMessages result [{}]", result);
+        return result;
+    }
 }

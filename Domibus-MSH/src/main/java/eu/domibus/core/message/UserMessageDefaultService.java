@@ -31,6 +31,8 @@ import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -202,6 +204,15 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private ReprogrammableService reprogrammableService;
+
+    @Autowired
+    SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
+
+    @Autowired
+    UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+
+    @Autowired
+    ReceiptDao receiptDao;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -629,47 +640,54 @@ public class UserMessageDefaultService implements UserMessageService {
         em.unwrap(Session.class)
                 .setJdbcBatchSize(BATCH_SIZE);
 
+        List<Long> ids = userMessageLogs
+                .stream()
+                .map(UserMessageLogDto::getEntityId)
+                .collect(Collectors.toList());
+
         List<String> userMessageIds = userMessageLogs
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList());
 
-        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
-        LOG.trace("Deleting user messages [{}]", userMessageIds);
+
+        LOG.debug("Deleting [{}] user messages", ids.size());
+        LOG.trace("Deleting user messages [{}]", ids);
 
         List<String> filenames = partInfoDao.findFileSystemPayloadFilenames(userMessageIds);
         partInfoDao.deletePayloadFiles(filenames);
 
         List<String> signalMessageId = new ArrayList<>();
 
-        /* --- TODO IOANA fix deletion with new schema
-        List<Messaging> messagings = messagingDao.findMessagings(userMessageIds);
-        LOG.debug("Deleting [{}] messagings", messagings.size());
-        for (Messaging messaging : messagings) {
-            LOG.trace("Deleting messaging [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
-            if (messaging.getSignalMessage() != null) {
-                signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
-            }
-            em.remove(messaging);
-        }
-        */
-
         em.flush();
-        int deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
-        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
-        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
-        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageId);
-        LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
-        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
-        LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
+        int deleteResult = userMessageLogDao.deleteMessageLogs(ids);
+        LOG.info("Deleted [{}] userMessageLogs.", deleteResult);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(ids);
+        LOG.info("Deleted [{}] signalMessageLogs.", deleteResult);
+        deleteResult = signalMessageRawEnvelopeDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] signalMessageRaws.", deleteResult);
+        deleteResult = signalMessageDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] signalMessages.", deleteResult);
+        deleteResult = receiptDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] receipts.", deleteResult);
+        deleteResult = userMessageRawEnvelopeDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] userMessageRaws.", deleteResult);
+        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(ids);
+        LOG.info("Deleted [{}] attempts.", deleteResult);
+
+
         deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
-        LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
-        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
-        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
-        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageId);
-        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
-        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
-        LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+        LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+//        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
+//        LOG.info("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
+//        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageId);
+//        LOG.info("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
+        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
+        LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+
+
+        deleteResult = userMessageDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] userMessages.", deleteResult);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();

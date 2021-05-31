@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
         @NamedQuery(name = "Raw.deleteByMessageID", query = "DELETE FROM UserMessageRaw r where r.entityId=:MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "RawDto.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) " +
                 "FROM UserMessageRaw l where l.userMessage.entityId=:USER_MESSAGE_ID"),
+        @NamedQuery(name = "UserMessageRaw.deleteMessages", query = "delete from UserMessageRaw mi where mi.entityId in :IDS"),
 })
 public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
 

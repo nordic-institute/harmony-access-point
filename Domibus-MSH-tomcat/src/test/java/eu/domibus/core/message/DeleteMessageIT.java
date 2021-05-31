@@ -53,28 +53,28 @@ public abstract class DeleteMessageIT extends AbstractIT {
     }
 
     @Autowired
-    BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
-    BackendConnector backendConnector;
+    protected BackendConnector backendConnector;
 
     @Autowired
-    MessageRetentionDefaultService messageRetentionService;
+    protected MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    protected Provider<SOAPMessage> mshWebserviceTest;
 
     @Autowired
-    MessageDBUtil messageDBUtil;
+    protected MessageDBUtil messageDBUtil;
 
     @Autowired
-    SubmissionUtil submissionUtil;
+    protected SubmissionUtil submissionUtil;
 
     @Autowired
-    DatabaseMessageHandler databaseMessageHandler;
+    protected DatabaseMessageHandler databaseMessageHandler;
 
     @Autowired
-    SoapSampleUtil soapSampleUtil;
+    protected SoapSampleUtil soapSampleUtil;
 
     protected static List<String> tablesToExclude;
 
@@ -108,8 +108,8 @@ public abstract class DeleteMessageIT extends AbstractIT {
     }
 
     protected void sendMessageToDelete(MessageStatus status) throws MessagingProcessingException, IOException {
+
         Submission submission = submissionUtil.createSubmission();
-        uploadPmode();
         final String messageId = databaseMessageHandler.submit(submission, "mybackend");
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
