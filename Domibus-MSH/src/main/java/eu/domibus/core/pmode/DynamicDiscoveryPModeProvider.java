@@ -6,6 +6,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.exception.ConfigurationException;
 import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -145,7 +146,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * is not defined only static search is done else (if static search did not return result) also dynamic discovery is executed.
      */
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = IllegalStateException.class)
+    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = {IllegalStateException.class, ConfigurationException.class})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         try {
             return super.findUserMessageExchangeContext(userMessage, mshRole);
