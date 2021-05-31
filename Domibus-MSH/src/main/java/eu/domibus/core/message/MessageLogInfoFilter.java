@@ -94,18 +94,16 @@ public abstract class MessageLogInfoFilter {
         }
     }
 
-    protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
+    protected StringBuilder filterQuery(String query, String sortColumn, boolean asc, Map<String, Object> filters) {
         StringBuilder result = new StringBuilder(query);
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             handleFilter(result, query, filter);
         }
 
-        if (column != null) {
-            String usedColumn = getHQLKey(column);
-            if (asc) {
-                result.append(" order by ").append(usedColumn).append(" asc");
-            } else {
-                result.append(" order by ").append(usedColumn).append(" desc");
+        if (sortColumn != null) {
+            String usedColumn = getHQLKey(sortColumn);
+            if (!StringUtils.isBlank(usedColumn)) {
+                result.append(" order by ").append(usedColumn).append(asc ? " asc" : " desc");
             }
         }
 
