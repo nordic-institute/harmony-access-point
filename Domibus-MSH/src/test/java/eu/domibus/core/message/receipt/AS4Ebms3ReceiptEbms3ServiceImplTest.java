@@ -140,6 +140,9 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
     @Injectable
     MessageStatusDao messageStatusDao;
 
+    @Injectable
+    ReceiptDao receiptDao;
+
     @Test
     public void testGenerateReceipt_WithReliabilityAndResponseRequired(@Injectable final Source messageToReceiptTransform,
                                                                        @Injectable final Transformer transformer,
