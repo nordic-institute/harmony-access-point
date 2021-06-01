@@ -47,6 +47,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
@@ -650,7 +652,15 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Property [{}], value [{}]", REVOCATION_TRIGGER_OFFSET_PROPERTY, revocationOffsetInDays);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
-        LocalDateTime certificateEnd = LocalDateTime.fromDateFields(notAfter);
+        org.joda.time.LocalDateTime certificateEnd = org.joda.time.LocalDateTime.fromDateFields(notAfter);
+      /*  LocalDateTime localDateTime2 = notAfter
+                .toInstant()
+                .atZone(ZoneId.of("UTC"))
+                .toLocalDateTime();
+        Instant instant = notAfter.toInstant(ZoneOffset.UTC);*/
+       // LocalDateTime ldt = LocalDateTime.ofInstant(notAfter.toInstant(), ZoneId.systemDefault());
+       // LocalDateTime certificateEnd = LocalDateTime.from().fromDateFields(notAfter);
+        LocalDateTime certificateEnd = Date.from(notAfter);
         LOG.debug("Current date[{}], offset date[{}], certificate end date:[{}]", now, offsetDate, certificateEnd);
         if (now.isAfter(certificateEnd)) {
             return CertificateStatus.REVOKED;
