@@ -27,13 +27,6 @@ public class CXFCacheConfiguration {
         final URL url = SecurityUtils.loadResource(resourceManager, "cxf-ehcache.xml");
         LOG.debug("Loading the CXF EHCacheTokenStore from [{}]", url);
 
-        EHCacheTokenStore ehCacheTokenStore;
-        try {
-            ehCacheTokenStore = new EHCacheTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, bus, url);
-        } catch (TokenStoreException e) {
-            throw e;
-        }
-
-        return ehCacheTokenStore;
+        return new EHCacheTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, bus, url);
     }
 }
