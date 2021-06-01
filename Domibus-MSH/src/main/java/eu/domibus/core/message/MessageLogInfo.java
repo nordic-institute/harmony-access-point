@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.NotificationStatus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -40,6 +41,8 @@ public class MessageLogInfo {
     private Integer nextAttemptOffsetSeconds;
 
     private String conversationId;
+
+    private MessageType messageType;
 
     private Boolean testMessage;
 
@@ -81,6 +84,7 @@ public class MessageLogInfo {
                           final String finalRecipient,
                           final String refToMessageId,
                           final Boolean testMessage) {
+        this.messageType = MessageType.SIGNAL_MESSAGE;
         this.messageId = messageId;
         this.messageStatus = messageStatus;
         this.mshRole = mshRole;
@@ -126,6 +130,7 @@ public class MessageLogInfo {
         this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, testMessage);
 
+        this.messageType = MessageType.USER_MESSAGE;
         this.notificationStatus = notificationStatus;
         this.sendAttempts = sendAttempts;
         this.sendAttemptsMax = sendAttemptsMax;
@@ -257,6 +262,10 @@ public class MessageLogInfo {
         return mshRole;
     }
 
+    public MessageType getMessageType() {
+        return messageType;
+    }
+
     public Date getDeleted() {
         return deleted;
     }
@@ -339,6 +348,10 @@ public class MessageLogInfo {
 
     public void setNextAttemptOffsetSeconds(Integer nextAttemptOffsetSeconds) {
         this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
     }
 
     @Override
