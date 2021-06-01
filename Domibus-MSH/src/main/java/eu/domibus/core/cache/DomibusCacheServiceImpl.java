@@ -1,7 +1,6 @@
 package eu.domibus.core.cache;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -9,10 +8,9 @@ import org.hibernate.SessionFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,14 +26,16 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
 
     protected CacheManager cacheManager;
 
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private EntityManager entityManager;
     protected List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList;
 
+    protected LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
+
     public DomibusCacheServiceImpl(CacheManager cacheManager,
-                                   @Lazy List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList /*Lazy injection to avoid cyclic dependency as we are dynamically injecting all listeners */) {
+                                   @Lazy List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList /*Lazy injection to avoid cyclic dependency as we are dynamically injecting all listeners */,
+                                   @Lazy LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean/*Lazy injection to avoid cyclic dependency as the entityManagerFactory needs DomibusMultiTenantConnectionProvider*/) {
         this.cacheManager = cacheManager;
         this.domibusCacheServiceNotifierList = domibusCacheServiceNotifierList;
+        this.localContainerEntityManagerFactoryBean = localContainerEntityManagerFactoryBean;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
 
     @Override
     public void clear2LCCaches() throws DomibusCoreException {
-        SessionFactory sessionFactory = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class);
+        SessionFactory sessionFactory = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
         sessionFactory.getCache().evictAll();
         notifyClear2LCaches();
     }
