@@ -119,7 +119,6 @@ public class MessageLogResource extends BaseResource {
         }
         filters.put(PROPERTY_RECEIVED_FROM, from);
         filters.put(PROPERTY_RECEIVED_TO, to);
-        //filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         LOG.debug("using filters [{}]", filters);
 
@@ -140,6 +139,9 @@ public class MessageLogResource extends BaseResource {
         if (defaultTo.equals(to)) {
             filters.remove(PROPERTY_RECEIVED_TO);
         }
+        // return also the current messageType to be shown in GUI
+        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
+
         result.setFilter(filters);
         result.setMshRoles(MSHRole.values());
         result.setMsgTypes(MessageType.values());
