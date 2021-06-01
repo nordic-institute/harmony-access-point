@@ -4,7 +4,10 @@ import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.ebms3.model.mf.Ebms3TypeType;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
@@ -184,15 +187,17 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPMessage(final Ebms3SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
-            message = xmlUtil.getMessageFactorySoap12().createMessage();
+           message = xmlUtil.getMessageFactorySoap12().createMessage();
             final Ebms3Messaging ebms3Messaging = this.ebMS3Of.createMessaging();
 
             if (signalMessage != null) {
-                String messageId = this.messageIdGenerator.generateMessageId();
-                Ebms3MessageInfo messageInfo = new Ebms3MessageInfo();
-                signalMessage.setMessageInfo(messageInfo);
-                messageInfo.setMessageId(messageId);
-                messageInfo.setTimestamp(new Date());
+                if (signalMessage.getMessageInfo() == null) {
+                    String messageId = this.messageIdGenerator.generateMessageId();
+                    Ebms3MessageInfo messageInfo = new Ebms3MessageInfo();
+                    messageInfo.setMessageId(messageId);
+                    messageInfo.setTimestamp(new Date());
+                    signalMessage.setMessageInfo(messageInfo);
+                }
 
                 //Errors are not saved in the database and associated to the Signal Message
                 if (signalMessage.getError() != null
