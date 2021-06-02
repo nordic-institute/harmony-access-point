@@ -668,7 +668,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] signalMessageRaws.", deleteResult);
         deleteResult = signalMessageDao.deleteMessages(ids);
         LOG.info("Deleted [{}] signalMessages.", deleteResult);
-        deleteResult = receiptDao.deleteMessages(ids);
+        deleteResult = receiptDao.deleteReceipts(ids);
         LOG.info("Deleted [{}] receipts.", deleteResult);
         deleteResult = userMessageRawEnvelopeDao.deleteMessages(ids);
         LOG.info("Deleted [{}] userMessageRaws.", deleteResult);

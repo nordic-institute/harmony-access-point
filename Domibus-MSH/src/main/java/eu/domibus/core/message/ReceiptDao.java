@@ -34,7 +34,7 @@ public class ReceiptDao extends BasicDao<ReceiptEntity> {
 
     @Timer(clazz = ReceiptDao.class, value = "deleteMessages")
     @Counter(clazz = ReceiptDao.class, value = "deleteMessages")
-    public int deleteMessages(List<Long> ids) {
+    public int deleteReceipts(List<Long> ids) {
         LOG.debug("deleteMessages [{}]", ids.size());
         final Query deleteQuery = em.createNamedQuery("Receipt.deleteMessages");
         deleteQuery.setParameter("IDS", ids);
