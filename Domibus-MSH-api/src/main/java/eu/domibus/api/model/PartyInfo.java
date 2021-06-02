@@ -17,10 +17,17 @@ public class PartyInfo {
     protected To to;
 
     public String getFromParty() {
+        if(from == null || from.getPartyId() == null) {
+            return null;
+        }
+
         return from.getPartyId().getValue();
     }
 
     public String getToParty() {
+        if(to == null || to.getPartyId() == null) {
+            return null;
+        }
         return to.getPartyId().getValue();
     }
 

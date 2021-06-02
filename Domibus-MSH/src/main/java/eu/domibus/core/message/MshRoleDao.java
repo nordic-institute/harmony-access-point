@@ -22,6 +22,10 @@ public class MshRoleDao extends BasicDao<MSHRoleEntity> {
 
     @Transactional
     public MSHRoleEntity findOrCreate(final MSHRole role) {
+        if(role == null) {
+            return null;
+        }
+
         MSHRoleEntity mshRoleEntity = findByRole(role);
         if (mshRoleEntity != null) {
             return mshRoleEntity;

@@ -10,6 +10,7 @@ import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.plugin.Submission;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -425,13 +426,8 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateAgreementRef_OK() {
-        AgreementRefEntity agreementRef = new AgreementRefEntity();
-//        //agreementRef.setPmode("AgreementRefPMode");
-        agreementRef.setType("AgreementRefType");
-        agreementRef.setValue("AgreementRefValue");
-
         try {
-            backendMessageValidatorObj.validateAgreementRef(agreementRef);
+            backendMessageValidatorObj.validateAgreementRef("AgreementRefValue", "AgreementRefType");
         } catch (EbMS3Exception e) {
             Assert.fail("Exception was not expected here!");
         }
@@ -440,7 +436,7 @@ public class BackendMessageValidatorTest {
     @Test
     public void validateAgreementRef_NullCheck(@Injectable AgreementRefEntity agreementRef) {
         try {
-            backendMessageValidatorObj.validateAgreementRef(agreementRef);
+            backendMessageValidatorObj.validateAgreementRef(null, null);
         } catch (EbMS3Exception e) {
             Assert.fail("Exception was not expected here as agreementRef is optional and can be null!");
         }
@@ -449,41 +445,38 @@ public class BackendMessageValidatorTest {
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void validateAgreementRef_PmodeTooLong() throws EbMS3Exception {
-        AgreementRefEntity agreementRef = new AgreementRefEntity();
-//        agreementRef.setPmode("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
-        agreementRef.setType("AgreementRefType");
-        agreementRef.setValue("AgreementRefValue");
+        String type = "AgreementRefType";
+        String value = "AgreementRefValue";
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("AgreementRef Pmode is too long (over 255 characters)");
 
-        backendMessageValidatorObj.validateAgreementRef(agreementRef);
+        backendMessageValidatorObj.validateAgreementRef(value, type);
     }
 
     @Test
     public void validateAgreementRef_TypeTooLong() throws EbMS3Exception {
         AgreementRefEntity agreementRef = new AgreementRefEntity();
-//        //agreementRef.setPmode("AgreementRefPMode");
-        agreementRef.setType("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
-        agreementRef.setValue("AgreementRefValue");
+        String type = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+        String value = "AgreementRefValue";
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("AgreementRef Type is too long (over 255 characters)");
 
-        backendMessageValidatorObj.validateAgreementRef(agreementRef);
+        backendMessageValidatorObj.validateAgreementRef(value, type);
     }
 
     @Test
     public void validateAgreementRef_ValueTooLong() throws EbMS3Exception {
         AgreementRefEntity agreementRef = new AgreementRefEntity();
         //agreementRef.setPmode("AgreementRefPMode");
-        agreementRef.setType("AgreementRefType");
-        agreementRef.setValue("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        String type = "AgreementRefType";
+        String value = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("AgreementRef Value is too long (over 255 characters)");
 
-        backendMessageValidatorObj.validateAgreementRef(agreementRef);
+        backendMessageValidatorObj.validateAgreementRef(value, type);
     }
 
 
@@ -517,19 +510,6 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void validateUserMessageForPmodeMatch_ValidationsOK() throws DuplicateMessageException, EbMS3Exception {
-        UserMessage userMessage = createUserMessage();
-        userMessage.setMessageId(MESS_ID);
-        new Expectations() {{
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
-        }};
-        ExpectedException.none();
-        backendMessageValidatorObj.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
-    }
-
-    @Test
     public void validateUserMessageForPmodeMatch_UserMessageNull() throws DuplicateMessageException, EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory header metadata UserMessage is not provided.");
@@ -552,28 +532,23 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    public void validateFromPartyId_FromNull() throws EbMS3Exception {
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(null, MSHRole.SENDING);
-
-    }
-
-    @Test
     public void validateFromPartyId_EmptyFromParties() throws EbMS3Exception {
-        From from = new From();
+        Submission submission = new Submission();
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyId is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
 
     @Test
     public void validateFromPartyId_BlankFromPartId() throws EbMS3Exception {
-        From from = getFrom("        ", "        ");
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party("        ", "        "));
+
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyId is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
 
@@ -595,29 +570,34 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateFromPartyId_FromPartIdTooLong() throws EbMS3Exception {
-        From from = getFrom(StringUtils.repeat("X", 256), "        ");
+        Submission submission = new Submission();
+        submission.getFromParties().add(new Submission.Party(StringUtils.repeat("X", 256), "        "));
+
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
 
     @Test
     public void validateFromPartyId_FromPartIdTypeBlank() throws EbMS3Exception {
-        From from = getFrom(StringUtils.repeat("X", 255), "        ");
+        Submission submission = new Submission();
+        submission.getFromParties().add(new Submission.Party(StringUtils.repeat("X", 255), "        "));
 
         ExpectedException.none();
-        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
 
     @Test
     public void validateFromPartyId_FromPartIdTypeTooLong() throws EbMS3Exception {
-        From from = getFrom(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256));
+        Submission submission = new Submission();
+        submission.getFromParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromPartyId(submission);
 
     }
 
@@ -625,17 +605,15 @@ public class BackendMessageValidatorTest {
     public void validateFromRole_FromNull() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
-        backendMessageValidatorObj.validateFromRole(null, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromRole(null);
 
     }
 
     @Test
     public void validateFromRole_FromRoleBlank() throws EbMS3Exception {
-        From from = new From();
-        from.setRole(getRole("   "));
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From Role is not provided.");
-        backendMessageValidatorObj.validateFromRole(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromRole("   ");
 
     }
 
@@ -647,88 +625,81 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateFromRole_FromRoleTooLong() throws EbMS3Exception {
-        From from = new From();
-        from.setRole(getRole(StringUtils.repeat("X", 256)));
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromRole(from, MSHRole.SENDING);
+        backendMessageValidatorObj.validateFromRole(StringUtils.repeat("X", 256));
 
-    }
-
-    @Test
-    public void validateToPartyIdForPModeMatch_ToNull() throws EbMS3Exception {
-        ExpectedException.none();
-        backendMessageValidatorObj.validateToPartyIdForPModeMatch(null, MSHRole.SENDING);
     }
 
     @Test
     public void validateToPartyIdForPModeMatch_EmptyToParties() throws EbMS3Exception {
-        To to = new To();
+        Submission submission = new Submission();
         ExpectedException.none();
-        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
     }
 
     @Test
     public void validateToPartyIdForPModeMatch_BlankToPartId() throws EbMS3Exception {
-        To to = getTo("        ", "        ");
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party("        ", "        "));
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To PartyId is not provided.");
-        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
 
     }
 
     @Test
     public void validateToPartyIdForPModeMatch_ToPartIdTooLong() throws EbMS3Exception {
-        To to = getTo(StringUtils.repeat("X", 256), "        ");
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 256), "        "));
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
 
     }
 
     @Test
     public void validateToPartyIdForPModeMatch_ToPartIdTypeBlank() throws EbMS3Exception {
-        To to = getTo(StringUtils.repeat("X", 255), "        ");
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), "        "));
 
         ExpectedException.none();
-        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
 
     }
 
     @Test
     public void validateToPartyIdForPModeMatch_ToPartIdTypeTooLong() throws EbMS3Exception {
-        To to = getTo(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256));
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
 
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
 
     }
 
     @Test
     public void validateToRole_ToNull() throws EbMS3Exception {
         ExpectedException.none();
-        backendMessageValidatorObj.validateToRoleForPModeMatch(null, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToRoleForPModeMatch(null);
     }
 
     @Test
     public void validateToRole_ToRoleBlank() throws EbMS3Exception {
-        To to = new To();
-        to.setRole(getRole("   "));
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To Role is not provided.");
-        backendMessageValidatorObj.validateToRoleForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToRoleForPModeMatch("   ");
 
     }
 
     @Test
     public void validateToRole_ToRoleTooLong() throws EbMS3Exception {
-        To to = new To();
-        to.setRole(getRole(StringUtils.repeat("X", 256)));
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToRoleForPModeMatch(to, MSHRole.SENDING);
+        backendMessageValidatorObj.validateToRoleForPModeMatch(StringUtils.repeat("X", 256));
 
     }
 
@@ -741,41 +712,40 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateService_ServiceBlank() throws EbMS3Exception {
-        ServiceEntity service = new ServiceEntity();
-        service.setValue("\t");
-        service.setType("\t");
+        String value = "\t";
+        String type = "\t";
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field Service is not provided.");
-        backendMessageValidatorObj.validateService(service);
+        backendMessageValidatorObj.validateService(value, type);
     }
 
     @Test
     public void validateService_ServiceTooLong() throws EbMS3Exception {
-         ServiceEntity service = new ServiceEntity();
-        service.setValue(StringUtils.repeat("X", 256));
-        service.setType("\t");
+        String value = StringUtils.repeat("X", 256);
+        String type = "\t";
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Service" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateService(service);
+        backendMessageValidatorObj.validateService(value, type);
     }
 
     @Test
     public void validateService_ServiceTypeBlank() throws EbMS3Exception {
-         ServiceEntity service = new ServiceEntity();
-        service.setValue(StringUtils.repeat("X", 255));
-        service.setType("\t");
+        String value = StringUtils.repeat("X", 255);
+        String type = "\t";
+
         ExpectedException.none();
-        backendMessageValidatorObj.validateService(service);
+        backendMessageValidatorObj.validateService(value, type);
     }
 
     @Test
     public void validateService_ServiceTypeTooLong() throws EbMS3Exception {
-         ServiceEntity service = new ServiceEntity();
-        service.setValue(StringUtils.repeat("X", 255));
-        service.setType(StringUtils.repeat("X", 256));
+        String value = StringUtils.repeat("X", 255);
+        String type = StringUtils.repeat("X", 256);
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("ServiceType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateService(service);
+        backendMessageValidatorObj.validateService(value, type);
     }
 
     @Test

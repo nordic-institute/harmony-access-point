@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.PartyRole;
 import eu.domibus.core.dao.BasicDao;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
@@ -27,6 +28,10 @@ public class PartyRoleDao extends BasicDao<PartyRole> {
 
     @Transactional
     public PartyRole findOrCreateRole(String value) {
+        if(StringUtils.isBlank(value)) {
+            return null;
+        }
+
         PartyRole role = findRoleByValue(value);
         if (role != null) {
             return role;

@@ -241,7 +241,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
     private Ebms3To convertPartyTo(To to) {
         Ebms3To ebms3To = new Ebms3To();
-        ebms3To.setRole(to.getRole().getValue());
+        ebms3To.setRole(to.getRoleValue());
         Ebms3PartyId ebms3FromPartyId = new Ebms3PartyId();
         ebms3FromPartyId.setValue(to.getPartyId().getValue());
         ebms3FromPartyId.setType(to.getPartyId().getType());
@@ -251,7 +251,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
     private Ebms3From convertPartyFrom(final From from) {
         Ebms3From ebms3From = new Ebms3From();
-        ebms3From.setRole(from.getRole().getValue());
+        ebms3From.setRole(from.getRoleValue());
         Ebms3PartyId ebms3FromPartyId = new Ebms3PartyId();
         ebms3FromPartyId.setValue(from.getPartyId().getValue());
         ebms3FromPartyId.setType(from.getPartyId().getType());

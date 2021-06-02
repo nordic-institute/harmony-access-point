@@ -12,7 +12,9 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,80 +239,62 @@ public class BackendMessageValidator {
 
     /**
      * Validates the essential fields in a {@link UserMessage} to ensure elements necessary for pMode matching have been provided by the user.
-     *
-     * @param userMessage
-     * @param mshRole
-     * @throws EbMS3Exception
-     * @throws DuplicateMessageException
      */
-    public void validateUserMessageForPmodeMatch(UserMessage userMessage, MSHRole mshRole) throws EbMS3Exception, DuplicateMessageException {
-        if (userMessage == null) {
+    public void validateUserMessageForPmodeMatch(Submission submission, MSHRole mshRole) throws EbMS3Exception, DuplicateMessageException {
+        if (submission == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory header metadata UserMessage is not provided.", null, null);
         }
         try {
-            validateMessageInfo(userMessage);  // MessageInfo is always initialized in the get method
-            validatePartyInfoForPModeMatch(userMessage.getPartyInfo(), mshRole);
-            validateCollaborationInfo(userMessage);
+            validateMessageInfo(submission);  // MessageInfo is always initialized in the get method
+            validatePartyInfoForPModeMatch(submission, mshRole);
+            validateCollaborationInfo(submission);
         } catch (EbMS3Exception ebms3ex) {
             ebms3ex.setMshRole(mshRole);
             throw ebms3ex;
         }
     }
 
-    protected void validateMessageInfo(UserMessage userMessage) throws EbMS3Exception, DuplicateMessageException {
-        if (userMessage == null) {
+    protected void validateMessageInfo(Submission submission) throws EbMS3Exception, DuplicateMessageException {
+        if (submission == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MessageInfo");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory header metadata UserMessage/MessageInfo is not provided.", null, null);
         }
-        validateMessageId(userMessage.getMessageId());
+        validateMessageId(submission.getMessageId());
         //check duplicate message id
-        validateRefToMessageId(userMessage.getRefToMessageId());
+        validateRefToMessageId(submission.getRefToMessageId());
     }
 
-    protected void validatePartyInfoForPModeMatch(PartyInfo partyInfo, MSHRole mshRole) throws EbMS3Exception {
-        if (partyInfo == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo");
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo is not provided.", null, null);
-        }
-        validateFromPartyId(partyInfo.getFrom(), mshRole);
-        validateFromRole(partyInfo.getFrom(), mshRole);
-        validateToPartyIdForPModeMatch(partyInfo.getTo(), mshRole);
-        validateToRoleForPModeMatch(partyInfo.getTo(), mshRole);
+    protected void validatePartyInfoForPModeMatch(Submission submission, MSHRole mshRole) throws EbMS3Exception {
+        validateFromPartyId(submission);
+        validateFromRole(submission.getFromRole());
+        validateToPartyIdForPModeMatch(submission);
+        validateToRoleForPModeMatch(submission.getToRole());
     }
 
-    protected void validateFromPartyId(From from, MSHRole mshRole) throws EbMS3Exception {
-        if (from == null) {
+    protected void validateFromPartyId(Submission submission) throws EbMS3Exception {
+        if (CollectionUtils.isEmpty(submission.getFromParties())) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
-        }
-        final PartyId fromParty = from.getPartyId();
-        if (fromParty == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_FROM_PARTY_ID);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyId is not provided.", null, null);
         }
+        final Submission.Party party = submission.getFromParties().iterator().next();
 
-        if (isBlank(fromParty.getValue())) {
+        if (isBlank(party.getPartyId())) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_FROM_PARTY_ID);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyId is not provided.", null, null);
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(fromParty.getValue())) {
-            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_FROM_PARTY_ID, fromParty.getValue());
+        if (isTrimmedStringLengthLongerThanDefaultMaxLength(party.getPartyId())) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_FROM_PARTY_ID, party.getPartyId());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(fromParty.getType())) {
-            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "From PartyIdType", fromParty.getType());
+        if (isTrimmedStringLengthLongerThanDefaultMaxLength(party.getPartyIdType())) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "From PartyIdType", party.getPartyIdType());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
         }
 
     }
 
-    protected void validateFromRole(From from, MSHRole mshRole) throws EbMS3Exception {
-        if (from == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
-        }
-        final String fromRole = from.getRole().getValue();
+    protected void validateFromRole(String fromRole) throws EbMS3Exception {
         if (isBlank(fromRole)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From Role is not provided.", null, null);
@@ -321,36 +305,30 @@ public class BackendMessageValidator {
         }
     }
 
-    protected void validateToPartyIdForPModeMatch(To to, MSHRole mshRole) throws EbMS3Exception {
-        if (to == null || to.getPartyId() == null) {
+    protected void validateToPartyIdForPModeMatch(Submission submission) throws EbMS3Exception {
+        if (CollectionUtils.isEmpty(submission.getToParties())) {
             //In scenario of DynamicDiscovery Backend will not provide To/PartyId details, it is discovered by Domibus during PMode match.
             //Hence elements To and To/Party are optional
             return;
         }
-        final PartyId toParty = to.getPartyId();
+        final Submission.Party toParty = submission.getToParties().iterator().next();
 
-        if (isBlank(toParty.getValue())) {
+        if (isBlank(toParty.getPartyId())) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_TO_PARTY_ID);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyId is not provided.", null, null);
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getValue())) {
-            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_TO_PARTY_ID, toParty.getValue());
+        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getPartyId())) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_TO_PARTY_ID, toParty.getPartyId());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getType())) {
-            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "To PartyIdType", toParty.getType());
+        if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getPartyIdType())) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "To PartyIdType", toParty.getPartyIdType());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
         }
 
     }
 
-    protected void validateToRoleForPModeMatch(To to, MSHRole mshRole) throws EbMS3Exception {
-        if (to == null || StringUtils.isEmpty(to.getRole().getValue())) {
-            //In scenario of DynamicDiscovery Backend will not provide To/PartyId details, it is discovered by Domibus during PMode match.
-            //Hence elements To and To/Role are optional
-            return;
-        }
-        final String toRole = to.getRole().getValue();
+    protected void validateToRoleForPModeMatch(String toRole) throws EbMS3Exception {
         if (isBlank(toRole)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To Role is not provided.", null, null);
@@ -361,46 +339,46 @@ public class BackendMessageValidator {
         }
     }
 
-    protected void validateCollaborationInfo(UserMessage userMessage) throws EbMS3Exception {
-        if (userMessage == null) {
+    protected void validateCollaborationInfo(Submission submission) throws EbMS3Exception {
+        if (submission == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage/CollaborationInfo");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field UserMessage/CollaborationInfo is not provided.", null, null);
         }
-        validateAgreementRef(userMessage.getAgreementRef());
-        validateService(userMessage.getService());
-        validateAction(userMessage.getActionValue());
-        validateConversationId(userMessage.getConversationId());
+        validateAgreementRef(submission.getAgreementRef(), submission.getAgreementRefType());
+        validateService(submission.getService(), submission.getServiceType());
+        validateAction(submission.getAction());
+        validateConversationId(submission.getConversationId());
     }
 
     /**
      * The field - UserMessage/CollaborationInfo/AgreementRef is expected to satisfy all the validations of the - Messaging/UserMessage/CollaborationInfo/AgreementRef  field defined in http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/core/os/ebms_core-3.0-spec-os.pdf
      *
-     * @param agreementRef the AgreementRef to be validated.
+     * @param value the value of the AgreementRef to be validated.
+     * @param type the type of the AgreementRef to be validated.
      * @throws EbMS3Exception if the AgreementRef value is invalid
      */
-    protected void validateAgreementRef(AgreementRefEntity agreementRef) throws EbMS3Exception {
+    protected void validateAgreementRef(String value, String type) throws EbMS3Exception {
         //agreementRef is an optional element and can be null
-        if (agreementRef == null) {
+        if (StringUtils.isBlank(value)) {
             LOG.debug("Optional field AgreementRef is null");
             return;
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(agreementRef.getValue())) {
-            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef", agreementRef.getValue());
+        if (isTrimmedStringLengthLongerThanDefaultMaxLength(value)) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef", value);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Value" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
         }
-        if (isTrimmedStringLengthLongerThanDefaultMaxLength(agreementRef.getType())) {
-            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef Type", agreementRef.getType());
+        if (isTrimmedStringLengthLongerThanDefaultMaxLength(type)) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef Type", type);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Type" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
         }
     }
 
-    protected void validateService(final ServiceEntity service) throws EbMS3Exception {
-        if (service == null || isBlank(service.getValue())) {
+    protected void validateService(String serviceValue, String serviceType) throws EbMS3Exception {
+        if (isBlank(serviceValue)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "Service");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Service is not provided.", null, null);
         }
-        final String serviceValue = service.getValue();
-        final String serviceType = service.getType();
+
         if (isTrimmedStringLengthLongerThanDefaultMaxLength(serviceValue)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "Service", serviceValue);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Service" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
