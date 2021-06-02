@@ -272,7 +272,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         if (!messageExists) {
             if (testMessage) {
                 // ping messages are only stored and not notified to the plugins
-                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, null, null, null);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, null, null);
             } else {
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
