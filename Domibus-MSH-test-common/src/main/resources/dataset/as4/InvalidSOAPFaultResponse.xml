@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Invalid soap Fault - missing mandatory Code and Reason elements -->
+
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+	<soapenv:Body>
+		<soapenv:Fault>
+			<soapenv:Role>https://apitest.emea.fedex.com/fdx/cs/receive</soapenv:Role>
+			<soapenv:Detail>
+				<l7:policyResult
+						status="Service Not Found. The request may have been sent to an invalid URL, or intended for an unsupported operation."
+						xmlns:l7="http://www.layer7tech.com/ws/policy/fault"/>
+			</soapenv:Detail>
+		</soapenv:Fault>
+	</soapenv:Body>
+</soapenv:Envelope>
