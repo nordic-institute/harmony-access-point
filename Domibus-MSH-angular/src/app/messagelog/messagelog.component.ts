@@ -240,11 +240,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
-    if (this.activeFilter.isTestMessage) {
-      filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
-    } else {
-      filterParams = filterParams.delete('messageSubtype');
-    }
+
+    // if (this.activeFilter.isTestMessage) {
+    //   filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
+    // } else {
+    //   filterParams = filterParams.delete('messageSubtype');
+    // }
     return filterParams;
   }
 
@@ -262,7 +263,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (result.filter.receivedTo) {
       result.filter.receivedTo = new Date(result.filter.receivedTo);
     }
-    result.filter.isTestMessage = !!result.filter.messageSubtype;
+    // result.filter.isTestMessage = !!result.filter.messageSubtype;
     super.filter = result.filter;
 
     this.mshRoles = result.mshRoles;
