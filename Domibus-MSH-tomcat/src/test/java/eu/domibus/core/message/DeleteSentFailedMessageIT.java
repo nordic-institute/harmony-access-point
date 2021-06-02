@@ -7,7 +7,6 @@ import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +25,9 @@ public class DeleteSentFailedMessageIT extends DeleteMessageIT {
     public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
         toReplace.put("retry=\"12;4;CONSTANT\"", "retry=\"1;0;CONSTANT\"");
-//        uploadPmode(wireMockRule.port(), toReplace);
+        uploadPmode(SERVICE_PORT, toReplace);
     }
 
-    @Ignore
     @Transactional
     @Test
     public void testDeleteFailedMessage() throws MessagingProcessingException, IOException {

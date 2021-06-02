@@ -17,7 +17,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = "SignalMessageLog.findByMessageId", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.signalMessage.signalMessageId=:MESSAGE_ID"),
         @NamedQuery(name = "SignalMessageLog.findByMessageIdAndRole", query = "select signalMessageLog from SignalMessageLog signalMessageLog where signalMessageLog.signalMessage.signalMessageId=:MESSAGE_ID and signalMessageLog.mshRole=:MSH_ROLE"),
-        @NamedQuery(name = "SignalMessageLog.deleteMessageLogs", query = "delete from SignalMessageLog sml where sml.signalMessage.signalMessageId in :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessageLog.deleteMessageLogs", query = "delete from SignalMessageLog sml where sml.signalMessage.entityId in :IDS"),
 })
 public class SignalMessageLog extends AbstractNoGeneratedPkEntity {
 

@@ -83,14 +83,15 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
 
     @Timer(clazz = SignalMessageDao.class, value = "deleteMessages")
     @Counter(clazz = SignalMessageDao.class, value = "deleteMessages")
-    public int deleteMessages(List<String> messageIds) {
-        LOG.debug("deleteMessages [{}]", messageIds.size());
+    public int deleteMessages(List<Long> ids) {
+        LOG.debug("deleteMessages [{}]", ids.size());
         final Query deleteQuery = em.createNamedQuery("SignalMessage.deleteMessages");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result = deleteQuery.executeUpdate();
         LOG.debug("deleteMessages result [{}]", result);
         return result;
     }
+
     @Timer(clazz = SignalMessageDao.class,value = "findSignalMessage")
     @Counter(clazz = SignalMessageDao.class,value = "findSignalMessage")
     public List<SignalMessage> findSignalMessages(List<String> userMessageIds) {

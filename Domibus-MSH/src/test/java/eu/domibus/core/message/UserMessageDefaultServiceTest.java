@@ -25,6 +25,8 @@ import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -191,6 +193,15 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private ReprogrammableService reprogrammableService;
+
+    @Injectable
+    private SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
+
+    @Injectable
+    private UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+
+    @Injectable
+    private ReceiptDao receiptDao;
 
     @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
     EntityManager em;

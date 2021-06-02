@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Table(name = "TB_RECEIPT")
 @NamedQueries({
         @NamedQuery(name = "Receipt.deleteReceipts", query = "delete from  ReceiptEntity where entityId in :RECEIPTIDS"),
+        @NamedQuery(name = "Receipt.deleteMessages", query = "delete from ReceiptEntity receipt where receipt.entityId in :IDS"),
         @NamedQuery(name = "Receipt.findBySignalRefToMessageId", query = "select re from ReceiptEntity re join fetch re.signalMessage where re.signalMessage.refToMessageId=:REF_TO_MESSAGE_ID"),
 })
 public class ReceiptEntity extends AbstractNoGeneratedPkEntity {
