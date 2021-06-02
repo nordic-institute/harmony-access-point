@@ -659,12 +659,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         result.setHref(ebms3PartInfo.getHref());
 
         final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
-        final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
-        if (ebms3PartInfoPartProperties != null || CollectionUtils.isNotEmpty(ebms3Properties)) {
+        if (ebms3PartInfoPartProperties != null) {
+            final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findPropertyByNameValueAndType(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
+                final PartProperty property = partPropertyDao.findOrCreateProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
                 if (property != null) {
                     partProperties.add(property);
                 }
