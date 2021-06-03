@@ -1577,6 +1577,7 @@ public class PartyServiceImplTest {
     @Test
     public void test_updateParty(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses,
                                  final @Mocked eu.domibus.common.model.configuration.Party configParty,
+                                 final @Mocked eu.domibus.common.model.configuration.Party newParty,
                                  final @Mocked Party party,
                                  final @Mocked Parties parties) {
         final String partyName = "red-gw";
@@ -1602,6 +1603,9 @@ public class PartyServiceImplTest {
 
             partyService.getParty(partyName, listParties);
             result = configParty;
+
+            partyConverter.partyToConfigurationParty(party);
+            result = newParty;
         }};
 
         //tested method
@@ -1622,7 +1626,7 @@ public class PartyServiceImplTest {
 
             partyService.removePartyCertificate((List<String>) any);
 
-            partyService.addPartyToConfiguration(configParty, configuration);
+            partyService.addPartyToConfiguration(newParty, configuration);
 
             partyService.updatePartyIdTypes(listParties, configuration);
 
