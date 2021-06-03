@@ -132,13 +132,7 @@ public abstract class MessageLogInfoFilter {
                     }
                 }
             }
-        }/* else {
-            if (filter.getKey().equals("testMessage")) {
-                setSeparator(query, result);
-                String tableName = getHQLKey(filter.getKey());
-                result.append(tableName).append(" is null");
-            }
-        }*/
+        }
     }
 
     private void setSeparator(String query, StringBuilder result) {
