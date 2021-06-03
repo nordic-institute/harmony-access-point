@@ -135,27 +135,6 @@ public class BackendMessageValidatorTest {
             Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message id more than 255 characters long should result in error*/
-
-        /*Message id should not be null*/
-        try {
-            String messageId8 = null;
-            backendMessageValidatorObj.validateMessageId(messageId8);
-            Assert.fail("Expected exception EBMS_0009 was not raised!");
-        } catch (EbMS3Exception e2) {
-            Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
-        }
-        /*Message id should not be null*/
-
-        /*Message id should not be blank*/
-        try {
-            String messageId9 = "     ";
-            backendMessageValidatorObj.validateMessageId(messageId9);
-            Assert.fail("Expected exception EBMS_0009 was not raised!");
-        } catch (EbMS3Exception e2) {
-            Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
-        }
-        /*Message id should not be null*/
-
     }
 
 
@@ -524,14 +503,6 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    public void validatePartyInfoForPModeMatch_PartyInfoNull() throws EbMS3Exception {
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field PartyInfo is not provided.");
-        backendMessageValidatorObj.validatePartyInfoForPModeMatch(null, MSHRole.SENDING);
-
-    }
-
-    @Test
     public void validateFromPartyId_EmptyFromParties() throws EbMS3Exception {
         Submission submission = new Submission();
         thrown.expect(EbMS3Exception.class);
@@ -604,7 +575,7 @@ public class BackendMessageValidatorTest {
     @Test
     public void validateFromRole_FromNull() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
+        thrown.expectMessage("Mandatory field From Role is not provided.");
         backendMessageValidatorObj.validateFromRole(null);
 
     }
@@ -683,7 +654,8 @@ public class BackendMessageValidatorTest {
 
     @Test
     public void validateToRole_ToNull() throws EbMS3Exception {
-        ExpectedException.none();
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("Mandatory field To Role is not provided.");
         backendMessageValidatorObj.validateToRoleForPModeMatch(null);
     }
 
