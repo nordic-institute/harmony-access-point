@@ -16,11 +16,9 @@ import java.io.ByteArrayOutputStream;
  */
 @Component
 public class LoggerUtil {
-    ByteArrayOutputStream logging = new ByteArrayOutputStream();
-    Logger logger;
     public static final String APPENDER_FOR_TESTING = "AppenderForTesting";
 
-    public void addByteArrayOutputStreamAppender() {
+    public void addByteArrayOutputStreamAppender(ByteArrayOutputStream logging, Logger logger) {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         logger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 
@@ -40,14 +38,13 @@ public class LoggerUtil {
         logger.addAppender(appender);
     }
 
-    public void cleanupByteArrayOutputStreamAppender() {
-        if (this.logger != null) {
-            this.logger.detachAppender(APPENDER_FOR_TESTING);
+    public void cleanupByteArrayOutputStreamAppender(ByteArrayOutputStream logging, Logger logger) {
+        if (logger != null) {
+            logger.detachAppender(APPENDER_FOR_TESTING);
         }
     }
 
-    public boolean verifyLogging(String toContain) {
-        final String logging = this.logging.toString();
-        return StringUtils.contains(logging, toContain);
+    public boolean verifyLogging(String toContain, ByteArrayOutputStream logging, Logger logger) {
+        return StringUtils.contains(logging.toString(), toContain);
     }
 }
