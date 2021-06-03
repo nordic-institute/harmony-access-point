@@ -456,7 +456,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
         <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
             <column name="FK_MSG_ACKNOWLEDGE"/>
@@ -698,7 +698,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
                                  constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_MESSAGE"/>
         <createIndex indexName="FK_USER_MESSAGE_ID" tableName="TB_PART_INFO">
             <column name="USER_MESSAGE_ID_FK"/>
@@ -725,7 +725,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_PROPERTY_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"

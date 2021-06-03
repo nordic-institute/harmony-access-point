@@ -1,8 +1,7 @@
 package eu.domibus.core.message.signal;
 
-import com.google.common.collect.Maps;
-import eu.domibus.api.model.*;
-import eu.domibus.core.dao.BasicDao;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
@@ -66,9 +65,9 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
 
     @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
-    public int deleteMessageLogs(List<String> messageIds) {
+    public int deleteMessageLogs(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteSignalMessageLogs result [{}]", result);
         return result;

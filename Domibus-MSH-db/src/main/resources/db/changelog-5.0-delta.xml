@@ -453,6 +453,34 @@
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
 
+    <changeSet id="EDELIVERY-8049"  author="idragusa">
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PART_INFO"
+                                  constraintName="FK_PART_INFO_USER_MSG"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PART_PROPERTIES"
+                                  constraintName="FK_PART_INFO_USER_MSG"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_MESSAGE_ACKNW"/>
+
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+    </changeSet>
+
+
+
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

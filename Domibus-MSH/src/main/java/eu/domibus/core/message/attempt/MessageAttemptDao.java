@@ -45,9 +45,9 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
 
     @Timer(clazz = MessageAttemptDao.class,value = "deleteMessages.deleteAttemptsByMessageIds")
     @Counter(clazz = MessageAttemptDao.class,value = "deleteMessages.deleteAttemptsByMessageIds")
-    public int deleteAttemptsByMessageIds(List<String> messageIds) {
+    public int deleteAttemptsByMessageIds(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("MessageAttemptEntity.deleteAttemptsByMessageIds");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result  = deleteQuery.executeUpdate();
         LOG.trace("deleteAttemptsByMessageIds result [{}]", result);
         return result;

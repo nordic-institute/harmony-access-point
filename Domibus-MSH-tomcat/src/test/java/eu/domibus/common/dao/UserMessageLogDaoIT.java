@@ -8,7 +8,6 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
