@@ -9,7 +9,6 @@ import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
-import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.MessageInfo;
@@ -50,12 +49,10 @@ import org.junit.runner.RunWith;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.persistence.EntityManager;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Cosmin Baciu, Soumya
@@ -203,6 +200,9 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     private ReceiptDao receiptDao;
 
+    @Injectable
+    UserMessageDefaultRestoreService userMessageDefaultRestoreService;
+
     @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
     EntityManager em;
 
@@ -333,158 +333,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.getFailedMessageElapsedTime(messageId);
     }
 
-    @Test(expected = UserMessageException.class)
-    public void testRestoreMessageWhenMessageIsDeleted(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getFailedMessage(messageId);
-            result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.DELETED;
-
-        }};
-
-        userMessageDefaultService.restoreFailedMessage(messageId);
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testRestorePushedMessage(@Injectable final UserMessageLog userMessageLog,
-                                         @Injectable final UserMessage userMessage) {
-        final String messageId = "1";
-        final Integer newMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getFailedMessage(messageId);
-            result = userMessageLog;
-
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
-            result = MessageStatus.SEND_ENQUEUED;
-
-            userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-            result = newMaxAttempts;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.SEND_ENQUEUED;
-
-        }};
-
-        userMessageDefaultService.restoreFailedMessage(messageId);
-
-        new FullVerifications(userMessageDefaultService) {{
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
-
-            MessageStatusEntity messageStatus = new MessageStatusEntity();
-            messageStatus.setMessageStatus(MessageStatus.SEND_ENQUEUED);
-            userMessageLog.setMessageStatus(messageStatus);
-            userMessageLog.setRestored(withAny(new Date()));
-            userMessageLog.setFailed(null);
-            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
-            userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-            userMessageLogDao.update(userMessageLog);
-            uiReplicationSignalService.messageChange(anyString);
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
-
-        }};
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testRestorePUlledMessage(@Injectable final UserMessageLog userMessageLog,
-                                         @Injectable final UserMessage userMessage) {
-        final String messageId = "1";
-        final Integer newMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getFailedMessage(messageId);
-            result = userMessageLog;
-
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
-            result = MessageStatus.READY_TO_PULL;
-
-            userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-            result = newMaxAttempts;
-
-        }};
-
-        userMessageDefaultService.restoreFailedMessage(messageId);
-
-        new Verifications() {{
-//            userMessageLog.setMessageStatus(MessageStatus.READY_TO_PULL);
-//            times = 1;
-            userMessageLog.setRestored(withAny(new Date()));
-            times = 1;
-            userMessageLog.setFailed(null);
-            times = 1;
-            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
-            times = 1;
-            userMessageLog.setSendAttemptsMax(newMaxAttempts);
-            times = 1;
-
-            userMessageLogDao.update(userMessageLog);
-            times = 1;
-
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
-            times = 0;
-
-            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            pModeService.getLegConfiguration(messageId);
-            result = null;
-
-        }};
-
-        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-        assertEquals(1, (int) maxAttemptsConfiguration);
-
-    }
-
-    @Test
-    public void testMaxAttemptsConfiguration(@Injectable final LegConfiguration legConfiguration) {
-        final String messageId = "1";
-        final Integer pModeMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            pModeService.getLegConfiguration(messageId);
-            result = legConfiguration;
-
-            pModeServiceHelper.getMaxAttempts(legConfiguration);
-            result = pModeMaxAttempts;
-
-        }};
-
-        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-        Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
-    }
-
-    @Test
-    public void testComputeMaxAttempts(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final Integer pModeMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-            result = pModeMaxAttempts;
-
-            userMessageLog.getSendAttemptsMax();
-            result = pModeMaxAttempts;
-
-        }};
-
-        final Integer maxAttemptsConfiguration = userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-        assertEquals(11, (int) maxAttemptsConfiguration);
-    }
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
@@ -523,58 +372,6 @@ public class UserMessageDefaultServiceTest {
             jmsManager.sendMessageToQueue((JmsMessage) any, sendPullReceiptQueue);
         }};
 
-    }
-
-    @Test
-    public void testRestoreFailedMessagesDuringPeriodWhenAPreviousMessageIsFailing() {
-        final String finalRecipient = "C4";
-        final Date startDate = new Date();
-        final Date endDate = new Date();
-
-        final String failedMessage1 = "1";
-        final String failedMessage2 = "2";
-        final List<String> failedMessages = new ArrayList<>();
-        failedMessages.add(failedMessage1);
-        failedMessages.add(failedMessage2);
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findFailedMessages(finalRecipient, startDate, endDate);
-            result = failedMessages;
-
-            userMessageDefaultService.restoreFailedMessage(failedMessage1);
-
-            userMessageDefaultService.restoreFailedMessage(failedMessage2);
-            result = new RuntimeException("Problem restoring message 2");
-        }};
-
-        final List<String> restoredMessages = userMessageDefaultService.restoreFailedMessagesDuringPeriod(startDate, endDate, finalRecipient);
-        assertNotNull(restoredMessages);
-        assertEquals(1, restoredMessages.size());
-        assertEquals(failedMessage1, restoredMessages.iterator().next());
-    }
-
-    @Test
-    public void testRestoreFailedMessagesDuringPeriod() {
-        final String finalRecipient = "C4";
-        final Date startDate = new Date();
-        final Date endDate = new Date();
-
-        final String failedMessage1 = "1";
-        final String failedMessage2 = "2";
-        final List<String> failedMessages = new ArrayList<>();
-        failedMessages.add(failedMessage1);
-        failedMessages.add(failedMessage2);
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findFailedMessages(finalRecipient, startDate, endDate);
-            result = failedMessages;
-
-            userMessageDefaultService.restoreFailedMessage(anyString);
-        }};
-
-        final List<String> restoredMessages = userMessageDefaultService.restoreFailedMessagesDuringPeriod(startDate, endDate, finalRecipient);
-        assertNotNull(restoredMessages);
-        assertEquals(restoredMessages, failedMessages);
     }
 
     @Test(expected = UserMessageException.class)
@@ -733,28 +530,6 @@ public class UserMessageDefaultServiceTest {
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
             userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture());
-            Assert.assertEquals(messageId, messageIdActual);
-        }};
-    }
-
-    @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusFailed(final @Mocked UserMessageLog userMessageLog) {
-        final String messageId = UUID.randomUUID().toString();
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.SEND_FAILURE;
-        }};
-
-        //tested method
-        userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
-
-        new FullVerifications(userMessageDefaultService) {{
-            String messageIdActual;
-            userMessageDefaultService.restoreFailedMessage(messageIdActual = withCapture());
             Assert.assertEquals(messageId, messageIdActual);
         }};
     }
