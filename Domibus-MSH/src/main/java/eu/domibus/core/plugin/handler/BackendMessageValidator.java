@@ -92,10 +92,9 @@ public class BackendMessageValidator {
      * @throws EbMS3Exception if the message id value is invalid
      */
     public void validateMessageId(final String messageId) throws EbMS3Exception, DuplicateMessageException {
-
         if (isBlank(messageId)) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MessageId");
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field MessageId is not provided.", null, null);
+            LOG.debug("Message id is empty: validation skipped");
+            return;
         }
 
         if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
@@ -120,7 +119,6 @@ public class BackendMessageValidator {
      * @throws EbMS3Exception if the RefToMessageId value is invalid
      */
     public void validateRefToMessageId(final String refToMessageId) throws EbMS3Exception {
-
         //refToMessageId is an optional element and can be null
         if (refToMessageId == null) {
             return;
