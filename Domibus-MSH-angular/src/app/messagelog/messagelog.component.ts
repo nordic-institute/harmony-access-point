@@ -106,6 +106,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
 
+    this.filter.testMessage = false;
     this.filterData();
   }
 
@@ -238,16 +239,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  protected createAndSetParameters(): HttpParams {
-    let filterParams = super.createAndSetParameters();
-    if (this.activeFilter.isTestMessage) {
-      filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
-    } else {
-      filterParams = filterParams.delete('messageSubtype');
-    }
-    return filterParams;
-  }
-
   protected get GETUrl(): string {
     return MessageLogComponent.MESSAGE_LOG_URL;
   }
@@ -262,7 +253,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (result.filter.receivedTo) {
       result.filter.receivedTo = new Date(result.filter.receivedTo);
     }
-    result.filter.isTestMessage = !!result.filter.messageSubtype;
+
     super.filter = result.filter;
 
     this.mshRoles = result.mshRoles;
@@ -374,7 +365,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
       const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
       DownloadService.downloadNative(downloadUrl);
     }, err => {
-      if (err.error.message.includes("Message content is no longer available for message id")) {
+      if (err.error.message.includes('Message content is no longer available for message id')) {
         row.deleted = true;
       }
       this.alertService.exception(`Could not download message.`, err);
