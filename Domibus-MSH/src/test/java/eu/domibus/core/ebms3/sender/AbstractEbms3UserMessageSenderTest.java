@@ -454,13 +454,8 @@ public class AbstractEbms3UserMessageSenderTest {
 
         }};
 
-        try {
-            //tested method
-            abstractUserMessageSender.sendMessage(userMessage, userMessageLog);
-            Assert.fail("exception expected");
-        } catch (Throwable t) {
-            Assert.assertTrue(t instanceof OutOfMemoryError);
-        }
+        //tested method
+        abstractUserMessageSender.sendMessage(userMessage, userMessageLog);
 
         new Verifications() {{
             ReliabilityChecker.CheckResult checkResultActual;

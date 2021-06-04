@@ -172,7 +172,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().error("Error occurred when sending message with ID [{}]", messageId, t);
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
-            throw t;
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
