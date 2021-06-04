@@ -102,12 +102,12 @@
                 <input matInput placeholder="Service Value" name="serviceValue" [(ngModel)]="filter.serviceValue"
                        #serviceValue="ngModel" id="serviceValue_id" advanced-filter-behaviour [parent]="this">
               </mat-form-field>
-              <mat-checkbox name="isTestMessage" id="showTestMessages_id" [(ngModel)]="filter.isTestMessage"
+              <mat-checkbox name="isTestMessage" id="showTestMessages_id" [(ngModel)]="filter.testMessage"
                             advanced-filter-behaviour [parent]="this">
                 Show Only Test Messages
               </mat-checkbox>
             </ng-container>
-
+            
             <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>
