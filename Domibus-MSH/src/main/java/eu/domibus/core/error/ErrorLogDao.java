@@ -112,16 +112,6 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         return predicates;
     }
 
-    public List<ErrorLogEntry> findAll() {
-        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findEntries", ErrorLogEntry.class);
-        return query.getResultList();
-    }
-
-    public long countEntries() {
-        final TypedQuery<Long> query = this.em.createNamedQuery("ErrorLogEntry.countEntries", Long.class);
-        return query.getSingleResult();
-    }
-
     @Override
     public void create(ErrorLogEntry errorLogEntry) {
         errorLogEntryTruncateUtil.truncate(errorLogEntry);
