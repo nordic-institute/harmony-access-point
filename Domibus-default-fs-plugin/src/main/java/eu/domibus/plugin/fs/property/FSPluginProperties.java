@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -288,6 +289,9 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     protected Integer getDomainIntegerProperty(String domain, String propertyName) {
         String value = getDomainProperty(domain, propertyName);
+        if(StringUtils.isBlank(value)){
+            return 0;
+        }
         return NumberUtils.toInt(value);
     }
 

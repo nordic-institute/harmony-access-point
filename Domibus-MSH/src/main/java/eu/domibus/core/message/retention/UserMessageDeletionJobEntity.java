@@ -15,7 +15,7 @@ import java.util.Objects;
  * @since 4.2.1
  */
 @Entity
-@Table(name = "TB_USER_MESSAGE_DELETION_JOB")
+@Table(name = "TB_USER_MSG_DELETION_JOB")
 @NamedQueries({
         @NamedQuery(name = "UserMessageDeletionJobEntity.findCurrentDeletionJobs",
                 query = "select deletionJob from UserMessageDeletionJobEntity deletionJob"),
