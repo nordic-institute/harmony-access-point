@@ -62,7 +62,6 @@ public class ErrorLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void test_deleteErrorLogsWithoutMessageIdOlderThan() {
 
         int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
