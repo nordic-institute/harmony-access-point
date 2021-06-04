@@ -42,6 +42,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -379,6 +380,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     protected String persistReceivedMessage(
             final SOAPMessage request,
             final LegConfiguration legConfiguration,
@@ -388,6 +390,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             Ebms3MessageFragmentType ebms3MessageFragmentType,
             final String backendName)
             throws SOAPException, TransformerException, EbMS3Exception {
+
+        //add messageId to MDC map
+        if (StringUtils.isNotBlank(userMessage.getMessageId())) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        }
         LOG.info("Persisting received message");
 
         boolean compressed = compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
