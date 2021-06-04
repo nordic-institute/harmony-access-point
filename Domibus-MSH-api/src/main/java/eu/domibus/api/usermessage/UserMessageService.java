@@ -44,8 +44,6 @@ public interface UserMessageService {
 
     Long getFailedMessageElapsedTime(String messageId);
 
-    void restoreFailedMessage(String messageId);
-
     void sendEnqueuedMessage(String messageId);
 
     /**

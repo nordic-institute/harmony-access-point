@@ -842,8 +842,10 @@ public class PartyServiceImpl implements PartyService {
         //remove certificate
         removePartyCertificate(Collections.singletonList(configParty.getName()));
 
+        eu.domibus.common.model.configuration.Party newParty = partyConverter.partyToConfigurationParty(party);
+
         //add new party to configuration
-        addPartyToConfiguration(configParty, configuration);
+        addPartyToConfiguration(newParty, configuration);
 
         //update party id types
         updatePartyIdTypes(allParties, configuration);
