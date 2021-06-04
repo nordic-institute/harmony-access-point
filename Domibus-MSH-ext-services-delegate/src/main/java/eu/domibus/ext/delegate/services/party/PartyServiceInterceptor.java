@@ -6,11 +6,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Catalin Enache
  * @since 4.2
  */
+@Aspect
+@Component
 public class PartyServiceInterceptor extends ServiceInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceInterceptor.class);
