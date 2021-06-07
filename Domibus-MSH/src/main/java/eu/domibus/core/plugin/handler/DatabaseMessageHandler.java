@@ -406,11 +406,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             messagePropertyValidator.validate(submission, MSHRole.SENDING);
 
             UserMessage userMessage = transformer.transformFromSubmission(submission);
-            List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
+
             if (userMessage == null) {
                 LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
                 throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
             }
+            List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
 
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
