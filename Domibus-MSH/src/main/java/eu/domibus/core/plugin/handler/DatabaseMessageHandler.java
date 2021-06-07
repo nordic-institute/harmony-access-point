@@ -388,9 +388,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
-    public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
-        if (StringUtils.isNotEmpty(messageData.getMessageId())) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
+    public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
+        if (StringUtils.isNotEmpty(submission.getMessageId())) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
@@ -401,21 +401,24 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         String displayUser = (originalUser == null) ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
-        UserMessage userMessage = transformer.transformFromSubmission(messageData);
-        List<PartInfo> partInfos = transformer.generatePartInfoList(messageData);
-        if (userMessage == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
-            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
-        }
         String messageId = null;
         try {
+            backendMessageValidator.validateUserMessageForPmodeMatch(submission, MSHRole.SENDING);
+            messagePropertyValidator.validate(submission, MSHRole.SENDING);
+
+            UserMessage userMessage = transformer.transformFromSubmission(submission);
+
+            if (userMessage == null) {
+                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
+                throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
+            }
+            List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
+
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
             validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-
-            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
@@ -443,7 +446,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             payloadProfileValidator.validate(userMessage, partInfos, pModeKey);
             propertyProfileValidator.validate(userMessage, pModeKey);
-            messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSourceMessage(splitAndJoin);
@@ -482,7 +484,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             final boolean sourceMessage = userMessage.isSourceMessage();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
-                    backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
+                    backendName, to.getEndpoint(), submission.getService(), submission.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
                 prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);

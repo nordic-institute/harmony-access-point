@@ -35,9 +35,14 @@ public class MessagePropertyValidatorTest {
             userMessage.getMessageProperties();
             result = Collections.singleton(property);
 
+            property.getName();
+            result = "propName";
+
             property.getValue();
             result = "test";
 
+            property.getType();
+            result = "propType";
         }};
 
         messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
@@ -85,7 +90,13 @@ public class MessagePropertyValidatorTest {
             userMessage.getMessageProperties();
             result = Collections.singleton(property);
 
+            property.getName();
+            result = "propName";
+
             property.getValue();
+            result = null;
+
+            property.getType();
             result = null;
 
         }};

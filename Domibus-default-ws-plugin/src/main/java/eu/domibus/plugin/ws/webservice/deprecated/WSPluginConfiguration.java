@@ -7,12 +7,11 @@ import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;
-import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -63,7 +62,7 @@ public class WSPluginConfiguration {
                                                        WSPluginPropertyManager wsPluginPropertyManager,
                                                        CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                                        ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
-                                                       WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor,
+                                                       WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
                                                        @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
         LOG.warn("This endpoint is deprecated, please use the new end point /wsPlugin");
         EndpointImpl endpoint = new EndpointImpl(bus, backendWebService); //NOSONAR

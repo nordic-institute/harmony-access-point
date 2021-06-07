@@ -37,6 +37,13 @@ public class To {
         return role;
     }
 
+    public String getRoleValue() {
+        if(role == null) {
+            return null;
+        }
+        return role.getValue();
+    }
+
     public void setRole(PartyRole role) {
         this.role = role;
     }

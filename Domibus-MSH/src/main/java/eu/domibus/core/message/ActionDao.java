@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.ActionEntity;
 import eu.domibus.core.dao.BasicDao;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,10 @@ public class ActionDao extends BasicDao<ActionEntity> {
 
     @Transactional
     public ActionEntity findOrCreateAction(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+
         ActionEntity mpc = findByValue(value);
         if (mpc != null) {
             return mpc;

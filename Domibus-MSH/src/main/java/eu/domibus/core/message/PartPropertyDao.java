@@ -22,6 +22,10 @@ public class PartPropertyDao extends BasicDao<PartProperty> {
 
     @Transactional
     public PartProperty findOrCreateProperty(final String name, String value, String type) {
+        if(StringUtils.isBlank(value)) {
+            return null;
+        }
+
         PartProperty property = findExistingProperty(name, value, type);
         if (property != null) {
             return property;
