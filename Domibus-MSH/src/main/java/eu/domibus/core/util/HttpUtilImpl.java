@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
@@ -67,9 +68,10 @@ public class HttpUtilImpl implements HttpUtil {
             int httpTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT);
             if (httpTimeout > 0) {
                 LOG.debug("Configure the http client with httpTimeout: [{}]", httpTimeout);
-                builder.setConnectTimeout(httpTimeout * MILIS_TO_SECONDS)
-                        .setConnectionRequestTimeout(httpTimeout * MILIS_TO_SECONDS)
-                        .setSocketTimeout(httpTimeout * MILIS_TO_SECONDS);
+                int httpTimeoutMilis = new Long(httpTimeout * DateUtils.MILLIS_PER_SECOND).intValue();
+                builder.setConnectTimeout(httpTimeoutMilis)
+                        .setConnectionRequestTimeout(httpTimeoutMilis)
+                        .setSocketTimeout(httpTimeoutMilis);
             }
 
             HttpHost proxy = null;

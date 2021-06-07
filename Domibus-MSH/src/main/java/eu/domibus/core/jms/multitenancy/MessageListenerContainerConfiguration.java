@@ -137,7 +137,8 @@ public class MessageListenerContainerConfiguration {
                 largeMessageSenderListener, PROPERTY_LARGE_FILES_CONCURRENCY
         );
         defaultMessageListenerContainer.setErrorHandler(messageSenderErrorHandler);
-        return defaultMessageListenerContainer;    }
+        return defaultMessageListenerContainer;
+    }
 
     /**
      * Creates the SplitAndJoin JMS listener(domain dependent)
