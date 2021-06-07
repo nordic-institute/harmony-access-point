@@ -97,18 +97,32 @@ Domibus 5.0 (from 4.2.2)
                             - in the file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                                     - remove the <xa-datasource jndi-name="java:/jdbc/cipaeDeliveryDs"...> datasource
                                     - clone the <datasource jndi-name="java:/jdbc/cipaeDeliveryNonXADs"...> datasource and set the jndi-name attribute to "java:/jdbc/cipaeDeliveryDs" and the pool-name attribute to either "eDeliveryMysqlDS" or "eDeliveryOracleDS"
+Domibus 4.2.2 (from 4.2.1):
+                - [Mysql8 only]
+                   - Grant XA_RECOVER_ADMIN privilege to the user:
+                        In MySQL 8.0, XA_RECOVER is permitted only to users who have the XA_RECOVER_ADMIN privilege. Prior to MySQL 8.0, any user could execute this and discover the XID values of XA transactions by other users.
+                        This privilege requirement prevents users from discovering the XID values for outstanding prepared XA transactions other than their own.
+                            - GRANT XA_RECOVER_ADMIN ON *.* TO 'edelivery_user'@'localhost';
+                    - Execute below command to flush privileges:
+                        When we grant some privileges for a user, running this command will reloads the grant tables in the mysql database enabling the changes to take effect without reloading or restarting mysql service.
+                            - FLUSH PRIVILEGES;
+
+                - Run the appropriate DB migration script(mysql-4.2.1-to-4.2.2-migration.ddl for MySQL or oracle-4.2.1-to-4.2.2-migration.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Change the name of 'domibus.ui.resend.action.enabled.received.minutes' property to 'domibus.action.resend.wait.minutes' in domibus.properties file.
 Domibus 4.2.1 (from 4.2):
-                                      - [Oracle only]
-                                         - Grant access to your user to create stored procedures:
-                                              Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
-                                                  $ sqlplus sys as sysdba
-                                              Once logged in Oracle execute:
-                                                  GRANT CREATE PROCEDURE TO <edelivery_user>
-                                      - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
-                                      - Replace the Domibus war
-                                      - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
-                                      - Replace the default dss extention jar into  "/conf/domibus/extentions/lib"
-Domibus 4.2 (from 4.1.7)
+                - [Oracle only]
+                   - Grant access to your user to create stored procedures:
+                        Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
+                            $ sqlplus sys as sysdba
+                        Once logged in Oracle execute:
+                            GRANT CREATE PROCEDURE TO <edelivery_user>
+                - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Replace the default dss extention jar into  "/conf/domibus/extentions/lib"
+Domibus 4.2 (from 4.1.7):
                 Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
                   It is mandatory to update to one of the below supported servers and databases.
                     Servers: Tomcat 9.x, WildFly 20.0.x, WebLogic 12.2.1.4

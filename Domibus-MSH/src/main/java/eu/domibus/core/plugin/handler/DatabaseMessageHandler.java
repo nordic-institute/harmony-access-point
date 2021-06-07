@@ -15,6 +15,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
@@ -501,6 +502,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
             errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
+        } catch (ConfigurationException ex) {
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
+            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
+            errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0004, ex.getMessage()));
+            throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }
 

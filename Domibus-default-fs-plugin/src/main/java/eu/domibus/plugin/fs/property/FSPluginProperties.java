@@ -288,7 +288,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     protected Integer getDomainIntegerProperty(String domain, String propertyName) {
         String value = getDomainProperty(domain, propertyName);
-        return NumberUtils.toInt(value);
+        LOG.trace("Domain [{}] property [{}]=[{}]", domain, propertyName, value);
+        return NumberUtils.toInt(value, 0);
     }
 
     @Override
