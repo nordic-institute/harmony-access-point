@@ -56,9 +56,6 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     @Autowired
     UserMessageLogDao userMessageLogDao;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Before
     public void before() {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
