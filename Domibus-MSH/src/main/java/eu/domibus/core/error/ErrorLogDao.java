@@ -1,5 +1,6 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -13,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,9 +69,12 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         List<Predicate> predicates = new ArrayList<Predicate>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {
-                if (filter.getValue() instanceof String) {
+                if (filter.getKey().equals("mshRole")) {
+                    final Join<ErrorLogEntry, MSHRoleEntity> mshRoleJoin = ele.join(ErrorLogEntry_.mshRole);
+                    mshRoleJoin.on(cb.equal(mshRoleJoin.get("role"), filter.getValue()));
+                } else if (filter.getValue() instanceof String) {
                     if (!filter.getValue().toString().isEmpty()) {
-                        switch (filter.getKey().toString()) {
+                        switch (filter.getKey()) {
                             case "":
                                 break;
                             default:
@@ -82,7 +84,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
                     }
                 } else if (filter.getValue() instanceof Date) {
                     if (!filter.getValue().toString().isEmpty()) {
-                        switch (filter.getKey().toString()) {
+                        switch (filter.getKey()) {
                             case "":
                                 break;
                             case "timestampFrom":
@@ -108,16 +110,6 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
             }
         }
         return predicates;
-    }
-
-    public List<ErrorLogEntry> findAll() {
-        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findEntries", ErrorLogEntry.class);
-        return query.getResultList();
-    }
-
-    public long countEntries() {
-        final TypedQuery<Long> query = this.em.createNamedQuery("ErrorLogEntry.countEntries", Long.class);
-        return query.getSingleResult();
     }
 
     @Override
