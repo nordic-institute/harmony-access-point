@@ -372,70 +372,19 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testSubmitMessageWithRefIdGreen2RedOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
+    public void testSubmitMessageWithIdNOk(@Injectable final Submission submission) throws Exception {
+        String messageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
+
         new Expectations() {{
+            submission.getMessageId();
+            result = messageId;
 
-            UserMessage userMessage = createUserMessage();
-            userMessage.setRefToMessageId("abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu");
-            transformer.transformFromSubmission(messageData);
-            result = userMessage;
-
-            messageIdGenerator.generateMessageId();
-            result = MESS_ID;
-
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
-
-            Party sender = new Party();
-            sender.setName(GREEN);
-            pModeProvider.getSenderParty(pModeKey);
-            result = sender;
-
-            Party receiver = new Party();
-            receiver.setName(RED);
-            pModeProvider.getReceiverParty(pModeKey);
-            result = receiver;
-
-            Party confParty = new Party();
-            confParty.setName(GREEN);
-
-            pModeProvider.getGatewayParty();
-            result = confParty;
-
-            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-        }};
-
-        final String messageId = databaseMessageHandler.submit(messageData, BACKEND);
-        assertEquals(MESS_ID, messageId);
-
-        new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
-            messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            pModeProvider.getLegConfiguration(anyString);
-            messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
-            messagingService.storeMessagePayloads(withAny(new UserMessage()),null, MSHRole.SENDING, legConfiguration, anyString);
-            userMessageLogService.save(withAny(new UserMessage()), anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
-        }};
-
-    }
-
-    @Test
-    public void testSubmitMessageWithIdNOk(@Injectable final Submission messageData) throws Exception {
-        new Expectations() {{
-
-            UserMessage userMessage = new UserMessage();
-            String messageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
-            userMessage.setMessageId(messageId);
-            transformer.transformFromSubmission(messageData);
-            result = userMessage;
-
-            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
+            backendMessageValidator.validateUserMessageForPmodeMatch(submission, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", null, null);
         }};
 
         try {
-            databaseMessageHandler.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -462,24 +411,16 @@ public class DatabaseMessageHandlerTest {
 
 
     @Test
-    public void testSubmitMessageWithRefIdNOk(@Injectable final Submission messageData) throws Exception {
+    public void testSubmitMessageWithRefIdNOk(@Injectable final Submission submission) throws Exception {
+        String refToMessageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
+
         new Expectations() {{
-
-            UserMessage userMessage = new UserMessage();
-            String refToMessageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
-            userMessage.setRefToMessageId(refToMessageId);
-            transformer.transformFromSubmission(messageData);
-            result = userMessage;
-
-            messageIdGenerator.generateMessageId();
-            result = MESS_ID;
-
-            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
+            backendMessageValidator.validateUserMessageForPmodeMatch(submission, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "RefToMessageId value is too long (over 255 characters)", refToMessageId, null);
         }};
 
         try {
-            databaseMessageHandler.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -488,7 +429,6 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
-            messageIdGenerator.generateMessageId();
             userMessageLogDao.getMessageStatus(MESS_ID);
             times = 0;
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
@@ -682,20 +622,14 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testSubmitDuplicateMessage(@Injectable final Submission messageData, @Injectable UserMessage userMessage) throws Exception {
+    public void testSubmitDuplicateMessage(@Injectable final Submission submission, @Injectable UserMessage userMessage) throws Exception {
         new Expectations() {{
-            transformer.transformFromSubmission(messageData);
-            result = userMessage;
-
-            messageIdGenerator.generateMessageId();
-            result = MESS_ID;
-
-            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
+            backendMessageValidator.validateUserMessageForPmodeMatch(submission, MSHRole.SENDING);
             result = new DuplicateMessageException("Message with id [" + MESS_ID + "] already exists. Message identifiers must be unique");
         }};
 
         try {
-            databaseMessageHandler.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(submission, BACKEND);
             Assert.fail("It should throw " + DuplicateMessageException.class.getCanonicalName());
         } catch (DuplicateMessageException ex) {
             LOG.debug("DuplicateMessageException catched: " + ex.getMessage());
@@ -704,7 +638,6 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
-            messageIdGenerator.generateMessageId();
         }};
     }
 

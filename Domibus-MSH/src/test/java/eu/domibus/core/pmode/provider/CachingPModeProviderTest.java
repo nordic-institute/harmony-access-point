@@ -1438,7 +1438,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findInitiatorRole_RoleNotProvided(@Injectable UserMessage userMessage) {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getRole().getValue();
+            userMessage.getPartyInfo().getFrom().getRoleValue();
             result = " ";
         }};
         try {
@@ -1453,7 +1453,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findInitiatorRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getRole().getValue();
+            userMessage.getPartyInfo().getFrom().getRoleValue();
             result = initiatorRole.getValue();
 
             cachingPModeProvider.getBusinessProcessRole(initiatorRole.getValue());
@@ -1467,7 +1467,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findResponderRole_RoleNotProvided(@Injectable UserMessage userMessage) {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getRole().getValue();
+            userMessage.getPartyInfo().getTo().getRoleValue();
             result = " ";
         }};
         try {
@@ -1482,7 +1482,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findResponderRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getRole().getValue();
+            userMessage.getPartyInfo().getTo().getRoleValue();
             result = responderRole.getValue();
 
             cachingPModeProvider.getBusinessProcessRole(responderRole.getValue());

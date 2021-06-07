@@ -194,8 +194,8 @@ public class SubmissionAS4Transformer {
                 addPayload(result, partInfo);
             }
         }
-        result.setFromRole(userMessage.getPartyInfo().getFrom().getRole().getValue());
-        result.setToRole(userMessage.getPartyInfo().getTo().getRole().getValue());
+        result.setFromRole(userMessage.getPartyInfo().getFrom().getRoleValue());
+        result.setToRole(userMessage.getPartyInfo().getTo().getRoleValue());
 
         final PartyId partyFromId = userMessage.getPartyInfo().getFrom().getPartyId();
         result.addFromParty(partyFromId.getValue(), partyFromId.getType());

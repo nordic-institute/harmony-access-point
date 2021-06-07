@@ -8,8 +8,10 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.plugin.Submission;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -20,7 +22,6 @@ import java.util.Set;
 public class MessagePropertyValidator {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePropertyValidator.class);
-
 
     @Timer(clazz = MessagePropertyValidator.class, value = "validate")
     @Counter(clazz = MessagePropertyValidator.class, value = "validate")
@@ -35,12 +36,34 @@ public class MessagePropertyValidator {
         final Set<MessageProperty> properties = userMessage.getMessageProperties();
 
         for (MessageProperty property : properties) {
-            if (property.getValue() != null && property.getValue().length() > Property.VALUE_MAX_SIZE) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PROPERTY_SIZE_EXCEEDED, property.getName(), Property.VALUE_MAX_SIZE);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, property.getName() + " property has a value which exceeds " + Property.VALUE_MAX_SIZE + " characters size.", messageId, null);
-                ex.setMshRole(mshRole);
-                throw ex;
-            }
+            validateProperty(property.getName(), property.getValue(), property.getType(), mshRole, messageId);
+        }
+    }
+
+
+    @Timer(clazz = MessagePropertyValidator.class, value = "submissionValidate")
+    @Counter(clazz = MessagePropertyValidator.class, value = "submissionValidate")
+    public void validate(final Submission submission, MSHRole mshRole) throws EbMS3Exception {
+        final String messageId = submission.getMessageId();
+        LOG.debug("Checking properties size for message [{}]", messageId);
+
+        if (submission.getMessageProperties() == null) {
+            LOG.debug("no message properties found for message [{}]", messageId);
+            return;
+        }
+        final Collection<Submission.TypedProperty> properties = submission.getMessageProperties();
+
+        for (Submission.TypedProperty property : properties) {
+            validateProperty(property.getKey(), property.getValue(), property.getType(), mshRole, messageId);
+        }
+    }
+
+    protected void validateProperty(String name, String value, String type, MSHRole mshRole, String messageId) throws EbMS3Exception {
+        if (value != null && value.length() > Property.VALUE_MAX_SIZE) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PROPERTY_SIZE_EXCEEDED, name, Property.VALUE_MAX_SIZE);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, name + " property has a value which exceeds " + Property.VALUE_MAX_SIZE + " characters size.", messageId, null);
+            ex.setMshRole(mshRole);
+            throw ex;
         }
     }
 }

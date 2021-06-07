@@ -22,6 +22,10 @@ public class ServiceDao extends BasicDao<ServiceEntity> {
 
     @Transactional
     public ServiceEntity findOrCreateService(String value, String type) {
+        if(StringUtils.isBlank(value)) {
+            return null;
+        }
+
         ServiceEntity service = findExistingService(value, type);
         if (service != null) {
             return service;

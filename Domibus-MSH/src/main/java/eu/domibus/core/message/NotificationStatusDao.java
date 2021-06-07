@@ -21,6 +21,10 @@ public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
     }
 
     public NotificationStatusEntity findOrCreate(NotificationStatus status) {
+        if(status == null) {
+            return null;
+        }
+
         NotificationStatusEntity messageStatusEntity = findByStatus(status);
         if (messageStatusEntity != null) {
             return messageStatusEntity;
