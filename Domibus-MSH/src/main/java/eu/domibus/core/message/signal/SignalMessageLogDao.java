@@ -52,7 +52,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
             return null;
         }
     }
-    
+
     @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<Long> ids) {
