@@ -173,10 +173,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 130
       },
       {
-        name: 'Message Subtype',
-        width: 100
-      },
-      {
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Deleted',
         width: 155
