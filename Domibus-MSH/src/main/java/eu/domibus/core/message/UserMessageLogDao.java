@@ -257,16 +257,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             }
         }
 
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredUserMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(from);
-        queryParameterized.setMaxResults(max);
         long startTime = 0;
         if (LOG.isDebugEnabled()) {
             startTime = System.currentTimeMillis();
         }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+
+        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters);
+
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());

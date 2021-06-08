@@ -52,17 +52,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
             return null;
         }
     }
-
-    @Override
-    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredSignalMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = signalMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(from);
-        queryParameterized.setMaxResults(max);
-        return queryParameterized.getResultList();
-    }
-
+    
     @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<Long> ids) {
