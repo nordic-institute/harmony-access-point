@@ -33,6 +33,7 @@
 		<domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
 	</properties>
 
+
 	<build>
 		<plugins>
 			<plugin>
@@ -333,6 +334,13 @@
 			<artifactId>xmlunit</artifactId>
 			<version>1.6</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+			<version>4.2.0</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

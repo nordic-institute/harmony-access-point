@@ -18,7 +18,7 @@ import java.util.List;
 public class MessageFilterGrid extends DGrid {
 
 	By persistedChkSelector = By.cssSelector("input[type=checkbox]");
-	
+
 	By rowActionUpSelector = By.cssSelector("[tooltip=\"Move Up\"]");
 	By rowActionDownSelector = By.cssSelector("[tooltip=\"Move Down\"]");
 	By rowActionEditSelector = By.cssSelector("[tooltip=\"Edit\"]");
@@ -29,6 +29,16 @@ public class MessageFilterGrid extends DGrid {
 	}
 
 	public Checkbox getPersisted(int rowIndex) throws Exception {
+		WebElement element = getPersistedChckElem(rowIndex);
+
+		if (null == element) {
+			return null;
+		}
+
+		return new Checkbox(driver, element);
+	}
+
+	public WebElement getPersistedChckElem(int rowIndex) throws Exception {
 		int colIndex = getColumnNames().indexOf("Persisted");
 		if (colIndex < 0) {
 			return null;
@@ -37,8 +47,7 @@ public class MessageFilterGrid extends DGrid {
 			return null;
 		}
 		WebElement element = gridRows.get(rowIndex).findElement(persistedChkSelector);
-
-		return new Checkbox(driver, element);
+		return element;
 	}
 
 
@@ -47,7 +56,7 @@ public class MessageFilterGrid extends DGrid {
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
 		}
-		if (rowNumber > gridRows.size()) {
+		if (rowNumber >= gridRows.size()) {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 		HashMap<String, String> info = new HashMap<>();
@@ -64,31 +73,34 @@ public class MessageFilterGrid extends DGrid {
 
 		return info;
 	}
-	
-	
+
+
 	public void rowMoveUp(int index) throws Exception {
-		pressActionButton(index,"Move Up");
+		pressActionButton(index, "Move Up");
 	}
+
 	public void rowMoveDown(int index) throws Exception {
-		pressActionButton(index,"Move Down");
+		pressActionButton(index, "Move Down");
 	}
+
 	public void rowEdit(int index) throws Exception {
-		pressActionButton(index,"Edit");
+		pressActionButton(index, "Edit");
 	}
+
 	public void rowDelete(int index) throws Exception {
-		pressActionButton(index,"Delete");
+		pressActionButton(index, "Delete");
 	}
-	
-	
+
+
 	public void pressActionButton(int index, String actionName) throws Exception {
 		log.debug("index =" + index);
 		log.debug("action =" + actionName);
-		
+
 		WebElement row = gridRows.get(index);
 		By selector;
-		
+
 		log.info("identifying proper selector for action");
-		switch (actionName){
+		switch (actionName) {
 			case "Move Up":
 				selector = rowActionUpSelector;
 				break;
@@ -108,5 +120,5 @@ public class MessageFilterGrid extends DGrid {
 		weToDButton(row.findElement(selector)).click();
 		wait.forXMillis(500);
 	}
-	
+
 }

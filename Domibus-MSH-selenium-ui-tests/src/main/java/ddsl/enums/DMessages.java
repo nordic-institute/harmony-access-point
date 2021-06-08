@@ -46,6 +46,7 @@ public class DMessages {
 	public static final String MESSAGES_RESEND_MESSAGE_SUCCESS = "The operation resend message completed successfully";
 
 	public static final String PMODE_UPDATE_SUCCESS = "PMode file has been successfully uploaded.";
+	public static final String PMODE_UPDATE_ERROR = "Error uploading the PMode: The file type should be xml";
 	public static final String PMODE_PARTIES_UPDATE_SUCCESS = "PMode parties have been successfully updated.";
 	public static final String PMODE_PARTIES_DELETE_OWN_PARTY_ERROR = "The operation 'update parties' did not complete successfully. [DOM_003]:Cannot delete the party describing the current system.";
 	public static final String PMODE_ARCHIVE_UPDATE_SUCCESS = "The operation 'update pmodes' completed successfully.";
@@ -75,9 +76,9 @@ public class DMessages {
 
 
 	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
-
-	
-	
+    public static final String CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP ="Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0005-Error dispatching message to %s";
+	public static final String CONNECTION_MONITORING_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found.Please call the method again to see the details.";
+	public static final String CONNECTION_MONITORING_CERT_ERROR="Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0004-[DOM_001]:Cannot send message: receiver certificate is not valid or it has been revoked [%s]";
 	
 	
 	public class Users {

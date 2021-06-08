@@ -1,5 +1,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="SELENIUM">
+
+
     <groups>
         <run>
             <include name="multiTenancy"/>
@@ -7,45 +9,68 @@
     </groups>
     <test name="NoData">
         <classes>
-            <class name="domibus.ui.ux.AuditPgUXTest"/>
-            <class name="domibus.ui.ux.PModeArchiveUXTest"/>
+            <class name="domibus.ui.ux.AuditPgUXTest">
+                <methods>
+                    <exclude name="filterWAdvancedFilters"></exclude>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PModeArchiveUXTest">
+                <methods>
+                    <!--                    time format issue - need to add fields to page descriptor-->
+                    <exclude name="downloadGrid"></exclude>
+                </methods>
+            </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
             <class name="domibus.ui.ux.MessagesPgUXTest">
                 <methods>
-<!--                  3 tests  disabled due to bug EDELIVERY-7654-->
-                    <exclude name="csvFileDownload"/>
                     <exclude name="csvFileDownloadHeaders"/>
-                    <exclude name="verifySplitAndJoinSpecificHeaders"/>
                 </methods>
             </class>
             <class name="domibus.ui.ux.PluginUsersPgUXTest">
                 <methods>
+                    <!--                    excluded due to CSV header issues-->
+                    <exclude name="downloadAsCSV"></exclude>
+                    <exclude name="verifyCSVHeaders"></exclude>
+
                     <exclude name="createPluginUserFieldValidations"/>
+                    <!--                    bug EDELIVERY-7872 - 4 methods -->
+                    <exclude name="originalUserOnRoleChange"></exclude>
+                    <exclude name="delCertificateUsr"></exclude>
+                    <exclude name="editCertificateUsr"></exclude>
+                    <exclude name="verifyConfPopUp"></exclude>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PluginUsersPg2UXTest">
+                <methods>
+                    <!--                    excluded due to CSV header issues-->
+                    <exclude name="downloadAsCSV"></exclude>
+                    <exclude name="verifyCSVHeaders"></exclude>
 
-<!--                    bug EDELIVERY-7780 -->
-                    <exclude name="verifyConfPopUp"/>
-
-<!--                    EDELIVERY-4579 - 2 tests-->
-                    <exclude name="downloadAsCSV"/>
-                    <exclude name="verifyCSVHeaders"/>
-
+                    <exclude name="createPluginUserFieldValidations"/>
+                    <!--                    bug EDELIVERY-7872 - 4 methods -->
+                    <exclude name="originalUserOnRoleChange"></exclude>
+                    <exclude name="delCertificateUsr"></exclude>
+                    <exclude name="editCertificateUsr"></exclude>
+                    <exclude name="verifyConfPopUp"></exclude>
                 </methods>
             </class>
             <class name="domibus.ui.ux.PmodePartiesPgUXTest">
                 <methods>
-<!--               EDELIVERY-6111 - 2 tests     -->
-                    <exclude name="downloadFilteredPartiesList"/>
-                    <exclude name="downloadAllParties"/>
+                    <!--                    CSV header incosistency-->
+                    <exclude name="downloadAllParties"></exclude>
+                    <exclude name="downloadFilteredPartiesList"></exclude>
+
                 </methods>
             </class>
-<!--            <class name="domibus.ui.ux.TruststorePgUXTests"/>-->
             <class name="domibus.ui.ux.UsersPgUXTest"/>
+            <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
             <class name="domibus.ui.functional.ErrorLogPgTest">
                 <methods>
-<!--                    2 tests disabled due to inconsistent results-->
+                    <!--                    3 tests disabled due to inconsistent results-->
                     <exclude name="checkNoOFErrorsPerMessage"/>
+                    <exclude name="checkTimestamp"/>
                     <exclude name="checkErrorCode"/>
                 </methods>
             </class>
@@ -56,36 +81,37 @@
     <test name="LowDataReq">
         <classes>
             <class name="domibus.ui.functional.AuditPgTest">
-                <methods>
-<!--                    excluded due to bug EDELIVERY-5540-->
-                    <exclude name="deleteParty"/>
-                </methods>
             </class>
             <class name="domibus.ui.functional.AlertPgTest">
                 <methods>
-<!--                    EDELIVERY-4757 - 2 tests-->
-                    <exclude name="downloadCsv"/>
-                    <exclude name="verifyHeaders"/>
-<!--                    incomplete test-->
-                    <exclude name="checkAditionalFilters"/>
+                    <!--                    CSV header inconsistency -->
+                    <exclude name="downloadCsv"></exclude>
+                    <exclude name="verifyHeaders"></exclude>
+
                 </methods>
             </class>
             <class name="domibus.ui.functional.ChangePasswordPgTest"/>
-            <class name="domibus.ui.functional.ConnectionMonitorTest"/>
+            <class name="domibus.ui.functional.ConnectionMonitorTest">
+                <methods>
+                    <exclude name="recPartyInactive"/>
+                    <exclude name="checkSendFeature"/>
+                </methods>
+            </class>
             <class name="domibus.ui.functional.JMSMessPgTest">
                 <methods>
-<!--                    needs to be updated because of functionality change-->
+                    <!--                    needs to be updated because of functionality change-->
                     <exclude name="moveMessage"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.AccessRightsTest"/>
-            <class name="domibus.ui.functional.LoggingPgTest"/>
-            <class name="domibus.ui.functional.PluginUsersPgTest">
+            <class name="domibus.ui.functional.LoggingPgTest">
                 <methods>
-<!--                    Disabled due to existing bug EDELIVERY-7472-->
-                    <exclude name="newUserSaveMultipleSaves"/>
+                    <!--                    grid is not sortable but columns are marked when clicked-->
+                    <exclude name="gridNotSortable"></exclude>
                 </methods>
             </class>
+
+            <class name="domibus.ui.functional.PluginUsersPgTest"></class>
             <class name="domibus.ui.functional.UsersPgTest"/>
         </classes>
     </test>
@@ -93,23 +119,23 @@
         <classes>
             <class name="domibus.ui.functional.MessagesPgTest">
                 <methods>
-<!--                    disabled due to bug EDELIVERY-7654-->
                     <exclude name="downloadMsgs"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests">
-                <methods>
-                </methods>
             </class>
-            <class name="domibus.ui.functional.PmodePartiesPgTest">
+            <class name="domibus.ui.functional.PmodePartiesPgTest"/>
+            <class name="domibus.ui.functional.PmodeParties2PgTest">
                 <methods>
-<!--                    excluded due to problem in extracting data from table in modal-->
-                    <exclude name="doubleClickRow"/>
-                    <exclude name="IRRemovalCurrentPmode"/>
-                    <exclude name="responderInitiatorRemovalFromPartiesPage"/>
+                    <!-- disabled due to XML error, needs more investigating-->
+                    <exclude name="initiatorResponderAdditionCurrentPmode"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilterPgTest">
+                <methods>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessageFilter2PgTest">
                 <methods>
                 </methods>
             </class>
@@ -117,14 +143,21 @@
     </test>
     <test name="LAST">
         <classes>
-<!--            <class name="domibus.ui.functional.TruststoreTest"></class>-->
+            <class name="domibus.ui.ux.TruststorePgUXTest"/>
+            <class name="domibus.ui.functional.TruststorePgTest"></class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
-<!--               bug EDELIVERY-7689     -->
-                    <exclude name="exportCSV"/>
-<!--                    need fixes -->
+                    <!--                    need fixes -->
+                    <exclude name="updateAndSave"/>
+                </methods></class>
+            <class name="domibus.ui.functional.Properties2PgTest">
+                <methods>
+                    <!--                    need fixes -->
                     <exclude name="checkDefaultPassword"/>
                     <exclude name="dontReuseLastPass"/>
+                    <exclude name="monitoringParty"/>
+                    <!--                    EDELIVERY-7956-->
+                    <exclude name="checkPropertyLengthMax"/>
                 </methods>
             </class>
         </classes>

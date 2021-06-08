@@ -1,5 +1,7 @@
 package ddsl.dcomponents;
 
+import com.codahale.metrics.Timer;
+import metricss.MyMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -30,41 +32,26 @@ public class SandwichMenu extends DComponent {
 	WebElement logoutLnk;
 
 	public SandwichMenu(WebDriver driver) {
+
 		super(driver);
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		log.debug("sandwich menu init");
-	}
-
-	private boolean isMenuExpanded() {
-		try {
-			if (weToDobject(menuContainer).isVisible()) {
-				return true;
-			}
-		} catch (Exception e) {
-		}
-		return false;
+		context.stop();
 	}
 
 	private void expandMenu() throws Exception {
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+
 		clickVoidSpace();
 
 		weToDButton(expandButton).click();
 		wait.forElementToBeVisible(menuContainer);
-		
+
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
+		context.stop();
 
-
-	public String getCurrentUserID() throws Exception {
-		expandMenu();
-		wait.forXMillis(100);
-		String currentUserId = "";
-		try {
-			currentUserId = wait.forElementToBeVisible(driver.findElement(currentuser)).getText().trim();
-		} catch (Exception e) {
-		}
-
-		return currentUserId;
 	}
 
 	private void contractMenu() throws Exception {
@@ -72,17 +59,12 @@ public class SandwichMenu extends DComponent {
 	}
 
 	public boolean isLoggedIn() throws Exception {
-		expandMenu();
-		boolean toReturn = false;
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 
-		try {
-//			String userIDStr = getCurrentUserID();
-			toReturn = !StringUtils.containsIgnoreCase(weToDobject(menuContainer).getText(), "Not logged in");
-			log.debug("User login status is: " + toReturn);
-		} catch (Exception e) {
-		}
+		boolean toReturn = (null != new DomibusPage(driver).getCurrentLoggedInUser());
 
-		contractMenu();
+		context.stop();
+
 		return toReturn;
 	}
 

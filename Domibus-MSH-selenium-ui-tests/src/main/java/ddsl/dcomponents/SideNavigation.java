@@ -1,8 +1,10 @@
 package ddsl.dcomponents;
 
+import com.codahale.metrics.Timer;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
 import ddsl.enums.PAGES;
+import metricss.MyMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -24,7 +26,8 @@ import java.util.List;
 public class SideNavigation extends DComponent {
 	
 	@FindBy(tagName = "mat-sidenav")
-	private WebElement sideBar;
+	public WebElement sideBar;
+
 	private WebElement topLogo;
 	private WebElement topLogoText;
 	@FindBy(id = "messages_id")
@@ -35,7 +38,7 @@ public class SideNavigation extends DComponent {
 	private WebElement errorlogLnk;
 	@FindBy(css = "mat-sidenav button.sideNavButton[tabindex=\"0\"]")
 	private List<WebElement> matSidebarButtons;
-	//	----------------------------------------------------
+	//	--------------------PMODE-------------------------
 
 	@FindBy(id = "current_pmode_id")
 	private WebElement pmodeCurrentLnk;
@@ -46,15 +49,24 @@ public class SideNavigation extends DComponent {
 	@FindBy(id = "pmode_party_id")
 	private WebElement pmodePartiesLnk;
 
-	@FindBy(css = "mat-sidenav mat-expansion-panel mat-expansion-panel-header")
+	@FindBy(css = "#mat-expansion-panel-header-0")
 	private WebElement pmodeExpandLnk;
+	//	----------------------------------------------------
+
+	//	--------------TRUSTSTORES---------------------------
+	@FindBy(id = "truststore_id")
+	private WebElement domibusTruststoreLnk;
+
+	@FindBy(id = "tls_truststore_id")
+	private WebElement tlsTruststoreLnk;
+
+	@FindBy(id = "mat-expansion-panel-header-1")
+	private WebElement truststoreExpand;
 	//	----------------------------------------------------
 
 	@FindBy(id = "jmsmonitoring_id")
 	private WebElement jmsmonitoringLnk;
 
-	@FindBy(id = "truststore_id")
-	private WebElement truststoreLnk;
 	@FindBy(id = "user_id")
 	private WebElement userLnk;
 	@FindBy(css = "#plugin_user_id")
@@ -75,25 +87,29 @@ public class SideNavigation extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, 1), this);
 	}
 	
-	private boolean isPmodeSectionExpanded() {
+
+	private boolean isSectionExpanded(WebElement sectionHead) {
 		try {
-			wait.forAttributeToContain(pmodeExpandLnk, "class", "mat-expanded");
-			return new DButton(driver, pmodeExpandLnk).getAttribute("class").contains("mat-expanded");
-		} catch (Exception e) {
-		}
+			wait.forAttributeToContain(sectionHead, "class", "mat-expanded");
+			return new DButton(driver, sectionHead).getAttribute("class").contains("mat-expanded");
+		} catch (Exception e) {}
 		return false;
 	}
-	
-	private void expandPmodeSection() {
-		if (isPmodeSectionExpanded()) return;
+
+	private void expandSection(WebElement sectionHead) {
+		if (isSectionExpanded(sectionHead)) return;
 		try {
-			weToDButton(pmodeExpandLnk).click();
-			wait.forAttributeToContain(pmodeExpandLnk, "class", "mat-expanded");
+			weToDButton(sectionHead).click();
+			wait.forAttributeToContain(sectionHead, "class", "mat-expanded");
 		} catch (Exception e) {
 			log.warn("Could not expand pmode: ", e);
 		}
 		wait.forXMillis(200);
 	}
+
+	
+
+
 	
 	public DLink getPageLnk(PAGES page) {
 		
@@ -108,18 +124,19 @@ public class SideNavigation extends DComponent {
 			case ERROR_LOG:
 				return new DLink(driver, errorlogLnk);
 			case PMODE_CURRENT:
-				expandPmodeSection();
+				expandSection(pmodeExpandLnk);
 				return new DLink(driver, pmodeCurrentLnk);
 			case PMODE_ARCHIVE:
-				expandPmodeSection();
+				expandSection(pmodeExpandLnk);
 				return new DLink(driver, pmodeArchiveLnk);
 			case PMODE_PARTIES:
-				expandPmodeSection();
+				expandSection(pmodeExpandLnk);
 				return new DLink(driver, pmodePartiesLnk);
 			case JMS_MONITORING:
 				return new DLink(driver, jmsmonitoringLnk);
-			case TRUSTSTORES:
-				return new DLink(driver, truststoreLnk);
+			case TRUSTSTORES_DOMIBUS:
+				expandSection(truststoreExpand);
+				return new DLink(driver, domibusTruststoreLnk);
 			case USERS:
 				return new DLink(driver, userLnk);
 			case PLUGIN_USERS:
@@ -139,40 +156,16 @@ public class SideNavigation extends DComponent {
 		}
 	}
 	
-	public List<String> availableOptions() throws Exception {
-		
-		wait.forElementToBeClickable(messagesLnk);
-		List<String> links = new ArrayList<>();
-		
-		for (PAGES domibus_page : PAGES.values()) {
-			DLink link = getPageLnk(domibus_page);
-			try {
-				if (link.isEnabled()) {
-					links.add(link.getLinkText());
-				}
-			} catch (Exception e) {
-			}
-		}
-		
-		return links;
-		
-	}
+
 	
 	public void goToPage(PAGES page) throws Exception {
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 		DomibusPage pg = new DomibusPage(driver);
 
 		log.info("Navigating to " + page.name());
 		DLink link = getPageLnk(page);
-
 		log.debug("got link with text " + link.getLinkText());
-
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
-
-//		compensating for link to page title inconsistency for page Domibus Properties
-		if(StringUtils.equalsIgnoreCase(text, "Domibus Properties")){
-			text = "Properties";
-		}
-
 
 		String pgTitle = null;
 
@@ -188,7 +181,7 @@ public class SideNavigation extends DComponent {
 		}
 		wait.forElementToContainText(pg.pageTitle, text);
 		log.debug("Navigated to " + page.name());
-
+		context.stop();
 	}
 	
 	public boolean isUserState() throws Exception {
@@ -206,7 +199,7 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.PMODE_ARCHIVE).isPresent()
 				&& getPageLnk(PAGES.PMODE_PARTIES).isPresent()
 				&& getPageLnk(PAGES.JMS_MONITORING).isPresent()
-				&& getPageLnk(PAGES.TRUSTSTORES).isPresent()
+				&& getPageLnk(PAGES.TRUSTSTORES_DOMIBUS).isPresent()
 				&& getPageLnk(PAGES.USERS).isPresent()
 				&& getPageLnk(PAGES.PLUGIN_USERS).isPresent()
 				&& getPageLnk(PAGES.AUDIT).isPresent()

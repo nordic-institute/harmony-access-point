@@ -33,7 +33,7 @@ public class AllPgTest extends SeleniumTest {
 	private static String errCode = "EBMS_0001";
 
 	private ArrayList<PAGES> pagesToSkip = new ArrayList<PAGES>(Arrays.asList(new PAGES[]{PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE
-			, PAGES.TRUSTSTORES, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING}));
+			, PAGES.TRUSTSTORES_DOMIBUS, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING}));
 
 
 
@@ -53,14 +53,8 @@ public class AllPgTest extends SeleniumTest {
 
 			page.getSidebar().goToPage(ppage);
 
-			log.info("Clean given directory");
-			FileUtils.cleanDirectory(new File(data.downloadFolderPath()));
-
 			log.info("Click on download csv button");
 			String filename = page.pressSaveCsvAndSaveFile();
-			
-			log.info("Wait for download to complete");
-			page.wait.forXMillis(3000);
 
 			log.info("Check if file is downloaded at given location");
 			soft.assertTrue(filename != null, "File is downloaded successfully");

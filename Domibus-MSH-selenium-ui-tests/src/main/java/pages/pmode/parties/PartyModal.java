@@ -36,8 +36,10 @@ public class PartyModal extends EditModal {
 	protected WebElement certFingerPrintInput;
 	@FindBy(css = "mat-dialog-container div:nth-child(2) > mat-card > mat-card-content > div > label")
 	protected WebElement importButton;
+
 	@FindBy(css = "#identifierTable")
 	protected WebElement identifierTable;
+
 	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(1)")
 	protected WebElement newIdentifierButton;
 	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(2)")
@@ -140,7 +142,7 @@ public class PartyModal extends EditModal {
 		
 		log.info("Scroll to the bottom");
 		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
-		
+
 		DGrid processTable = getProcessTable();
 		int index = processTable.scrollTo("Process", processName);
 		if(index>=0){
