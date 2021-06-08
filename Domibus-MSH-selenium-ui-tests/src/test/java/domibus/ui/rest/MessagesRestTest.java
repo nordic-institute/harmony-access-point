@@ -16,7 +16,7 @@ import java.util.*;
 
 public class MessagesRestTest extends RestTest {
 	
-	List<String> filterNames = Lists.newArrayList(new String[]{"notificationStatus", "fromPartyId", "originalSender", "conversationId", "messageId", "refToMessageId", "finalRecipient", "messageStatus", "messageType", "messageSubtype", "toPartyId", "mshRole"});
+	List<String> filterNames = Lists.newArrayList(new String[]{"notificationStatus", "fromPartyId", "originalSender", "conversationId", "messageId", "refToMessageId", "finalRecipient", "messageStatus", "messageType", "toPartyId", "mshRole"});
 	List<String> dateFilterNames = Lists.newArrayList(new String[]{"receivedTo", "receivedFrom"});
 	
 	@DataProvider
@@ -71,7 +71,7 @@ public class MessagesRestTest extends RestTest {
 	public void filterUsingAdvancedFiltersNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String[] keys = {"fromPartyId", "toPartyId", "originalSender", "finalRecipient", "messageSubtype", "receivedFrom", "receivedTo", "notificationStatus", "messageStatus", "messageType", "mshRole", "isTestMessage", "page", "pageSize", "orderBy", "asc"};
+		String[] keys = {"fromPartyId", "toPartyId", "originalSender", "finalRecipient", "receivedFrom", "receivedTo", "notificationStatus", "messageStatus", "messageType", "mshRole", "isTestMessage", "page", "pageSize", "orderBy", "asc"};
 		HashMap<String, String> params = new HashMap<>();
 		for (int i = 0; i < keys.length; i++) {
 			String key = keys[i];
