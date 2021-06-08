@@ -93,7 +93,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     protected Map<String, List<String>> createWhereMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "1=1" ; // "message.messageInfo = info ";
+        String messageCriteria = "1=1" ;
         mappings.put("message", Arrays.asList(messageCriteria));
         mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
         mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));

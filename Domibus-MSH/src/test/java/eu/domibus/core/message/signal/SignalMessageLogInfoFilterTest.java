@@ -78,15 +78,15 @@ public class SignalMessageLogInfoFilterTest {
 
         Assert.assertFalse(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
         Assert.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
-        Assert.assertTrue(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
+        Assert.assertFalse(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(resultQueryString.contains("log.received <= :receivedTo"));
         Assert.assertTrue(resultQueryString.contains("signal.signalMessageId = :messageId"));
         Assert.assertTrue(resultQueryString.contains("signal.refToMessageId = :refToMessageId"));
         Assert.assertTrue(resultQueryString.contains("log.received = :received"));
-        Assert.assertTrue(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
+        Assert.assertFalse(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(resultQueryString.contains("propsTo.value = :finalRecipient"));
-        Assert.assertTrue(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
+        Assert.assertFalse(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
         Assert.assertTrue(resultQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(resultQueryString.contains("log.deleted = :deleted"));
         Assert.assertTrue(resultQueryString.contains("log.received >= :receivedFrom"));
