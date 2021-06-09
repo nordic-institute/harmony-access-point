@@ -518,7 +518,7 @@ public class DomainSchedulerFactoryConfiguration {
     }
 
     /**
-     * Creates a new Scheduler Factory Bean based on {@param schedulerName}, {@param tablePrefix} and {@param domain}
+     * Creates a new Scheduler Factory Bean based on schedulerName, tablePrefix and domain
      *
      * @param schedulerName Scheduler Name
      * @param tablePrefix   Table Prefix
