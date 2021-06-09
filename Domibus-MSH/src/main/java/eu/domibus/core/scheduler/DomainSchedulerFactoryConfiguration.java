@@ -73,13 +73,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource;
-
-    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
-    @Autowired
-    protected DataSource nonTransactionalDataSource;
 
     @Autowired
     protected PlatformTransactionManager transactionManager;
@@ -522,7 +518,7 @@ public class DomainSchedulerFactoryConfiguration {
     }
 
     /**
-     * Creates a new Scheduler Factory Bean based on {@schedulerName}, {@tablePrefix} and {@domain}
+     * Creates a new Scheduler Factory Bean based on {@param schedulerName}, {@param tablePrefix} and {@param domain}
      *
      * @param schedulerName Scheduler Name
      * @param tablePrefix   Table Prefix
@@ -537,8 +533,7 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setApplicationContext(applicationContext);
         scheduler.setWaitForJobsToCompleteOnShutdown(true);
         scheduler.setOverwriteExistingJobs(true);
-        scheduler.setDataSource(new QuartzDataSource(dataSource));
-        scheduler.setNonTransactionalDataSource(nonTransactionalDataSource);
+        scheduler.setDataSource(dataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
         properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");

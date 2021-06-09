@@ -30,11 +30,10 @@ public class DomibusTestDatasourceConfiguration {
     }
 
     @Primary
-    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, destroyMethod = "close")
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE, destroyMethod = "close")
     @DependsOn(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource quartzDatasource() {
-        HikariDataSource dataSource = createDataSource();
-        return dataSource;
+        return createDataSource();
     }
 
     private HikariDataSource createDataSource() {
@@ -46,10 +45,10 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setUsername(h2DataSource.getUser());
         dataSource.setPassword(h2DataSource.getPassword());
 
-        final Integer maxPoolSize = 20;
+        final int maxPoolSize = 20;
         dataSource.setMaximumPoolSize(maxPoolSize);
-        final Integer maxLifetimeInSecs = 10;
-        dataSource.setMaxLifetime(maxLifetimeInSecs * 1000);
+        final int maxLifetimeInSecs = 10;
+        dataSource.setMaxLifetime(maxLifetimeInSecs * 1000L);
         return dataSource;
     }
 

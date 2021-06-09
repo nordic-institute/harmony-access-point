@@ -13,7 +13,7 @@ public final class DataSourceConstants {
     /*
      * DOMIBUS_JDBC_NON_XA_DATA_SOURCE is used for quartz
      */
-    public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
+    public static final String DOMIBUS_JDBC_QUARTZ_DATA_SOURCE = "domibusJDBC-quartzDataSource";
 
     private DataSourceConstants() {
 
