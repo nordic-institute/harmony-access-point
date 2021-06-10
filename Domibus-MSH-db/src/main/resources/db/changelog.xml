@@ -705,9 +705,6 @@
         </createIndex>
 
         <createTable tableName="TB_PART_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_PART_PROPERTIES"/>
-            </column>
             <column name="PART_INFO_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -723,6 +720,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey columnNames="PART_INFO_ID_FK, PART_INFO_PROPERTY_FK" tableName="TB_PART_PROPERTIES"/>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
                                  initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
@@ -740,9 +738,6 @@
         <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
 
         <createTable tableName="TB_MESSAGE_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_MSG_PROPERTIES"/>
-            </column>
             <column name="USER_MESSAGE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -758,6 +753,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey columnNames="USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK" tableName="TB_MESSAGE_PROPERTIES"/>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
                                  constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"

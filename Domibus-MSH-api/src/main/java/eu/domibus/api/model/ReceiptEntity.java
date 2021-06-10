@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import javax.persistence.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Cosmin Baciu
@@ -17,20 +18,12 @@ public class ReceiptEntity extends AbstractNoGeneratedPkEntity {
     @SuppressWarnings("JpaAttributeTypeInspection")
     @Lob
     @Column(name = "RAW_XML")
-    protected String rawXml; //NOSONAR
+    protected byte[] rawXml; //NOSONAR
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_PK", nullable = false)
     @MapsId
     private SignalMessage signalMessage;
-
-    public String getRawXml() {
-        return rawXml;
-    }
-
-    public void setRawXml(String rawXml) {
-        this.rawXml = rawXml;
-    }
 
     public SignalMessage getSignalMessage() {
         return signalMessage;
@@ -38,5 +31,18 @@ public class ReceiptEntity extends AbstractNoGeneratedPkEntity {
 
     public void setSignalMessage(SignalMessage signalMessage) {
         this.signalMessage = signalMessage;
+    }
+
+    public void setRawXml(String rawXml) {
+        byte[] bytes = rawXml.getBytes(StandardCharsets.UTF_8);
+        this.rawXml = bytes;
+    }
+    
+    public byte[] getRawXml() {
+        return rawXml;
+    }
+
+    public void setRawXml(byte[] rawXml) {
+        this.rawXml = rawXml;
     }
 }
