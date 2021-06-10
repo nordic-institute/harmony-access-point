@@ -20,7 +20,6 @@ public class UIMessage {
 	private String refToMessageId;
 	private Long failed;
 	private Long restored;
-	private String messageSubtype;
 	private Boolean messageFragment;
 	private Boolean sourceMessage;
 	
@@ -45,7 +44,6 @@ public class UIMessage {
 				", refToMessageId='" + refToMessageId + '\'' +
 				", failed=" + failed +
 				", restored=" + restored +
-				", messageSubtype='" + messageSubtype + '\'' +
 				", messageFragment=" + messageFragment +
 				", sourceMessage=" + sourceMessage +
 				'}';
@@ -193,14 +191,6 @@ public class UIMessage {
 	
 	public void setRestored(Long restored) {
 		this.restored = restored;
-	}
-	
-	public String getMessageSubtype() {
-		return messageSubtype;
-	}
-	
-	public void setMessageSubtype(String messageSubtype) {
-		this.messageSubtype = messageSubtype;
 	}
 	
 	public Boolean getMessageFragment() {

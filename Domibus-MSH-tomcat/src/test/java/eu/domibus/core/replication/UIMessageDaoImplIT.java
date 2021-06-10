@@ -113,7 +113,6 @@ public class UIMessageDaoImplIT extends AbstractIT {
         count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(0, count);
 
-        filters.put("messageSubtype", null);
         filters.put("fromPartyId", "domibus-blue");
         count = uiMessageDao.countEntries(filters);
         Assert.assertEquals(2, count);

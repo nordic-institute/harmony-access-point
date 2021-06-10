@@ -89,10 +89,7 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
             Assert.assertEquals(NotificationStatus.NOTIFIED, userMessageLog.getNotificationStatus());
             Assert.assertEquals(MSHRole.SENDING, userMessageLog.getMshRole());
             Assert.assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
-//            Assert.assertEquals(mpc, userMessageLog.getMpc());
             Assert.assertEquals(backendName, userMessageLog.getBackend());
-//            Assert.assertEquals(endpoint, userMessageLog.getEndpoint());
-//            Assert.assertEquals(userMessageLogDefaultService.checkTestMessage(service,action)? MessageSubtype.TEST : null, userMessageLog.getMessageSubtype());
         }};
     }
 }

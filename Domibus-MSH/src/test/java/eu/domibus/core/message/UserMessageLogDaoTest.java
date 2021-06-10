@@ -850,7 +850,6 @@ public class UserMessageLogDaoTest {
     public void testFindLastUserTestMessageId(@Injectable TypedQuery<MessageLogInfo> query, @Injectable MessageLogInfo messageLogInfo) {
         // GIVEN
         final Map<String, Object> filters = new HashMap<>();
-//        filters.put("messageSubtype", MessageSubtype.TEST);
         filters.put("mshRole", MSHRole.SENDING);
         filters.put("toPartyId", "party");
         filters.put("messageType", MessageType.USER_MESSAGE);
