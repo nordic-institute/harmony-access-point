@@ -17,7 +17,6 @@ public class MessagesLogServiceImplTest extends AbstractIT {
     public void countAndFindPaged() {
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
-        filters.put("messageSubtype", null);
         messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
     }
 }

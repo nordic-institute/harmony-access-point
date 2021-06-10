@@ -342,30 +342,20 @@ public class UIReplicationDataServiceImplTest {
         userMessageLog.setNextAttempt(nextAttempt);
         userMessageLog.setFailed(failed);
         userMessageLog.setRestored(restored);
-//        userMessageLog.setMessageSubtype(messageSubtype);
 
         return userMessageLog;
     }
 
     private SignalMessageLog createSignalMessageLog() {
         SignalMessageLog signalMessageLog = new SignalMessageLog();
-//        signalMessageLog.setMessageId(messageId);
         MessageStatusEntity messageStatus1 = new MessageStatusEntity();
         messageStatus1.setMessageStatus(messageStatus);
         signalMessageLog.setMessageStatus(messageStatus1);
-//        signalMessageLog.setNotificationStatus(notificationStatus);
         MSHRoleEntity mshRoleEntity = new MSHRoleEntity();
         mshRoleEntity.setRole(mshRole);
         signalMessageLog.setMshRole(mshRoleEntity);
-//        signalMessageLog.setMessageType(messageType);
         signalMessageLog.setDeleted(deleted);
         signalMessageLog.setReceived(received);
-//        signalMessageLog.setSendAttempts(sendAttempts);
-//        signalMessageLog.setSendAttemptsMax(sendAttemptsMax);
-//        signalMessageLog.setNextAttempt(nextAttempt);
-//        signalMessageLog.setFailed(failed);
-//        signalMessageLog.setRestored(restored);
-//        signalMessageLog.setMessageSubtype(messageSubtype);
 
         return signalMessageLog;
     }

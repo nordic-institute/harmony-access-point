@@ -27,7 +27,7 @@
                      #toPartyId="ngModel" id="topartyid_id">
             </mat-form-field>
             <mat-form-field *ngIf="advancedSearch">
-              <input matInput [hidden]="!canSearchByConversationId" placeholder="Conversation Id" name="conversationId"
+              <input matInput [readonly]="!searchUserMessages" placeholder="Conversation Id" name="conversationId"
                      [(ngModel)]="filter.conversationId"
                      #conversationId="ngModel" id="conversationid_id" advanced-filter-behaviour [parent]="this">
             </mat-form-field>
@@ -47,7 +47,8 @@
                 {{type}}
               </mat-option>
             </mat-select>
-            <mat-select placeholder="Notification Status" [(ngModel)]="filter.notificationStatus" class="optionField"
+            <mat-select [disabled]="!searchUserMessages" placeholder="Notification Status"
+                        [(ngModel)]="filter.notificationStatus" class="optionField"
                         name="notificationStatus" id="notificationstatus_id" *ngIf="advancedSearch"
                         advanced-filter-behaviour [parent]="this">
               <mat-option [value]="">
@@ -107,7 +108,7 @@
                 Show Only Test Messages
               </mat-checkbox>
             </ng-container>
-            
+
             <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>

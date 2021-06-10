@@ -31,7 +31,7 @@ public class WildFlyDatasourceConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean(DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
+    @Bean(DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE)
     public JndiObjectFactoryBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setExpectedType(DataSource.class);

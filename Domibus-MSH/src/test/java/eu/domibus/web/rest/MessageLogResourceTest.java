@@ -93,7 +93,7 @@ public class MessageLogResourceTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Parameterized.Parameters(name = "{index}: messageType=\"{0}\" messageSubtype=\"{2}\"")
+    @Parameterized.Parameters(name = "{index}: messageType=\"{0}\" testMessage=\"{2}\"")
     public static Collection<Object[]> values() {
         return Arrays.asList(new Object[][]{
                 {MessageType.USER_MESSAGE, new UserMessageLog(), null, false},
@@ -243,10 +243,10 @@ public class MessageLogResourceTest {
     }
 
     /**
-     * Creates a {@link MessageLogRO} based on <code>messageType</code> and <code>messageSubtype</code>
+     * Creates a {@link MessageLogRO} based on <code>messageType</code> and <code>testMessage</code>
      *
      * @param messageType    Message Type
-     * @param testMessage Message Subtype
+     * @param testMessage    Test Message
      * @return <code>MessageLog</code>
      */
     private static MessageLogRO createMessageLog(MessageType messageType, Boolean testMessage) {
@@ -272,7 +272,7 @@ public class MessageLogResourceTest {
     }
 
     /**
-     * Gets a MessageLog based on <code>messageType</code> and <code>messageSubtype</code>
+     * Gets a MessageLog based on <code>messageType</code> and <code>testMessage</code>
      *
      * @param messageType    Message Type
      * @param testMessage Message Subtype
@@ -288,11 +288,11 @@ public class MessageLogResourceTest {
     }
 
     /**
-     * Get a MessageLogInfo List based on <code>messageInfo</code>, <code>date</code> and <code>messageSubtype</code>
+     * Get a MessageLogInfo List based on <code>messageInfo</code>, <code>date</code> and <code>testMessage</code>
      *
      * @param messageType    Message Type
      * @param date           Date
-     * @param testMessage Message Subtype
+     * @param testMessage test Message
      * @return <code>List</code> of <code>MessageLogInfo</code> objects
      */
     private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, Boolean testMessage) {
