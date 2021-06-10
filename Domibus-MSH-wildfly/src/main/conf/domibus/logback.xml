@@ -37,6 +37,12 @@
             <pattern>${encoderPattern}</pattern>
         </encoder>
     </appender>
+    <!--    Async logging: uncomment this-->
+    <!--    <appender name="DEFAULT-ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+    <!--        <queueSize>3000</queueSize>-->
+    <!--        <discardingThreshold>0</discardingThreshold>-->
+    <!--        <appender-ref ref="file" />-->
+    <!--    </appender>-->
     <appender name="security_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${JBOSS_HOME}/logs/security.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -137,6 +143,8 @@
 
     <root level="WARN">
         <appender-ref ref="file"/>
+        <!--        REPLACE appender-ref "file" with "DEFAULT-ASYNC-FILE" for async logging-->
+        <!--        <appender-ref ref="DEFAULT-ASYNC-FILE" />-->
         <appender-ref ref="stdout"/>
     </root>
 </configuration>
