@@ -147,7 +147,7 @@ public class PullReceiptListener implements MessageListener {
         ebms3MessageInfo.setRefToMessageId(signalMessage.getRefToMessageId());
         result.setMessageInfo(ebms3MessageInfo);
         Ebms3Receipt receipt = new Ebms3Receipt();
-        receipt.getAny().add(receiptEntity.getRawXml());
+        receipt.getAny().add(new String(receiptEntity.getRawXml()));
         result.setReceipt(receipt);
         
         return result;
