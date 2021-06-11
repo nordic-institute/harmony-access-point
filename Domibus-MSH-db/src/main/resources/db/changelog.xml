@@ -10,13 +10,32 @@
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp,Cosmin Baciu" id="EDELIVERY-7803-oracle sequence">
-        <comment>create oracle sequence</comment>
+        <comment>create HIBERNATE_SEQUENCE</comment>
         <!--
         - the sequence starts at 100 to allocate the first 100 primary keys for the initial data insert eg default users, user roles, etc
         - maxValue is omitted meaning that the sequence has not upper boundary value
         -->
         <createSequence sequenceName="HIBERNATE_SEQUENCE" minValue="1"
                         incrementBy="20" startValue="100" cacheSize="1000" cycle="false" ordered="false"/>
+    </changeSet>
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <!-- TODO SCALE EXTEND -->
+        <sql>
+            CREATE SEQUENCE DOMIBUS_SCALABLE_SEQUENCE START WITH 50 INCREMENT BY 50 MINVALUE 50 MAXVALUE 9999999999 CACHE 1000 CYCLE NOORDER;
+        </sql>
+        <!--This function generates a new sequence id, to be used for manual inserts -->
+        <!-- TODO use new sequence for initial inserts -->
+        <sql endDelimiter="\n/">
+            CREATE OR REPLACE FUNCTION generate_seq
+            RETURN Number
+            IS
+            seq_id Number;
+            BEGIN
+            select to_number(to_char(SYSDATE,'YYMMDDHH')||to_char(DOMIBUS_SCALABLE_SEQUENCE.nextval, 'FM0000000000')) into seq_id from dual;
+            RETURN seq_id;
+            END;
+        </sql>
     </changeSet>
 
     <!-- Quartz tables -->

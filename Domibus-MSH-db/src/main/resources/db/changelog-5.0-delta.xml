@@ -8,6 +8,26 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
+    <!-- sequences -->
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <!-- TODO SCALE EXTEND -->
+        <sql>
+            CREATE SEQUENCE DOMIBUS_SCALABLE_SEQUENCE START WITH 50 INCREMENT BY 50 MINVALUE 50 MAXVALUE 9999999999 CACHE 1000 CYCLE NOORDER;
+        </sql>
+        <!--This function generates a new sequence id, to be used for manual inserts -->
+        <sql endDelimiter="\n/">
+            CREATE OR REPLACE FUNCTION generate_seq
+            RETURN Number
+            IS
+            seq_id Number;
+            BEGIN
+            select to_number(to_char(SYSDATE,'YYMMDDHH')||to_char(DOMIBUS_SCALABLE_SEQUENCE.nextval, 'FM0000000000')) into seq_id from dual;
+            RETURN seq_id;
+            END;
+        </sql>
+    </changeSet>
+
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
