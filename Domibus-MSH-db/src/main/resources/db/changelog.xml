@@ -27,7 +27,7 @@
         <!--This function generates a new sequence id, to be used for manual inserts -->
         <!-- TODO use new sequence for initial inserts -->
         <sql endDelimiter="\n/">
-            CREATE OR REPLACE FUNCTION generate_seq
+            CREATE OR REPLACE FUNCTION gen_domibus_scalable_sequence
             RETURN Number
             IS
             seq_id Number;
