@@ -82,7 +82,7 @@ public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
     public Ebms3Receipt receiptToEbms3Receipt(ReceiptEntity receiptEntity) {
         Ebms3Receipt result = new Ebms3Receipt();
         List<String> receiptList = new ArrayList<>();
-        receiptList.add(receiptEntity.getRawXml());
+        receiptList.add(new String(receiptEntity.getRawXml()));
         result.setAny(receiptList);
         return result;
     }
