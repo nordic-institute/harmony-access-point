@@ -116,7 +116,7 @@ public class SubmissionAS4Transformer {
         final Set<Submission.Party> fromParties = submission.getFromParties();
         if (CollectionUtils.isNotEmpty(fromParties)) {
             if(fromParties.size() > 1) {
-                LOG.error("Cannot have multiple from parties, using the first party");
+                LOG.warn("Cannot have multiple from parties, using the first party");
             }
 
             final Submission.Party party = fromParties.iterator().next();
