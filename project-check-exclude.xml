@@ -43,7 +43,7 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: spring-security-core-4.2.6.RELEASE.jar
+   file name: spring-security-core-4.2.20.RELEASE.jar
    ]]></notes>
         <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
         <!-- Cve for Spring framework 5.0.5 in combination with spring security. Domibus uses version 4.3.17.RELEASE, not yet Spring 5.x. -->
@@ -59,6 +59,8 @@
         <!-- Domibus generates a new sessionId for every authentication.
              The requests to guess the XSRF token are impossible to be made without knowing the sessionId -->
         <vulnerabilityName>BREACH attack possible in CSRF tokens</vulnerabilityName>
+        <!-- we are not saving twice or more the SecurityContext in a single request -->
+        <cve>CVE-2021-22112</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
