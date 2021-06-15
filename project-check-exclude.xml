@@ -43,7 +43,7 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: spring-security-core-4.2.6.RELEASE.jar
+   file name: spring-security-core-4.2.20.RELEASE.jar
    ]]></notes>
         <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
         <!-- Cve for Spring framework 5.0.5 in combination with spring security. Domibus uses version 4.3.17.RELEASE, not yet Spring 5.x. -->
@@ -59,6 +59,8 @@
         <!-- Domibus generates a new sessionId for every authentication.
              The requests to guess the XSRF token are impossible to be made without knowing the sessionId -->
         <vulnerabilityName>BREACH attack possible in CSRF tokens</vulnerabilityName>
+        <!-- we are not saving twice or more the SecurityContext in a single request -->
+        <cve>CVE-2021-22112</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -208,5 +210,21 @@
         <!-- we are not affected by this CVE as we don't manipulate the validated value-->
         <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-validator@.*$</packageUrl>
         <cve>CVE-2020-10693</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: wss4j-policy-2.3.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.wss4j/wss4j\-policy@.*$</packageUrl>
+        <!-- wss4j-ws-security-common has transitive dependency on opensaml library but not on velocity so we are not impacted -->
+        <cve>CVE-2020-13936</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: wss4j-ws-security-policy-stax-2.3.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.wss4j/wss4j\-ws\-security\-policy\-stax@.*$</packageUrl>
+        <!-- wss4j-ws-security-common has transitive dependency on opensaml library but not on velocity so we are not impacted -->
+        <cve>CVE-2020-13936</cve>
     </suppress>
 </suppressions>
