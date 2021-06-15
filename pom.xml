@@ -51,7 +51,7 @@
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.16</xstream.version>
+        <xstream.version>1.4.17</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
@@ -66,7 +66,7 @@
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
-        <dependency.check.version>6.1.5</dependency.check.version>
+        <dependency.check.version>6.2.2</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 
         <!-- Sonar properties -->
