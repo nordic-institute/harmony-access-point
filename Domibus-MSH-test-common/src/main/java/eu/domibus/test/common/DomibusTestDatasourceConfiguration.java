@@ -5,7 +5,6 @@ import eu.domibus.api.datasource.DataSourceConstants;
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
@@ -19,7 +18,7 @@ import java.util.TimeZone;
 public class DomibusTestDatasourceConfiguration {
 
     @Primary
-    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, destroyMethod = "close")
+    @Bean(name = {DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE}, destroyMethod = "close")
     public DataSource domibusDatasource() {
         HikariDataSource dataSource = createDataSource();
 
@@ -27,13 +26,6 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setConnectionTimeout(30000);
 
         return dataSource;
-    }
-
-    @Primary
-    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE, destroyMethod = "close")
-    @DependsOn(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
-    public DataSource quartzDatasource() {
-        return createDataSource();
     }
 
     private HikariDataSource createDataSource() {
