@@ -97,4 +97,12 @@
         <cve>CVE-2020-17527</cve>
         <cve>CVE-2021-24122</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-xxx-5.xx.RELEASE.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+        <!-- we don't have a WebFlux application -->
+        <cve>CVE-2021-22118</cve>
+    </suppress>
 </suppressions>
