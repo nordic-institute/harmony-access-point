@@ -26,7 +26,7 @@ public class AgreementDao extends BasicDao<AgreementRefEntity> {
             return null;
         }
 
-        AgreementRefEntity agreementRef = findByValue(value);
+        AgreementRefEntity agreementRef = findExistingAgreement(value, type);
         if (agreementRef != null) {
             return agreementRef;
         }
@@ -37,7 +37,21 @@ public class AgreementDao extends BasicDao<AgreementRefEntity> {
         return newAgreement;
     }
 
-    public AgreementRefEntity findByValue(final String value) {
+    protected AgreementRefEntity findExistingAgreement(final String value, String type) {
+        if (StringUtils.isNotBlank(type)) {
+            return findByValueAndType(value, type);
+        }
+        return findByValue(value);
+    }
+
+    protected AgreementRefEntity findByValueAndType(final String value, final String type) {
+        final TypedQuery<AgreementRefEntity> query = this.em.createNamedQuery("AgreementRef.findByValueAndType", AgreementRefEntity.class);
+        query.setParameter("VALUE", value);
+        query.setParameter("TYPE", type);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    protected AgreementRefEntity findByValue(final String value) {
         final TypedQuery<AgreementRefEntity> query = this.em.createNamedQuery("AgreementRef.findByValue", AgreementRefEntity.class);
         query.setParameter("VALUE", value);
         return DataAccessUtils.singleResult(query.getResultList());
