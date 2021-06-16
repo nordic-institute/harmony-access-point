@@ -2,7 +2,11 @@ package eu.domibus.test.common;
 
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.h2.jdbcx.JdbcDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -10,12 +14,19 @@ import org.springframework.context.annotation.Primary;
 import javax.sql.DataSource;
 import java.util.TimeZone;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
 @Configuration
 public class DomibusTestDatasourceConfiguration {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestDatasourceConfiguration.class);
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Primary
     @Bean(name = {DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE}, destroyMethod = "close")
@@ -47,7 +58,14 @@ public class DomibusTestDatasourceConfiguration {
     private JdbcDataSource createH2Datasource() {
         JdbcDataSource result = new JdbcDataSource();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'");
+
+        final String databaseSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
+        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
+        String databaseUrl = String.format(databaseUrlTemplate, databaseSchema);
+
+        LOG.info("Using database URL [{}]", databaseUrl);
+
+        result.setUrl(databaseUrl);
         result.setUser("sa");
         result.setPassword("");
         return result;
