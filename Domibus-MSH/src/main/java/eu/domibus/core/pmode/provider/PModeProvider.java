@@ -317,7 +317,7 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND, senderParty, fromPartyId);
         } catch (EbMS3Exception exc) {
             LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
-            exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
+            exc.setErrorDetail("Sender party could not be found for the value  " + fromPartyId);
             throw exc;
         }
         return senderParty;
@@ -351,7 +351,7 @@ public abstract class PModeProvider {
                 exc.setErrorDetail("Receiver Party extracted from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
             } else {
                 LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
-                exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
+                exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not be found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
                 throw exc;
             }
         }
