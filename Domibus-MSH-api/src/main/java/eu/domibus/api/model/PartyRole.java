@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @author Cosmin Baciu
@@ -18,7 +19,7 @@ import javax.persistence.*;
         @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyRole prop where prop.value=:VALUE")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class PartyRole extends AbstractBaseEntity {
+public class PartyRole extends AbstractBaseEntity implements Serializable {
 
     @Column(name = "ROLE")
     protected String value;
