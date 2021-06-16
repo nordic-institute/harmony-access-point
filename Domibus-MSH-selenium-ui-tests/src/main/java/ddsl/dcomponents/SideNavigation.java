@@ -24,7 +24,7 @@ import java.util.List;
 
 
 public class SideNavigation extends DComponent {
-	
+
 	@FindBy(tagName = "mat-sidenav")
 	public WebElement sideBar;
 
@@ -81,18 +81,19 @@ public class SideNavigation extends DComponent {
 	private WebElement connectionMonitoring_Lnk;
 	@FindBy(css = "#properties_id")
 	private WebElement properties_Lnk;
-	
+
 	public SideNavigation(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, 1), this);
 	}
-	
+
 
 	private boolean isSectionExpanded(WebElement sectionHead) {
 		try {
 			wait.forAttributeToContain(sectionHead, "class", "mat-expanded");
 			return new DButton(driver, sectionHead).getAttribute("class").contains("mat-expanded");
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		return false;
 	}
 
@@ -107,14 +108,11 @@ public class SideNavigation extends DComponent {
 		wait.forXMillis(200);
 	}
 
-	
 
-
-	
 	public DLink getPageLnk(PAGES page) {
-		
+
 		wait.forElementToHaveText(sideBar);
-		
+
 		log.debug("Get link to " + page.name());
 		switch (page) {
 			case MESSAGES:
@@ -155,9 +153,8 @@ public class SideNavigation extends DComponent {
 				return null;
 		}
 	}
-	
 
-	
+
 	public void goToPage(PAGES page) throws Exception {
 		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 		DomibusPage pg = new DomibusPage(driver);
@@ -171,28 +168,35 @@ public class SideNavigation extends DComponent {
 
 		try {
 			pgTitle = pg.getTitle();
-		} catch (Exception e) { }
+		} catch (Exception e) {
+		}
 
-		if(StringUtils.containsIgnoreCase(pgTitle, text)){
+		if (StringUtils.containsIgnoreCase(pgTitle, text)) {
 			log.info("already here, refreshing page");
 			pg.refreshPage();
-		}else {
+		} else {
 			link.click();
 		}
 		wait.forElementToContainText(pg.pageTitle, text);
 		log.debug("Navigated to " + page.name());
 		context.stop();
 	}
-	
+
 	public boolean isUserState() throws Exception {
 		return (matSidebarButtons.size() == 2
 				&& weToDButton(matSidebarButtons.get(0)).getText().equalsIgnoreCase("Messages")
 				&& weToDButton(matSidebarButtons.get(1)).getText().equalsIgnoreCase("Error Log")
 		);
 	}
-	
+
 	public boolean isAdminState() throws Exception {
-		return (getPageLnk(PAGES.MESSAGES).isPresent()
+
+		// for Admin if is Domibus NOT multidomain loggin page should be visible
+		// for Admin if is Domibus IS multidomain loggin page should NOT be visible
+		boolean loggingVisibility = (!data.isMultiDomain() == getPageLnk(PAGES.LOGGING).isPresent());
+
+		return loggingVisibility
+				&&(getPageLnk(PAGES.MESSAGES).isPresent()
 				&& getPageLnk(PAGES.ERROR_LOG).isPresent()
 				&& getPageLnk(PAGES.MESSAGE_FILTER).isPresent()
 				&& getPageLnk(PAGES.PMODE_CURRENT).isPresent()
@@ -205,12 +209,32 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.AUDIT).isPresent()
 				&& getPageLnk(PAGES.ALERTS).isPresent()
 				&& getPageLnk(PAGES.CONNECTION_MONITORING).isPresent()
+				&& getPageLnk(PAGES.PROPERTIES).isPresent()
+		);
+	}
+
+	public boolean isSuperState() throws Exception {
+		return (getPageLnk(PAGES.LOGGING).isPresent()
+				&& getPageLnk(PAGES.MESSAGES).isPresent()
+				&& getPageLnk(PAGES.ERROR_LOG).isPresent()
+				&& getPageLnk(PAGES.MESSAGE_FILTER).isPresent()
+				&& getPageLnk(PAGES.PMODE_CURRENT).isPresent()
+				&& getPageLnk(PAGES.PMODE_ARCHIVE).isPresent()
+				&& getPageLnk(PAGES.PMODE_PARTIES).isPresent()
+				&& getPageLnk(PAGES.JMS_MONITORING).isPresent()
+				&& getPageLnk(PAGES.TRUSTSTORES_DOMIBUS).isPresent()
+				&& getPageLnk(PAGES.USERS).isPresent()
+				&& getPageLnk(PAGES.PLUGIN_USERS).isPresent()
+				&& getPageLnk(PAGES.AUDIT).isPresent()
+				&& getPageLnk(PAGES.ALERTS).isPresent()
+				&& getPageLnk(PAGES.CONNECTION_MONITORING).isPresent()
+				&& getPageLnk(PAGES.PROPERTIES).isPresent()
 		);
 	}
 
 	public boolean isLinkPresent(PAGES page) throws Exception {
 
-		boolean isLinkPresent  = true;
+		boolean isLinkPresent = true;
 		try {
 			getPageLnk(page).getLinkText();
 		} catch (Exception e) {
@@ -220,5 +244,4 @@ public class SideNavigation extends DComponent {
 	}
 
 
-	
 }

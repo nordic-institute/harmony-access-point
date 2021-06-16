@@ -97,13 +97,12 @@ public class PropertiesPgTest extends SeleniumTest {
 		log.info("waiting for grid to load");
 		page.propGrid().waitForRowsToLoad();
 
-		log.info("checking page elements are visible");
-		soft.assertTrue(page.filters().getNameInput().isVisible(), "Name input is displayed");
+		basicFilterPresence(soft, page.filters(), descriptorObj.getJSONArray("filters"));
 		page.filters().expandArea();
-		soft.assertTrue(page.filters().getTypeInput().isVisible(), "Type input is displayed");
-		soft.assertTrue(page.filters().getModuleInput().isVisible(), "Module input is displayed");
-		soft.assertTrue(page.filters().getValueInput().isVisible(), "Value input is displayed");
+		advancedFilterPresence(soft, page.filters(), descriptorObj.getJSONArray("filters"));
+
 		soft.assertTrue(page.filters().getShowDomainChk().isVisible(), "Show domain checkbox is displayed");
+		soft.assertTrue(page.filters().getShowDomainChk().isChecked(), "Show domain checkbox is checked");
 
 		soft.assertTrue(page.grid().isPresent(), "Grid displayed");
 
@@ -130,13 +129,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		log.info("waiting for grid to load");
 		page.propGrid().waitForRowsToLoad();
 
-		log.info("checking page elements are visible");
-		soft.assertTrue(page.filters().getNameInput().isVisible(), "Name input is displayed");
+		basicFilterPresence(soft, page.filters(), descriptorObj.getJSONArray("filters"));
 		page.filters().expandArea();
-		soft.assertTrue(page.filters().getTypeInput().isVisible(), "Type input is displayed");
-		soft.assertTrue(page.filters().getModuleInput().isVisible(), "Module input is displayed");
-		soft.assertTrue(page.filters().getValueInput().isVisible(), "Value input is displayed");
-		soft.assertFalse(page.filters().getShowDomainChk().isPresent(), "Show domain checkbox is NOT displayed");
+		advancedFilterPresence(soft, page.filters(), descriptorObj.getJSONArray("filters"));
 
 		soft.assertTrue(page.grid().isPresent(), "Grid displayed");
 

@@ -50,7 +50,7 @@ public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
-	
+
 	protected WebElement container;
 
 	public DGrid(WebDriver driver, WebElement container) {
@@ -95,6 +95,7 @@ public class DGrid extends DComponent {
 				"return headers", container);
 
 		result.removeIf(str -> (StringUtils.isEmpty(str)));
+
 		context.stop();
 		return result;
 	}
@@ -156,7 +157,8 @@ public class DGrid extends DComponent {
 			}
 			log.debug("waited for rows to load for ms = 200*" + waits);
 			wait.forXMillis(200);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 		context.stop();
 	}
 
@@ -215,7 +217,7 @@ public class DGrid extends DComponent {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");
 		}
 		selectRow(index);
-context.stop();
+		context.stop();
 		return index;
 	}
 
@@ -250,7 +252,7 @@ context.stop();
 
 		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
-			resetGridScroll();
+//			resetGridScroll();
 			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.scrollIntoView();
@@ -404,6 +406,23 @@ context.stop();
 		}
 		return values;
 	}
+
+	public List<String> getAvailableActionsForRow(int rowNo) throws Exception {
+		int actionsColIndex = getColumnNames().indexOf("Actions");
+		if (actionsColIndex < 0) {
+			throw new Exception("Column Actions is not visible");
+		}
+
+		String script = String.format("var arr=[];arguments[0].querySelectorAll(\".datatable-row-wrapper:nth-of-type(%s) datatable-body-cell:nth-of-type(%s) button:not([disabled])\").forEach(function(item){arr.push(item.getAttribute(\"tooltip\"))});return arr;"
+				, rowNo+1, actionsColIndex + 1);
+
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		ArrayList<String> result = (ArrayList<String>) js.executeScript(script, container);
+		result.removeIf(str -> (StringUtils.isEmpty(str)));
+
+		return result;
+	}
+
 
 	public void resetGridScroll() {
 		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
