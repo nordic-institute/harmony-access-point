@@ -3,8 +3,10 @@ package eu.domibus.tomcat.jpa;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.tomcat.environment.NoH2DatabaseCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
@@ -16,6 +18,7 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
  * @author Cosmin Baciu
  * @since 4.0
  */
+@Conditional(NoH2DatabaseCondition.class)
 @Configuration
 public class TomcatDatasourceConfiguration {
 
