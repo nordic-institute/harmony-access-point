@@ -1,12 +1,9 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.*;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
@@ -38,7 +35,7 @@ public class MessageSenderService {
     private UserMessageDefaultService userMessageService;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
@@ -73,16 +70,14 @@ public class MessageSenderService {
             return;
         }
 
-        final Messaging messaging = messagingDao.findMessageByMessageId(messageId);
-        final UserMessage userMessage = messaging.getUserMessage();
+        final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
 
-
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
-                userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
+                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
 
-        messageSender.sendMessage(messaging, userMessageLog);
+        messageSender.sendMessage(userMessage, userMessageLog);
     }
 
     protected MessageStatus getMessageStatus(final UserMessageLog userMessageLog) {

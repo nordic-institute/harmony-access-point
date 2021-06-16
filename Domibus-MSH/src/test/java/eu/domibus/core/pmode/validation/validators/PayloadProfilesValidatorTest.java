@@ -53,6 +53,27 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
+    public void test_validateEmptyPayloadProfile(final @Injectable Configuration configuration,
+                                                 final @Injectable PayloadProfile payloadProfile,
+                                                 final @Injectable Set<Payload> validPayloads) {
+
+
+        new Expectations(payloadProfilesValidator) {{
+            configuration.getBusinessProcesses().getPayloadProfiles();
+            result = null;
+
+            configuration.getBusinessProcesses().getPayloads();
+            result = validPayloads;
+        }};
+
+
+        payloadProfilesValidator.validate(configuration);
+
+        new FullVerifications() {{
+        }};
+    }
+
+    @Test
     public void test_validatePayloadProfile(final @Injectable PayloadProfile payloadProfile,
                                             final @Injectable Set<Payload> validPayloads) {
         final List<Attachment> attachmentList = new ArrayList<>();

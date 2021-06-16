@@ -4,7 +4,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.monitoring.DomibusMonitoringService;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -36,9 +35,6 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
 
     @Autowired
     protected DomibusScheduler domibusQuartzScheduler;
-
-    @Autowired
-    DomainCoreConverter domainCoreConverter;
 
     @Override
     public MonitoringInfo getMonitoringDetails(List<String> filters) {

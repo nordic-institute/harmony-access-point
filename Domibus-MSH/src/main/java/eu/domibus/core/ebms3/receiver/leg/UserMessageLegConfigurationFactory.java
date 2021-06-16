@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class UserMessageLegConfigurationFactory extends AbstractMessageLegConfigurationFactory {
 
     @Override
-    protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Messaging messaging) {
+    protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Ebms3Messaging messaging) {
         LegConfigurationExtractor legConfigurationExtractor = null;
         if (messaging.getUserMessage() != null) {
             legConfigurationExtractor = new UserMessageLegConfigurationExtractor(soapMessage, messaging);

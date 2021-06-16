@@ -1,10 +1,6 @@
 package eu.domibus.core.message.signal;
 
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.SignalMessageLog;
+import eu.domibus.api.model.*;
 
 /**
  * @author Federico Martini
@@ -26,29 +22,18 @@ public class SignalMessageLogBuilder {
         return signalMessageLog;
     }
 
-    public SignalMessageLogBuilder setMessageId(String messageId) {
-        signalMessageLog.setMessageId(messageId);
+    public SignalMessageLogBuilder setSignalMessage(SignalMessage signalMessage) {
+        signalMessageLog.setSignalMessage(signalMessage);
         return this;
     }
 
-    public SignalMessageLogBuilder setMessageStatus(MessageStatus messageStatus) {
+    public SignalMessageLogBuilder setMessageStatus(MessageStatusEntity messageStatus) {
         signalMessageLog.setMessageStatus(messageStatus);
         return this;
     }
 
-    public SignalMessageLogBuilder setNotificationStatus(NotificationStatus notificationStatus) {
-        signalMessageLog.setNotificationStatus(notificationStatus);
-        return this;
-    }
-
-    public SignalMessageLogBuilder setMshRole(MSHRole mshRole) {
+    public SignalMessageLogBuilder setMshRole(MSHRoleEntity mshRole) {
         signalMessageLog.setMshRole(mshRole);
         return this;
     }
-
-    public SignalMessageLogBuilder setMessageSubtype(MessageSubtype messageSubtype) {
-        signalMessageLog.setMessageSubtype(messageSubtype);
-        return this;
-    }
-
 }

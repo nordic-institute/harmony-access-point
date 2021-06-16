@@ -22,7 +22,7 @@ public interface AuthorizationServiceSpi {
      * @param signingCertificateTrustChain the signing certificate trust chain.
      * @param signingCertificate           the signing certificate
      * @param userMessageDTO               the UserMessage information.
-     * @param userMessagePmodeData              a class containing information from domibus configuration.
+     * @param userMessagePmodeData         a class containing information from domibus configuration.
      * @throws AuthorizationException if the message is not authorized.
      */
     void authorize(
@@ -37,7 +37,7 @@ public interface AuthorizationServiceSpi {
      * @param signingCertificateTrustChain the signing certificate trust chain.
      * @param signingCertificate           the signing certificate.
      * @param pullRequestDTO               the PullRequest information.
-     * @param pullRequestPmodeData           a class containing information from domibus configuration.
+     * @param pullRequestPmodeData         a class containing information from domibus configuration.
      * @throws AuthorizationException if the message is not authorized.
      */
     void authorize(List<X509Certificate> signingCertificateTrustChain,

@@ -2,15 +2,13 @@ package eu.domibus.core.alerts.model.service;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Thomas Dussart
@@ -37,6 +35,10 @@ public class Alert {
 
     private Date nextAttempt;
 
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
+
     private Date reportingTimeFailure;
 
     private AlertStatus alertStatus;
@@ -44,6 +46,8 @@ public class Alert {
     private AlertLevel alertLevel;
 
     private Set<Event> events = new HashSet<>();
+
+    private Map<String, String> properties = new HashMap<>();
 
     public long getEntityId() {
         return entityId;
@@ -147,6 +151,30 @@ public class Alert {
         this.nextAttempt = nextAttempt;
     }
 
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
@@ -157,8 +185,15 @@ public class Alert {
                 .append("reportingTime", reportingTime)
                 .append("attempts", attempts)
                 .append("maxAttempts", maxAttempts)
+                .append("nextAttempt", nextAttempt)
+                .append("nextAttemptTimezoneId", nextAttemptTimezoneId)
+                .append("nextAttemptOffsetSeconds", nextAttemptOffsetSeconds)
                 .append("reportingTimeFailure", reportingTimeFailure)
                 .append("events", events)
                 .toString();
+    }
+
+    public void addProperty(String key, String value) {
+        properties.put(key, value);
     }
 }

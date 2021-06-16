@@ -1,10 +1,9 @@
 package eu.domibus.api.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  *
@@ -12,10 +11,14 @@ import javax.persistence.Table;
  * @since 5.0
  */
 @Entity
-@Table(name = "TB_PARTY_ID")
+@Table(name = "TB_D_PARTY")
+@NamedQuery(name = "PartyId.findByValueAndType", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyId prop where prop.value=:VALUE and prop.type=:TYPE")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PartyId extends AbstractBaseEntity implements Comparable<PartyId> {
 
-    @Column(name = "VALUE")
+    @Column(name = "VALUE", unique = true)
     protected String value;
 
     @Column(name = "TYPE")

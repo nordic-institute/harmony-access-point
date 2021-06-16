@@ -27,7 +27,7 @@
                      #toPartyId="ngModel" id="topartyid_id">
             </mat-form-field>
             <mat-form-field *ngIf="advancedSearch">
-              <input matInput [hidden]="!canSearchByConversationId" placeholder="Conversation Id" name="conversationId"
+              <input matInput [readonly]="!searchUserMessages" placeholder="Conversation Id" name="conversationId"
                      [(ngModel)]="filter.conversationId"
                      #conversationId="ngModel" id="conversationid_id" advanced-filter-behaviour [parent]="this">
             </mat-form-field>
@@ -47,7 +47,8 @@
                 {{type}}
               </mat-option>
             </mat-select>
-            <mat-select placeholder="Notification Status" [(ngModel)]="filter.notificationStatus" class="optionField"
+            <mat-select [disabled]="!searchUserMessages" placeholder="Notification Status"
+                        [(ngModel)]="filter.notificationStatus" class="optionField"
                         name="notificationStatus" id="notificationstatus_id" *ngIf="advancedSearch"
                         advanced-filter-behaviour [parent]="this">
               <mat-option [value]="">
@@ -90,7 +91,19 @@
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
             <ng-container *ngIf="advancedSearch">
-              <mat-checkbox name="isTestMessage" id="showTestMessages_id" [(ngModel)]="filter.isTestMessage"
+              <mat-form-field>
+                <input matInput placeholder="Action" name="action" [(ngModel)]="filter.action"
+                       #action="ngModel" id="action_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput placeholder="Service Type" name="serviceType" [(ngModel)]="filter.serviceType"
+                       #serviceType="ngModel" id="serviceType_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput placeholder="Service Value" name="serviceValue" [(ngModel)]="filter.serviceValue"
+                       #serviceValue="ngModel" id="serviceValue_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-checkbox name="isTestMessage" id="showTestMessages_id" [(ngModel)]="filter.testMessage"
                             advanced-filter-behaviour [parent]="this">
                 Show Only Test Messages
               </mat-checkbox>
@@ -109,7 +122,7 @@
     <grid-header [parent]="this"></grid-header>
 
     <div style="height: calc(100% - 130px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [selectionType]="'single'"
+      <page-grid [parent]="this" [selectionType]="'single'" [totalMessage]="totalRowsMessage"
                  [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
     </div>
 
@@ -122,12 +135,12 @@
     </ng-template>
 
     <ng-template #nextAttemptInfoWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{showNextAttemptInfo(row) ? (value | domibusDate) : ''}}</span>
+      <span class="text-select">{{showNextAttemptInfo(row) ? (row | domibusFutureDate) : ''}}</span>
     </ng-template>
 
-  <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value}}</span>
-  </ng-template>
+    <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value}}</span>
+    </ng-template>
 
     <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
       <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)" button-click-behaviour
@@ -135,10 +148,12 @@
         <mat-icon>file_download</mat-icon>
       </button>
       <button mat-icon-button color="primary" button-click-behaviour
-              (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id" tooltip="Download Envelopes">
+              (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
+              tooltip="Download Envelopes">
         <mat-icon>local_post_office</mat-icon>
       </button>
-      <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
+      <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()"
+              [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
               id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
         <mat-icon>send</mat-icon>
       </button>
@@ -150,7 +165,8 @@
         <mat-icon>file_download</mat-icon>
         <span>Download</span>
       </button>
-      <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()" (click)="resendDialog()"
+      <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+              (click)="resendDialog()"
               id="resendbutton_id" button-click-behaviour>
         <mat-icon>send</mat-icon>
         <span>Resend</span>

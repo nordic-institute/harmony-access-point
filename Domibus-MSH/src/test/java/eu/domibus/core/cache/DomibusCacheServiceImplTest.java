@@ -4,10 +4,12 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.cluster.SignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +26,9 @@ public class DomibusCacheServiceImplTest {
 
     @Injectable
     private CacheManager cacheManager;
+
+    @Injectable
+    private LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
 
     @Mocked
     private Cache cache;
@@ -105,6 +110,24 @@ public class DomibusCacheServiceImplTest {
 
         new Verifications() {{
             cacheManager.getCache(cacheName).clear();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void clear2LCaches(@Injectable DomibusCacheServiceNotifier domibusCacheServiceNotifier, @Injectable SessionFactory sessionFactory) {
+
+        new Expectations(domibusCacheService) {{
+            localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
+            result = sessionFactory;
+
+            domibusCacheService.notifyClear2LCaches();
+        }};
+
+        domibusCacheService.clear2LCCaches();
+
+        new Verifications() {{
+            sessionFactory.getCache().evictAll();
             times = 1;
         }};
     }

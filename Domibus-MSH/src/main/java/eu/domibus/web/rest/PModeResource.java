@@ -8,7 +8,7 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -55,7 +55,7 @@ public class PModeResource extends BaseResource {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private AuditService auditService;
@@ -98,7 +98,7 @@ public class PModeResource extends BaseResource {
     public PModeResponseRO getCurrentPMode() {
         final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
         if (currentPmode != null) {
-            final PModeResponseRO convert = domainConverter.convert(currentPmode, PModeResponseRO.class);
+            final PModeResponseRO convert = coreMapper.pModeArchiveInfoToPModeResponseRO(currentPmode);
             convert.setCurrent(true);
             return convert;
         }
@@ -155,7 +155,7 @@ public class PModeResource extends BaseResource {
 
     @GetMapping(value = {"/list"})
     public List<PModeResponseRO> pmodeList() {
-        return domainConverter.convert(pModeProvider.getRawConfigurationList(), PModeResponseRO.class);
+        return coreMapper.pModeArchiveInfoListToPModeResponseROList(pModeProvider.getRawConfigurationList());
     }
 
     /**

@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,10 @@ public abstract class AbstractMessageLegConfigurationFactory implements MessageL
         return this.next;
     }
 
-    public LegConfigurationExtractor extractMessageConfiguration(final SoapMessage soapMessage, final Messaging messaging) {
-        LegConfigurationExtractor configuration = getConfiguration(soapMessage, messaging);
+    public LegConfigurationExtractor extractMessageConfiguration(final SoapMessage soapMessage, final Ebms3Messaging ebms3Messaging) {
+        LegConfigurationExtractor configuration = getConfiguration(soapMessage, ebms3Messaging);
         if (configuration == null) {
-            configuration = executeNextFactory(soapMessage, messaging);
+            configuration = executeNextFactory(soapMessage, ebms3Messaging);
         } else {
             //@thom remove the visitor, do the injection directly in the factory.
             configuration.accept(messageLegConfigurationVisitor);
@@ -31,10 +32,10 @@ public abstract class AbstractMessageLegConfigurationFactory implements MessageL
         return configuration;
     }
 
-    abstract protected LegConfigurationExtractor getConfiguration(final SoapMessage soapMessage, final Messaging messaging);
+    abstract protected LegConfigurationExtractor getConfiguration(final SoapMessage soapMessage, final Ebms3Messaging ebms3Messaging);
 
 
-    private LegConfigurationExtractor executeNextFactory(SoapMessage soapMessage, Messaging messaging) {
+    private LegConfigurationExtractor executeNextFactory(SoapMessage soapMessage, Ebms3Messaging messaging) {
         if (next != null) {
             return next.extractMessageConfiguration(soapMessage, messaging);
         } else {

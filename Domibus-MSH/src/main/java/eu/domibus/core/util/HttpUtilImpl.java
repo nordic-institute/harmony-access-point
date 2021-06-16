@@ -1,12 +1,14 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.HttpUtil;
+import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.proxy.DomibusProxyService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
@@ -27,6 +29,8 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT;
+
 /**
  * Created by Cosmin Baciu on 12-Jul-16.
  */
@@ -46,30 +50,12 @@ public class HttpUtilImpl implements HttpUtil {
     @Autowired
     DomibusX509TrustManager domibusX509TrustManager;
 
-    @Override
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    public final static int MILIS_TO_SECONDS = 1000;
+
     public ByteArrayInputStream downloadURL(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        if (domibusProxyService.useProxy()) {
-            return downloadURLViaProxy(url);
-        }
-        return downloadURLDirect(url);
-    }
-
-    @Override
-    public ByteArrayInputStream downloadURLDirect(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        HttpClientBuilder httpClientBuilder = getHttpClientBuilder(url);
-        CloseableHttpClient httpclient = httpClientBuilder.build();
-        HttpGet httpGet = new HttpGet(url);
-
-        try {
-            LOG.debug("Executing request " + httpGet.getRequestLine() + " directly");
-            return getByteArrayInputStream(httpclient, httpGet);
-        } finally {
-            httpclient.close();
-        }
-    }
-
-    @Override
-    public ByteArrayInputStream downloadURLViaProxy(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         HttpClientBuilder httpClientBuilder = getHttpClientBuilder(url);
         CredentialsProvider credentialsProvider = proxyUtil.getConfiguredCredentialsProvider();
         if (credentialsProvider != null) {
@@ -77,15 +63,29 @@ public class HttpUtilImpl implements HttpUtil {
         }
 
         try (CloseableHttpClient httpClient = httpClientBuilder.build()) {
-            HttpHost proxy = proxyUtil.getConfiguredProxy();
 
-            RequestConfig config = RequestConfig.custom()
-                    .setProxy(proxy)
-                    .build();
+            RequestConfig.Builder builder = RequestConfig.custom();
+            int httpTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT);
+            if (httpTimeout > 0) {
+                LOG.debug("Configure the http client with httpTimeout: [{}]", httpTimeout);
+                int httpTimeoutMilis = new Long(httpTimeout * DateUtils.MILLIS_PER_SECOND).intValue();
+                builder.setConnectTimeout(httpTimeoutMilis)
+                        .setConnectionRequestTimeout(httpTimeoutMilis)
+                        .setSocketTimeout(httpTimeoutMilis);
+            }
+
+            HttpHost proxy = null;
+            if (domibusProxyService.useProxy()) {
+                LOG.debug("Configure http client with proxy: [{}]", proxy);
+                proxy = proxyUtil.getConfiguredProxy();
+                builder.setProxy(proxy);
+            }
+
+            RequestConfig config = builder.build();
             HttpGet httpGet = new HttpGet(url);
             httpGet.setConfig(config);
 
-            LOG.debug("Executing request {} via {}", httpGet.getRequestLine(), proxy);
+            LOG.debug("Executing request {} via {}", httpGet.getRequestLine(), proxy == null ? "no proxy" : proxy);
             return getByteArrayInputStream(httpClient, httpGet);
         }
     }

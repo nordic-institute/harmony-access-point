@@ -39,9 +39,9 @@ public class MessageAcknowledgementDao extends BasicDao<MessageAcknowledgementEn
 
     @Timer(clazz = MessageAcknowledgementDao.class,value = "deleteMessages.deleteMessageAcknowledgementsByMessageIds")
     @Counter(clazz = MessageAcknowledgementDao.class,value = "deleteMessages.deleteMessageAcknowledgementsByMessageIds")
-    public int deleteMessageAcknowledgementsByMessageIds(List<String> messageIds) {
+    public int deleteMessageAcknowledgementsByMessageIds(List<Long> messageIds) {
         final Query deleteQuery = em.createNamedQuery("MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", messageIds);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteMessageAcknowledgementsByMessageIds result [{}]", result);
         return result;

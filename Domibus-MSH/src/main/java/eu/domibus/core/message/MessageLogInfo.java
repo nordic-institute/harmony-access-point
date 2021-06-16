@@ -1,10 +1,9 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -37,11 +36,15 @@ public class MessageLogInfo {
 
     private Date nextAttempt;
 
+    private String nextAttemptTimezoneId;
+
+    private Integer nextAttemptOffsetSeconds;
+
     private String conversationId;
 
     private MessageType messageType;
 
-    private MessageSubtype messageSubtype;
+    private Boolean testMessage;
 
     private Date deleted;
 
@@ -59,39 +62,34 @@ public class MessageLogInfo {
 
     private Boolean sourceMessage;
 
+    private String action;
+
+    private String serviceType;
+
+    private String serviceValue;
+
     public MessageLogInfo() {
     }
 
     //constructor for signal messages
     public MessageLogInfo(final String messageId,
                           final MessageStatus messageStatus,
-                          final NotificationStatus notificationStatus,
                           final MSHRole mshRole,
-                          final MessageType messageType,
                           final Date deleted,
                           final Date received,
-                          final int sendAttempts,
-                          final int sendAttemptsMax,
-                          final Date nextAttempt,
                           final String conversationId,
                           final String fromPartyId,
                           final String toPartyId,
                           final String originalSender,
                           final String finalRecipient,
                           final String refToMessageId,
-                          final Date failed,
-                          final Date restored,
-                          final MessageSubtype messageSubtype) {
+                          final Boolean testMessage) {
+        this.messageType = MessageType.SIGNAL_MESSAGE;
         this.messageId = messageId;
         this.messageStatus = messageStatus;
-        this.notificationStatus = notificationStatus;
         this.mshRole = mshRole;
-        this.messageType = messageType;
         this.deleted = deleted;
         this.received = received;
-        this.sendAttempts = sendAttempts;
-        this.sendAttemptsMax = sendAttemptsMax;
-        this.nextAttempt = nextAttempt;
         //message information UserMessage/SignalMessage
         this.conversationId = conversationId;
         this.fromPartyId = fromPartyId;
@@ -99,9 +97,7 @@ public class MessageLogInfo {
         this.originalSender = originalSender;
         this.finalRecipient = finalRecipient;
         this.refToMessageId = refToMessageId;
-        this.failed = failed;
-        this.restored = restored;
-        this.messageSubtype = messageSubtype;
+        this.testMessage = testMessage;
     }
 
     //constructor for user messages
@@ -109,12 +105,13 @@ public class MessageLogInfo {
                           final MessageStatus messageStatus,
                           final NotificationStatus notificationStatus,
                           final MSHRole mshRole,
-                          final MessageType messageType,
                           final Date deleted,
                           final Date received,
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
+                          final String nextAttemptTimezoneId,
+                          final Integer nextAttemptOffsetSeconds,
                           final String conversationId,
                           final String fromPartyId,
                           final String toPartyId,
@@ -123,15 +120,30 @@ public class MessageLogInfo {
                           final String refToMessageId,
                           final Date failed,
                           final Date restored,
-                          final MessageSubtype messageSubtype,
+                          final Boolean testMessage,
                           final Boolean messageFragment,
-                          final Boolean sourceMessage) {
-        this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
-                sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
-                originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
+                          final Boolean sourceMessage,
+                          final String action,
+                          final String serviceType,
+                          final String serviceValue
+    ) {
+        this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
+                originalSender, finalRecipient, refToMessageId, testMessage);
 
+        this.messageType = MessageType.USER_MESSAGE;
+        this.notificationStatus = notificationStatus;
+        this.sendAttempts = sendAttempts;
+        this.sendAttemptsMax = sendAttemptsMax;
+        this.nextAttempt = nextAttempt;
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
         this.messageFragment = messageFragment;
         this.sourceMessage = sourceMessage;
+        this.action = action;
+        this.serviceType = serviceType;
+        this.serviceValue = serviceValue;
+        this.failed = failed;
+        this.restored = restored;
     }
 
     public void setMessageId(String messageId) {
@@ -166,12 +178,12 @@ public class MessageLogInfo {
         this.nextAttempt = nextAttempt;
     }
 
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
     }
 
     public void setDeleted(Date deleted) {
@@ -274,16 +286,20 @@ public class MessageLogInfo {
         return nextAttempt;
     }
 
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public Integer getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
     public Date getFailed() {
         return failed;
     }
 
     public Date getRestored() {
         return restored;
-    }
-
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
     }
 
     public Boolean getMessageFragment() {
@@ -302,6 +318,42 @@ public class MessageLogInfo {
         this.sourceMessage = sourceMessage;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptOffsetSeconds(Integer nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -313,7 +365,6 @@ public class MessageLogInfo {
         return new EqualsBuilder()
                 .append(sendAttempts, that.sendAttempts)
                 .append(sendAttemptsMax, that.sendAttemptsMax)
-                .append(messageSubtype, that.messageSubtype)
                 .append(messageId, that.messageId)
                 .append(fromPartyId, that.fromPartyId)
                 .append(toPartyId, that.toPartyId)
@@ -322,8 +373,9 @@ public class MessageLogInfo {
                 .append(received, that.received)
                 .append(mshRole, that.mshRole)
                 .append(nextAttempt, that.nextAttempt)
+                .append(nextAttemptTimezoneId, that.nextAttemptTimezoneId)
+                .append(nextAttemptOffsetSeconds, that.nextAttemptOffsetSeconds)
                 .append(conversationId, that.conversationId)
-                .append(messageType, that.messageType)
                 .append(deleted, that.deleted)
                 .append(originalSender, that.originalSender)
                 .append(finalRecipient, that.finalRecipient)
@@ -331,6 +383,9 @@ public class MessageLogInfo {
                 .append(failed, that.failed)
                 .append(restored, that.restored)
                 .append(messageFragment, this.messageFragment)
+                .append(action, this.action)
+                .append(serviceType, this.serviceType)
+                .append(serviceValue, this.serviceValue)
                 .isEquals();
     }
 
@@ -347,16 +402,19 @@ public class MessageLogInfo {
                 .append(sendAttempts)
                 .append(sendAttemptsMax)
                 .append(nextAttempt)
+                .append(nextAttemptTimezoneId)
+                .append(nextAttemptOffsetSeconds)
                 .append(conversationId)
-                .append(messageType)
                 .append(deleted)
                 .append(originalSender)
                 .append(finalRecipient)
                 .append(refToMessageId)
                 .append(failed)
                 .append(restored)
-                .append(messageSubtype)
                 .append(messageFragment)
+                .append(action)
+                .append(serviceType)
+                .append(serviceValue)
                 .toHashCode();
     }
 }

@@ -1,12 +1,14 @@
 package eu.domibus.tomcat.activemq;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.activemq.DomibusBrokerFactoryBean;
+import eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.tomcat.activemq.condition.DummyEmbeddedActiveMQCondition;
 import eu.domibus.tomcat.activemq.condition.EmbeddedActiveMQCondition;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
-import org.apache.activemq.spring.ActiveMQXAConnectionFactory;
 import org.apache.activemq.xbean.BrokerFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,9 +48,9 @@ public class DomibusActiveMQConfiguration {
         return new DomibusBrokerFactoryBean(activeMQConfiguration);
     }
 
-    @Bean(name = "xaJmsConnectionFactory")
-    public ActiveMQXAConnectionFactory activeMQXAConnectionFactory() {
-        ActiveMQXAConnectionFactory result = new ActiveMQXAConnectionFactory();
+    @Bean(name = DomibusJMSActiveMQConfiguration.MQ_CONNECTION_FACTORY)
+    public ActiveMQConnectionFactory activeMQConnectionFactory() {
+        ActiveMQConnectionFactory result = new ActiveMQConnectionFactory();
 
         final String brokerURL = domibusPropertyProvider.getProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI);
         result.setBrokerURL(brokerURL);
@@ -75,5 +77,4 @@ public class DomibusActiveMQConfiguration {
 
         return result;
     }
-
 }

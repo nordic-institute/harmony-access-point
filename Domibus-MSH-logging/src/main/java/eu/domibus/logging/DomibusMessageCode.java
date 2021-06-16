@@ -57,7 +57,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_MESSAGE_RECEIPT_GENERATED("BUS-046", "Message receipt generated with nonRepudiation value [{}]"),
     BUS_MESSAGE_RECEIPT_FAILURE("BUS-047", "Message receipt generation failure"),
     BUS_MESSAGE_STATUS_UPDATE("BUS-048", "Message with type [{}] has status updated to [{}]"),
-    BUS_MESSAGE_PAYLOAD_DATA_CLEARED("BUS-049", "All payloads data for user message [{}] have been cleared"),
+    BUS_MESSAGE_PAYLOAD_DATA_CLEARED("BUS-049", "All payloads data for user message have been cleared"),
     BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND("BUS-050", "Security policy [{}] was not found for outgoing message"),
     BUS_SECURITY_POLICY_OUTGOING_USE("BUS-051", "Security policy [{}] is used for outgoing message"),
     BUS_SECURITY_ALGORITHM_OUTGOING_USE("BUS-052", "Security algorithm [{}] is used for outgoing message"),
@@ -111,7 +111,8 @@ public enum DomibusMessageCode implements MessageCode {
     SEC_CERTIFICATE_SOON_REVOKED("SEC-018", "The [{}] certificate with alias [{}] will be revoked on [{}]"),
     SEC_CERTIFICATE_REVOKED("SEC-019", "The [{}] certificate with alias [{}] is revoked since [{}]"),
     SEC_PASSWORD_IMMINENT_EXPIRATION("SEC-020", "The password for user [{}] will expire on [{}]"),
-    SEC_PASSWORD_EXPIRED("SEC-021", "The password for user [{}] expired on [{}]");
+    SEC_PASSWORD_EXPIRED("SEC-021", "The password for user [{}] expired on [{}]"),
+    PLUGIN_DEFAULT("ABC-000", "The Plugin could not reach the backend for user [{}] expired on [{}]");//TODO: François Gautier 16-02-21  new code
 
     String code;
     String message;

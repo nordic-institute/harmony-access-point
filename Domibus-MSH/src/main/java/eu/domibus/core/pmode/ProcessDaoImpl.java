@@ -1,7 +1,9 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Repository;
@@ -19,7 +21,7 @@ import static eu.domibus.common.model.configuration.Process.*;
  * {@inheritDoc}
  */
 @Repository
-public class ProcessDaoImpl implements ProcessDao{
+public class ProcessDaoImpl extends BasicDao<Process> implements ProcessDao {
 
     private static final String LEG = "leg";
     private static final String INITIATOR_NAME = "initiatorName";
@@ -27,11 +29,16 @@ public class ProcessDaoImpl implements ProcessDao{
     private static final String MEP_BINDING = "mepBinding";
     private static final String INITIATOR = "initiator";
     private static final String MPC_NAME = "mpcName";
-    @PersistenceContext(unitName = "domibusJTA")
+
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
+    public ProcessDaoImpl() {
+        super(Process.class);
+    }
+
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
@@ -44,24 +51,24 @@ public class ProcessDaoImpl implements ProcessDao{
     }
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public List<Process> findPullProcessesByInitiator(final Party party) {
-        TypedQuery<Process> processQuery= entityManager.createNamedQuery(FIND_PULL_PROCESS_TO_INITIATE,Process.class);
-        processQuery.setParameter(MEP_BINDING,BackendConnector.Mode.PULL.getFileMapping());
+        TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_TO_INITIATE, Process.class);
+        processQuery.setParameter(MEP_BINDING, BackendConnector.Mode.PULL.getFileMapping());
         processQuery.setParameter(INITIATOR, party);
         return processQuery.getResultList();
     }
 
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public List<Process> findPullProcessByMpc(final String mpc) {
-        TypedQuery<Process> processQuery= entityManager.createNamedQuery(FIND_PULL_PROCESS_FROM_MPC,Process.class);
-        processQuery.setParameter(MEP_BINDING,BackendConnector.Mode.PULL.getFileMapping());
+        TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_FROM_MPC, Process.class);
+        processQuery.setParameter(MEP_BINDING, BackendConnector.Mode.PULL.getFileMapping());
         processQuery.setParameter(MPC_NAME, mpc);
         return processQuery.getResultList();
     }
@@ -88,7 +95,7 @@ public class ProcessDaoImpl implements ProcessDao{
 
     @Override
     public List<Process> findAllProcesses() {
-        return this.entityManager.createQuery(FIND_ALL_PROCESSES,Process.class).getResultList();
+        return this.entityManager.createNamedQuery(FIND_ALL_PROCESSES, Process.class).getResultList();
     }
 
 

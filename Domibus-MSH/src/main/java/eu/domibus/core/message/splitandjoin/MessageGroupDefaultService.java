@@ -1,6 +1,8 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +22,16 @@ public class MessageGroupDefaultService implements MessageGroupService {
     @Autowired
     protected MessageGroupDao messageGroupDao;
 
+    @Autowired
+    protected UserMessageDao userMessageDao;
+
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setSourceMessageId(String sourceMessageId, String groupId) {
         LOG.debug("Updating the SourceMessage id [{}] for group [{}]", sourceMessageId, groupId);
         final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(groupId);
-        messageGroupEntity.setSourceMessageId(sourceMessageId);
+        final UserMessage sourceMessage = userMessageDao.findByMessageId(sourceMessageId);
+        messageGroupEntity.setSourceMessage(sourceMessage);
         messageGroupDao.update(messageGroupEntity);
     }
 }

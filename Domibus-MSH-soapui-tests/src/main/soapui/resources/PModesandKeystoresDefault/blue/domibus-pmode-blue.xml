@@ -46,6 +46,9 @@
 			<party name="green_gw" endpoint="http://localhost:8280/domibus/services/msh" allowChunking="false">
 				<identifier partyId="domibus-green" partyIdType="partyTypeUrn"/>
 			</party>
+			<party name="yellow_gw" endpoint="http://localhost:8989/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-yellow" partyIdType="partyTypeUrn"/>
+			</party>
 		</parties>
 		<meps>
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
@@ -250,6 +253,7 @@
 				<responderParty name="white_gw"/>
 				<responderParty name="blue_gw"/>
 				<responderParty name="red_gw"/>
+				<responderParty name="yellow_gw"/>
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase1tc1Action"/>

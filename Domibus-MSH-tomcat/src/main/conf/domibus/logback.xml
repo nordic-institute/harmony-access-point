@@ -9,20 +9,6 @@
     <!--<include optional="true" file="${catalina.home}/conf/domibus/domain_name-logback.xml"/>-->
     <!-- multitenancy: end include domains config files here -->
 
-    <appender name="atomikos" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${catalina.home}/logs/atomikos.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- rollover daily -->
-            <fileNamePattern>${catalina.home}/logs/atomikos-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- each file should be at most 30MB, keep 60 days worth of history, but at most 20GB -->
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>60</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{ISO8601} [%X{d_user}] [%X{d_messageId}] %5p %c{1}:%L - %m%n</pattern>
-        </encoder>
-    </appender>
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${catalina.home}/logs/domibus.log</file>
         <!-- multitenancy: uncomment this
@@ -51,6 +37,12 @@
             <pattern>${encoderPattern}</pattern>
         </encoder>
     </appender>
+    <!--    Async logging: uncomment this-->
+    <!--    <appender name="DEFAULT-ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+    <!--        <queueSize>3000</queueSize>-->
+    <!--        <discardingThreshold>0</discardingThreshold>-->
+    <!--        <appender-ref ref="file" />-->
+    <!--    </appender>-->
     <appender name="security_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${catalina.home}/logs/security.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -151,15 +143,13 @@
         <appender-ref ref="statistic_file"/>
     </logger>
 
-    <logger name="com.atomikos" level="ERROR">
-        <appender-ref ref="atomikos"/>
-    </logger>
-
     <!--  In order to enable logging of request/responses please change the loglevel to INFO -->
     <logger name="org.apache.cxf" level="WARN"/>
 
     <root level="WARN">
         <appender-ref ref="file"/>
+        <!--        REPLACE appender-ref "file" with "DEFAULT-ASYNC-FILE" for async logging-->
+        <!--        <appender-ref ref="DEFAULT-ASYNC-FILE" />-->
         <appender-ref ref="stdout"/>
     </root>
 </configuration>

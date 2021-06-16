@@ -40,6 +40,7 @@ public class Dialog extends DComponent {
 
 	public void confirm() throws Exception {
 		log.debug("dialog .. confirm");
+		wait.forXMillis(300);
 		new DButton(driver, yesBtn).click();
 		wait.forElementToBeGone(yesBtn);
 	}

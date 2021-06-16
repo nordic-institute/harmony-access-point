@@ -2,6 +2,7 @@ package eu.domibus.core.message.attempt;
 
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.UserMessage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -16,14 +17,15 @@ import java.sql.Timestamp;
 @Table(name = "TB_SEND_ATTEMPT")
 @NamedQueries({
         @NamedQuery(name = "MessageAttemptEntity.findAttemptsByMessageId",
-                query = "select attempt from MessageAttemptEntity attempt where attempt.messageId = :MESSAGE_ID"),
+                query = "select attempt from MessageAttemptEntity attempt where attempt.userMessage.messageId = :MESSAGE_ID"),
         @NamedQuery(name = "MessageAttemptEntity.deleteAttemptsByMessageIds",
-                query = "delete from MessageAttemptEntity attempt where attempt.messageId IN :MESSAGEIDS"),
+                query = "delete from MessageAttemptEntity attempt where attempt.userMessage.entityId IN :IDS"),
 })
 public class MessageAttemptEntity extends AbstractBaseEntity {
 
-    @Column(name = "MESSAGE_ID")
-    private String messageId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_MESSAGE_ID_FK")
+    protected UserMessage userMessage;
 
     @Column(name = "START_DATE")
     private Timestamp startDate;
@@ -37,14 +39,6 @@ public class MessageAttemptEntity extends AbstractBaseEntity {
 
     @Column(name = "ERROR")
     private String error;
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
-    }
 
     public Timestamp getStartDate() {
         return startDate;
@@ -78,6 +72,14 @@ public class MessageAttemptEntity extends AbstractBaseEntity {
         this.error = error;
     }
 
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,7 +90,6 @@ public class MessageAttemptEntity extends AbstractBaseEntity {
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(messageId, that.messageId)
                 .append(startDate, that.startDate)
                 .append(endDate, that.endDate)
                 .append(status, that.status)
@@ -100,7 +101,6 @@ public class MessageAttemptEntity extends AbstractBaseEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(messageId)
                 .append(startDate)
                 .append(endDate)
                 .append(status)

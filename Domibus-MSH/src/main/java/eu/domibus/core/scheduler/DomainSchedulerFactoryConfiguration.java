@@ -1,5 +1,6 @@
 package eu.domibus.core.scheduler;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -13,7 +14,6 @@ import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
 import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.error.ErrorLogCleanerJob;
-import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.core.message.pull.MessagePullerJob;
 import eu.domibus.core.message.pull.PullRetryWorker;
 import eu.domibus.core.message.retention.RetentionWorker;
@@ -62,7 +62,8 @@ public class DomainSchedulerFactoryConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainSchedulerFactoryConfiguration.class);
 
-    private static final String GROUP_GENERAL = "GENERAL";
+    public static final String GENERAL_SCHEDULER_NAME = "General";
+    public static final String GROUP_GENERAL = "GENERAL";
     private static final Integer JOB_START_DELAY_IN_MS = 30000;
 
     @Autowired
@@ -72,13 +73,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource;
-
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
-    @Autowired
-    protected DataSource nonTransactionalDataSource;
 
     @Autowired
     protected PlatformTransactionManager transactionManager;
@@ -140,7 +137,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -162,7 +159,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retryWorkerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MSH_RETRY_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -184,7 +181,7 @@ public class DomainSchedulerFactoryConfiguration {
         String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_PULL_RETRY_CRON);
         obj.setCronExpression(propertyValue);
         LOG.debug("pullRetryWorkerTrigger configured with cronExpression [{}]", propertyValue);
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -207,7 +204,7 @@ public class DomainSchedulerFactoryConfiguration {
         String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_MSH_PULL_CRON);
         obj.setCronExpression(propertyValue);
         LOG.debug("pullRequestTrigger configured with cronExpression [{}]", propertyValue);
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -235,7 +232,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertRetryJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RETRY_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -245,7 +242,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertRetryJSuperJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RETRY_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         obj.setGroup(GROUP_GENERAL);
         return obj;
     }
@@ -274,7 +271,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CLEANER_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -284,7 +281,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerSuperJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CLEANER_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         obj.setGroup(GROUP_GENERAL);
         return obj;
     }
@@ -307,7 +304,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(temporaryPayloadRetentionJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -328,7 +325,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(splitAndJoinExpirationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -470,7 +467,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(errorLogCleanerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ERRORLOG_CLEANER_CRON));
-        obj.setStartDelay(20000);
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 
@@ -481,7 +478,7 @@ public class DomainSchedulerFactoryConfiguration {
      */
     private SchedulerFactoryBean schedulerFactoryGeneral() {
         LOG.debug("Instantiating the scheduler factory for general schema");
-        SchedulerFactoryBean schedulerFactoryBean = schedulerFactory("General", getGeneralSchemaPrefix(), null);
+        SchedulerFactoryBean schedulerFactoryBean = schedulerFactory(GENERAL_SCHEDULER_NAME, getGeneralSchemaPrefix(), null);
 
         final Map<String, Trigger> beansOfType = applicationContext.getBeansOfType(Trigger.class);
         List<Trigger> domibusStandardTriggerList = beansOfType.values().stream()
@@ -504,10 +501,10 @@ public class DomainSchedulerFactoryConfiguration {
      * @return Scheduler Factory Bean changed
      */
     private SchedulerFactoryBean schedulerFactoryDomain(Domain domain) {
+        domainContextProvider.setCurrentDomain(domain);
+
         LOG.debug("Instantiating the scheduler factory for domain [{}]", domain);
         SchedulerFactoryBean schedulerFactoryBean = schedulerFactory(domainService.getSchedulerName(domain), getTablePrefix(domain), domain);
-
-        domainContextProvider.setCurrentDomain(domain);
 
         //get all the Spring Bean Triggers so that new instances with scope prototype are injected
         final Map<String, Trigger> beansOfType = applicationContext.getBeansOfType(Trigger.class);
@@ -517,13 +514,11 @@ public class DomainSchedulerFactoryConfiguration {
                 .collect(Collectors.toList());
         schedulerFactoryBean.setTriggers(domibusStandardTriggerList.toArray(new Trigger[domibusStandardTriggerList.size()]));
 
-        domainContextProvider.clearCurrentDomain();
-
         return schedulerFactoryBean;
     }
 
     /**
-     * Creates a new Scheduler Factory Bean based on {@schedulerName}, {@tablePrefix} and {@domain}
+     * Creates a new Scheduler Factory Bean based on schedulerName, tablePrefix and domain
      *
      * @param schedulerName Scheduler Name
      * @param tablePrefix   Table Prefix
@@ -539,7 +534,6 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setWaitForJobsToCompleteOnShutdown(true);
         scheduler.setOverwriteExistingJobs(true);
         scheduler.setDataSource(dataSource);
-        scheduler.setNonTransactionalDataSource(nonTransactionalDataSource);
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
         properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");

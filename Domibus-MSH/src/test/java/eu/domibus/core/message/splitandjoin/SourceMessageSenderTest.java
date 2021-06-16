@@ -2,24 +2,24 @@ package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -72,16 +72,16 @@ public class SourceMessageSenderTest {
     protected SplitAndJoinService splitAndJoinService;
 
     @Injectable
-    protected Messaging messaging;
+    protected UserMessage userMessage;
 
     @Injectable
     protected UserMessageLog userMessageLog;
 
     @Injectable
-    protected UserMessage userMessage;
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
-    protected MultiDomainCryptoService multiDomainCertificateProvider;
+    protected PartInfoDao partInfoDao;
 
     @Test
     public void sendMessage(@Injectable Runnable task,
@@ -92,7 +92,7 @@ public class SourceMessageSenderTest {
             result = currentDomain;
         }};
 
-        sourceMessageSender.sendMessage(messaging, userMessageLog);
+        sourceMessageSender.sendMessage(userMessage, userMessageLog);
         new FullVerifications() {{
             domainContextProvider.getCurrentDomain();
             times = 1;
@@ -113,7 +113,7 @@ public class SourceMessageSenderTest {
         String senderParty = "red_gw";
         new NonStrictExpectations() {
             {
-                userMessage.getMessageInfo().getMessageId();
+                userMessage.getMessageId();
                 result = messageId;
                 pModeProvider.findUserMessageExchangeContext(userMessage, mshRole.SENDING).getPmodeKey();
                 result = pModeKey;
@@ -130,7 +130,7 @@ public class SourceMessageSenderTest {
                 times = 1;
                 messageExchangeService.verifySenderCertificate(legConfiguration, senderParty);
                 times = 1;
-                messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+                messageBuilder.buildSOAPMessage(userMessage, null, legConfiguration);
                 result = soapMessage;
 
             }

@@ -1,9 +1,8 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import org.junit.Test;
 
-import static eu.domibus.core.message.MessageExchangeConfiguration.PMODEKEY_SEPARATOR;
+import static eu.domibus.api.pmode.PModeConstants.PMODEKEY_SEPARATOR;
 import static org.junit.Assert.assertEquals;
 /**
  * @author Thomas Dussart

@@ -76,6 +76,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- AspectJ -->
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -329,17 +335,27 @@
         <dependency>
             <groupId>eu.europa.ec.dynamic-discovery</groupId>
             <artifactId>dynamic-discovery-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- End eDelivery SMP profile -->
 
         <!-- BouncyCastle: In order to enable gcm algorithms it was necessary to use a more recent version of bouncy castle (at least 1.49) -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk15to18</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk15to18</artifactId>
         </dependency>
         <!-- End BouncyCastle -->
 
@@ -458,19 +474,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-ws-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-jms-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test</artifactId>
+            <artifactId>domibus-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

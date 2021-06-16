@@ -1,11 +1,14 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.SessionFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -22,12 +25,17 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheServiceImpl.class);
 
     protected CacheManager cacheManager;
+
     protected List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList;
 
+    protected LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
+
     public DomibusCacheServiceImpl(CacheManager cacheManager,
-                                   @Lazy List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList /*Lazy injection to avoid cyclic dependency as we are dynamically injecting all listeners */) {
+                                   @Lazy List<DomibusCacheServiceNotifier> domibusCacheServiceNotifierList /*Lazy injection to avoid cyclic dependency as we are dynamically injecting all listeners */,
+                                   @Lazy LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean/*Lazy injection to avoid cyclic dependency as the entityManagerFactory needs DomibusMultiTenantConnectionProvider*/) {
         this.cacheManager = cacheManager;
         this.domibusCacheServiceNotifierList = domibusCacheServiceNotifierList;
+        this.localContainerEntityManagerFactoryBean = localContainerEntityManagerFactoryBean;
     }
 
     @Override
@@ -45,7 +53,7 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     }
 
     @Override
-    public void clearAllCaches() {
+    public void clearAllCaches() throws DomibusCoreException {
         LOG.debug("Clearing all caches from the cacheManager");
         Collection<String> cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {
@@ -55,10 +63,21 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         notifyClearAllCaches();
     }
 
+    @Override
+    public void clear2LCCaches() throws DomibusCoreException {
+        SessionFactory sessionFactory = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
+        sessionFactory.getCache().evictAll();
+        notifyClear2LCaches();
+    }
+
     protected void notifyClearAllCaches() {
         LOG.debug("Notifying cache subscribers about clear all caches event");
         domibusCacheServiceNotifierList
-                .stream()
-                .forEach(domibusCacheServiceNotifier -> domibusCacheServiceNotifier.notifyClearAllCaches());
+                .forEach(DomibusCacheServiceNotifier::notifyClearAllCaches);
+    }
+    protected void notifyClear2LCaches() {
+        LOG.debug("Notifying cache subscribers about clear second level caches event");
+        domibusCacheServiceNotifierList
+                .forEach(DomibusCacheServiceNotifier::notifyClear2LCaches);
     }
 }

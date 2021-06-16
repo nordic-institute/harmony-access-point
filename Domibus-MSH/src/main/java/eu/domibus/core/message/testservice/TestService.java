@@ -3,15 +3,14 @@ package eu.domibus.core.message.testservice;
 import com.google.gson.Gson;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -66,7 +65,7 @@ public class TestService {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -182,12 +181,7 @@ public class TestService {
             return null;
         }
 
-        UserMessageLog userMessageLog = null;
-        try {
-            userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
-        } catch (NoResultException ex) {
-            LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
-        }
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(userMessageId);
 
         return getTestServiceMessageInfoRO(partyId, userMessageId, userMessageLog);
     }
@@ -236,13 +230,11 @@ public class TestService {
 
         if (StringUtils.isNotBlank(userMessageId)) {
             // if userMessageId is provided, try to find its signal message
-            Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
-            if (messaging == null) {
+            signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
+            if (signalMessageDao == null) {
                 LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
                 return null;
             }
-
-            signalMessage = messaging.getSignalMessage();
         } else {
             // if userMessageId is not provided, find the most recent signal message received for a test message
             String signalMessageId = signalMessageLogDao.findLastTestMessageId(partyId);
@@ -250,7 +242,7 @@ public class TestService {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;
             }
-            signalMessage = messagingDao.findSignalMessageByMessageId(signalMessageId);
+            signalMessage = signalMessageDao.findBySignalMessageId(signalMessageId);
         }
 
         if (signalMessage == null) {
@@ -283,8 +275,8 @@ public class TestService {
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
         TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
         if (signalMessage != null) {
-            testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
-            testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
+            testServiceMessageInfoRO.setMessageId(signalMessage.getSignalMessageId());
+            testServiceMessageInfoRO.setTimeReceived(signalMessage.getTimestamp());
         }
         Party party = pModeProvider.getPartyByIdentifier(partyId);
         testServiceMessageInfoRO.setPartyId(partyId);

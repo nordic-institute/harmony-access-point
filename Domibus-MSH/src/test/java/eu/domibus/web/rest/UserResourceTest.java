@@ -6,7 +6,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.user.UserService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -39,13 +39,13 @@ public class UserResourceTest {
     UserResource userResource;
 
     @Injectable
-    private UserService superUserManagementService;
+    private UserService allUserManagementService;
 
     @Injectable
     private UserService userManagementService;
 
     @Injectable
-    DomainCoreConverter domainConverter;
+    AuthCoreMapper authCoreMapper;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -89,7 +89,7 @@ public class UserResourceTest {
             userManagementService.findUsers();
             result = userList;
 
-            domainConverter.convert(userList, UserResponseRO.class);
+            authCoreMapper.userListToUserResponseROList(userList);
             result = userResponseROList;
         }};
 
@@ -131,7 +131,7 @@ public class UserResourceTest {
         new Expectations() {{
             authUtils.isSuperAdmin();
             result = true;
-            superUserManagementService.findUserRoles();
+            allUserManagementService.findUserRoles();
             result = userRoles;
         }};
 

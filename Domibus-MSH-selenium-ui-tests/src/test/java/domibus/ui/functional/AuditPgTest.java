@@ -3,6 +3,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -14,6 +15,9 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
+import pages.jms.JMSMonitoringPage;
+import pages.jms.JMSMoveMessageModal;
+import pages.msgFilter.MessageFilterPage;
 import pages.pmode.current.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
@@ -798,10 +802,8 @@ public class AuditPgTest extends SeleniumTest {
 		
 		AuditPage page = new AuditPage(driver);
 		page.getSidebar().goToPage(PAGES.AUDIT);
-		
-		log.info("Extract total number of items for default domain");
-		int defaultGridRowCount = page.grid().getPagination().getTotalItems();
-		
+		page.grid().waitForRowsToLoad();
+
 		log.info("Check if pagination is present");
 		if (!page.grid().getPagination().isPaginationPresent()) {
 			log.info("Default domain grid has data less than 10 so no pagination exists");
@@ -812,18 +814,13 @@ public class AuditPgTest extends SeleniumTest {
 			
 			log.info("Change domain");
 			page.getDomainSelector().selectOptionByIndex(1);
-			log.info("Extract total number of items for second domain");
-			int secondGridRowCount = page.grid().getPagination().getTotalItems();
-			
+			page.grid().waitForRowsToLoad();
+
 			log.info("Check if pagination is present");
 			if (page.grid().getPagination().isPaginationPresent()) {
 				log.info("Pagination is present for second domain");
-				if (page.grid().getPagination().getActivePage() == 1) {
-					log.info("Active page is " + page.grid().getPagination().getActivePage());
-				}
+				soft.assertEquals(page.grid().getPagination().getActivePage(), Integer.valueOf(1), "Pagination reset to first page");
 			}
-			log.info("Check if both domains have different number of data");
-			soft.assertTrue(defaultGridRowCount != secondGridRowCount, " Both domains have different number of records");
 		}
 		soft.assertAll();
 	}
@@ -840,11 +837,12 @@ public class AuditPgTest extends SeleniumTest {
 		
 		String messageId = rest.jms().getQueueMessages(queue).getJSONObject(0).getString("id");
 		rest.jms().deleteMessages(queue, messageId);
-		
+
 		AuditPage page = new AuditPage(driver);
+		page.wait.forXMillis(1000);
+
 		log.info("Navigate to Audit page");
 		page.getSidebar().goToPage(PAGES.AUDIT);
-		page.wait.forXMillis(1000);
 		page.grid().waitForRowsToLoad();
 		
 		page.filters().getTableFilter().selectOptionByText("Jms message");
@@ -941,6 +939,39 @@ public class AuditPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 		
+	}
+	/*AU-11 - Check JMS MOVE message event on Audit page*/
+	@Test(description = "AU-11", groups = {"multiTenancy", "singleTenancy"})
+	public void jmsMoveEvent() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String q = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(q)) {
+			throw new SkipException("no queue has messages");
+		}
+
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+
+		page.filters().getJmsQueueSelect().selectQueueWithMessages();
+		page.grid().waitForRowsToLoad();
+
+		String id = page.grid().getRowSpecificColumnVal(0,"ID");
+		page.grid().selectRow(0);
+
+		soft.assertTrue(page.moveButton.isEnabled(),"Move button is enabled");
+		page.moveButton.click();
+		JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
+		modal.clickOK();
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.JMS_MOVE_MESSAGE_SUCCESS));
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage aPage = new AuditPage(driver);
+		aPage.grid().waitForRowsToLoad();
+		int index= aPage.grid().getIndexOf(4,id);
+		soft.assertTrue(index>=0,"Record is present in grid");
+		soft.assertTrue(aPage.grid().getRowInfo(index).get("Id").equals(id)," same id is available on audit log page" );
+
+		soft.assertAll();
+
 	}
 	
 }

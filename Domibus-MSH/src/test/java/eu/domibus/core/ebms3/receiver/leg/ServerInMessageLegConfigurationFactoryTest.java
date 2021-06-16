@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.UserMessage;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
 import org.junit.Test;
@@ -33,15 +33,13 @@ public class ServerInMessageLegConfigurationFactoryTest {
     private ServerInMessageLegConfigurationFactory configurationFactory;
 
     @Test
-    public void extractUserMessageConfiguration() throws Exception {
-        Messaging messaging = new Messaging();
-        messaging.setUserMessage(new UserMessage());
+    public void extractUserMessageConfiguration() {
+        Ebms3Messaging ebms3Messaging = new Ebms3Messaging();
+        ebms3Messaging.setUserMessage(new Ebms3UserMessage());
         SoapMessage soapMessage = new SoapMessage(new MessageImpl());
-        configurationFactory.extractMessageConfiguration(soapMessage, messaging);
+        configurationFactory.extractMessageConfiguration(soapMessage, ebms3Messaging);
         verify(userMessageLegConfigurationFactory, times(1)).
-                extractMessageConfiguration(Mockito.eq(soapMessage), Mockito.eq(messaging));
+                extractMessageConfiguration(Mockito.eq(soapMessage), Mockito.eq(ebms3Messaging));
     }
-
-
 
 }

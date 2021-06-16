@@ -1,21 +1,24 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.user.ui.User;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.ui.User;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ChangePasswordRO;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoginRO;
 import eu.domibus.web.rest.ro.UserRO;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.UserDetail;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -28,7 +31,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
@@ -37,8 +39,6 @@ import org.springframework.security.web.authentication.session.CompositeSessionA
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -68,7 +68,7 @@ public class AuthenticationResourceTest {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    DomainCoreConverter domainCoreConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     ErrorHandlerService errorHandlerService;
@@ -77,7 +77,7 @@ public class AuthenticationResourceTest {
     protected UserPersistenceService userPersistenceService;
 
     @Injectable
-    private UserService superUserManagementService;
+    private UserService allUserManagementService;
 
     @Injectable
     private UserService userManagementService;
@@ -87,6 +87,7 @@ public class AuthenticationResourceTest {
 
     @Injectable
     CompositeSessionAuthenticationStrategy compositeSessionAuthenticationStrategy;
+
 
     @Mocked
     Logger LOG;
@@ -128,7 +129,7 @@ public class AuthenticationResourceTest {
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
 
-            domainCoreConverter.convert(DomainService.DEFAULT_DOMAIN, DomainRO.class);
+            coreMapper.domainToDomainRO(DomainService.DEFAULT_DOMAIN);
             result = domainRO;
         }};
 
@@ -168,7 +169,7 @@ public class AuthenticationResourceTest {
         new Verifications() {{
             userManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
             times = 1;
-            superUserManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
+            allUserManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
             times = 0;
         }};
 

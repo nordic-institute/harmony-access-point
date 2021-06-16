@@ -3,14 +3,13 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.ServerInfoExtService;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.FileInputStream;
@@ -45,6 +44,9 @@ public class DssConfigurationTest {
 
     @Injectable
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
+
+    @Injectable
+    private ServerInfoExtService serverInfoExtService;
 
     @Tested
     private DssConfiguration dssConfiguration;
@@ -88,7 +90,7 @@ public class DssConfigurationTest {
             cacertTrustStore.getCertificate(cacertAlias);
             result = cert;
         }};
-        dssConfiguration.mergeCustomTlsTrustStoreWithCacert();
+        dssConfiguration.trustedListTrustStore();
         new Verifications() {{
             customTlsTrustStore.setCertificateEntry(cacertAlias, cert);
             times = 1;

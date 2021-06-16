@@ -21,7 +21,15 @@ public class MessageStatusChangeEvent implements Serializable, MessageEvent {
     protected MessageStatus toStatus;
     protected Timestamp changeTimestamp;
 
-    protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    private final Map<String, String> properties;
+
+    public MessageStatusChangeEvent() {
+        properties = new HashMap<>();
+    }
+
+    public MessageStatusChangeEvent(Map<String, String> properties) {
+        this.properties = properties;
+    }
 
     @Override
     public String getMessageId() {

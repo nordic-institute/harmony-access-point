@@ -4,7 +4,6 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.MDCKey;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Message;
@@ -26,7 +25,6 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
      * There is a timeout configured on the dispatch queue by the domibus property domibus.dispatcher.timeout=300
      * @param message the message to send
      */
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
     @Timer(clazz = MessageSenderListener.class,value="onMessage")
     @Counter(clazz = MessageSenderListener.class,value="onMessage")
@@ -45,4 +43,7 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
         super.messageSenderService.sendUserMessage(messageId, retryCount);
     }
 
+    public DomibusLogger getLogger() {
+        return LOG;
+    }
 }

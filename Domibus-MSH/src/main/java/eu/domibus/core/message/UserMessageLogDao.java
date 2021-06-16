@@ -1,22 +1,25 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import com.google.common.collect.Maps;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -25,18 +28,36 @@ import java.util.Map;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    @Autowired
-    private UserMessageLogInfoFilter userMessageLogInfoFilter;
+    private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+
+    private final DateUtil dateUtil;
+
+    private final UserMessageLogInfoFilter userMessageLogInfoFilter;
+
+    private final MessageStatusDao messageStatusDao;
+
+    private final NotificationStatusDao notificationStatusDao;
+
+    private final ReprogrammableService reprogrammableService;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
-    public UserMessageLogDao() {
+    public UserMessageLogDao(DateUtil dateUtil,
+                             UserMessageLogInfoFilter userMessageLogInfoFilter,
+                             MessageStatusDao messageStatusDao,
+                             NotificationStatusDao notificationStatusDao,
+                             ReprogrammableService reprogrammableService) {
         super(UserMessageLog.class);
+        this.dateUtil = dateUtil;
+        this.userMessageLogInfoFilter = userMessageLogInfoFilter;
+        this.messageStatusDao = messageStatusDao;
+        this.notificationStatusDao = notificationStatusDao;
+        this.reprogrammableService = reprogrammableService;
     }
 
     public List<String> findRetryMessages() {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
-        query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
+        query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
     }
@@ -46,9 +67,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
-        String queryString = "select distinct m.messageInfo.messageId from UserMessage m " +
-                "inner join m.messageProperties.property p, UserMessageLog ml " +
-                "where ml.messageId = m.messageInfo.messageId and ml.messageStatus = 'SEND_FAILURE' and ml.messageType = 'USER_MESSAGE' and ml.deleted is null ";
+        String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
+                "left join m.messageProperties p,  " +
+                "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
         }
@@ -77,21 +98,30 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      * @param messageId The message id
      * @return The UserMessageLog
      */
+    @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId) {
         try {
-            return findByMessageId(messageId);
+            final UserMessageLog userMessageLog = findByMessageId(messageId);
+            initializeChildren(userMessageLog);
+            return userMessageLog;
         } catch (NoResultException nrEx) {
             LOG.debug("Could not find any result for message with id [" + messageId + "]");
             return null;
         }
     }
 
-    @Override
+    private void initializeChildren(UserMessageLog userMessageLog) {
+        //initialize values from the second level cache
+        userMessageLog.getMessageStatus();
+        userMessageLog.getMshRole();
+        userMessageLog.getNotificationStatus();
+    }
+
     public MessageStatus getMessageStatus(String messageId) {
         try {
-            TypedQuery<MessageStatus> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatusEntity.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
-            return query.getSingleResult();
+            return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [" + messageId + "]");
             return MessageStatus.NOT_FOUND;
@@ -140,6 +170,45 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
+    public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        StoredProcedureQuery query = em.createStoredProcedureQuery(queryName)
+                .registerStoredProcedureParameter(
+                        "MPC",
+                        String.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "STARTDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "ENDDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "MAXCOUNT",
+                        Integer.class,
+                        ParameterMode.IN
+                )
+                .setParameter("MPC", mpc)
+                .setParameter("STARTDATE", startDate)
+                .setParameter("ENDDATE", endDate)
+                .setParameter("MAXCOUNT", expiredMessagesLimit);
+
+        try {
+            query.execute();
+        } finally {
+            try {
+                query.unwrap(ProcedureOutputs.class).release();
+                LOG.debug("Finished releasing delete procedure");
+            } catch (Exception ex) {
+                LOG.error("Finally exception when using the stored procedure to delete", ex);
+            }
+        }
+    }
+
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
@@ -171,30 +240,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public void setAsNotified(final UserMessageLog messageLog) {
-        messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
+        final NotificationStatusEntity status = notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED);
+        messageLog.setNotificationStatus(status);
     }
 
-    public int countAllInfo(boolean asc, Map<String, Object> filters) {
-        LOG.debug("Count all");
-        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-        if (filteredEntries.size() == 0) {
-            LOG.debug("Filter empty");
-            return countAll();
-        }
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.countUserMessageLogQuery(asc, filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-        countQuery = userMessageLogInfoFilter.applyParameters(countQuery, filters);
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
 
-    public Integer countAll() {
-        LOG.debug("Executing native query");
-        final Query nativeQuery = em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
-        final Number singleResult = (Number) nativeQuery.getSingleResult();
-        return singleResult.intValue();
-    }
-
+    @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);
@@ -206,16 +257,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             }
         }
 
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredUserMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(from);
-        queryParameterized.setMaxResults(max);
         long startTime = 0;
         if (LOG.isDebugEnabled()) {
             startTime = System.currentTimeMillis();
         }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+
+        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters);
+
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
@@ -225,22 +273,101 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Timer(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
-    public int deleteMessageLogs(List<String> messageIds) {
+    public int deleteMessageLogs(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteUserMessageLogs result [{}]", result);
         return result;
     }
 
-    @Override
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return userMessageLogInfoFilter;
     }
 
-    @Override
     public String findLastTestMessageId(String party) {
-        return super.findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("testMessage", true);
+        filters.put("mshRole", MSHRole.SENDING);
+        filters.put("toPartyId", party);
+        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
+        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
+        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
+        queryParameterized.setFirstResult(0);
+        queryParameterized.setMaxResults(1);
+        long startTime = 0;
+        if (LOG.isDebugEnabled()) {
+            startTime = System.currentTimeMillis();
+        }
+        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+        if (LOG.isDebugEnabled()) {
+            final long endTime = System.currentTimeMillis();
+            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
+        }
+        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
+        MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
+        messageLog.setMessageStatus(messageStatusEntity);
+
+        switch (messageStatus) {
+            case DELETED:
+                messageLog.setDeleted(new Date());
+                reprogrammableService.removeRescheduleInfo(messageLog);
+                break;
+            case ACKNOWLEDGED:
+            case ACKNOWLEDGED_WITH_WARNING:
+                reprogrammableService.removeRescheduleInfo(messageLog);
+                break;
+            case DOWNLOADED:
+                messageLog.setDownloaded(new Date());
+                reprogrammableService.removeRescheduleInfo(messageLog);
+                break;
+            case SEND_FAILURE:
+                messageLog.setFailed(new Date());
+                reprogrammableService.removeRescheduleInfo(messageLog);
+                break;
+            default:
+        }
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", messageStatus);
+    }
+
+
+    @Override
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<UserMessageLog> mle) {
+        List<Predicate> predicates = new ArrayList<>();
+        for (Map.Entry<String, Object> filter : filters.entrySet()) {
+            if (filter.getValue() != null) {
+                if (filter.getValue() instanceof String) {
+                    if (!filter.getValue().toString().isEmpty()) {
+                        switch (filter.getKey()) {
+                            case "":
+                                break;
+                            default:
+                                predicates.add(cb.like(mle.get(filter.getKey()), (String) filter.getValue()));
+                                break;
+                        }
+                    }
+                } else if (filter.getValue() instanceof Date) {
+                    if (!filter.getValue().toString().isEmpty()) {
+                        switch (filter.getKey()) {
+                            case "receivedFrom":
+                                predicates.add(cb.greaterThanOrEqualTo(mle.<Date>get("received"), Timestamp.valueOf(filter.getValue().toString())));
+                                break;
+                            case "receivedTo":
+                                predicates.add(cb.lessThanOrEqualTo(mle.<Date>get("received"), Timestamp.valueOf(filter.getValue().toString())));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                } else {
+                    predicates.add(cb.equal(mle.<String>get(filter.getKey()), filter.getValue()));
+                }
+            }
+        }
+        return predicates;
+    }
 }

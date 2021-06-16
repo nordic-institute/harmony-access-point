@@ -11,7 +11,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.0
  */
 public enum AlertType {
-    MSG_STATUS_CHANGED("message.ftl"),
+    MSG_STATUS_CHANGED("message.ftl", "Message status changed"),
     CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl"),
     CERT_EXPIRED("cert_expired.ftl"),
     USER_LOGIN_FAILURE("login_failure.ftl"),
@@ -23,7 +23,8 @@ public enum AlertType {
     PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Password imminent expiration"),
     PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, "Password expired"),
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Plugin password imminent expiration"),
-    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired");
+    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired"),
+    PLUGIN("plugin.ftl", null, "Plugin Alert");
 
 
     private final String template;
@@ -38,6 +39,10 @@ public enum AlertType {
 
     AlertType(String template) {
         this(template, null, null);
+    }
+
+    AlertType(String template, String title) {
+        this(template, null, title);
     }
 
     //in the future an alert will not have one to one mapping.

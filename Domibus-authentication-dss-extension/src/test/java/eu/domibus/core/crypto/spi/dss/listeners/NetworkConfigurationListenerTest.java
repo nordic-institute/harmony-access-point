@@ -1,14 +1,13 @@
 package eu.domibus.core.crypto.spi.dss.listeners;
 
 import com.google.common.collect.Sets;
-import eu.domibus.core.crypto.spi.dss.DomibusDataLoader;
 import eu.domibus.core.crypto.spi.dss.ProxyHelper;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,7 +25,7 @@ import static org.junit.Assert.*;
 public class NetworkConfigurationListenerTest {
 
     @Test
-    public void handlesProperty(@Mocked final DomibusDataLoader dataLoader, @Mocked final ProxyHelper proxyHelper) {
+    public void handlesProperty(@Mocked final CommonsDataLoader dataLoader, @Mocked final ProxyHelper proxyHelper) {
         Set<String> properties = Sets.newHashSet(
                 AUTHENTICATION_DSS_PROXY_HTTP_HOST,
                 AUTHENTICATION_DSS_PROXY_HTTP_PORT,
@@ -46,7 +45,7 @@ public class NetworkConfigurationListenerTest {
     }
 
     @Test
-    public void propertyValueChanged(@Mocked final DomibusDataLoader dataLoader, @Mocked final ProxyHelper proxyHelper) {
+    public void propertyValueChanged(@Mocked final CommonsDataLoader dataLoader, @Mocked final ProxyHelper proxyHelper) {
         ProxyConfig proxyConfig=new ProxyConfig();
         new Expectations(){{
             proxyHelper.getProxyConfig();

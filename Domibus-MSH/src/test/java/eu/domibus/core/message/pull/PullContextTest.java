@@ -3,8 +3,7 @@ package eu.domibus.core.message.pull;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.core.message.pull.PullContext;
-import eu.domibus.test.util.PojoInstaciatorUtil;
+import eu.domibus.test.common.PojoInstaciatorUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

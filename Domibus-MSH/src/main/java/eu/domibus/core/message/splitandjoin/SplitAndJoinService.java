@@ -1,8 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.api.model.Error;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.model.configuration.LegConfiguration;
 
 import javax.xml.soap.SOAPMessage;
 import java.io.File;
@@ -80,9 +79,8 @@ public interface SplitAndJoinService {
      * Handles the Signal error received from C3 which indicates that there was an error while rejoining the SourceMessage
      *
      * @param messageId The message ID of the SourceMessage
-     * @param error     The details of the occurred error
      */
-    void handleSourceMessageSignalError(final String messageId, final Error error);
+    void handleSourceMessageSignalError(final String messageId);
 
     /**
      * Generates and sends the receipt associated to the SourceMessage

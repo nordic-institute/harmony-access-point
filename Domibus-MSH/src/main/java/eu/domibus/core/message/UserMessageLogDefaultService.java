@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -38,40 +37,47 @@ public class UserMessageLogDefaultService {
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
 
-    private UserMessageLog createUserMessageLog(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
-        // Builds the user message log
-        UserMessageLogEntityBuilder umlBuilder = UserMessageLogEntityBuilder.create()
-                .setMessageId(messageId)
-                .setMessageStatus(MessageStatus.valueOf(messageStatus))
-                .setMshRole(MSHRole.valueOf(mshRole))
-                .setNotificationStatus(NotificationStatus.valueOf(notificationStatus))
-                .setMpc(mpc)
-                .setSendAttemptsMax(maxAttempts)
-                .setBackendName(backendName)
-                .setEndpoint(endpoint);
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
 
-        return umlBuilder.build();
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
+    @Autowired
+    protected NotificationStatusDao notificationStatusDao;
+
+
+    private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
+        UserMessageLog userMessageLog = new UserMessageLog();
+        userMessageLog.setUserMessage(userMessage);
+        final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
+        userMessageLog.setMessageStatus(messageStatusEntity);
+
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.valueOf(mshRole));
+        userMessageLog.setMshRole(mshRoleEntity);
+
+        final NotificationStatusEntity notificationStatusEntity = notificationStatusDao.findOrCreate(NotificationStatus.valueOf(notificationStatus));
+        userMessageLog.setNotificationStatus(notificationStatusEntity);
+
+        userMessageLog.setSendAttemptsMax(maxAttempts);
+        userMessageLog.setBackend(backendName);
+
+        return userMessageLog;
     }
 
     @Transactional
-    public UserMessageLog save(String messageId, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
+    public UserMessageLog save(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
-        final UserMessageLog userMessageLog = createUserMessageLog(messageId, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
-        userMessageLog.setSourceMessage(sourceMessage);
-        userMessageLog.setMessageFragment(messageFragment);
+        final UserMessageLog userMessageLog = createUserMessageLog(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
+        userMessageLog.setUserMessage(userMessage);
 
-        // Sets the subtype
-        MessageSubtype messageSubtype = null;
-        if (checkTestMessage(service, action)) {
-            messageSubtype = MessageSubtype.TEST;
+        if (!userMessage.isTestMessage()) {
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
         }
-        userMessageLog.setMessageSubtype(messageSubtype);
-        if (!MessageSubtype.TEST.equals(messageSubtype)) {
-            backendNotificationService.notifyOfMessageStatusChange(userMessageLog, status, new Timestamp(System.currentTimeMillis()));
-        }
+        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(status);
         //we set the status after we send the status change event; otherwise the old status and the new status would be the same
-        userMessageLog.setMessageStatus(status);
+        userMessageLog.setMessageStatus(messageStatusEntity);
         userMessageLogDao.create(userMessageLog);
 
         return userMessageLog;
@@ -80,12 +86,12 @@ public class UserMessageLogDefaultService {
     protected void updateUserMessageStatus(final UserMessage userMessage, final UserMessageLog messageLog, final MessageStatus newStatus) {
         LOG.debug("Updating message status to [{}]", newStatus);
 
-        if (MessageType.USER_MESSAGE == messageLog.getMessageType() && !messageLog.isTestMessage()) {
+        if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
 
-        uiReplicationSignalService.messageChange(messageLog.getMessageId());
+        uiReplicationSignalService.messageChange(userMessage.getMessageId());
     }
 
     public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
@@ -103,27 +109,25 @@ public class UserMessageLogDefaultService {
             LOG.debug("Could not delete SignalMessage: received SignalMessage is null ");
             return false;
         }
-        if (signalMessage.getMessageInfo() == null) {
-            LOG.debug("Could not delete SignalMessage: received messageInfo is null [{}]", signalMessage);
-            return false;
-        }
-        if (isBlank(signalMessage.getMessageInfo().getMessageId())) {
-            LOG.debug("Could not delete SignalMessage: received messageId is empty [{}|{}]",
-                    signalMessage,
-                    signalMessage.getMessageInfo());
+        if (isBlank(signalMessage.getSignalMessageId())) {
+            LOG.debug("Could not delete SignalMessage: received messageId is empty [{}",
+                    signalMessage
+                    );
             return false;
         }
 
-        String msgId = signalMessage.getMessageInfo().getMessageId();
-        setSignalMessageAsDeleted(msgId);
-        LOG.debug("SignalMessage [{}] was set as DELETED.", msgId);
+        String signalMessageId = signalMessage.getSignalMessageId();
+        setSignalMessageAsDeleted(signalMessageId);
+        LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
         return true;
     }
 
     protected void setSignalMessageAsDeleted(final String signalMessageId) {
         final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
-        signalMessageLogDao.setMessageStatus(signalMessageLog, MessageStatus.DELETED);
-        uiReplicationSignalService.messageChange(signalMessageLog.getMessageId());
+        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(MessageStatus.DELETED);
+        signalMessageLog.setDeleted(new Date());
+        signalMessageLog.setMessageStatus(messageStatusEntity);
+        uiReplicationSignalService.messageChange(signalMessageId);
     }
 
     public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -142,16 +146,5 @@ public class UserMessageLogDefaultService {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
-    /**
-     * Checks <code>service</code> and <code>action</code> to determine if it's a TEST message
-     *
-     * @param service Service
-     * @param action  Action
-     * @return True, if it's a test message and false otherwise
-     */
-    protected Boolean checkTestMessage(final String service, final String action) {
-        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(service)
-                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(action);
 
-    }
 }

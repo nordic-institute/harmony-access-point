@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
@@ -17,10 +17,10 @@ import eu.domibus.web.rest.ro.PasswordPolicyRO;
 import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ public class ApplicationResource {
     protected DomainService domainService;
 
     @Autowired
-    protected DomainCoreConverter domainCoreConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -121,7 +121,7 @@ public class ApplicationResource {
     @RequestMapping(value = "domains", method = RequestMethod.GET)
     public List<DomainRO> getDomains() {
         LOG.debug("Getting domains");
-        return domainCoreConverter.convert(domainService.getDomains(), DomainRO.class);
+        return coreMapper.domainListToDomainROList(domainService.getDomains());
     }
 
     @RequestMapping(value = "fourcornerenabled", method = RequestMethod.GET)
@@ -213,22 +213,5 @@ public class ApplicationResource {
         /*TBC - should we validate this email address or not?
          * */
         return domibusPropertyProvider.getProperty(SUPPORT_TEAM_EMAIL_KEY);
-    }
-
-    /**
-     * Rest method to clear all caches from the cacheManager.
-     */
-    @DeleteMapping(value = "/cache")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public ResponseEntity<String> evictCaches() {
-        LOG.debug("Clearing caches..");
-        if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
-            domibusCacheService.clearAllCaches();
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body("Cleared caches successfully.");
-        }
-        return ResponseEntity.badRequest()
-                .body("User does not have privilege to clear caches.");
     }
 }

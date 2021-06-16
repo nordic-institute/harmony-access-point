@@ -1,6 +1,6 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
@@ -35,16 +35,16 @@ import java.util.List;
 public class LoggingResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResource.class);
 
-    private final DomainCoreConverter domainConverter;
+    private final DomibusCoreMapper coreMapper;
 
     private final LoggingService loggingService;
 
     protected final ErrorHandlerService errorHandlerService;
 
-    public LoggingResource(DomainCoreConverter domainConverter,
+    public LoggingResource(DomibusCoreMapper coreMapper,
                            LoggingService loggingService,
                            ErrorHandlerService errorHandlerService) {
-        this.domainConverter = domainConverter;
+        this.coreMapper = coreMapper;
         this.loggingService = loggingService;
         this.errorHandlerService = errorHandlerService;
     }
@@ -83,7 +83,7 @@ public class LoggingResource {
     public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request) {
         final LoggingLevelResultRO resultRO = new LoggingLevelResultRO();
         List<LoggingEntry> loggingLevel = loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses());
-        List<LoggingLevelRO> loggingEntries = domainConverter.convert(loggingLevel, LoggingLevelRO.class);
+        List<LoggingLevelRO> loggingEntries = coreMapper.loggingEntryListToLoggingLevelROList(loggingLevel);
 
         int count = loggingEntries.size();
         int fromIndex = request.getPageSize() * request.getPage();

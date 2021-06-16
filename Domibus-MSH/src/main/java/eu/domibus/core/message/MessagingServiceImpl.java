@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -22,6 +23,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,9 +48,11 @@ public class MessagingServiceImpl implements MessagingService {
 
     protected static Long BYTES_IN_MB = 1048576L;
 
+    @Autowired
+    PartInfoDao partInfoDao;
 
     @Autowired
-    protected MessagingDao messagingDao;
+    protected UserMessageDao userMessageDao;
 
     @Autowired
     protected PayloadPersistenceProvider payloadPersistenceProvider;
@@ -83,41 +87,52 @@ public class MessagingServiceImpl implements MessagingService {
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
     @Counter(clazz = MessagingServiceImpl.class, value = "storeMessage")
-    public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
-        if (messaging == null || messaging.getUserMessage() == null) {
+    public void storeMessagePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
+        if (userMessage == null) {
             return;
         }
 
-        if (MSHRole.SENDING == mshRole && messaging.getUserMessage().isSourceMessage()) {
+
+        final Boolean testMessage = checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+        userMessage.setTestMessage(testMessage);
+
+        if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
-            if (scheduleSourceMessagePayloads(messaging)) {
-                validatePayloadSizeBeforeSchedulingSave(legConfiguration, messaging);
+            if (scheduleSourceMessagePayloads(userMessage, partInfoList)) {
+                validatePayloadSizeBeforeSchedulingSave(legConfiguration, userMessage, partInfoList);
 
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(
                         () -> {
                             LOG.debug("Scheduling the SourceMessage saving");
-                            storeSourceMessagePayloads(messaging, mshRole, legConfiguration, backendName);
+                            storeSourceMessagePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
                         },
-                        () -> splitAndJoinService.setSourceMessageAsFailed(messaging.getUserMessage()),
+                        () -> splitAndJoinService.setSourceMessageAsFailed(userMessage),
                         currentDomain);
             } else {
                 //stores the payloads synchronously
-                storeSourceMessagePayloads(messaging, mshRole, legConfiguration, backendName);
+                storeSourceMessagePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
             }
         } else {
-            storePayloads(messaging, mshRole, legConfiguration, backendName);
+            storePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
         }
         LOG.debug("Saving Messaging");
-        setPayloadsContentType(messaging);
-        messagingDao.create(messaging);
     }
 
-    protected boolean scheduleSourceMessagePayloads(Messaging messaging) {
-        final PayloadInfo payloadInfo = messaging.getUserMessage().getPayloadInfo();
-        final List<PartInfo> partInfos = payloadInfo.getPartInfo();
-        if (payloadInfo == null || partInfos == null || partInfos.isEmpty()) {
+    @Override
+    public void saveUserMessageAndPayloads(UserMessage userMessage, List<PartInfo> partInfoList) {
+        userMessageDao.create(userMessage);
+
+        setPayloadsContentType(partInfoList);
+        partInfoList.stream().forEach(partInfo -> {
+            partInfo.setUserMessage(userMessage);
+            partInfoDao.create(partInfo);
+        });
+    }
+
+    protected boolean scheduleSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos) {
+        if (CollectionUtils.isEmpty(partInfos)) {
             LOG.debug("SourceMessages does not have any payloads");
             return false;
         }
@@ -140,29 +155,26 @@ public class MessagingServiceImpl implements MessagingService {
 
     }
 
-    protected void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, Messaging messaging) {
-        final PayloadInfo payloadInfo = messaging.getUserMessage().getPayloadInfo();
-        final List<PartInfo> partInfos = payloadInfo.getPartInfo();
-
+    protected void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, UserMessage userMessage, List<PartInfo> partInfos) {
         for (PartInfo partInfo : partInfos) {
             payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength(), true);
         }
     }
 
-    protected void storeSourceMessagePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
+    protected void storeSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
-        storePayloads(messaging, mshRole, legConfiguration, backendName);
+        storePayloads(userMessage, partInfos, mshRole, legConfiguration, backendName);
 
-        final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");
         userMessageService.scheduleSourceMessageSending(messageId);
     }
 
-    protected void setPayloadsContentType(Messaging messaging) {
-        if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
+    protected void setPayloadsContentType(List<PartInfo> partInfoList) {
+        if (CollectionUtils.isEmpty(partInfoList)) {
             return;
         }
-        for (PartInfo partInfo : messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
+        for (PartInfo partInfo : partInfoList) {
             setContentType(partInfo);
         }
     }
@@ -170,26 +182,26 @@ public class MessagingServiceImpl implements MessagingService {
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storePayloads")
     @Counter(clazz = MessagingServiceImpl.class, value = "storePayloads")
-    public void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
-        if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
+    public void storePayloads(UserMessage userMessage, List<PartInfo> partInfos, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
+        if (CollectionUtils.isEmpty(partInfos)) {
             LOG.debug("No payloads to store");
             return;
         }
 
         LOG.debug("Storing payloads");
 
-        for (PartInfo partInfo : messaging.getUserMessage().getPayloadInfo().getPartInfo()) {
-            storePayload(messaging, mshRole, legConfiguration, backendName, partInfo);
+        for (PartInfo partInfo : partInfos) {
+            storePayload(userMessage, mshRole, legConfiguration, backendName, partInfo);
         }
         LOG.debug("Finished storing payloads");
     }
 
-    protected void storePayload(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName, PartInfo partInfo) {
+    protected void storePayload(UserMessage userMessage, MSHRole mshRole, LegConfiguration legConfiguration, String backendName, PartInfo partInfo) {
         try {
             if (MSHRole.RECEIVING.equals(mshRole)) {
-                storeIncomingPayload(partInfo, messaging.getUserMessage(), legConfiguration);
+                storeIncomingPayload(partInfo, userMessage, legConfiguration);
             } else {
-                storeOutgoingPayload(partInfo, messaging.getUserMessage(), legConfiguration, backendName);
+                storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
             }
         } catch (IOException | EbMS3Exception exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref());
@@ -202,7 +214,7 @@ public class MessagingServiceImpl implements MessagingService {
         payloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
         // Log Payload size
-        String messageId = userMessage.getMessageInfo().getMessageId();
+        String messageId = userMessage.getMessageId();
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIVED_PAYLOAD_SIZE, partInfo.getHref(), messageId, partInfo.getLength());
     }
 
@@ -210,7 +222,7 @@ public class MessagingServiceImpl implements MessagingService {
         final PayloadPersistence payloadPersistence = payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
         payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SENDING_PAYLOAD_SIZE, partInfo.getHref(), userMessage.getMessageInfo().getMessageId(), partInfo.getLength());
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SENDING_PAYLOAD_SIZE, partInfo.getHref(), userMessage.getMessageId(), partInfo.getLength());
 
         final boolean hasCompressionProperty = hasCompressionProperty(partInfo);
         if (hasCompressionProperty) {
@@ -234,7 +246,7 @@ public class MessagingServiceImpl implements MessagingService {
             return false;
         }
 
-        for (final Property property : partInfo.getPartProperties().getProperties()) {
+        for (final Property property : partInfo.getPartProperties()) {
             if (property.getName().equalsIgnoreCase(CompressionService.COMPRESSION_PROPERTY_KEY)
                     && property.getValue().equalsIgnoreCase(CompressionService.COMPRESSION_PROPERTY_VALUE)) {
                 return true;
@@ -242,5 +254,18 @@ public class MessagingServiceImpl implements MessagingService {
         }
 
         return false;
+    }
+
+    /**
+     * Checks <code>service</code> and <code>action</code> to determine if it's a TEST message
+     *
+     * @param service Service
+     * @param action  Action
+     * @return True, if it's a test message and false otherwise
+     */
+    protected Boolean checkTestMessage(final String service, final String action) {
+        return Ebms3Constants.TEST_SERVICE.equalsIgnoreCase(service)
+                && Ebms3Constants.TEST_ACTION.equalsIgnoreCase(action);
+
     }
 }

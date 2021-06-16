@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
@@ -42,7 +43,7 @@ public class ServerInMessageLegConfigurationFactory implements MessageLegConfigu
     }
 
     @Override
-    public LegConfigurationExtractor extractMessageConfiguration(SoapMessage soapMessage, Messaging messaging) {
+    public LegConfigurationExtractor extractMessageConfiguration(SoapMessage soapMessage, Ebms3Messaging messaging) {
         LegConfigurationExtractor legConfigurationExtractor = userMessageLegConfigurationFactory.extractMessageConfiguration(soapMessage, messaging);
         if (legConfigurationExtractor == null) {
             LOG.error("Leconfiguration not found for incoming message with id " + messaging.getId());

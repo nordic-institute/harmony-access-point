@@ -9,7 +9,7 @@ import {
   TemplateRef,
   ViewChild
 } from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {MessageLogResult} from './support/messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
 import {MatDialog, MatSelectChange} from '@angular/material';
@@ -67,9 +67,15 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   messageResent: EventEmitter<boolean>;
 
-  canSearchByConversationId: boolean;
+  searchUserMessages: boolean;
   conversationIdValue: String;
+  notificationStatusValue: String;
+
   resendReceivedMinutes: number;
+
+  additionalPages: number;
+  totalRowsMessage: string;
+  estimatedCount: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
@@ -88,9 +94,13 @@ export class MessageLogComponent extends mix(BaseListComponent)
     super.orderBy = 'received';
     super.asc = false;
 
+    this.additionalPages = 0;
+    this.totalRowsMessage = '$1 total';
+    this.estimatedCount = false;
+
     this.messageResent = new EventEmitter(false);
 
-    this.canSearchByConversationId = true;
+    this.searchUserMessages = true;
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
 
@@ -98,6 +108,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
 
+    this.filter.testMessage = false;
     this.filterData();
   }
 
@@ -162,13 +173,21 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 130
       },
       {
-        name: 'Message Subtype',
-        width: 100
-      },
-      {
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Deleted',
         width: 155
+      },
+      {
+        name: 'Action',
+        prop: 'action'
+      },
+      {
+        name: 'Service Type',
+        prop: 'serviceType'
+      },
+      {
+        name: 'Service Value',
+        prop: 'serviceValue'
       }
     ];
 
@@ -218,22 +237,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
   }
 
-  protected createAndSetParameters(): HttpParams {
-    let filterParams = super.createAndSetParameters();
-    if (this.activeFilter.isTestMessage) {
-      filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
-    } else {
-      filterParams = filterParams.delete('messageSubtype');
-    }
-    return filterParams;
-  }
-
   protected get GETUrl(): string {
     return MessageLogComponent.MESSAGE_LOG_URL;
   }
 
   public setServerResults(result: MessageLogResult) {
-    super.count = result.count;
+    this.calculateCount(result);
     super.rows = result.messageLogEntries;
 
     if (result.filter.receivedFrom) {
@@ -242,13 +251,34 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (result.filter.receivedTo) {
       result.filter.receivedTo = new Date(result.filter.receivedTo);
     }
-    result.filter.isTestMessage = !!result.filter.messageSubtype;
+
     super.filter = result.filter;
 
     this.mshRoles = result.mshRoles;
     this.msgTypes = result.msgTypes;
     this.msgStatuses = result.msgStatus.sort();
     this.notifStatus = result.notifStatus;
+  }
+
+  private calculateCount(result: MessageLogResult) {
+    this.estimatedCount = result.estimatedCount;
+    if (result.estimatedCount) {
+      if (result.messageLogEntries.length < this.rowLimiter.pageSize) {
+        this.additionalPages--;
+      }
+      super.count = result.count + this.additionalPages * this.rowLimiter.pageSize;
+      this.totalRowsMessage = 'more than $1';
+    } else {
+      super.count = result.count;
+      this.totalRowsMessage = '$1 total';
+    }
+  }
+
+  public async onPage(event) {
+    if (this.estimatedCount && ((event.offset + 1) * this.rowLimiter.pageSize > this.count)) {
+      this.additionalPages++;
+    }
+    super.onPage(event);
   }
 
   resendDialog() {
@@ -333,7 +363,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
       const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
       DownloadService.downloadNative(downloadUrl);
     }, err => {
-      if (err.error.message.includes("Message content is no longer available for message id")) {
+      if (err.error.message.includes('Message content is no longer available for message id')) {
         row.deleted = true;
       }
       this.alertService.exception(`Could not download message.`, err);
@@ -384,6 +414,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   onResetAdvancedSearchParams() {
     this.filter.messageType = this.msgTypes[1];
     this.conversationIdValue = null;
+    this.notificationStatusValue = null;
   }
 
   onTimestampFromChange(event) {
@@ -407,12 +438,16 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   onMessageTypeChanged($event: MatSelectChange) {
-    this.canSearchByConversationId = (this.filter.messageType == 'USER_MESSAGE');
-    if (this.canSearchByConversationId) {
+    this.searchUserMessages = (this.filter.messageType == 'USER_MESSAGE');
+    if (this.searchUserMessages) {
       this.filter.conversationId = this.conversationIdValue;
+      this.filter.notificationStatus = this.notificationStatusValue;
     } else {
       this.conversationIdValue = this.filter.conversationId;
       this.filter.conversationId = null;
+
+      this.notificationStatusValue = this.filter.notificationStatus;
+      this.filter.notificationStatus = null;
     }
   }
 

@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.encryption.DecryptDataSource;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.spring.SpringContextProvider;
@@ -16,15 +17,17 @@ import javax.activation.DataSource;
 import javax.crypto.Cipher;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.*;
+import java.util.Objects;
+import java.util.Set;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"),
-        @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from UserMessage um join um.payloadInfo.partInfo pi where um.messageInfo.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+        @NamedQuery(name = "PartInfo.findPartInfos", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+        @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
 @Entity
 @Table(name = "TB_PART_INFO")
@@ -32,14 +35,19 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
 
-    @Embedded
-    protected Schema schema; //NOSONAR
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_MESSAGE_ID_FK")
+    protected UserMessage userMessage;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "TB_PART_PROPERTIES",
+            joinColumns = @JoinColumn(name = "PART_INFO_ID_FK"),
+            inverseJoinColumns = @JoinColumn(name = "PART_INFO_PROPERTY_FK")
+    )
+    protected Set<PartProperty> partProperties; //NOSONAR
 
     @Embedded
     protected Description description; //NOSONAR
-
-    @Embedded
-    protected PartProperties partProperties; //NOSONAR
 
     @Column(name = "HREF")
     protected String href;
@@ -54,19 +62,30 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     @Column(name = "IN_BODY")
     protected boolean inBody;
+
     @Transient
     protected DataHandler payloadDatahandler; //NOSONAR
+
     @Column(name = "MIME")
     private String mime;
 
     @Transient
     private long length = -1;
 
-    @Column(name = "PART_ORDER", nullable = false)
+    @Column(name = "PART_ORDER")
     private int partOrder = 0;
 
     @Column(name = "ENCRYPTED")
     protected Boolean encrypted;
+
+    public String getMimeProperty() {
+        return partProperties.stream()
+                .filter(partProperty -> partProperty.getName().equals(Ebms3Property.MIME_TYPE))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(Property::getValue)
+                .orElse(null);
+    }
 
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;
@@ -116,8 +135,24 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.encrypted = encrypted;
     }
 
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
+
+    public Set<PartProperty> getPartProperties() {
+        return partProperties;
+    }
+
+    public void setPartProperties(Set<PartProperty> partProperties) {
+        this.partProperties = partProperties;
+    }
+
     @PostLoad
-    private void loadBinaray() {
+    public void loadBinary() {
         if (fileName != null) { /* Create payload data handler from File */
             LOG.debug("LoadBinary from file: " + fileName);
             DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
@@ -151,28 +186,12 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         return encryptionService.getDecryptCipherForPayload();
     }
 
-    public Schema getSchema() {
-        return this.schema;
-    }
-
-    public void setSchema(final Schema value) {
-        this.schema = value;
-    }
-
     public Description getDescription() {
         return this.description;
     }
 
     public void setDescription(final Description value) {
         this.description = value;
-    }
-
-    public PartProperties getPartProperties() {
-        return this.partProperties;
-    }
-
-    public void setPartProperties(final PartProperties value) {
-        this.partProperties = value;
     }
 
     public String getHref() {
@@ -202,7 +221,6 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("schema", schema)
                 .append("description", description)
                 .append("partProperties", partProperties)
                 .append("href", href)
@@ -224,7 +242,6 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(schema, partInfo.schema)
                 .append(description, partInfo.description)
                 //.append(partProperties, partInfo.partProperties)
                 .append(href, partInfo.href)
@@ -235,7 +252,6 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(schema)
                 .append(description)
                 // .append(partProperties)
                 .append(href)

@@ -24,6 +24,7 @@ public class MessageLogResultRO implements Serializable {
     private NotificationStatus[] notifStatus;
 
     private Long count;
+    private boolean estimatedCount;
     private Integer page;
     private Integer pageSize;
 
@@ -97,5 +98,13 @@ public class MessageLogResultRO implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Boolean isEstimatedCount() {
+        return estimatedCount;
+    }
+
+    public void setEstimatedCount(boolean estimatedCount) {
+        this.estimatedCount = estimatedCount;
     }
 }

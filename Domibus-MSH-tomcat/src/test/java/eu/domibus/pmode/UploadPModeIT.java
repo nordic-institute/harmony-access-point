@@ -1,12 +1,12 @@
 package eu.domibus.pmode;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.messaging.XmlProcessingException;
@@ -14,6 +14,7 @@ import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
+import org.h2.tools.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +31,7 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -43,19 +43,17 @@ import static org.junit.Assert.*;
  * @author martifp
  * @author Catalin Enache
  */
-@DirtiesContext
-@Rollback
 @Transactional
 public class UploadPModeIT extends AbstractIT {
 
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
 
-    private static final String BLUE_2_RED_SERVICE1_ACTION1_PMODE_KEY = "blue_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "red_gw" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "testService1" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "tc1Action" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
-            "agreement1110" + MessageExchangeConfiguration.PMODEKEY_SEPARATOR + "pushTestcase1tc1Action";
+    private static final String BLUE_2_RED_SERVICE1_ACTION1_PMODE_KEY = "blue_gw" + PModeConstants.PMODEKEY_SEPARATOR +
+            "red_gw" + PModeConstants.PMODEKEY_SEPARATOR +
+            "testService1" + PModeConstants.PMODEKEY_SEPARATOR +
+            "tc1Action" + PModeConstants.PMODEKEY_SEPARATOR +
+            "agreement1110" + PModeConstants.PMODEKEY_SEPARATOR + "pushTestcase1tc1Action";
 
     private static final String PREFIX_MPC_URI = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/";
     public static final String SAMPLE_PMODES_DOMIBUS_CONFIGURATION_VALID_XML = "samplePModes/domibus-configuration-valid.xml";
@@ -126,9 +124,14 @@ public class UploadPModeIT extends AbstractIT {
      * PMODE Key  = Initiator Party: Responder Party: Service name: Action name: Agreement: Test case name
      */
     @Test
-    public void testVerifyPModeContent() throws IOException, JAXBException {
+    @Transactional
+    public void testVerifyPModeContent() throws IOException, JAXBException, SQLException {
+        Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
+
         InputStream is = getClass().getClassLoader().getResourceAsStream(SAMPLE_PMODES_DOMIBUS_CONFIGURATION_VALID_XML);
         Configuration configuration = testUpdatePModes(IOUtils.toByteArray(is));
+        pModeProvider.refresh();
+
         // Starts to check that the content of the XML file has actually been saved!
         Party receiverParty = pModeProvider.getReceiverParty(BLUE_2_RED_SERVICE1_ACTION1_PMODE_KEY);
         Validate.notNull(receiverParty, "Responder party was not found");
@@ -309,13 +312,12 @@ public class UploadPModeIT extends AbstractIT {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
-            assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate unique value [defaultMpc] declared for identity constraint of element \"mpcs\"."));
-            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate unique value [http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC] declared for identity constraint of element \"mpcs\"."));
-            assertTrue(ex.getIssues().get(2).getMessage().contains("Duplicate unique value [defaultInitiatorRole] declared for identity constraint of element \"roles\"."));
-            assertTrue(ex.getIssues().get(3).getMessage().contains("Duplicate unique value [partyTypeUrn] declared for identity constraint of element \"partyIdTypes\"."));
-            assertTrue(ex.getIssues().get(4).getMessage().contains("Duplicate unique value [urn:oasis:names:tc:ebcore:partyid-type:unregistered] declared for identity constraint of element \"partyIdTypes\"."));
-            assertTrue(ex.getIssues().get(5).getMessage().contains("Duplicate unique value [red_gw] declared for identity constraint of element \"parties\"."));
-            assertTrue(ex.getIssues().get(6).getMessage().contains("Duplicate unique value [oneway] declared for identity constraint of element \"meps\"."));
+            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate unique value [http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC]"));
+            assertTrue(ex.getIssues().get(2).getMessage().contains("[defaultInitiatorRole] declared for identity constraint \"uniqueRoleName\" of element \"roles\""));
+            assertTrue(ex.getIssues().get(3).getMessage().contains("Duplicate unique value [partyTypeUrn]"));
+            assertTrue(ex.getIssues().get(4).getMessage().contains("Duplicate unique value [urn:oasis:names:tc:ebcore:partyid-type:unregistered]"));
+            assertTrue(ex.getIssues().get(5).getMessage().contains("Duplicate unique value [red_gw]"));
+            assertTrue(ex.getIssues().get(6).getMessage().contains("Duplicate unique value [oneway]"));
         }
     }
 
@@ -356,6 +358,23 @@ public class UploadPModeIT extends AbstractIT {
             assertTrue(ex.getIssues().get(1).getMessage().contains("attribute 'value' on element 'partyIdType' is not valid with respect to its type, 'max1024-anyURI"));
             assertTrue(ex.getIssues().get(2).getMessage().contains("is not facet-valid with respect to maxLength '1024' for type 'max1024-anyURI"));
             assertTrue(ex.getIssues().get(3).getMessage().contains("attribute 'endpoint' on element 'party' is not valid with respect to its type, 'max1024-anyURI"));
+        }
+    }
+
+    /**
+     * Tests that the PMode uploaded successfully without payload profile.
+     */
+    @Test
+    public void testUploadPmode_WithOut_PayloadProfile() throws IOException {
+        String pmodeName = "domibus-pmode-without_payloadprofile.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-without_payloadprofile", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            assertEquals(response.getMessage(), "PMode file has been successfully uploaded.");
+        } catch (PModeValidationException ex) {
+            assertEquals(0, ex.getIssues().size());
+
         }
     }
 }

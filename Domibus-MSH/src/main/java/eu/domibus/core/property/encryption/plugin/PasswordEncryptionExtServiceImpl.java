@@ -5,7 +5,7 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
@@ -13,7 +13,6 @@ import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,24 +30,24 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
 
     protected final PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
-    protected final DomainCoreConverter domainCoreConverter;
+    protected final DomibusCoreMapper coreMapper;
 
     public PasswordEncryptionExtServiceImpl(
             PasswordEncryptionService passwordEncryptionService,
             PasswordEncryptionContextFactory passwordEncryptionContextFactory,
             PasswordDecryptionService passwordDecryptionService,
-            DomainCoreConverter domainCoreConverter) {
+            DomibusCoreMapper coreMapper) {
         this.passwordEncryptionService = passwordEncryptionService;
         this.passwordDecryptionService = passwordDecryptionService;
         this.passwordEncryptionContextFactory = passwordEncryptionContextFactory;
-        this.domainCoreConverter = domainCoreConverter;
+        this.coreMapper = coreMapper;
     }
 
     @Override
     public void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext) {
         LOG.debug("Encrypting passwords in file");
 
-        final Domain domain = domainCoreConverter.convert(pluginPasswordEncryptionContext.getDomain(), Domain.class);
+        final Domain domain = coreMapper.domainDTOToDomain(pluginPasswordEncryptionContext.getDomain());
         LOG.debug("Using domain [{}]", domain);
 
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
@@ -65,7 +64,7 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     public String decryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
         LOG.debug("Decrypting property [{}] for domain [{}]", propertyName, domainDTO);
 
-        final Domain domain = domainCoreConverter.convert(domainDTO, Domain.class);
+        final Domain domain = coreMapper.domainDTOToDomain(domainDTO);
         return passwordDecryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
     }
 
@@ -73,8 +72,8 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     public PasswordEncryptionResultDTO encryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domainDTO);
 
-        final Domain domain = domainCoreConverter.convert(domainDTO, Domain.class);
+        final Domain domain = coreMapper.domainDTOToDomain(domainDTO);
         final PasswordEncryptionResult passwordEncryptionResult = passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
-        return domainCoreConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
+        return coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO (passwordEncryptionResult);
     }
 }

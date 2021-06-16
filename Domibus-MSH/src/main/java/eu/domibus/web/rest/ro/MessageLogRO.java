@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
@@ -16,26 +15,56 @@ import java.util.Date;
 public class MessageLogRO implements Serializable {
 
     private String messageId;
+
     private String conversationId;
+
     private String fromPartyId;
+
     private String toPartyId;
+
     private MessageStatus messageStatus;
+
     private NotificationStatus notificationStatus;
+
     private MSHRole mshRole;
+
     private MessageType messageType;
+
     private Date deleted;
+
     private Date received;
+
     private int sendAttempts;
+
     private int sendAttemptsMax;
+
     private Date nextAttempt;
+
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
+
     private String originalSender;
+
     private String finalRecipient;
+
     private String refToMessageId;
+
     private Date failed;
+
     private Date restored;
-    private MessageSubtype messageSubtype;
+
+    private Boolean testMessage;
+
     private boolean messageFragment;
+
     private boolean sourceMessage;
+
+    private String action;
+
+    private String serviceType;
+
+    private String serviceValue;
 
     public String getMessageId() {
         return messageId;
@@ -141,6 +170,22 @@ public class MessageLogRO implements Serializable {
         this.nextAttempt = nextAttempt;
     }
 
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
+    }
+
     public String getOriginalSender() {
         return originalSender;
     }
@@ -181,12 +226,12 @@ public class MessageLogRO implements Serializable {
         this.restored = restored;
     }
 
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
     }
 
     public boolean getMessageFragment() {
@@ -203,6 +248,30 @@ public class MessageLogRO implements Serializable {
 
     public void setSourceMessage(boolean sourceMessage) {
         this.sourceMessage = sourceMessage;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
     }
 
 }

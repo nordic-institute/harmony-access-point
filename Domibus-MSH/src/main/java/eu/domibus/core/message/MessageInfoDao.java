@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageInfo;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
@@ -19,15 +18,12 @@ import java.util.List;
  */
 
 @Repository
-public class MessageInfoDao extends BasicDao<MessageInfo> {
+public class MessageInfoDao {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageInfoDao.class);
 
-    public MessageInfoDao() {
-        super(MessageInfo.class);
-    }
 
-    @Timer(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
+    /*@Timer(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
     @Counter(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
     public List<String> findSignalMessageIds(List<String> userMessageIds) {
         final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findMessageIdsWithRefToMessageIds", String.class);
@@ -47,6 +43,6 @@ public class MessageInfoDao extends BasicDao<MessageInfo> {
         int result  = deleteQuery.executeUpdate();
         LOG.debug("deleteMessages result [{}]", result);
         return result;
-    }
+    }*/
 }
 

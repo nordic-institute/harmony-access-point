@@ -1,9 +1,11 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3PullRequest;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.model.Error;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
@@ -44,6 +46,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -118,16 +121,17 @@ public class PullMessageSender {
         }
         LOG.debug("Initiate pull request");
         boolean notifyBusinessOnError = false;
-        Messaging messaging = null;
         String messageId = null;
         String mpcName = null;
+        UserMessage userMessage = null;
+        List<PartInfo> partInfos = null;
 
         try {
             final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
             final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
             notifyBusinessOnError = Boolean.valueOf(map.getStringProperty(PullContext.NOTIFY_BUSINNES_ON_ERROR));
-            SignalMessage signalMessage = new SignalMessage();
-            PullRequest pullRequest = new PullRequest();
+            Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
+            Ebms3PullRequest pullRequest = new Ebms3PullRequest();
             pullRequest.setMpc(mpcQualifiedName);
             signalMessage.setPullRequest(pullRequest);
             LOG.debug("Sending pull request with mpc:[{}]", mpcQualifiedName);
@@ -141,15 +145,18 @@ public class PullMessageSender {
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
             Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
 
-            if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
+            if (ebms3Messaging.getUserMessage() == null && ebms3Messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
-                logError(signalMessage);
+                logError(ebms3Messaging.getSignalMessage());
                 return;
             }
-            messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
-            handleResponse(response, messaging);
+
+            userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+            messageId = userMessage.getMessageId();
+
+            partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging, null);
+            handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;
             if (userMessageHandlerService.checkSelfSending(pModeKey)) {
@@ -165,8 +172,8 @@ public class PullMessageSender {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Error handling new UserMessage", e);
         } catch (final EbMS3Exception e) {
             try {
-                if (notifyBusinessOnError && messaging != null) {
-                    backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+                if (notifyBusinessOnError && userMessage != null) {
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
@@ -175,21 +182,21 @@ public class PullMessageSender {
         }
     }
 
-    protected void handleResponse(final SOAPMessage response, Messaging messaging) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
+    protected void handleResponse(final SOAPMessage response, UserMessage userMessage, List<PartInfo> partInfos) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
         LOG.trace("handle message");
-        Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+        Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
 
         // Find legConfiguration for the received UserMessage
-        MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING);
+        MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
         String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
         LOG.debug("pModeKey for received userMessage is [{}]", pModeKey);
 
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
         LOG.debug("legConfiguration for received userMessage is [{}]", legConfiguration.getName());
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, null, partInfos, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
+                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
 
     }
 
@@ -204,9 +211,9 @@ public class PullMessageSender {
     }
 
 
-    private void logError(SignalMessage signalMessage) {
-        Set<Error> error = signalMessage.getError();
-        for (Error error1 : error) {
+    private void logError(Ebms3SignalMessage signalMessage) {
+        Set<Ebms3Error> error = signalMessage.getError();
+        for (Ebms3Error error1 : error) {
             LOG.info(error1.getErrorCode() + " " + error1.getShortDescription());
         }
     }

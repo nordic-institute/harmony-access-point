@@ -1,5 +1,6 @@
 package eu.domibus.core.jpa;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -17,6 +18,8 @@ import java.sql.SQLException;
 /**
  * @author Sebastian-Ion TINCU
  * @since 4.2
+ *
+ * Transaction Isolation set to {@value Connection#TRANSACTION_READ_COMMITTED}
  */
 @Conditional(SingleTenantAwareEntityManagerCondition.class)
 @Service
@@ -24,7 +27,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConnectionProvider.class);
 
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 
@@ -36,13 +39,20 @@ public class DomibusConnectionProvider implements ConnectionProvider {
         LOG.trace("Getting new connection");
 
         String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
-        if(StringUtils.isBlank(mdcUser)) {
+        if (StringUtils.isBlank(mdcUser)) {
             String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
-        return dataSource.getConnection();
-   }
+        Connection connection = dataSource.getConnection();
+        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        connection.setAutoCommit(false);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+            LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
+        }
+        return connection;
+    }
 
     @Override
     public void closeConnection(Connection connection) throws SQLException {
@@ -52,7 +62,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.MessageCoreMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -30,7 +30,7 @@ public class UIMessageDiffEbms3ServiceImplTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private MessageCoreMapper messageCoreMapper;
 
     @Injectable
     UIMessageService uiMessageService;
@@ -116,7 +116,7 @@ public class UIMessageDiffEbms3ServiceImplTest {
         uiMessageDiffService.findAndSyncUIMessages();
 
         new FullVerifications(uiMessageDiffService) {{
-            uiMessageDiffService.convertToUIMessageEntity(uiMessageDiffEntity);
+            messageCoreMapper.uiMessageDiffEntityToUIMessageEntity(uiMessageDiffEntity);
 
             uiMessageService.saveOrUpdate(withAny(new UIMessageEntity()));
         }};
@@ -146,31 +146,9 @@ public class UIMessageDiffEbms3ServiceImplTest {
             uiMessageDiffService.findAll(actualValue = withCapture());
             Assert.assertEquals(limit, actualValue);
 
-            uiMessageDiffService.convertToUIMessageEntity(uiMessageDiffEntity);
+            messageCoreMapper.uiMessageDiffEntityToUIMessageEntity(uiMessageDiffEntity);
 
             uiMessageService.saveOrUpdate(withAny(new UIMessageEntity()));
         }};
     }
-
-    @Test
-    public void testConvertToUIMessageEntity_EntityNotNull_ResultOK(final @Mocked UIMessageDiffEntity uiMessageDiffEntity) {
-
-        //tested method
-        uiMessageDiffService.convertToUIMessageEntity(uiMessageDiffEntity);
-
-        new Verifications() {{
-            //just test the call to converter
-            domainConverter.convert(uiMessageDiffEntity, UIMessageEntity.class);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testConvertToUIMessageEntity_EntityNull_ResultNull(final @Mocked UIMessageDiffEntity uiMessageDiffEntity) {
-
-        //tested method
-        final UIMessageEntity uiMessageEntity = uiMessageDiffService.convertToUIMessageEntity(uiMessageDiffEntity);
-        Assert.assertNull(uiMessageEntity);
-    }
-
 }

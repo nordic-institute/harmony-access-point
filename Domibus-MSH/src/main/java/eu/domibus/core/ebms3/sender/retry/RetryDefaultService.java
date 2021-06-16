@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.sender.retry;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -41,7 +41,7 @@ public class RetryDefaultService implements RetryService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private PullMessageService pullMessageService;
@@ -83,7 +83,7 @@ public class RetryDefaultService implements RetryService {
     protected void doEnqueueMessage(String messageId) {
         LOG.trace("Enqueueing message for retrial [{}]", messageId);
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
 
         final LegConfiguration legConfiguration  = updateRetryLoggingService.getLegConfiguration(userMessage);
 

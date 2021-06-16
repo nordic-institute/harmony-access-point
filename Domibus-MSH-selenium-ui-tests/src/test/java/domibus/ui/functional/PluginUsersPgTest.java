@@ -512,58 +512,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
-	@Test(description = "*****", groups = {"multiTenancy", "singleTenancy"})
-	public void duplicatePluginUsersSameDomain() throws Exception {
-		String username = Gen.randomAlphaNumeric(10);
-		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
-		
-		SoftAssert soft = new SoftAssert();
-//		login with Admin and go to plugin users page
-		
-		PluginUsersPage page = new PluginUsersPage(driver);
-		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		
-		page.newUser(username, DRoles.USER, data.defaultPass(), data.defaultPass());
-		page.getSaveBtn().click();
-		new Dialog(driver).confirm();
-		
-		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(),
-				String.format(DMessages.PLUGINUSER_DUPLICATE_USERNAME, username, page.getDomainFromTitle()),
-				"Error message is shown");
-		
-		rest.pluginUsers().deletePluginUser(username, null);
-		soft.assertAll();
-	}
-	
-	@Test(description = "*****", groups = {"multiTenancy"})
-	public void domainVisibility() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		
-		String username = Gen.randomAlphaNumeric(10);
-		
-		String domainName = rest.getNonDefaultDomain();
-		String domainCode = rest.getDomainCodeForName(domainName);
-		rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), domainCode);
-		log.debug("Plugin user created: " + username);
 
-//		go to plugin users page
-		PluginUsersPage page = new PluginUsersPage(driver);
-		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		page.grid().waitForRowsToLoad();
-		
-		soft.assertTrue(page.grid().scrollTo("User Name", username) == -1, "Plugin user is not visible on default domain.");
-		
-		page.getDomainSelector().selectOptionByText(domainName);
-		page.grid().waitForRowsToLoad();
-		
-		soft.assertTrue(page.grid().scrollTo("User Name", username) > -1, "Plugin user is visible on domain1.");
-		
-		rest.pluginUsers().deletePluginUser(username, domainCode);
-		soft.assertAll();
-	}
-	
 
 	/*	PU-32 - Create duplicate plugin users by smashing the save button multiple times 	*/
 	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})

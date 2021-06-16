@@ -1,9 +1,11 @@
 package eu.domibus.core.alerts.model.persist;
 
-import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.TimezoneOffset;
+import eu.domibus.api.scheduler.Reprogrammable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -22,11 +24,11 @@ import java.util.Set;
 @Entity
 @Table(name = "TB_ALERT")
 @NamedQueries({
-        @NamedQuery(name = "Alert.findRetry", query = "SELECT a FROM Alert a where a.alertStatus='RETRY' and a.nextAttempt < CURRENT_TIMESTAMP()"),
+        @NamedQuery(name = "Alert.findRetry", query = "SELECT a FROM Alert a where a.alertStatus='RETRY' and a.nextAttempt < :CURRENT_TIMESTAMP"),
         @NamedQuery(name = "Alert.findAlertToClean", query = "SELECT a FROM Alert a where a.creationTime<:ALERT_LIMIT_DATE"),
         @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID")
 })
-public class Alert extends AbstractBaseEntity{
+public class Alert extends AbstractBaseEntity implements Reprogrammable {
 
     @Column(name = "PROCESSED")
     private boolean processed;
@@ -47,6 +49,10 @@ public class Alert extends AbstractBaseEntity{
     @Column(name = "NEXT_ATTEMPT")
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
 
     @Column(name = "ATTEMPTS_NUMBER")
     private Integer attempts;
@@ -110,12 +116,24 @@ public class Alert extends AbstractBaseEntity{
         this.reportingTime = reportingTime;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset nextAttemptTimezoneOffset) {
+        this.timezoneOffset = nextAttemptTimezoneOffset;
     }
 
     public Integer getAttempts() {

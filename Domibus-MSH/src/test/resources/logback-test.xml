@@ -7,7 +7,9 @@
         </encoder>
     </appender>
     <logger name="eu.domibus" level="INFO"/>
-    <logger name="com.atomikos" level="ERROR"/>
+    <logger name="org.apache.cxf" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
     <root level="INFO">
         <appender-ref ref="stdout"/>
     </root>

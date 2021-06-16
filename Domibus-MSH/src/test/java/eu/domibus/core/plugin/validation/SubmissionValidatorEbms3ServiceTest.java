@@ -40,7 +40,7 @@ public class SubmissionValidatorEbms3ServiceTest {
     public void testValidateSubmissionForUnsupportedNotificationType(@Injectable final Submission submission,
                                                                      @Injectable final UserMessage userMessage) {
         final String backendName = "customPlugin";
-        submissionValidatorService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED_FAILURE);
+        submissionValidatorService.validateSubmission(userMessage, null, backendName, NotificationType.MESSAGE_RECEIVED_FAILURE);
 
         new FullVerifications() {
         };
@@ -54,7 +54,7 @@ public class SubmissionValidatorEbms3ServiceTest {
                                                                         @Injectable final SubmissionValidator validator2) {
         final String backendName = "customPlugin";
         new Expectations() {{
-            submissionAS4Transformer.transformFromMessaging(userMessage);
+            submissionAS4Transformer.transformFromMessaging(userMessage, null);
             result = submission;
             submissionValidatorListProvider.getSubmissionValidatorList(backendName);
             result = submissionValidatorList;
@@ -65,7 +65,7 @@ public class SubmissionValidatorEbms3ServiceTest {
         }};
 
         thrown.expect(SubmissionValidationException.class);
-        submissionValidatorService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED);
+        submissionValidatorService.validateSubmission(userMessage, null, backendName, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -79,7 +79,7 @@ public class SubmissionValidatorEbms3ServiceTest {
                                                               @Injectable final SubmissionValidator validator2) {
         final String backendName = "customPlugin";
         new Expectations() {{
-            submissionAS4Transformer.transformFromMessaging(userMessage);
+            submissionAS4Transformer.transformFromMessaging(userMessage, null);
             result = submission;
             submissionValidatorListProvider.getSubmissionValidatorList(backendName);
             result = submissionValidatorList;
@@ -87,7 +87,7 @@ public class SubmissionValidatorEbms3ServiceTest {
             result = new SubmissionValidator[]{validator1, validator2};
         }};
 
-        submissionValidatorService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED);
+        submissionValidatorService.validateSubmission(userMessage, null, backendName, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {{
             validator1.validate(submission);
@@ -109,7 +109,7 @@ public class SubmissionValidatorEbms3ServiceTest {
             result = null;
         }};
 
-        submissionValidatorService.validateSubmission(userMessage, backendName, NotificationType.MESSAGE_RECEIVED);
+        submissionValidatorService.validateSubmission(userMessage,null, backendName, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };

@@ -5,7 +5,7 @@
 
 
     <jaxws:bindings node="wsdl:definitions">
-        <jaxws:package name="eu.domibus.plugin.webservice.generated"/>
+        <jaxws:package name="eu.domibus.plugin.ws.generated"/>
     </jaxws:bindings>
 
 </jaxws:bindings>

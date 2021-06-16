@@ -3,6 +3,7 @@ package pages.properties;
 import ddsl.dcomponents.grid.DGrid;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -13,6 +14,8 @@ public class PropGrid extends DGrid {
 
 	public PropGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
+
+		this.container = container;
 	}
 
 	private final String valKey = "Property Value";
@@ -93,9 +96,7 @@ public class PropGrid extends DGrid {
 		WebElement inputElement = rowElement.findElement(rowInput);
 		weToDInput(inputElement).fill(value);
 
-		WebElement saveElem = rowElement.findElement(rowSave);
-		weToDButton(saveElem).click();
-		wait.forElementToBeDisabled(saveElem);
+		inputElement.sendKeys(Keys.ENTER);
 	}
 
 	public void setPropRowValueAndRevert(int rowNumber, String value) throws Exception {
@@ -107,10 +108,11 @@ public class PropGrid extends DGrid {
 
 		WebElement undoElem = rowElement.findElement(rowUndo);
 
-		wait.forXMillis(1000);
+		wait.forElementToBeEnabled(undoElem);
 
 		weToDButton(undoElem).click();
 		wait.forElementToBeDisabled(undoElem);
+		wait.forXMillis(1000);
 	}
 
 

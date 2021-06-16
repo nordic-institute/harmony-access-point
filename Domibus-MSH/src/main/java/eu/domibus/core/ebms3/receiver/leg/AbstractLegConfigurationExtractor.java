@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.api.model.MessageInfo;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -15,14 +15,14 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
 
     protected final SoapMessage message;
 
-    protected final Messaging messaging;
+    protected final Ebms3Messaging ebms3Messaging;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
 
 
-    public AbstractLegConfigurationExtractor(final SoapMessage message, final Messaging messaging) {
+    public AbstractLegConfigurationExtractor(final SoapMessage message, final Ebms3Messaging ebms3Messaging) {
         this.message = message;
-        this.messaging = messaging;
+        this.ebms3Messaging = ebms3Messaging;
     }
 
 
@@ -32,10 +32,10 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
     public void setUpMessage(final String pmodeKey) {
         //set the messageId in the MDC context
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, getMessageId());
-        message.getExchange().put(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
-        message.put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
+        message.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
+        message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
         //FIXME: Test!!!!
-        message.getExchange().put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
+        message.getExchange().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
     }
 
 

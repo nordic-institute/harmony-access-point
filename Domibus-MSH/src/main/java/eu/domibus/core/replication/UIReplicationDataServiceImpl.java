@@ -1,23 +1,18 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.api.model.MessageLog;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.message.UserMessageDefaultServiceHelper;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 
 /**
@@ -44,7 +39,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private SignalMessageLogDao signalMessageLogDao;
@@ -53,7 +48,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -91,7 +86,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      */
     @Override
     public void messageChange(String messageId, long jmsTimestamp) {
-
+/*
         int timeToWait = getWaitTimeBeforePerformingUpdate();
         LOG.debug("wait [{}] ms and then start the update", timeToWait);
         try {
@@ -121,7 +116,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
                 return;
             }
         }
-        LOG.debug("messageChange skipped for messageId=[{}]", messageId);
+        LOG.debug("messageChange skipped for messageId=[{}]", messageId);*/
     }
 
     private int getWaitTimeBeforePerformingUpdate() {
@@ -159,16 +154,19 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      * @param jmsTimestamp
      */
     void createUIMessageFromUserMessageLog(String messageId, long jmsTimestamp) {
-        final MessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+       /* final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
         UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
-        entity.setRefToMessageId(userMessage.getMessageInfo().getRefToMessageId());
-        entity.setConversationId(userMessage.getCollaborationInfo().getConversationId());
+        entity.setRefToMessageId(userMessage.getRefToMessageId());
+        entity.setConversationId(userMessage.getConversationId());
+        entity.setAction(userMessage.getActionValue());
+        entity.setServiceType(userMessage.getService().getType());
+        entity.setServiceValue(userMessage.getService().getValue());
 
         uiMessageDao.create(entity);
 
-        LOG.debug("UserMessage with messageId=[{}] inserted", messageId);
+        LOG.debug("UserMessage with messageId=[{}] inserted", messageId);*/
     }
 
     /**
@@ -178,23 +176,24 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      * @param jmsTimestamp
      */
     void createUIMessageFromSignalMessageLog(String messageId, final long jmsTimestamp) {
-        final MessageLog signalMessageLog = signalMessageLogDao.findByMessageId(messageId);
-        final SignalMessage signalMessage = messagingDao.findSignalMessageByMessageId(messageId);
+        final SignalMessage signalMessage = signalMessageDao.findBySignalMessageId(messageId);
 
-        final Messaging messaging = messagingDao.findMessageByMessageId(signalMessage.getMessageInfo().getRefToMessageId());
-        final UserMessage userMessage = messaging.getUserMessage();
-
-        UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
-        entity.setRefToMessageId(signalMessage.getMessageInfo().getRefToMessageId());
+        UIMessageEntity entity = null;//TODO createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
+        entity.setRefToMessageId(signalMessage.getRefToMessageId());
         entity.setConversationId(StringUtils.EMPTY);
         uiMessageDao.create(entity);
 
         LOG.debug("SignalMessage with messageId=[{}] inserted", messageId);
     }
 
-    private UIMessageEntity createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog messageLog, UserMessage userMessage) {
-        //domain converter
-        UIMessageEntity entity = domainConverter.convert(messageLog, UIMessageEntity.class);
+/*    private UIMessageEntity createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog messageLog, UserMessage userMessage) {
+        UIMessageEntity entity;
+        //converter
+        if (messageLog instanceof UserMessageLog) {
+           entity = coreMapper.userMessageLogToUIMessageEntity((UserMessageLog) messageLog);
+        } else {
+            entity = coreMapper.signalMessageLogToUIMessageEntity((SignalMessageLog) messageLog);
+        }
 
         entity.setEntityId(0); //be sure isn't set to null
         entity.setMessageId(messageId);
@@ -204,8 +203,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         entity.setFromScheme(userMessageDefaultServiceHelper.getOriginalSender(userMessage));
         entity.setToScheme(userMessageDefaultServiceHelper.getFinalRecipient(userMessage));
         entity.setLastModified(new Date(jmsTimestamp));
-
         return entity;
-    }
+    }*/
 
 }

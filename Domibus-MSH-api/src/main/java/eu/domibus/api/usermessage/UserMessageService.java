@@ -36,15 +36,13 @@ public interface UserMessageService {
 
     String getFinalRecipient(final String messageId);
 
-    Map<String,String> getProperties(String messageId);
+    Map<String,String> getProperties(Long messageEntityId);
 
     String getOriginalSender(String messageId);
 
     List<String> getFailedMessages(String finalRecipient);
 
     Long getFailedMessageElapsedTime(String messageId);
-
-    void restoreFailedMessage(String messageId);
 
     void sendEnqueuedMessage(String messageId);
 

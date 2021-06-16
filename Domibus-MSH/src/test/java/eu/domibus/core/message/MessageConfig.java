@@ -1,5 +1,7 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,8 +12,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageConfig {
     @Bean
-    public UserMessageLogDao userMessageLogDao() {
-        return new UserMessageLogDao();
+    public UserMessageLogDao userMessageLogDao(DateUtil dateUtil,
+                                               UserMessageLogInfoFilter userMessageLogInfoFilter,
+                                               MessageStatusDao messageStatusDao,
+                                               NotificationStatusDao notificationStatusDao,
+                                               ReprogrammableService reprogrammableService) {
+        return new UserMessageLogDao(dateUtil, userMessageLogInfoFilter, messageStatusDao, notificationStatusDao, reprogrammableService);
     }
 
     @Bean
@@ -20,8 +26,23 @@ public class MessageConfig {
     }
 
     @Bean
-    public PropertyDao propertyDao() {
-        return new PropertyDao();
+    public MessageStatusDao messageStatusDao() {
+        return new MessageStatusDao();
+    }
+
+    @Bean
+    public NotificationStatusDao notificationStatusDao() {
+        return new NotificationStatusDao();
+    }
+
+    @Bean
+    public UserMessageDao userMessageDao() {
+        return new UserMessageDao();
+    }
+
+    @Bean
+    public MessagePropertyDao propertyDao() {
+        return new MessagePropertyDao();
     }
 
     @Bean

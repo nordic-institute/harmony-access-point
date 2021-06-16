@@ -1,16 +1,18 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -45,26 +47,30 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     @Autowired
     protected PModeProvider pModeProvider;
 
+    @Autowired
+    protected Ebms3Converter ebms3Converter;
+
     @Override
     @Timer(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
     @Counter(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
-    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
+    public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         SOAPMessage responseMessage = null;
         String pmodeKey = null;
         try {
-            pmodeKey = (String) request.getProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+            pmodeKey = (String) request.getProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
         } catch (final SOAPException soapEx) {
             //this error should never occur because pmode handling is done inside the in-interceptorchain
             LOG.error("Cannot find PModeKey property for incoming Message", soapEx);
             assert false;
         }
-        Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+        final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
-            responseMessage = processMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+            responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
             LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                    messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
+                    ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
 
             LOG.debug("Ping message {}", testMessage);
         } catch (TransformerException | SOAPException | JAXBException | IOException e) {
@@ -72,15 +78,15 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         } catch (final EbMS3Exception e) {
             try {
                 if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                    backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, null, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
-                LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messaging.getUserMessage().getMessageInfo().getMessageId());
+                LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());
             }
             throw new WebServiceException(e);
         }
         return responseMessage;
     }
 
-    protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
+    protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
 }

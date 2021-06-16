@@ -5,10 +5,9 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import mockit.*;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class PasswordEncryptionExtServiceImplTest {
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
     @Injectable
-    protected DomainCoreConverter domainCoreConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Test
     public void encryptPasswordsInFile(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
@@ -41,7 +40,7 @@ public class PasswordEncryptionExtServiceImplTest {
                                        @Injectable PasswordEncryptionContext passwordEncryptionContext,
                                        @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
         new Expectations() {{
-            domainCoreConverter.convert(pluginPasswordEncryptionContext.getDomain(), Domain.class);
+            coreMapper.domainDTOToDomain(pluginPasswordEncryptionContext.getDomain());
             result = domain;
 
             passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
@@ -93,7 +92,7 @@ public class PasswordEncryptionExtServiceImplTest {
                                 @Injectable Domain domain,
                                 @Injectable PasswordEncryptionResult passwordEncryptionResult) {
         new Expectations() {{
-            domainCoreConverter.convert(domainDTO, Domain.class);
+            coreMapper.domainDTOToDomain(domainDTO);
             result = domain;
 
             passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
@@ -103,7 +102,7 @@ public class PasswordEncryptionExtServiceImplTest {
         passwordEncryptionExtService.encryptProperty(domainDTO, propertyName, encryptedFormatValue);
 
         new FullVerifications() {{
-            domainCoreConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
+            coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO(passwordEncryptionResult);
         }};
     }
 }

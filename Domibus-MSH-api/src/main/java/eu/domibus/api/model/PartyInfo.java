@@ -4,7 +4,6 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
@@ -16,6 +15,21 @@ public class PartyInfo {
 
     @Embedded
     protected To to;
+
+    public String getFromParty() {
+        if(from == null || from.getPartyId() == null) {
+            return null;
+        }
+
+        return from.getPartyId().getValue();
+    }
+
+    public String getToParty() {
+        if(to == null || to.getPartyId() == null) {
+            return null;
+        }
+        return to.getPartyId().getValue();
+    }
 
     public From getFrom() {
         return this.from;

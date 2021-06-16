@@ -127,7 +127,7 @@ public class FileSystemPayloadPersistenceTest {
                                          @Injectable String backendName) throws IOException, EbMS3Exception {
 
         new Expectations(fileSystemPayloadPersistence) {{
-            userMessage.isUserMessageFragment();
+            userMessage.isMessageFragment();
             result = false;
 
             storageProvider.getCurrentStorage();

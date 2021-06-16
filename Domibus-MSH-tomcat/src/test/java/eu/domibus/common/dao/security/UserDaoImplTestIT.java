@@ -1,10 +1,12 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
+import org.h2.tools.Server;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -29,7 +32,7 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Autowired
     private UserDao userDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
 
     @Test
@@ -128,7 +131,9 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
-    public void existsWithName() {
+    public void existsWithName() throws SQLException {
+
+
         String userName = "user1ForExistsTest";
         User user = createUser(userName);
         user.setDeleted(true);

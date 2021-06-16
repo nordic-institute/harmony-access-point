@@ -1,10 +1,8 @@
 package eu.domibus.core.ebms3.receiver.token;
 
 import com.sun.xml.messaging.saaj.soap.impl.TextImpl;
-import eu.domibus.core.ebms3.receiver.MessageTestUtility;
 import eu.domibus.core.ebms3.receiver.interceptor.TrustSenderInterceptor;
-import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
-import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
+import eu.domibus.test.common.MessageTestUtility;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
@@ -120,16 +118,16 @@ public class TokenReferenceExtractorTest {
 
     @Test
     public void testGetSecTokenRefWithSpacesWithMock(@Mocked final Element securityHeader,
-                                          @Mocked final Element signature,
-                                          @Mocked final Element keyInfo,
-                                          @Mocked final Node textNode,
-                                         @Mocked final Element securityTokenrRefecence) throws WSSecurityException {
+                                                     @Mocked final Element signature,
+                                                     @Mocked final Element keyInfo,
+                                                     @Mocked final Node textNode,
+                                                     @Mocked final Element securityTokenrRefecence) throws WSSecurityException {
 
         new Expectations() {{
             securityHeader.getFirstChild();
             result = signature;
             signature.getLocalName();
-            result =WSConstants.SIGNATURE.getLocalPart();
+            result = WSConstants.SIGNATURE.getLocalPart();
             signature.getNamespaceURI();
             result = WSConstants.SIGNATURE.getNamespaceURI();
             signature.getFirstChild();
@@ -143,7 +141,7 @@ public class TokenReferenceExtractorTest {
             textNode.getNodeType();
             result = Node.TEXT_NODE;
             textNode.getNextSibling();
-            result =securityTokenrRefecence;
+            result = securityTokenrRefecence;
             securityTokenrRefecence.getNodeType();
             result = Node.ELEMENT_NODE;
         }};
@@ -175,11 +173,11 @@ public class TokenReferenceExtractorTest {
             someNode.getNodeType();
             result = Node.TEXT_NODE;
             someNode.getNextSibling();
-            result =textNode;
+            result = textNode;
             textNode.getNodeType();
             result = Node.TEXT_NODE;
             textNode.getNextSibling();
-            result =resultElement;
+            result = resultElement;
             resultElement.getNodeType();
             result = Node.ELEMENT_NODE;
         }};

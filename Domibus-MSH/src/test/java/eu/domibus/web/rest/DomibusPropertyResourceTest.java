@@ -2,10 +2,11 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
+import eu.domibus.core.property.DomibusPropertyMetadataMapper;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
@@ -43,21 +44,21 @@ public class DomibusPropertyResourceTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
-
-    @Injectable
-    protected DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     CsvServiceImpl csvService;
+
+    @Injectable
+    DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
 
     @Test
     public void getProperty(@Mocked DomibusProperty prop, @Mocked DomibusPropertyRO convertedProp) {
         new Expectations() {{
             domibusPropertyResourceHelper.getProperty("propertyName");
             result = prop;
-            domainConverter.convert(prop, DomibusPropertyRO.class);
-            result = convertedProp;
+//            coreMapper.propertyApiToPropertyRO(prop);
+//            result = convertedProp;
         }};
 
         DomibusPropertyRO res = domibusPropertyResource.getProperty("propertyName");
@@ -76,12 +77,12 @@ public class DomibusPropertyResourceTest {
         items.add(prop);
 
         new Expectations() {{
-            domainConverter.convert(request, DomibusPropertiesFilter.class);
-            result = filter;
+//            coreMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter(request);
+//            result = filter;
             domibusPropertyResourceHelper.getAllProperties(filter);
             result = items;
-            domainConverter.convert(items, DomibusPropertyRO.class);
-            result = convertedItems;
+//            coreMapper.domibusPropertyListToDomibusPropertyROList(items);
+//            result = convertedItems;
         }};
 
         ResponseEntity<String> res = domibusPropertyResource.getCsv(request);

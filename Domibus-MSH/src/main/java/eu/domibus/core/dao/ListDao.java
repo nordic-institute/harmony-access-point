@@ -1,6 +1,7 @@
 package eu.domibus.core.dao;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.DomibusBaseEntity;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @author Ion Perpegel
  * @since 4.1
  */
-public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> {
+public abstract class ListDao<T extends DomibusBaseEntity> extends BasicDao<T> {
 
     /**
      * @param typeOfT The entity class this DAO provides access to

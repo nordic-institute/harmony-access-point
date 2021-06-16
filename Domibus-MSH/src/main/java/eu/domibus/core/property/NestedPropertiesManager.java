@@ -52,7 +52,7 @@ public class NestedPropertiesManager {
         LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, propertyPrefix);
         List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
                 .map(property -> StringUtils.substringAfter(property, propertyPrefix))
-                .filter(property -> StringUtils.containsNone(property, ".")).collect(Collectors.toList());
+                /*.filter(property -> StringUtils.containsNone(property, "."))*/.collect(Collectors.toList());
         if (CollectionUtils.isEmpty(firstLevelProperties)) {
             LOG.debug("No first level properties found starting with prefix [{}]", propertyPrefix);
             return result;

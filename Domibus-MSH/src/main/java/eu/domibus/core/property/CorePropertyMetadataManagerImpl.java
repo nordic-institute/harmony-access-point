@@ -30,27 +30,13 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
             new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, Usage.DOMAIN, false),
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD, Type.PASSWORD, true),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_URL, Type.URI),
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME, Type.CLASS),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_URL, Type.URI),
-
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_PASSWORD, Type.PASSWORD, true),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME, Type.NUMERIC),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE, Type.NUMERIC),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE, Type.NUMERIC),
-
             new DomibusPropertyMetadata(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY, Type.CLASS, Module.MSH, false, Usage.GLOBAL, false, false, false, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN, Type.CLASS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS, Type.CLASS),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_JDBC_FETCH, Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT, Type.CLASS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL, Type.BOOLEAN),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_FACTORY_CLASS, Type.CLASS),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_JTA_PLATFORM, Type.CLASS),
 
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, false, Usage.GLOBAL_AND_DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, false, Usage.GLOBAL_AND_DOMAIN, false),
@@ -99,6 +85,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_NAME, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_EMAIL, Type.EMAIL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_CSV_MAX_ROWS, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_TYPE, Type.STRING, false, Usage.DOMAIN, false),
@@ -174,6 +161,10 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CACHEABLE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_PRIORITY, Module.MSH, false, Usage.DOMAIN, false, false, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY, Type.STRING, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_PARALLELDELETIONJOBSNO, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_DELETIONJOBINTERVAL, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
@@ -186,7 +177,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_HOST, Type.URI),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_PORT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PROXY_PASSWORD, Type.PASSWORD, true),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_PASSWORD, Type.PASSWORD, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, Type.JNDI),
@@ -233,6 +224,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
 
@@ -316,6 +309,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_EXCEPTIONS_REST_ENABLE, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
@@ -324,7 +318,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
 
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC)
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

@@ -1,6 +1,5 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.metrics.Counter;
@@ -17,6 +16,7 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
@@ -156,15 +156,16 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
         try {
             int rowsUpdated = this.em.createNamedQuery("UIMessageEntity.updateMessage", UIMessageEntity.class)
                     .setParameter(1, userMessageLog.getMessageStatus().name())
-                    .setParameter(2, userMessageLog.getNotificationStatus().name())
+                    .setParameter(2, userMessageLog.getNotificationStatus().getStatus().name())
                     .setParameter(3, userMessageLog.getDeleted(), TemporalType.TIMESTAMP)
                     .setParameter(4, userMessageLog.getFailed(), TemporalType.TIMESTAMP)
                     .setParameter(5, userMessageLog.getRestored(), TemporalType.TIMESTAMP)
                     .setParameter(6, userMessageLog.getNextAttempt(), TemporalType.TIMESTAMP)
-                    .setParameter(7, userMessageLog.getSendAttempts())
-                    .setParameter(8, userMessageLog.getSendAttemptsMax())
-                    .setParameter(9, new Date(lastModified), TemporalType.TIMESTAMP)
-                    .setParameter(10, userMessageLog.getMessageId())
+                    .setParameter(7, userMessageLog.getTimezoneOffset())
+                    .setParameter(8, userMessageLog.getSendAttempts())
+                    .setParameter(9, userMessageLog.getSendAttemptsMax())
+                    .setParameter(10, new Date(lastModified), TemporalType.TIMESTAMP)
+                    .setParameter(11, userMessageLog.getUserMessage().getMessageId())
                     .executeUpdate();
             return rowsUpdated == 1;
 
@@ -196,8 +197,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
                     predicates.add(cb.equal(ume.<String>get(filterKey), filterValue));
                 }
             } else {
-                if (filterKey.equals("messageSubtype")) {
-                    predicates.add(cb.isNull(ume.<MessageSubtype>get("messageSubtype")));
+                if (filterKey.equals("testMessage")) {
+                    predicates.add(cb.isNull(ume.<Boolean>get("testMessage")));
                 }
             }
         }
@@ -213,6 +214,21 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
         int result  = deleteQuery.executeUpdate();
         LOG.trace("deleteUIMessagesByMessageIds result [{}]", result);
         return result;
+    }
+
+    @Override
+    public boolean hasMoreEntriesThan(Map<String, Object> filters, int limit) {
+        CriteriaBuilder cb = this.em.getCriteriaBuilder();
+        CriteriaQuery<Number> cq = cb.createQuery(Number.class);
+        Root<UIMessageEntity> mle = cq.from(typeOfT);
+        cq.select(mle.get(UIMessageEntity_.MESSAGE_ID));
+        List<Predicate> predicates = getPredicates(filters, cb, mle);
+        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        TypedQuery<Number> query = em.createQuery(cq);
+        query.setMaxResults(1);
+        query.setFirstResult(limit + 1);
+        final List<Number> results = query.getResultList();
+        return results.size() > 0;
     }
 
     private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {

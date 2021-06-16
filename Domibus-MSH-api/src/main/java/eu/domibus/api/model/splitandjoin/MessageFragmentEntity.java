@@ -1,10 +1,9 @@
 package eu.domibus.api.model.splitandjoin;
 
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractNoGeneratedPkEntity;
+import eu.domibus.api.model.UserMessage;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Entity class for storing message fragments
@@ -13,22 +12,20 @@ import javax.persistence.Table;
  * @since 4.1
  */
 @Entity
-@Table(name = "TB_MESSAGE_FRAGMENT")
-public class MessageFragmentEntity extends AbstractBaseEntity {
-
-    @Column(name = "GROUP_ID")
-    protected String groupId;
+@Table(name = "TB_SJ_MESSAGE_FRAGMENT")
+public class MessageFragmentEntity extends AbstractNoGeneratedPkEntity {
 
     @Column(name = "FRAGMENT_NUMBER")
     protected Long fragmentNumber;
 
-    public String getGroupId() {
-        return groupId;
-    }
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
+    @MapsId
+    private UserMessage userMessage;
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "GROUP_ID_FK")
+    protected MessageGroupEntity group;
 
     public Long getFragmentNumber() {
         return fragmentNumber;
@@ -36,5 +33,21 @@ public class MessageFragmentEntity extends AbstractBaseEntity {
 
     public void setFragmentNumber(Long fragmentNumber) {
         this.fragmentNumber = fragmentNumber;
+    }
+
+    public MessageGroupEntity getGroup() {
+        return group;
+    }
+
+    public void setGroup(MessageGroupEntity group) {
+        this.group = group;
+    }
+
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
     }
 }

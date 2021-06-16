@@ -1,9 +1,9 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -12,15 +12,15 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.pmode.validation.validators.OneWayMepValidator;
-import eu.domibus.core.property.*;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.multitenancy.DomainServiceImpl;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.multitenancy.dao.DomainDaoImpl;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
+import eu.domibus.core.pmode.validation.validators.OneWayMepValidator;
 import eu.domibus.core.pmode.validation.validators.TwoWayMepValidator;
+import eu.domibus.core.property.*;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
@@ -139,8 +139,8 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomainCoreConverter domainConverter() {
-            return Mockito.mock(DomainCoreConverter.class);
+        public DomibusCoreMapper coreMapper() {
+            return Mockito.mock(DomibusCoreMapper.class);
         }
 
         @Bean

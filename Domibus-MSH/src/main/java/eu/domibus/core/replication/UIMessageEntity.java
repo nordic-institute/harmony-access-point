@@ -1,11 +1,8 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.*;
+import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.AbstractBaseEntity;
-import eu.domibus.api.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -31,12 +28,12 @@ import java.util.Date;
 @NamedNativeQueries({
         @NamedNativeQuery(
                 name    =   "UIMessageEntity.updateMessage",
-                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, FAILED=?4, RESTORED=?5, NEXT_ATTEMPT=?6, SEND_ATTEMPTS=?7, SEND_ATTEMPTS_MAX=?8, LAST_MODIFIED=?9 " +
-                        " WHERE MESSAGE_ID=?10"
+                query   =   "UPDATE TB_MESSAGE_UI SET MESSAGE_STATUS=?1, NOTIFICATION_STATUS=?2, DELETED=?3, FAILED=?4, RESTORED=?5, NEXT_ATTEMPT=?6, FK_TIMEZONE_OFFSET=?7, SEND_ATTEMPTS=?8, SEND_ATTEMPTS_MAX=?9, LAST_MODIFIED=?10 " +
+                        " WHERE MESSAGE_ID=?11"
                 ,resultSetMapping = "updateResult"
         )
 })
-public class UIMessageEntity extends AbstractBaseEntity {
+public class UIMessageEntity extends AbstractBaseEntity implements Reprogrammable {
 
     @Column(name = "MESSAGE_ID")
     private String messageId;
@@ -53,9 +50,8 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Column(name = "MESSAGE_TYPE")
     private MessageType messageType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MESSAGE_SUBTYPE")
-    private MessageSubtype messageSubtype;
+    @Column(name = "TEST_MESSAGE")
+    private Boolean testMessage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
@@ -90,6 +86,10 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
+
     @Column(name = "FROM_ID")
     private String fromId;
 
@@ -104,6 +104,15 @@ public class UIMessageEntity extends AbstractBaseEntity {
 
     @Column(name = "REF_TO_MESSAGE_ID")
     private String refToMessageId;
+
+    @Column(name = "ACTION")
+    private String action;
+
+    @Column(name = "SERVICE_TYPE")
+    private String serviceType;
+
+    @Column(name = "SERVICE_VALUE")
+    private String serviceValue;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LAST_MODIFIED", nullable = false)
@@ -149,12 +158,12 @@ public class UIMessageEntity extends AbstractBaseEntity {
         this.messageType = messageType;
     }
 
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMessage(Boolean testMesage) {
+        this.testMessage = testMesage;
     }
 
     public String getConversationId() {
@@ -213,12 +222,24 @@ public class UIMessageEntity extends AbstractBaseEntity {
         this.sendAttemptsMax = sendAttemptsMax;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public String getFromId() {
@@ -269,6 +290,30 @@ public class UIMessageEntity extends AbstractBaseEntity {
         this.lastModified = version;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -285,7 +330,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(messageStatus, that.messageStatus)
                 .append(notificationStatus, that.notificationStatus)
                 .append(messageType, that.messageType)
-                .append(messageSubtype, that.messageSubtype)
                 .append(mshRole, that.mshRole)
                 .append(conversationId, that.conversationId)
                 .append(deleted, that.deleted)
@@ -298,6 +342,9 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(toId, that.toId)
                 .append(toScheme, that.toScheme)
                 .append(refToMessageId, that.refToMessageId)
+                .append(action, this.action)
+                .append(serviceType, this.serviceType)
+                .append(serviceValue, this.serviceValue)
                 .isEquals();
     }
 
@@ -309,7 +356,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(messageStatus)
                 .append(notificationStatus)
                 .append(messageType)
-                .append(messageSubtype)
                 .append(mshRole)
                 .append(conversationId)
                 .append(deleted)
@@ -324,6 +370,9 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(toId)
                 .append(toScheme)
                 .append(refToMessageId)
+                .append(action)
+                .append(serviceType)
+                .append(serviceValue)
                 .toHashCode();
     }
 }

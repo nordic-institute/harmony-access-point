@@ -9,7 +9,7 @@ import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.*;
@@ -49,9 +48,6 @@ public class UserPersistenceServiceImplTest {
     private BCryptPasswordEncoder bCryptEncoder;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
-
-    @Injectable
     private UserDomainService userDomainService;
 
     @Injectable
@@ -69,8 +65,8 @@ public class UserPersistenceServiceImplTest {
     @Injectable
     UserSessionsService userSessionsService;
 
-    @Autowired
-    private DomainCoreConverter domainConverter2;
+    @Injectable
+    private AuthCoreMapper authCoreMapper;
 
     @Injectable
     AuthenticationService authenticationService;
@@ -107,7 +103,7 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> users = Arrays.asList(addedUser, modifiedUser, deletedUser);
 
         new Expectations() {{
-            domainConverter.convert(addedUser, User.class);
+            authCoreMapper.userApiToUserSecurity(addedUser);
             returns(addedUserUntity);
         }};
 
@@ -134,7 +130,7 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
 
         new Expectations() {{
-            domainConverter.convert(addedUser, User.class);
+            authCoreMapper.userApiToUserSecurity(addedUser);
             result = addedUserUntity;
         }};
 

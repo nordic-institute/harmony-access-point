@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
@@ -59,7 +59,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     protected SignalService signalService;
 
     @Autowired
-    private DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     public void init() {
         LOG.debug("Initializing the certificate provider");
@@ -149,7 +149,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public void setDomain(DomainSpi domain) {
-        this.domain = domainCoreConverter.convert(domain, Domain.class);
+        this.domain = coreMapper.domainSpiToDomain(domain);
     }
 
     protected KeyStore loadTrustStore() {

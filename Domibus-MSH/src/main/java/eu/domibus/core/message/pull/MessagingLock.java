@@ -2,6 +2,8 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.MessageState;
+import eu.domibus.api.model.TimezoneOffset;
+import eu.domibus.api.scheduler.Reprogrammable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -23,13 +25,13 @@ import static eu.domibus.api.model.MessageState.READY;
         @NamedQuery(name = "MessagingLock.delete",
                 query = "delete from MessagingLock m where m.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "MessagingLock.findStalledMessages",
-                query = "SELECT m from MessagingLock m where m.staled<CURRENT_TIMESTAMP() and messageState != 'DEL'"),
+                query = "SELECT m from MessagingLock m where m.staled<:CURRENT_TIMESTAMP and messageState != 'DEL'"),
         @NamedQuery(name = "MessagingLock.findDeletedMessages",
                 query = "SELECT m from MessagingLock m where messageState = 'DEL'"),
-        @NamedQuery(name = "MessagingLock.findReadyToPull", query = "from MessagingLock where messageState = 'READY' and mpc=:MPC and lower(initiator)=lower(:INITIATOR) AND messageType='PULL' and nextAttempt<CURRENT_TIMESTAMP() and staled>CURRENT_TIMESTAMP() order by entityId"),
-        @NamedQuery(name = "MessagingLock.findWaitingForReceipt", query = "from MessagingLock where messageState = 'WAITING' AND nextAttempt<CURRENT_TIMESTAMP() order by entityId")
+        @NamedQuery(name = "MessagingLock.findReadyToPull", query = "from MessagingLock where messageState = 'READY' and mpc=:MPC and lower(initiator)=lower(:INITIATOR) AND messageType='PULL' and nextAttempt<:CURRENT_TIMESTAMP and staled>:CURRENT_TIMESTAMP order by entityId"),
+        @NamedQuery(name = "MessagingLock.findWaitingForReceipt", query = "from MessagingLock where messageState = 'WAITING' AND nextAttempt<:CURRENT_TIMESTAMP order by entityId")
 })
-public class MessagingLock extends AbstractBaseEntity {
+public class MessagingLock extends AbstractBaseEntity implements Reprogrammable {
 
     public final static String PULL = "PULL";
 
@@ -66,6 +68,10 @@ public class MessagingLock extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
+
     @Column(name = "SEND_ATTEMPTS")
     private int sendAttempts;
 
@@ -79,6 +85,7 @@ public class MessagingLock extends AbstractBaseEntity {
                                       final Date received,
                                       final Date staled,
                                       final Date nextAttempt,
+                                      final TimezoneOffset timezoneOffset,
                                       final int sendAttempts,
                                       final int sendAttemptsMax) {
         this.received = received;
@@ -89,6 +96,7 @@ public class MessagingLock extends AbstractBaseEntity {
         this.messageType = PULL;
         this.messageState = READY;
         this.nextAttempt = nextAttempt;
+        this.timezoneOffset = timezoneOffset;
         this.sendAttempts = sendAttempts;
         this.sendAttemptsMax = sendAttemptsMax;
     }
@@ -124,8 +132,14 @@ public class MessagingLock extends AbstractBaseEntity {
         return staled;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
     }
 
     public int getSendAttempts() {
@@ -140,8 +154,14 @@ public class MessagingLock extends AbstractBaseEntity {
         this.messageState = messageState;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public void setSendAttempts(int sendAttempts) {

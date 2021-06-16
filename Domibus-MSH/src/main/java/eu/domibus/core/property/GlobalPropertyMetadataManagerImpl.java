@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 
@@ -42,19 +39,20 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     private final List<DomibusPropertyManagerExt> extPropertyManagers;
 
-    private final DomainCoreConverter domainConverter;
+    private final DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
 
     private final NestedPropertiesManager nestedPropertiesManager;
 
-    public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
+    public GlobalPropertyMetadataManagerImpl(@Autowired(required = false) List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
                                              // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
                                              // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
                                              // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider
                                              @Autowired(required = false) @Lazy List<DomibusPropertyManagerExt> extPropertyManagers,
-                                             DomainCoreConverter domainConverter, NestedPropertiesManager nestedPropertiesManager) {
+                                             NestedPropertiesManager nestedPropertiesManager,
+                                             DomibusPropertyMetadataMapper domibusPropertyMetadataMapper) {
         this.propertyMetadataManagers = propertyMetadataManagers;
         this.extPropertyManagers = extPropertyManagers;
-        this.domainConverter = domainConverter;
+        this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
         this.nestedPropertiesManager=nestedPropertiesManager;
     }
 
@@ -153,6 +151,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     protected DomibusPropertyMetadata getComposablePropertyMetadata(Map<String, DomibusPropertyMetadata> map, String propertyName) {
         return map.values().stream()
+                .filter(Objects::nonNull)
                 .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + NAME_SEPARATOR))
                 .findAny()
                 .orElse(null);
@@ -222,7 +221,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         LOG.trace("Loading property metadata for [{}] external property manager.", propertyManager);
         for (Map.Entry<String, DomibusPropertyMetadataDTO> entry : propertyManager.getKnownProperties().entrySet()) {
             DomibusPropertyMetadataDTO extProp = entry.getValue();
-            DomibusPropertyMetadata domibusProp = domainConverter.convert(extProp, DomibusPropertyMetadata.class);
+            DomibusPropertyMetadata domibusProp = domibusPropertyMetadataMapper.propertyMetadataDTOTopropertyMetadata(extProp);
             allPropertyMetadataMap.put(entry.getKey(), domibusProp);
         }
     }
@@ -238,7 +237,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     protected DomibusPropertyMetadata clonePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
         // make a clone and then add it to the map
-        DomibusPropertyMetadata newPropMeta = domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
+        DomibusPropertyMetadata newPropMeta = domibusPropertyMetadataMapper.clonePropertyMetadata(propMeta);
         // metadata name may be just the prefix, not be the concrete propertyName,
         // so we set the whole property name here to be correctly used down the stream. Not beautiful
         newPropMeta.setName(propertyName);

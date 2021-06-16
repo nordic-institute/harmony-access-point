@@ -1,7 +1,6 @@
 package eu.domibus.ext.rest;
 
 
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
@@ -13,7 +12,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,14 +34,14 @@ public class PModeFileExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
 
-    @Autowired
-    PModeExtService pModeExtService;
+    final PModeExtService pModeExtService;
 
-    @Autowired
-    DomainExtConverter domainConverter;
+    final ExtExceptionHelper extExceptionHelper;
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
+    public PModeFileExtResource(PModeExtService pModeExtService, ExtExceptionHelper extExceptionHelper) {
+        this.pModeExtService = pModeExtService;
+        this.extExceptionHelper = extExceptionHelper;
+    }
 
     @ExceptionHandler(PModeExtException.class)
     protected ResponseEntity<ErrorDTO> handlePModeExtException(PModeExtException e) {

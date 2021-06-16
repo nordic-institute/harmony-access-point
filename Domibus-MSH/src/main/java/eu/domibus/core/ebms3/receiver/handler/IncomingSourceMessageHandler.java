@@ -1,5 +1,8 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -16,6 +19,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Handles the incoming source message for SplitAndJoin mechanism
@@ -32,16 +36,18 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
     protected PayloadFileStorageProvider storageProvider;
 
     @Override
-    protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
+    protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing SourceMessage");
 
         if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             LOG.error("SplitAndJoin feature needs payload storage on the file system");
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);
             throw ex;
         }
 
-        return userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, null);
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        return userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
     }
 }

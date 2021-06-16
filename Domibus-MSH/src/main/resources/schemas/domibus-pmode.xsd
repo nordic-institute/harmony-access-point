@@ -209,7 +209,7 @@
                                     <xs:field xpath="@name"/>
                                 </xs:unique>
                             </xs:element>
-                            <xs:element name="payloadProfiles">
+                            <xs:element name="payloadProfiles" minOccurs="0">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element name="payload"

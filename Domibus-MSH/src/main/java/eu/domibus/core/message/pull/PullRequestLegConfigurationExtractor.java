@@ -1,5 +1,7 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -10,8 +12,6 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.PullRequest;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -27,19 +27,19 @@ public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfi
 
     private MessageExchangeService messageExchangeService;
 
-    public PullRequestLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
+    public PullRequestLegConfigurationExtractor(SoapMessage message, Ebms3Messaging messaging) {
         super(message, messaging);
     }
 
     @Override
     protected String getMessageId() {
-        return messaging.getSignalMessage().getMessageInfo().getMessageId();
+        return ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId();
     }
 
     @Override
     public LegConfiguration process() throws EbMS3Exception {
         message.put(MSHDispatcher.MESSAGE_TYPE_IN, MessageType.SIGNAL_MESSAGE);
-        PullRequest pullRequest = messaging.getSignalMessage().getPullRequest();
+        Ebms3PullRequest pullRequest = ebms3Messaging.getSignalMessage().getPullRequest();
         try {
             String mpc = pullRequest.getMpc();
             PullContext pullContext = messageExchangeService.extractProcessOnMpc(mpc);

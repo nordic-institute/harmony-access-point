@@ -1,17 +1,18 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.ebms3.model.Ebms3UserMessage;
-import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.ebms3.model.mf.Ebms3TypeType;
-import eu.domibus.api.model.*;
-import eu.domibus.api.model.Error;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -19,12 +20,11 @@ import eu.domibus.core.ebms3.sender.exception.SendMessageException;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -42,6 +42,7 @@ import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -83,20 +84,20 @@ public class EbMS3MessageBuilder {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
-    public SOAPMessage buildSOAPMessage(final SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
+    public SOAPMessage buildSOAPMessage(final Ebms3SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPMessage(signalMessage);
     }
 
-    public SOAPMessage buildSOAPMessage(final UserMessage userMessage, final LegConfiguration leg) throws EbMS3Exception {
-        return buildSOAPUserMessage(userMessage, null);
+    public SOAPMessage buildSOAPMessage(final UserMessage userMessage, final List<PartInfo> partInfoList, final LegConfiguration leg) throws EbMS3Exception {
+        return buildSOAPUserMessage(userMessage, null, partInfoList, null);
     }
 
-    public SOAPMessage buildSOAPMessageForFragment(final UserMessage userMessage, MessageGroupEntity messageGroupEntity, final LegConfiguration leg) throws EbMS3Exception {
-        return buildSOAPUserMessage(userMessage, messageGroupEntity);
+    public SOAPMessage buildSOAPMessageForFragment(final UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, final List<PartInfo> partInfoList, MessageGroupEntity messageGroupEntity, final LegConfiguration leg) throws EbMS3Exception {
+        return buildSOAPUserMessage(userMessage, messageFragmentEntity, partInfoList, messageGroupEntity);
     }
 
     public SOAPMessage getSoapMessage(EbMS3Exception ebMS3Exception) {
-        final SignalMessage signalMessage = new SignalMessage();
+        final Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
         signalMessage.getError().add(ebMS3Exception.getFaultInfoError());
         try {
             return buildSOAPMessage(signalMessage, null);
@@ -110,8 +111,9 @@ public class EbMS3MessageBuilder {
     }
 
     //TODO: If Leg is used in future releases we have to update this method
-    public SOAPMessage buildSOAPFaultMessage(final Error ebMS3error) throws EbMS3Exception {
-        final SignalMessage signalMessage = new SignalMessage();
+    public SOAPMessage buildSOAPFaultMessage(final Ebms3Error ebMS3error) throws EbMS3Exception {
+        final Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
+        //TODO check if we still need to add the errors on the Signal Message
         signalMessage.getError().add(ebMS3error);
 
         final SOAPMessage soapMessage = this.buildSOAPMessage(signalMessage, null);
@@ -129,7 +131,7 @@ public class EbMS3MessageBuilder {
         return soapMessage;
     }
 
-    protected SOAPMessage buildSOAPUserMessage(final UserMessage userMessage, MessageGroupEntity messageGroupEntity) throws EbMS3Exception {
+    protected SOAPMessage buildSOAPUserMessage(final UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, final List<PartInfo> partInfoList, MessageGroupEntity messageGroupEntity) throws EbMS3Exception {
         final SOAPMessage message;
         try {
             message = xmlUtil.getMessageFactorySoap12().createMessage();
@@ -137,17 +139,21 @@ public class EbMS3MessageBuilder {
 
             message.getSOAPBody().setAttributeNS(NonRepudiationConstants.ID_NAMESPACE_URI, NonRepudiationConstants.ID_QUALIFIED_NAME, NonRepudiationConstants.URI_WSU_NS);
 
-            String messageIDDigest = DigestUtils.sha256Hex(userMessage.getMessageInfo().getMessageId());
+            String messageIDDigest = DigestUtils.sha256Hex(userMessage.getMessageId());
             message.getSOAPBody().addAttribute(NonRepudiationConstants.ID_QNAME, ID_PREFIX_SOAP_BODY + messageIDDigest);
-            if (userMessage.getMessageInfo() != null && userMessage.getMessageInfo().getTimestamp() == null) {
-                userMessage.getMessageInfo().setTimestamp(new Date());
+            if (userMessage.getTimestamp() == null) {
+                userMessage.setTimestamp(new Date());
             }
-            LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
-            for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
-                this.attachPayload(partInfo, message);
+
+            if(CollectionUtils.isNotEmpty(partInfoList)) {
+                LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
+                for (final PartInfo partInfo : partInfoList) {
+                    this.attachPayload(partInfo, message);
+                }
             }
+
             if (messageGroupEntity != null) {
-                final Ebms3MessageFragmentType messageFragment = createMessageFragment(userMessage, messageGroupEntity);
+                final Ebms3MessageFragmentType messageFragment = createMessageFragment(userMessage, messageFragmentEntity, partInfoList, messageGroupEntity);
                 jaxbContextMessageFragment.createMarshaller().marshal(messageFragment, message.getSOAPHeader());
 
                 final SOAPElement messageFragmentElement = (SOAPElement) message.getSOAPHeader().getChildElements(eu.domibus.api.ebms3.model.mf.ObjectFactory._MessageFragment_QNAME).next();
@@ -155,10 +161,10 @@ public class EbMS3MessageBuilder {
                 messageFragmentElement.addAttribute(NonRepudiationConstants.ID_QNAME, ID_PREFIX_MESSAGE_FRAGMENT + messageIDDigest);
 
                 UserMessage cloneUserMessageFragment = userMessageFactory.cloneUserMessageFragment(userMessage);
-                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment);
+                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment, partInfoList);
                 ebms3Messaging.setUserMessage(ebms3UserMessageFragment);
             } else {
-                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(userMessage);
+                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(userMessage, partInfoList);
                 ebms3Messaging.setUserMessage(ebms3UserMessageFragment);
             }
 
@@ -171,34 +177,34 @@ public class EbMS3MessageBuilder {
 
             message.saveChanges();
         } catch (final SAXParseException e) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Payload in body must be valid XML", userMessage.getMessageInfo().getMessageId(), e);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Payload in body must be valid XML", userMessage.getMessageId(), e);
         } catch (final JAXBException | SOAPException | ParserConfigurationException | IOException | SAXException ex) {
             throw new SendMessageException(ex);
         }
         return message;
     }
 
-    protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) {
+    protected SOAPMessage buildSOAPMessage(final Ebms3SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
-            message = xmlUtil.getMessageFactorySoap12().createMessage();
+           message = xmlUtil.getMessageFactorySoap12().createMessage();
             final Ebms3Messaging ebms3Messaging = this.ebMS3Of.createMessaging();
 
             if (signalMessage != null) {
                 if (signalMessage.getMessageInfo() == null) {
-                    final MessageInfo msgInfo = new MessageInfo();
                     String messageId = this.messageIdGenerator.generateMessageId();
-                    msgInfo.setMessageId(messageId);
-                    msgInfo.setTimestamp(new Date());
-                    signalMessage.setMessageInfo(msgInfo);
+                    Ebms3MessageInfo messageInfo = new Ebms3MessageInfo();
+                    messageInfo.setMessageId(messageId);
+                    messageInfo.setTimestamp(new Date());
+                    signalMessage.setMessageInfo(messageInfo);
                 }
 
+                //Errors are not saved in the database and associated to the Signal Message
                 if (signalMessage.getError() != null
                         && signalMessage.getError().iterator().hasNext()) {
                     signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getError().iterator().next().getRefToMessageInError());
                 }
-                Ebms3SignalMessage ebms3SignalMessage = ebms3Converter.convertToEbms3(signalMessage);
-                ebms3Messaging.setSignalMessage(ebms3SignalMessage);
+                ebms3Messaging.setSignalMessage(signalMessage);
             }
             this.jaxbContext.createMarshaller().marshal(ebms3Messaging, message.getSOAPHeader());
             message.saveChanges();
@@ -213,7 +219,7 @@ public class EbMS3MessageBuilder {
         String mimeType = null;
 
         if (partInfo.getPartProperties() != null) {
-            for (final Property prop : partInfo.getPartProperties().getProperties()) {
+            for (final Property prop : partInfo.getPartProperties()) {
                 if (Property.MIME_TYPE.equalsIgnoreCase(prop.getName())) {
                     mimeType = prop.getValue();
                 }
@@ -248,7 +254,7 @@ public class EbMS3MessageBuilder {
         this.jaxbContext = jaxbContext;
     }
 
-    protected Ebms3MessageFragmentType createMessageFragment(UserMessage userMessageFragment, MessageGroupEntity messageGroupEntity) {
+    protected Ebms3MessageFragmentType createMessageFragment(UserMessage userMessageFragment, MessageFragmentEntity messageFragmentEntity, final List<PartInfo> partInfoList, MessageGroupEntity messageGroupEntity) {
         Ebms3MessageFragmentType result = new Ebms3MessageFragmentType();
 
         result.setAction(messageGroupEntity.getSoapAction());
@@ -263,12 +269,12 @@ public class EbMS3MessageBuilder {
         }
         result.setCompressionAlgorithm(messageGroupEntity.getCompressionAlgorithm());
         result.setFragmentCount(messageGroupEntity.getFragmentCount());
-        result.setFragmentNum(userMessageFragment.getMessageFragment().getFragmentNumber());
+        result.setFragmentNum(messageFragmentEntity.getFragmentNumber());
         result.setGroupId(messageGroupEntity.getGroupId());
         result.setMustUnderstand(true);
 
         result.setMessageHeader(createMessageHeaderType(messageGroupEntity.getMessageHeaderEntity()));
-        final PartInfo partInfo = userMessageFragment.getPayloadInfo().getPartInfo().iterator().next();
+        final PartInfo partInfo = partInfoList.iterator().next();
         result.setHref(partInfo.getHref());
 
         return result;

@@ -1,9 +1,9 @@
 package eu.domibus.core.message.acknowledge;
 
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -38,13 +38,16 @@ public class MessageAcknowledgeDefaultServiceTest {
     MessageAcknowledgeConverter messageAcknowledgeConverter;
 
     @Injectable
-    MessagingDao messagingDao;
-
-    @Injectable
     UserMessageServiceHelper userMessageServiceHelper;
 
+    @Injectable
+    MessageAcknowledgementPropertyDao messageAcknowledgementPropertyDao;
+
+    @Injectable
+    UserMessageDao userMessageDao;
+
     @Test
-    public void testAcknowledgeMessageDelivered(@Injectable  final MessageAcknowledgementEntity entity) throws Exception {
+    public void testAcknowledgeMessageDelivered(@Injectable final MessageAcknowledgementEntity entity) {
         final String messageId = "1";
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
         final String finalRecipient = "C4";
@@ -52,7 +55,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         properties.put("prop1", "value1");
 
         final UserMessage userMessage = new UserMessage();
-        final String localAccessPointId ="C3";
+        final String localAccessPointId = "C3";
 
         new Expectations(messageAcknowledgeDefaultService) {{
             messageAcknowledgeDefaultService.getUserMessage(messageId);
@@ -73,7 +76,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
 
     @Test
-    public void testAcknowledgeMessageDeliveredWithNoProperties(@Injectable  final MessageAcknowledgementEntity entity) throws Exception {
+    public void testAcknowledgeMessageDeliveredWithNoProperties(@Injectable final MessageAcknowledgementEntity entity) {
         final String messageId = "1";
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
 
@@ -85,14 +88,14 @@ public class MessageAcknowledgeDefaultServiceTest {
         messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp);
 
         new Verifications() {{
-            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp,null);
+            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
         }};
     }
 
     @Test
-    public void testAcknowledgeMessageProcessed(@Injectable  final MessageAcknowledgementEntity entity) throws Exception {
+    public void testAcknowledgeMessageProcessed(@Injectable final MessageAcknowledgementEntity entity) {
         final UserMessage userMessage = new UserMessage();
-        final String localAccessPointId ="C3";
+        final String localAccessPointId = "C3";
 
         final String messageId = "1";
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
@@ -118,7 +121,7 @@ public class MessageAcknowledgeDefaultServiceTest {
     }
 
     @Test
-    public void testGetAcknowledgedMessages() throws Exception {
+    public void testGetAcknowledgedMessages() {
         final String messageId = "1";
         final List<MessageAcknowledgementEntity> messageAcknowledgements = new ArrayList<>();
         messageAcknowledgements.add(new MessageAcknowledgementEntity());
@@ -140,7 +143,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
     @Test
     public void testAcknowledgeMessage(@Injectable final UserMessage userMessage,
-                                       @Injectable final MessageAcknowledgementEntity entity) throws Exception {
+                                       @Injectable final MessageAcknowledgementEntity entity) {
         final String messageId = "1";
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
         final String from = "C3";
@@ -154,10 +157,7 @@ public class MessageAcknowledgeDefaultServiceTest {
             authUtils.getAuthenticatedUser();
             result = user;
 
-            userMessage.getMessageInfo().getMessageId();
-            result = messageId;
-
-            messageAcknowledgeConverter.create(user, messageId, acknowledgeTimestamp, from, to, properties);
+            messageAcknowledgeConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
             result = entity;
 
         }};

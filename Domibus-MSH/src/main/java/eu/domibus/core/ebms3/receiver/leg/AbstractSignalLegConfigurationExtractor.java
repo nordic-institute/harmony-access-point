@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -12,7 +13,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
  * @since 3.3
  */
 public abstract class AbstractSignalLegConfigurationExtractor extends AbstractLegConfigurationExtractor {
-    public AbstractSignalLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
+    public AbstractSignalLegConfigurationExtractor(SoapMessage message, Ebms3Messaging messaging) {
         super(message, messaging);
     }
 

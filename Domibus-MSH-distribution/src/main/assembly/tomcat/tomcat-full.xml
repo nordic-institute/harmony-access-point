@@ -87,7 +87,7 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH-tomcat/target/domibus-MSH-tomcat-${project.version}.war</source>
+            <source>${project.basedir}/../Domibus-MSH-tomcat-distribution/target/domibus-MSH-tomcat-distribution-${project.version}.war</source>
             <outputDirectory>domibus/webapps</outputDirectory>
             <destName>domibus.war</destName>
             <filtered>false</filtered>

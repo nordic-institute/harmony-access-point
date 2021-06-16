@@ -1,11 +1,9 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageLog;
-import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.DomibusBaseEntity;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.core.dao.ListDao;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -25,51 +23,11 @@ import java.util.*;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
-
-    protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
+public abstract class MessageLogDao<F extends DomibusBaseEntity> extends ListDao<F> implements MessageLogDaoBase {
 
     public MessageLogDao(final Class<F> type) {
         super(type);
     }
-
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void setMessageStatus(F messageLog, MessageStatus messageStatus) {
-        messageLog.setMessageStatus(messageStatus);
-
-        switch (messageStatus) {
-            case DELETED:
-                messageLog.setDeleted(new Date());
-                messageLog.setNextAttempt(null);
-                break;
-            case ACKNOWLEDGED:
-            case ACKNOWLEDGED_WITH_WARNING:
-                messageLog.setNextAttempt(null);
-                break;
-            case DOWNLOADED:
-                messageLog.setDownloaded(new Date());
-                messageLog.setNextAttempt(null);
-                break;
-            case SEND_FAILURE:
-                messageLog.setFailed(new Date());
-                messageLog.setNextAttempt(null);
-                break;
-            default:
-        }
-        final String messageId = messageLog.getMessageId();
-        if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        }
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, messageLog.getMessageType(), messageStatus);
-    }
-
-    public abstract MessageStatus getMessageStatus(String messageId);
-
-    protected abstract MessageLog findByMessageId(String messageId);
-
-    protected abstract MessageLog findByMessageId(String messageId, MSHRole mshRole);
 
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<F> mle) {
@@ -109,28 +67,36 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
     protected abstract MessageLogInfoFilter getMessageLogInfoFilter();
 
-    public abstract String findLastTestMessageId(String party);
-
-    protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
-        Map<String, Object> filters = new HashMap<>();
-        filters.put("messageSubtype", MessageSubtype.TEST);
-        filters.put("mshRole", mshRole);
-        filters.put("toPartyId", party);
-        filters.put("messageType", messageType);
-        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(0);
-        queryParameterized.setMaxResults(1);
-        long startTime = 0;
-        if (LOG.isDebugEnabled()) {
-            startTime = System.currentTimeMillis();
-        }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
-        if (LOG.isDebugEnabled()) {
-            final long endTime = System.currentTimeMillis();
-            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
-        }
-        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
+    @Override
+    public long countEntries(Map<String, Object> filters) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getCountMessageLogQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        final Number count = query.getSingleResult();
+        return count.intValue();
     }
+
+    @Override
+    public boolean hasMoreEntriesThan(Map<String, Object> filters, int limit) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getMessageLogIdQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        query.setMaxResults(1);
+        query.setFirstResult(limit + 1);
+        final List<Number> results = query.getResultList();
+        return results.size() > 0;
+    }
+
+    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String filteredMessageLogQuery = filterService.filterMessageLogQuery(column, asc, filters);
+        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
+        TypedQuery<MessageLogInfo> queryParameterized = filterService.applyParameters(typedQuery, filters);
+        queryParameterized.setFirstResult(from);
+        queryParameterized.setMaxResults(max);
+        return queryParameterized.getResultList();
+    }
+
 }

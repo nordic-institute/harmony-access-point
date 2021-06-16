@@ -1,10 +1,10 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.message.MessagesLogServiceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,13 +31,15 @@ public class UIMessageServiceImpl implements UIMessageService {
     private UIMessageDao uiMessageDao;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private MessageCoreMapper messageCoreConverter;
+
+    @Autowired
+    MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Override
     @Transactional(readOnly = true)
     public long countMessages(Map<String, Object> filters) {
-        long numberOfMessages = uiMessageDao.countEntries(filters);
-        return numberOfMessages;
+        return uiMessageDao.countEntries(filters);
     }
 
     @Override
@@ -45,7 +47,7 @@ public class UIMessageServiceImpl implements UIMessageService {
     public List<MessageLogInfo> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         return uiMessageDao.findPaged(from, max, column, asc, filters)
                 .stream()
-                .map(uiMessageEntity -> convertToMessageLogInfo(uiMessageEntity))
+                .map(messageCoreConverter::uiMessageEntityToMessageLogInfo)
                 .collect(Collectors.toList());
     }
 
@@ -56,17 +58,15 @@ public class UIMessageServiceImpl implements UIMessageService {
         List<UIMessageEntity> uiMessageEntityList = new ArrayList<>();
 
         //make the count
-        long numberOfMessages = uiMessageDao.countEntries(filters);
-
-        if (numberOfMessages != 0) {
+        long number = messagesLogServiceHelper.calculateNumberOfMessages(uiMessageDao, filters, result);
+        if (number != 0) {
             //query for the page results
             uiMessageEntityList = uiMessageDao.findPaged(from, max, column, asc, filters);
         }
 
-        result.setCount(numberOfMessages);
         result.setMessageLogEntries(uiMessageEntityList
                 .stream()
-                .map(uiMessageEntity -> convertUIMessageEntity(uiMessageEntity))
+                .map(messageCoreConverter::uiMessageEntityToMessageLogRO)
                 .collect(Collectors.toList()));
 
         return result;
@@ -83,31 +83,4 @@ public class UIMessageServiceImpl implements UIMessageService {
         }
     }
 
-    /**
-     * Converts {@link UIMessageEntity} object to {@link MessageLogRO} to be used on GUI
-     *
-     * @param uiMessageEntity
-     * @return an {@link MessageLogRO} object
-     */
-    protected MessageLogRO convertUIMessageEntity(UIMessageEntity uiMessageEntity) {
-        if (uiMessageEntity == null) {
-            return null;
-        }
-
-        return domainConverter.convert(uiMessageEntity, MessageLogRO.class);
-    }
-
-    /**
-     * Converts {@link UIMessageEntity} object to {@link MessageLogInfo}
-     *
-     * @param uiMessageEntity
-     * @return
-     */
-    protected MessageLogInfo convertToMessageLogInfo(UIMessageEntity uiMessageEntity) {
-        if (uiMessageEntity == null) {
-            return null;
-        }
-
-        return domainConverter.convert(uiMessageEntity, MessageLogInfo.class);
-    }
 }

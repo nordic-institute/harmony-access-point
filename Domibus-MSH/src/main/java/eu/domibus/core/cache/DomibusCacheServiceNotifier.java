@@ -7,4 +7,6 @@ package eu.domibus.core.cache;
 public interface DomibusCacheServiceNotifier {
 
     void notifyClearAllCaches();
+
+    void notifyClear2LCaches();
 }

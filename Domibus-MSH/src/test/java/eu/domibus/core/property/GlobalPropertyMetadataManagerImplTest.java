@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
@@ -38,7 +38,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
 
     @Injectable
-    DomainCoreConverter domainConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     private List<DomibusPropertyManagerExt> extPropertyManagers;
@@ -55,6 +55,9 @@ public class GlobalPropertyMetadataManagerImplTest {
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    protected DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
 
     Map<String, DomibusPropertyMetadataDTO> props1;
     Map<String, DomibusPropertyMetadata> props2;
@@ -113,8 +116,8 @@ public class GlobalPropertyMetadataManagerImplTest {
             result = null;
             globalPropertyMetadataManager.getComposablePropertyMetadata(allPropertyMetadataMap, propertyName);
             result = propMeta;
-            domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
-            result = propMeta;
+//            coreMapper.clonePropertyMetadata(propMeta);
+//            result = propMeta;
         }};
         DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         Assert.assertNotNull(meta);
@@ -251,15 +254,15 @@ public class GlobalPropertyMetadataManagerImplTest {
         new Expectations(globalPropertyMetadataManager) {{
             propertyManager1.getKnownProperties();
             result = props1;
-            domainConverter.convert((DomibusPropertyMetadataDTO) any, DomibusPropertyMetadata.class);
-            result = propMeta;
+//            coreMapper.propertyMetadataDTOTopropertyMetadata((DomibusPropertyMetadataDTO) any);
+//            result = propMeta;
         }};
 
         globalPropertyMetadataManager.loadExternalProperties(propertyManager1);
 
         new Verifications() {{
-            domainConverter.convert((DomibusPropertyMetadataDTO) any, DomibusPropertyMetadata.class);
-            times = props1.size();
+//            coreMapper.propertyMetadataDTOTopropertyMetadata((DomibusPropertyMetadataDTO) any);
+//            times = props1.size();
             allPropertyMetadataMap.put(anyString, propMeta);
             times = props1.size();
         }};
@@ -287,8 +290,8 @@ public class GlobalPropertyMetadataManagerImplTest {
     @Test
     public void testSynchronizedBlocksWhenAddingPropertiesOnTheFly() {
         new Expectations(globalPropertyMetadataManager) {{
-            domainConverter.convert(any, DomibusPropertyMetadata.class);
-            result = DomibusPropertyMetadata.getReadOnlyGlobalProperty("dummy");
+//            coreMapper.clonePropertyMetadata((DomibusPropertyMetadata)any);
+//            result = DomibusPropertyMetadata.getReadOnlyGlobalProperty("dummy");
         }};
 
         // When multiple properties are added to the properties map at the same time,

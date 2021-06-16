@@ -44,15 +44,6 @@ public class UserManagementServiceImplTest {
     UserRoleDao userRoleDao;
 
     @Injectable
-    ConsoleUserPasswordHistoryDao consoleUserPasswordHistoryDao;
-
-    @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    DomainContextProvider domainContextProvider;
-
-    @Injectable
     UserConverter userConverter;
 
     @Injectable
@@ -60,9 +51,6 @@ public class UserManagementServiceImplTest {
 
     @Injectable
     UserDomainService userDomainService;
-
-    @Injectable
-    DomainService domainService;
 
     @Injectable
     ConsoleUserAlertsServiceImpl consoleUserAlertsService;

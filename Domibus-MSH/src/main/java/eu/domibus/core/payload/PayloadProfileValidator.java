@@ -1,5 +1,6 @@
 package eu.domibus.core.payload;
 
+import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Payload;
@@ -7,13 +8,10 @@ import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,20 +32,20 @@ public class PayloadProfileValidator {
     private PModeProvider pModeProvider;
 
 
-    public void validate(final Messaging messaging, final String pmodeKey) throws EbMS3Exception {
+    public void validate(final UserMessage userMessage, List<PartInfo> partInfoList, final String pmodeKey) throws EbMS3Exception {
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
         final boolean isCompressEnabledInPmode = legConfiguration.isCompressPayloads();
 
-        validateCompressPayloads(isCompressEnabledInPmode, messaging.getUserMessage());
-        validatePayloadProfile(legConfiguration, messaging.getUserMessage());
+        validateCompressPayloads(isCompressEnabledInPmode, userMessage, partInfoList);
+        validatePayloadProfile(legConfiguration, userMessage, partInfoList);
     }
 
-    public void validateCompressPayloads(final boolean isCompressEnabledInPmode, final UserMessage userMessage) throws EbMS3Exception {
-        if (userMessage.getPayloadInfo() == null) {
+    public void validateCompressPayloads(final boolean isCompressEnabledInPmode, final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
+        if (CollectionUtils.isEmpty(partInfoList)) {
             return;
         }
-        for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
-            validateCompressPartInfo(isCompressEnabledInPmode, partInfo, userMessage.getMessageInfo().getMessageId());
+        for (final PartInfo partInfo : partInfoList) {
+            validateCompressPartInfo(isCompressEnabledInPmode, partInfo, userMessage.getMessageId());
         }
 
     }
@@ -63,7 +61,7 @@ public class PayloadProfileValidator {
 
         boolean compress = false;
         String mimeType = null;
-        for (Property property : partInfo.getPartProperties().getProperties()) {
+        for (Property property : partInfo.getPartProperties()) {
             if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
                 if (!CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue(), messageId, null);
@@ -80,9 +78,9 @@ public class PayloadProfileValidator {
         }
     }
 
-    protected void validatePayloadProfile(final LegConfiguration legConfiguration, final UserMessage userMessage) throws EbMS3Exception {
+    protected void validatePayloadProfile(final LegConfiguration legConfiguration, final UserMessage userMessage, List<PartInfo> partInfos) throws EbMS3Exception {
         final List<Payload> modifiableProfileList = new ArrayList<>();
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
 
         final PayloadProfile profile = legConfiguration.getPayloadProfile();
         if (profile == null) {
@@ -92,10 +90,7 @@ public class PayloadProfileValidator {
         }
 
         modifiableProfileList.addAll(profile.getPayloads());
-        List<PartInfo> partInfos = new ArrayList<>();
-        if (userMessage.getPayloadInfo() != null) {
-            partInfos = userMessage.getPayloadInfo().getPartInfo();
-        }
+
         for (final PartInfo partInfo : partInfos) {
             Payload profiled = null;
             final String cid = (partInfo.getHref() == null ? StringUtils.EMPTY : partInfo.getHref());
@@ -108,13 +103,13 @@ public class PayloadProfileValidator {
             }
             if (profiled == null) {
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_WITH_CID_MISSING, cid);
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling for this exchange does not include a payload with CID: " + cid, userMessage.getMessageInfo().getMessageId(), null);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling for this exchange does not include a payload with CID: " + cid, userMessage.getMessageId(), null);
             }
             modifiableProfileList.remove(profiled);
 
             String mime = null;
             if (partInfo.getPartProperties() != null) {
-                final Collection<Property> partProperties = partInfo.getPartProperties().getProperties();
+                final Collection<PartProperty> partProperties = partInfo.getPartProperties();
                 for (final Property partProperty : partProperties) {
                     if (Property.MIME_TYPE.equalsIgnoreCase(partProperty.getName())) {
                         mime = partProperty.getValue();

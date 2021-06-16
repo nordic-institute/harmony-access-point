@@ -1,10 +1,12 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.core.ebms3.receiver.leg.AbstractMessageLegConfigurationFactory;
-import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
-import eu.domibus.api.model.Error;
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.PullRequest;
+import eu.domibus.core.ebms3.receiver.leg.AbstractMessageLegConfigurationFactory;
+import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.headers.Header;
@@ -30,7 +32,7 @@ public class PullRequestLegConfigurationFactory extends AbstractMessageLegConfig
     private final static Logger LOG = DomibusLoggerFactory.getLogger(PullRequestLegConfigurationFactory.class);
 
     @Override
-    protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Messaging messaging) {
+    protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Ebms3Messaging messaging) {
         PullRequestLegConfigurationExtractor legConfigurationExtractor = null;
         if (LOG.isTraceEnabled()) {
             final List<Header> headers = soapMessage.getHeaders();
@@ -45,15 +47,15 @@ public class PullRequestLegConfigurationFactory extends AbstractMessageLegConfig
             if (messaging.getSignalMessage() != null) {
                 LOG.trace("Pull request:[{}]", messaging.getSignalMessage().getPullRequest());
                 LOG.trace("Receipt:[{}]", messaging.getSignalMessage().getReceipt());
-                final Set<Error> errors = messaging.getSignalMessage().getError();
+                final Set<Ebms3Error> errors = messaging.getSignalMessage().getError();
                 if (errors != null) {
-                    for (Error error : errors) {
+                    for (Ebms3Error error : errors) {
                         LOG.trace("Error code:[{}], detail[{}]", error.getErrorCode(), error.getErrorDetail());
                     }
                 }
             }
         }
-        PullRequest pullRequest = messaging.getSignalMessage().getPullRequest();
+        Ebms3PullRequest pullRequest = messaging.getSignalMessage().getPullRequest();
         if (pullRequest != null) {
             legConfigurationExtractor = new PullRequestLegConfigurationExtractor(soapMessage, messaging);
         }

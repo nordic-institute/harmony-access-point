@@ -58,7 +58,9 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
         businessProcesses.getProperties().size();
         businessProcesses.getSecurities().size();
         businessProcesses.getActions().size();
-        businessProcesses.getPayloads().size();
+        if (businessProcesses.getPayloads() != null) {
+            businessProcesses.getPayloads().size();
+        }
         businessProcesses.getProcesses().size();
         businessProcesses.getParties().size();
         for (final Party p : businessProcesses.getParties()) {
@@ -73,8 +75,11 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
         businessProcesses.getMepBindings().size();
         businessProcesses.getMeps().size();
         businessProcesses.getPartyIdTypes().size();
-        for (final PayloadProfile payloadProfile : businessProcesses.getPayloadProfiles()) {
-            payloadProfile.getPayloads().size();
+
+        if (businessProcesses.getPayloadProfiles() != null) {
+            for (final PayloadProfile payloadProfile : businessProcesses.getPayloadProfiles()) {
+                payloadProfile.getPayloads().size();
+            }
         }
         for (final PropertySet propertySet : businessProcesses.getPropertySets()) {
             propertySet.getProperties().size();

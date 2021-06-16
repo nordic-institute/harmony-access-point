@@ -1,12 +1,10 @@
 package eu.domibus.core.message.signal;
 
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.model.*;
 import eu.domibus.api.message.SignalMessageLogService;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.SignalMessageLog;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.MshRoleDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,28 +19,32 @@ public class SignalMessageLogDefaultService implements SignalMessageLogService {
     @Autowired
     SignalMessageLogDao signalMessageLogDao;
 
-    private SignalMessageLog createSignalMessageLog(String messageId, MessageSubtype messageSubtype) {
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
+
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
+    private SignalMessageLog createSignalMessageLog(SignalMessage signalMessage) {
+        MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(MessageStatus.RECEIVED);
+        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
+
         // builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setMessageId(messageId)
-                .setMessageStatus(MessageStatus.RECEIVED)
-                .setMshRole(MSHRole.RECEIVING)
-                .setNotificationStatus(NotificationStatus.NOT_REQUIRED)
-                .setMessageSubtype(messageSubtype);
+                .setSignalMessage(signalMessage)
+                .setMessageStatus(messageStatus)
+                .setMshRole(role);
 
         return smlBuilder.build();
     }
 
 
     @Override
-    public void save(String messageId, String userMessageService, String userMessageAction) {
-        // Sets the subtype
-        MessageSubtype messageSubtype = null;
-        if (checkTestMessage(userMessageService, userMessageAction)) {
-            messageSubtype = MessageSubtype.TEST;
-        }
+    public void save(SignalMessage signalMessage, String userMessageService, String userMessageAction) {
+        final Boolean testMessage = checkTestMessage(userMessageService, userMessageAction);
+
         // Builds the signal message log
-        final SignalMessageLog signalMessageLog = createSignalMessageLog(messageId, messageSubtype);
+        final SignalMessageLog signalMessageLog = createSignalMessageLog(signalMessage);
         // Saves an entry of the signal message log
         signalMessageLogDao.create(signalMessageLog);
     }

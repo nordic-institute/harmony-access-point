@@ -1,16 +1,16 @@
 package eu.domibus.core.plugin.routing;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.BackendPluginEnum;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
@@ -47,7 +47,7 @@ public class RoutingService {
     protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
-    protected DomainCoreConverter coreConverter;
+    protected BackendFilterCoreMapper backendFilterCoreMapper;
 
     @Autowired
     protected List<CriteriaFactory> routingCriteriaFactories;
@@ -185,7 +185,7 @@ public class RoutingService {
 
     public List<BackendFilter> getBackendFiltersUncached() {
         List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-        return coreConverter.convert(backendFilterEntities, BackendFilter.class);
+        return backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
@@ -201,7 +201,7 @@ public class RoutingService {
         List<BackendFilterEntity> allBackendFilterEntities = backendFilterDao.findAll();
         backendFilterDao.delete(allBackendFilterEntities);
 
-        List<BackendFilterEntity> backendFilterEntities = coreConverter.convert(filters, BackendFilterEntity.class);
+        List<BackendFilterEntity> backendFilterEntities = backendFilterCoreMapper.backendFilterListToBackendFilterEntityList(filters);
         updateFilterIndices(backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
 
@@ -210,15 +210,15 @@ public class RoutingService {
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageInfo().getMessageId() + "]");
+        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageId() + "]");
         for (final BackendFilter filter : backendFilters) {
             final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
             if (backendFilterMatching) {
-                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageInfo().getMessageId());
+                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageId());
                 return filter;
             }
         }
-        LOG.trace("No filter matched for message [{}]", userMessage.getMessageInfo().getMessageId());
+        LOG.trace("No filter matched for message [{}]", userMessage.getMessageId());
         return null;
     }
 

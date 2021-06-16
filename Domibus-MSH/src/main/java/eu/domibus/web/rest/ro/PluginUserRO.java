@@ -2,9 +2,11 @@ package eu.domibus.web.rest.ro;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import eu.domibus.api.security.AuthType;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.web.rest.validators.SizeIfPresent;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
@@ -51,8 +53,12 @@ public class PluginUserRO {
         this.entityId = entityId;
     }
 
+    /**
+     * Returns the name of the user but only for basic type of users
+     * @return the name
+     */
     public String getUserName() {
-        return userName;
+        return StringUtils.equals(AuthType.BASIC.name(), authenticationType) ? userName : null;
     }
 
     public void setUserName(String username) {
@@ -67,8 +73,12 @@ public class PluginUserRO {
         this.password = password;
     }
 
+    /**
+     * Returns the id of the certificate of the user but only for certificate type of users
+     * @return the certificate id
+     */
     public String getCertificateId() {
-        return certificateId;
+        return StringUtils.equals(AuthType.CERTIFICATE.name(), authenticationType) ? certificateId : null;
     }
 
     public void setCertificateId(String certificateId) {

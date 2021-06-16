@@ -1,5 +1,6 @@
 package ddsl.dobjects;
 
+import com.codahale.metrics.MetricRegistry;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -17,7 +18,10 @@ import java.awt.event.KeyEvent;
 
 
 public class DObject {
-	
+
+	public static final MetricRegistry metrics = new MetricRegistry();
+
+
 	public WebElement element;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
 	protected WebDriver driver;

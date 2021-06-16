@@ -1,5 +1,7 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.SignalMessage;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class ErrorSignalConfigurationFactory extends AbstractMessageLegConfigurationFactory {
 
     @Override
-    protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Messaging messaging) {
+    protected LegConfigurationExtractor getConfiguration(SoapMessage soapMessage, Ebms3Messaging messaging) {
         ErrorSignalLegConfigurationExtractor errorSignalLegConfigurationExtractor = null;
         if (handleError(messaging.getSignalMessage())) {
             errorSignalLegConfigurationExtractor = new ErrorSignalLegConfigurationExtractor(soapMessage, messaging);
@@ -28,7 +30,7 @@ public class ErrorSignalConfigurationFactory extends AbstractMessageLegConfigura
         return errorSignalLegConfigurationExtractor;
     }
 
-    protected boolean handleError(SignalMessage signalMessage) {
+    protected boolean handleError(Ebms3SignalMessage signalMessage) {
         if (CollectionUtils.isEmpty(signalMessage.getError())) {
             return false;
         }

@@ -1,8 +1,10 @@
 package eu.domibus.api.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * The REQUIRED element occurs
@@ -15,50 +17,64 @@ import java.util.Set;
 @Embeddable
 public class To {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "TO_ID")
-    protected Set<PartyId> partyId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TO_PARTY_ID_FK")
+    protected PartyId partyId;
 
-    @Column(name = "TO_ROLE")
-    protected String role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TO_ROLE_ID_FK")
+    protected PartyRole role;
 
-    public Set<PartyId> getPartyId() {
-        if (this.partyId == null) {
-            this.partyId = new HashSet<>();
-        }
-        return this.partyId;
+    public PartyId getPartyId() {
+        return partyId;
     }
 
-    public String getFirstPartyId() {
-        if(this.partyId == null || this.partyId.isEmpty()) {
+    public void setPartyId(PartyId partyId) {
+        this.partyId = partyId;
+    }
+
+    public PartyRole getRole() {
+        return role;
+    }
+
+    public String getRoleValue() {
+        if(role == null) {
             return null;
         }
-        return this.partyId.iterator().next().getValue();
-    }
-    public String getRole() {
-        return this.role;
+        return role.getValue();
     }
 
-    public void setRole(final String value) {
-        this.role = value;
+    public void setRole(PartyRole role) {
+        this.role = role;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof To)) return false;
 
-        final To to = (To) o;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (!this.partyId.equals(to.partyId)) return false;
-        return !(this.role != null ? !this.role.equalsIgnoreCase(to.role) : to.role != null);
+        From from = (From) o;
 
+        return new EqualsBuilder()
+                .append(partyId, from.partyId)
+                .append(role, from.role)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = this.partyId.hashCode();
-        result = 31 * result + (this.role != null ? this.role.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .append(partyId)
+                .append(role)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("partyId", partyId)
+                .append("role", role)
+                .toString();
     }
 }

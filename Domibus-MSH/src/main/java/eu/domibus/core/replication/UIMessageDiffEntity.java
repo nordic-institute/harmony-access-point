@@ -1,7 +1,8 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.TimezoneOffset;
+import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
@@ -42,7 +43,7 @@ import java.util.Date;
                 query   =   "SELECT * FROM V_MESSAGE_UI_DIFF ",
                 resultClass = UIMessageDiffEntity.class
         )})
-public class UIMessageDiffEntity {
+public class UIMessageDiffEntity implements Reprogrammable {
 
     @Id
     @Column(name = "MESSAGE_ID")
@@ -60,9 +61,8 @@ public class UIMessageDiffEntity {
     @Column(name = "MESSAGE_TYPE")
     private MessageType messageType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MESSAGE_SUBTYPE")
-    private MessageSubtype messageSubtype;
+    @Column(name = "TEST_MESSAGE")
+    private Boolean testMessage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
@@ -97,6 +97,10 @@ public class UIMessageDiffEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
+
     @Column(name = "FROM_ID")
     private String fromId;
 
@@ -108,6 +112,18 @@ public class UIMessageDiffEntity {
 
     @Column(name = "TO_SCHEME")
     private String toScheme;
+
+    @Column(name = "ACTION")
+    private String action;
+
+    @Column(name = "SERVICE_TYPE")
+    private String serviceType;
+
+    @Column(name = "SERVICE_VALUE")
+    private String serviceValue;
+
+    @Column(name = "REF_TO_MESSAGE_ID")
+    private String refToMessageId;
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
@@ -121,12 +137,12 @@ public class UIMessageDiffEntity {
         this.notificationStatus = notificationStatus;
     }
 
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
+    public Boolean getTestMessage() {
+        return testMessage;
     }
 
-    public void setMessageSubtype(MessageSubtype messageSubtype) {
-        this.messageSubtype = messageSubtype;
+    public void setTestMessage(Boolean testMessage) {
+        this.testMessage = testMessage;
     }
 
     public void setMshRole(MSHRole mshRole) {
@@ -161,8 +177,14 @@ public class UIMessageDiffEntity {
         this.sendAttemptsMax = sendAttemptsMax;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public void setFromId(String fromId) {
@@ -185,9 +207,6 @@ public class UIMessageDiffEntity {
         this.refToMessageId = refToMessageId;
     }
 
-    @Column(name = "REF_TO_MESSAGE_ID")
-    private String refToMessageId;
-
     public String getMessageId() {
         return messageId;
     }
@@ -202,10 +221,6 @@ public class UIMessageDiffEntity {
 
     public MessageType getMessageType() {
         return messageType;
-    }
-
-    public MessageSubtype getMessageSubtype() {
-        return messageSubtype;
     }
 
     public MSHRole getMshRole() {
@@ -240,8 +255,14 @@ public class UIMessageDiffEntity {
         return sendAttemptsMax;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
     }
 
     public String getFromId() {
@@ -264,6 +285,30 @@ public class UIMessageDiffEntity {
         return refToMessageId;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -279,7 +324,6 @@ public class UIMessageDiffEntity {
                 .append(messageStatus, that.messageStatus)
                 .append(notificationStatus, that.notificationStatus)
                 .append(messageType, that.messageType)
-                .append(messageSubtype, that.messageSubtype)
                 .append(mshRole, that.mshRole)
                 .append(conversationId, that.conversationId)
                 .append(deleted, that.deleted)
@@ -302,7 +346,6 @@ public class UIMessageDiffEntity {
                 .append(messageStatus)
                 .append(notificationStatus)
                 .append(messageType)
-                .append(messageSubtype)
                 .append(mshRole)
                 .append(conversationId)
                 .append(deleted)

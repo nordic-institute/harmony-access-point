@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -14,6 +15,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -78,6 +80,9 @@ public class ReliabilityChecker {
 
     @Autowired
     protected XMLUtil xmlUtil;
+
+    @Autowired
+    protected MshRoleDao mshRoleDao;
 
     @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
@@ -270,9 +275,9 @@ public class ReliabilityChecker {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final String messageId) {
         exceptionToHandle.setRefToMessageId(messageId);
-        exceptionToHandle.setMshRole(MSHRole.SENDING);
 
-        this.errorLogDao.create(new ErrorLogEntry(exceptionToHandle));
+        final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        this.errorLogDao.create(new ErrorLogEntry(exceptionToHandle, sendingRole));
         // The backends are notified that an error occurred in the UpdateRetryLoggingService
     }
 }

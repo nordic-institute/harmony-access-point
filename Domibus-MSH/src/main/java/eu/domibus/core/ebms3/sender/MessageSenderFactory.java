@@ -24,7 +24,7 @@ public class MessageSenderFactory {
 
     public MessageSender getMessageSender(final UserMessage userMessage) {
         if (userMessage.isSplitAndJoin()) {
-            if (userMessage.getMessageFragment() != null) {
+            if (userMessage.isMessageFragment()) {
                 return messageFragmentSender;
             } else {
                 return sourceMessageSender;

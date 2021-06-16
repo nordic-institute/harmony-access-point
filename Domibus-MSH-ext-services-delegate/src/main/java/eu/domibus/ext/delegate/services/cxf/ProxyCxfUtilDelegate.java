@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProxyCxfUtilDelegate implements ProxyCxfUtilExtService {
-    private final ProxyCxfUtilService proxyCxfUtilService;
+
+    protected ProxyCxfUtilService proxyCxfUtilService;
 
     public ProxyCxfUtilDelegate(ProxyCxfUtilService proxyCxfUtilService) {
         this.proxyCxfUtilService = proxyCxfUtilService;

@@ -3,17 +3,16 @@ package eu.domibus.core.crypto.spi;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -72,7 +71,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
     /**
      * {@inheritDoc}
      */
-    @Override
     public void authorize(List<X509Certificate> signingCertificateTrustChain, X509Certificate signingCertificate, PullRequestDTO pullRequestDTO, PullRequestPmodeData pullRequestPmodeData) throws AuthorizationException {
         String mpc = pullRequestPmodeData.getMpcName();
         if (mpc == null) {
@@ -111,13 +109,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         authorizeAgainstCertificateCNMatch(signingCertificate, initiatorName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getIdentifier() {
-        return DEFAULT_IAM_AUTHORIZATION_IDENTIFIER;
-    }
 
     protected void authorizeAgainstTruststoreAlias(X509Certificate signingCertificate, String alias) {
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS)) {
@@ -190,5 +181,13 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         String excMessage = String.format("Sender alias verification failed. Signing certificate CN does not contain the alias [%s]: %s ", alias, signingCertificate);
         throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getIdentifier() {
+        return DEFAULT_IAM_AUTHORIZATION_IDENTIFIER;
     }
 }
