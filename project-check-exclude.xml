@@ -97,4 +97,20 @@
         <cve>CVE-2020-17527</cve>
         <cve>CVE-2021-24122</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-xxx-5.xx.RELEASE.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+        <!-- we don't have a WebFlux application -->
+        <cve>CVE-2021-22118</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: wss4j-xxx-2.3.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.wss4j/wss4j\-.*@.*$</packageUrl>
+        <!-- wss4j-ws-security-common has transitive dependency on opensaml library but not on velocity so we are not impacted -->
+        <cve>CVE-2020-13936</cve>
+    </suppress>
 </suppressions>
