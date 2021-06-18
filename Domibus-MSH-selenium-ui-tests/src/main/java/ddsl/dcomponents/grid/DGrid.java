@@ -146,7 +146,7 @@ public class DGrid extends DComponent {
 
 		log.info("waiting for rows to load");
 		try {
-			wait.shortWaitForElementToBe(progressBar);
+			wait.forXMillis(500);
 			int bars = 1;
 			int waits = 0;
 			while (bars > 0 && waits < 30) {
@@ -165,6 +165,8 @@ public class DGrid extends DComponent {
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
 		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 
+		ArrayList<HashMap<String, String>> info = getListedRowInfo();
+
 		for (int i = 0; i < gridRows.size(); i++) {
 			WebElement rowContainer = gridRows.get(i);
 			String rowValue = new DObject(driver, rowContainer.findElements(cellSelector).get(columnIndex)).getText();
@@ -172,6 +174,25 @@ public class DGrid extends DComponent {
 				return i;
 			}
 		}
+		context.stop();
+		return -1;
+
+	}
+
+	public int getIndexOf(String columnName, String value) throws Exception {
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+
+		if(!getColumnNames().contains(columnName)){
+			return -1;
+		}
+
+		ArrayList<HashMap<String, String>> info = getListedRowInfo();
+		for (int i = 0; i <info.size() ; i++) {
+			if(StringUtils.equalsIgnoreCase(info.get(i).get(columnName), value)){
+				return i;
+			}
+		}
+
 		context.stop();
 		return -1;
 
@@ -185,27 +206,21 @@ public class DGrid extends DComponent {
 			throw new Exception("Selected column name '" + columnName + "' is not visible in the present grid");
 		}
 
-		int columnIndex = -1;
-		for (int i = 0; i < columnNames.size(); i++) {
-			if (StringUtils.equalsIgnoreCase(columnNames.get(i), columnName)) {
-				columnIndex = i;
-			}
-		}
 
 		Pagination pagination = getPagination();
 		pagination.skipToFirstPage();
+
 		waitForRowsToLoad();
 
-		int index = getIndexOf(columnIndex, value);
+		int index = getIndexOf(columnName, value);
 
 		while (index < 0 && pagination.hasNextPage()) {
 			pagination.goToNextPage();
 			waitForRowsToLoad();
-			index = getIndexOf(columnIndex, value);
+			index = getIndexOf(columnName, value);
 		}
 
 		context.stop();
-
 		return index;
 	}
 
@@ -470,7 +485,7 @@ public class DGrid extends DComponent {
 	public void checkShowLink(SoftAssert soft) throws Exception {
 		//-----------Show
 		getGridCtrl().showCtrls();
-		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
+		soft.assertTrue(getGridCtrl().areCheckboxesVisible(), "Show Columns shows checkboxes for columns");
 	}
 
 	public void checkHideLink(SoftAssert soft) throws Exception {
