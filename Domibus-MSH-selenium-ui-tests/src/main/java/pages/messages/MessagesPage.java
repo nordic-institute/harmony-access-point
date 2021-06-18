@@ -3,12 +3,17 @@ package pages.messages;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.DFileUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Catalin Comanici
@@ -81,6 +86,30 @@ public class MessagesPage extends DomibusPage {
 		}
 		return true;
 	}
-	
+
+	public String downloadMessage(int rowNo) throws Exception {
+		log.info("Customized location for download");
+		String filePath = data.downloadFolderPath();
+
+		log.info("Clean given directory");
+		FileUtils.cleanDirectory(new File(filePath));
+
+		log.info("selecting row");
+		grid().selectRow(rowNo);
+
+		log.info("Click on download button");
+		getDownloadButton().click();
+
+		log.info("Wait for download to complete");
+
+		wait.forXMillis(3000);
+
+		log.info("Check if file is downloaded at given location");
+		if(!DFileUtils.isFileDownloaded(filePath)){
+			throw new Exception("Could not find file");
+		}
+
+		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
+	}
 	
 }

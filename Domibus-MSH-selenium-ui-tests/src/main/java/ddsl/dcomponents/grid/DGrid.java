@@ -50,7 +50,7 @@ public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
-	
+
 	protected WebElement container;
 
 	public DGrid(WebDriver driver, WebElement container) {
@@ -95,6 +95,7 @@ public class DGrid extends DComponent {
 				"return headers", container);
 
 		result.removeIf(str -> (StringUtils.isEmpty(str)));
+
 		context.stop();
 		return result;
 	}
@@ -145,7 +146,7 @@ public class DGrid extends DComponent {
 
 		log.info("waiting for rows to load");
 		try {
-			wait.shortWaitForElementToBe(progressBar);
+			wait.forXMillis(500);
 			int bars = 1;
 			int waits = 0;
 			while (bars > 0 && waits < 30) {
@@ -156,12 +157,15 @@ public class DGrid extends DComponent {
 			}
 			log.debug("waited for rows to load for ms = 200*" + waits);
 			wait.forXMillis(200);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 		context.stop();
 	}
 
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
 		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+
+		ArrayList<HashMap<String, String>> info = getListedRowInfo();
 
 		for (int i = 0; i < gridRows.size(); i++) {
 			WebElement rowContainer = gridRows.get(i);
@@ -175,6 +179,25 @@ public class DGrid extends DComponent {
 
 	}
 
+	public int getIndexOf(String columnName, String value) throws Exception {
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+
+		if(!getColumnNames().contains(columnName)){
+			return -1;
+		}
+
+		ArrayList<HashMap<String, String>> info = getListedRowInfo();
+		for (int i = 0; i <info.size() ; i++) {
+			if(StringUtils.equalsIgnoreCase(info.get(i).get(columnName), value)){
+				return i;
+			}
+		}
+
+		context.stop();
+		return -1;
+
+	}
+
 	public int scrollTo(String columnName, String value) throws Exception {
 		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 
@@ -183,27 +206,21 @@ public class DGrid extends DComponent {
 			throw new Exception("Selected column name '" + columnName + "' is not visible in the present grid");
 		}
 
-		int columnIndex = -1;
-		for (int i = 0; i < columnNames.size(); i++) {
-			if (StringUtils.equalsIgnoreCase(columnNames.get(i), columnName)) {
-				columnIndex = i;
-			}
-		}
 
 		Pagination pagination = getPagination();
 		pagination.skipToFirstPage();
+
 		waitForRowsToLoad();
 
-		int index = getIndexOf(columnIndex, value);
+		int index = getIndexOf(columnName, value);
 
 		while (index < 0 && pagination.hasNextPage()) {
 			pagination.goToNextPage();
 			waitForRowsToLoad();
-			index = getIndexOf(columnIndex, value);
+			index = getIndexOf(columnName, value);
 		}
 
 		context.stop();
-
 		return index;
 	}
 
@@ -215,7 +232,7 @@ public class DGrid extends DComponent {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");
 		}
 		selectRow(index);
-context.stop();
+		context.stop();
 		return index;
 	}
 
@@ -250,7 +267,7 @@ context.stop();
 
 		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
-			resetGridScroll();
+//			resetGridScroll();
 			DObject column = new DObject(driver, gridHeaders.get(i).findElement(By.cssSelector("div > span.datatable-header-cell-wrapper > span")));
 			if (StringUtils.equalsIgnoreCase(column.getText(), columnName)) {
 				column.scrollIntoView();
@@ -405,6 +422,23 @@ context.stop();
 		return values;
 	}
 
+	public List<String> getAvailableActionsForRow(int rowNo) throws Exception {
+		int actionsColIndex = getColumnNames().indexOf("Actions");
+		if (actionsColIndex < 0) {
+			throw new Exception("Column Actions is not visible");
+		}
+
+		String script = String.format("var arr=[];arguments[0].querySelectorAll(\".datatable-row-wrapper:nth-of-type(%s) datatable-body-cell:nth-of-type(%s) button:not([disabled])\").forEach(function(item){arr.push(item.getAttribute(\"tooltip\"))});return arr;"
+				, rowNo+1, actionsColIndex + 1);
+
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		ArrayList<String> result = (ArrayList<String>) js.executeScript(script, container);
+		result.removeIf(str -> (StringUtils.isEmpty(str)));
+
+		return result;
+	}
+
+
 	public void resetGridScroll() {
 		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 
@@ -451,7 +485,7 @@ context.stop();
 	public void checkShowLink(SoftAssert soft) throws Exception {
 		//-----------Show
 		getGridCtrl().showCtrls();
-		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
+		soft.assertTrue(getGridCtrl().areCheckboxesVisible(), "Show Columns shows checkboxes for columns");
 	}
 
 	public void checkHideLink(SoftAssert soft) throws Exception {

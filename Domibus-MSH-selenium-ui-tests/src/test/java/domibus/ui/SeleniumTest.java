@@ -181,8 +181,10 @@ public class SeleniumTest extends BaseTest {
 					soft.assertEquals(object.isPresent(), currentNode.getBoolean("isDefault"),
 							String.format("Filter %s isChangePassLnkPresent = %s as expected", field.getName(), currentNode.getBoolean("isDefault")));
 					if (currentNode.getBoolean("isDefault")) {
-						log.info(object.getAttribute("placeholder"));
-						soft.assertEquals(object.getAttribute("placeholder"), currentNode.getString("placeholder"), "Placeholder text is correct - " + currentNode.getString("placeholder"));
+						String placeHolder = object.getAttribute("placeholder");
+						if(!(null == placeHolder && StringUtils.isEmpty(currentNode.getString("placeholder")))){
+							soft.assertEquals(object.getAttribute("placeholder"), currentNode.getString("placeholder"), "Placeholder text is correct - " + currentNode.getString("placeholder"));
+						}
 					}
 					continue;
 				}

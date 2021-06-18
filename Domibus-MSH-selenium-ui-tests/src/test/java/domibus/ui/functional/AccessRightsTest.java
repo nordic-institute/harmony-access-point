@@ -105,7 +105,7 @@ public class AccessRightsTest extends SeleniumTest {
 		
 		DomibusPage page = new DomibusPage(driver);
 		log.info("Checking rights for super admin");
-		soft.assertTrue(page.getSidebar().isAdminState(), "Options that should be available to an ADMIN are present");
+		soft.assertTrue(page.getSidebar().isSuperState(), "Options that should be available to an SUPER ADMIN are present");
 		
 		log.info("Checking domain selector for super user");
 		soft.assertTrue(null != page.getDomainSelector().getSelectedValue(), "Domain selector is present and selected value is not null");
