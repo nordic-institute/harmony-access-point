@@ -2,8 +2,10 @@ package pages.tlsTrustStore;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.grid.GridControls;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import ddsl.dobjects.DLink;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -71,23 +73,8 @@ public class TlsTrustStorePage extends DomibusPage {
     }
 
 
-    public void uploadAddCert(String filePath, String password, String buttonLabel) throws Exception {
-        if(buttonLabel.equals("upload")) {
-            getUploadButton().click();
-            wait.forXMillis(100);
-            chooseFileButton.sendKeys(filePath);
-            getPassInputField().fill(password);
-        }
-        else
-        {
-            getAddCertButton().click();
-            wait.forXMillis(100);
-            chooseFileButton.sendKeys(filePath);
-            getAliasInputField().fill(password);
-        }
-
-        wait.forElementToBeClickable(okButton);
-        getOkButton().click();
+    public GridControls getGridctrls() {
+        return new GridControls(driver);
     }
 
     public void uploadAddCert(String filePath, String password, DButton button, DInput inputField) throws Exception {
