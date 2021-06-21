@@ -171,6 +171,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
         soft.assertAll();
     }
+
     /* This will verify wrong file add feature */
     @Test(description = "TLS-22", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void wrongFileAdd() throws Exception {
