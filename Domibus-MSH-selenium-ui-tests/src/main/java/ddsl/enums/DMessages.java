@@ -80,12 +80,20 @@ public class DMessages {
 	public static final String CONNECTION_MONITORING_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found.Please call the method again to see the details.";
 	public static final String CONNECTION_MONITORING_CERT_ERROR="Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0004-[DOM_001]:Cannot send message: receiver certificate is not valid or it has been revoked [%s]";
 	
-	
 	public class Users {
 		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "The operation 'update users' did not complete successfully. Duplicate user name for users: %s";
 		public static final String ONLY_ADMINUSER_DEACTIVATE_ERROR="The operation 'update users' did not complete successfully. [DOM_001]:There must always be at least one active Domain Admin for each Domain.";
 		public static final String LOGGEDINUSER_DELETE_ERROR="You cannot delete the logged in user";
+	}
+
+	public class TlsTruststore {
+		public static final String TLS_TRUSTSTORE_NOCONFIG="Error loading data for 'TLS TrustStore' component: Could not find client authentication file for domain [%s]";
+		public static final String TLS_TRUSTSTORE_UPLOAD="Error updating truststore file (%s) Could not find client authentication file for domain [%s]";
+		public static final String TLS_TRUSTSTORE_SUCCESS_UPLOAD="TLS truststore file has been successfully replaced.";
+		public static final String TLS_TRUSTSTORE_REMOVE_CERT="Certificate [%s] has been successfully removed from the TLS truststore.";
+		public static final String TLS_TRUSTSTORE_WRONGFILE_UPLOAD= "Error updating truststore file (%s) Store file type (xml) should match the configured truststore type (JKS).";
+		public static final String TLS_TRUSTSTOE_WRONGFILE_ADD="Error updating truststore file (%s) Could not generate certificate";
 	}
 
 }

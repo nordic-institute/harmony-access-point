@@ -135,6 +135,9 @@ public class SideNavigation extends DComponent {
 			case TRUSTSTORES_DOMIBUS:
 				expandSection(truststoreExpand);
 				return new DLink(driver, domibusTruststoreLnk);
+			case TRUSTSTORES_TLS:
+				expandSection(truststoreExpand);
+				return new DLink(driver, tlsTruststoreLnk);
 			case USERS:
 				return new DLink(driver, userLnk);
 			case PLUGIN_USERS:
