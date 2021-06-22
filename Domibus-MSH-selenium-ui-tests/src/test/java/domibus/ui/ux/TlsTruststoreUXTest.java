@@ -197,6 +197,19 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         soft.assertAll();
     }
 
+   /* This test case will verify Single click on grid row functionality */
+    @Test(description = "TLS-23", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
+    public void singleClick() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        TlsTrustStorePage page = new TlsTrustStorePage(driver);
+        page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+        soft.assertFalse(page.grid().gridRows.get(0).getAttribute("class").contains("active"),"Grid is not selected yet");
+        page.grid().selectRow(0);
+        soft.assertTrue(page.grid().gridRows.get(0).getAttribute("class").contains("active"),"Grid is selected now");
+        soft.assertTrue(page.getRemoveCertButton().isEnabled(),"Remove button is enabled on selection");
+        soft.assertAll();
+    }
+
     private Boolean isDefaultElmPresent(Boolean tlsConfig, TlsTrustStorePage page) throws Exception {
 
         if (tlsConfig) {
