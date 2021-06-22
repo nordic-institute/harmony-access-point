@@ -43,7 +43,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         if (!data.isMultiDomain()) {
             currentDomain = "default";
         }
-        soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_NOCONFIG, currentDomain)), "same");
+        soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_NOCONFIG, currentDomain)), "Correct message is shown");
         soft.assertTrue(page.isDefaultElmPresent(FALSE),"All default elements are present in default status");
         page.grid().getGridCtrl().showCtrls();
 
