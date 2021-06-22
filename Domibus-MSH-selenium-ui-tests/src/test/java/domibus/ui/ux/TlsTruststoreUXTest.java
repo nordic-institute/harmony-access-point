@@ -25,7 +25,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
     JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORES_TLS);
 
-
+    // Need to handle messages separately for ST & MT after resolution of  EDELIVERY-8270
     /* This method will verify page navigation and components when tls config is not done */
     @Test(description = "TLS-1", groups = {"singleTenancy", "NoTlsConfig"})
     public void openTlsTrustorePg() throws Exception {
