@@ -5,13 +5,11 @@ import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.GridControls;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
-import ddsl.dobjects.DLink;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.testng.asserts.SoftAssert;
 
 public class TlsTrustStorePage extends DomibusPage {
 
@@ -20,22 +18,22 @@ public class TlsTrustStorePage extends DomibusPage {
 
     @FindBy(id = "uploadbutton_id")
     WebElement uploadButton;
-    @FindBy(id="downloadbutton_id")
+    @FindBy(id = "downloadbutton_id")
     WebElement downloadButton;
-    @FindBy(id="addCertificate_id")
+    @FindBy(id = "addCertificate_id")
     WebElement addCertButton;
-    @FindBy(id="removeCertificate_id")
+    @FindBy(id = "removeCertificate_id")
     WebElement removeCertButton;
 
     @FindBy(id = "truststore")
     WebElement chooseFileButton;
     @FindBy(id = "password_id")
     WebElement passwordInputField;
-    @FindBy(id="alias_id")
+    @FindBy(id = "alias_id")
     WebElement aliasInputField;
     @FindBy(id = "okbuttonupload_id")
     WebElement okButton;
-    @FindBy(id="cancelbuttonupload_id")
+    @FindBy(id = "cancelbuttonupload_id")
     WebElement cancelButton;
 
     @FindBy(css = ".error")
@@ -53,21 +51,27 @@ public class TlsTrustStorePage extends DomibusPage {
     public DButton getUploadButton() {
         return new DButton(driver, uploadButton);
     }
+
     public DButton getDownloadButton() {
         return new DButton(driver, downloadButton);
     }
+
     public DButton getAddCertButton() {
         return new DButton(driver, addCertButton);
     }
+
     public DButton getRemoveCertButton() {
         return new DButton(driver, removeCertButton);
     }
+
     public DInput getPassInputField() {
         return new DInput(driver, passwordInputField);
     }
+
     public DInput getAliasInputField() {
-            return new DInput(driver,aliasInputField);
-        }
+        return new DInput(driver, aliasInputField);
+    }
+
     public DButton getOkButton() {
         return new DButton(driver, okButton);
     }
@@ -79,13 +83,13 @@ public class TlsTrustStorePage extends DomibusPage {
 
     public void uploadAddCert(String filePath, String password, DButton button, DInput inputField) throws Exception {
 
-            button.click();
-            wait.forXMillis(100);
-            chooseFileButton.sendKeys(filePath);
-            inputField.fill(password);
+        button.click();
+        wait.forXMillis(100);
+        chooseFileButton.sendKeys(filePath);
+        inputField.fill(password);
 
         wait.forElementToBeClickable(okButton);
-            getOkButton().click();
+        getOkButton().click();
     }
 }
 

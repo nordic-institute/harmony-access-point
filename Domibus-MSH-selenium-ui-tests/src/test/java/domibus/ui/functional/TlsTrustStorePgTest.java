@@ -56,11 +56,11 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
         page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
 
-
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.TlsTruststore.TLS_TRUSTSTORE_SUCCESS_UPLOAD), "Success message is shown");
         soft.assertAll();
 
     }
+
     /* This method will verify remove certificate functionality when tls config is done */
     @Test(description = "TLS-5", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void removeCert() throws Exception {
@@ -74,7 +74,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
         String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
         page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
-
+        page.grid().waitForRowsToLoad();
 
         int beforeCount = page.grid().getPagination().getTotalItems();
         page.grid().selectRow(0);
@@ -83,7 +83,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
         page.getRemoveCertButton().click();
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_REMOVE_CERT, selectedAlias)
         ), "Both error messages are same");
-        page.refreshPage();
+
         page.grid().waitForRowsToLoad();
         int afterCount = page.grid().getPagination().getTotalItems();
         soft.assertTrue(beforeCount > afterCount, "Now grid has less certificate than before");
@@ -104,6 +104,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
         String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
         page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+        page.grid().waitForRowsToLoad();
 
 
         int beforeCount = page.grid().getPagination().getTotalItems();
@@ -115,8 +116,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
             soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_REMOVE_CERT, selectedAlias)
             ), "Both error messages are same");
             page.getAlertArea().closeButton.click();
-            page.refreshPage();
-            page.grid().waitForRowsToLoad();
+
         }
 
         soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "Grid is empty now");
@@ -147,13 +147,14 @@ public class TlsTrustStorePgTest extends SeleniumTest {
         soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "grid is empty now");
         String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
         page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
-
+        page.grid().waitForRowsToLoad();
 
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.TlsTruststore.TLS_TRUSTSTORE_SUCCESS_UPLOAD));
         soft.assertTrue(page.grid().getPagination().getTotalItems() > 0, "Certificate data is present in grid");
         soft.assertAll();
 
     }
+
     /*This test case will verify wrong file upload feature */
     @Test(description = "TLS-21", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void wrongFileUpload() throws Exception {
@@ -184,8 +185,9 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
         page.uploadAddCert(absolutePath, "test123", page.getAddCertButton(), page.getAliasInputField());
 
-        soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTOE_WRONGFILE_ADD,certFileName)),"Correct error message is shown");
+        soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTOE_WRONGFILE_ADD, certFileName)), "Correct error message is shown");
         soft.assertAll();
     }
+
 
 }

@@ -15,6 +15,8 @@ import utils.TestUtils;
 
 import java.util.List;
 
+import static java.lang.Boolean.*;
+
 /**
  * @author Rupam
  * @version 5.0
@@ -43,12 +45,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             currentDomain = "default";
         }
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_NOCONFIG, currentDomain)), "same");
-        soft.assertTrue(page.getUploadButton().isEnabled(), "Upload button is enabled");
-        soft.assertTrue(page.getDownloadButton().isDisabled(), "Download button is disabled");
-        soft.assertTrue(page.getAddCertButton().isDisabled(), "Add Certificate button is disabled");
-        soft.assertTrue(page.getRemoveCertButton().isDisabled(), "Remove Certificate button is disabled");
-        soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "Grid is empty");
-        soft.assertTrue(page.getGridctrls().getShowHideCtrlLnk().isPresent(), "Show column link is present");
+        soft.assertTrue(isDefaultElmPresent(FALSE,page),"All default elements are present in default status");
 
         soft.assertAll();
     }
@@ -63,12 +60,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-        soft.assertTrue(!page.getAlertArea().isShown(), "Alert area with error/success message is not shown on page landing");
-        soft.assertTrue(page.getUploadButton().isEnabled(), "Upload button is enabled");
-        soft.assertTrue(page.getDownloadButton().isEnabled(), "Download button is enabled");
-        soft.assertTrue(page.getAddCertButton().isEnabled(), "Add Certificate button is enabled");
-        soft.assertTrue(page.getRemoveCertButton().isDisabled(), "Remove Certificate button is disabled");
-        soft.assertTrue(page.getGridctrls().getShowHideCtrlLnk().isPresent(), "Show column link is present");
+        soft.assertTrue(isDefaultElmPresent(TRUE,page),"All default elements are present in default status");
 
         soft.assertAll();
     }
@@ -184,11 +176,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         for (int i = 0; i <= domainCount - 1; i++) {
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
-            Boolean isDefaultElmPresent = !page.getAlertArea().isShown() && page.getUploadButton().isEnabled() &&
-                    page.getDownloadButton().isEnabled() && page.getAddCertButton().isEnabled() &&
-                    page.getRemoveCertButton().isDisabled() && page.getGridctrls().getShowHideCtrlLnk().isPresent();
-            soft.assertTrue(isDefaultElmPresent("yes",page,soft));
-           // soft.assertTrue(isDefaultElmPresent, "All default elements are present properly for domain " + page.getDomainFromTitle());
+            soft.assertTrue(isDefaultElmPresent(TRUE,page),"All Default elements are present in default state");
         }
         soft.assertAll();
     }
@@ -204,17 +192,20 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             soft.assertTrue(page.getAlertArea().isShown(), "Error message is shown");
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
-            isDefaultElmPresent("no",page,soft);
+            soft.assertTrue(isDefaultElmPresent(FALSE,page),"All default elements are present in default state");
         }
         soft.assertAll();
     }
 
-    public Boolean isDefaultElmPresent(String tlsConfig, TlsTrustStorePage page, SoftAssert soft) throws Exception {
+    private Boolean isDefaultElmPresent(Boolean tlsConfig, TlsTrustStorePage page) throws Exception {
 
-        if (tlsConfig.equals("yes")) {
+        if (tlsConfig) {
             Boolean isElmPresent = !page.getAlertArea().isShown() && page.getUploadButton().isEnabled() &&
                     page.getDownloadButton().isEnabled() && page.getAddCertButton().isEnabled() &&
                     page.getRemoveCertButton().isDisabled() && page.getGridctrls().getShowHideCtrlLnk().isPresent();
+//            Boolean isElmPresent = !page.getAlertArea().isShown() && page.getUploadButton().isEnabled() &&
+//                    page.getDownloadButton().isEnabled() && page.getAddCertButton().isEnabled() &&
+//                    page.getRemoveCertButton().isDisabled() && page.getGridctrls().getShowHideCtrlLnk().isPresent();
             return isElmPresent;
         } else {
             Boolean isElmPresent =  page.getUploadButton().isEnabled() && page.getAddCertButton().isDisabled()
