@@ -158,8 +158,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         SoftAssert soft = new SoftAssert();
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-        page.getGridctrls().showCtrls();
-        soft.assertTrue(page.getGridctrls().areCheckboxesVisible(), "All check boxes are visible");
+        page.grid().checkShowLink(soft);
         soft.assertTrue(page.getGridctrls().getAllLnk().isPresent() && page.getGridctrls().getAllLnk().isEnabled(), "All link is present & enabled");
         soft.assertTrue(page.getGridctrls().getNoneLnk().isPresent() && page.getGridctrls().getNoneLnk().isEnabled(), "None link is present & enabled");
 
