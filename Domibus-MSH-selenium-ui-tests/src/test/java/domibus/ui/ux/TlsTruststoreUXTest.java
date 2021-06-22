@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.tlsTrustStore.TlsTrustStorePage;
-import rest.RestServicePaths;
 import utils.TestUtils;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 
     /* This method will verify page navigation and components when tls config is not done */
-    @Test(description = "TLS-1", groups = {"multiTenancy", "singleTenancy", "NoTlsConfig"})
+    @Test(description = "TLS-1", groups = {"singleTenancy", "NoTlsConfig"})
     public void openTlsTrustorePg() throws Exception {
         SoftAssert soft = new SoftAssert();
 
@@ -51,7 +50,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
     }
 
     /* This method will verfiy page navigation with components when tls configuration is done */
-    @Test(description = "TLS-2", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
+    @Test(description = "TLS-2", groups = {"singleTenancy", "TlsConfig"})
     public void openPage() throws Exception {
         SoftAssert soft = new SoftAssert();
 
