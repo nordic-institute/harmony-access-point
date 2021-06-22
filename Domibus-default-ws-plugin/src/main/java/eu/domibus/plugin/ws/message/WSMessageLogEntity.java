@@ -1,5 +1,8 @@
 package eu.domibus.plugin.ws.message;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -22,7 +25,10 @@ import java.util.Date;
 public class WSMessageLogEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GenericGenerator(
+            name = "DOMIBUS_SCALABLE_SEQUENCE",
+            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
+            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = "50")})
     @Column(name = "ID_PK")
     private long entityId;
 

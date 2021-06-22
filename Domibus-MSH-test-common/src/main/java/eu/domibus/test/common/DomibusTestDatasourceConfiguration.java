@@ -2,13 +2,22 @@ package eu.domibus.test.common;
 
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.h2.jdbcx.JdbcDataSource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.TimeZone;
 
 /**
@@ -17,6 +26,8 @@ import java.util.TimeZone;
  */
 @Configuration
 public class DomibusTestDatasourceConfiguration {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestDatasourceConfiguration.class);
 
     @Primary
     @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, destroyMethod = "close")
@@ -34,6 +45,50 @@ public class DomibusTestDatasourceConfiguration {
     @DependsOn(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource quartzDatasource() {
         return createDataSource();
+    }
+
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+
+        entityManagerFactoryBean.setDataSource(dataSource);
+        entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+//        entityManagerFactoryBean.setPackagesToScan(PROPERTY_PACKAGES_TO_SCAN, CONVERT_PACKAGES_TO_SCAN);
+
+//        Properties jpaProperties = new Properties();
+//        jpaProperties.put(PROPERTY_NAME_HIBERNATE_DIALECT, environment.getRequiredProperty(PROPERTY_NAME_HIBERNATE_DIALECT));
+//        jpaProperties.put(PROPERTY_NAME_HIBERNATE_FORMAT_SQL, environment.getRequiredProperty(PROPERTY_NAME_HIBERNATE_FORMAT_SQL));
+//        jpaProperties.put(PROPERTY_NAME_HIBERNATE_HBM2DDL_AUTO, environment.getRequiredProperty(PROPERTY_NAME_HIBERNATE_HBM2DDL_AUTO));
+//        jpaProperties.put(PROPERTY_NAME_HIBERNATE_NAMING_STRATEGY, environment.getRequiredProperty(PROPERTY_NAME_HIBERNATE_NAMING_STRATEGY));
+//        jpaProperties.put(PROPERTY_NAME_HIBERNATE_SHOW_SQL, environment.getRequiredProperty(PROPERTY_NAME_HIBERNATE_SHOW_SQL));
+        //jpaProperties.put("jadira.usertype.autoRegisterUserTypes", "true");
+
+//        entityManagerFactoryBean.setJpaProperties(jpaProperties);
+
+        entityManagerFactoryBean.setMappingResources("META-INF/orm.xml");
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        try {
+            Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/*-mysql-orm.xml");
+            if (pluginDefaultResourceList != null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("resolver.getResources -> classpath*:config/*-mysql-orm.xml found [{}] resources. [{}]", pluginDefaultResourceList.length, pluginDefaultResourceList);
+                }
+                String[] mappingResources = new String[pluginDefaultResourceList.length];
+                for (int i = 0; i < pluginDefaultResourceList.length; i++) {
+                    String relativePath = StringUtils.substringAfter(pluginDefaultResourceList[i].getURL().getPath(), "!/");
+                    mappingResources[i] = relativePath;
+                    LOG.debug("setMappingResources [{}]", relativePath);
+
+                }
+                entityManagerFactoryBean.setMappingResources(mappingResources);
+            }
+        } catch (IOException e) {
+            LOG.error("Ressources classpath*:config/*-mysql-orm.xml");
+        }
+
+
+        return entityManagerFactoryBean;
     }
 
     private HikariDataSource createDataSource() {

@@ -58,18 +58,18 @@ public class MessageTestUtility {
 
         From from = new From();
         PartyRole fromRole = createSenderPartyRole();
-        from.setRole(fromRole);
+        from.setFromRole(fromRole);
 
         PartyId sender = createSenderPartyId();
-        from.setPartyId(sender);
+        from.setFromPartyId(sender);
         partyInfo.setFrom(from);
 
         To to = new To();
         PartyRole toRole = createReceiverPartyRole();
-        to.setRole(toRole);
+        to.setToRole(toRole);
 
         PartyId receiver = createReceiverPartyId();
-        to.setPartyId(receiver);
+        to.setToPartyId(receiver);
         partyInfo.setTo(to);
 
         return userMessage;

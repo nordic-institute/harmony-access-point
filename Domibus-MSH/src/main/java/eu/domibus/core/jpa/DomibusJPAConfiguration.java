@@ -1,6 +1,8 @@
 package eu.domibus.core.jpa;
 
 import eu.domibus.api.datasource.DataSourceConstants;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -25,6 +29,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
@@ -51,6 +56,7 @@ public class DomibusJPAConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,
+                                                                       DomibusConfigurationService domibusConfigurationService,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,
                                                                        Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
@@ -77,9 +83,33 @@ public class DomibusJPAConfiguration {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
             }
         }
+        initMysqlOrm(domibusConfigurationService, result);
         result.setJpaProperties(jpaProperties);
-
         return result;
+    }
+
+    private void initMysqlOrm(DomibusConfigurationService domibusConfigurationService, LocalContainerEntityManagerFactoryBean result) {
+        if (DataBaseEngine.MYSQL == domibusConfigurationService.getDataBaseEngine()) {
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            try {
+                Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/*-mysql-orm.xml");
+                if (pluginDefaultResourceList != null) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("resolver.getResources -> classpath*:config/*-mysql-orm.xml found [{}] resources. [{}]", pluginDefaultResourceList.length, pluginDefaultResourceList);
+                    }
+                    String[] mappingResources = new String[pluginDefaultResourceList.length];
+                    for (int i = 0; i < pluginDefaultResourceList.length; i++) {
+                        String relativePath = StringUtils.substringAfter(pluginDefaultResourceList[i].getURL().getPath(), "!/");
+                        mappingResources[i] = relativePath;
+                        LOG.debug("setMappingResources [{}]", relativePath);
+
+                    }
+                    result.setMappingResources(mappingResources);
+                }
+            } catch (IOException e) {
+                LOG.error("Ressources classpath*:config/*-mysql-orm.xml");
+            }
+        }
     }
 
     @Bean(JPA_PROPERTIES)

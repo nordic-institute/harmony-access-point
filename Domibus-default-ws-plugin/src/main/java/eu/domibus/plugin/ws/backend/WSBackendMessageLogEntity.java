@@ -4,6 +4,8 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -31,7 +33,11 @@ public class WSBackendMessageLogEntity {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendMessageLogEntity.class);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =  "DOMIBUS_SCALABLE_SEQUENCE")
+    @GenericGenerator(
+            name = "DOMIBUS_SCALABLE_SEQUENCE",
+            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
+            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = "50")})
     @Column(name = "ID_PK")
     private long entityId;
 

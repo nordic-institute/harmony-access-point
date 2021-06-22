@@ -1353,7 +1353,7 @@ public class CachingPModeProviderTest {
 
         MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getPartyId();
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = null;
         }};
         try {
@@ -1375,7 +1375,7 @@ public class CachingPModeProviderTest {
 
         Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getPartyId();
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = fromPartyId;
 
             cachingPModeProvider.findPartyName(partyId1);
@@ -1395,7 +1395,7 @@ public class CachingPModeProviderTest {
         MSHRole mshRole1 = MSHRole.SENDING;
 
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getPartyId();
+            userMessage.getPartyInfo().getTo().getToPartyId();
             result = null;
 
             cachingPModeProvider.findSenderParty(userMessage);
@@ -1421,7 +1421,7 @@ public class CachingPModeProviderTest {
 
         Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getPartyId();
+            userMessage.getPartyInfo().getTo().getToPartyId();
             result = toPartyId;
 
             cachingPModeProvider.findPartyName(partyId1);

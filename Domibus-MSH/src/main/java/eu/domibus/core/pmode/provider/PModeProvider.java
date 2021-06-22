@@ -256,7 +256,7 @@ public abstract class PModeProvider {
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getPartyId().getValue());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getFromPartyId().getValue());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
         LOG.putMDC(DomibusLogger.MDC_SERVICE, userMessage.getService().getValue());
         LOG.putMDC(DomibusLogger.MDC_ACTION, userMessage.getActionValue());
@@ -306,7 +306,7 @@ public abstract class PModeProvider {
 
     protected String findSenderParty(UserMessage userMessage) throws EbMS3Exception {
         String senderParty;
-        PartyId fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
+        PartyId fromPartyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
         if (fromPartyId == null) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field From PartyId is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/PartyId");
@@ -335,7 +335,7 @@ public abstract class PModeProvider {
 
     protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty) throws EbMS3Exception {
         String receiverParty = StringUtils.EMPTY;
-        final PartyId toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
+        final PartyId toPartyId = userMessage.getPartyInfo().getTo().getToPartyId();
         if (toPartyId == null) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field To PartyId is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");

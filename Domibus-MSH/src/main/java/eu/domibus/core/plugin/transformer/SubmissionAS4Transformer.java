@@ -111,14 +111,14 @@ public class SubmissionAS4Transformer {
         final From from = new From();
 
         final PartyRole fromRole = partyRoleDao.findOrCreateRole(submission.getFromRole());
-        from.setRole(fromRole);
+        from.setFromRole(fromRole);
 
         final Set<Submission.Party> fromParties = submission.getFromParties();
         if (CollectionUtils.isNotEmpty(fromParties)) {
             LOG.error("Cannot have multiple from parties, using the first party");
             final Submission.Party party = fromParties.iterator().next();
             final PartyId fromParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
-            from.setPartyId(fromParty);
+            from.setFromPartyId(fromParty);
 
             return from;
         }
@@ -129,7 +129,7 @@ public class SubmissionAS4Transformer {
         final To to = new To();
 
         final PartyRole toRole = partyRoleDao.findOrCreateRole(submission.getToRole());
-        to.setRole(toRole);
+        to.setToRole(toRole);
 
         final Set<Submission.Party> toParties = submission.getToParties();
         if (CollectionUtils.isNotEmpty(toParties)) {
@@ -138,7 +138,7 @@ public class SubmissionAS4Transformer {
             }
             final Submission.Party party = toParties.iterator().next();
             final PartyId toParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
-            to.setPartyId(toParty);
+            to.setToPartyId(toParty);
             return to;
         }
         return to;
@@ -197,11 +197,11 @@ public class SubmissionAS4Transformer {
         result.setFromRole(userMessage.getPartyInfo().getFrom().getRoleValue());
         result.setToRole(userMessage.getPartyInfo().getTo().getRoleValue());
 
-        final PartyId partyFromId = userMessage.getPartyInfo().getFrom().getPartyId();
+        final PartyId partyFromId = userMessage.getPartyInfo().getFrom().getFromPartyId();
         result.addFromParty(partyFromId.getValue(), partyFromId.getType());
 
 
-        final PartyId partyTo = userMessage.getPartyInfo().getTo().getPartyId();
+        final PartyId partyTo = userMessage.getPartyInfo().getTo().getToPartyId();
         result.addToParty(partyTo.getValue(), partyTo.getType());
 
 
