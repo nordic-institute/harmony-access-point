@@ -245,7 +245,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT"/>
+        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_AGREEMENT_VALUE_TYPE" tableName="TB_D_AGREEMENT"/>
 
         <createTable tableName="TB_D_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
