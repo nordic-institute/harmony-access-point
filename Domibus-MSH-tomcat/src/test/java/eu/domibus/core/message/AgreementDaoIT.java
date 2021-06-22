@@ -20,7 +20,7 @@ public class AgreementDaoIT extends AbstractIT {
     private AgreementDao agreementDao;
 
     @Test
-    public void testFindByNameValueAndType() {
+    public void testFindByValueAndType() {
         final String value = "value1";
         final String type = "string";
         AgreementRefEntity entity = buildEntity(value, type);
@@ -33,28 +33,49 @@ public class AgreementDaoIT extends AbstractIT {
         Assert.assertEquals(value, foundAgreement.getValue());
         Assert.assertEquals(type, foundAgreement.getType());
 
-        final AgreementRefEntity foundProperty1 = agreementDao.findOrCreateAgreement(value, type);
+        final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, type);
 
-        Assert.assertEquals(foundAgreement.getEntityId(), foundProperty1.getEntityId());
+        Assert.assertEquals(foundAgreement.getEntityId(), foundAgreement1.getEntityId());
     }
 
     @Test
-    public void testFindByNameAndValue() {
+    public void testFindByValue() {
         final String value = "value1";
         final String type = null;
-        AgreementRefEntity property = buildEntity(value, type);
-        agreementDao.create(property);
+        AgreementRefEntity entity = buildEntity(value, type);
+        agreementDao.create(entity);
 
-        final AgreementRefEntity foundProperty = agreementDao.findOrCreateAgreement(value, type);
-        assertNotNull(foundProperty);
+        final AgreementRefEntity foundAgreement = agreementDao.findOrCreateAgreement(value, type);
+        assertNotNull(foundAgreement);
 
-        Assert.assertEquals(property.getEntityId(), foundProperty.getEntityId());
-        Assert.assertEquals(value, foundProperty.getValue());
-        Assert.assertEquals(type, foundProperty.getType());
+        Assert.assertEquals(entity.getEntityId(), foundAgreement.getEntityId());
+        Assert.assertEquals(value, foundAgreement.getValue());
+        Assert.assertEquals(type, foundAgreement.getType());
 
-        final AgreementRefEntity foundProperty1 = agreementDao.findOrCreateAgreement(value, type);
+        final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, type);
 
-        Assert.assertEquals(foundProperty.getEntityId(), foundProperty1.getEntityId());
+        Assert.assertEquals(foundAgreement.getEntityId(), foundAgreement1.getEntityId());
+    }
+
+    @Test
+    public void testFindOrCreate() {
+        final String value = "value1";
+
+        final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, "  ");
+        assertNotNull(foundAgreement1);
+
+        final AgreementRefEntity foundAgreement2 = agreementDao.findOrCreateAgreement(value, "");
+        assertNotNull(foundAgreement2);
+
+        final AgreementRefEntity foundAgreement3 = agreementDao.findOrCreateAgreement(value, null);
+        assertNotNull(foundAgreement3);
+
+        final AgreementRefEntity foundAgreement4 = agreementDao.findOrCreateAgreement(value, "type1");
+        assertNotNull(foundAgreement4);
+
+        Assert.assertEquals(foundAgreement1.getEntityId(), foundAgreement2.getEntityId());
+        Assert.assertEquals(foundAgreement1.getEntityId(), foundAgreement3.getEntityId());
+        Assert.assertNotEquals(foundAgreement1.getEntityId(), foundAgreement4.getEntityId());
     }
 
     private AgreementRefEntity buildEntity(String value, String type) {
