@@ -72,7 +72,8 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
-        String fileName = rest.csv().downloadGrid(RestServicePaths.TLS_TRUSTSTORE_CSV, null, null);
+        log.info("Click on download csv button");
+        String fileName = page.pressSaveCsvAndSaveFile();
         log.info("downloaded rows to file " + fileName);
         page.grid().checkCSVvsGridInfo(fileName, soft);
 
