@@ -203,9 +203,6 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             Boolean isElmPresent = !page.getAlertArea().isShown() && page.getUploadButton().isEnabled() &&
                     page.getDownloadButton().isEnabled() && page.getAddCertButton().isEnabled() &&
                     page.getRemoveCertButton().isDisabled() && page.getGridctrls().getShowHideCtrlLnk().isPresent();
-//            Boolean isElmPresent = !page.getAlertArea().isShown() && page.getUploadButton().isEnabled() &&
-//                    page.getDownloadButton().isEnabled() && page.getAddCertButton().isEnabled() &&
-//                    page.getRemoveCertButton().isDisabled() && page.getGridctrls().getShowHideCtrlLnk().isPresent();
             return isElmPresent;
         } else {
             Boolean isElmPresent =  page.getUploadButton().isEnabled() && page.getAddCertButton().isDisabled()
