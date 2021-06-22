@@ -173,7 +173,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
         int domainCount = rest.getDomainNames().size();
-        for (int i = 0; i <= domainCount - 1; i++) {
+        for (int i = 0; i < domainCount; i++) {
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
             soft.assertTrue(page.isDefaultElmPresent(TRUE),"All Default elements are present in default state");
@@ -188,7 +188,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
         int domainCount = rest.getDomainNames().size();
-        for (int i = 0; i <= domainCount - 1; i++) {
+        for (int i = 0; i < domainCount; i++) {
             soft.assertTrue(page.getAlertArea().isShown(), "Error message is shown");
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
