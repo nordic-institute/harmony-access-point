@@ -61,17 +61,21 @@ public class AgreementDaoIT extends AbstractIT {
     public void testFindOrCreate() {
         final String value = "value1";
 
-        final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, null);
+        final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, "  ");
         assertNotNull(foundAgreement1);
 
         final AgreementRefEntity foundAgreement2 = agreementDao.findOrCreateAgreement(value, "");
         assertNotNull(foundAgreement2);
 
-        final AgreementRefEntity foundAgreement3 = agreementDao.findOrCreateAgreement(value, "type1");
+        final AgreementRefEntity foundAgreement3 = agreementDao.findOrCreateAgreement(value, null);
         assertNotNull(foundAgreement3);
 
+        final AgreementRefEntity foundAgreement4 = agreementDao.findOrCreateAgreement(value, "type1");
+        assertNotNull(foundAgreement4);
+
         Assert.assertEquals(foundAgreement1.getEntityId(), foundAgreement2.getEntityId());
-        Assert.assertNotEquals(foundAgreement1.getEntityId(), foundAgreement3.getEntityId());
+        Assert.assertEquals(foundAgreement1.getEntityId(), foundAgreement3.getEntityId());
+        Assert.assertNotEquals(foundAgreement1.getEntityId(), foundAgreement4.getEntityId());
     }
 
     private AgreementRefEntity buildEntity(String value, String type) {

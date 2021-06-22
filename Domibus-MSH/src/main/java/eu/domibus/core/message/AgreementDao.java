@@ -22,7 +22,7 @@ public class AgreementDao extends BasicDao<AgreementRefEntity> {
 
     @Transactional
     public AgreementRefEntity findOrCreateAgreement(String value, String type) {
-        if(StringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
 
@@ -32,7 +32,7 @@ public class AgreementDao extends BasicDao<AgreementRefEntity> {
         }
         AgreementRefEntity newAgreement = new AgreementRefEntity();
         newAgreement.setValue(value);
-        newAgreement.setType(type);
+        newAgreement.setType(StringUtils.isNotBlank(type) ? type : null);
         create(newAgreement);
         return newAgreement;
     }
