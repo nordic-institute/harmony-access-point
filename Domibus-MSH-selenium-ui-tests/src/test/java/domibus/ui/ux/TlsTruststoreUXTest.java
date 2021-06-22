@@ -45,7 +45,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             currentDomain = "default";
         }
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_NOCONFIG, currentDomain)), "same");
-        soft.assertTrue(isDefaultElmPresent(FALSE,page),"All default elements are present in default status");
+        soft.assertTrue(page.isDefaultElmPresent(FALSE),"All default elements are present in default status");
 
         soft.assertAll();
     }
@@ -60,7 +60,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-        soft.assertTrue(isDefaultElmPresent(TRUE,page),"All default elements are present in default status");
+        soft.assertTrue(page.isDefaultElmPresent(TRUE),"All default elements are present in default status");
 
         soft.assertAll();
     }
@@ -176,7 +176,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         for (int i = 0; i <= domainCount - 1; i++) {
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
-            soft.assertTrue(isDefaultElmPresent(TRUE,page),"All Default elements are present in default state");
+            soft.assertTrue(page.isDefaultElmPresent(TRUE),"All Default elements are present in default state");
         }
         soft.assertAll();
     }
@@ -192,7 +192,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             soft.assertTrue(page.getAlertArea().isShown(), "Error message is shown");
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
-            soft.assertTrue(isDefaultElmPresent(FALSE,page),"All default elements are present in default state");
+            soft.assertTrue(page.isDefaultElmPresent(FALSE),"All default elements are present in default state");
         }
         soft.assertAll();
     }
@@ -210,19 +210,6 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         soft.assertAll();
     }
 
-    private Boolean isDefaultElmPresent(Boolean tlsConfig, TlsTrustStorePage page) throws Exception {
 
-        if (tlsConfig) {
-            Boolean isElmPresent = !page.getAlertArea().isShown() && page.getUploadButton().isEnabled() &&
-                    page.getDownloadButton().isEnabled() && page.getAddCertButton().isEnabled() &&
-                    page.getRemoveCertButton().isDisabled() && page.getGridctrls().getShowHideCtrlLnk().isPresent();
-            return isElmPresent;
-        } else {
-            Boolean isElmPresent =  page.getUploadButton().isEnabled() && page.getAddCertButton().isDisabled()
-             && page.getRemoveCertButton().isDisabled()  && page.getGridctrls().getShowHideCtrlLnk().isPresent();
-           return isElmPresent;
-        }
-
-    }
 }
 
