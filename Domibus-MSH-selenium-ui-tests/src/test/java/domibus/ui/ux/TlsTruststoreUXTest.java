@@ -45,6 +45,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         }
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_NOCONFIG, currentDomain)), "same");
         soft.assertTrue(page.isDefaultElmPresent(FALSE),"All default elements are present in default status");
+        page.grid().getGridCtrl().showCtrls();
 
         soft.assertAll();
     }
@@ -60,6 +61,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
         soft.assertTrue(page.isDefaultElmPresent(TRUE),"All default elements are present in default status");
+        page.grid().getGridCtrl().showCtrls();
 
         soft.assertAll();
     }
@@ -158,8 +160,8 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         TlsTrustStorePage page = new TlsTrustStorePage(driver);
         page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
         page.grid().checkShowLink(soft);
-        soft.assertTrue(page.getGridctrls().getAllLnk().isPresent() && page.getGridctrls().getAllLnk().isEnabled(), "All link is present & enabled");
-        soft.assertTrue(page.getGridctrls().getNoneLnk().isPresent() && page.getGridctrls().getNoneLnk().isEnabled(), "None link is present & enabled");
+        page.grid().checkAllLink(soft);
+        page.grid().checkNoneLink(soft);
 
         soft.assertAll();
 
@@ -176,6 +178,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
             soft.assertTrue(page.isDefaultElmPresent(TRUE),"All Default elements are present in default state");
+            page.grid().getGridCtrl().showCtrls();
         }
         soft.assertAll();
     }
@@ -192,6 +195,8 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             page.getDomainSelector().selectOptionByIndex(i);
             page.grid().waitForRowsToLoad();
             soft.assertTrue(page.isDefaultElmPresent(FALSE),"All default elements are present in default state");
+            page.grid().getGridCtrl().showCtrls();
+
         }
         soft.assertAll();
     }

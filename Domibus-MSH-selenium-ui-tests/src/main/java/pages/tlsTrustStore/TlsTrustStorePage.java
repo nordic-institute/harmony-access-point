@@ -76,11 +76,6 @@ public class TlsTrustStorePage extends DomibusPage {
         return new DButton(driver, okButton);
     }
 
-
-    public GridControls getGridctrls() {
-        return new GridControls(driver);
-    }
-
     public void uploadAddCert(String filePath, String password, DButton button, DInput inputField) throws Exception {
 
         button.click();
@@ -96,11 +91,12 @@ public class TlsTrustStorePage extends DomibusPage {
         if (tlsConfig) {
             Boolean isElmPresent = !getAlertArea().isShown() && getUploadButton().isEnabled() &&
                     getDownloadButton().isEnabled() && getAddCertButton().isEnabled() &&
-                    getRemoveCertButton().isDisabled() && getGridctrls().getShowHideCtrlLnk().isPresent();
+                    getRemoveCertButton().isDisabled();
+
             return isElmPresent;
         } else {
             Boolean isElmPresent =  getUploadButton().isEnabled() && getAddCertButton().isDisabled()
-                    && getRemoveCertButton().isDisabled()  && getGridctrls().getShowHideCtrlLnk().isPresent();
+                    && getRemoveCertButton().isDisabled();
             return isElmPresent;
         }
 
