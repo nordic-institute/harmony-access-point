@@ -14,7 +14,7 @@ import javax.persistence.TypedQuery;
  * @since 5.0
  */
 @Repository
-public class  MessagePropertyDao extends BasicDao<MessageProperty> {
+public class MessagePropertyDao extends BasicDao<MessageProperty> {
 
     public MessagePropertyDao() {
         super(MessageProperty.class);
@@ -29,7 +29,7 @@ public class  MessagePropertyDao extends BasicDao<MessageProperty> {
         MessageProperty newProperty = new MessageProperty();
         newProperty.setName(name);
         newProperty.setValue(value);
-        newProperty.setType(type);
+        newProperty.setType(StringUtils.isNotBlank(type) ? type : null);
         create(newProperty);
         return newProperty;
     }
@@ -43,7 +43,7 @@ public class  MessagePropertyDao extends BasicDao<MessageProperty> {
     }
 
     protected MessageProperty findExistingProperty(final String name, String value, String type) {
-        if(StringUtils.isNotBlank(type)) {
+        if (StringUtils.isNotBlank(type)) {
             return findPropertyByNameValueAndType(name, value, type);
         }
         return findPropertyByNameValue(name, value);
