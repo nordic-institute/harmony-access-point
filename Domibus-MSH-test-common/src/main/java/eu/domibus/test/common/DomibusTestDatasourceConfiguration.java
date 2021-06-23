@@ -84,7 +84,7 @@ public class DomibusTestDatasourceConfiguration {
                 entityManagerFactoryBean.setMappingResources(mappingResources);
             }
         } catch (IOException e) {
-            LOG.error("Ressources classpath*:config/*-mysql-orm.xml");
+            LOG.error("Ressources classpath*:config/*-mysql-orm.xml", e);
         }
 
 

@@ -1,7 +1,6 @@
 package eu.domibus.plugin.ws.message;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import eu.domibus.plugin.ws.AbstractWSEntity;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -22,15 +21,7 @@ import java.util.Date;
         query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID")
 @NamedQuery(name = "WSMessageLogEntity.deleteByMessageIds",
         query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId in :MESSAGE_IDS")
-public class WSMessageLogEntity {
-
-    @Id
-    @GenericGenerator(
-            name = "DOMIBUS_SCALABLE_SEQUENCE",
-            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
-            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = "50")})
-    @Column(name = "ID_PK")
-    private long entityId;
+public class WSMessageLogEntity extends AbstractWSEntity {
 
     @Column(name = "MESSAGE_ID")
     private String messageId;
@@ -66,14 +57,6 @@ public class WSMessageLogEntity {
         this.finalRecipient = finalRecipient;
         this.originalSender = originalSender;
         this.received = received;
-    }
-
-    public long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(long entityId) {
-        this.entityId = entityId;
     }
 
     public String getMessageId() {

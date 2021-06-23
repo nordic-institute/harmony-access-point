@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+    <mapped-superclass class="eu.domibus.plugin.ws.AbstractWSEntity">
+        <attributes>
+            <id name="entityId">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </mapped-superclass>
+</entity-mappings>

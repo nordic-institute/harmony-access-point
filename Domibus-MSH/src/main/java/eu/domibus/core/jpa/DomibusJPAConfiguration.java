@@ -6,9 +6,9 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
+import eu.domibus.core.property.PrefixedProperties;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.property.PrefixedProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
@@ -30,6 +30,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
@@ -89,26 +90,37 @@ public class DomibusJPAConfiguration {
     }
 
     private void initMysqlOrm(DomibusConfigurationService domibusConfigurationService, LocalContainerEntityManagerFactoryBean result) {
-        if (DataBaseEngine.MYSQL == domibusConfigurationService.getDataBaseEngine()) {
-            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            try {
-                Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/*-mysql-orm.xml");
-                if (pluginDefaultResourceList != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("resolver.getResources -> classpath*:config/*-mysql-orm.xml found [{}] resources. [{}]", pluginDefaultResourceList.length, pluginDefaultResourceList);
-                    }
-                    String[] mappingResources = new String[pluginDefaultResourceList.length];
-                    for (int i = 0; i < pluginDefaultResourceList.length; i++) {
-                        String relativePath = StringUtils.substringAfter(pluginDefaultResourceList[i].getURL().getPath(), "!/");
-                        mappingResources[i] = relativePath;
-                        LOG.debug("setMappingResources [{}]", relativePath);
+        if (DataBaseEngine.MYSQL != domibusConfigurationService.getDataBaseEngine()) {
+            return;
+        }
 
-                    }
-                    result.setMappingResources(mappingResources);
-                }
-            } catch (IOException e) {
-                LOG.error("Ressources classpath*:config/*-mysql-orm.xml");
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        try {
+            Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/domibus/orm/*-mysql-orm.xml");
+            LOG.debug("resolver.getResources -> classpath*:config/domibus/orm/*-mysql-orm.xml found [{}] resources. [{}]", pluginDefaultResourceList.length, pluginDefaultResourceList);
+
+            result.setMappingResources(Arrays.stream(pluginDefaultResourceList)
+                    .map(this::getRelativePath)
+                    .filter(StringUtils::isNotBlank)
+                    .toArray(String[]::new));
+        } catch (IOException e) {
+            LOG.error("Ressources classpath*:config/domibus/orm/*-mysql-orm.xml", e);
+        }
+
+    }
+
+    protected String getRelativePath(Resource resource) {
+
+        try {
+            if (resource == null) {
+                return null;
             }
+            String relativePath = StringUtils.substringAfter(resource.getURL().getPath(), "!/");
+            LOG.debug("setMappingResources [{}]", relativePath);
+            return relativePath;
+        } catch (IOException e) {
+            LOG.error("Ressources classpath*:config/domibus/orm/*-mysql-orm.xml for resource [" + resource + "]", e);
+            return null;
         }
     }
 

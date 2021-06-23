@@ -3,6 +3,7 @@ package eu.domibus.plugin.ws.backend;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.ws.AbstractWSEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -28,18 +29,9 @@ import java.util.Date;
                 "and 1 <= backendMessage.sendAttempts " +
                 "and backendMessage.sendAttempts <= backendMessage.sendAttemptsMax " +
                 "and (backendMessage.scheduled is null or backendMessage.scheduled=false)")
-public class WSBackendMessageLogEntity {
+public class WSBackendMessageLogEntity extends AbstractWSEntity {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendMessageLogEntity.class);
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =  "DOMIBUS_SCALABLE_SEQUENCE")
-    @GenericGenerator(
-            name = "DOMIBUS_SCALABLE_SEQUENCE",
-            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
-            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = "50")})
-    @Column(name = "ID_PK")
-    private long entityId;
 
     @Column(name = "CREATION_TIME", updatable = false, nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -110,14 +102,6 @@ public class WSBackendMessageLogEntity {
         setCreationTime(new Date());
         setModificationTime(new Date());
         setSendAttempts(0);
-    }
-
-    public long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(long entityId) {
-        this.entityId = entityId;
     }
 
     public Date getCreationTime() {
