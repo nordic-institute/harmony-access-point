@@ -86,7 +86,7 @@ public class PropertyProviderHelper {
         }
 
         String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
-        LOG.debug("Multi-tenancy aware: returning the domain [{}]", domainCode);
+        LOG.trace("Multi-tenancy aware: returning the domain [{}]", domainCode);
 
         return domainCode;
     }

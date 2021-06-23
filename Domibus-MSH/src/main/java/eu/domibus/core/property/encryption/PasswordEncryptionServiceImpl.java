@@ -178,7 +178,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
         if (!encryptedKeyFile.exists()) {
-            throw new DomibusEncryptionException(String.format("Could not found encrypted key file for domain [%s]", domain));
+            throw new DomibusEncryptionException(String.format("Could not find encrypted key file for domain [%s]", domain));
         }
 
         PasswordEncryptionSecret secret = passwordEncryptionDao.getSecret(encryptedKeyFile);

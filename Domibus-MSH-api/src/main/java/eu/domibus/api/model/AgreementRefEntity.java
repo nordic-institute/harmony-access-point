@@ -13,9 +13,14 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_AGREEMENT")
-@NamedQuery(name = "AgreementRef.findByValue", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from AgreementRefEntity serv where serv.value=:VALUE")
+@NamedQueries({
+        @NamedQuery(name = "AgreementRef.findByValueAndType", hints = {
+                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from AgreementRefEntity serv where serv.value=:VALUE and serv.type=:TYPE"),
+        @NamedQuery(name = "AgreementRef.findByValue", hints = {
+                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from AgreementRefEntity serv where serv.value=:VALUE and serv.type is null")
+})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class AgreementRefEntity extends AbstractBaseEntity {
 

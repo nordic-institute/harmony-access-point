@@ -619,7 +619,7 @@ class Domibus{
         }
 		
 		// Get Message status names and IDs in a map
-		statusMap=getMsgStatusNames(sqlConn)
+		// statusMap=getMsgStatusNames(sqlConn)
 			
 			
         while ( ( (messageStatus != targetStatus) && (MAX_WAIT_TIME > 0) ) || (wait) ) {
@@ -634,6 +634,10 @@ class Domibus{
 					msgPK = it.ID_PK
 				}
 			}
+			
+			// Get Message status names and IDs in a map
+			statusMap=getMsgStatusNames(sqlConn)
+			
             sqlConn.eachRow("Select * from TB_USER_MESSAGE_LOG where ID_PK = ${msgPK}") {
                 messageStatus = statusMap[it.MESSAGE_STATUS_ID_FK]
                 numberAttempts = it.SEND_ATTEMPTS

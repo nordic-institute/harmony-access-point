@@ -27,7 +27,7 @@ public class MessageFilterArea extends FilterArea {
 	@FindBy(id = "conversationid_id")
 	public WebElement conversationIDInput;
 
-//	-------------------- Advanced filters ---------------------------
+	//	-------------------- Advanced filters ---------------------------
 	@FindBy(id = "aprole_id")
 	public WebElement apRoleContainer;
 	@FindBy(id = "messagetype_id")
@@ -44,45 +44,54 @@ public class MessageFilterArea extends FilterArea {
 	public WebElement receivedFromContainer;
 	@FindBy(id = "receivedto_id")
 	public WebElement receivedToContainer;
+
+	@FindBy(id = "action_id")
+	public WebElement actionInput;
+	@FindBy(id = "serviceType_id")
+	public WebElement serviceTypeInput;
+	@FindBy(id = "serviceValue_id")
+	public WebElement serviceValueInput;
+
+
 	@FindBy(id = "showTestMessages_id")
 	public WebElement showTestMessagesChk;
-	
+
 	public MessageFilterArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-	
+
 	public DInput getMessageIDInput() {
 		return new DInput(driver, messageIDInput);
 	}
-	
+
 	public void basicFilterBy(String messageID, String messageStatus, String fromParty, String toParty) throws Exception {
 		log.debug("messageID = " + messageID);
 		log.debug("messageStatus = " + messageStatus);
 		log.debug("fromParty = " + fromParty);
 		log.debug("toParty = " + toParty);
-		
+
 		weToDInput(messageIDInput).fill(messageID);
 		weToSelect(messageStatusContainer).selectOptionByText(messageStatus);
 		weToDInput(fromPartyInput).fill(fromParty);
 		weToDInput(toPartyInput).fill(toParty);
-		
+
 		clickSearch();
 	}
-	
+
 	public void advancedFilterBy(String messageID,
-	                             String messageStatus,
-	                             String fromParty,
-	                             String toParty,
-	                             String conversationId,
-	                             String apRole,
-	                             String messageType,
-	                             String notificationStatus,
-	                             String refMessageId,
-	                             String origSender,
-	                             String finalRecipient,
-	                             String receivedFromDate,
-	                             String receivedUpToDate) throws Exception {
+								 String messageStatus,
+								 String fromParty,
+								 String toParty,
+								 String conversationId,
+								 String apRole,
+								 String messageType,
+								 String notificationStatus,
+								 String refMessageId,
+								 String origSender,
+								 String finalRecipient,
+								 String receivedFromDate,
+								 String receivedUpToDate) throws Exception {
 		log.debug("messageID = " + messageID);
 		log.debug("messageStatus = " + messageStatus);
 		log.debug("fromParty = " + fromParty);
@@ -96,9 +105,9 @@ public class MessageFilterArea extends FilterArea {
 		log.debug("finalRecipient = " + finalRecipient);
 		log.debug("receivedFromDate = " + receivedFromDate);
 		log.debug("receivedUpToDate = " + receivedUpToDate);
-		
+
 		expandArea();
-		
+
 		weToDInput(messageIDInput).fill(messageID);
 		weToSelect(messageStatusContainer).selectOptionByText(messageStatus);
 		weToDInput(fromPartyInput).fill(fromParty);
@@ -112,47 +121,47 @@ public class MessageFilterArea extends FilterArea {
 		weToDInput(finalRecipientInput).fill(finalRecipient);
 		weToDatePicker(receivedFromContainer).selectDate(receivedFromDate);
 		weToDatePicker(receivedToContainer).selectDate(receivedUpToDate);
-		
+
 		clickSearch();
 	}
-	
-	
+
+
 	public DInput getFromPartyInput() {
 		return new DInput(driver, fromPartyInput);
 	}
-	
+
 	public DInput getToPartyInput() {
 		return new DInput(driver, toPartyInput);
 	}
-	
+
 	public Select getMessageStatus() {
 		return new Select(driver, messageStatusContainer);
 	}
-	
+
 	public DInput getConversationIDInput() {
 		return new DInput(driver, conversationIDInput);
 	}
-	
+
 	public DInput getReferenceMessageIDInput() {
 		return new DInput(driver, referenceMessageIDInput);
 	}
-	
+
 	public DInput getOriginalSenderInput() {
 		return new DInput(driver, originalSenderInput);
 	}
-	
+
 	public DInput getFinalRecipientInput() {
 		return new DInput(driver, finalRecipientInput);
 	}
-	
+
 	public Select getApRoleSelect() {
 		return new Select(driver, apRoleContainer);
 	}
-	
+
 	public Select getMessageTypeSelect() {
 		return new Select(driver, messageTypeContainer);
 	}
-	
+
 	public Select getNotificationStatus() {
 		return new Select(driver, notificationStatusContainer);
 	}

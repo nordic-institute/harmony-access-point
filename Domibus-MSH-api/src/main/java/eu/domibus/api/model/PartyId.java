@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  *
@@ -16,7 +17,7 @@ import javax.persistence.*;
         @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyId prop where prop.value=:VALUE and prop.type=:TYPE")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class PartyId extends AbstractBaseEntity implements Comparable<PartyId> {
+public class PartyId extends AbstractBaseEntity implements Comparable<PartyId>, Serializable {
 
     @Column(name = "VALUE", unique = true)
     protected String value;

@@ -75,8 +75,8 @@ public class DriverManager {
 		options.addPreference("browser.download.folderList", 2);
 		options.addPreference("browser.download.manager.showWhenStarting",false);
 		options.addPreference("browser.download.dir", data.downloadFolderPath());
-		options.addPreference("browser.helperApps.neverAsk.openFile","application/ms-excel text/xml");
-		options.addPreference("browser.helperApps.neverAsk.saveToDisk", "application/ms-excel text/xml");
+		options.addPreference("browser.helperApps.neverAsk.openFile","application/ms-excel text/xml application/zip");
+		options.addPreference("browser.helperApps.neverAsk.saveToDisk","application/ms-excel text/xml application/zip");
 		
 		if (data.useProxy()) {
 			options.setCapability(CapabilityType.PROXY, getProxy());

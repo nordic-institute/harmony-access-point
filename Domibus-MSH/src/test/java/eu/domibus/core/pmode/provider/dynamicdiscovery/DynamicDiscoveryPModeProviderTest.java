@@ -284,7 +284,7 @@ public class DynamicDiscoveryPModeProviderTest {
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals(("Sender party could not found for the value  " + partyId), ex.getErrorDetail());
+            assertEquals(("Sender party could not be found for the value  " + partyId), ex.getErrorDetail());
         }
 
         doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
