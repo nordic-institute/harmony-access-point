@@ -1,8 +1,9 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageState;
-import eu.domibus.common.JPAConstants;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -38,27 +39,58 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
     private static final String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
 
-    protected static final String LOCK_BY_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_STATE='READY' and ml.ID_PK=?1 FOR UPDATE";
 
-    protected static final String LOCK_BY_MESSAGE_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=?1 FOR UPDATE";
+    protected static final String LOCK_QUERY_SKIP_LOCKED_ORACLE = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +
+            "FROM TB_MESSAGING_LOCK ml " +
+            "WHERE ml.MESSAGE_STATE='READY' " +
+            "AND ml.MPC=:MPC " +
+            "AND LOWER(ml.INITIATOR)=LOWER(:INITIATOR) " +
+            "AND ml.MESSAGE_TYPE='PULL' " +
+            "AND ml.NEXT_ATTEMPT<:CURRENT_TIMESTAMP " +
+            "AND ml.MESSAGE_STALED>:CURRENT_TIMESTAMP " +
+            "AND ml.ROWNUM <= 1 " +
+            "FOR UPDATE SKIP LOCKED";
+
+    protected static final String LOCK_QUERY_SKIP_LOCKED_MYSQL = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +
+            "FROM TB_MESSAGING_LOCK ml " +
+            "WHERE ml.MESSAGE_STATE='READY' " +
+            "AND ml.MPC=:MPC " +
+            "AND LOWER(ml.INITIATOR)=LOWER(:INITIATOR) " +
+            "AND ml.MESSAGE_TYPE='PULL' " +
+            "AND ml.NEXT_ATTEMPT<:CURRENT_TIMESTAMP " +
+            "AND ml.MESSAGE_STALED>:CURRENT_TIMESTAMP " +
+            "LIMIT 1 " +
+            "FOR UPDATE SKIP LOCKED ";
+
+    protected static final String LOCK_BY_MESSAGE_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +
+            "FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=:MESSAGE_ID FOR UPDATE";
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     private final DateUtil dateUtil;
 
-    public MessagingLockDaoImpl(DateUtil dateUtil) {
+    private final DomibusConfigurationService domibusConfigurationService;
+
+    public MessagingLockDaoImpl(DateUtil dateUtil, DomibusConfigurationService domibusConfigurationService) {
         this.dateUtil = dateUtil;
+        this.domibusConfigurationService = domibusConfigurationService;
     }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public PullMessageId getNextPullMessageToProcess(final Long idPk) {
+    public PullMessageId getNextPullMessageToProcess(final String initiator, final String mpc) {
         try {
-            Query q = entityManager.createNativeQuery(LOCK_BY_ID_QUERY, MessagingLock.class);
-            q.setParameter(1, idPk);
+            String sqlString = "ORACLE".equalsIgnoreCase(domibusConfigurationService.getDataBaseEngine().name()) ? LOCK_QUERY_SKIP_LOCKED_ORACLE :
+                    LOCK_QUERY_SKIP_LOCKED_MYSQL;
+            Query q = entityManager.createNativeQuery(sqlString,
+                    MessagingLock.class);
+            q.setParameter(MPC, mpc);
+            q.setParameter(INITIATOR, initiator);
+            q.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
             final MessagingLock messagingLock = (MessagingLock) q.getSingleResult();
-            LOG.debug("[getNextPullMessageToProcess]:id[{}] locked", idPk);
+            LOG.debug("[getNextPullMessageToProcess]:id[{}] locked", messagingLock.getEntityId());
             final String messageId = messagingLock.getMessageId();
             final int sendAttempts = messagingLock.getSendAttempts();
             final int sendAttemptsMax = messagingLock.getSendAttemptsMax();
@@ -83,10 +115,10 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
             }
             return new PullMessageId(messageId);
         } catch (NoResultException ne) {
-            LOG.trace("No more message ready message for id:[{}], has been process by another pull request", idPk, ne);
+            LOG.trace("No message to lock found for for mpc=[{}], initiator=[{}]", mpc, initiator, ne);
             return null;
         } catch (Exception e) {
-            LOG.error("MessageLock[{}] lock could not be acquired", idPk, e);
+            LOG.error("MessageLock lock could not be acquired for mpc=[{}], initiator=[{}]", mpc, initiator, e);
             return null;
         }
 
@@ -96,8 +128,9 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     public MessagingLock getLock(final String messageId) {
         try {
             LOG.debug("Message[{}] Getting lock", messageId);
-            Query q = entityManager.createNativeQuery(LOCK_BY_MESSAGE_ID_QUERY, MessagingLock.class);
-            q.setParameter(1, messageId);
+            Query q = entityManager.createNativeQuery(LOCK_BY_MESSAGE_ID_QUERY,
+                    MessagingLock.class);
+            q.setParameter(MESSAGE_ID, messageId);
             return (MessagingLock) q.getSingleResult();
         } catch (NoResultException nr) {
             LOG.trace("Message:[{}] lock not found. It is has been removed by another process.", messageId, nr);

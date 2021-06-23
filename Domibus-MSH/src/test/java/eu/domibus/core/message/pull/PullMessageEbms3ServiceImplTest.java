@@ -116,7 +116,7 @@ public class PullMessageEbms3ServiceImplTest {
             messagingLock.getEntityId();
             this.result = id;
 
-            messagingLockDao.getNextPullMessageToProcess(id);
+            messagingLockDao.getNextPullMessageToProcess(mpc, initiator);
             result = pullMessageId;
 
             pullMessageId.getState();
@@ -153,7 +153,7 @@ public class PullMessageEbms3ServiceImplTest {
             messagingLock.getEntityId();
             this.result = id;
 
-            messagingLockDao.getNextPullMessageToProcess(id);
+            messagingLockDao.getNextPullMessageToProcess(mpc, initiator);
             result = pullMessageId;
 
             pullMessageId.getState();
@@ -191,7 +191,7 @@ public class PullMessageEbms3ServiceImplTest {
             messagingLock.getEntityId();
             this.result = id;
 
-            messagingLockDao.getNextPullMessageToProcess(id);
+            messagingLockDao.getNextPullMessageToProcess(mpc, initiator);
             result = pullMessageId;
 
             pullMessageId.getState();

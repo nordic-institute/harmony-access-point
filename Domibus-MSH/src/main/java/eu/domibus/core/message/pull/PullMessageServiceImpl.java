@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
@@ -180,13 +179,9 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public String getPullMessageId(final String initiator, final String mpc) {
-        final List<MessagingLock> messagingLock = messagingLockDao.findReadyToPull(mpc, initiator);
-        LOG.trace("[PULL_REQUEST]:Reading messages for initiatior [{}] mpc[{}].", initiator, mpc);
-        for (MessagingLock lock : messagingLock) {
-            LOG.trace("[getPullMessageId]:Message[{}]] try to acquire lock", lock.getMessageId());
             PullMessageId pullMessageId = null;
             try {
-                pullMessageId = messagingLockDao.getNextPullMessageToProcess(lock.getEntityId());
+                pullMessageId = messagingLockDao.getNextPullMessageToProcess(initiator, mpc);
             } catch (Exception ex) {
                 LOG.error("Error while locking message ", ex);
             }
@@ -208,7 +203,6 @@ public class PullMessageServiceImpl implements PullMessageService {
                         return messageId;
                 }
             }
-        }
         LOG.trace("[PULL_REQUEST]:No message found.");
         return null;
     }
