@@ -1,6 +1,8 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageState;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -27,13 +29,15 @@ public class MessagingLockDaoImplTest {
     @Injectable
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
+
     @Tested
     private MessagingLockDaoImpl messagingLockDao;
 
     @Test
     public void getNextPullMessageToProcessFirstAttempt(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -63,7 +67,6 @@ public class MessagingLockDaoImplTest {
     @Test
     public void getNextPullMessageToProcessWithRetry(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -74,7 +77,7 @@ public class MessagingLockDaoImplTest {
 
         final Date date=new Date(System.currentTimeMillis()+10000);
         createExpectation(query, messagingLock, messageId, sendAttempts, sendAttemptsMax, date);
-        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess(mpc,initiator);
+        final PullMessageId nextPullMessageToProcess = messagingLockDao.getNextPullMessageToProcess(mpc, initiator);
         assertNotNull(nextPullMessageToProcess);
         assertEquals(messageId, nextPullMessageToProcess.getMessageId());
         assertEquals(PullMessageState.RETRY, nextPullMessageToProcess.getState());
@@ -92,8 +95,6 @@ public class MessagingLockDaoImplTest {
     @Test
     public void getNextPullMessageToProcessExpired(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-
-        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -124,7 +125,6 @@ public class MessagingLockDaoImplTest {
     @Test
     public void getNextPullMessageToProcessMaxAttemptsReached(
             @Mocked final Query query,@Mocked final MessagingLock messagingLock) {
-        final long idPk = 6;
 
         final String messageId = "furtherAttemptMessageId";
 
@@ -152,12 +152,13 @@ public class MessagingLockDaoImplTest {
     }
 
 
-
     @Test
     public void getNextPullMessageToProcessNoMessage(@Mocked final Query query) {
-        final long idPk = 6;
         final String mpc = "mpc", initiator = "domibus-red";
         new Expectations() {{
+            domibusConfigurationService.getDataBaseEngine();
+            result = DataBaseEngine.ORACLE;
+
             entityManager.createNativeQuery(MessagingLockDaoImpl.LOCK_QUERY_SKIP_LOCKED_ORACLE, MessagingLock.class);
             result = query;
 
@@ -186,6 +187,8 @@ public class MessagingLockDaoImplTest {
     private void createExpectation(@Mocked Query query, @Mocked MessagingLock messagingLock, String messageId, int sendAttempts, int sendAttemptsMax, Date date) {
         new Expectations() {{
 
+            domibusConfigurationService.getDataBaseEngine();
+            result = DataBaseEngine.ORACLE;
 
             entityManager.createNativeQuery(MessagingLockDaoImpl.LOCK_QUERY_SKIP_LOCKED_ORACLE, MessagingLock.class);
             result = query;

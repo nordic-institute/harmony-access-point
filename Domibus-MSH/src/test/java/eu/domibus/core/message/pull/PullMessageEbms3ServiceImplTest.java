@@ -104,26 +104,17 @@ public class PullMessageEbms3ServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final long id = 99;
+
         new Expectations() {{
 
-            messagingLockDao.findReadyToPull(mpc, initiator);
-            result = Lists.newArrayList(messagingLock);
-
-            messagingLock.getMessageId();
-            result = messageId;
-
-            messagingLock.getEntityId();
-            this.result = id;
-
-            messagingLockDao.getNextPullMessageToProcess(mpc, initiator);
+            messagingLockDao.getNextPullMessageToProcess(initiator, mpc);
             result = pullMessageId;
-
-            pullMessageId.getState();
-            result = PullMessageState.FIRST_ATTEMPT;
 
             pullMessageId.getMessageId();
             result = messageId;
+
+            pullMessageId.getState();
+            result = PullMessageState.FIRST_ATTEMPT;
 
         }};
         final String returnedMessageId = pullMessageService.getPullMessageId(initiator, mpc);
@@ -141,26 +132,17 @@ public class PullMessageEbms3ServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final long id = 99;
+
         new Expectations() {{
 
-            messagingLockDao.findReadyToPull(mpc, initiator);
-            result = Lists.newArrayList(messagingLock);
-
-            messagingLock.getMessageId();
-            result = messageId;
-
-            messagingLock.getEntityId();
-            this.result = id;
-
-            messagingLockDao.getNextPullMessageToProcess(mpc, initiator);
+            messagingLockDao.getNextPullMessageToProcess(initiator, mpc);
             result = pullMessageId;
-
-            pullMessageId.getState();
-            result = PullMessageState.EXPIRED;
 
             pullMessageId.getMessageId();
             result = messageId;
+
+            pullMessageId.getState();
+            result = PullMessageState.EXPIRED;
 
         }};
         final String returnedMessageId = pullMessageService.getPullMessageId(initiator, mpc);
