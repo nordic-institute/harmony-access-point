@@ -1,6 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageState;
+import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
@@ -82,8 +83,8 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PullMessageId getNextPullMessageToProcess(final String initiator, final String mpc) {
         try {
-            String sqlString = "ORACLE".equalsIgnoreCase(domibusConfigurationService.getDataBaseEngine().name()) ? LOCK_QUERY_SKIP_LOCKED_ORACLE :
-                    LOCK_QUERY_SKIP_LOCKED_MYSQL;
+            String sqlString = (DataBaseEngine.ORACLE == domibusConfigurationService.getDataBaseEngine() ? LOCK_QUERY_SKIP_LOCKED_ORACLE :
+                    LOCK_QUERY_SKIP_LOCKED_MYSQL);
             Query q = entityManager.createNativeQuery(sqlString,
                     MessagingLock.class);
             q.setParameter(MPC, mpc);
