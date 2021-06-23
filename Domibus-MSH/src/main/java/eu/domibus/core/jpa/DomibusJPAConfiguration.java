@@ -90,7 +90,7 @@ public class DomibusJPAConfiguration {
     }
 
     private void initMysqlOrm(DomibusConfigurationService domibusConfigurationService, LocalContainerEntityManagerFactoryBean result) {
-        if (DataBaseEngine.MYSQL != domibusConfigurationService.getDataBaseEngine()) {
+        if (DataBaseEngine.ORACLE == domibusConfigurationService.getDataBaseEngine()) {
             return;
         }
 

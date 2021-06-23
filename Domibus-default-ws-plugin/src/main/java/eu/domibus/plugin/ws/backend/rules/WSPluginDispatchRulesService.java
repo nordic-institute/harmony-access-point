@@ -63,7 +63,10 @@ public class WSPluginDispatchRulesService {
     protected List<WSPluginDispatchRule> generateRules() {
         List<WSPluginDispatchRule> result = new ArrayList<>();
 
-        List<String> nestedProperties = domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE);
+        List<String> nestedProperties = domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE)
+                .stream()
+                .map(s -> StringUtils.substringBefore(s, "."))
+                .collect(toList());
         if (CollectionUtils.isEmpty(nestedProperties)) {
             LOG.info("No properties with base [{}]", PUSH_RULE_BASE);
             return result;

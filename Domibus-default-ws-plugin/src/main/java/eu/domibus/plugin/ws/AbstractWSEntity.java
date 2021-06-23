@@ -5,7 +5,7 @@ import org.hibernate.id.enhanced.SequenceStyleGenerator;
 
 import javax.persistence.*;
 
-import static eu.domibus.orm.HibernateConstants.*;
+import static eu.domibus.plugin.jpa.JPAConstants.*;
 
 /**
  * @author François Gautier

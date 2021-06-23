@@ -1,12 +1,12 @@
-package eu.domibus.orm;
+package eu.domibus.plugin.jpa;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
-public class HibernateConstants {
+public class JPAConstants {
 
-    private HibernateConstants() {
+    private JPAConstants() {
     }
 
     public static final String DOMIBUS_SCALABLE_SEQUENCE = "DOMIBUS_SCALABLE_SEQUENCE";
