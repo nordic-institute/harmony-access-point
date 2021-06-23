@@ -46,6 +46,7 @@ public class RestServicePaths {
 	public static final String PMODE_PARTIES_CSV = "/rest/party/csv";
 	public static final String JMS_MESSAGES_CSV = "/rest/jms/csv";
 	public static final String TRUSTSTORE_CSV = "/rest/truststore/csv";
+	public static final String TLS_TRUSTSTORE_CSV = "rest/tlstruststore/entries/csv";
 	public static final String USERS_CSV = "/rest/user/csv";
 	public static final String PLUGIN_USERS_CSV = "/rest/plugin/csv";
 	public static final String AUDIT_CSV = "/rest/audit/csv";

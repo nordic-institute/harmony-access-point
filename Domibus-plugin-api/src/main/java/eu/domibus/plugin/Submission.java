@@ -724,7 +724,7 @@ public class Submission {
 
         public TypedProperty(String key, String value, String type) {
             if (isBlank(key) || isBlank(value)) {
-                throw new IllegalArgumentException("message properties must have a non-empty name and value (key [" + key + "], value [" + value + "]");
+                throw new IllegalArgumentException("message properties must have a non-empty name and value (key [" + key + "], value [" + value + "])");
             }
             this.key = trim(key);
             this.value = trim(value);

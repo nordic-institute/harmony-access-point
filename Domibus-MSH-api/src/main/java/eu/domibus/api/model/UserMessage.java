@@ -154,6 +154,13 @@ public class UserMessage extends AbstractBaseEntity {
         return agreementRef;
     }
 
+    public String getAgreementRefValue() {
+        if(agreementRef == null) {
+            return null;
+        }
+        return agreementRef.getValue();
+    }
+
     public void setAgreementRef(AgreementRefEntity agreementRef) {
         this.agreementRef = agreementRef;
     }
