@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.AgreementRefEntity;
-import eu.domibus.api.model.PartProperty;
-import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.*;
 
 public interface MessageDictionaryService {
 
@@ -12,4 +10,11 @@ public interface MessageDictionaryService {
 
     PartyId findOrCreateParty(String value, String type);
 
+    PartyRole findOrCreateRole(String value);
+
+    ActionEntity findOrCreateAction(String value);
+
+    ServiceEntity findOrCreateService(String value, String type);
+
+    void createStaticDictionaryEntries();
 }

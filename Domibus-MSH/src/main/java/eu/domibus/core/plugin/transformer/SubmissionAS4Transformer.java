@@ -83,13 +83,13 @@ public class SubmissionAS4Transformer {
         String conversationId = submission.getConversationId();
         result.setConversationId(conversationId == null ? this.generateConversationId() : conversationId.trim());
 
-        final ActionEntity action = actionDao.findOrCreateAction(submission.getAction());
+        final ActionEntity action = messageDictionaryService.findOrCreateAction(submission.getAction());
         result.setAction(action);
 
         final AgreementRefEntity agreementRef = messageDictionaryService.findOrCreateAgreement(submission.getAgreementRef(), submission.getAgreementRefType());
         result.setAgreementRef(agreementRef);
 
-        final ServiceEntity service = serviceDao.findOrCreateService(submission.getService(), submission.getServiceType());
+        final ServiceEntity service = messageDictionaryService.findOrCreateService(submission.getService(), submission.getServiceType());
         result.setService(service);
     }
 
@@ -113,7 +113,7 @@ public class SubmissionAS4Transformer {
     private From getPartyFrom(Submission submission, PartyInfo partyInfo) {
         final From from = new From();
 
-        final PartyRole fromRole = partyRoleDao.findOrCreateRole(submission.getFromRole());
+        final PartyRole fromRole = messageDictionaryService.findOrCreateRole(submission.getFromRole());
         from.setRole(fromRole);
 
         final Set<Submission.Party> fromParties = submission.getFromParties();
@@ -134,7 +134,7 @@ public class SubmissionAS4Transformer {
     private To getPartyTo(Submission submission, PartyInfo partyInfo) {
         final To to = new To();
 
-        final PartyRole toRole = partyRoleDao.findOrCreateRole(submission.getToRole());
+        final PartyRole toRole = messageDictionaryService.findOrCreateRole(submission.getToRole());
         to.setRole(toRole);
 
         final Set<Submission.Party> toParties = submission.getToParties();

@@ -74,11 +74,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
         final Ebms3CollaborationInfo collaborationInfo = ebms3UserMessage.getCollaborationInfo();
 
-        final ActionEntity actionEntity = actionDao.findOrCreateAction(collaborationInfo.getAction());
+        final ActionEntity actionEntity = messageDictionaryService.findOrCreateAction(collaborationInfo.getAction());
         userMessage.setAction(actionEntity);
 
         final Ebms3Service ebms3Service = collaborationInfo.getService();
-        final ServiceEntity serviceEntity = serviceDao.findOrCreateService(ebms3Service.getValue(), ebms3Service.getType());
+        final ServiceEntity serviceEntity = messageDictionaryService.findOrCreateService(ebms3Service.getValue(), ebms3Service.getType());
         userMessage.setService(serviceEntity);
 
         userMessage.setConversationId(collaborationInfo.getConversationId());
@@ -132,7 +132,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     private From ebms3FromToUserMessageFrom(Ebms3From ebms3From) {
         From from = new From();
 
-        final PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(ebms3From.getRole());
+        final PartyRole fromPartyRole = messageDictionaryService.findOrCreateRole(ebms3From.getRole());
         from.setRole(fromPartyRole);
 
         final Ebms3PartyId fromEbms3PartyId = ebms3From.getPartyId().iterator().next();
@@ -144,7 +144,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     private To ebms3FromToUserMessageFrom(Ebms3To ebms3To) {
         To to = new To();
 
-        final PartyRole toPartyRole = partyRoleDao.findOrCreateRole(ebms3To.getRole());
+        final PartyRole toPartyRole = messageDictionaryService.findOrCreateRole(ebms3To.getRole());
         to.setRole(toPartyRole);
 
         final Ebms3PartyId toEbms3PartyId = ebms3To.getPartyId().iterator().next();

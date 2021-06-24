@@ -55,8 +55,8 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         result.setTimestamp(sourceMessage.getTimestamp());
         result.setConversationId(sourceMessage.getConversationId());
         result.setAgreementRef(getAgreementRef(sourceMessage));
-        result.setAction(actionDao.findOrCreateAction(sourceMessage.getActionValue()));
-        result.setService(serviceDao.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
+        result.setAction(messageDictionaryService.findOrCreateAction(sourceMessage.getActionValue()));
+        result.setService(messageDictionaryService.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
         result.setPartyInfo(createPartyInfo(sourceMessage.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(sourceMessage.getMessageProperties()));
 
@@ -72,8 +72,8 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         result.setConversationId(userMessageFragment.getConversationId());
         result.setAgreementRef(getAgreementRef(userMessageFragment));
-        result.setAction(actionDao.findOrCreateAction(userMessageFragment.getActionValue()));
-        result.setService(serviceDao.findOrCreateService(userMessageFragment.getService().getValue(), userMessageFragment.getService().getType()));
+        result.setAction(messageDictionaryService.findOrCreateAction(userMessageFragment.getActionValue()));
+        result.setService(messageDictionaryService.findOrCreateService(userMessageFragment.getService().getValue(), userMessageFragment.getService().getType()));
 
         result.setPartyInfo(createPartyInfo(userMessageFragment.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(userMessageFragment.getMessageProperties()));
@@ -126,7 +126,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         if (source.getFrom() != null) {
             final From from = new From();
-            PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(source.getFrom().getRoleValue());
+            PartyRole fromPartyRole = messageDictionaryService.findOrCreateRole(source.getFrom().getRoleValue());
             from.setRole(fromPartyRole);
 
             PartyId fromPartyId = source.getFrom().getPartyId();
@@ -138,7 +138,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         if (source.getTo() != null) {
             final To to = new To();
-            PartyRole toPartyRole = partyRoleDao.findOrCreateRole(source.getTo().getRoleValue());
+            PartyRole toPartyRole = messageDictionaryService.findOrCreateRole(source.getTo().getRoleValue());
             to.setRole(toPartyRole);
 
             PartyId toPartyId = source.getTo().getPartyId();
