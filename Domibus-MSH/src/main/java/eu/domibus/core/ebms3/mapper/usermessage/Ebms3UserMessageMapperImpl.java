@@ -22,8 +22,9 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     protected MessagePropertyDao messagePropertyDao;
     protected PartPropertyDao partPropertyDao;
     protected PartyRoleDao partyRoleDao;
+    protected MessageDictionaryService messageDictionaryService;
 
-    public Ebms3UserMessageMapperImpl(MpcDao mpcDao, ActionDao actionDao, ServiceDao serviceDao, PartyIdDao partyIdDao, AgreementDao agreementDao, MessagePropertyDao messagePropertyDao, PartPropertyDao partPropertyDao, PartyRoleDao partyRoleDao) {
+    public Ebms3UserMessageMapperImpl(MpcDao mpcDao, ActionDao actionDao, ServiceDao serviceDao, PartyIdDao partyIdDao, AgreementDao agreementDao, MessagePropertyDao messagePropertyDao, PartPropertyDao partPropertyDao, PartyRoleDao partyRoleDao, MessageDictionaryService messageDictionaryService) {
         this.mpcDao = mpcDao;
         this.actionDao = actionDao;
         this.serviceDao = serviceDao;
@@ -32,6 +33,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         this.messagePropertyDao = messagePropertyDao;
         this.partPropertyDao = partPropertyDao;
         this.partyRoleDao = partyRoleDao;
+        this.messageDictionaryService = messageDictionaryService;
     }
 
     @Override
@@ -83,7 +85,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
         final Ebms3AgreementRef agreementRef = collaborationInfo.getAgreementRef();
         if (agreementRef != null) {
-            final AgreementRefEntity agreement = agreementDao.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
+            final AgreementRefEntity agreement = messageDictionaryService.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
             userMessage.setAgreementRef(agreement);
         }
 
@@ -152,7 +154,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     private Ebms3PayloadInfo convertPayloadInfo(List<PartInfo> partInfoList) {
-        if(CollectionUtils.isEmpty(partInfoList)) {
+        if (CollectionUtils.isEmpty(partInfoList)) {
             return null;
         }
 
@@ -272,7 +274,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     protected PartProperty convertToPartProperty(Ebms3Property partProperty) {
-        return partPropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
+        return messageDictionaryService.findOrCreatePartProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
     }
 
 

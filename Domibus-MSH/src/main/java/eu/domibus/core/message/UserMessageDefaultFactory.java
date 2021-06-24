@@ -32,8 +32,9 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     protected AgreementDao agreementDao;
     protected ServiceDao serviceDao;
     protected ActionDao actionDao;
+    protected MessageDictionaryService messageDictionaryService;
 
-    public UserMessageDefaultFactory(PartPropertyDao partPropertyDao, MessagePropertyDao messagePropertyDao, PartyIdDao partyIdDao, PartyRoleDao partyRoleDao, AgreementDao agreementDao, ServiceDao serviceDao, ActionDao actionDao) {
+    public UserMessageDefaultFactory(PartPropertyDao partPropertyDao, MessagePropertyDao messagePropertyDao, PartyIdDao partyIdDao, PartyRoleDao partyRoleDao, AgreementDao agreementDao, ServiceDao serviceDao, ActionDao actionDao, MessageDictionaryService messageDictionaryService) {
         this.partPropertyDao = partPropertyDao;
         this.messagePropertyDao = messagePropertyDao;
         this.partyIdDao = partyIdDao;
@@ -41,6 +42,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         this.agreementDao = agreementDao;
         this.serviceDao = serviceDao;
         this.actionDao = actionDao;
+        this.messageDictionaryService = messageDictionaryService;
     }
 
     @Override
@@ -96,7 +98,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         partInfo.setLength(new File(fragmentFile).length());
         partInfo.setMime(APPLICATION_OCTET_STREAM);
 
-        PartProperty partProperty = partPropertyDao.findOrCreateProperty(Property.MIME_TYPE, APPLICATION_OCTET_STREAM, null);
+        PartProperty partProperty = messageDictionaryService.findOrCreatePartProperty(Property.MIME_TYPE, APPLICATION_OCTET_STREAM, null);
         Set<PartProperty> partProperties = new HashSet<>();
         partProperties.add(partProperty);
         partInfo.setPartProperties(partProperties);
@@ -108,7 +110,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         if (agreementRef == null) {
             return null;
         }
-        return agreementDao.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
+        return messageDictionaryService.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
     }
 
     protected ServiceEntity createService(UserMessage userMessage) {

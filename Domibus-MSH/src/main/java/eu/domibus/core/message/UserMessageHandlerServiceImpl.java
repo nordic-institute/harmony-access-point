@@ -169,6 +169,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessageFragmentDao messageFragmentDao;
 
+    @Autowired
+    MessageDictionaryService messageDictionaryService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
@@ -671,7 +674,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findOrCreateProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
+                final PartProperty property = messageDictionaryService.findOrCreatePartProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
                 if (property != null) {
                     partProperties.add(property);
                 }

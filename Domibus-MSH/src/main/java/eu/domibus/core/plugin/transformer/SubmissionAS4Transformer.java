@@ -47,6 +47,9 @@ public class SubmissionAS4Transformer {
     @Autowired
     protected PartPropertyDao partPropertyDao;
 
+    @Autowired
+    protected MessageDictionaryService messageDictionaryService;
+
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
         final MpcEntity mpc = mpcDao.findOrCreateMpc(submission.getMpc());
@@ -83,7 +86,7 @@ public class SubmissionAS4Transformer {
         final ActionEntity action = actionDao.findOrCreateAction(submission.getAction());
         result.setAction(action);
 
-        final AgreementRefEntity agreementRef = agreementDao.findOrCreateAgreement(submission.getAgreementRef(), submission.getAgreementRefType());
+        final AgreementRefEntity agreementRef = messageDictionaryService.findOrCreateAgreement(submission.getAgreementRef(), submission.getAgreementRefType());
         result.setAgreementRef(agreementRef);
 
         final ServiceEntity service = serviceDao.findOrCreateService(submission.getService(), submission.getServiceType());
@@ -162,7 +165,7 @@ public class SubmissionAS4Transformer {
             Set<PartProperty> properties = new HashSet<>();
             partInfo.setPartProperties(properties);
             for (final Submission.TypedProperty entry : payload.getPayloadProperties()) {
-                final PartProperty property = partPropertyDao.findOrCreateProperty(entry.getKey(), entry.getValue(), entry.getType());
+                final PartProperty property = messageDictionaryService.findOrCreatePartProperty(entry.getKey(), entry.getValue(), entry.getType());
                 properties.add(property);
             }
             result.add(partInfo);
