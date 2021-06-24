@@ -170,7 +170,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected MessageFragmentDao messageFragmentDao;
 
     @Autowired
-    MessageDictionaryService messageDictionaryService;
+    protected MessageDictionaryService messageDictionaryService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)

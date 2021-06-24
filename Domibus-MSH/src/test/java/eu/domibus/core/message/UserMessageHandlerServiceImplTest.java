@@ -199,6 +199,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     MessagePropertyDao messagePropertyDao;
 
+    @Injectable
+    MessageDictionaryService messageDictionaryService;
+
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String STRING_TYPE = "string";
     private static final String DEF_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
