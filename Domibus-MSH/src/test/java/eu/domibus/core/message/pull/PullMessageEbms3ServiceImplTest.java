@@ -20,7 +20,6 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -206,7 +205,6 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void addPullMessageLock(@Injectable final UserMessage userMessage,
                                    @Injectable final UserMessageLog messageLog) throws EbMS3Exception {
         final String pmodeKey = "pmodeKey";
@@ -218,20 +216,28 @@ public class PullMessageEbms3ServiceImplTest {
         new Expectations(pullMessageService) {{
             userMessage.getMessageId();
             result = messageId;
-            userMessage.getMpc();
+
+            userMessage.getMpcValue();
             result = mpc;
+
             messageLog.getNextAttempt();
             result = null;
+
             userMessage.getPartyInfo().getToParty();
             result = partyId;
+
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
+
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;
+
             updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);
             result = staledDate;
         }};
+
         pullMessageService.addPullMessageLock(userMessage, messageLog);
+
         new Verifications() {{
             MessagingLock messagingLock = null;
             messagingLockDao.save(messagingLock = withCapture());

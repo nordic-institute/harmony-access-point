@@ -231,7 +231,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + userMessage.getMessageId() + "]", e);
         }
-        addPullMessageLock(userMessage, userMessage.getPartyInfo().getFromParty(), pmodeKey, messageLog);
+        addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pmodeKey, messageLog);
     }
 
     private MessagingLock prepareMessagingLock(UserMessage userMessage, String partyIdentifier, String pModeKey, UserMessageLog messageLog) {
