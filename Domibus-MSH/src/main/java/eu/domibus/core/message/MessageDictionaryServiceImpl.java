@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartProperty;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -43,7 +44,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
             return agreementDao.findOrCreateAgreement(value, type);
         } catch (PersistenceException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.info("Constraint violation when trying to insert dictionary entry, trying again (once)...");
+                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return agreementDao.findOrCreateAgreement(value, type);
             }
             throw e;
@@ -51,7 +52,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public PartProperty findOrCreatePartProperty(final String name, String value, String type) {
-        PartProperty entity = partPropertyDao.findOrCreateProperty(name, value, type);
+        PartProperty entity = partPropertyDao.findExistingProperty(name, value, type);
         if (entity != null) {
             return entity;
         }
@@ -59,8 +60,24 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
             return partPropertyDao.findOrCreateProperty(name, value, type);
         } catch (PersistenceException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.info("Constraint violation when trying to insert dictionary entry, trying again (once)...");
+                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return partPropertyDao.findOrCreateProperty(name, value, type);
+            }
+            throw e;
+        }
+    }
+
+    public PartyId findOrCreateParty(String value, String type) {
+        PartyId entity = partyIdDao.findPartyByValueAndType(value, type);
+        if (entity != null) {
+            return entity;
+        }
+        try {
+            return partyIdDao.findOrCreateParty(value, type);
+        } catch (PersistenceException e) {
+            if (e.getCause() instanceof ConstraintViolationException) {
+                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
+                return partyIdDao.findOrCreateParty(value, type);
             }
             throw e;
         }

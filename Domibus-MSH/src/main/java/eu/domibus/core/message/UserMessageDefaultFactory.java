@@ -130,7 +130,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
             from.setRole(fromPartyRole);
 
             PartyId fromPartyId = source.getFrom().getPartyId();
-            PartyId fromParty = partyIdDao.findOrCreateParty(fromPartyId.getValue(), fromPartyId.getType());
+            PartyId fromParty = messageDictionaryService.findOrCreateParty(fromPartyId.getValue(), fromPartyId.getType());
             from.setPartyId(fromParty);
 
             partyInfo.setFrom(from);
@@ -142,7 +142,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
             to.setRole(toPartyRole);
 
             PartyId toPartyId = source.getTo().getPartyId();
-            PartyId toParty = partyIdDao.findOrCreateParty(toPartyId.getValue(), toPartyId.getType());
+            PartyId toParty = messageDictionaryService.findOrCreateParty(toPartyId.getValue(), toPartyId.getType());
             to.setPartyId(toParty);
 
             partyInfo.setTo(to);

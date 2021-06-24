@@ -136,7 +136,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         from.setRole(fromPartyRole);
 
         final Ebms3PartyId fromEbms3PartyId = ebms3From.getPartyId().iterator().next();
-        final PartyId fromPartyId = partyIdDao.findOrCreateParty(fromEbms3PartyId.getValue(), fromEbms3PartyId.getType());
+        final PartyId fromPartyId = messageDictionaryService.findOrCreateParty(fromEbms3PartyId.getValue(), fromEbms3PartyId.getType());
         from.setPartyId(fromPartyId);
         return from;
     }
@@ -148,7 +148,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         to.setRole(toPartyRole);
 
         final Ebms3PartyId toEbms3PartyId = ebms3To.getPartyId().iterator().next();
-        final PartyId toPartyId = partyIdDao.findOrCreateParty(toEbms3PartyId.getValue(), toEbms3PartyId.getType());
+        final PartyId toPartyId = messageDictionaryService.findOrCreateParty(toEbms3PartyId.getValue(), toEbms3PartyId.getType());
         to.setPartyId(toPartyId);
         return to;
     }

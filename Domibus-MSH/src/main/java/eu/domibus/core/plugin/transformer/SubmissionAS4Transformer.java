@@ -123,7 +123,7 @@ public class SubmissionAS4Transformer {
             }
 
             final Submission.Party party = fromParties.iterator().next();
-            final PartyId fromParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
+            final PartyId fromParty = messageDictionaryService.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
             from.setPartyId(fromParty);
 
             return from;
@@ -143,7 +143,7 @@ public class SubmissionAS4Transformer {
                 LOG.warn("Cannot have multiple to parties, using the first party");
             }
             final Submission.Party party = toParties.iterator().next();
-            final PartyId toParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
+            final PartyId toParty = messageDictionaryService.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
             to.setPartyId(toParty);
             return to;
         }
