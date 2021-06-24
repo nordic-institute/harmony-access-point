@@ -391,7 +391,6 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void pullFailedOnRequestWithNoAttempt(@Injectable final MessagingLock lock,
                                                  @Injectable final LegConfiguration legConfiguration,
                                                  @Injectable final UserMessage userMessage,
@@ -407,13 +406,17 @@ public class PullMessageEbms3ServiceImplTest {
 
             pullMessageService.attemptNumberLeftIsStricltyLowerThenMaxAttemps(userMessageLog, legConfiguration);
             result = false;
+
+            userMessageLog.getSendAttempts();
+            result = 1;
         }};
 
         pullMessageService.pullFailedOnRequest(userMessage, legConfiguration, userMessageLog);
+
         new VerificationsInOrder() {{
             reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
-            pullMessageStateService.sendFailed(userMessageLog, messageID);
+            pullMessageStateService.sendFailed(userMessageLog, anyString);
             messagingLockDao.save(lock);
         }};
     }
