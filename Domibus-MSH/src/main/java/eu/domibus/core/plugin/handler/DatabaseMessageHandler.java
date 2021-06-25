@@ -155,6 +155,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected MshRoleDao mshRoleDao;
 
+    @Autowired
+    protected MessageDictionaryService messageDictionaryService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -560,7 +563,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDao.findOrCreateMpc(mpc);
+        MpcEntity mpcObject = messageDictionaryService.findOrCreateMpc(mpc);
         userMessage.setMpc(mpcObject);
     }
 

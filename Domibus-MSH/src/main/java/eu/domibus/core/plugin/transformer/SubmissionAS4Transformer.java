@@ -52,7 +52,7 @@ public class SubmissionAS4Transformer {
 
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
-        final MpcEntity mpc = mpcDao.findOrCreateMpc(submission.getMpc());
+        final MpcEntity mpc = messageDictionaryService.findOrCreateMpc(submission.getMpc());
         result.setMpc(mpc);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);

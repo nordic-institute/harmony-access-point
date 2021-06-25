@@ -4,6 +4,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         }
         try {
             return agreementDao.findOrCreateAgreement(value, type);
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return agreementDao.findOrCreateAgreement(value, type);
@@ -71,7 +72,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         }
         try {
             return partPropertyDao.findOrCreateProperty(name, value, type);
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return partPropertyDao.findOrCreateProperty(name, value, type);
@@ -87,7 +88,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         }
         try {
             return partyIdDao.findOrCreateParty(value, type);
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return partyIdDao.findOrCreateParty(value, type);
@@ -103,7 +104,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         }
         try {
             return partyRoleDao.findOrCreateRole(value);
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return partyRoleDao.findOrCreateRole(value);
@@ -119,7 +120,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         }
         try {
             return actionDao.findOrCreateAction(value);
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return actionDao.findOrCreateAction(value);
@@ -135,10 +136,26 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         }
         try {
             return serviceDao.findOrCreateService(value, type);
-        } catch (PersistenceException e) {
+        } catch (PersistenceException | DataIntegrityViolationException e) {
             if (e.getCause() instanceof ConstraintViolationException) {
                 LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
                 return serviceDao.findOrCreateService(value, type);
+            }
+            throw e;
+        }
+    }
+
+    public MpcEntity findOrCreateMpc(String value) {
+        MpcEntity entity = mpcDao.findMpc(value);
+        if (entity != null) {
+            return entity;
+        }
+        try {
+            return mpcDao.findOrCreateMpc(value);
+        } catch (PersistenceException | DataIntegrityViolationException e) {
+            if (e.getCause() instanceof ConstraintViolationException) {
+                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
+                return mpcDao.findOrCreateMpc(value);
             }
             throw e;
         }

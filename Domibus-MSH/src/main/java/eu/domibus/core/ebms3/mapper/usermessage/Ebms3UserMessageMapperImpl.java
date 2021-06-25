@@ -89,7 +89,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
             userMessage.setAgreementRef(agreement);
         }
 
-        final MpcEntity mpcEntity = mpcDao.findOrCreateMpc(ebms3UserMessage.getMpc());
+        final MpcEntity mpcEntity = messageDictionaryService.findOrCreateMpc(ebms3UserMessage.getMpc());
         userMessage.setMpc(mpcEntity);
 
         final Ebms3MessageProperties userMessageMessageProperties = ebms3UserMessage.getMessageProperties();

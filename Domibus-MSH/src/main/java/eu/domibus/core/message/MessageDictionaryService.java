@@ -16,5 +16,7 @@ public interface MessageDictionaryService {
 
     ServiceEntity findOrCreateService(String value, String type);
 
+    MpcEntity findOrCreateMpc(String value);
+
     void createStaticDictionaryEntries();
 }
