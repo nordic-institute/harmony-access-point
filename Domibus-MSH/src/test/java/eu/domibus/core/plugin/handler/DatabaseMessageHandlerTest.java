@@ -174,6 +174,9 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     private MshRoleDao mshRoleDao;
 
+    @Injectable
+    private MessageDictionaryService messageDictionaryService;
+
     @Tested
     private DatabaseMessageHandler databaseMessageHandler;
 
