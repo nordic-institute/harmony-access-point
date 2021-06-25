@@ -6,6 +6,8 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -26,7 +28,7 @@ public class PartyIdDao extends BasicDao<PartyId> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PartyId findOrCreateParty(String value, String type) {
         PartyId party = findPartyByValueAndType(value,type);
         if (party != null) {
