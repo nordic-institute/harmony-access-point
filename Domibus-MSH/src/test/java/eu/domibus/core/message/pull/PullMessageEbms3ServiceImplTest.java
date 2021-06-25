@@ -1,6 +1,5 @@
 package eu.domibus.core.message.pull;
 
-import com.google.common.collect.Lists;
 import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -21,7 +20,6 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -104,26 +102,17 @@ public class PullMessageEbms3ServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final long id = 99;
+
         new Expectations() {{
 
-            messagingLockDao.findReadyToPull(mpc, initiator);
-            result = Lists.newArrayList(messagingLock);
-
-            messagingLock.getMessageId();
-            result = messageId;
-
-            messagingLock.getEntityId();
-            this.result = id;
-
-            messagingLockDao.getNextPullMessageToProcess(id);
+            messagingLockDao.getNextPullMessageToProcess(initiator, mpc);
             result = pullMessageId;
-
-            pullMessageId.getState();
-            result = PullMessageState.FIRST_ATTEMPT;
 
             pullMessageId.getMessageId();
             result = messageId;
+
+            pullMessageId.getState();
+            result = PullMessageState.FIRST_ATTEMPT;
 
         }};
         final String returnedMessageId = pullMessageService.getPullMessageId(initiator, mpc);
@@ -141,26 +130,17 @@ public class PullMessageEbms3ServiceImplTest {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
-        final long id = 99;
+
         new Expectations() {{
 
-            messagingLockDao.findReadyToPull(mpc, initiator);
-            result = Lists.newArrayList(messagingLock);
-
-            messagingLock.getMessageId();
-            result = messageId;
-
-            messagingLock.getEntityId();
-            this.result = id;
-
-            messagingLockDao.getNextPullMessageToProcess(id);
+            messagingLockDao.getNextPullMessageToProcess(initiator, mpc);
             result = pullMessageId;
-
-            pullMessageId.getState();
-            result = PullMessageState.EXPIRED;
 
             pullMessageId.getMessageId();
             result = messageId;
+
+            pullMessageId.getState();
+            result = PullMessageState.EXPIRED;
 
         }};
         final String returnedMessageId = pullMessageService.getPullMessageId(initiator, mpc);
@@ -174,39 +154,33 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void getPullMessageIdRetry(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdRetry(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId,
+                                      @Mocked UserMessage userMessage) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
         final long id = 99;
         new Expectations() {{
 
-            messagingLockDao.findReadyToPull(mpc, initiator);
-            result = Lists.newArrayList(messagingLock);
-
-            messagingLock.getMessageId();
-            result = messageId;
-
-            messagingLock.getEntityId();
-            this.result = id;
-
-            messagingLockDao.getNextPullMessageToProcess(id);
+            messagingLockDao.getNextPullMessageToProcess(initiator, mpc);
             result = pullMessageId;
+
+            pullMessageId.getMessageId();
+            result = messageId;
 
             pullMessageId.getState();
             result = PullMessageState.RETRY;
 
-            pullMessageId.getMessageId();
-            result = messageId;
+            userMessage.getEntityId();
+            result = id;
 
         }};
         final String returnedMessageId = pullMessageService.getPullMessageId(initiator, mpc);
         assertEquals(messageId, returnedMessageId);
 
-        new Verifications() {{
+        new FullVerifications() {{
+            userMessageDao.findByMessageId(messageId);
             rawEnvelopeLogDao.deleteUserMessageRawEnvelope(id);
-            times = 1;
         }};
 
     }
@@ -231,7 +205,6 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void addPullMessageLock(@Injectable final UserMessage userMessage,
                                    @Injectable final UserMessageLog messageLog) throws EbMS3Exception {
         final String pmodeKey = "pmodeKey";
@@ -243,20 +216,28 @@ public class PullMessageEbms3ServiceImplTest {
         new Expectations(pullMessageService) {{
             userMessage.getMessageId();
             result = messageId;
-            userMessage.getMpc();
+
+            userMessage.getMpcValue();
             result = mpc;
+
             messageLog.getNextAttempt();
             result = null;
+
             userMessage.getPartyInfo().getToParty();
             result = partyId;
+
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
+
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;
+
             updateRetryLoggingService.getMessageExpirationDate(messageLog, legConfiguration);
             result = staledDate;
         }};
+
         pullMessageService.addPullMessageLock(userMessage, messageLog);
+
         new Verifications() {{
             MessagingLock messagingLock = null;
             messagingLockDao.save(messagingLock = withCapture());
@@ -300,13 +281,13 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void waitingForCallBackWithAttempt(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
             @Injectable final UserMessageLog userMessageLog,
             @Injectable final UserMessage userMessage,
-            @Injectable final Timestamp timestamp) {
+            @Injectable final Timestamp timestamp,
+            @Injectable MessageStatusEntity messageStatusEntity) {
         new Expectations(pullMessageService) {{
             messagingLockDao.findMessagingLockForMessageId(userMessage.getMessageId());
             result = lock;
@@ -315,18 +296,22 @@ public class PullMessageEbms3ServiceImplTest {
             result = false;
 
             updateRetryLoggingService.updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
+
+            messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT);
+            result = messageStatusEntity;
         }};
+
         pullMessageService.waitingForCallBack(userMessage, legConfiguration, userMessageLog);
-        new Verifications() {{
+
+        new FullVerifications() {{
             lock.setMessageState(MessageState.WAITING);
             lock.setSendAttempts(userMessageLog.getSendAttempts());
             reprogrammableService.setRescheduleInfo(lock, userMessageLog.getNextAttempt());
-
-            MessageStatusEntity messageStatus = new MessageStatusEntity();
-            messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
-            userMessageLog.setMessageStatus(messageStatus);
+            messageStatusDao.findOrCreate(MessageStatus.WAITING_FOR_RECEIPT);
+            userMessageLog.setMessageStatus(messageStatusEntity);
             messagingLockDao.save(lock);
             userMessageLogDao.update(userMessageLog);
+            uiReplicationSignalService.messageChange(anyString);
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, withAny(timestamp));
         }};
     }
@@ -412,7 +397,6 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void pullFailedOnRequestWithNoAttempt(@Injectable final MessagingLock lock,
                                                  @Injectable final LegConfiguration legConfiguration,
                                                  @Injectable final UserMessage userMessage,
@@ -428,13 +412,17 @@ public class PullMessageEbms3ServiceImplTest {
 
             pullMessageService.attemptNumberLeftIsStricltyLowerThenMaxAttemps(userMessageLog, legConfiguration);
             result = false;
+
+            userMessageLog.getSendAttempts();
+            result = 1;
         }};
 
         pullMessageService.pullFailedOnRequest(userMessage, legConfiguration, userMessageLog);
+
         new VerificationsInOrder() {{
             reprogrammableService.removeRescheduleInfo(lock);
             lock.setMessageState(MessageState.DEL);
-            pullMessageStateService.sendFailed(userMessageLog, messageID);
+            pullMessageStateService.sendFailed(userMessageLog, anyString);
             messagingLockDao.save(lock);
         }};
     }
