@@ -1,5 +1,7 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 @Service
 public class MessageDictionaryServiceImpl implements MessageDictionaryService {
@@ -50,114 +53,81 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public AgreementRefEntity findOrCreateAgreement(String value, String type) {
-        AgreementRefEntity entity = agreementDao.findExistingAgreement(value, type);
-        if (entity != null) {
-            return entity;
-        }
-        try {
-            return agreementDao.findOrCreateAgreement(value, type);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return agreementDao.findOrCreateAgreement(value, type);
-            }
-            throw e;
-        }
+        Callable<AgreementRefEntity> findTask = () -> agreementDao.findExistingAgreement(value, type);
+        Callable<AgreementRefEntity> findOrCreateTask = () -> agreementDao.findOrCreateAgreement(value, type);
+        String entityDescription = "AgreementRefEntity value=[" + value + "] type=[" + type + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
     public PartProperty findOrCreatePartProperty(final String name, String value, String type) {
-        PartProperty entity = partPropertyDao.findExistingProperty(name, value, type);
-        if (entity != null) {
-            return entity;
-        }
-        try {
-            return partPropertyDao.findOrCreateProperty(name, value, type);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return partPropertyDao.findOrCreateProperty(name, value, type);
-            }
-            throw e;
-        }
+        Callable<PartProperty> findTask = () -> partPropertyDao.findExistingProperty(name, value, type);
+        Callable<PartProperty> findOrCreateTask = () -> partPropertyDao.findOrCreateProperty(name, value, type);
+        String entityDescription = "PartProperty name=[" + name + "] value=[" + value + "] type=[" + type + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
     public PartyId findOrCreateParty(String value, String type) {
-        PartyId entity = partyIdDao.findPartyByValueAndType(value, type);
-        if (entity != null) {
-            return entity;
-        }
-        try {
-            return partyIdDao.findOrCreateParty(value, type);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return partyIdDao.findOrCreateParty(value, type);
-            }
-            throw e;
-        }
+        Callable<PartyId> findTask = () -> partyIdDao.findPartyByValueAndType(value, type); // TODO: EDELIVERY-8280
+        Callable<PartyId> findOrCreateTask = () -> partyIdDao.findOrCreateParty(value, type);
+        String entityDescription = "PartyId value=[" + value + "] type=[" + type + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
     public PartyRole findOrCreateRole(String value) {
-        PartyRole entity = partyRoleDao.findRoleByValue(value);
-        if (entity != null) {
-            return entity;
-        }
-        try {
-            return partyRoleDao.findOrCreateRole(value);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return partyRoleDao.findOrCreateRole(value);
-            }
-            throw e;
-        }
+        Callable<PartyRole> findTask = () -> partyRoleDao.findRoleByValue(value);
+        Callable<PartyRole> findOrCreateTask = () -> partyRoleDao.findOrCreateRole(value);
+        String entityDescription = "PartyRole value=[" + value + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
     public ActionEntity findOrCreateAction(String value) {
-        ActionEntity entity = actionDao.findByValue(value);
-        if (entity != null) {
-            return entity;
-        }
-        try {
-            return actionDao.findOrCreateAction(value);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return actionDao.findOrCreateAction(value);
-            }
-            throw e;
-        }
+        Callable<ActionEntity> findTask = () -> actionDao.findByValue(value);
+        Callable<ActionEntity> findOrCreateTask = () -> actionDao.findOrCreateAction(value);
+        String entityDescription = "ActionEntity value=[" + value + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
     public ServiceEntity findOrCreateService(String value, String type) {
-        ServiceEntity entity = serviceDao.findExistingService(value, type);
-        if (entity != null) {
-            return entity;
-        }
-        try {
-            return serviceDao.findOrCreateService(value, type);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return serviceDao.findOrCreateService(value, type);
-            }
-            throw e;
-        }
+        Callable<ServiceEntity> findTask = () -> serviceDao.findExistingService(value, type);
+        Callable<ServiceEntity> findOrCreateTask = () -> serviceDao.findOrCreateService(value, type);
+        String entityDescription = "ServiceEntity value=[" + value + "] type=[" + type + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
     public MpcEntity findOrCreateMpc(String value) {
-        MpcEntity entity = mpcDao.findMpc(value);
-        if (entity != null) {
-            return entity;
-        }
+        Callable<MpcEntity> findTask = () -> mpcDao.findMpc(value);
+        Callable<MpcEntity> findOrCreateTask = () -> mpcDao.findOrCreateMpc(value);
+        String entityDescription = "MpcEntity value=[" + value + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
+    }
+
+    protected <T> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
         try {
-            return mpcDao.findOrCreateMpc(value);
-        } catch (PersistenceException | DataIntegrityViolationException e) {
-            if (e.getCause() instanceof ConstraintViolationException) {
-                LOG.debug("Constraint violation when trying to insert dictionary entry, trying again (once)...");
-                return mpcDao.findOrCreateMpc(value);
+            T entity = findTask.call();
+            if (entity != null) {
+                return entity;
             }
-            throw e;
+            try {
+                return findOrCreateTask.call();
+            } catch (PersistenceException | DataIntegrityViolationException e) {
+                if (e.getCause() instanceof ConstraintViolationException) {
+                    LOG.debug("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
+                    return findOrCreateTask.call();
+                }
+                LOG.debug("Exception of type [{}] when trying to insert dictionary entry [{}], rethrowing...", e.getClass().getName(), entityDescription);
+                throw e;
+            }
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not find or create dictionary entry " + entityDescription, ex);
         }
     }
 }
