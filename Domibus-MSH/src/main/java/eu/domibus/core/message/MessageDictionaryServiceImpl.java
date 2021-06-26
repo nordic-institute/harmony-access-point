@@ -118,10 +118,10 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
                 return findOrCreateTask.call();
             } catch (PersistenceException | DataIntegrityViolationException e) {
                 if (e.getCause() instanceof ConstraintViolationException) {
-                    LOG.debug("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
+                    LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
                     return findOrCreateTask.call();
                 }
-                LOG.debug("Exception of type [{}] when trying to insert dictionary entry [{}], rethrowing...", e.getClass().getName(), entityDescription);
+                LOG.info("Exception of type [{}] when trying to insert dictionary entry [{}], rethrowing...", e.getClass().getName(), entityDescription);
                 throw e;
             }
         } catch (RuntimeException ex) {
