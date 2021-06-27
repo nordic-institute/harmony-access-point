@@ -40,7 +40,7 @@ import static eu.domibus.api.model.MessageState.READY;
                 "AND ml.MESSAGE_TYPE='PULL' " +
                 "AND ml.NEXT_ATTEMPT<:CURRENT_TIMESTAMP " +
                 "AND ml.MESSAGE_STALED>:CURRENT_TIMESTAMP " +
-                "AND ml.ROWNUM <= 1 " +
+                "AND ROWNUM <= 1 " +
                 "FOR UPDATE SKIP LOCKED",
         resultClass = MessagingLock.class)
 @NamedNativeQuery(name = "MessagingLock.lockQuerySkipBlocked_MySQL",
