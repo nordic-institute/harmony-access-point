@@ -68,6 +68,14 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
+    public MessageProperty findOrCreateMessageProperty(final String name, String value, String type) {
+        Callable<MessageProperty> findTask = () -> messagePropertyDao.findExistingProperty(name, value, type);
+        Callable<MessageProperty> findOrCreateTask = () -> messagePropertyDao.findOrCreateProperty(name, value, type);
+        String entityDescription = "MessageProperty name=[" + name + "] value=[" + value + "] type=[" + type + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
+    }
+
     public PartyId findOrCreateParty(String value, String type) {
         Callable<PartyId> findTask = () -> partyIdDao.findPartyByValueAndType(value, type); // TODO: EDELIVERY-8280
         Callable<PartyId> findOrCreateTask = () -> partyIdDao.findOrCreateParty(value, type);

@@ -8,6 +8,8 @@ public interface MessageDictionaryService {
 
     PartProperty findOrCreatePartProperty(final String name, String value, String type);
 
+    MessageProperty findOrCreateMessageProperty(final String name, String value, String type);
+
     PartyId findOrCreateParty(String value, String type);
 
     PartyRole findOrCreateRole(String value);

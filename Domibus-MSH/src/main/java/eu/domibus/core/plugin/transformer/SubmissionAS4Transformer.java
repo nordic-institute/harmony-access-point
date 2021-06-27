@@ -71,7 +71,7 @@ public class SubmissionAS4Transformer {
             prop.setValue(propertyEntry.getValue());
             prop.setType(propertyEntry.getType());
 
-            final MessageProperty propertyByName = messagePropertyDao.findOrCreateProperty(prop.getName(), prop.getValue(), prop.getType());
+            final MessageProperty propertyByName = messageDictionaryService.findOrCreateMessageProperty(prop.getName(), prop.getValue(), prop.getType());
             messageProperties.add(propertyByName);
         }
 

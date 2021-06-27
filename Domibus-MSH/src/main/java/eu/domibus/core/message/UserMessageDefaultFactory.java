@@ -156,7 +156,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         for (MessageProperty sourceProperty : userMessageProperties) {
             if (ALLOWED_PROPERTIES.contains(sourceProperty.getName())) {
-                MessageProperty messageProperty = messagePropertyDao.findOrCreateProperty(sourceProperty.getName(), sourceProperty.getValue(), sourceProperty.getType());
+                MessageProperty messageProperty = messageDictionaryService.findOrCreateMessageProperty(sourceProperty.getName(), sourceProperty.getValue(), sourceProperty.getType());
                 messageProperties.add(messageProperty);
             }
         }
