@@ -1,6 +1,7 @@
 package eu.domibus.core.time;
 
 import eu.domibus.api.model.TimezoneOffset;
+import eu.domibus.core.message.MessageDictionaryService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,10 @@ public class TimezoneOffsetService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TimezoneOffsetService.class);
 
-    private final TimezoneOffsetDao timezoneOffsetDao;
+    private final MessageDictionaryService messageDictionaryService;
 
-    public TimezoneOffsetService(TimezoneOffsetDao timezoneOffsetDao) {
-        this.timezoneOffsetDao = timezoneOffsetDao;
+    public TimezoneOffsetService(MessageDictionaryService messageDictionaryService) {
+        this.messageDictionaryService = messageDictionaryService;
     }
 
     /**
@@ -30,6 +31,6 @@ public class TimezoneOffsetService {
      * @return an existing timezone offset dictionary entry or a newly created one.
      */
     public TimezoneOffset getTimezoneOffset(String timezoneId, int offsetSeconds) {
-        return timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
+        return messageDictionaryService.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
     }
 }

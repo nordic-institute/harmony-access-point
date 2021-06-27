@@ -4,6 +4,8 @@ import eu.domibus.api.model.TimezoneOffset;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 
@@ -27,6 +29,7 @@ public class TimezoneOffsetDao extends BasicDao<TimezoneOffset> {
      *
      * @return an existing timezone offset dictionary entry or a newly created one.
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TimezoneOffset findOrCreateTimezoneOffset(String timezoneId, int offsetSeconds) {
         TimezoneOffset timezoneOffset = findTimezoneOffsetByTimezoneIdAndOffsetSeconds(timezoneId, offsetSeconds);
         if(timezoneOffset != null) {

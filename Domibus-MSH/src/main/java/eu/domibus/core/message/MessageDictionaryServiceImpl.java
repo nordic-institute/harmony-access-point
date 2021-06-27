@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.*;
+import eu.domibus.core.time.TimezoneOffsetDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -27,11 +28,12 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     protected MessagePropertyDao messagePropertyDao;
     protected PartPropertyDao partPropertyDao;
     protected PartyRoleDao partyRoleDao;
+    protected TimezoneOffsetDao timezoneOffsetDao;
     protected MessageStatusDao messageStatusDao;
     protected NotificationStatusDao notificationStatusDao;
     protected MshRoleDao mshRoleDao;
 
-    public MessageDictionaryServiceImpl(MpcDao mpcDao, ActionDao actionDao, ServiceDao serviceDao, PartyIdDao partyIdDao, AgreementDao agreementDao, MessagePropertyDao messagePropertyDao, PartPropertyDao partPropertyDao, PartyRoleDao partyRoleDao, MessageStatusDao messageStatusDao, NotificationStatusDao notificationStatusDao, MshRoleDao mshRoleDao) {
+    public MessageDictionaryServiceImpl(MpcDao mpcDao, ActionDao actionDao, ServiceDao serviceDao, PartyIdDao partyIdDao, AgreementDao agreementDao, MessagePropertyDao messagePropertyDao, PartPropertyDao partPropertyDao, PartyRoleDao partyRoleDao, MessageStatusDao messageStatusDao, NotificationStatusDao notificationStatusDao, MshRoleDao mshRoleDao, TimezoneOffsetDao timezoneOffsetDao) {
         this.mpcDao = mpcDao;
         this.actionDao = actionDao;
         this.serviceDao = serviceDao;
@@ -40,6 +42,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         this.messagePropertyDao = messagePropertyDao;
         this.partPropertyDao = partPropertyDao;
         this.partyRoleDao = partyRoleDao;
+        this.timezoneOffsetDao = timezoneOffsetDao;
         this.messageStatusDao = messageStatusDao;
         this.notificationStatusDao = notificationStatusDao;
         this.mshRoleDao = mshRoleDao;
@@ -116,6 +119,14 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
         return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
 
+    public TimezoneOffset findOrCreateTimezoneOffset(String timezoneId, int offsetSeconds) {
+        Callable<TimezoneOffset> findTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
+        Callable<TimezoneOffset> findOrCreateTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
+        String entityDescription = "TimezoneOffset timezoneId=[" + timezoneId + "] offsetSeconds=[" + offsetSeconds + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
+    }
+
     protected <T> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
         try {
             T entity = findTask.call();
@@ -123,13 +134,13 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
                 return entity;
             }
             try {
+                LOG.info("Dictionary entry [{}] not found, calling findOrCreate...", entityDescription);
                 return findOrCreateTask.call();
             } catch (PersistenceException | DataIntegrityViolationException e) {
                 if (e.getCause() instanceof ConstraintViolationException) {
                     LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
                     return findOrCreateTask.call();
                 }
-                LOG.info("Exception of type [{}] when trying to insert dictionary entry [{}], rethrowing...", e.getClass().getName(), entityDescription);
                 throw e;
             }
         } catch (RuntimeException ex) {

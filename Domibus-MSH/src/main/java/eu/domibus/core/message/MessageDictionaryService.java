@@ -20,5 +20,7 @@ public interface MessageDictionaryService {
 
     MpcEntity findOrCreateMpc(String value);
 
+    TimezoneOffset findOrCreateTimezoneOffset(String timezoneId, int offsetSeconds);
+
     void createStaticDictionaryEntries();
 }
