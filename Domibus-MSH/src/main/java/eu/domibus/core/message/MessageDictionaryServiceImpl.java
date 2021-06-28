@@ -80,7 +80,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public PartyId findOrCreateParty(String value, String type) {
-        Callable<PartyId> findTask = () -> partyIdDao.findPartyByValueAndType(value, type); // TODO: EDELIVERY-8280
+        Callable<PartyId> findTask = () -> partyIdDao.findExistingPartyId(value, type);
         Callable<PartyId> findOrCreateTask = () -> partyIdDao.findOrCreateParty(value, type);
         String entityDescription = "PartyId value=[" + value + "] type=[" + type + "]";
 
