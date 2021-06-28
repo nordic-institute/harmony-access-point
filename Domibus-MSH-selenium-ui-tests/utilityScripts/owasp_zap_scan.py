@@ -9,7 +9,7 @@ log.basicConfig(level=log.DEBUG)
 
 apiKey = '8888'
 zap_url = 'http://localhost:8281'
-domibus_url = 'http://localhost:9080/domibus/'
+domibus_url = 'http://localhost:9088/domibus/'
 
 contextFile = os.path.abspath("DOMIBUS_CONTEXT.context")
 urlsFile = os.path.abspath("DOMIBUS_urls.txt")
