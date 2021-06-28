@@ -133,15 +133,18 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
             if (entity != null) {
                 return entity;
             }
-            try {
-                LOG.info("Dictionary entry [{}] not found, calling findOrCreate...", entityDescription);
-                return findOrCreateTask.call();
-            } catch (PersistenceException | DataIntegrityViolationException e) {
-                if (e.getCause() instanceof ConstraintViolationException) {
-                    LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
+
+            synchronized (this) {
+                try {
+                    LOG.info("Dictionary entry [{}] not found, calling findOrCreate...", entityDescription);
                     return findOrCreateTask.call();
+                } catch (PersistenceException | DataIntegrityViolationException e) {
+                    if (e.getCause() instanceof ConstraintViolationException) {
+                        LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
+                        return findOrCreateTask.call();
+                    }
+                    throw e;
                 }
-                throw e;
             }
         } catch (RuntimeException ex) {
             throw ex;
