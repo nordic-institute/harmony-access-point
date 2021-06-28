@@ -6,6 +6,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.core.time.TimezoneOffsetDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,9 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public AgreementRefEntity findOrCreateAgreement(String value, String type) {
+        if (StringUtils.isEmpty(value)) {
+            return null;
+        }
         Callable<AgreementRefEntity> findTask = () -> agreementDao.findExistingAgreement(value, type);
         Callable<AgreementRefEntity> findOrCreateTask = () -> agreementDao.findOrCreateAgreement(value, type);
         String entityDescription = "AgreementRefEntity value=[" + value + "] type=[" + type + "]";
@@ -64,6 +68,9 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public PartProperty findOrCreatePartProperty(final String name, String value, String type) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
         Callable<PartProperty> findTask = () -> partPropertyDao.findExistingProperty(name, value, type);
         Callable<PartProperty> findOrCreateTask = () -> partPropertyDao.findOrCreateProperty(name, value, type);
         String entityDescription = "PartProperty name=[" + name + "] value=[" + value + "] type=[" + type + "]";
@@ -88,6 +95,9 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public PartyRole findOrCreateRole(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
         Callable<PartyRole> findTask = () -> partyRoleDao.findRoleByValue(value);
         Callable<PartyRole> findOrCreateTask = () -> partyRoleDao.findOrCreateRole(value);
         String entityDescription = "PartyRole value=[" + value + "]";
@@ -96,6 +106,9 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public ActionEntity findOrCreateAction(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
         Callable<ActionEntity> findTask = () -> actionDao.findByValue(value);
         Callable<ActionEntity> findOrCreateTask = () -> actionDao.findOrCreateAction(value);
         String entityDescription = "ActionEntity value=[" + value + "]";
@@ -104,6 +117,9 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public ServiceEntity findOrCreateService(String value, String type) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
         Callable<ServiceEntity> findTask = () -> serviceDao.findExistingService(value, type);
         Callable<ServiceEntity> findOrCreateTask = () -> serviceDao.findOrCreateService(value, type);
         String entityDescription = "ServiceEntity value=[" + value + "] type=[" + type + "]";
@@ -112,6 +128,9 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public MpcEntity findOrCreateMpc(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
         Callable<MpcEntity> findTask = () -> mpcDao.findMpc(value);
         Callable<MpcEntity> findOrCreateTask = () -> mpcDao.findOrCreateMpc(value);
         String entityDescription = "MpcEntity value=[" + value + "]";
