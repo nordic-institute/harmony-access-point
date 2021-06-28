@@ -46,6 +46,7 @@ public class DomibusJPAConfiguration {
 
     public static final String JPA_PROPERTIES = "jpaProperties";
     public static final String JPA_PROPERTY_TIMEZONE_UTC = "UTC";
+    public static final String CONFIG_DOMIBUS_ORM = "config/domibus/orm/";
 
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
@@ -62,7 +63,7 @@ public class DomibusJPAConfiguration {
                                                                        Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
-        result.setMappingResources();
+
 
         result.setPersistenceUnitName(JPAConstants.PERSISTENCE_UNIT_NAME);
         final String packagesToScanString = domibusPropertyProvider.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN);
@@ -96,7 +97,7 @@ public class DomibusJPAConfiguration {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
-            Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/domibus/orm/*-mysql-orm.xml");
+            Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:" + CONFIG_DOMIBUS_ORM + "*-mysql-orm.xml");
             LOG.debug("resolver.getResources -> classpath*:config/domibus/orm/*-mysql-orm.xml found [{}] resources. [{}]", pluginDefaultResourceList.length, pluginDefaultResourceList);
 
             result.setMappingResources(Arrays.stream(pluginDefaultResourceList)
@@ -104,7 +105,7 @@ public class DomibusJPAConfiguration {
                     .filter(StringUtils::isNotBlank)
                     .toArray(String[]::new));
         } catch (IOException e) {
-            LOG.error("Ressources classpath*:config/domibus/orm/*-mysql-orm.xml", e);
+            LOG.error("Resources classpath*:config/domibus/orm/*-mysql-orm.xml", e);
         }
 
     }
@@ -115,11 +116,11 @@ public class DomibusJPAConfiguration {
             if (resource == null) {
                 return null;
             }
-            String relativePath = StringUtils.substringAfter(resource.getURL().getPath(), "!/");
+            String relativePath = StringUtils.substringAfter(resource.getURL().getPath(), CONFIG_DOMIBUS_ORM);
             LOG.debug("setMappingResources [{}]", relativePath);
-            return relativePath;
+            return CONFIG_DOMIBUS_ORM + relativePath;
         } catch (IOException e) {
-            LOG.error("Ressources classpath*:config/domibus/orm/*-mysql-orm.xml for resource [" + resource + "]", e);
+            LOG.error("Resources classpath*:config/domibus/orm/*-mysql-orm.xml for resource [" + resource + "]", e);
             return null;
         }
     }

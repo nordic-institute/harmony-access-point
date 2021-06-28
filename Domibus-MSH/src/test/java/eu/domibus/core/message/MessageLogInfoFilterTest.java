@@ -231,7 +231,7 @@ public class MessageLogInfoFilterTest {
         String mainTable = "UserMessageLog log ";
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
-        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
+        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         Map<String, List<String>> mappings = ImmutableMap.of(
                 "message", Arrays.asList(messageTable),
                 "info", Arrays.asList(messageTable),

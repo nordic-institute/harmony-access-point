@@ -62,8 +62,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                                 "left join message.messageProperties propsFrom "  +
                                 "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join log.timezoneOffset timezoneOffset " +
-                        "left join message.partyInfo.from.partyId partyFrom " +
-                        "left join message.partyInfo.to.partyId partyTo " +
+                        "left join message.partyInfo.from.fromPartyId partyFrom " +
+                        "left join message.partyInfo.to.toPartyId partyTo " +
                         (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' "  +
                                 "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
@@ -85,8 +85,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
        // mappings.put("info", Arrays.asList(messageTable));
         mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
         mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
-        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
-        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.partyId partyTo "));
+        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.fromPartyId partyFrom "));
+        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.toPartyId partyTo "));
         return mappings;
     }
 

@@ -38,6 +38,7 @@ public class RevisionLog {
             strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
             parameters = {@org.hibernate.annotations.Parameter(name = DatePrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50")})
     @RevisionNumber
+    @Column(name = "ID")
     private long id;
 
     @RevisionTimestamp
