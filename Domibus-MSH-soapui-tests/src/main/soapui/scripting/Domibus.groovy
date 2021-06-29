@@ -607,7 +607,6 @@ class Domibus{
 		def messageStatus = "INIT"
         def wait = false
 		def msgPK=null
-		def statusMap=[:]
 		def numberAttempts = 0
         def maxNumberAttempts = 5	
 		
@@ -618,8 +617,7 @@ class Domibus{
             log.info "  checkStatus  [][]  Waiting time for $sideName extended to ${MAX_WAIT_TIME/1000} seconds"
         }
 		
-		// Get Message status names and IDs in a map
-		// statusMap=getMsgStatusNames(sqlConn)
+
 			
 			
         while ( ( (messageStatus != targetStatus) && (MAX_WAIT_TIME > 0) ) || (wait) ) {
@@ -635,11 +633,8 @@ class Domibus{
 				}
 			}
 			
-			// Get Message status names and IDs in a map
-			statusMap=getMsgStatusNames(sqlConn)
-			
-            sqlConn.eachRow("Select * from TB_USER_MESSAGE_LOG where ID_PK = ${msgPK}") {
-                messageStatus = statusMap[it.MESSAGE_STATUS_ID_FK]
+			sqlConn.eachRow("select d.STATUS, m.SEND_ATTEMPTS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
+                messageStatus = it.STATUS
                 numberAttempts = it.SEND_ATTEMPTS
             }
             log.info "|MSG_ID: " + messageID + " | $sideName: Expected MSG Status =" + targetStatus + "-- Current MSG Status = " + messageStatus + " | maxNumbAttempts: " + maxNumberAttempts + "-- numbAttempts: " + numberAttempts
@@ -3412,7 +3407,7 @@ class Domibus{
             while ( (currentCount < countToReachC2) && (MAX_WAIT_TIME > 0) ) {
                 sleep(STEP_WAIT_TIME)
                 MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
-                sqlSender.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C2Status})") {
+                sqlSender.eachRow("select count(*) lignes from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where LOWER(d.STATUS) = LOWER(${C2Status})") {
                     currentCount = it.lignes
                 }
                 log.info "  waitMessagesExchangedNumber  [][]  Waiting C2:" + MAX_WAIT_TIME + " -- Current:" + currentCount + " -- Target:" + countToReachC2
@@ -3428,7 +3423,7 @@ class Domibus{
             while ( (currentCount < countToReachC3) && (MAX_WAIT_TIME > 0) ) {
                 sleep(STEP_WAIT_TIME)
                 MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
-                sqlReceiver.eachRow("Select count(*) lignes from TB_MESSAGE_LOG where (LOWER(MESSAGE_TYPE) = 'user_message') and (LOWER(MESSAGE_STATUS) = ${C3Status})") {
+                sqlReceiver.eachRow("select count(*) lignes from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where LOWER(d.STATUS) = LOWER(${C3Status})") {
                     currentCount = it.lignes
                 }
                 log.info "  waitMessagesExchangedNumber  [][]  Waiting C3:" + MAX_WAIT_TIME + " -- Current:" + currentCount + " -- Target:" + countToReachC3
@@ -3445,20 +3440,18 @@ class Domibus{
     def countCurrentMessagesNumber(testRunner,C2Status = "acknowledged", C3Status = "received",String senderDomainId = blueDomainID, String receiverDomanId = redDomainID){
         debugLog("  ====  Calling \"countCurrentMessagesNumber\".", log)
         def countC2 = 0; def countC3 = 0
-		def statusMap=[:]
 		
 
         def sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
         def sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
         def usedDomains = [senderDomainId, receiverDomanId]
         openDbConnections(usedDomains)
-        
-		statusMap=getMsgStatusNames(sqlSender)
-        sqlSender.eachRow("Select count(*) lignes from TB_USER_MESSAGE_LOG where LOWER(${statusMap[${MESSAGE_STATUS_ID_FK}]}) = LOWER(${C2Status})") {
+        	                  
+        sqlSender.eachRow("select count(m.ID_PK) lignes from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where LOWER(d.STATUS) = LOWER(${C2Status})") {
             countC2 = it.lignes
         }
 
-        sqlReceiver.eachRow("Select count(*) lignes from TB_USER_MESSAGE_LOG where LOWER(${statusMap[${MESSAGE_STATUS_ID_FK}]}) = LOWER(${C3Status})") {
+        sqlReceiver.eachRow("select count(*) lignes from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where LOWER(d.STATUS) = LOWER(${C3Status})") {
             countC3 = it.lignes
         }
 

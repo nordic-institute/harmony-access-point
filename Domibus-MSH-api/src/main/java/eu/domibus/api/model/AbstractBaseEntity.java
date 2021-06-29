@@ -26,7 +26,7 @@ public abstract class AbstractBaseEntity extends AbstractBaseAuditEntity {
             strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
             parameters = {@Parameter(name = DatePrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50")})
     @Column(name = "ID_PK")
-    private long entityId;  // TODO use BigInteger with EXTEND sequence
+    private long entityId;
 
 
     /**

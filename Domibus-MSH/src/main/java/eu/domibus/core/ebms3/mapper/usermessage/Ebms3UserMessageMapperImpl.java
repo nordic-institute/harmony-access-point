@@ -95,7 +95,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
             final Set<Ebms3Property> properties = userMessageMessageProperties.getProperty();
             userMessage.setMessageProperties(new HashSet<>());
             properties.stream().forEach(ebms3Property -> {
-                final MessageProperty messageProperty = convertToEbms3Property(ebms3Property);
+                final MessageProperty messageProperty = convertToMessageProperty(ebms3Property);
                 userMessage.getMessageProperties().add(messageProperty);
             });
         }
@@ -267,8 +267,8 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         return result;
     }
 
-    protected MessageProperty convertToEbms3Property(Ebms3Property partProperty) {
-        return messagePropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
+    protected MessageProperty convertToMessageProperty(Ebms3Property msgProperty) {
+        return messagePropertyDao.findOrCreateProperty(msgProperty.getName(), msgProperty.getValue(), msgProperty.getType());
     }
 
     protected PartProperty convertToPartProperty(Ebms3Property partProperty) {
