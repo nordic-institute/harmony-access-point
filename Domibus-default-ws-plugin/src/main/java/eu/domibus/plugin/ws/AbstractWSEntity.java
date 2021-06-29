@@ -5,7 +5,7 @@ import org.hibernate.id.enhanced.SequenceStyleGenerator;
 
 import javax.persistence.*;
 
-import static eu.domibus.plugin.jpa.JPAConstants.*;
+import static eu.domibus.common.JPAConstants.*;
 
 /**
  * @author François Gautier
@@ -19,7 +19,7 @@ public class AbstractWSEntity {
     @GenericGenerator(
             name = DOMIBUS_SCALABLE_SEQUENCE,
             strategy = DATE_PREFIXED_SEQUENCE_ID_GENERATOR,
-            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = INCREMENT_SIZE)})
+            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = SEQUENCE_INCREMENT_SIZE)})
     @Column(name = "ID_PK")
     private long entityId;
 
