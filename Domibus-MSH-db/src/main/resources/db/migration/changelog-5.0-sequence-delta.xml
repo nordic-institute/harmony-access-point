@@ -10,25 +10,14 @@
     <changeSet author="idragusa" id="EDELIVERY-7836">
         <sql dbms="oracle" endDelimiter="\n/">
             CREATE OR REPLACE FUNCTION migrate_seq (
-            id_pk IN NUMBER,
-            creation_time IN DATE
+                id_pk IN NUMBER,
+                creation_time IN DATE
             )
             RETURN NUMBER IS
-            seq_id NUMBER;
+                seq_id NUMBER;
             BEGIN
-            select to_number(to_char(creation_time,'YYMMDDHH')||to_char(id_pk, 'FM0000000000')) into seq_id from dual;
-            RETURN seq_id;
-            END;
-        </sql>
-        <sql dbms="oracle" endDelimiter="\n/">
-            DECLARE
-            seq_id NUMBER;
-            BEGIN
-            FOR param IN (
-            select id_pk, creation_time from TB_USER
-            ) LOOP
-            SELECT migrate_seq(param.id_pk, param.creation_time) into seq_id FROM DUAL;
-            END LOOP;
+                select to_number(to_char(creation_time,'YYMMDDHH')||to_char(id_pk, 'FM0000000000')) into seq_id from dual;
+                RETURN seq_id;
             END;
         </sql>
     </changeSet>

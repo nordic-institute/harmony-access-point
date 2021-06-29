@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -15,6 +16,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Properties;
 
+
+/**
+ * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) increment.
+ *
+ * @author idragusa
+ * @since 5.0
+ */
 public class DatePrefixedSequenceIdGenerator extends SequenceStyleGenerator {
 
     public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
@@ -29,9 +37,7 @@ public class DatePrefixedSequenceIdGenerator extends SequenceStyleGenerator {
 
         seqStr += String.format(NUMBER_FORMAT_DEFAULT, super.generate(session, object));;
 
-        long id = new Long(seqStr);
-
-        return id;
+        return NumberUtils.toLong(seqStr);
     }
 
     @Override
