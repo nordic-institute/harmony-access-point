@@ -4,9 +4,9 @@
         <name>DOMIBUS_CONTEXT</name>
         <desc/>
         <inscope>true</inscope>
-        <incregexes>http://localhost:9080.*</incregexes>
-        <excregexes>http://localhost:9080/domibus/assets.*</excregexes>
-        <excregexes>http://localhost:9080/domibus/rest/security/authentication</excregexes>
+        <incregexes>http://localhost:9088.*</incregexes>
+        <excregexes>http://localhost:9088/domibus/assets.*</excregexes>
+        <excregexes>http://localhost:9088/domibus/rest/security/authentication</excregexes>
         <tech>
             <include>Db</include>
             <include>Db.CouchDB</include>
@@ -55,16 +55,16 @@
         <authentication>
             <type>5</type>
             <strategy>EACH_RESP</strategy>
-            <pollurl>http://localhost:9080/domibus/rest/security/user/connected</pollurl>
+            <pollurl>http://localhost:9088/domibus/rest/security/user/connected</pollurl>
             <polldata/>
             <pollheaders/>
             <pollfreq>20000000</pollfreq>
             <pollunits>REQUESTS</pollunits>
             <loggedout>html</loggedout>
             <form>
-                <loginurl>http://localhost:9080/domibus/rest/security/authentication</loginurl>
+                <loginurl>http://localhost:9088/domibus/rest/security/authentication</loginurl>
                 <loginbody>{"username":"{%username%}","password":"{%password%}"}</loginbody>
-                <loginpageurl>http://localhost:9080/domibus/rest/security/authentication</loginpageurl>
+                <loginpageurl>http://localhost:9088/domibus/rest/security/authentication</loginpageurl>
             </form>
         </authentication>
         <users>
