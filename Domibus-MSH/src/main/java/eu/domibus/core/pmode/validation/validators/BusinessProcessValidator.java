@@ -155,7 +155,7 @@ public class BusinessProcessValidator implements PModeValidator {
 
     protected void checkPartyIdentifiers(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Party party, String message) {
         party.getIdentifiers().forEach(identifier -> {
-            if (!partyIdTypes.contains(identifier.getPartyIdType())) {
+            if (identifier.getPartyIdType() != null && !partyIdTypes.contains(identifier.getPartyIdType())) {
                 createIssue(issues, process, party.getName(), message);
             }
         });

@@ -5,6 +5,7 @@
     <groups>
         <run>
             <include name="multiTenancy"/>
+            <exclude name="TlsConfig"></exclude>
         </run>
     </groups>
     <test name="NoData">
@@ -145,6 +146,7 @@
         <classes>
             <class name="domibus.ui.ux.TruststorePgUXTest"/>
             <class name="domibus.ui.functional.TruststorePgTest"></class>
+            <class name="domibus.ui.functional.TlsTrustStorePgTest"></class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
                     <!--                    need fixes -->

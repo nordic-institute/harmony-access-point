@@ -18,7 +18,7 @@ import java.util.Set;
  * @author Soumya Chandran
  * @since 4.2
  */
-public class Ebms3PartyIdentifierValidatorTest {
+public class PartyIdentifierValidatorTest {
 
     @Tested
     PartyIdentifierValidator partyIdentifierValidator;
