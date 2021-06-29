@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(JMockit.class)
-public class PModeValidationEbms3ServiceImplTest {
+public class PModeValidationServiceImplTest {
 
     @Tested
     PModeValidationServiceImpl pModeValidationService;

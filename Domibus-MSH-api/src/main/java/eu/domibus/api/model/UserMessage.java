@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -105,11 +106,11 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public String getConversationId() {
-        return conversationId;
+        return StringUtils.SPACE.equals(this.conversationId) ? StringUtils.EMPTY : this.conversationId;
     }
 
     public void setConversationId(String conversationId) {
-        this.conversationId = conversationId;
+        this.conversationId = StringUtils.EMPTY.equals(conversationId) ? StringUtils.SPACE : conversationId;
     }
 
     public PartyInfo getPartyInfo() {
