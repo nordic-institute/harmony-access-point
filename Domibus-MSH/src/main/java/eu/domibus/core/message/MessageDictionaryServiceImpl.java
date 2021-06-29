@@ -139,7 +139,7 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     public TimezoneOffset findOrCreateTimezoneOffset(String timezoneId, int offsetSeconds) {
-        Callable<TimezoneOffset> findTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
+        Callable<TimezoneOffset> findTask = () -> timezoneOffsetDao.findTimezoneOffsetByTimezoneIdAndOffsetSeconds(timezoneId, offsetSeconds);
         Callable<TimezoneOffset> findOrCreateTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
         String entityDescription = "TimezoneOffset timezoneId=[" + timezoneId + "] offsetSeconds=[" + offsetSeconds + "]";
 
