@@ -57,6 +57,27 @@ public class ServiceDaoIT extends AbstractIT {
         Assert.assertEquals(foundProperty.getEntityId(), foundProperty1.getEntityId());
     }
 
+    @Test
+    public void testFindOrCreate() {
+        final String value = "value1";
+
+        final ServiceEntity foundEntity1 = serviceDao.findOrCreateService(value, "  ");
+        assertNotNull(foundEntity1);
+
+        final ServiceEntity foundEntity2 = serviceDao.findOrCreateService(value, "");
+        assertNotNull(foundEntity2);
+
+        final ServiceEntity foundEntity3 = serviceDao.findOrCreateService(value, null);
+        assertNotNull(foundEntity3);
+
+        final ServiceEntity foundEntity4 = serviceDao.findOrCreateService(value, "type1");
+        assertNotNull(foundEntity4);
+
+        Assert.assertEquals(foundEntity1.getEntityId(), foundEntity2.getEntityId());
+        Assert.assertEquals(foundEntity1.getEntityId(), foundEntity3.getEntityId());
+        Assert.assertNotEquals(foundEntity1.getEntityId(), foundEntity4.getEntityId());
+    }
+
     private ServiceEntity buildProperty(String value, String type) {
         ServiceEntity property = new ServiceEntity();
         property.setValue(value);

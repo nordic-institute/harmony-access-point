@@ -31,6 +31,33 @@ import static eu.domibus.api.model.MessageState.READY;
         @NamedQuery(name = "MessagingLock.findReadyToPull", query = "from MessagingLock where messageState = 'READY' and mpc=:MPC and lower(initiator)=lower(:INITIATOR) AND messageType='PULL' and nextAttempt<:CURRENT_TIMESTAMP and staled>:CURRENT_TIMESTAMP order by entityId"),
         @NamedQuery(name = "MessagingLock.findWaitingForReceipt", query = "from MessagingLock where messageState = 'WAITING' AND nextAttempt<:CURRENT_TIMESTAMP order by entityId")
 })
+@NamedNativeQuery(name = "MessagingLock.lockQuerySkipBlocked_Oracle",
+        query = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +
+                "FROM TB_MESSAGING_LOCK ml " +
+                "WHERE ml.MESSAGE_STATE='READY' " +
+                "AND ml.MPC=:MPC " +
+                "AND LOWER(ml.INITIATOR)=LOWER(:INITIATOR) " +
+                "AND ml.MESSAGE_TYPE='PULL' " +
+                "AND ml.NEXT_ATTEMPT<:CURRENT_TIMESTAMP " +
+                "AND ml.MESSAGE_STALED>:CURRENT_TIMESTAMP " +
+                "AND ROWNUM <= 1 " +
+                "FOR UPDATE SKIP LOCKED",
+        resultClass = MessagingLock.class)
+@NamedNativeQuery(name = "MessagingLock.lockQuerySkipBlocked_MySQL",
+        query = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME " +
+                "FROM TB_MESSAGING_LOCK ml " +
+                "WHERE ml.MESSAGE_STATE='READY' " +
+                "AND ml.MPC=:MPC " +
+                "AND LOWER(ml.INITIATOR)=LOWER(:INITIATOR) " +
+                "AND ml.MESSAGE_TYPE='PULL' " +
+                "AND ml.NEXT_ATTEMPT<:CURRENT_TIMESTAMP " +
+                "AND ml.MESSAGE_STALED>:CURRENT_TIMESTAMP " +
+                "LIMIT 1 " +
+                "FOR UPDATE SKIP LOCKED ",
+        resultClass = MessagingLock.class)
+@NamedNativeQuery(name = "MessagingLock.lockByMessageId",
+        query = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,FK_TIMEZONE_OFFSET,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=?1 ",
+        resultClass = MessagingLock.class)
 public class MessagingLock extends AbstractBaseEntity implements Reprogrammable {
 
     public final static String PULL = "PULL";

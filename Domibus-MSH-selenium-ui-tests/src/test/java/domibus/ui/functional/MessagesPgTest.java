@@ -17,11 +17,13 @@ import pages.messages.MessageDetailsModal;
 import pages.messages.MessageFilterArea;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
+import utils.DFileUtils;
 import utils.Gen;
 import utils.TestRunData;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -225,34 +227,33 @@ public class MessagesPgTest extends SeleniumTest {
 	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		
-		log.info("uploading self sending pmode");
-		
-		String newMessId = null;
-		
-		JSONArray messages = rest.messages().getListOfMessages(null);
-		for (int i = 0; i < messages.length(); i++) {
-			JSONObject mess = messages.getJSONObject(i);
-			if(StringUtils.equalsIgnoreCase(mess.getString("messageStatus"), "SEND_FAILURE")
-			|| StringUtils.equalsIgnoreCase(mess.getString("messageStatus"), "RECEIVED")){
-				newMessId = mess.getString("messageId");
-				break;
+
+		MessagesPage page = new MessagesPage(driver);
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+		grid.waitForRowsToLoad();
+
+		ArrayList<HashMap<String, String>> info = grid.getListedRowInfo();
+		int toCheckIndex = -1;
+
+		for (int i = 0; i < info.size(); i++) {
+			String role = info.get(i).get("AP Role");
+			String status = info.get(i).get("Message Status");
+			List<String> actions = grid.getAvailableActionsForRow(i);
+
+			if(role.equalsIgnoreCase("SENDING") && (status.equalsIgnoreCase("SEND_FAILURE") || status.equalsIgnoreCase("WAITING_FOR_RETRY"))){
+				soft.assertTrue(actions.contains("Resend"), "Message can be resent");
+				soft.assertTrue(actions.contains("Download"), "Message can be Downloaded");
+				toCheckIndex = i;
 			}
 		}
-		
-		if(StringUtils.isEmpty(newMessId)){
-			throw new SkipException("Could not find message to download");
-		}
-		
-		MessagesPage page = new MessagesPage(driver);
-		page.grid().waitForRowsToLoad();
-		
-		page.grid().scrollToAndDoubleClick("Message Id", newMessId);
-		log.info("double clicked message with id " + newMessId);
-		
-		String zipPath = rest.messages().downloadMessage(newMessId, null);
+
+		String zipPath = page.downloadMessage(toCheckIndex);
+
 		log.info("downloaded message to zip with path " + zipPath);
-		
+
 		HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
 		log.info("checking zip for files message and message.xml");
 		boolean foundXMLfile = false;
@@ -265,14 +266,17 @@ public class MessagesPgTest extends SeleniumTest {
 				foundXMLfile = true;
 			}
 		}
-		
+
 		soft.assertTrue(foundMessfile, "Found file containing message content");
 		soft.assertTrue(foundXMLfile, "Found file containing message properties");
 		log.info("checking the message payload");
 //		soft.assertEquals(zipContent.get("message"), MessageConstants.Message_Content, "Correct message content is downloaded");
-		
+
 		String xmlString = zipContent.get("message.xml");
-		
+
+		grid.doubleClickRow(toCheckIndex);
+		log.info("double clicked message " + info.get(toCheckIndex));
+
 		log.info("checking the message metadata");
 		MessageDetailsModal modal = new MessageDetailsModal(driver);
 		soft.assertEquals(modal.getValue("Message Id"),
@@ -281,13 +285,13 @@ public class MessagesPgTest extends SeleniumTest {
 				TestUtils.getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
 		soft.assertEquals(modal.getValue("Ref To Message Id"),
 				TestUtils.getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
-		
+
 		soft.assertTrue(xmlString.contains("name=\"originalSender\">" + modal.getValue("Original Sender"))
 				, "Original Sender - value matches");
-		
+
 		soft.assertTrue(xmlString.contains("name=\"finalRecipient\">" + modal.getValue("Final Recipient"))
 				, "Final Recipient - value matches");
-		
+
 		soft.assertAll();
 	}
 	

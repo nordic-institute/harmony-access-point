@@ -33,7 +33,7 @@ public class PartPropertyDao extends BasicDao<PartProperty> {
         PartProperty newProperty = new PartProperty();
         newProperty.setName(name);
         newProperty.setValue(value);
-        newProperty.setType(type);
+        newProperty.setType(StringUtils.isNotBlank(type) ? type : null);
         create(newProperty);
         return newProperty;
     }

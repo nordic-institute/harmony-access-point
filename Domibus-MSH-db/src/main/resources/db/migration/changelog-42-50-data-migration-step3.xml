@@ -253,7 +253,6 @@
         <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
             <column name="MESSAGE_PROPERTY_FK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="USER_MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
 
         <!-- TB_PART_INFO -->
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
@@ -279,7 +278,6 @@
         <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
             <column name="PART_INFO_PROPERTY_FK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
 
         <!-- TB_ERROR_LOG -->
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_ERROR_LOG"
