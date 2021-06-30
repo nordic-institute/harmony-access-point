@@ -147,32 +147,34 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
     }
 
     protected <T> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
-        try {
-            try {
-                T entity = findTask.call();
-                if (entity != null) {
-                    return entity;
-                }
-            } catch (PersistenceException e) {
-                LOG.warn("Exception while trying to find dictionary entry [{}]", entityDescription, e);
-            }
+        T entity = callTask(findTask);
+        if (entity != null) {
+            return entity;
+        }
 
-            synchronized (this) {
-                try {
-                    LOG.info("Dictionary entry [{}] not found, calling findOrCreate...", entityDescription);
-                    return findOrCreateTask.call();
-                } catch (PersistenceException | DataIntegrityViolationException e) {
-                    if (e.getCause() instanceof ConstraintViolationException) {
-                        LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
-                        return findOrCreateTask.call();
-                    }
-                    throw e;
+        synchronized (this) {
+            try {
+                LOG.info("Dictionary entry [{}] not found, calling findOrCreate...", entityDescription);
+                callTask(findOrCreateTask);
+            } catch (PersistenceException | DataIntegrityViolationException e) {
+                if (e.getCause() instanceof ConstraintViolationException) {
+                    LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
+                    callTask(findOrCreateTask);
                 }
+                throw e;
             }
+            return callTask(findTask);
+        }
+    }
+
+    private <T> T callTask(Callable<T> task) {
+        try {
+            return task.call();
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not find or create dictionary entry " + entityDescription, ex);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not find or create dictionary entry", ex);
         }
     }
+
 }
