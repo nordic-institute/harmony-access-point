@@ -148,9 +148,13 @@ public class MessageDictionaryServiceImpl implements MessageDictionaryService {
 
     protected <T> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
         try {
-            T entity = findTask.call();
-            if (entity != null) {
-                return entity;
+            try {
+                T entity = findTask.call();
+                if (entity != null) {
+                    return entity;
+                }
+            } catch (PersistenceException e) {
+                LOG.warn("Exception while trying to find dictionary entry [{}]", entityDescription, e);
             }
 
             synchronized (this) {
