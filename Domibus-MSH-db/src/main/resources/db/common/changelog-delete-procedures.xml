@@ -312,7 +312,7 @@
 
             END LOOP;
             commit;
-            END DeleteExpiredSentMessages;
+            END del_expired_sent_msgs;
 
         </sql>
     </changeSet>
