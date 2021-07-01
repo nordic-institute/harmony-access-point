@@ -94,7 +94,7 @@ public abstract class PModeProvider {
 
     public abstract boolean isConfigurationLoaded();
 
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         return getRawConfigurationBytes(rawConfiguration);
     }
@@ -107,7 +107,7 @@ public abstract class PModeProvider {
     }
 
     public ConfigurationRaw getRawConfiguration(long id) {
-        return this.configurationRawDAO.getConfigurationRaw(id);
+         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
     public PModeArchiveInfo getCurrentPmode() {
