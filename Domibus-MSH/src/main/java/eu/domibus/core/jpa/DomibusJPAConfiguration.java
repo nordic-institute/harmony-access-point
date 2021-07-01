@@ -118,6 +118,9 @@ public class DomibusJPAConfiguration {
             }
             String relativePath = StringUtils.substringAfter(resource.getURL().getPath(), CONFIG_DOMIBUS_ORM);
             LOG.debug("setMappingResources [{}]", relativePath);
+            if(StringUtils.isBlank(relativePath)){
+                return relativePath;
+            }
             return CONFIG_DOMIBUS_ORM + relativePath;
         } catch (IOException e) {
             LOG.error("Resources classpath*:config/domibus/orm/*-mysql-orm.xml for resource [" + resource + "]", e);

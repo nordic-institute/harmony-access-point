@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
+import static eu.domibus.core.jpa.DomibusJPAConfiguration.CONFIG_DOMIBUS_ORM;
 import static org.junit.Assert.*;
 
 /**
@@ -64,7 +65,7 @@ public class DomibusJPAConfigurationTest {
 
     @Test
     public void getRelativePath_jar(@Injectable Resource resource) throws IOException {
-        String expected = "config/ehcache/ehcache-default.xml";
+        String expected = CONFIG_DOMIBUS_ORM + "ehcache-default.xml";
 
         new Expectations() {{
             resource.getURL().getPath();
