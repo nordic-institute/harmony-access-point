@@ -30,28 +30,28 @@ public class SubmissionAS4TransformerTest {
     private MessageIdGenerator messageIdGenerator;
 
     @Injectable
-    private MpcDao mpcDao;
+    private MpcDictionaryService mpcDictionaryService;
 
     @Injectable
-    private MessagePropertyDao messagePropertyDao;
+    private MessagePropertyDictionaryService messagePropertyDictionaryService;
 
     @Injectable
-    private ServiceDao serviceDao;
+    private ServiceDictionaryService serviceDictionaryService;
 
     @Injectable
-    private ActionDao actionDao;
+    private ActionDictionaryService actionDictionaryService;
 
     @Injectable
-    private AgreementDao agreementDao;
+    private AgreementDictionaryService agreementDictionaryService;
 
     @Injectable
-    private PartyIdDao partyIdDao;
+    private PartyIdDictionaryService partyIdDictionaryService;
 
     @Injectable
-    private PartyRoleDao partyRoleDao;
+    private PartyRoleDictionaryService partyRoleDictionaryService;
 
     @Injectable
-    private PartPropertyDao partPropertyDao;
+    private PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Tested
     private SubmissionAS4Transformer submissionAS4Transformer;
