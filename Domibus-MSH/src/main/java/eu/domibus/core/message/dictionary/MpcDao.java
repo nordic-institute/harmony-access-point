@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.message.dictionary;
 
 import eu.domibus.api.model.MpcEntity;
 import eu.domibus.core.dao.BasicDao;

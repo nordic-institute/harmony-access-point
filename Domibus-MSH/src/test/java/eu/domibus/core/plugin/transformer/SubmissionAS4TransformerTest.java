@@ -6,7 +6,7 @@ import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -52,9 +52,6 @@ public class SubmissionAS4TransformerTest {
 
     @Injectable
     private PartPropertyDao partPropertyDao;
-
-    @Injectable
-    private MessageDictionaryService messageDictionaryService;
 
     @Tested
     private SubmissionAS4Transformer submissionAS4Transformer;
@@ -148,7 +145,6 @@ public class SubmissionAS4TransformerTest {
     }
 
 
-
     @Test
     public void testAddPayload() {
         final String fileNameWithoutPath = createFileName();
@@ -184,7 +180,6 @@ public class SubmissionAS4TransformerTest {
         Assert.assertEquals(fileNameWithoutPath, typedProperty2.getValue());
 
     }
-
 
 
     @Test

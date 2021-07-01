@@ -10,7 +10,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorService;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;

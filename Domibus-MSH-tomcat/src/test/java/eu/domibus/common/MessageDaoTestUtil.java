@@ -4,6 +4,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import org.springframework.beans.factory.annotation.Autowired;

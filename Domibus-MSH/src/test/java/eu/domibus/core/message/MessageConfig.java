@@ -1,6 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.message.dictionary.MessagePropertyDao;
+import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

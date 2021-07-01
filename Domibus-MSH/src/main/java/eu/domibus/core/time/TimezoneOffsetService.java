@@ -1,24 +1,22 @@
 package eu.domibus.core.time;
 
 import eu.domibus.api.model.TimezoneOffset;
-import eu.domibus.core.message.MessageDictionaryService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.core.message.dictionary.AbstractDictionaryService;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.Callable;
 
 /**
  * @author Sebastian-Ion TINCU
  * @since 5.0
  */
 @Service
-public class TimezoneOffsetService {
+public class TimezoneOffsetService extends AbstractDictionaryService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TimezoneOffsetService.class);
+    private final TimezoneOffsetDao timezoneOffsetDao;
 
-    private final MessageDictionaryService messageDictionaryService;
-
-    public TimezoneOffsetService(MessageDictionaryService messageDictionaryService) {
-        this.messageDictionaryService = messageDictionaryService;
+    public TimezoneOffsetService(TimezoneOffsetDao timezoneOffsetDao) {
+        this.timezoneOffsetDao = timezoneOffsetDao;
     }
 
     /**
@@ -31,6 +29,11 @@ public class TimezoneOffsetService {
      * @return an existing timezone offset dictionary entry or a newly created one.
      */
     public TimezoneOffset getTimezoneOffset(String timezoneId, int offsetSeconds) {
-        return messageDictionaryService.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
+        Callable<TimezoneOffset> findTask = () -> timezoneOffsetDao.findTimezoneOffsetByTimezoneIdAndOffsetSeconds(timezoneId, offsetSeconds);
+        Callable<TimezoneOffset> findOrCreateTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
+        String entityDescription = "TimezoneOffset timezoneId=[" + timezoneId + "] offsetSeconds=[" + offsetSeconds + "]";
+
+        return this.findOrCreateEntity(findTask, findOrCreateTask, entityDescription);
     }
+
 }

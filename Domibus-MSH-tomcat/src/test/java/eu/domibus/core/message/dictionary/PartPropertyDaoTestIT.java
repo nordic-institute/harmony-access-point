@@ -1,8 +1,9 @@
-package eu.domibus.core.message;
+package eu.domibus.core.message.dictionary;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.Property;
+import eu.domibus.core.message.UserMessageDefaultFactory;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
