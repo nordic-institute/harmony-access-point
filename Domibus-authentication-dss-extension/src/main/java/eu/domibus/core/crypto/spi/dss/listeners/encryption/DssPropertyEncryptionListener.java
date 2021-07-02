@@ -4,6 +4,7 @@ import eu.domibus.core.crypto.spi.dss.DssConfiguration;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,19 +20,20 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyEncryptionListener.class);
 
-    protected PasswordEncryptionExtService pluginPasswordEncryptionService;
+    protected PasswordEncryptionExtService passwordEncryptionService;
     protected DssConfiguration dssConfiguration;
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
+    protected DomainExtService domainExtService;
 
-    public DssPropertyEncryptionListener(PasswordEncryptionExtService pluginPasswordEncryptionService, DssConfiguration dssConfiguration,
+    public DssPropertyEncryptionListener(PasswordEncryptionExtService passwordEncryptionService, DssConfiguration dssConfiguration,
                                          DomibusConfigurationExtService domibusConfigurationExtService, DomainExtService domainExtService) {
-        this.pluginPasswordEncryptionService = pluginPasswordEncryptionService;
+        this.passwordEncryptionService = passwordEncryptionService;
         this.dssConfiguration = dssConfiguration;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.domainExtService = domainExtService;
+        LOG.debug("In DssPropertyEncryptionListener constructor. ");
     }
 
-    protected DomibusConfigurationExtService domibusConfigurationExtService;
-    protected DomainExtService domainExtService;
 
     @Override
     public void encryptPasswords() {
@@ -40,7 +42,7 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
         LOG.debug("Encrypting passwords is active in the FS Plugin? [{}]", passwordEncryptionActive);
 
         if (!passwordEncryptionActive) {
-            LOG.info("No password encryption will be performed for FSPlugin");
+            LOG.info("No password encryption will be performed for DSS");
             return;
         }
 
@@ -52,9 +54,9 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
                 new DssPropertyPasswordEncryptionContext(
                         dssConfiguration,
                         domibusConfigurationExtService,
-                        pluginPasswordEncryptionService,
+                        passwordEncryptionService,
                         domainDTO);
-        pluginPasswordEncryptionService.encryptPasswordsInFile(passwordEncryptionContext);
+        passwordEncryptionService.encryptPasswordsInFile(passwordEncryptionContext);
 
         LOG.debug("Finished encrypting passwords");
     }

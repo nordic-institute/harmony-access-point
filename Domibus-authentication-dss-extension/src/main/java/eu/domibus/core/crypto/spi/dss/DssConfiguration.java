@@ -22,7 +22,6 @@ import eu.europa.esig.dss.spi.client.http.IgnoreDataLoader;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
-
 import eu.europa.esig.dss.tsl.alerts.LOTLAlert;
 import eu.europa.esig.dss.tsl.alerts.TLAlert;
 import eu.europa.esig.dss.tsl.alerts.detections.LOTLLocationChangeDetection;
@@ -71,7 +70,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 
 /**
@@ -83,7 +82,7 @@ import static java.util.Arrays.*;
 @Configuration
 @PropertySource(value = "classpath:authentication-dss-extension-default.properties")
 @PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/extensions/config/authentication-dss-extension.properties")
-public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
+public class DssConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssConfiguration.class);
 
@@ -145,10 +144,10 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
     private String isEncryptionActive;
 
     @Autowired
-    private DomibusPropertyExtService domibusPropertyExtService;
+    protected DomibusPropertyExtService domibusPropertyExtService;
 
     @Autowired
-    private DomibusConfigurationExtService domibusConfigurationExtService;
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
     protected DomainExtService domainExtService;
@@ -160,7 +159,11 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
     @Autowired
-    private ServerInfoExtService serverInfoExtService;
+    protected ServerInfoExtService serverInfoExtService;
+
+    @Autowired
+    protected PasswordEncryptionExtService passwordEncryptionService;
+
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -422,10 +425,10 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
-   /* @Bean
-    public DssPropertyEncryptionListener dssPropertyEncryptionListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
-        return new DssPropertyEncryptionListener(domibusSchedulerExtService);
-    }*/
+    @Bean
+    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
+        return new DssPropertyEncryptionListener(passwordEncryptionService, this,domibusConfigurationExtService, domainExtService);
+    }
 
     /**
      * @return True if password encryption is active
@@ -449,10 +452,10 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
             return domibusPropertyExtService.getProperty(domainDTO, propertyName);
         }
         //ST
-        return getDomainPropertyST(domain, propertyName);
+        return domibusPropertyExtService.getProperty(propertyName);
     }
 
-    protected String getDomainPropertyST(String domain, String propertyName) {
+   /* protected String getDomainPropertyST(String domain, String propertyName) {
         LOG.debug(" In DssConfiguration getDomainPropertyST  domain: [{}] and propertyName: [{}]", domain, propertyName);
         //default domain
         if (DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
@@ -582,7 +585,7 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
     private boolean isQuartzRelated(DomibusPropertyMetadataDTO propMeta) {
         return true;
                 //TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
-    }
+    }*/
 
     @Bean
     public TLValidationJob job(LOTLSource europeanLOTL,CommonsDataLoader dataLoader,CacheCleaner cacheCleaner) {
