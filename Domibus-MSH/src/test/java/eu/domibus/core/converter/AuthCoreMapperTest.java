@@ -19,7 +19,6 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
     private AuthCoreMapper authCoreMapper;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUserUserResponseRO() {
         User toConvert = (User) objectService.createInstance(User.class);
         final UserResponseRO converted = authCoreMapper.userToUserResponseRO(toConvert);
@@ -40,12 +39,11 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
         convertedBack.setDefaultPassword(toConvert.hasDefaultPassword());
         convertedBack.setEntityId(toConvert.getEntityId());
         toConvert.getRoles().forEach(userRole -> convertedBack.addRole(userRole));
-        
+
         objectService.assertObjects(convertedBack, toConvert);
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertAuthenticationEntityPluginUserRO_Certificate() {
         AuthenticationEntity toConvert = (AuthenticationEntity) objectService.createInstance(AuthenticationEntity.class);
 
@@ -65,7 +63,6 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertAuthenticationEntityPluginUserRO_Basic() {
         AuthenticationEntity toConvert = (AuthenticationEntity) objectService.createInstance(AuthenticationEntity.class);
 
