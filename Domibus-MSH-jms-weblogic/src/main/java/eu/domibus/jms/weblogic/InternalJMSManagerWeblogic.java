@@ -16,7 +16,6 @@ import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -490,6 +489,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     public int deleteMessages(String source, String[] messageIds) {
         String selector = jmsSelectorUtil.getSelector(messageIds);
         return deleteMessages(getMessageDestinationName(removeJmsModule(source)), selector);
+    }
+
+    @Override
+    public void deleteAllMessages(String source) {
+        deleteMessages(getMessageDestinationName(removeJmsModule(source)), "");
     }
 
     @Override

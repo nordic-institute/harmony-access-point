@@ -335,6 +335,16 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     }
 
     @Override
+    public void deleteAllMessages(String source) {
+        QueueControl queue = getQueueControl(source);
+        try {
+            queue.removeAllMessages();
+        } catch (Exception e) {
+            throw new InternalJMSException("Failed to delete messages from source [" + source + "]", e);
+        }
+    }
+
+    @Override
     public InternalJmsMessage getMessage(String source, String messageId) {
         String selector = jmsSelectorUtil.getSelector(messageId);
 
