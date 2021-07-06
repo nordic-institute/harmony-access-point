@@ -70,7 +70,8 @@ public class MessagesActionRequestRO {
 
     public enum Action {
         MOVE("move"),
-        REMOVE("remove");
+        REMOVE("remove"),
+        REMOVE_ALL("remove_all");
 
         private String stringRepresentation;
 

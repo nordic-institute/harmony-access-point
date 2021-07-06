@@ -69,6 +69,8 @@ public class JmsResource extends BaseResource {
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
             jmsManager.deleteMessages(request.getSource(), ids);
+        } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE_ALL) {
+            jmsManager.deleteAllMessages(request.getSource());
         } else {
             throw new RequestValidationException("Invalid action specified. Valid actions are 'move' and 'remove'");
         }
