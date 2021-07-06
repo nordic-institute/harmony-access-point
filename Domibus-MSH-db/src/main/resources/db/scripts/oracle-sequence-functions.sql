@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION generate_domibus_scalable_sequence(incr IN NUMBER,
                                                               creation_time IN DATE)
     RETURN NUMBER
     IS
-    seq_id Number;
+    seq_id NUMBER;
 BEGIN
     DECLARE
         len CONSTANT         STRING(20) := 'FM0000000000';
