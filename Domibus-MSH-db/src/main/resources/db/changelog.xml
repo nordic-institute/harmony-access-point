@@ -740,7 +740,6 @@
         <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
             <column name="PART_INFO_PROPERTY_FK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
 
         <createTable tableName="TB_MESSAGE_PROPERTIES">
             <column name="USER_MESSAGE_ID_FK" type="BIGINT">
@@ -773,7 +772,6 @@
         <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
             <column name="MESSAGE_PROPERTY_FK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="USER_MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
 
         <createTable tableName="TB_USER_MESSAGE_RAW">
             <column name="ID_PK" type="BIGINT">

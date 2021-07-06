@@ -32,7 +32,7 @@ public class ServiceDao extends BasicDao<ServiceEntity> {
         }
         ServiceEntity newService = new ServiceEntity();
         newService.setValue(value);
-        newService.setType(type);
+        newService.setType(StringUtils.isNotBlank(type) ? type : null);
         create(newService);
         return newService;
     }

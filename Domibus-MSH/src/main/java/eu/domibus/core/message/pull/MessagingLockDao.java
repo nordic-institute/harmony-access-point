@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface MessagingLockDao {
 
-    PullMessageId getNextPullMessageToProcess(Long messageId);
+    PullMessageId getNextPullMessageToProcess(String initiator, String mpc);
 
     MessagingLock getLock(String messageId);
 
