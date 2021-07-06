@@ -2,7 +2,6 @@ package eu.domibus.api.model;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
-import javax.persistence.Transient;
 
 /**
  * @author Cosmin Baciu
