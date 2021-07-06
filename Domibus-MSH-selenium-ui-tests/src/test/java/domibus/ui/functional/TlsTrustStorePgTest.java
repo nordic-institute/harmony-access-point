@@ -8,6 +8,9 @@ import org.testng.asserts.SoftAssert;
 import pages.tlsTrustStore.TlsTrustStorePage;
 import utils.DFileUtils;
 
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * @author Rupam
  * @version 5.0
@@ -187,6 +190,38 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
         soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTOE_WRONGFILE_ADD, certFileName)), "Correct error message is shown");
         soft.assertAll();
+    }
+
+    @Test(description = "TLS-20", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
+    public void uploadExpired() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        TlsTrustStorePage page = new TlsTrustStorePage(driver);
+        page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+        String certFileName = "expired.jks";
+        String path = "./src/main/resources/truststore/" + certFileName;
+        String absolutePath = DFileUtils.getAbsolutePath(path);
+
+        page.uploadAddCert(absolutePath, "test123", page.getUploadButton(), page.getPassInputField());
+        soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.TlsTruststore.TLS_TRUSTSTORE_SUCCESS_UPLOAD), "Success message is shown");
+        soft.assertAll();
+
+    }
+
+    @Test(description = "TLS-10", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
+    public void uploadNewCert() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        TlsTrustStorePage page = new TlsTrustStorePage(driver);
+        page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+        List<HashMap<String, String>> beforeUploadData = page.grid().getAllRowInfo();
+        String certFileName = "expired.jks";
+        String path = "./src/main/resources/truststore/" + certFileName;
+        String absolutePath = DFileUtils.getAbsolutePath(path);
+
+        page.uploadAddCert(absolutePath, "test123", page.getUploadButton(), page.getPassInputField());
+        List<HashMap<String, String>> afterUploadData = page.grid().getAllRowInfo();
+        soft.assertFalse(beforeUploadData.equals(afterUploadData),"Before and after data are different");
+        soft.assertAll();
+
     }
 
 

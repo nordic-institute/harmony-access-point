@@ -23,11 +23,15 @@ import utils.TestRunData;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Catalin Comanici
@@ -502,7 +506,38 @@ public class MessagesPgTest extends SeleniumTest {
 		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
 		soft.assertAll();
 	}
-	
-	
+
+	@Test(description = "MSG-29", groups = {"multiTenancy", "singleTenancy"})
+	public void checkMsgEnvPresence() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+
+		int rowNo = Gen.randomNumber(5);
+		String zipPath = page.downloadMessageEnvelop(rowNo, "downloadEnvelopes");
+		log.info("downloaded message to zip with path " + zipPath);
+		File zipFile = new File(zipPath);
+		ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+
+		String firstXMLFileName = zis.getNextEntry().getName().toString();
+		String secondXMLFileName = zis.getNextEntry().getName().toString();
+
+		String msgStatus = page.grid().getRowInfo(0).get("Message Status");
+
+		String xmlFileNameUser = "user_message_envelope";
+		String xmlFileNameuSignal = "signal_message_envelope";
+
+		if(msgStatus.equals("ACKNOWLEDGED") && msgStatus.equals("RECEIVED")) {
+			if (firstXMLFileName.equals(xmlFileNameUser)) {
+				log.info("first xml file is user message envelop");
+				soft.assertTrue(secondXMLFileName.equals(xmlFileNameuSignal),"Second xml file is signal message envelop");
+			}
+			else {
+				log.info("first xml file is signal message envelop");
+				soft.assertTrue(secondXMLFileName.equals(xmlFileNameUser),"Second xml file is user signal message envelop");
+			}
+		}
+		soft.assertAll();
+	}
+
 }
 
