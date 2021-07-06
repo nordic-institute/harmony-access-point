@@ -19,33 +19,37 @@ public class To {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_PARTY_ID_FK")
-    protected PartyId partyId;
+    protected PartyId toPartyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TO_ROLE_ID_FK")
-    protected PartyRole role;
+    protected PartyRole toRole;
 
-    public PartyId getPartyId() {
-        return partyId;
+    public PartyId getToPartyId() {
+        return toPartyId;
     }
 
-    public void setPartyId(PartyId partyId) {
-        this.partyId = partyId;
+    public void setToPartyId(PartyId partyId) {
+        this.toPartyId = partyId;
     }
 
-    public PartyRole getRole() {
-        return role;
+    public PartyRole getToRole() {
+        return toRole;
+    }
+
+    public void setRoleValue(String value) {
+        return;
     }
 
     public String getRoleValue() {
-        if(role == null) {
+        if(toRole == null) {
             return null;
         }
-        return role.getValue();
+        return toRole.getValue();
     }
 
-    public void setRole(PartyRole role) {
-        this.role = role;
+    public void setToRole(PartyRole role) {
+        this.toRole = role;
     }
 
     @Override
@@ -57,24 +61,24 @@ public class To {
         From from = (From) o;
 
         return new EqualsBuilder()
-                .append(partyId, from.partyId)
-                .append(role, from.role)
+                .append(toPartyId, from.fromPartyId)
+                .append(toRole, from.fromRole)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(partyId)
-                .append(role)
+                .append(toPartyId)
+                .append(toRole)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("partyId", partyId)
-                .append("role", role)
+                .append("partyId", toPartyId)
+                .append("role", toRole)
                 .toString();
     }
 }

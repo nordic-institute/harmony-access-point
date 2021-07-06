@@ -313,7 +313,7 @@ public class UploadPModeIT extends AbstractIT {
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate unique value [http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC]"));
-            assertTrue(ex.getIssues().get(2).getMessage().contains("[defaultInitiatorRole] declared for identity constraint \"uniqueRoleName\" of element \"roles\""));
+            assertTrue(ex.getIssues().get(2).getMessage().contains("[defaultInitiatorRole] declared for identity constraint of element \"roles\""));
             assertTrue(ex.getIssues().get(3).getMessage().contains("Duplicate unique value [partyTypeUrn]"));
             assertTrue(ex.getIssues().get(4).getMessage().contains("Duplicate unique value [urn:oasis:names:tc:ebcore:partyid-type:unregistered]"));
             assertTrue(ex.getIssues().get(5).getMessage().contains("Duplicate unique value [red_gw]"));

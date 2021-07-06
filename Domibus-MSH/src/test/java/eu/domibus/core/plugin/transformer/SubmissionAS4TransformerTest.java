@@ -114,19 +114,19 @@ public class SubmissionAS4TransformerTest {
             userMessage.getAction().getValue();
             result = action;
 
-            userMessage.getPartyInfo().getFrom().getRole();
+            userMessage.getPartyInfo().getFrom().getFromRole();
             result = fromRole;
 
-            userMessage.getPartyInfo().getTo().getRole();
+            userMessage.getPartyInfo().getTo().getToRole();
             result = toRole;
 
 //            userMessage.getPayloadInfo().getPartInfo();
 //            result = partInfoList;
 
-            userMessage.getPartyInfo().getFrom().getPartyId();
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = fromPartyIdSet;
 
-            userMessage.getPartyInfo().getTo().getPartyId();
+            userMessage.getPartyInfo().getTo().getToPartyId();
             result = toPartyIdSet;
 
         }};

@@ -131,11 +131,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         From from = new From();
 
         final PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(ebms3From.getRole());
-        from.setRole(fromPartyRole);
+        from.setFromRole(fromPartyRole);
 
         final Ebms3PartyId fromEbms3PartyId = ebms3From.getPartyId().iterator().next();
         final PartyId fromPartyId = partyIdDao.findOrCreateParty(fromEbms3PartyId.getValue(), fromEbms3PartyId.getType());
-        from.setPartyId(fromPartyId);
+        from.setFromPartyId(fromPartyId);
         return from;
     }
 
@@ -143,11 +143,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         To to = new To();
 
         final PartyRole toPartyRole = partyRoleDao.findOrCreateRole(ebms3To.getRole());
-        to.setRole(toPartyRole);
+        to.setToRole(toPartyRole);
 
         final Ebms3PartyId toEbms3PartyId = ebms3To.getPartyId().iterator().next();
         final PartyId toPartyId = partyIdDao.findOrCreateParty(toEbms3PartyId.getValue(), toEbms3PartyId.getType());
-        to.setPartyId(toPartyId);
+        to.setToPartyId(toPartyId);
         return to;
     }
 
@@ -243,8 +243,8 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         Ebms3To ebms3To = new Ebms3To();
         ebms3To.setRole(to.getRoleValue());
         Ebms3PartyId ebms3FromPartyId = new Ebms3PartyId();
-        ebms3FromPartyId.setValue(to.getPartyId().getValue());
-        ebms3FromPartyId.setType(to.getPartyId().getType());
+        ebms3FromPartyId.setValue(to.getToPartyId().getValue());
+        ebms3FromPartyId.setType(to.getToPartyId().getType());
         ebms3To.getPartyId().add(ebms3FromPartyId);
         return ebms3To;
     }
@@ -253,8 +253,8 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         Ebms3From ebms3From = new Ebms3From();
         ebms3From.setRole(from.getRoleValue());
         Ebms3PartyId ebms3FromPartyId = new Ebms3PartyId();
-        ebms3FromPartyId.setValue(from.getPartyId().getValue());
-        ebms3FromPartyId.setType(from.getPartyId().getType());
+        ebms3FromPartyId.setValue(from.getFromPartyId().getValue());
+        ebms3FromPartyId.setType(from.getFromPartyId().getType());
         ebms3From.getPartyId().add(ebms3FromPartyId);
         return ebms3From;
     }

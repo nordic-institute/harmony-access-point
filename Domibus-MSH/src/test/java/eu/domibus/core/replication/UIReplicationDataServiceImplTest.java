@@ -395,7 +395,7 @@ public class UIReplicationDataServiceImplTest {
         partyId.setType((toPartyIdType));
 
         To to = new To();
-        to.setPartyId(partyId);
+        to.setToPartyId(partyId);
         partyInfo.setTo(to);
 
         partyId = new PartyId();
@@ -403,7 +403,7 @@ public class UIReplicationDataServiceImplTest {
         partyId.setType((fromPartyIdType));
 
         From from = new From();
-        from.setPartyId(partyId);
+        from.setFromPartyId(partyId);
         partyInfo.setFrom(from);
 
         return partyInfo;

@@ -46,9 +46,9 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         userMessage.getServiceValue();
         userMessage.getActionValue();
         userMessage.getAgreementRefValue();
-        userMessage.getPartyInfo().getFrom().getPartyId().getValue();
+        userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
         userMessage.getPartyInfo().getFrom().getRoleValue();
-        userMessage.getPartyInfo().getTo().getPartyId().getValue();
+        userMessage.getPartyInfo().getTo().getToPartyId().getValue();
         userMessage.getPartyInfo().getTo().getRoleValue();
     }
 

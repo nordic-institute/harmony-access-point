@@ -30,8 +30,8 @@ public class SignalMessageLogInfoFilterTest {
             "left join log.messageInfo info " +
             "left join message.messageProperties.property propsFrom " +
             "left join message.messageProperties.property propsTo " +
-            "left join message.partyInfo.from.partyId partyFrom " +
-            "left join message.partyInfo.to.partyId partyTo " +
+            "left join message.partyInfo.from.fromPartyId partyFrom " +
+            "left join message.partyInfo.to.toPartyId partyTo " +
             "where message.messageInfo = info and propsFrom.name = 'originalSender'" +
             "and propsTo.name = 'finalRecipient'";
 
@@ -106,7 +106,7 @@ public class SignalMessageLogInfoFilterTest {
                 "originalSender", "333");
 
         String messageTable = "join log.signalMessage signal join signal.userMessage message";
-        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
+        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         String propsCriteria = "and propsFrom.name = 'originalSender' ";
 
         String result = signalMessageLogInfoFilter.getCountQueryBody(filters);

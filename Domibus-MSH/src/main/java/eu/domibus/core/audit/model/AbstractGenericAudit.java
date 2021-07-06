@@ -60,5 +60,4 @@ public class AbstractGenericAudit extends AbstractBaseEntity {
         return modificationType;
     }
 
-
 }

@@ -31,7 +31,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getPartyTo(UserMessage userMessage) {
-        PartyId partyId = userMessage.getPartyInfo().getTo().getPartyId();
+        PartyId partyId = userMessage.getPartyInfo().getTo().getToPartyId();
         if (partyId == null) {
             return null;
         }
@@ -40,7 +40,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getPartyFrom(UserMessage userMessage) {
-        return userMessage.getPartyInfo().getFrom().getPartyId().getValue();
+        return userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
     }
 
 

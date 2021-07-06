@@ -1,5 +1,7 @@
 package eu.domibus.plugin.ws.message;
 
+import eu.domibus.plugin.ws.AbstractWSEntity;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -19,12 +21,7 @@ import java.util.Date;
         query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID")
 @NamedQuery(name = "WSMessageLogEntity.deleteByMessageIds",
         query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId in :MESSAGE_IDS")
-public class WSMessageLogEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ID_PK")
-    private long entityId;
+public class WSMessageLogEntity extends AbstractWSEntity {
 
     @Column(name = "MESSAGE_ID")
     private String messageId;
@@ -60,14 +57,6 @@ public class WSMessageLogEntity {
         this.finalRecipient = finalRecipient;
         this.originalSender = originalSender;
         this.received = received;
-    }
-
-    public long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(long entityId) {
-        this.entityId = entityId;
     }
 
     public String getMessageId() {
