@@ -4,7 +4,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.message.SignalMessageLogService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -3,6 +3,7 @@ package eu.domibus.core.spring;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -30,6 +31,9 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     protected EncryptionService encryptionService;
+
+    @Injectable
+    protected StaticDictionaryService messageDictionaryService;
 
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;

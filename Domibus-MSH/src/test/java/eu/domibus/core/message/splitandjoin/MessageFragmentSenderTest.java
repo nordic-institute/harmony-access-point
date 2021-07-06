@@ -9,6 +9,7 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;

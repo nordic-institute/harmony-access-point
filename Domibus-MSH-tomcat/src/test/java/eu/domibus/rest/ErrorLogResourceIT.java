@@ -5,7 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.web.rest.ErrorLogResource;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;

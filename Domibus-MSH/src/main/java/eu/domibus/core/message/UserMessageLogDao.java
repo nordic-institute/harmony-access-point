@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.scheduler.ReprogrammableService;

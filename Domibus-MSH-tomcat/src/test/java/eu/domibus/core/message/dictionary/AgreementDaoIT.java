@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.message.dictionary;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.AgreementRefEntity;

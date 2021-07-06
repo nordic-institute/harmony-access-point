@@ -17,7 +17,7 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;

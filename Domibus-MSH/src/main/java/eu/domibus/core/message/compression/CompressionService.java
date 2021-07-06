@@ -2,9 +2,9 @@ package eu.domibus.core.message.compression;
 
 import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.PartPropertyDao;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -38,7 +38,7 @@ public class CompressionService {
     protected SplitAndJoinService splitAndJoinService;
 
     @Autowired
-    protected PartPropertyDao partPropertyDao;
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
 
     /**
      * This method is responsible for compression of payloads in a ebMS3 AS4 conformant way in case of {@link eu.domibus.api.model.MSHRole#SENDING}
@@ -98,7 +98,7 @@ public class CompressionService {
             return false;
         }
 
-        final PartProperty compressionProperty = partPropertyDao.findOrCreateProperty(CompressionService.COMPRESSION_PROPERTY_KEY, CompressionService.COMPRESSION_PROPERTY_VALUE, null);
+        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(CompressionService.COMPRESSION_PROPERTY_KEY, CompressionService.COMPRESSION_PROPERTY_VALUE, null);
         partInfo.getPartProperties().add(compressionProperty);
         final CompressedDataSource compressedDataSource = new CompressedDataSource(partInfo.getPayloadDatahandler().getDataSource());
         DataHandler gZipDataHandler = new DataHandler(compressedDataSource);

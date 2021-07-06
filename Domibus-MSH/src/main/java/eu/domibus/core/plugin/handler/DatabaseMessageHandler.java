@@ -20,6 +20,8 @@ import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
+import eu.domibus.core.message.dictionary.MpcDictionaryService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -150,7 +152,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected MessageFragmentDao messageFragmentDao;
 
     @Autowired
-    protected MpcDao mpcDao;
+    protected MpcDictionaryService mpcDictionaryService;
 
     @Autowired
     protected MshRoleDao mshRoleDao;
@@ -560,7 +562,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDao.findOrCreateMpc(mpc);
+        MpcEntity mpcObject = mpcDictionaryService.findOrCreateMpc(mpc);
         userMessage.setMpc(mpcObject);
     }
 

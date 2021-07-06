@@ -3,6 +3,7 @@ package eu.domibus.core.spring;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,6 +34,9 @@ public class DomibusContextRefreshedListener {
 
     @Autowired
     protected BackendFilterInitializerService backendFilterInitializerService;
+
+    @Autowired
+    protected StaticDictionaryService messageDictionaryService;
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -68,6 +72,7 @@ public class DomibusContextRefreshedListener {
     protected void executeSynchronized() {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
+        messageDictionaryService.createStaticDictionaryEntries();
     }
 
     /**

@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.mapper.usermessage;
 
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.model.*;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +14,24 @@ import java.util.Set;
 @Service
 public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
-    protected MpcDao mpcDao;
-    protected ActionDao actionDao;
-    protected ServiceDao serviceDao;
-    protected PartyIdDao partyIdDao;
-    protected AgreementDao agreementDao;
-    protected MessagePropertyDao messagePropertyDao;
-    protected PartPropertyDao partPropertyDao;
-    protected PartyRoleDao partyRoleDao;
+    protected MpcDictionaryService mpcDictionaryService;
+    protected ActionDictionaryService actionService;
+    protected ServiceDictionaryService serviceDictionaryService;
+    protected PartyIdDictionaryService partyIdDictionaryService;
+    protected AgreementDictionaryService agreementDictionaryService;
+    protected MessagePropertyDictionaryService messagePropertyDictionaryService;
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
+    protected PartyRoleDictionaryService partyRoleDictionaryService; 
 
-    public Ebms3UserMessageMapperImpl(MpcDao mpcDao, ActionDao actionDao, ServiceDao serviceDao, PartyIdDao partyIdDao, AgreementDao agreementDao, MessagePropertyDao messagePropertyDao, PartPropertyDao partPropertyDao, PartyRoleDao partyRoleDao) {
-        this.mpcDao = mpcDao;
-        this.actionDao = actionDao;
-        this.serviceDao = serviceDao;
-        this.partyIdDao = partyIdDao;
-        this.agreementDao = agreementDao;
-        this.messagePropertyDao = messagePropertyDao;
-        this.partPropertyDao = partPropertyDao;
-        this.partyRoleDao = partyRoleDao;
+    public Ebms3UserMessageMapperImpl(MpcDictionaryService mpcDictionaryService, ActionDictionaryService actionService, ServiceDictionaryService serviceDictionaryService, PartyIdDictionaryService partyIdDictionaryService, AgreementDictionaryService agreementDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartPropertyDictionaryService partPropertyDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService) {
+        this.mpcDictionaryService = mpcDictionaryService;
+        this.actionService = actionService;
+        this.serviceDictionaryService = serviceDictionaryService;
+        this.partyIdDictionaryService = partyIdDictionaryService;
+        this.agreementDictionaryService = agreementDictionaryService;
+        this.messagePropertyDictionaryService = messagePropertyDictionaryService;
+        this.partPropertyDictionaryService = partPropertyDictionaryService;
+        this.partyRoleDictionaryService = partyRoleDictionaryService; 
     }
 
     @Override
@@ -72,22 +72,22 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
 
         final Ebms3CollaborationInfo collaborationInfo = ebms3UserMessage.getCollaborationInfo();
 
-        final ActionEntity actionEntity = actionDao.findOrCreateAction(collaborationInfo.getAction());
+        final ActionEntity actionEntity = actionService.findOrCreateAction(collaborationInfo.getAction());
         userMessage.setAction(actionEntity);
 
         final Ebms3Service ebms3Service = collaborationInfo.getService();
-        final ServiceEntity serviceEntity = serviceDao.findOrCreateService(ebms3Service.getValue(), ebms3Service.getType());
+        final ServiceEntity serviceEntity = serviceDictionaryService.findOrCreateService(ebms3Service.getValue(), ebms3Service.getType());
         userMessage.setService(serviceEntity);
 
         userMessage.setConversationId(collaborationInfo.getConversationId());
 
         final Ebms3AgreementRef agreementRef = collaborationInfo.getAgreementRef();
         if (agreementRef != null) {
-            final AgreementRefEntity agreement = agreementDao.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
+            final AgreementRefEntity agreement = agreementDictionaryService.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
             userMessage.setAgreementRef(agreement);
         }
 
-        final MpcEntity mpcEntity = mpcDao.findOrCreateMpc(ebms3UserMessage.getMpc());
+        final MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(ebms3UserMessage.getMpc());
         userMessage.setMpc(mpcEntity);
 
         final Ebms3MessageProperties userMessageMessageProperties = ebms3UserMessage.getMessageProperties();
@@ -130,11 +130,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     private From ebms3FromToUserMessageFrom(Ebms3From ebms3From) {
         From from = new From();
 
-        final PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(ebms3From.getRole());
+        final PartyRole fromPartyRole = partyRoleDictionaryService.findOrCreateRole(ebms3From.getRole());
         from.setRole(fromPartyRole);
 
         final Ebms3PartyId fromEbms3PartyId = ebms3From.getPartyId().iterator().next();
-        final PartyId fromPartyId = partyIdDao.findOrCreateParty(fromEbms3PartyId.getValue(), fromEbms3PartyId.getType());
+        final PartyId fromPartyId = partyIdDictionaryService.findOrCreateParty(fromEbms3PartyId.getValue(), fromEbms3PartyId.getType());
         from.setPartyId(fromPartyId);
         return from;
     }
@@ -142,17 +142,17 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     private To ebms3FromToUserMessageFrom(Ebms3To ebms3To) {
         To to = new To();
 
-        final PartyRole toPartyRole = partyRoleDao.findOrCreateRole(ebms3To.getRole());
+        final PartyRole toPartyRole = partyRoleDictionaryService.findOrCreateRole(ebms3To.getRole());
         to.setRole(toPartyRole);
 
         final Ebms3PartyId toEbms3PartyId = ebms3To.getPartyId().iterator().next();
-        final PartyId toPartyId = partyIdDao.findOrCreateParty(toEbms3PartyId.getValue(), toEbms3PartyId.getType());
+        final PartyId toPartyId = partyIdDictionaryService.findOrCreateParty(toEbms3PartyId.getValue(), toEbms3PartyId.getType());
         to.setPartyId(toPartyId);
         return to;
     }
 
     private Ebms3PayloadInfo convertPayloadInfo(List<PartInfo> partInfoList) {
-        if(CollectionUtils.isEmpty(partInfoList)) {
+        if (CollectionUtils.isEmpty(partInfoList)) {
             return null;
         }
 
@@ -268,11 +268,11 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     }
 
     protected MessageProperty convertToMessageProperty(Ebms3Property msgProperty) {
-        return messagePropertyDao.findOrCreateProperty(msgProperty.getName(), msgProperty.getValue(), msgProperty.getType());
+        return messagePropertyDictionaryService.findOrCreateMessageProperty(msgProperty.getName(), msgProperty.getValue(), msgProperty.getType());
     }
 
     protected PartProperty convertToPartProperty(Ebms3Property partProperty) {
-        return partPropertyDao.findOrCreateProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
+        return partPropertyDictionaryService.findOrCreatePartProperty(partProperty.getName(), partProperty.getValue(), partProperty.getType());
     }
 
 
