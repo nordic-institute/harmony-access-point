@@ -4,7 +4,6 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.current.PModeCofirmationModal;
@@ -17,9 +16,7 @@ import utils.Gen;
 import utils.PModeXMLUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class PmodeParties2PgTest extends SeleniumTest {
 
@@ -93,6 +90,7 @@ public class PmodeParties2PgTest extends SeleniumTest {
 		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
 		log.info("Enter comment");
 		modal.getDescriptionTextArea().fill("Initiator and Responder party name are updated");
+
 		log.info("Click on Ok button");
 		modal.clickOK();
 
@@ -499,8 +497,43 @@ public class PmodeParties2PgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
+   /* This test method wil verify edit operation for party with no certificate present */
+	@Test(description = "PMP-30", groups = {"multiTenancy", "singleTenancy"})
+	public void EditPartyNoCert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String newPatyName = Gen.randomAlphaNumeric(5);
+
+		PModePartiesPage page = navigateToPage();
+		page.refreshPage();
+		page.grid().waitForRowsToLoad();
+
+		page.getNewButton().click();
+		PartyModal modal = new PartyModal(driver);
 
 
+		log.info("Fill new party info");
+		modal.fillNewPartyForm(newPatyName, "http://test.com", "pid");
+
+		log.info("Click ok button");
+		modal.clickOK();
+
+		log.info("Save and confirm");
+		page.getSaveButton().click();
+		new Dialog(driver).confirm();
+		page.getEditButton().click();
+
+		String newEndpoint = "http://" + Gen.randomAlphaNumeric(10).toLowerCase() + ".com";
+		modal.getEndpointInput().fill(newEndpoint);
+
+		log.info("Click ok button");
+		modal.clickOK();
+
+		page.getSaveButton().click();
+		new Dialog(driver).confirm();
+		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.PMODE_PARTIES_UPDATE_SUCCESS),"Correct success message is shown");
+		soft.assertAll();
+
+	}
 
 	private PModePartiesPage navigateToPage() throws Exception {
 		log.info("Navigate to Pmode Parties page");

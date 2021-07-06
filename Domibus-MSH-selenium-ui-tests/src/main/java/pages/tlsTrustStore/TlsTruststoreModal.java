@@ -1,17 +1,13 @@
 package pages.tlsTrustStore;
 
-import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.InfoModal;
 import ddsl.dobjects.DInput;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author Rupam
@@ -57,7 +53,6 @@ public class TlsTruststoreModal extends InfoModal {
 
     public String getFieldData(String fieldLabel){
         if(fieldLabel.equals("Valid from")){
-            //return getValidFromInput().getText();
             return validFromInput.getText();
         }
         if(fieldLabel.equals("Issuer")){

@@ -406,6 +406,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
+	/* This test method will verify presence of all duplicate users in error message*/
 	@Test(description = "PU-33", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicateUsrError() throws Exception {
 		SoftAssert soft = new SoftAssert();

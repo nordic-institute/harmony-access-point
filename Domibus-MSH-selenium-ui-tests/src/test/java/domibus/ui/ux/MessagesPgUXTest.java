@@ -393,7 +393,8 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	@Test(description = "MSG-31", groups = {"multiTenancy", "singleTenancy"})
+	/* MSG-30 - Verify Message Envelop presence for all admin console users*/
+	@Test(description = "MSG-30", groups = {"multiTenancy", "singleTenancy"})
 	public void checkMsgEnvPresence() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);

@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -16,7 +15,6 @@ import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import pages.tlsTrustStore.TlsTrustStorePage;
 import rest.RestServicePaths;
-import utils.DFileUtils;
 import utils.TestRunData;
 import utils.TestUtils;
 
@@ -425,6 +423,7 @@ public class AuditPgUXTest extends SeleniumTest {
 		}
 	}
 
+	/* This test method will check audit log for download tls truststore event*/
 	@Test(description = "AU-54", groups = {"multiTenancy", "singleTenancy","TlsConfig"})
 	public void tlsCertDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();

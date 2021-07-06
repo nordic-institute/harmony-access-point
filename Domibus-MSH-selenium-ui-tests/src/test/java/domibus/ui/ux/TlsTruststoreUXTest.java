@@ -1,24 +1,19 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.tlsTrustStore.TlsTrustStorePage;
 import pages.tlsTrustStore.TlsTruststoreModal;
-import pages.truststore.TruststoreModal;
 import utils.DFileUtils;
-import utils.Gen;
 import utils.TestUtils;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -239,7 +234,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         soft.assertTrue(entryInfo.get("Subject").equals(tModal.getSubjectInput().getText()), "Subject data is same at both places");
         soft.assertAll();
     }
-
+    /* This test method will verify download feature*/
     @Test(description = "TLS-8", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void downloadCert() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -255,6 +250,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         soft.assertAll();
     }
 
+    /*This test method will verify presence of Show Link along additional section and checkboxes on click event*/
     @Test(description = "TLS-14", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void checkShowLink() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -266,7 +262,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         soft.assertTrue(page.grid().columnsVsCheckboxes(), "Visible columns and grid columns are same");
         soft.assertAll();
     }
-
+   /* This test method will verify certificate grid data on tls truststore page for both domain on upload event */
     @Test(description = "TLS-25", groups = {"multiTenancy", "TlsConfig"})
     public void compareDomainDataAfterUpload() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -281,12 +277,12 @@ public class TlsTruststoreUXTest extends SeleniumTest {
             page.getDomainSelector().selectAnotherDomain();
             page.grid().waitForRowsToLoad();
             List<HashMap<String, String>> secondDomainData = page.grid().getAllRowInfo();
-            soft.assertTrue(firstDomainData.equals(secondDomainData), "Same domain has same data after upload");
+            soft.assertTrue(firstDomainData.equals(secondDomainData), "Both domain has same data after upload");
         }
         soft.assertAll();
 
     }
-
+   /* This test method will verify Tls truststore certificate data on both domain after remove oeration */
     @Test(description = "TLS-27", groups = {"multiTenancy", "TlsConfig"})
     public void compareDomainDataAfterRemove() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -308,7 +304,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
         soft.assertAll();
 
     }
-
+    /* This test method will verify blank tlstruststore page grid on both domain after remove all operation*/
     @Test(description = "TLS-28", groups = {"multiTenancy", "TlsConfig"})
     public void compareDomainDataAfterRemoveAll() throws Exception {
         SoftAssert soft = new SoftAssert();

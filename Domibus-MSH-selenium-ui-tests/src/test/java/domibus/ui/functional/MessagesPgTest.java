@@ -9,7 +9,6 @@ import domibus.ui.SeleniumTest;
 import domibus.ui.pojos.UIMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -17,7 +16,6 @@ import pages.messages.MessageDetailsModal;
 import pages.messages.MessageFilterArea;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
-import utils.DFileUtils;
 import utils.Gen;
 import utils.TestRunData;
 import utils.TestUtils;
@@ -507,8 +505,9 @@ public class MessagesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
+	/* This test method will verify xml files in downloaded message envelop*/
 	@Test(description = "MSG-29", groups = {"multiTenancy", "singleTenancy"})
-	public void checkMsgEnvPresence() throws Exception {
+	public void checkMsgEnvXML() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
 

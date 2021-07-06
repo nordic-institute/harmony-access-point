@@ -192,6 +192,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
         soft.assertAll();
     }
 
+    /* This test method will verify upload of expired certificate*/
     @Test(description = "TLS-20", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void uploadExpired() throws Exception {
         SoftAssert soft = new SoftAssert();
@@ -207,6 +208,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
     }
 
+    /* This test method will verify upload new certificate through upload button when old certificate exist*/
     @Test(description = "TLS-10", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
     public void uploadNewCert() throws Exception {
         SoftAssert soft = new SoftAssert();
