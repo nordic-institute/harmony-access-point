@@ -22,6 +22,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
@@ -158,10 +159,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected PartInfoDao partInfoDao;
 
     @Autowired
-    protected MessagePropertyDao messagePropertyDao;
-
-    @Autowired
-    protected PartPropertyDao partPropertyDao;
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Autowired
     protected MshRoleDao mshRoleDao;
@@ -671,7 +669,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findOrCreateProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
+                final PartProperty property = partPropertyDictionaryService.findOrCreatePartProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
                 if (property != null) {
                     partProperties.add(property);
                 }

@@ -21,6 +21,7 @@ import java.math.BigInteger;
 @Table(name = "TB_SJ_MESSAGE_GROUP")
 @NamedQueries({
         @NamedQuery(name = "MessageGroupEntity.findByUserMessageEntityId", query = "SELECT gr FROM MessageFragmentEntity frag join frag.group gr where frag.entityId= :USER_MESSAGE_ENTITY_ID"),
+        @NamedQuery(name = "MessageGroupEntity.findByUserMessageEntityIdWithMessageHeader", query = "SELECT gr FROM MessageFragmentEntity frag join frag.group gr join fetch gr.messageHeaderEntity where frag.entityId= :USER_MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "MessageGroupEntity.findByGroupId", query = "SELECT c FROM MessageGroupEntity c where c.groupId=:GROUP_ID"),
         @NamedQuery(name = "MessageGroupEntity.findByGroupIdWithMessageHeader", query = "SELECT c FROM MessageGroupEntity c left join fetch c.messageHeaderEntity where c.groupId=:GROUP_ID"),
         @NamedQuery(name = "MessageGroupEntity.findReceivedNonExpiredOrRejected", query = "SELECT c FROM MessageGroupEntity c where c.mshRole.role = :MSH_ROLE " +

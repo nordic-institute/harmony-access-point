@@ -6,7 +6,7 @@ import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -30,28 +30,28 @@ public class SubmissionAS4TransformerTest {
     private MessageIdGenerator messageIdGenerator;
 
     @Injectable
-    private MpcDao mpcDao;
+    private MpcDictionaryService mpcDictionaryService;
 
     @Injectable
-    private MessagePropertyDao messagePropertyDao;
+    private MessagePropertyDictionaryService messagePropertyDictionaryService;
 
     @Injectable
-    private ServiceDao serviceDao;
+    private ServiceDictionaryService serviceDictionaryService;
 
     @Injectable
-    private ActionDao actionDao;
+    private ActionDictionaryService actionDictionaryService;
 
     @Injectable
-    private AgreementDao agreementDao;
+    private AgreementDictionaryService agreementDictionaryService;
 
     @Injectable
-    private PartyIdDao partyIdDao;
+    private PartyIdDictionaryService partyIdDictionaryService;
 
     @Injectable
-    private PartyRoleDao partyRoleDao;
+    private PartyRoleDictionaryService partyRoleDictionaryService;
 
     @Injectable
-    private PartPropertyDao partPropertyDao;
+    private PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Tested
     private SubmissionAS4Transformer submissionAS4Transformer;
@@ -145,7 +145,6 @@ public class SubmissionAS4TransformerTest {
     }
 
 
-
     @Test
     public void testAddPayload() {
         final String fileNameWithoutPath = createFileName();
@@ -181,7 +180,6 @@ public class SubmissionAS4TransformerTest {
         Assert.assertEquals(fileNameWithoutPath, typedProperty2.getValue());
 
     }
-
 
 
     @Test

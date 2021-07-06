@@ -78,10 +78,10 @@ public class PropertyProviderHelper {
         return filteredPropertyNames;
     }
 
-    // duplicated part of the code from context provider so that we can brake the circular dependency
+    // duplicated part of the code from context provider so that we can break the circular dependency
     protected String getCurrentDomainCode() {
         if (!isMultiTenantAware()) {
-            LOG.debug("No multi-tenancy aware: returning the default domain");
+            LOG.trace("No multi-tenancy aware: returning the default domain");
             return DomainService.DEFAULT_DOMAIN.getCode();
         }
 

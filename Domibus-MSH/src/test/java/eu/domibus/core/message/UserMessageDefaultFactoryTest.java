@@ -11,6 +11,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.usermessage.domain.*;
+import eu.domibus.core.message.dictionary.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

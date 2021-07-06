@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Ignore;
 import org.junit.Test;
