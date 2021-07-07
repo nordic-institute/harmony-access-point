@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class BackendFilter implements Serializable, Comparable {
 
-    private int entityId;
+    private String entityId;
 
     private int index;
 
@@ -23,11 +23,11 @@ public class BackendFilter implements Serializable, Comparable {
 
     private boolean active;
 
-    public int getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 
@@ -65,7 +65,7 @@ public class BackendFilter implements Serializable, Comparable {
 
     @Override
     public int compareTo(Object o) {
-        return this.entityId-((BackendFilter)o).getEntityId();
+        return this.entityId.compareTo(((BackendFilter)o).getEntityId());
     }
 
     @Override

@@ -322,7 +322,7 @@ public class CsvServiceImplTest {
         RoutingCriteria fromRoutingCriteria = new RoutingCriteria();
         fromRoutingCriteria.setName("from");
         fromRoutingCriteria.setExpression("from:from");
-        fromRoutingCriteria.setEntityId(1);
+        fromRoutingCriteria.setEntityId("1");
         messageFilterRO.setPersisted(true);
         messageFilterRO.setFrom(fromRoutingCriteria);
         messageFilterROList.add(messageFilterRO);

@@ -14,6 +14,7 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -72,22 +73,22 @@ public class MessageFilterResourceTest {
 
     @Test
     public void testGetMessageFilterPersisted() {
-        MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO(0);
+        MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO("0");
 
         // Then
         Assert.assertNotNull(messageFilterResultRO);
         Assert.assertFalse(messageFilterResultRO.isAreFiltersPersisted());
-        Assert.assertEquals(getMessageFilterROS(0), messageFilterResultRO.getMessageFilterEntries());
+        Assert.assertEquals(getMessageFilterROS("0"), messageFilterResultRO.getMessageFilterEntries());
     }
 
     @Test
     public void testGetMessageFilterNotPersisted() {
-        MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO(1);
+        MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO("1");
 
         // Then
         Assert.assertNotNull(messageFilterResultRO);
         Assert.assertTrue(messageFilterResultRO.isAreFiltersPersisted());
-        Assert.assertEquals(getMessageFilterROS(1), messageFilterResultRO.getMessageFilterEntries());
+        Assert.assertEquals(getMessageFilterROS("1"), messageFilterResultRO.getMessageFilterEntries());
     }
 
     @Test
@@ -99,7 +100,7 @@ public class MessageFilterResourceTest {
 
         List<RoutingCriteria> routingCriterias = new ArrayList<>();
         RoutingCriteria routingCriteria = new RoutingCriteria();
-        routingCriteria.setEntityId(1);
+        routingCriteria.setEntityId("1");
         routingCriteria.setName("From");
         routingCriteria.setExpression(fromExpression);
         routingCriterias.add(routingCriteria);
@@ -108,7 +109,7 @@ public class MessageFilterResourceTest {
         messageFilterRO.setIndex(1);
 
         messageFilterRO.setBackendName(backendName);
-        messageFilterRO.setEntityId(1);
+        messageFilterRO.setEntityId("1");
         messageFilterRO.setRoutingCriterias(routingCriterias);
         messageFilterRO.setPersisted(true);
 
@@ -139,11 +140,11 @@ public class MessageFilterResourceTest {
         }};
     }
 
-    private MessageFilterResultRO getMessageFilterResultRO(int messageFilterEntityId) {
+    private MessageFilterResultRO getMessageFilterResultRO(String messageFilterEntityId) {
         // Given
         final ArrayList<BackendFilter> backendFilters = new ArrayList<>();
         BackendFilter backendFilter = new BackendFilter();
-        backendFilter.setEntityId(1);
+        backendFilter.setEntityId("1");
         backendFilter.setBackendName("backendName1");
         backendFilter.setIndex(0);
         backendFilter.setActive(true);
@@ -163,24 +164,24 @@ public class MessageFilterResourceTest {
         return messageFilterResource.getMessageFilter();
     }
 
-    private List<MessageFilterRO> getMessageFilterROS(int messageFilterEntityId) {
+    private List<MessageFilterRO> getMessageFilterROS(String messageFilterEntityId) {
         final List<MessageFilterRO> messageFilterROS = new ArrayList<>();
         MessageFilterRO messageFilterRO = getMessageFilterRO(messageFilterEntityId);
         messageFilterROS.add(messageFilterRO);
         return messageFilterROS;
     }
 
-    private MessageFilterRO getMessageFilterRO(int messageFilterEntityId) {
+    private MessageFilterRO getMessageFilterRO(String messageFilterEntityId) {
         MessageFilterRO messageFilterRO = new MessageFilterRO();
         messageFilterRO.setEntityId(messageFilterEntityId);
-        messageFilterRO.setPersisted(messageFilterEntityId != 0);
+        messageFilterRO.setPersisted(StringUtils.isNotEmpty(messageFilterEntityId));
         return messageFilterRO;
     }
 
     @Test
     public void fromMessageFilterRO() {
         MessageFilterRO messageFilterRO1 = new MessageFilterRO();
-        messageFilterRO1.setEntityId(1);
+        messageFilterRO1.setEntityId("1");
         messageFilterRO1.setPersisted(true);
         messageFilterRO1.setBackendName("Plugin");
 

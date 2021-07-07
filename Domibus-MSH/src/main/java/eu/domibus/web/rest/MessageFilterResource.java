@@ -8,6 +8,7 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -65,7 +66,7 @@ public class MessageFilterResource extends BaseResource {
         List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
         List<MessageFilterRO> messageFilterResultROS = backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);
         for (MessageFilterRO messageFilter : messageFilterResultROS) {
-            if (messageFilter.getEntityId() == 0) {
+            if (StringUtils.isEmpty(messageFilter.getEntityId())) {
                 messageFilter.setPersisted(false);
                 areFiltersPersisted = false;
             } else {
