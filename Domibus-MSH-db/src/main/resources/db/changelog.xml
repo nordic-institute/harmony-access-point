@@ -128,7 +128,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <sql dbms="mysql">
-            ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+            CREATE UNIQUE INDEX UIDX_D_MSG_PROP_NAME_VALUE_TYPE ON TB_D_MESSAGE_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
         </sql>
         <sql dbms="oracle">
             ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
@@ -153,7 +153,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <sql dbms="mysql">
-            ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+            CREATE UNIQUE INDEX UIDX_D_PART_PROP_NAME_VALUE_TYPE ON TB_D_PART_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
         </sql>
         <sql dbms="oracle">
             ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
@@ -194,7 +194,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_SERVICE_VALUE_TYPE" tableName="TB_D_SERVICE"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_SERVICE_VALUE_TYPE ON TB_D_SERVICE (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_SERVICE ADD CONSTRAINT UK_D_SERVICE_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -213,7 +218,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_PARTY_VALUE_TYPE" tableName="TB_D_PARTY"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_PARTY_VALUE_TYPE ON TB_D_PARTY (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_PARTY ADD CONSTRAINT UK_D_PARTY_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -250,7 +260,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_AGREEMENT_VALUE_TYPE" tableName="TB_D_AGREEMENT"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_AGREEMENT_VALUE_TYPE ON TB_D_AGREEMENT (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_AGREEMENT ADD CONSTRAINT UK_D_AGREEMENT_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
