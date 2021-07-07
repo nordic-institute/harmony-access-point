@@ -13,9 +13,14 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "TB_D_PARTY")
+@NamedQueries({
 @NamedQuery(name = "PartyId.findByValueAndType", hints = {
         @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyId prop where prop.value=:VALUE and prop.type=:TYPE")
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select part from PartyId part where part.value=:VALUE and part.type=:TYPE"),
+@NamedQuery(name = "PartyId.findByValue", hints = {
+        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select part from PartyId part where part.value=:VALUE and part.type is null")
+})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PartyId extends AbstractBaseEntity implements Comparable<PartyId>, Serializable {
 

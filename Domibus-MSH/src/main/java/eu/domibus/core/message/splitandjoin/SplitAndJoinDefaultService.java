@@ -25,6 +25,7 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;

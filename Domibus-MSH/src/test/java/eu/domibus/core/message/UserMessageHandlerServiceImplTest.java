@@ -21,6 +21,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.dictionary.MessagePropertyDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.dictionary.PartPropertyDao;
+import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
@@ -188,7 +192,7 @@ public class UserMessageHandlerServiceImplTest {
     PartInfoDao partInfoDao;
 
     @Injectable
-    PartPropertyDao partPropertyDao;
+    PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Injectable
     MshRoleDao mshRoleDao;
@@ -196,8 +200,6 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     MessageFragmentDao messageFragmentDao;
 
-    @Injectable
-    MessagePropertyDao messagePropertyDao;
 
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String STRING_TYPE = "string";

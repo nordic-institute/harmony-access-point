@@ -2,7 +2,7 @@ package eu.domibus.core.plugin.transformer;
 
 import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
@@ -24,32 +24,32 @@ public class SubmissionAS4Transformer {
     private MessageIdGenerator messageIdGenerator;
 
     @Autowired
-    protected MpcDao mpcDao;
+    protected MpcDictionaryService mpcDictionaryService;
 
     @Autowired
-    protected MessagePropertyDao messagePropertyDao;
+    protected MessagePropertyDictionaryService messagePropertyDictionaryService;
 
     @Autowired
-    protected ServiceDao serviceDao;
+    protected ServiceDictionaryService serviceDictionaryService;
 
     @Autowired
-    protected ActionDao actionDao;
+    protected ActionDictionaryService actionDictionaryService;
 
     @Autowired
-    protected AgreementDao agreementDao;
+    protected AgreementDictionaryService agreementDictionaryService;
 
     @Autowired
-    protected PartyIdDao partyIdDao;
+    protected PartyIdDictionaryService partyIdDictionaryService;
 
     @Autowired
-    protected PartyRoleDao partyRoleDao;
+    protected PartyRoleDictionaryService partyRoleDictionaryService;
 
     @Autowired
-    protected PartPropertyDao partPropertyDao;
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
 
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
-        final MpcEntity mpc = mpcDao.findOrCreateMpc(submission.getMpc());
+        final MpcEntity mpc = mpcDictionaryService.findOrCreateMpc(submission.getMpc());
         result.setMpc(mpc);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
@@ -68,7 +68,7 @@ public class SubmissionAS4Transformer {
             prop.setValue(propertyEntry.getValue());
             prop.setType(propertyEntry.getType());
 
-            final MessageProperty propertyByName = messagePropertyDao.findOrCreateProperty(prop.getName(), prop.getValue(), prop.getType());
+            final MessageProperty propertyByName = messagePropertyDictionaryService.findOrCreateMessageProperty(prop.getName(), prop.getValue(), prop.getType());
             messageProperties.add(propertyByName);
         }
 
@@ -80,13 +80,13 @@ public class SubmissionAS4Transformer {
         String conversationId = submission.getConversationId();
         result.setConversationId(conversationId == null ? this.generateConversationId() : conversationId.trim());
 
-        final ActionEntity action = actionDao.findOrCreateAction(submission.getAction());
+        final ActionEntity action = actionDictionaryService.findOrCreateAction(submission.getAction());
         result.setAction(action);
 
-        final AgreementRefEntity agreementRef = agreementDao.findOrCreateAgreement(submission.getAgreementRef(), submission.getAgreementRefType());
+        final AgreementRefEntity agreementRef = agreementDictionaryService.findOrCreateAgreement(submission.getAgreementRef(), submission.getAgreementRefType());
         result.setAgreementRef(agreementRef);
 
-        final ServiceEntity service = serviceDao.findOrCreateService(submission.getService(), submission.getServiceType());
+        final ServiceEntity service = serviceDictionaryService.findOrCreateService(submission.getService(), submission.getServiceType());
         result.setService(service);
     }
 
@@ -110,7 +110,7 @@ public class SubmissionAS4Transformer {
     private From getPartyFrom(Submission submission, PartyInfo partyInfo) {
         final From from = new From();
 
-        final PartyRole fromRole = partyRoleDao.findOrCreateRole(submission.getFromRole());
+        final PartyRole fromRole = partyRoleDictionaryService.findOrCreateRole(submission.getFromRole());
         from.setRole(fromRole);
 
         final Set<Submission.Party> fromParties = submission.getFromParties();
@@ -120,7 +120,7 @@ public class SubmissionAS4Transformer {
             }
 
             final Submission.Party party = fromParties.iterator().next();
-            final PartyId fromParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
+            final PartyId fromParty = partyIdDictionaryService.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
             from.setPartyId(fromParty);
 
             return from;
@@ -131,7 +131,7 @@ public class SubmissionAS4Transformer {
     private To getPartyTo(Submission submission, PartyInfo partyInfo) {
         final To to = new To();
 
-        final PartyRole toRole = partyRoleDao.findOrCreateRole(submission.getToRole());
+        final PartyRole toRole = partyRoleDictionaryService.findOrCreateRole(submission.getToRole());
         to.setRole(toRole);
 
         final Set<Submission.Party> toParties = submission.getToParties();
@@ -140,7 +140,7 @@ public class SubmissionAS4Transformer {
                 LOG.warn("Cannot have multiple to parties, using the first party");
             }
             final Submission.Party party = toParties.iterator().next();
-            final PartyId toParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
+            final PartyId toParty = partyIdDictionaryService.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
             to.setPartyId(toParty);
             return to;
         }
@@ -162,7 +162,7 @@ public class SubmissionAS4Transformer {
             Set<PartProperty> properties = new HashSet<>();
             partInfo.setPartProperties(properties);
             for (final Submission.TypedProperty entry : payload.getPayloadProperties()) {
-                final PartProperty property = partPropertyDao.findOrCreateProperty(entry.getKey(), entry.getValue(), entry.getType());
+                final PartProperty property = partPropertyDictionaryService.findOrCreatePartProperty(entry.getKey(), entry.getValue(), entry.getType());
                 properties.add(property);
             }
             result.add(partInfo);

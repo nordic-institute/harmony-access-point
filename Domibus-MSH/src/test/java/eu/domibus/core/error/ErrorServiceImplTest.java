@@ -1,7 +1,7 @@
 package eu.domibus.core.error;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

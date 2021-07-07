@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.message.dictionary;
 
 import eu.domibus.api.model.PartyRole;
 import eu.domibus.core.dao.BasicDao;
@@ -7,6 +7,8 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
+
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -26,7 +28,7 @@ public class PartyRoleDao extends BasicDao<PartyRole> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PartyRole findOrCreateRole(String value) {
         if(StringUtils.isBlank(value)) {
             return null;
