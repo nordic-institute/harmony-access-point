@@ -24,8 +24,8 @@ class Domibus{
 
     def allDomainsProperties = null
 
-    // sleepDelay value is increased to 10 s because of execution in Docker containers
-    def sleepDelay = 10_000
+    // sleepDelay value is increased to 50 s (all delay is consumed here)
+    def sleepDelay = 50_000
 
     def dbConnections = [:]
     def blueDomainID = null //"C2Default"checkLogFile
@@ -1989,7 +1989,9 @@ class Domibus{
         debugLog("  ====  Calling \"formatFilters\".", log)
         log.info "  formatFilters  [][]  Analysing backends filters order ..."
         def swapBck
-        def i = 0
+		def secondaryNameExists=false
+		def secondaryName="backendwebservice"
+		def i = 0
 
         assert(filtersMap != null),"Error:formatFilters: Not able to get the backend details."
         debugLog("  formatFilters  [][]  FILTERS:" + filtersMap, log)
@@ -2001,9 +2003,17 @@ class Domibus{
         debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log)
         debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log)
 
+		if(filterChoice.toLowerCase().equals("backendwebservice")||filterChoice.toLowerCase().equals("backendwsplugin")){
+		    debugLog("  formatFilters  [][]  Filter chosen is WS: 2 names ", log)
+			secondaryNameExists=true
+			if(filterChoice.toLowerCase().equals("backendwebservice")){
+				secondaryName="backendwsplugin"
+			}
+		}		
+		
         while (i < filtersMap.messageFilterEntries.size()) {
             assert(filtersMap.messageFilterEntries[i] != null),"Error:formatFilters: Error while parsing filter details."
-            if (filtersMap.messageFilterEntries[i].backendName.toLowerCase() == filterChoice.toLowerCase()) {
+            if ( (filtersMap.messageFilterEntries[i].backendName.toLowerCase().equals(filterChoice.toLowerCase())) || (secondaryNameExists && filtersMap.messageFilterEntries[i].backendName.toLowerCase().equals(secondaryName.toLowerCase())) ) {
                 debugLog("  formatFilters  [][]  Comparing --" + filtersMap.messageFilterEntries[i].backendName + "-- and --" + filterChoice + "--", log)
                 if ( (extraCriteria == null) || ( (extraCriteria != null) && filtersMap.messageFilterEntries[i].toString().contains(extraCriteria)) ) {
                     if (i == 0) {
@@ -2038,7 +2048,8 @@ class Domibus{
             def filtersMap = jsonSlurper.parseText(getMessageFilters(side,context,log))
             debugLog("  setMessageFilters  [][]  filtersMap:" + filtersMap, log)
             assert(filtersMap != null),"Error:setMessageFilter: Not able to get the backend details."
-            assert(filtersMap.toString().toLowerCase().contains(filterChoice.toLowerCase())),"Error:setMessageFilter: The backend you want to set is not installed."
+	    // Skip the following step since ws plugin can have 2 different names. Maybe restore it in the future ...
+            //assert(filtersMap.toString().toLowerCase().contains(filterChoice.toLowerCase())),"Error:setMessageFilter: The backend you want to set is not installed."
             filtersMap = formatFilters(filtersMap, filterChoice, context, log, extraCriteria)
             assert(filtersMap != "ko"),"Error:setMessageFilter: The backend you want to set is not installed."
             debugLog("  setMessageFilters  [][]  Backend filters order analyse done.", log)
