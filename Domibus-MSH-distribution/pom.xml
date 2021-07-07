@@ -99,7 +99,7 @@
             </activation>
 
             <properties>
-                <tomcat.version>9.0.30</tomcat.version>
+                <tomcat.version>9.0.50</tomcat.version>
             </properties>
             <build>
                 <plugins>
