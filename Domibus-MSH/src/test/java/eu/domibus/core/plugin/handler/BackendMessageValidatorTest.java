@@ -649,30 +649,39 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyIdForPModeMatch(submission);
-
     }
 
     @Test
     public void validateToRole_ToNull() throws EbMS3Exception {
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
+        submission.setToRole(null);
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To Role is not provided.");
-        backendMessageValidatorObj.validateToRoleForPModeMatch(null);
+        backendMessageValidatorObj.validateToRoleForPModeMatch(submission);
     }
 
     @Test
     public void validateToRole_ToRoleBlank() throws EbMS3Exception {
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
+        submission.setToRole("   ");
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To Role is not provided.");
-        backendMessageValidatorObj.validateToRoleForPModeMatch("   ");
-
+        backendMessageValidatorObj.validateToRoleForPModeMatch(submission);
     }
 
     @Test
     public void validateToRole_ToRoleTooLong() throws EbMS3Exception {
+        Submission submission = new Submission();
+        submission.getToParties().add(new Submission.Party(StringUtils.repeat("X", 255), StringUtils.repeat("X", 256)));
+        submission.setToRole(StringUtils.repeat("X", 256));
+
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToRoleForPModeMatch(StringUtils.repeat("X", 256));
-
+        backendMessageValidatorObj.validateToRoleForPModeMatch(submission);
     }
 
     @Test
