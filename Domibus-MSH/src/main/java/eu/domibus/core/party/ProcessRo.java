@@ -39,7 +39,7 @@ public class ProcessRo {
 
     @Override
     public int hashCode() {
-        int result = entityId.hashCode();
+        int result = entityId != null ? entityId.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
