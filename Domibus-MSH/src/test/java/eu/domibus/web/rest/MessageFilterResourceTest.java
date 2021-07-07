@@ -73,12 +73,12 @@ public class MessageFilterResourceTest {
 
     @Test
     public void testGetMessageFilterPersisted() {
-        MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO("0");
+        MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO(null);
 
         // Then
         Assert.assertNotNull(messageFilterResultRO);
         Assert.assertFalse(messageFilterResultRO.isAreFiltersPersisted());
-        Assert.assertEquals(getMessageFilterROS("0"), messageFilterResultRO.getMessageFilterEntries());
+        Assert.assertEquals(getMessageFilterROS(null), messageFilterResultRO.getMessageFilterEntries());
     }
 
     @Test
