@@ -54,9 +54,3 @@
 /subsystem=messaging-activemq/server=default/address-setting=jms.queue.DomibusClusterCommandTopic/:add(dead-letter-address=jms.queue.DomibusDLQ,expiry-address=jms.queue.ExpiryQueue,redelivery-delay=10000,max-delivery-attempts=3)
 
 jms-topic add --topic-address=DomibusClusterCommandTopic --entries=[java:/jms/domibus.internal.command,java:/jms/topic/DomibusClusterCommandTopic]
-
-/subsystem=messaging-activemq/server=default/connection-factory=edeliveryConnectionFactory:add(connectors=[in-vm],entries=["java:/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)
-/subsystem=messaging-activemq/server=default/connection-factory=edeliveryRemoteConnectionFactory:add(connectors=[http-connector],entries=["java:jboss/exported/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)
-
-/interface=public:undefine-attribute(name=inet-address)
-/interface=public:write-attribute(name=any-address,value=true)
