@@ -116,21 +116,18 @@ public class MessagesPage extends DomibusPage {
 		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
 	}
 
-	public String downloadMessageEnvelop(int rowNo, String iconName) throws Exception {
+	public String downloadMessageEnvelop(int rowNo) throws Exception {
 		log.info("Customized location for download");
 		String filePath = data.downloadFolderPath();
 
 		log.info("Clean given directory");
 		FileUtils.cleanDirectory(new File(filePath));
 
-		log.info("selecting row");
-		grid().selectRow(rowNo);
-
-		log.info("Click on download button");
-		WebElement iconElement = driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNo, iconName)));
+		log.info("Click on download Message Envelop button");
+		WebElement iconElement = driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNo, "downloadEnvelopes")));
 		iconElement.click();
 
-		log.info("Wait for download to complete");
+		log.info("Wait for Message envelop download to complete");
 
 		wait.forXMillis(3000);
 

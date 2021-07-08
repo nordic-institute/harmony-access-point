@@ -511,8 +511,7 @@ public class MessagesPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
 
-		int rowNo = Gen.randomNumber(5);
-		String zipPath = page.downloadMessageEnvelop(rowNo, "downloadEnvelopes");
+		String zipPath = page.downloadMessageEnvelop(0);
 		log.info("downloaded message to zip with path " + zipPath);
 		File zipFile = new File(zipPath);
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
