@@ -11,7 +11,11 @@ import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,41 +36,57 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     protected DomibusConfigurationService domibusConfigurationService;
     protected DomainTaskExecutor domainTaskExecutor;
     protected DomainService domainService;
+    protected PlatformTransactionManager transactionManager;
 
     public StaticDictionaryServiceImpl(MessageStatusDao messageStatusDao,
                                        NotificationStatusDao notificationStatusDao,
                                        MshRoleDao mshRoleDao,
                                        DomibusConfigurationService domibusConfigurationService,
                                        DomainTaskExecutor domainTaskExecutor,
-                                       DomainService domainService) {
+                                       DomainService domainService,
+                                       PlatformTransactionManager transactionManager) {
         this.messageStatusDao = messageStatusDao;
         this.notificationStatusDao = notificationStatusDao;
         this.mshRoleDao = mshRoleDao;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainTaskExecutor = domainTaskExecutor;
         this.domainService = domainService;
+        this.transactionManager = transactionManager;
     }
 
     @Transactional
     public void createStaticDictionaryEntries() {
         LOG.debug("Start checking and creating static dictionary entries if missing");
 
+        Runnable createEntriesCall = () -> {
+            Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
+            Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
+            Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
+        };
+
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Start checking and creating static dictionary entries in single tenancy mode");
-            this.createStaticDictionaryEntriesForDomain();
+            createEntriesCall.run();
             return;
         }
+
+        Runnable transactionWrappedCall = () -> {
+            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        createEntriesCall.run();
+                    } catch (Exception e) {
+                        LOG.error("Error while creating static dictionary entries", e);
+                    }
+                }
+            });
+        };
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
-            domainTaskExecutor.submit(() -> this.createStaticDictionaryEntriesForDomain(), domain, true, 1L, TimeUnit.MINUTES);
+            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);
         }
     }
 
-    protected void createStaticDictionaryEntriesForDomain() {
-        Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
-        Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
-        Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
-    }
 }
