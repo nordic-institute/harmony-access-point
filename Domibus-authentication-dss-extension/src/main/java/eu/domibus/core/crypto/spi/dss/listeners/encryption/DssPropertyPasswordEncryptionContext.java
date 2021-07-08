@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss.listeners.encryption;
 
 import eu.domibus.core.crypto.spi.dss.DssConfiguration;
+import eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncryptionContext {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyPasswordEncryptionContext.class);
-    private static final String DSS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.authentication.dss.password.encryption.properties";
 
     protected DssConfiguration dssConfiguration;
 
@@ -61,7 +61,7 @@ public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncry
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        final String propertiesToEncryptString = dssConfiguration.getDomainProperty(domain.getCode(), DSS_PASSWORD_ENCRYPTION_PROPERTIES);
+        final String propertiesToEncryptString = dssConfiguration.getDomainProperty(domain.getCode(), DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_PROPERTIES);
 
         if (StringUtils.isEmpty(propertiesToEncryptString)) {
             LOG.debug("No properties to encrypt");

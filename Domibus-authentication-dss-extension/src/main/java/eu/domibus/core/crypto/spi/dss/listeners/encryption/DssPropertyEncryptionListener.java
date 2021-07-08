@@ -42,7 +42,7 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
         LOG.debug("Encrypting passwords is active in DSS configuration? [{}]", passwordEncryptionActive);
 
         if (!passwordEncryptionActive) {
-            LOG.info("No password encryption will be performed for DSS");
+            LOG.debug("No password encryption will be performed for DSS");
             return;
         }
 
