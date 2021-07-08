@@ -412,7 +412,6 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		navigateToPluginUserPage();
 
 		String username = Gen.randomAlphaNumeric(9);
 		String uname = Gen.randomAlphaNumeric(9);
