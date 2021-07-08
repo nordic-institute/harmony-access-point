@@ -128,13 +128,13 @@ public class DssConfiguration {
     private String cacertPassword;
 
     @Autowired
-    protected DomibusPropertyExtService domibusPropertyExtService;
+    private DomibusPropertyExtService domibusPropertyExtService;
 
     @Autowired
-    protected DomibusConfigurationExtService domibusConfigurationExtService;
+    private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
-    protected DomainExtService domainExtService;
+    private DomainExtService domainExtService;
 
     @Autowired
     private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
@@ -143,10 +143,10 @@ public class DssConfiguration {
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
     @Autowired
-    protected ServerInfoExtService serverInfoExtService;
+    private ServerInfoExtService serverInfoExtService;
 
     @Autowired
-    protected PasswordEncryptionExtService passwordEncryptionService;
+    private PasswordEncryptionExtService passwordEncryptionService;
 
 
     @Bean
@@ -533,6 +533,4 @@ public class DssConfiguration {
         String nodeName = serverInfoExtService.getNodeName();
         return new File(dssCachePath + File.separator + nodeName + File.separator);
     }
-
-
 }
