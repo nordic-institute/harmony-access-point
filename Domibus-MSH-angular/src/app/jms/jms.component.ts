@@ -1,4 +1,13 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../common/alert/alert.service';
 import {MessagesRequestRO} from './ro/messages-request-ro';
@@ -339,6 +348,20 @@ export class JmsComponent extends mix(BaseListComponent)
     this.deleteElements(this.selected);
   }
 
+  deleteAll() {
+    try {
+      // let queues = this.getAllowedDestinationQueues([row]);
+      // this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
+      //   .afterClosed().subscribe(result => {
+      //   if (result && result.destination) {
+          this.serverRemoveAll(this.currentSearchSelectedSource.name);
+        // }
+      // });
+    } catch (ex) {
+      this.alertService.exception('Exception trying to delete all messages:', ex);
+    }
+  }
+
   deleteElements(elements: any[]) {
     elements.forEach(el => {
       const index = this.rows.indexOf(el);
@@ -387,6 +410,17 @@ export class JmsComponent extends mix(BaseListComponent)
       source: source,
       selectedMessages: messageIds,
       action: 'REMOVE'
+    }).toPromise().then(() => {
+        this.refreshDestinations();
+        this.markedForDeletionMessages = [];
+      }
+    )
+  }
+
+  serverRemoveAll(source: string): Promise<any> {
+    return this.http.post('rest/jms/messages/action', {
+      source: source,
+      action: 'REMOVE_ALL'
     }).toPromise().then(() => {
         this.refreshDestinations();
         this.markedForDeletionMessages = [];

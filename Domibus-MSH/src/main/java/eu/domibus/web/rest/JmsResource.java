@@ -63,7 +63,7 @@ public class JmsResource extends BaseResource {
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
 
         List<String> messageIds = request.getSelectedMessages();
-        String[] ids = messageIds.toArray(new String[0]);
+        String[] ids = (messageIds!= null ? messageIds.toArray(new String[0]) : new String[0]);
 
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
