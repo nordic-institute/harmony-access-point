@@ -73,7 +73,7 @@ import java.util.Date;
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
                         "FROM UserMessageLog uml                                                                                           " +
-                        "JOIN UserMessage um                                                                                               " +
+                        "JOIN uml.userMessage um                                                                                               " +
                         "left join um.messageProperties p                                                                         " +
                         "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) " +
                         "and uml.deleted is null and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE  "),
@@ -88,8 +88,7 @@ import java.util.Date;
                         "JOIN uml.userMessage um                                                                                           " +
                         "left join um.messageProperties p                                                                         " +
                         "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) " +
-                        "and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE                          "
-        ),
+                        "and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE                          "),
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
