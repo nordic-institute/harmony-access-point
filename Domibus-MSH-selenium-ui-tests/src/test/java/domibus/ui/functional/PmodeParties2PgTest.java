@@ -504,8 +504,6 @@ public class PmodeParties2PgTest extends SeleniumTest {
 		String newPatyName = Gen.randomAlphaNumeric(5);
 
 		PModePartiesPage page = navigateToPage();
-		page.refreshPage();
-		page.grid().waitForRowsToLoad();
 
 		page.getNewButton().click();
 		PartyModal modal = new PartyModal(driver);
