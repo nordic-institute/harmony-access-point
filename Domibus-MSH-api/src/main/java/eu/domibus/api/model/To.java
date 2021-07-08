@@ -37,10 +37,6 @@ public class To {
         return toRole;
     }
 
-    public void setRoleValue(String value) {
-        return;
-    }
-
     public String getRoleValue() {
         if(toRole == null) {
             return null;
