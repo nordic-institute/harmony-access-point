@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -14,6 +13,7 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
+import pages.tlsTrustStore.TlsTrustStorePage;
 import rest.RestServicePaths;
 import utils.TestRunData;
 import utils.TestUtils;
@@ -422,6 +422,27 @@ public class AuditPgUXTest extends SeleniumTest {
 			soft.assertTrue(found, "Row has been identified in CSV file");
 		}
 	}
+
+	/* This test method will check audit log for download tls truststore event*/
+	@Test(description = "AU-54", groups = {"multiTenancy", "singleTenancy","TlsConfig"})
+	public void tlsCertDownload() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		TlsTrustStorePage page = new TlsTrustStorePage(driver);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+		page.getDownloadButton().click();
+
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage aPage= new AuditPage(driver);
+		aPage.getFilters().setFilterData("table", "Truststore");
+		log.info("click on search button");
+		aPage.getFilters().getSearchButton().click();
+		aPage.grid().waitForRowsToLoad();
+		soft.assertTrue(aPage.grid().getRowInfo(0).get("Table").equals("Truststore"),"Grid has first record for Truststore");
+		soft.assertTrue(aPage.grid().getRowInfo(0).get("Action").equals("Downloaded"),"Grid has first record with Downloaded event");
+		soft.assertAll();
+	}
+
+
 
 
 }

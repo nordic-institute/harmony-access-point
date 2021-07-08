@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageFilterArea;
@@ -389,6 +390,33 @@ public class MessagesPgUXTest extends SeleniumTest {
 		MessagesPage mPage = new MessagesPage(driver);
 		soft.assertFalse(mPage.getResendButton().isPresent(),"Resend button is not present");
 		soft.assertFalse(mPage.isActionIconPresent(0,"Resend"),"Icon is not present");
+		soft.assertAll();
+	}
+
+	/* MSG-30 - Verify Message Envelop presence for all admin console users*/
+	@Test(description = "MSG-31", groups = {"multiTenancy", "singleTenancy"})
+	public void checkMsgEnvPresence() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+		int gridRow = page.grid().getPagination().getTotalItems();
+		if (gridRow > 0) {
+			soft.assertTrue(page.isActionIconPresent(0, "downloadEnvelopes") && page.getActionIconStatus(0, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+			String user = Gen.randomAlphaNumeric(10);
+			rest.users().createUser(user, DRoles.USER, data.defaultPass(), "Default");
+			logout();
+			login(user, data.defaultPass());
+			soft.assertTrue(page.isActionIconPresent(0, "downloadEnvelopes") && page.getActionIconStatus(0, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+			if (data.isMultiDomain()) {
+				String adminUsr = Gen.randomAlphaNumeric(10);
+				rest.users().createUser(adminUsr, DRoles.ADMIN, data.defaultPass(), "Default");
+				logout();
+				login(adminUsr, data.defaultPass());
+				soft.assertTrue(page.isActionIconPresent(0, "downloadEnvelopes") && page.getActionIconStatus(0, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+			}
+		} else {
+			throw new SkipException("Grid has no data present");
+		}
 		soft.assertAll();
 	}
 

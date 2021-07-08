@@ -2,14 +2,17 @@ package pages.tlsTrustStore;
 
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.grid.GridControls;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.DFileUtils;
+
+import java.io.File;
 
 public class TlsTrustStorePage extends DomibusPage {
 
@@ -38,6 +41,9 @@ public class TlsTrustStorePage extends DomibusPage {
 
     @FindBy(css = ".error")
     WebElement passValidationMsg;
+
+    @FindBy(css="app-column-picker > div[class='ng-star-inserted']")
+    public WebElement showHideAdditionalArea;
 
     public TlsTrustStorePage(WebDriver driver) {
         super(driver);
@@ -101,6 +107,25 @@ public class TlsTrustStorePage extends DomibusPage {
         }
 
     }
+    public void pressDownloadCertAndSaveFile(String filePath) throws Exception {
+
+        log.info("Clean given directory");
+        FileUtils.cleanDirectory(new File(filePath));
+
+        log.info("Click on download csv button");
+        getDownloadButton().click();
+
+        log.info("Wait for download to complete");
+
+        wait.forXMillis(3000);
+
+        log.info("Check if file is downloaded at given location");
+        if(!DFileUtils.isFileDownloaded(filePath)){
+            throw new Exception("Could not find file");
+        }
+
+    }
+
 }
 
 

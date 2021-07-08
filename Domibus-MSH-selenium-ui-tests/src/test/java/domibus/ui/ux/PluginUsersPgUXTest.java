@@ -406,6 +406,35 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
+	/* This test method will verify presence of all duplicate users in error message*/
+	@Test(description = "PU-33", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateUsrError() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		String username = Gen.randomAlphaNumeric(9);
+		String uname = Gen.randomAlphaNumeric(9);
+
+		page.newUser(uname, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+		page.grid().waitForRowsToLoad();
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+		page.grid().waitForRowsToLoad();
+
+		page.newUser(username, DRoles.ADMIN, data.getNewTestPass(), data.getNewTestPass());
+		page.newUser(uname, DRoles.ADMIN, data.getNewTestPass(), data.getNewTestPass());
+		page.grid().waitForRowsToLoad();
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(username),"Error message contains"+ username);
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(uname),"Error message contains"+ uname);
+		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.DUAL_PLUGINUSER_DUPLICATE, username,uname)),"Correct error message is shown");
+        soft.assertAll();
+	}
+
 	private PluginUsersPage navigateToPluginUserPage() throws Exception {
 		log.info("logged in");
 		PluginUsersPage page = new PluginUsersPage(driver);
