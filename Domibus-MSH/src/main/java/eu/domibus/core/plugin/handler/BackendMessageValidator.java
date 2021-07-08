@@ -267,7 +267,7 @@ public class BackendMessageValidator {
         validateFromPartyId(submission);
         validateFromRole(submission.getFromRole());
         validateToPartyIdForPModeMatch(submission);
-        validateToRoleForPModeMatch(submission.getToRole());
+        validateToRoleForPModeMatch(submission);
     }
 
     protected void validateFromPartyId(Submission submission) throws EbMS3Exception {
@@ -326,7 +326,13 @@ public class BackendMessageValidator {
 
     }
 
-    protected void validateToRoleForPModeMatch(String toRole) throws EbMS3Exception {
+    protected void validateToRoleForPModeMatch(Submission submission) throws EbMS3Exception {
+        if (CollectionUtils.isEmpty(submission.getToParties())) {
+            //In scenario of DynamicDiscovery Backend will not provide To/PartyId details, it is discovered by Domibus during PMode match.
+            //Hence elements To and To/Role are optional
+            return;
+        }
+        String toRole = submission.getToRole();
         if (isBlank(toRole)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To Role is not provided.", null, null);
