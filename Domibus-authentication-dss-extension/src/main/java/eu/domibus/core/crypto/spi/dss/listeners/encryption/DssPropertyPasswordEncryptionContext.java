@@ -15,6 +15,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Soumya Chandran
+ * @since 5.0
+ */
 public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncryptionContext {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyPasswordEncryptionContext.class);
@@ -29,9 +33,9 @@ public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncry
     protected DomainDTO domain;
 
     public DssPropertyPasswordEncryptionContext(DssConfiguration dssConfiguration,
-            DomibusConfigurationExtService domibusConfigurationExtService,
-            PasswordEncryptionExtService pluginPasswordEncryptionService,
-            DomainDTO domain) {
+                                                DomibusConfigurationExtService domibusConfigurationExtService,
+                                                PasswordEncryptionExtService pluginPasswordEncryptionService,
+                                                DomainDTO domain) {
         this.dssConfiguration = dssConfiguration;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.pluginPasswordEncryptionService = pluginPasswordEncryptionService;
@@ -50,8 +54,8 @@ public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncry
 
     @Override
     public File getConfigurationFile() {
-        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "plugins/config/fs-plugin.properties");
-        LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
+        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "/extensions/config/authentication-dss-extension.properties");
+        LOG.debug("Using DSS configuration file [{}]", configurationFile);
         return configurationFile;
     }
 

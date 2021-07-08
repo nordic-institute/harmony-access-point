@@ -6,9 +6,6 @@ import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
 import eu.domibus.core.crypto.spi.dss.listeners.encryption.DssPropertyEncryptionListener;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
-import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -42,7 +39,6 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +62,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 
@@ -91,15 +87,6 @@ public class DssConfiguration {
     private final static String CACERT_PATH = "/lib/security/cacerts";
 
     public static final String DEFAULT_DOMAIN = "default";
-
-
-    private static final String DOT = ".";
-
-    private volatile List<String> domains;
-
-    protected final Object domainsLock = new Object();
-
-    protected Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
@@ -139,9 +126,6 @@ public class DssConfiguration {
 
     @Value("${domibus.dss.ssl.cacert.password}")
     private String cacertPassword;
-
-    @Value("${domibus.authentication.dss.password.encryption.active}")
-    private String isEncryptionActive;
 
     @Autowired
     protected DomibusPropertyExtService domibusPropertyExtService;
@@ -184,7 +168,7 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()),trustedListTrustStore());
+        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()), trustedListTrustStore());
         boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
         boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
         boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
@@ -223,7 +207,7 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper,KeyStore trustedListTrustStore) {
+    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper, KeyStore trustedListTrustStore) {
         CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         return commonsDataLoader;
@@ -308,11 +292,11 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DssRefreshCommand dssRefreshCommand(TLValidationJob job, DssExtensionPropertyManager dssExtensionPropertyManager,File cacheDirectory) {
+    public DssRefreshCommand dssRefreshCommand(TLValidationJob job, DssExtensionPropertyManager dssExtensionPropertyManager, File cacheDirectory) {
         return new DssRefreshCommand(job, cacheDirectory);
     }
 
-   @Bean
+    @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CustomTrustedLists otherTrustedLists() {
         final List<TLSource> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
@@ -427,21 +411,20 @@ public class DssConfiguration {
 
     @Bean
     public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
-        return new DssPropertyEncryptionListener(passwordEncryptionService, this,domibusConfigurationExtService, domainExtService);
+        return new DssPropertyEncryptionListener(passwordEncryptionService, this, domibusConfigurationExtService, domainExtService);
     }
 
     /**
      * @return True if password encryption is active
      */
     public boolean isPasswordEncryptionActive() {
-        LOG.debug(" In DssConfiguration isPasswordEncryptionActive  [{}]", isEncryptionActive);
-        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, isEncryptionActive);
+        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
         return BooleanUtils.toBoolean(passwordEncryptionActive);
     }
 
-
     /**
      * get the base (mapped to default) and other domains property
+     *
      * @param domain
      * @param propertyName
      * @return
@@ -451,144 +434,11 @@ public class DssConfiguration {
             DomainDTO domainDTO = domainExtService.getDomain(domain);
             return domibusPropertyExtService.getProperty(domainDTO, propertyName);
         }
-        //ST
         return domibusPropertyExtService.getProperty(propertyName);
     }
 
-   /* protected String getDomainPropertyST(String domain, String propertyName) {
-        LOG.debug(" In DssConfiguration getDomainPropertyST  domain: [{}] and propertyName: [{}]", domain, propertyName);
-        //default domain
-        if (DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
-            LOG.debug("Retrieving property [{}] for default domain", propertyName);
-            return super.getKnownPropertyValue(propertyName);
-        }
-
-        //FS Plugin domain like properties for ST
-        String value;
-        String propertyNameFinal = domain + DOT + propertyName;
-        LOG.debug("Retrieving property [{}] for [{}] domain", propertyNameFinal, domain);
-        value = super.getKnownPropertyValue(propertyNameFinal);
-        if (value == null) {
-            DomibusPropertyMetadataDTO propertyMetadataDTO = getKnownProperties().get(propertyNameFinal);
-            if (propertyMetadataDTO.isWithFallback()) { //try to get the value from default properties file
-                LOG.debug("going to obtain default value for property [{}] which has fallback", propertyNameFinal);
-                value = super.getKnownPropertyValue(propertyName);
-                if (value == null) {
-                    throw new DomibusPropertyExtException("FSPlugin property [" + propertyNameFinal + "] is empty or not present in fs-plugin.properties file");
-                }
-            }
-        }
-        return value;
-    }
-
-    protected Integer getDomainIntegerProperty(String domain, String propertyName) {
-        String value = getDomainProperty(domain, propertyName);
-        return NumberUtils.toInt(value);
-    }
-    @Override
-    public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        if (knownProperties != null) {
-            return knownProperties;
-        }
-        knownProperties = new HashMap<>();
-
-        Map<String, DomibusPropertyMetadataDTO> baseProperties = getKnownProperties();
-
-        //  in multi-tenancy mode - we only expose the "base" properties from the current domain
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            updatePropertiesForMultitenancy(baseProperties);
-            return knownProperties;
-        }
-
-        //single tenancy mode
-        updatePropertiesForSingletenancy(baseProperties);
-        return knownProperties;
-    }
-
-
-    protected void updatePropertiesForSingletenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
-        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-            if (shouldMultiplyPropertyMetadata(propMeta)) {
-                multiplyProperty(propMeta);
-            } else {
-                //if not multiplied, the usage should be global
-                propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
-                knownProperties.put(propMeta.getName(), propMeta);
-            }
-        }
-    }
-
-    private void multiplyProperty(DomibusPropertyMetadataDTO propMeta) {
-        LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
-        for (String domain : getDomains()) {
-            String name = (DEFAULT_DOMAIN.equals(domain) ? StringUtils.EMPTY : domain + DOT) + propMeta.getName();
-            DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(),
-                    Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
-            propertyMetadata.setStoredGlobally(true);
-            knownProperties.put(propertyMetadata.getName(), propertyMetadata);
-        }
-    }
-
-    protected void updatePropertiesForMultitenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
-        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-            knownProperties.put(propMeta.getName(), propMeta);
-        }
-    }
-
-  protected boolean shouldMultiplyPropertyMetadata(DomibusPropertyMetadataDTO propMeta) {
-        // in single-domain mode - we only expose the "base" properties
-        // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
-        return getDomains().size() > 1
-                && propMeta.isDomain()
-                // we do not multiply properties used for quartz jobs
-                && !isQuartzRelated(propMeta);
-    }
-
-    protected List<String> getDomains() {
-        if (domains == null) {
-            synchronized (domainsLock) {
-                if (domains == null) {
-                    domains = readDomains();
-                }
-            }
-        }
-        return domains;
-    }
-
-    public void resetDomains() {
-        LOG.debug("Resetting domains");
-        synchronized (domainsLock) {
-            domains = null;
-        }
-    }
-
-    protected List<String> readDomains() {
-        List<String> tempDomains = new ArrayList<>();
-
-        //getting domains list
-        String domainsListStr = "dssDomainsList";
-        if (StringUtils.isNotBlank(domainsListStr)) {
-            List<String> fsPluginDomains = Stream.of(domainsListStr.split(","))
-                    .map(String::trim)
-                    .distinct()
-                    .collect(Collectors.toList());
-            LOG.debug("The following domains were found [{}]", fsPluginDomains);
-            tempDomains.addAll(fsPluginDomains);
-        }
-
-        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
-            tempDomains.add(DEFAULT_DOMAIN);
-        }
-
-        return tempDomains;
-    }
-    private boolean isQuartzRelated(DomibusPropertyMetadataDTO propMeta) {
-        return true;
-                //TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
-    }*/
-
     @Bean
-    public TLValidationJob job(LOTLSource europeanLOTL,CommonsDataLoader dataLoader,CacheCleaner cacheCleaner) {
+    public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner) {
         TLValidationJob job = new TLValidationJob();
         job.setOnlineDataLoader(onlineLoader(dataLoader));
         job.setOfflineDataLoader(offlineLoader(dataLoader));
@@ -683,8 +533,6 @@ public class DssConfiguration {
         String nodeName = serverInfoExtService.getNodeName();
         return new File(dssCachePath + File.separator + nodeName + File.separator);
     }
-
-
 
 
 }

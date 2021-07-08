@@ -1,17 +1,16 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.domibus.ext.services.CommandExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.ServerInfoExtService;
+import eu.domibus.ext.services.*;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.validation.constraints.AssertTrue;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -20,6 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+
+import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
 public class DssConfigurationTest {
@@ -47,6 +48,12 @@ public class DssConfigurationTest {
 
     @Injectable
     private ServerInfoExtService serverInfoExtService;
+
+    @Injectable
+    private DomainExtService domainExtService;
+
+    @Injectable
+    private PasswordEncryptionExtService passwordEncryptionService;
 
     @Tested
     private DssConfiguration dssConfiguration;
@@ -131,5 +138,28 @@ public class DssConfigurationTest {
             result=keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();
+    }
+
+    @Test
+    public void isPasswordEncryptionActive() {
+
+        new Expectations(dssConfiguration) {{
+            dssConfiguration.getDomainProperty("default", DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
+            result = "true";
+        }};
+        assertTrue(dssConfiguration.isPasswordEncryptionActive());
+    }
+
+    @Test
+    public void getDomainProperty() {
+
+        new Expectations(dssConfiguration) {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = false;
+            domibusPropertyExtService.getProperty("domibus.authentication.dss.password.encryption.active");
+            result = "true";
+        }};
+        final String passwordEncryptionActive = dssConfiguration.getDomainProperty("default", DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
+        assertEquals(passwordEncryptionActive, "true");
     }
 }

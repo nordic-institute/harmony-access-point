@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 /**
  * @author Soumya Chandran
  * @since 5.0
+ *
+ * Listener for DSS Password encryption property change.
  */
-@Service
 public class DssPropertyEncryptionListener implements PluginPropertyEncryptionListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyEncryptionListener.class);
@@ -37,9 +38,8 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
 
     @Override
     public void encryptPasswords() {
-        LOG.debug("In DssPropertyEncryptionListener encryptPasswords. ");
         final boolean passwordEncryptionActive = dssConfiguration.isPasswordEncryptionActive();
-        LOG.debug("Encrypting passwords is active in the FS Plugin? [{}]", passwordEncryptionActive);
+        LOG.debug("Encrypting passwords is active in DSS configuration? [{}]", passwordEncryptionActive);
 
         if (!passwordEncryptionActive) {
             LOG.info("No password encryption will be performed for DSS");
@@ -48,7 +48,7 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
 
         LOG.debug("Encrypting passwords");
 
-        //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between FS Plugin properties per domain
+        //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between DSS properties per domain
         final DomainDTO domainDTO = domainExtService.getDomain(dssConfiguration.DEFAULT_DOMAIN);
         final DssPropertyPasswordEncryptionContext passwordEncryptionContext =
                 new DssPropertyPasswordEncryptionContext(
