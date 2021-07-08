@@ -28,12 +28,15 @@ public class DatePrefixedSequenceIdGenerator extends SequenceStyleGenerator {
     public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
     public static final String NUMBER_FORMAT_DEFAULT = "%010d";
 
+    final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
+    final ZoneId zoneId = ZoneId.of("UTC");
+
     @Override
     public Serializable generate(SharedSessionContractImplementor session,
                                  Object object) throws HibernateException {
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
-        String seqStr = now.format(DateTimeFormatter.ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH));
+        LocalDateTime now = LocalDateTime.now(zoneId);
+        String seqStr = now.format(dtf);
 
         seqStr += String.format(NUMBER_FORMAT_DEFAULT, super.generate(session, object));;
 
