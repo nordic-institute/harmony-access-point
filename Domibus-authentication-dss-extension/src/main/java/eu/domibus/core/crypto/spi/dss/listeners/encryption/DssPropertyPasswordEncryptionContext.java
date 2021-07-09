@@ -54,7 +54,7 @@ public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncry
 
     @Override
     public File getConfigurationFile() {
-        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "/extensions/config/authentication-dss-extension.properties");
+        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "extensions/config/authentication-dss-extension.properties");
         LOG.debug("Using DSS configuration file [{}]", configurationFile);
         return configurationFile;
     }
