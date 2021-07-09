@@ -42,6 +42,8 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH = "domibus.authentication.dss.custom.trusted.list.keystore.path";
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE = "domibus.authentication.dss.custom.trusted.list.keystore.type";
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD = "domibus.authentication.dss.custom.trusted.list.keystore.password";
+    public static final String AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.authentication.dss.password.encryption.active";
+    public static final String AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.authentication.dss.password.encryption.properties";
     //Dynamic custom trusted list properties
     public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list1.url";
     public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list1.code";
@@ -88,7 +90,9 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_PROPERTIES, DomibusPropertyMetadataDTO.Type.COMMA_SEPARATED_LIST, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
         );
         knownProperties = allProperties.stream().collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, domibusPropertyMetadataDTO -> domibusPropertyMetadataDTO));
     }
