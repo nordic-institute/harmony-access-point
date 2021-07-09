@@ -1,6 +1,7 @@
 package domibus;
 
 import domibus.ui.SeleniumTest;
+import io.qameta.allure.Allure;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -12,6 +13,8 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -47,7 +50,15 @@ public class FailListener implements ITestListener {
 		test_count++;
 		failed_count++;
 		logTestCounts();
-		takeScreenshot(result);
+		Allure.addAttachment("screenshot_name", "image/png", takeScreenshot(result), ".png");
+	}
+
+	@Override
+	public void onTestFailedButWithinSuccessPercentage(ITestResult result) {
+		test_count++;
+		failed_count++;
+		logTestCounts();
+		Allure.addAttachment("screenshot_name", "image/png", takeScreenshot(result), ".png");
 	}
 	
 	@Override
@@ -55,25 +66,44 @@ public class FailListener implements ITestListener {
 		test_count++;
 		skipped_count++;
 		logTestCounts();
-		takeScreenshot(result);
+		Allure.addAttachment("screenshot_name", "image/png", takeScreenshot(result), ".png");
 	}
 	
-	private void takeScreenshot(ITestResult result) {
-		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
+//	private void takeScreenshot(ITestResult result) {
+//		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
+//		String testMeth = result.getName();
+//		String className = result.getTestClass().getRealClass().getSimpleName();
+//		String outputPath = ((SeleniumTest) result.getInstance()).data.getReportsFolder();
+//		String filename = String.format("%s%s_%s_%s.png", outputPath, className, testMeth, time);
+//
+//		try {
+//			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
+//			((SeleniumTest) result.getInstance()).log.info("copying screenshot to " + filename);
+//			TakesScreenshot scrShot = ((TakesScreenshot) driver);
+//			File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+//			FileUtils.copyFile(srcFile, new File(filename));
+//		} catch (Exception e) {
+//			log.error("EXCEPTION: ", e);
+//		}
+//	}
+
+	private InputStream takeScreenshot(ITestResult result) {
+//		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
-		String outputPath = ((SeleniumTest) result.getInstance()).data.getReportsFolder();
-		String filename = String.format("%s%s_%s_%s.png", outputPath, className, testMeth, time);
-		
+//		String outputPath = ((SeleniumTest) result.getInstance()).data.getReportsFolder();
+		String filename = String.format("%s_%s.png", className, testMeth);
+
 		try {
 			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
-			((SeleniumTest) result.getInstance()).log.info("copying screenshot to " + filename);
+//			((SeleniumTest) result.getInstance()).log.info("copying screenshot to " + filename);
 			TakesScreenshot scrShot = ((TakesScreenshot) driver);
 			File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
-			FileUtils.copyFile(srcFile, new File(filename));
+			return new FileInputStream(srcFile);
 		} catch (Exception e) {
 			log.error("EXCEPTION: ", e);
 		}
+		return null;
 	}
 	
 	private void logTestCounts() {

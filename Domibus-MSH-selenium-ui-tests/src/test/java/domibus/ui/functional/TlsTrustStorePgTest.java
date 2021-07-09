@@ -17,8 +17,8 @@ import java.util.List;
 * @version 5.0
 */
 
-@Epic("")
-@Feature("")
+@Epic("TLS Truststore")
+@Feature("Functional")
 public class TlsTrustStorePgTest extends SeleniumTest {
 
 /* This method will verify upload certificate functionality when no tls config is done */

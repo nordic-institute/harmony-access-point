@@ -15,8 +15,8 @@ import pages.pmode.parties.PartyModal;
 import java.util.HashMap;
 import java.util.List;
 
-@Epic("")
-@Feature("")
+@Epic("Pmode Parties")
+@Feature("UX")
 public class PmodePartiesPgUXTest extends SeleniumTest {
 
 	/*  PMP-1 - Open PMode - Parties page  */

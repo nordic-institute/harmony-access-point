@@ -23,8 +23,8 @@ import utils.TestUtils;
 import java.io.File;
 import java.util.*;
 
-@Epic("")
-@Feature("")
+@Epic("Alerts")
+@Feature("Functional")
 public class AlertPgTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);

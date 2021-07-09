@@ -30,14 +30,12 @@ import java.util.List;
  * @version 4.1
  */
 
-
-@Epic("")
-@Feature("")
+@Epic("Plugin Users")
+@Feature("UX")
 public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PLUGIN_USERS);
 
-	/* PU-29 - Check sorting on the basis of Headers of Grid  */
 	/*  PU-29 - Check sorting on the basis of Headers of Grid   */
 	@Description("PU-29 - Check sorting on the basis of Headers of Grid ")
 	@Link(name = "EDELIVERY-5239", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5239")
@@ -78,7 +76,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 
 	/* EDELIVERY-5237 - PU-27 - Download all lists of users  */
-	/*  PU-27 - Download all lists of users  */
 	@Description("PU-27 - Download all lists of users")
 	@Link(name = "EDELIVERY-5237", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5237")
 	@AllureId("PU-27")
@@ -131,7 +128,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/* PU-30 - Verify CSV headers  */
 	/*  PU-30 - Verify headers in downloaded CSV sheet   */
 	@Description("PU-30 - Verify headers in downloaded CSV sheet ")
 	@Link(name = "EDELIVERY-5240", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5240")
@@ -176,10 +172,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/**
-	 * This method will verify presence of confirmation pop up on clicking save button for Basic and Certificate
-	 * authentication type plugin user
-	 */
 	/*  PU-35 - Verify presence of confirmation pop up while saving plugin user  */
 	@Description("PU-35 - Verify presence of confirmation pop up while saving plugin user")
 	@Link(name = "EDELIVERY-6373", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6373")
@@ -233,10 +225,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/**
-	 * PU-34 - This method will verify addition of Plugin user with username "SUPER" and error for user with "super"
-	 * as username
-	 */
+
 	/*  PU-34 - Verify error while addition of Pluginuser with username super  SUPER in multitenant  */
 	@Description("PU-34 - Verify error while addition of Pluginuser with username super  SUPER in multitenant")
 	@Link(name = "EDELIVERY-6358", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6358")
@@ -274,7 +263,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		}
 	}
 
-	/*	PU-37 - Edit certificate user and Cancel	*/
 	/*  PU-37 - Edit certificate user and Cancel  */
 	@Description("PU-37 - Edit certificate user and Cancel")
 	@Link(name = "EDELIVERY-7195", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7195")
@@ -311,7 +299,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*	PU-38 - Edit certificate user and Save -- EDELIVERY-7872 */
 	/*  PU-38 - Edit certificate user and Save  */
 	@Description("PU-38 - Edit certificate user and Save")
 	@Link(name = "EDELIVERY-7196", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7196")
@@ -348,7 +335,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*	PU-40 -Delete certificate user  */
 	/*  PU-40 - Delete certificate user and Save  */
 	@Description("PU-40 - Delete certificate user and Save")
 	@Link(name = "EDELIVERY-7198", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7198")
@@ -384,7 +370,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*	PU-39 -Delete certificate user  and cancel */
 	/*  PU-39 - Delete certificate user and Cancel  */
 	@Description("PU-39 - Delete certificate user and Cancel")
 	@Link(name = "EDELIVERY-7197", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7197")
@@ -416,7 +401,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*	PU-44 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user */
 	/*  PU-44 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user  */
 	@Description("PU-44 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user")
 	@Link(name = "EDELIVERY-7202", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7202")
@@ -455,7 +439,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/*	PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user */
 	/*  PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user  */
 	@Description("PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user")
 	@Link(name = "EDELIVERY-7201", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7201")
@@ -492,7 +475,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*	PU-41 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user */
 	/*  PU-41 - Original user field is mandatory when adding or editing a BASIC plugin user with role user  */
 	@Description("PU-41 - Original user field is mandatory when adding or editing a BASIC plugin user with role user")
 	@Link(name = "EDELIVERY-7199", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7199")
@@ -533,7 +515,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*	PU-42 - Original user field is mandatory when editing BASIC plugin user to role user */
 	/*  PU-42 - Original user field is mandatory when editing BASIC plugin user to role user  */
 	@Description("PU-42 - Original user field is mandatory when editing BASIC plugin user to role user")
 	@Link(name = "EDELIVERY-7200", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7200")
@@ -567,7 +548,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*	PU-45 - Create CERTIFICATE plugin user with duplicated certificate ID on different domain */
 	/*  PU-45 - Create CERTIFICATE plugin user with duplicated certificate ID on different domain  */
 	@Description("PU-45 - Create CERTIFICATE plugin user with duplicated certificate ID on different domain")
 	@Link(name = "EDELIVERY-7206", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7206")

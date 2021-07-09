@@ -18,8 +18,8 @@ import utils.Gen;
  * @version 4.1
  */
 
-@Epic("")
-@Feature("")
+@Epic("Change Password")
+@Feature("UX")
 public class ChangePasswordPgUXTest extends SeleniumTest {
 
 	/**

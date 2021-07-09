@@ -19,8 +19,8 @@ import utils.PModeXMLUtils;
 import java.io.File;
 import java.util.HashMap;
 
-@Epic("")
-@Feature("")
+@Epic("Pmode Parties")
+@Feature("Functional")
 public class PmodeParties2PgTest extends SeleniumTest {
 
 	private static String partyName = "Party Name";

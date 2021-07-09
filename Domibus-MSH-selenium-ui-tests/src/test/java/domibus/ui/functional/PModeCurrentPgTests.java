@@ -21,424 +21,424 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
-* @author Catalin Comanici
-* @since 4.1
-*/
-@Epic("")
-@Feature("")
+ * @author Catalin Comanici
+ * @since 4.1
+ */
+@Epic("Pmode Current")
+@Feature("Functional")
 public class PModeCurrentPgTests extends SeleniumTest {
 
-/*	PMC-1 - Login as super admin and open PMode - Current page	*/
-/*  PMC-1 - Login as super admin and open PMode - Current page  */
-@Description("PMC-1 - Login as super admin and open PMode - Current page")
-@Link(name = "EDELIVERY-5310", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5310")
-@AllureId("PMC-1")
-@Test(description = "PMC-1", groups = {"multiTenancy", "singleTenancy"})
-public void openPModeCurrentWindow() throws Exception {
+	/*	PMC-1 - Login as super admin and open PMode - Current page	*/
+	/*  PMC-1 - Login as super admin and open PMode - Current page  */
+	@Description("PMC-1 - Login as super admin and open PMode - Current page")
+	@Link(name = "EDELIVERY-5310", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5310")
+	@AllureId("PMC-1")
+	@Test(description = "PMC-1", groups = {"multiTenancy", "singleTenancy"})
+	public void openPModeCurrentWindow() throws Exception {
 
-SoftAssert soft = new SoftAssert();
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
-PModeCurrentPage page = new PModeCurrentPage(driver);
+		PModeCurrentPage page = new PModeCurrentPage(driver);
 
-soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is not enabled when first opening the page");
-soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is not enabled when first opening the page");
-soft.assertTrue(page.getUploadBtn().isEnabled(), "Upload button is enabled when first opening the page");
+		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is not enabled when first opening the page");
+		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is not enabled when first opening the page");
+		soft.assertTrue(page.getUploadBtn().isEnabled(), "Upload button is enabled when first opening the page");
 
-if (rest.pmode().isPmodeUploaded(null)) {
-soft.assertTrue(page.getTextArea().isEnabled(), "If at least one PMode file was uploaded, text area is present and enabled when first opening the page");
-soft.assertTrue(page.getDownloadBtn().isEnabled(), "Download button button is enabled when first opening the page");
-} else {
-soft.assertTrue(!page.getTextArea().isPresent(), "If no PMode was uploaded the text area is not present");
-soft.assertTrue(!page.getDownloadBtn().isEnabled(), "Download button button is NOT enabled if no file uploaded ever");
-}
+		if (rest.pmode().isPmodeUploaded(null)) {
+			soft.assertTrue(page.getTextArea().isEnabled(), "If at least one PMode file was uploaded, text area is present and enabled when first opening the page");
+			soft.assertTrue(page.getDownloadBtn().isEnabled(), "Download button button is enabled when first opening the page");
+		} else {
+			soft.assertTrue(!page.getTextArea().isPresent(), "If no PMode was uploaded the text area is not present");
+			soft.assertTrue(!page.getDownloadBtn().isEnabled(), "Download button button is NOT enabled if no file uploaded ever");
+		}
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
-/*  This method will verify message while uploading Pmode and Pmode archive record */
-/*  PMC-2 - User chooses to upload new file  */
-@Description("PMC-2 - User chooses to upload new file")
-@Link(name = "EDELIVERY-5311", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5311")
-@AllureId("PMC-2")
-@Test(description = "PMC-2", groups = {"multiTenancy", "singleTenancy"})
-public void uploadPmode() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/*  This method will verify message while uploading Pmode and Pmode archive record */
+	/*  PMC-2 - User chooses to upload new file  */
+	@Description("PMC-2 - User chooses to upload new file")
+	@Link(name = "EDELIVERY-5311", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5311")
+	@AllureId("PMC-2")
+	@Test(description = "PMC-2", groups = {"multiTenancy", "singleTenancy"})
+	public void uploadPmode() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-rest.pmode().uploadPMode("pmodes/pmode-red.xml", null);
-int archivePgCount = rest.pmode().getPmodesList(null).length();
+		rest.pmode().uploadPMode("pmodes/pmode-red.xml", null);
+		int archivePgCount = rest.pmode().getPmodesList(null).length();
 
-PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
-pmcPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
+		pmcPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
-Allure.step("Click on upload button");
-log.info("Click on upload button");
-pmcPage.getUploadBtn().click();
+		Allure.step("Click on upload button");
+		log.info("Click on upload button");
+		pmcPage.getUploadBtn().click();
 
-PModeCofirmationModal modal = new PModeCofirmationModal(driver);
+		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
 
-Allure.step("Upload pmode file");
-log.info("Upload pmode file");
-String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/Edelivery-blue.xml");
-String oldPmode = pmcPage.getTextArea().getText();
+		Allure.step("Upload pmode file");
+		log.info("Upload pmode file");
+		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/Edelivery-blue.xml");
+		String oldPmode = pmcPage.getTextArea().getText();
 
-String pmodeMessage = Gen.rndStr(50);
-modal.uploadPmodeFile(path, pmodeMessage);
-Allure.step("upload message is " + pmodeMessage);
-log.info("upload message is " + pmodeMessage);
+		String pmodeMessage = Gen.rndStr(50);
+		modal.uploadPmodeFile(path, pmodeMessage);
+		Allure.step("upload message is " + pmodeMessage);
+		log.info("upload message is " + pmodeMessage);
 
-soft.assertTrue(pmcPage.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS));
+		soft.assertTrue(pmcPage.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS));
 
-String newPmode = pmcPage.getTextArea().getText();
+		String newPmode = pmcPage.getTextArea().getText();
 
-Allure.step("checking number of pomodes in archive");
-log.info("checking number of pomodes in archive");
-int archivePgNewCount = rest.pmode().getPmodesList(null).length();
-soft.assertTrue(archivePgCount + 1 == archivePgNewCount, "Archive page has one new record present");
+		Allure.step("checking number of pomodes in archive");
+		log.info("checking number of pomodes in archive");
+		int archivePgNewCount = rest.pmode().getPmodesList(null).length();
+		soft.assertTrue(archivePgCount + 1 == archivePgNewCount, "Archive page has one new record present");
 
-Allure.step("comparing pmodes");
-log.info("comparing pmodes");
-soft.assertFalse(XMLUnit.compareXML(oldPmode, newPmode).identical(), "Both pmodes are not identical");
+		Allure.step("comparing pmodes");
+		log.info("comparing pmodes");
+		soft.assertFalse(XMLUnit.compareXML(oldPmode, newPmode).identical(), "Both pmodes are not identical");
 
-soft.assertAll();
+		soft.assertAll();
 
-}
+	}
 
-/*  This method will verify error message while uploading invalid pmode  or wrong  format file */
-/*  PMC-4 - User chooses to upload new INVALID file  */
-@Description("PMC-4 - User chooses to upload new INVALID file")
-@Link(name = "EDELIVERY-5313", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5313")
-@AllureId("PMC-4")
-@Test(description = "PMC-4", groups = {"multiTenancy", "singleTenancy"})
-public void uploadInvalidPmode() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/*  This method will verify error message while uploading invalid pmode  or wrong  format file */
+	/*  PMC-4 - User chooses to upload new INVALID file  */
+	@Description("PMC-4 - User chooses to upload new INVALID file")
+	@Link(name = "EDELIVERY-5313", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5313")
+	@AllureId("PMC-4")
+	@Test(description = "PMC-4", groups = {"multiTenancy", "singleTenancy"})
+	public void uploadInvalidPmode() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
 
-Allure.step("Login into application");
-log.info("Login into application");
-Allure.step("Navigate to pmode current");
-log.info("Navigate to pmode current");
-PModeCurrentPage page = new PModeCurrentPage(driver);
-page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-String beforeUpdatePmode = page.getTextArea().getText();
+		Allure.step("Login into application");
+		log.info("Login into application");
+		Allure.step("Navigate to pmode current");
+		log.info("Navigate to pmode current");
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		String beforeUpdatePmode = page.getTextArea().getText();
 
-Allure.step("Click on upload button");
-log.info("Click on upload button");
-page.getUploadBtn().click();
+		Allure.step("Click on upload button");
+		log.info("Click on upload button");
+		page.getUploadBtn().click();
 
-PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-Allure.step("Upload invalid xml file");
-log.info("Upload invalid xml file");
-String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/invalidPmode.xml");
-modal.uploadPmodeFile(path, "invalidPmodeUpload");
+		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
+		Allure.step("Upload invalid xml file");
+		log.info("Upload invalid xml file");
+		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/invalidPmode.xml");
+		modal.uploadPmodeFile(path, "invalidPmodeUpload");
 
-Allure.step("Message shown " + page.getAlertArea().getAlertMessage());
-log.info("Message shown " + page.getAlertArea().getAlertMessage());
-soft.assertTrue(page.getAlertArea().getAlertMessage().contains("Error"), "Error message is shown");
-page.refreshPage();
-page.waitForPageTitle();
-page.getUploadBtn().click();
+		Allure.step("Message shown " + page.getAlertArea().getAlertMessage());
+		log.info("Message shown " + page.getAlertArea().getAlertMessage());
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("Error"), "Error message is shown");
+		page.refreshPage();
+		page.waitForPageTitle();
+		page.getUploadBtn().click();
 
-Allure.step("Upload wrong file");
-log.info("Upload wrong file");
-String pathh = DFileUtils.getAbsolutePath("src/main/resources/myLocal.properties");
-modal.uploadPmodeFile(pathh, "invalidPmodeUpload");
+		Allure.step("Upload wrong file");
+		log.info("Upload wrong file");
+		String pathh = DFileUtils.getAbsolutePath("src/main/resources/myLocal.properties");
+		modal.uploadPmodeFile(pathh, "invalidPmodeUpload");
 
-Allure.step("Message shown " + page.getAlertArea().getAlertMessage());
-log.info("Message shown " + page.getAlertArea().getAlertMessage());
+		Allure.step("Message shown " + page.getAlertArea().getAlertMessage());
+		log.info("Message shown " + page.getAlertArea().getAlertMessage());
 
-soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_ERROR), "Error for wrong file format is shown");
-page.refreshPage();
-String afterUpdatePmode = page.getTextArea().getText();
-soft.assertTrue(beforeUpdatePmode.equals(afterUpdatePmode), "Both pmodes are equal");
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_ERROR), "Error for wrong file format is shown");
+		page.refreshPage();
+		String afterUpdatePmode = page.getTextArea().getText();
+		soft.assertTrue(beforeUpdatePmode.equals(afterUpdatePmode), "Both pmodes are equal");
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
-/*PMC-5 - User edits PMode file using the text area available in the page to an invalid XML*/
-/*  PMC-5 - User edits PMode file using the text area available in the page to an invalid XML  */
-@Description("PMC-5 - User edits PMode file using the text area available in the page to an invalid XML")
-@Link(name = "EDELIVERY-5314", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5314")
-@AllureId("PMC-5")
-@Test(description = "PMC-5", groups = {"multiTenancy", "singleTenancy"})
-public void editPModeInvalidXML() throws Exception {
+	/*PMC-5 - User edits PMode file using the text area available in the page to an invalid XML*/
+	/*  PMC-5 - User edits PMode file using the text area available in the page to an invalid XML  */
+	@Description("PMC-5 - User edits PMode file using the text area available in the page to an invalid XML")
+	@Link(name = "EDELIVERY-5314", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5314")
+	@AllureId("PMC-5")
+	@Test(description = "PMC-5", groups = {"multiTenancy", "singleTenancy"})
+	public void editPModeInvalidXML() throws Exception {
 
-String expectedErrorMess = "Failed to upload the PMode file due to: WstxUnexpectedCharException: Unexpected character";
+		String expectedErrorMess = "Failed to upload the PMode file due to: WstxUnexpectedCharException: Unexpected character";
 
-Allure.step("uploading pmode");
-log.info("uploading pmode");
-rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		Allure.step("uploading pmode");
+		log.info("uploading pmode");
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
-SoftAssert soft = new SoftAssert();
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
-PModeCurrentPage page = new PModeCurrentPage(driver);
-Allure.step("getting listed pmode");
-log.info("getting listed pmode");
-String beforeEdit = page.getTextArea().getText();
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		Allure.step("getting listed pmode");
+		log.info("getting listed pmode");
+		String beforeEdit = page.getTextArea().getText();
 
-Allure.step("editing pmode");
-log.info("editing pmode");
-page.getTextArea().fill("THIS IS MY INVALID XML");
-Allure.step("saving pmode");
-log.info("saving pmode");
-page.getSaveBtn().click();
+		Allure.step("editing pmode");
+		log.info("editing pmode");
+		page.getTextArea().fill("THIS IS MY INVALID XML");
+		Allure.step("saving pmode");
+		log.info("saving pmode");
+		page.getSaveBtn().click();
 
-PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-modal.getDescriptionTextArea().fill("This modification is invalid");
-modal.clickOK();
+		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
+		modal.getDescriptionTextArea().fill("This modification is invalid");
+		modal.clickOK();
 
-Allure.step("checking error messages");
-log.info("checking error messages");
-soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
-soft.assertTrue(page.getAlertArea().getAlertMessage().contains(expectedErrorMess), "Page shows correct message");
+		Allure.step("checking error messages");
+		log.info("checking error messages");
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(expectedErrorMess), "Page shows correct message");
 
-page.refreshPage();
-String afterEdit = page.getTextArea().getText();
-Allure.step("checking the listed pmode was not affected");
-log.info("checking the listed pmode was not affected");
-soft.assertEquals(beforeEdit, afterEdit, "Current PMode is not changed");
+		page.refreshPage();
+		String afterEdit = page.getTextArea().getText();
+		Allure.step("checking the listed pmode was not affected");
+		log.info("checking the listed pmode was not affected");
+		soft.assertEquals(beforeEdit, afterEdit, "Current PMode is not changed");
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
-/*PMC-6 - User edits PMode file using the text area available in the page so that it is valid*/
-/*  PMC-6 - User edits PMode file using the text area available in the page so that it is valid  */
-@Description("PMC-6 - User edits PMode file using the text area available in the page so that it is valid")
-@Link(name = "EDELIVERY-5315", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5315")
-@AllureId("PMC-6")
-@Test(description = "PMC-6", groups = {"multiTenancy", "singleTenancy"})
-public void editPModeValidXML() throws Exception {
+	/*PMC-6 - User edits PMode file using the text area available in the page so that it is valid*/
+	/*  PMC-6 - User edits PMode file using the text area available in the page so that it is valid  */
+	@Description("PMC-6 - User edits PMode file using the text area available in the page so that it is valid")
+	@Link(name = "EDELIVERY-5315", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5315")
+	@AllureId("PMC-6")
+	@Test(description = "PMC-6", groups = {"multiTenancy", "singleTenancy"})
+	public void editPModeValidXML() throws Exception {
 
-Allure.step("uploading pmode");
-log.info("uploading pmode");
-rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		Allure.step("uploading pmode");
+		log.info("uploading pmode");
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 
-SoftAssert soft = new SoftAssert();
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
-Allure.step("getting current pmode");
-log.info("getting current pmode");
-PModeCurrentPage page = new PModeCurrentPage(driver);
-String beforeEdit = page.getTextArea().getText();
-String afterEdit = beforeEdit.replaceAll("\\t", " ").replaceAll("localhost", "mockhost");
+		Allure.step("getting current pmode");
+		log.info("getting current pmode");
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		String beforeEdit = page.getTextArea().getText();
+		String afterEdit = beforeEdit.replaceAll("\\t", " ").replaceAll("localhost", "mockhost");
 
 //		afterEdit;
-Allure.step("editing and saving new pmode");
-log.info("editing and saving new pmode");
-page.getTextArea().fill(afterEdit);
-page.getSaveBtn().click();
+		Allure.step("editing and saving new pmode");
+		log.info("editing and saving new pmode");
+		page.getTextArea().fill(afterEdit);
+		page.getSaveBtn().click();
 
-PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-modal.getDescriptionTextArea().fill("This modification is valid");
-modal.clickOK();
+		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
+		modal.getDescriptionTextArea().fill("This modification is valid");
+		modal.clickOK();
 
-Allure.step("checking success message");
-log.info("checking success message");
-soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
-soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS), "Page shows correct message");
+		Allure.step("checking success message");
+		log.info("checking success message");
+		soft.assertTrue(!page.getAlertArea().isError(), "Page shows success message");
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS), "Page shows correct message");
 
-page.refreshPage();
-String afterRefresh = page.getTextArea().getText();
-Allure.step("checking the new edited pmode");
-log.info("checking the new edited pmode");
-soft.assertEquals(afterEdit, afterRefresh, "Current PMode is updated changed");
+		page.refreshPage();
+		String afterRefresh = page.getTextArea().getText();
+		Allure.step("checking the new edited pmode");
+		log.info("checking the new edited pmode");
+		soft.assertEquals(afterEdit, afterRefresh, "Current PMode is updated changed");
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
-/*PMC-7 - Domain segregation*/
-/*  PMC-7 - Domain segregation  */
-@Description("PMC-7 - Domain segregation")
-@Link(name = "EDELIVERY-5504", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5504")
-@AllureId("PMC-7")
-@Test(description = "PMC-7", groups = {"multiTenancy"})
-public void domainSegregationPMode() throws Exception {
+	/*PMC-7 - Domain segregation*/
+	/*  PMC-7 - Domain segregation  */
+	@Description("PMC-7 - Domain segregation")
+	@Link(name = "EDELIVERY-5504", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5504")
+	@AllureId("PMC-7")
+	@Test(description = "PMC-7", groups = {"multiTenancy"})
+	public void domainSegregationPMode() throws Exception {
 
-String domainName = rest.getNonDefaultDomain();
-String domaincode = rest.getDomainCodeForName(domainName);
+		String domainName = rest.getNonDefaultDomain();
+		String domaincode = rest.getDomainCodeForName(domainName);
 
-Allure.step("uploading different pmodes on 2 different domains");
-log.info("uploading different pmodes on 2 different domains");
+		Allure.step("uploading different pmodes on 2 different domains");
+		log.info("uploading different pmodes on 2 different domains");
 
-rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-rest.pmode().uploadPMode("pmodes/multipleParties.xml", domaincode);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		rest.pmode().uploadPMode("pmodes/multipleParties.xml", domaincode);
 
-SoftAssert soft = new SoftAssert();
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		SoftAssert soft = new SoftAssert();
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
-Allure.step("getting pmodes listed for each domain");
-log.info("getting pmodes listed for each domain");
-PModeCurrentPage page = new PModeCurrentPage(driver);
+		Allure.step("getting pmodes listed for each domain");
+		log.info("getting pmodes listed for each domain");
+		PModeCurrentPage page = new PModeCurrentPage(driver);
 
-String defaultPmode = page.getTextArea().getText();
+		String defaultPmode = page.getTextArea().getText();
 
-Allure.step("changing domain");
-log.info("changing domain");
-page.getDomainSelector().selectOptionByText(domainName);
+		Allure.step("changing domain");
+		log.info("changing domain");
+		page.getDomainSelector().selectOptionByText(domainName);
 
-page.wait.forXMillis(1000);
-String d1Pmode = page.getTextArea().getText();
+		page.wait.forXMillis(1000);
+		String d1Pmode = page.getTextArea().getText();
 
-Allure.step("comparing pmodes");
-log.info("comparing pmodes");
-soft.assertTrue(!XMLUnit.compareXML(defaultPmode, d1Pmode).identical(), "The 2 pmodes are not identical");
+		Allure.step("comparing pmodes");
+		log.info("comparing pmodes");
+		soft.assertTrue(!XMLUnit.compareXML(defaultPmode, d1Pmode).identical(), "The 2 pmodes are not identical");
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
-/*  EDELIVERY-7288 - PMC-12 - PMode validations - boolean attributes don't accept other values  */
-/*  PMC-12 - PMode validations - boolean attributes dont accept other values  */
-@Description("PMC-12 - PMode validations - boolean attributes dont accept other values")
-@Link(name = "EDELIVERY-7288", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7288")
-@AllureId("PMC-12")
-@Test(description = "PMC-12", groups = {"multiTenancy", "singleTenancy"})
-public void validationsBooleans() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/*  EDELIVERY-7288 - PMC-12 - PMode validations - boolean attributes don't accept other values  */
+	/*  PMC-12 - PMode validations - boolean attributes dont accept other values  */
+	@Description("PMC-12 - PMode validations - boolean attributes dont accept other values")
+	@Link(name = "EDELIVERY-7288", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7288")
+	@AllureId("PMC-12")
+	@Test(description = "PMC-12", groups = {"multiTenancy", "singleTenancy"})
+	public void validationsBooleans() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-String currentPmode = rest.pmode().getCurrentPmode(null);
-String newPmode = currentPmode.replaceAll("true", Gen.rndStr(5)).replaceAll("false", Gen.rndStr(5));
+		String currentPmode = rest.pmode().getCurrentPmode(null);
+		String newPmode = currentPmode.replaceAll("true", Gen.rndStr(5)).replaceAll("false", Gen.rndStr(5));
 
-PModeCurrentPage page = modifyListedPmode(newPmode);
-soft.assertTrue(page.getAlertArea().isError(), "Error message shown");
-soft.assertAll();
-}
+		PModeCurrentPage page = modifyListedPmode(newPmode);
+		soft.assertTrue(page.getAlertArea().isError(), "Error message shown");
+		soft.assertAll();
+	}
 
-/*    EDELIVERY-7291 - PMC-13 - PMode validations - party describing current system must be present */
-/*  PMC-13 - PMode validations - party describing current system must be present  */
-@Description("PMC-13 - PMode validations - party describing current system must be present")
-@Link(name = "EDELIVERY-7291", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7291")
-@AllureId("PMC-13")
-@Test(description = "PMC-13", groups = {"multiTenancy", "singleTenancy"})
-public void currentPmodeNoCurrentParty() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/*    EDELIVERY-7291 - PMC-13 - PMode validations - party describing current system must be present */
+	/*  PMC-13 - PMode validations - party describing current system must be present  */
+	@Description("PMC-13 - PMode validations - party describing current system must be present")
+	@Link(name = "EDELIVERY-7291", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7291")
+	@AllureId("PMC-13")
+	@Test(description = "PMC-13", groups = {"multiTenancy", "singleTenancy"})
+	public void currentPmodeNoCurrentParty() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-if (!rest.pmode().isPmodeUploaded(null)) {
-Allure.step("uploading pmode to modify");
-log.info("uploading pmode to modify");
-rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
-}
+		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("uploading pmode to modify");
+			log.info("uploading pmode to modify");
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
+		}
 
-String currentPmode = rest.pmode().getCurrentPmode(null);
+		String currentPmode = rest.pmode().getCurrentPmode(null);
 
-PModeXMLUtils xmlutils = new PModeXMLUtils(currentPmode);
-String currentParty = xmlutils.getCurrentPartyName();
-xmlutils.removeParty(currentParty);
+		PModeXMLUtils xmlutils = new PModeXMLUtils(currentPmode);
+		String currentParty = xmlutils.getCurrentPartyName();
+		xmlutils.removeParty(currentParty);
 
-String newPmode = xmlutils.printDoc();
+		String newPmode = xmlutils.printDoc();
 
-PModeCurrentPage page = modifyListedPmode(newPmode);
-soft.assertTrue(page.getAlertArea().isError(), "Error message shown");
-soft.assertAll();
-}
-
-
-/*     EDELIVERY-7292 - PMC-14 - PMode validations - <> are considered invalid in any value */
-/*  PMC-14 - PMode validations -  are considered invalid in any value  */
-@Description("PMC-14 - PMode validations -  are considered invalid in any value")
-@Link(name = "EDELIVERY-7292", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7292")
-@AllureId("PMC-14")
-@Test(description = "PMC-14", groups = {"multiTenancy", "singleTenancy"})
-public void invalidCharacters() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-if (!rest.pmode().isPmodeUploaded(null)) {
-Allure.step("uploading pmode to modify");
-log.info("uploading pmode to modify");
-rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
-}
-
-String currentPmode = rest.pmode().getCurrentPmode(null);
-
-PModeXMLUtils xmlutils = new PModeXMLUtils(currentPmode);
-String currentParty = xmlutils.getCurrentPartyName();
-
-String newPmode = currentPmode.replaceAll(currentParty, currentParty + "<>");
-PModeCurrentPage page = modifyListedPmode(newPmode);
-
-soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-
-newPmode = currentPmode.replaceAll("name=\"", "name=\"<>");
-page = modifyListedPmode(newPmode);
-
-soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-
-soft.assertAll();
-}
+		PModeCurrentPage page = modifyListedPmode(newPmode);
+		soft.assertTrue(page.getAlertArea().isError(), "Error message shown");
+		soft.assertAll();
+	}
 
 
-/*     EDELIVERY-7293 - PMC-15 - PMode validations - all listed URLs are valid */
-/*  PMC-15 - PMode validations - all listed URLs are valid  */
-@Description("PMC-15 - PMode validations - all listed URLs are valid")
-@Link(name = "EDELIVERY-7293", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7293")
-@AllureId("PMC-15")
-@Test(description = "PMC-15", groups = {"multiTenancy", "singleTenancy"})
-public void invalidURLs() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/*     EDELIVERY-7292 - PMC-14 - PMode validations - <> are considered invalid in any value */
+	/*  PMC-14 - PMode validations -  are considered invalid in any value  */
+	@Description("PMC-14 - PMode validations -  are considered invalid in any value")
+	@Link(name = "EDELIVERY-7292", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7292")
+	@AllureId("PMC-14")
+	@Test(description = "PMC-14", groups = {"multiTenancy", "singleTenancy"})
+	public void invalidCharacters() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-if (!rest.pmode().isPmodeUploaded(null)) {
-Allure.step("uploading pmode to modify");
-log.info("uploading pmode to modify");
-rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
-}
+		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("uploading pmode to modify");
+			log.info("uploading pmode to modify");
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
+		}
 
-String currentPmode = rest.pmode().getCurrentPmode(null);
+		String currentPmode = rest.pmode().getCurrentPmode(null);
 
-String newPmode = currentPmode.replaceAll("http://", Gen.rndStr(5));
-PModeCurrentPage page = modifyListedPmode(newPmode);
+		PModeXMLUtils xmlutils = new PModeXMLUtils(currentPmode);
+		String currentParty = xmlutils.getCurrentPartyName();
 
-soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
+		String newPmode = currentPmode.replaceAll(currentParty, currentParty + "<>");
+		PModeCurrentPage page = modifyListedPmode(newPmode);
 
-soft.assertAll();
-}
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
 
-/*        EDELIVERY-7294 - PMC-16 - PMode validations - attributes with integer values are validated as integers */
-/*  PMC-16 - PMode validations - attributes with integer values are validated as integers  */
-@Description("PMC-16 - PMode validations - attributes with integer values are validated as integers")
-@Link(name = "EDELIVERY-7294", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7294")
-@AllureId("PMC-16")
-@Test(description = "PMC-16", groups = {"multiTenancy", "singleTenancy"})
-public void integerAttributesValidations() throws Exception {
-SoftAssert soft = new SoftAssert();
+		newPmode = currentPmode.replaceAll("name=\"", "name=\"<>");
+		page = modifyListedPmode(newPmode);
 
-if (!rest.pmode().isPmodeUploaded(null)) {
-Allure.step("uploading pmode to modify");
-log.info("uploading pmode to modify");
-rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
-}
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
 
-String currentPmode = rest.pmode().getCurrentPmode(null);
-
-String newPmode = currentPmode.replaceAll("\\d+", Gen.rndStr(5));
-PModeCurrentPage page = modifyListedPmode(newPmode);
-
-soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
-
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
 
-private PModeCurrentPage modifyListedPmode(String newPmode) throws Exception {
-if (!rest.pmode().isPmodeUploaded(null)) {
-Allure.step("uploading pmode to modify");
-log.info("uploading pmode to modify");
-rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
-}
+	/*     EDELIVERY-7293 - PMC-15 - PMode validations - all listed URLs are valid */
+	/*  PMC-15 - PMode validations - all listed URLs are valid  */
+	@Description("PMC-15 - PMode validations - all listed URLs are valid")
+	@Link(name = "EDELIVERY-7293", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7293")
+	@AllureId("PMC-15")
+	@Test(description = "PMC-15", groups = {"multiTenancy", "singleTenancy"})
+	public void invalidURLs() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("uploading pmode to modify");
+			log.info("uploading pmode to modify");
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
+		}
 
-Allure.step("getting current pmode");
-log.info("getting current pmode");
-PModeCurrentPage page = new PModeCurrentPage(driver);
+		String currentPmode = rest.pmode().getCurrentPmode(null);
 
-page.getTextArea().fill(newPmode);
+		String newPmode = currentPmode.replaceAll("http://", Gen.rndStr(5));
+		PModeCurrentPage page = modifyListedPmode(newPmode);
 
-Allure.step("saving");
-log.info("saving");
-page.saveAndConfirm("");
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
+
+		soft.assertAll();
+	}
+
+	/*        EDELIVERY-7294 - PMC-16 - PMode validations - attributes with integer values are validated as integers */
+	/*  PMC-16 - PMode validations - attributes with integer values are validated as integers  */
+	@Description("PMC-16 - PMode validations - attributes with integer values are validated as integers")
+	@Link(name = "EDELIVERY-7294", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7294")
+	@AllureId("PMC-16")
+	@Test(description = "PMC-16", groups = {"multiTenancy", "singleTenancy"})
+	public void integerAttributesValidations() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("uploading pmode to modify");
+			log.info("uploading pmode to modify");
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
+		}
+
+		String currentPmode = rest.pmode().getCurrentPmode(null);
+
+		String newPmode = currentPmode.replaceAll("\\d+", Gen.rndStr(5));
+		PModeCurrentPage page = modifyListedPmode(newPmode);
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
+
+		soft.assertAll();
+	}
 
 
-return page;
-}
+	private PModeCurrentPage modifyListedPmode(String newPmode) throws Exception {
+		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("uploading pmode to modify");
+			log.info("uploading pmode to modify");
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
+		}
+
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		Allure.step("getting current pmode");
+		log.info("getting current pmode");
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+
+		page.getTextArea().fill(newPmode);
+
+		Allure.step("saving");
+		log.info("saving");
+		page.saveAndConfirm("");
+
+
+		return page;
+	}
 
 }

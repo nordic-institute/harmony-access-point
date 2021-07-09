@@ -33,610 +33,608 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
-* @author Catalin Comanici
-* @since 4.1
-*/
-@Epic("")
-@Feature("")
+ * @author Catalin Comanici
+ * @since 4.1
+ */
+@Epic("Messages")
+@Feature("Functional")
 public class MessagesPgTest extends SeleniumTest {
 
 
-private MessagesPage navigate() throws Exception {
-Allure.step("logged in");
-log.info("logged in");
-MessagesPage page = new MessagesPage(driver);
-page.getSidebar().goToPage(PAGES.MESSAGES);
-page.grid().waitForRowsToLoad();
-return page;
-}
+	private MessagesPage navigate() throws Exception {
+		Allure.step("logged in");
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+		page.grid().waitForRowsToLoad();
+		return page;
+	}
 
 
-/*Doubleclik on one message*/
-/*  MSG-4 - Doubleclik on one message  */
-@Description("MSG-4 - Doubleclik on one message")
-@Link(name = "EDELIVERY-5056", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5056")
-@AllureId("MSG-4")
-@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"})
-public void doubleclickMessageRow() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/*Doubleclik on one message*/
+	/*  MSG-4 - Doubleclik on one message  */
+	@Description("MSG-4 - Doubleclik on one message")
+	@Link(name = "EDELIVERY-5056", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5056")
+	@AllureId("MSG-4")
+	@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"})
+	public void doubleclickMessageRow() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-String messID = rest.getMessageIDs(null, 1, false).get(0);
+		String messID = rest.getMessageIDs(null, 1, false).get(0);
 
-MessagesPage page = navigate();
+		MessagesPage page = navigate();
 
-DGrid grid = page.grid();
-int index = grid.scrollTo("Message Id", messID);
-Allure.step("Checking message with ID " + messID);
-log.info("Checking message with ID " + messID);
+		DGrid grid = page.grid();
+		int index = grid.scrollTo("Message Id", messID);
+		Allure.step("Checking message with ID " + messID);
+		log.info("Checking message with ID " + messID);
 
-HashMap<String, String> info = grid.getRowInfo(index);
-grid.doubleClickRow(index);
+		HashMap<String, String> info = grid.getRowInfo(index);
+		grid.doubleClickRow(index);
 
-MessageDetailsModal modal = new MessageDetailsModal(driver);
+		MessageDetailsModal modal = new MessageDetailsModal(driver);
 
-for (String s : info.keySet()) {
-if (s.contains("Action")) {
-continue;
-}
-Allure.step("Checking info in modal vs grid for field " + s);
-log.info("Checking info in modal vs grid for field " + s);
-soft.assertEquals(modal.getValue(s), info.get(s), "Checking info in grid vs modal " + s);
-}
-soft.assertAll();
-}
-
-
-
-/*Filter messages using basic filters */
-/*  MSG-5 - Filter messages using basic filters  */
-@Description("MSG-5 - Filter messages using basic filters")
-@Link(name = "EDELIVERY-5057", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5057")
-@AllureId("MSG-5")
-@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"})
-public void filterUsingBasicFilters() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-List<String> messageIDs = rest.getMessageIDs(null, 5, false);
-
-Allure.step("Login with admin");
-log.info("Login with admin");
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-MessagesPage page = new MessagesPage(driver);
-DGrid grid = page.grid();
-
-Allure.step("Getting all listed message info");
-log.info("Getting all listed message info");
-List<HashMap<String, String>> allRowInfo = grid.getAllRowInfo();
-HashMap<String, String> fMessage = allRowInfo.get(0);
-
-Allure.step("Basic filtering by " + fMessage);
-log.info("Basic filtering by " + fMessage);
-page.getFilters().basicFilterBy(fMessage.get("Message Id")
-, fMessage.get("Message Status")
-, fMessage.get("From Party Id")
-, fMessage.get("To Party Id"));
-page.grid().waitForRowsToLoad();
-
-Allure.step("Getting all listed message info after filtering");
-log.info("Getting all listed message info after filtering");
-List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
-
-List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
-soft.assertEquals(filteredRowInfo.size(), expectedResult.size(), "No of listed items in page matches expected");
-
-soft.assertAll();
-}
-
-/*Filter messages using advanced filters */
-/*  MSG-7 - Filter messages using advanced filters  */
-@Description("MSG-7 - Filter messages using advanced filters")
-@Link(name = "EDELIVERY-5059", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5059")
-@AllureId("MSG-7")
-@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"})
-public void filterMessagesAdvancedFilters() throws Exception {
-SoftAssert soft = new SoftAssert();
-MessagesPage page = navigate();
-
-JSONArray messages = rest.messages().getListOfMessages(null);
-UIMessage messInfo = mapper.readValue(messages.get(0).toString(), UIMessage.class);
+		for (String s : info.keySet()) {
+			if (s.contains("Action")) {
+				continue;
+			}
+			Allure.step("Checking info in modal vs grid for field " + s);
+			log.info("Checking info in modal vs grid for field " + s);
+			soft.assertEquals(modal.getValue(s), info.get(s), "Checking info in grid vs modal " + s);
+		}
+		soft.assertAll();
+	}
 
 
-MessageFilterArea filters = page.getFilters();
+	/*Filter messages using basic filters */
+	/*  MSG-5 - Filter messages using basic filters  */
+	@Description("MSG-5 - Filter messages using basic filters")
+	@Link(name = "EDELIVERY-5057", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5057")
+	@AllureId("MSG-5")
+	@Test(description = "MSG-5", groups = {"multiTenancy", "singleTenancy"})
+	public void filterUsingBasicFilters() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-String receivedFromDate = TestRunData.DATEWIDGET_DATE_FORMAT.format(new Date(messInfo.getReceived() - 60000));
-String receivedToDate = TestRunData.DATEWIDGET_DATE_FORMAT.format(new Date(messInfo.getReceived() + 60000));
+		List<String> messageIDs = rest.getMessageIDs(null, 5, false);
+
+		Allure.step("Login with admin");
+		log.info("Login with admin");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
+		MessagesPage page = new MessagesPage(driver);
+		DGrid grid = page.grid();
+
+		Allure.step("Getting all listed message info");
+		log.info("Getting all listed message info");
+		List<HashMap<String, String>> allRowInfo = grid.getAllRowInfo();
+		HashMap<String, String> fMessage = allRowInfo.get(0);
+
+		Allure.step("Basic filtering by " + fMessage);
+		log.info("Basic filtering by " + fMessage);
+		page.getFilters().basicFilterBy(fMessage.get("Message Id")
+				, fMessage.get("Message Status")
+				, fMessage.get("From Party Id")
+				, fMessage.get("To Party Id"));
+		page.grid().waitForRowsToLoad();
+
+		Allure.step("Getting all listed message info after filtering");
+		log.info("Getting all listed message info after filtering");
+		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
+
+		List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
+		soft.assertEquals(filteredRowInfo.size(), expectedResult.size(), "No of listed items in page matches expected");
+
+		soft.assertAll();
+	}
+
+	/*Filter messages using advanced filters */
+	/*  MSG-7 - Filter messages using advanced filters  */
+	@Description("MSG-7 - Filter messages using advanced filters")
+	@Link(name = "EDELIVERY-5059", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5059")
+	@AllureId("MSG-7")
+	@Test(description = "MSG-7", groups = {"multiTenancy", "singleTenancy"})
+	public void filterMessagesAdvancedFilters() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = navigate();
+
+		JSONArray messages = rest.messages().getListOfMessages(null);
+		UIMessage messInfo = mapper.readValue(messages.get(0).toString(), UIMessage.class);
 
 
-Allure.step("Filtering using advanced filters by " + messInfo);
-log.info("Filtering using advanced filters by " + messInfo);
-filters.advancedFilterBy(messInfo.getMessageId()
-, messInfo.getMessageStatus()
-, messInfo.getFromPartyId()
-, messInfo.getToPartyId()
-, messInfo.getConversationId()
-, messInfo.getMshRole()
-, messInfo.getMessageType()
-, messInfo.getNotificationStatus()
-, messInfo.getRefToMessageId()
-, messInfo.getOriginalSender()
-, messInfo.getFinalRecipient()
-, receivedFromDate
-, receivedToDate
-);
+		MessageFilterArea filters = page.getFilters();
 
-DGrid grid = page.grid();
-grid.waitForRowsToLoad();
-grid.getGridCtrl().showAllColumns();
+		String receivedFromDate = TestRunData.DATEWIDGET_DATE_FORMAT.format(new Date(messInfo.getReceived() - 60000));
+		String receivedToDate = TestRunData.DATEWIDGET_DATE_FORMAT.format(new Date(messInfo.getReceived() + 60000));
 
-List<HashMap<String, String>> listedResults = page.grid().getAllRowInfo();
 
-soft.assertTrue(listedResults.size()>=1 , "At least one result is listed");
+		Allure.step("Filtering using advanced filters by " + messInfo);
+		log.info("Filtering using advanced filters by " + messInfo);
+		filters.advancedFilterBy(messInfo.getMessageId()
+				, messInfo.getMessageStatus()
+				, messInfo.getFromPartyId()
+				, messInfo.getToPartyId()
+				, messInfo.getConversationId()
+				, messInfo.getMshRole()
+				, messInfo.getMessageType()
+				, messInfo.getNotificationStatus()
+				, messInfo.getRefToMessageId()
+				, messInfo.getOriginalSender()
+				, messInfo.getFinalRecipient()
+				, receivedFromDate
+				, receivedToDate
+		);
 
-for (int i = 0; i < listedResults.size(); i++) {
-Allure.step("checking result with number " + i);
-log.info("checking result with number " + i);
-HashMap<String, String> resultInfo = listedResults.get(i);
-String messID = resultInfo.get("Message Id");
-soft.assertEquals(resultInfo.get("Message Id"), messInfo.getMessageId(), "checked message id");
-soft.assertEquals(resultInfo.get("Conversation Id"), messInfo.getConversationId(), messID + " - check conversation id");
-soft.assertEquals(resultInfo.get("Ref To Message Id"), messInfo.getRefToMessageId(), messID + " - check Ref To Message Id");
-soft.assertEquals(resultInfo.get("From Party Id"), MessageConstants.From_Party_Id, messID + " - check From Party Id");
-soft.assertEquals(resultInfo.get("To Party Id"), MessageConstants.To_Party_Id, messID + " - check To Party Id");
-soft.assertEquals(resultInfo.get("Original Sender"), MessageConstants.Original_Sender, messID + " - check Original Sender");
-soft.assertEquals(resultInfo.get("Final Recipient"), MessageConstants.Final_Recipient, messID + " - check Final Recipient");
-soft.assertEquals(resultInfo.get("AP Role"), MessageConstants.AP_Role, messID + " - check AP Role");
-}
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+		grid.getGridCtrl().showAllColumns();
 
-soft.assertAll();
-}
+		List<HashMap<String, String>> listedResults = page.grid().getAllRowInfo();
 
-/* Filter messages so that there are no results */
-/*  MSG-8 - Filter messages so that there are no results  */
-@Description("MSG-8 - Filter messages so that there are no results")
-@Link(name = "EDELIVERY-5060", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5060")
-@AllureId("MSG-8")
-@Test(description = "MSG-8", groups = {"multiTenancy", "singleTenancy"})
-public void filterEmptyGrid() throws Exception {
-SoftAssert soft = new SoftAssert();
+		soft.assertTrue(listedResults.size() >= 1, "At least one result is listed");
 
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-Allure.step("logged in");
-log.info("logged in");
-MessagesPage page = new MessagesPage(driver);
+		for (int i = 0; i < listedResults.size(); i++) {
+			Allure.step("checking result with number " + i);
+			log.info("checking result with number " + i);
+			HashMap<String, String> resultInfo = listedResults.get(i);
+			String messID = resultInfo.get("Message Id");
+			soft.assertEquals(resultInfo.get("Message Id"), messInfo.getMessageId(), "checked message id");
+			soft.assertEquals(resultInfo.get("Conversation Id"), messInfo.getConversationId(), messID + " - check conversation id");
+			soft.assertEquals(resultInfo.get("Ref To Message Id"), messInfo.getRefToMessageId(), messID + " - check Ref To Message Id");
+			soft.assertEquals(resultInfo.get("From Party Id"), MessageConstants.From_Party_Id, messID + " - check From Party Id");
+			soft.assertEquals(resultInfo.get("To Party Id"), MessageConstants.To_Party_Id, messID + " - check To Party Id");
+			soft.assertEquals(resultInfo.get("Original Sender"), MessageConstants.Original_Sender, messID + " - check Original Sender");
+			soft.assertEquals(resultInfo.get("Final Recipient"), MessageConstants.Final_Recipient, messID + " - check Final Recipient");
+			soft.assertEquals(resultInfo.get("AP Role"), MessageConstants.AP_Role, messID + " - check AP Role");
+		}
 
-int gridRows = page.grid().getRowsNo();
-int allRows = page.grid().getPagination().getTotalItems();
-Allure.step(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
-log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
+		soft.assertAll();
+	}
 
-Allure.step("filtering so that grid shows 0 results");
-log.info("filtering so that grid shows 0 results");
-page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
-page.grid().waitForRowsToLoad();
+	/* Filter messages so that there are no results */
+	/*  MSG-8 - Filter messages so that there are no results  */
+	@Description("MSG-8 - Filter messages so that there are no results")
+	@Link(name = "EDELIVERY-5060", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5060")
+	@AllureId("MSG-8")
+	@Test(description = "MSG-8", groups = {"multiTenancy", "singleTenancy"})
+	public void filterEmptyGrid() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
+		Allure.step("logged in");
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
 
-soft.assertAll();
-}
+		int gridRows = page.grid().getRowsNo();
+		int allRows = page.grid().getPagination().getTotalItems();
+		Allure.step(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
+		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
 
-/* Filter messages so that there are no results then delete all criteria and press Search in case of Basic /Advance Search both */
-/*  MSG-9 - Filter messages so that there are no results then delete all filters and press Search  */
-@Description("MSG-9 - Filter messages so that there are no results then delete all filters and press Search")
-@Link(name = "EDELIVERY-5061", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5061")
-@AllureId("MSG-9")
-@Test(description = "MSG-9", groups = {"multiTenancy", "singleTenancy"})
-public void emptySearchAllResults() throws Exception {
-SoftAssert soft = new SoftAssert();
+		Allure.step("filtering so that grid shows 0 results");
+		log.info("filtering so that grid shows 0 results");
+		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
+		page.grid().waitForRowsToLoad();
 
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-Allure.step("logged in");
-log.info("logged in");
-MessagesPage page = new MessagesPage(driver);
+		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
 
-int gridRows = page.grid().getRowsNo();
-int allRows = page.grid().getPagination().getTotalItems();
-Allure.step(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
-log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
+		soft.assertAll();
+	}
 
-Allure.step("filtering so that grid shows 0 results");
-log.info("filtering so that grid shows 0 results");
-page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
-page.grid().waitForRowsToLoad();
+	/* Filter messages so that there are no results then delete all criteria and press Search in case of Basic /Advance Search both */
+	/*  MSG-9 - Filter messages so that there are no results then delete all filters and press Search  */
+	@Description("MSG-9 - Filter messages so that there are no results then delete all filters and press Search")
+	@Link(name = "EDELIVERY-5061", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5061")
+	@AllureId("MSG-9")
+	@Test(description = "MSG-9", groups = {"multiTenancy", "singleTenancy"})
+	public void emptySearchAllResults() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
+		Allure.step("logged in");
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+
+		int gridRows = page.grid().getRowsNo();
+		int allRows = page.grid().getPagination().getTotalItems();
+		Allure.step(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
+		log.info(String.format("Grid shows %s rows, pagination shows %s total items", gridRows, allRows));
+
+		Allure.step("filtering so that grid shows 0 results");
+		log.info("filtering so that grid shows 0 results");
+		page.getFilters().basicFilterBy("invalidMessageId", null, null, null);
+		page.grid().waitForRowsToLoad();
+
+		soft.assertEquals(page.grid().getRowsNo(), 0, "The grid is empty after search with 0 matching messages");
 
 //		refresh because entering empty string everywhere does not trigger change event
-page.refreshPage();
-page.grid().waitForRowsToLoad();
+		page.refreshPage();
+		page.grid().waitForRowsToLoad();
 
-Allure.step("checking results after refresh");
-log.info("checking results after refresh");
-soft.assertEquals(page.grid().getRowsNo(), gridRows, "Empty search resets grid to original state (2)");
-soft.assertEquals(page.grid().getPagination().getTotalItems(), allRows, "Empty search resets grid to original state (2)");
+		Allure.step("checking results after refresh");
+		log.info("checking results after refresh");
+		soft.assertEquals(page.grid().getRowsNo(), gridRows, "Empty search resets grid to original state (2)");
+		soft.assertEquals(page.grid().getPagination().getTotalItems(), allRows, "Empty search resets grid to original state (2)");
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
-/* Download message */
-/*  MSG-11 - Download message  */
-@Description("MSG-11 - Download message")
-@Link(name = "EDELIVERY-5063", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5063")
-@AllureId("MSG-11")
-@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
-public void downloadMessage() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/* Download message */
+	/*  MSG-11 - Download message  */
+	@Description("MSG-11 - Download message")
+	@Link(name = "EDELIVERY-5063", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5063")
+	@AllureId("MSG-11")
+	@Test(description = "MSG-11", groups = {"multiTenancy", "singleTenancy"})
+	public void downloadMessage() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-MessagesPage page = new MessagesPage(driver);
-DGrid grid = page.grid();
-grid.waitForRowsToLoad();
+		MessagesPage page = new MessagesPage(driver);
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 
-grid.getPagination().getPageSizeSelect().selectOptionByText("100");
-grid.waitForRowsToLoad();
+		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+		grid.waitForRowsToLoad();
 
-ArrayList<HashMap<String, String>> info = grid.getListedRowInfo();
-int toCheckIndex = -1;
+		ArrayList<HashMap<String, String>> info = grid.getListedRowInfo();
+		int toCheckIndex = -1;
 
-for (int i = 0; i < info.size(); i++) {
-String role = info.get(i).get("AP Role");
-String status = info.get(i).get("Message Status");
-List<String> actions = grid.getAvailableActionsForRow(i);
+		for (int i = 0; i < info.size(); i++) {
+			String role = info.get(i).get("AP Role");
+			String status = info.get(i).get("Message Status");
+			List<String> actions = grid.getAvailableActionsForRow(i);
 
-if(role.equalsIgnoreCase("SENDING") && (status.equalsIgnoreCase("SEND_FAILURE") || status.equalsIgnoreCase("WAITING_FOR_RETRY"))){
-soft.assertTrue(actions.contains("Resend"), "Message can be resent");
-soft.assertTrue(actions.contains("Download"), "Message can be Downloaded");
-toCheckIndex = i;
-}
-}
+			if (role.equalsIgnoreCase("SENDING") && (status.equalsIgnoreCase("SEND_FAILURE") || status.equalsIgnoreCase("WAITING_FOR_RETRY"))) {
+				soft.assertTrue(actions.contains("Resend"), "Message can be resent");
+				soft.assertTrue(actions.contains("Download"), "Message can be Downloaded");
+				toCheckIndex = i;
+			}
+		}
 
-String zipPath = page.downloadMessage(toCheckIndex);
+		String zipPath = page.downloadMessage(toCheckIndex);
 
-Allure.step("downloaded message to zip with path " + zipPath);
-log.info("downloaded message to zip with path " + zipPath);
+		Allure.step("downloaded message to zip with path " + zipPath);
+		log.info("downloaded message to zip with path " + zipPath);
 
-HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
-Allure.step("checking zip for files message and message.xml");
-log.info("checking zip for files message and message.xml");
-boolean foundXMLfile = false;
-boolean foundMessfile = false;
-for (String fileName : zipContent.keySet()) {
-if (StringUtils.equalsIgnoreCase(fileName, "message")) {
-foundMessfile = true;
-}
-if (StringUtils.equalsIgnoreCase(fileName, "message.xml")) {
-foundXMLfile = true;
-}
-}
+		HashMap<String, String> zipContent = TestUtils.unzip(zipPath);
+		Allure.step("checking zip for files message and message.xml");
+		log.info("checking zip for files message and message.xml");
+		boolean foundXMLfile = false;
+		boolean foundMessfile = false;
+		for (String fileName : zipContent.keySet()) {
+			if (StringUtils.equalsIgnoreCase(fileName, "message")) {
+				foundMessfile = true;
+			}
+			if (StringUtils.equalsIgnoreCase(fileName, "message.xml")) {
+				foundXMLfile = true;
+			}
+		}
 
-soft.assertTrue(foundMessfile, "Found file containing message content");
-soft.assertTrue(foundXMLfile, "Found file containing message properties");
-Allure.step("checking the message payload");
-log.info("checking the message payload");
+		soft.assertTrue(foundMessfile, "Found file containing message content");
+		soft.assertTrue(foundXMLfile, "Found file containing message properties");
+		Allure.step("checking the message payload");
+		log.info("checking the message payload");
 //		soft.assertEquals(zipContent.get("message"), MessageConstants.Message_Content, "Correct message content is downloaded");
 
-String xmlString = zipContent.get("message.xml");
-
-grid.doubleClickRow(toCheckIndex);
-Allure.step("double clicked message " + info.get(toCheckIndex));
-log.info("double clicked message " + info.get(toCheckIndex));
-
-Allure.step("checking the message metadata");
-log.info("checking the message metadata");
-MessageDetailsModal modal = new MessageDetailsModal(driver);
-soft.assertEquals(modal.getValue("Message Id"),
-TestUtils.getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
-soft.assertEquals(modal.getValue("Conversation Id"),
-TestUtils.getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
-soft.assertEquals(modal.getValue("Ref To Message Id"),
-TestUtils.getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
-
-soft.assertTrue(xmlString.contains("name=\"originalSender\">" + modal.getValue("Original Sender"))
-, "Original Sender - value matches");
-
-soft.assertTrue(xmlString.contains("name=\"finalRecipient\">" + modal.getValue("Final Recipient"))
-, "Final Recipient - value matches");
-
-soft.assertAll();
-}
-
-/* Resend message */
-/*  MSG-12 - Resend message  */
-@Description("MSG-12 - Resend message")
-@Link(name = "EDELIVERY-5064", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5064")
-@AllureId("MSG-12")
-@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
-public void resendMessage() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-rest.pmode().uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
-List<String> messIds = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
-if(messIds.size() == 0){
-throw new SkipException("Could not get messages with status SEND_FAILURE");
-}
-
-MessagesPage page = navigate();
-String messageID = messIds.get(0);
-
-int index = page.grid().scrollToAndSelect("Message Id", messageID);
-
-soft.assertTrue(page.getResendButton().isEnabled() , "Resend button is enabled");
-page.getResendButton().click();
-Allure.step("clicked Resend button");
-log.info("clicked Resend button");
-
-MessageResendModal modal = new MessageResendModal(driver);
-modal.getResendButton().click();
-
-soft.assertTrue(!page.getAlertArea().isError() , "Success message is shown");
-soft.assertEquals(page.getAlertArea().getAlertMessage(),DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS , "Correct message is shown");
-
-boolean statusChanged = false;
-for (int i = 0; i < 20; i++) {
-Allure.step("checking for status change");
-log.info("checking for status change");
-HashMap<String, String> info = page.grid().getRowInfo(index);
-Allure.step(info.get("Message Status"));
-log.debug(info.get("Message Status"));
-if (StringUtils.equalsIgnoreCase(info.get("Message Status"), "SEND_ENQUEUED")
-|| StringUtils.equalsIgnoreCase(info.get("Message Status"), "WAITING_FOR_RETRY")) {
-statusChanged = true;
-break;
-}
-page.wait.forXMillis(1000);
-}
-
-soft.assertTrue(statusChanged, "Message changed");
-
-soft.assertAll();
-}
-
-/* Domain admin logs in and views messages */
-/*  MSG-13 - Domain admin logs in and views messages  */
-@Description("MSG-13 - Domain admin logs in and views messages")
-@Link(name = "EDELIVERY-5065", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5065")
-@AllureId("MSG-13")
-@Test(description = "MSG-13", groups = {"multiTenancy"})
-public void messagesSegregatedByDomain() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String domainName = rest.getNonDefaultDomain();
-String domain = rest.getDomainCodeForName(domainName);
-Allure.step(String.format("Domain name = %s", domainName));
-log.info(String.format("Domain name = %s", domainName));
-
-String userDomain = Gen.randomAlphaNumeric(10);
-rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(), domain);
-Allure.step("created plugin user " + userDomain);
-log.info("created plugin user " + userDomain);
-rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
-String messageIDDomain = messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
-Allure.step("sent message with id " + messageIDDomain);
-log.info("sent message with id " + messageIDDomain);
-
-Allure.step("Switching to default domain");
-log.info("Switching to default domain");
-String userDefault = Gen.randomAlphaNumeric(10);
-rest.pluginUsers().createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(), null);
-Allure.step("created plugin user " + userDefault);
-log.info("created plugin user " + userDefault);
-rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
-String messageIDDefault = messageSender.sendMessage(userDefault, data.defaultPass(), null, null);
-Allure.step("sent message with id " + messageIDDefault);
-log.info("sent message with id " + messageIDDefault);
-
-String userAdmin = Gen.randomAlphaNumeric(10);
-rest.users().createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
-Allure.step("created admin with username " + userAdmin);
-log.info("created admin with username " + userAdmin);
-
-login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
-Allure.step("logged in as created admin");
-log.info("logged in as created admin");
-MessagesPage page = new MessagesPage(driver);
-page.grid().waitForRowsToLoad();
-
-Allure.step("checking if new messages are visible");
-log.info("checking if new messages are visible");
-soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain) >= 0, "Domain admin sees the domain message (1)");
-soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault) < 0, "Domain admin does NOT see the default domain message (2)");
-
-page.getSandwichMenu().logout();
-Allure.step("logged out");
-log.info("logged out");
-login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-Allure.step("logged in as super admin");
-log.info("logged in as super admin");
-
-page.grid().waitForRowsToLoad();
-Allure.step("checking on default domain if messages are visible");
-log.info("checking on default domain if messages are visible");
-soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain) < 0, "Super admin does NOT see the domain message while on the default domain (3)");
-soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault) >= 0, "Super admin sees the default domain message when on default domain (4)");
-
-Allure.step("switching to domain " + domainName);
-log.info("switching to domain " + domainName);
-page.getDomainSelector().selectOptionByText(domainName);
-page.grid().waitForRowsToLoad();
-
-Allure.step("checking if messages are visible");
-log.info("checking if messages are visible");
-soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain) >= 0, "Super admin sees the domain message while on the proper domain (5)");
-soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault) < 0, "Super admin doesn't see the default domain message when on domain (6)");
-
-rest.pluginUsers().deletePluginUser(userDefault, null);
-rest.pluginUsers().deletePluginUser(userDomain, domain);
-rest.pluginUsers().deletePluginUser(userAdmin, domain);
-Allure.step("delete admin and plugin users");
-log.info("delete admin and plugin users");
-soft.assertAll();
-}
-
-/* Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain */
-/*  MSG-14 - Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain  */
-@Description("MSG-14 - Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain")
-@Link(name = "EDELIVERY-5066", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5066")
-@AllureId("MSG-14")
-@Test(description = "MSG-14", groups = {"multiTenancy"})
-public void superSelectMessageChangeDomain() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String domainName = rest.getNonDefaultDomain();
-String domain = rest.getDomainCodeForName(domainName);
-
-String messageIDDomain = rest.getMessageIDs(domain, 1, false).get(0);
-String messageIDDefault = rest.getMessageIDs(null, 1, false).get(0);
-
-MessagesPage page = new MessagesPage(driver);
-
-String defaultDomainName = page.getDomainSelector().getSelectedValue();
-
-page.refreshPage();
-page.grid().waitForRowsToLoad();
-
-page.grid().scrollToAndSelect("Message Id", messageIDDefault);
-Allure.step("selected message from default domain");
-log.info("selected message from default domain");
-
-page.getDomainSelector().selectOptionByText(domainName);
-Allure.step("switch domain to " + domainName);
-log.info("switch domain to " + domainName);
-
-Allure.step("check Download and Resend buttons status");
-log.info("check Download and Resend buttons status");
-soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch");
-soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch");
-
-
-page.grid().scrollToAndSelect("Message Id", messageIDDomain);
-Allure.step("selected message from new domain");
-log.info("selected message from new domain");
-
-page.getDomainSelector().selectOptionByText(defaultDomainName);
-Allure.step("switch domain to default");
-log.info("switch domain to default");
-
-Allure.step("check Download and Resend buttons status");
-log.info("check Download and Resend buttons status");
-soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch (2)");
-soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch (2)");
-
-soft.assertAll();
-}
-
-/* MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain */
-/*  MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain  */
-@Description("MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain")
-@Link(name = "EDELIVERY-5067", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5067")
-@AllureId("MSG-15")
-@Test(description = "MSG-15", groups = {"multiTenancy"} )
-public void verifyDomainSpecificMsgs() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-MessagesPage page = navigate();
-
-Allure.step("trying to go to page 2 if ti exists");
-log.info("trying to go to page 2 if ti exists");
-Pagination pag = page.grid().getPagination();
-if(pag.hasNextPage()){
-Allure.step("going to page 2");
-log.info("going to page 2");
-pag.goToNextPage();
-}
-
-Allure.step("gathering listed ids on page 2");
-log.info("gathering listed ids on page 2");
-page.grid().waitForRowsToLoad();
-List<String> info_dom1 = page.grid().getListedValuesOnColumn("Message Id");
-
-
-Allure.step("changing domain");
-log.info("changing domain");
-page.getDomainSelector().selectAnotherDomain();
-page.grid().waitForRowsToLoad();
-
-soft.assertEquals(page.grid().getPagination().getActivePage(), Integer.valueOf(1), "Pagination is set to first page");
-
-Allure.step("gathering listed info");
-log.info("gathering listed info");
-List<String> info_dom2 = page.grid().getListedValuesOnColumn("Message Id");
-
-Allure.step("checking listed message id are different");
-log.info("checking listed message id are different");
-for (String id : info_dom1) {
-soft.assertFalse(info_dom2.contains(id), "Message is found also in domain 2: " + id);
-}
-
-soft.assertAll();
-}
-
-/* MSG-16 - Download list of messages (multitenancy)*/
-/*  MSG-16 - Download list of messages multitenancy  */
-@Description("MSG-16 - Download list of messages multitenancy")
-@Link(name = "EDELIVERY-5068", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5068")
-@AllureId("MSG-16")
-@Test(description = "MSG-16", groups = {"multiTenancy"})
-public void downloadMsgs() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-MessagesPage page = navigate();
-String domain = selectRandomDomain();
-
-Allure.step("Click on download csv button");
-log.info("Click on download csv button");
-String completeFilePath = page.pressSaveCsvAndSaveFile();
-
-Allure.step("Click on show link");
-log.info("Click on show link");
-page.grid().getGridCtrl().showCtrls();
-
-Allure.step("Click on All link to show all available column headers");
-log.info("Click on All link to show all available column headers");
-page.grid().getGridCtrl().showAllColumns();
-
-page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
-int maxMess = page.grid().getRowsNo();
-
-page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
-soft.assertAll();
-}
-
-/* This test method will verify xml files in downloaded message envelop*/
-/*  MSG-29- Download message envelop  */
-@Description("MSG-29- Download message envelop")
-@Link(name = "EDELIVERY-8179", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8179")
-@AllureId("MSG-29")
-@Test(description = "MSG-29", groups = {"multiTenancy", "singleTenancy"})
-public void checkMsgEnvXML() throws Exception {
-SoftAssert soft = new SoftAssert();
-MessagesPage page = new MessagesPage(driver);
-
-String zipPath = page.downloadMessageEnvelop(0);
-Allure.step("downloaded message to zip with path " + zipPath);
-log.info("downloaded message to zip with path " + zipPath);
-File zipFile = new File(zipPath);
-ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
-
-String firstXMLFileName = zis.getNextEntry().getName().toString();
-String secondXMLFileName = zis.getNextEntry().getName().toString();
-
-String msgStatus = page.grid().getRowInfo(0).get("Message Status");
-
-String xmlFileNameUser = "user_message_envelope";
-String xmlFileNameuSignal = "signal_message_envelope";
-
-if(msgStatus.equals("ACKNOWLEDGED") && msgStatus.equals("RECEIVED")) {
-if (firstXMLFileName.equals(xmlFileNameUser)) {
-Allure.step("first xml file is user message envelop");
-log.info("first xml file is user message envelop");
-soft.assertTrue(secondXMLFileName.equals(xmlFileNameuSignal),"Second xml file is signal message envelop");
-}
-else {
-Allure.step("first xml file is signal message envelop");
-log.info("first xml file is signal message envelop");
-soft.assertTrue(secondXMLFileName.equals(xmlFileNameUser),"Second xml file is user signal message envelop");
-}
-}
-soft.assertAll();
-}
+		String xmlString = zipContent.get("message.xml");
+
+		grid.doubleClickRow(toCheckIndex);
+		Allure.step("double clicked message " + info.get(toCheckIndex));
+		log.info("double clicked message " + info.get(toCheckIndex));
+
+		Allure.step("checking the message metadata");
+		log.info("checking the message metadata");
+		MessageDetailsModal modal = new MessageDetailsModal(driver);
+		soft.assertEquals(modal.getValue("Message Id"),
+				TestUtils.getValueFromXMLString(xmlString, "MessageId"), "MessageId - value matches");
+		soft.assertEquals(modal.getValue("Conversation Id"),
+				TestUtils.getValueFromXMLString(xmlString, "ConversationId"), "ConversationId - value matches");
+		soft.assertEquals(modal.getValue("Ref To Message Id"),
+				TestUtils.getValueFromXMLString(xmlString, "RefToMessageId"), "RefToMessageId - value matches");
+
+		soft.assertTrue(xmlString.contains("name=\"originalSender\">" + modal.getValue("Original Sender"))
+				, "Original Sender - value matches");
+
+		soft.assertTrue(xmlString.contains("name=\"finalRecipient\">" + modal.getValue("Final Recipient"))
+				, "Final Recipient - value matches");
+
+		soft.assertAll();
+	}
+
+	/* Resend message */
+	/*  MSG-12 - Resend message  */
+	@Description("MSG-12 - Resend message")
+	@Link(name = "EDELIVERY-5064", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5064")
+	@AllureId("MSG-12")
+	@Test(description = "MSG-12", groups = {"multiTenancy", "singleTenancy"})
+	public void resendMessage() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRedRetry1.xml", null);
+		List<String> messIds = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
+		if (messIds.size() == 0) {
+			throw new SkipException("Could not get messages with status SEND_FAILURE");
+		}
+
+		MessagesPage page = navigate();
+		String messageID = messIds.get(0);
+
+		int index = page.grid().scrollToAndSelect("Message Id", messageID);
+
+		soft.assertTrue(page.getResendButton().isEnabled(), "Resend button is enabled");
+		page.getResendButton().click();
+		Allure.step("clicked Resend button");
+		log.info("clicked Resend button");
+
+		MessageResendModal modal = new MessageResendModal(driver);
+		modal.getResendButton().click();
+
+		soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGES_RESEND_MESSAGE_SUCCESS, "Correct message is shown");
+
+		boolean statusChanged = false;
+		for (int i = 0; i < 20; i++) {
+			Allure.step("checking for status change");
+			log.info("checking for status change");
+			HashMap<String, String> info = page.grid().getRowInfo(index);
+			Allure.step(info.get("Message Status"));
+			log.debug(info.get("Message Status"));
+			if (StringUtils.equalsIgnoreCase(info.get("Message Status"), "SEND_ENQUEUED")
+					|| StringUtils.equalsIgnoreCase(info.get("Message Status"), "WAITING_FOR_RETRY")) {
+				statusChanged = true;
+				break;
+			}
+			page.wait.forXMillis(1000);
+		}
+
+		soft.assertTrue(statusChanged, "Message changed");
+
+		soft.assertAll();
+	}
+
+	/* Domain admin logs in and views messages */
+	/*  MSG-13 - Domain admin logs in and views messages  */
+	@Description("MSG-13 - Domain admin logs in and views messages")
+	@Link(name = "EDELIVERY-5065", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5065")
+	@AllureId("MSG-13")
+	@Test(description = "MSG-13", groups = {"multiTenancy"})
+	public void messagesSegregatedByDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String domainName = rest.getNonDefaultDomain();
+		String domain = rest.getDomainCodeForName(domainName);
+		Allure.step(String.format("Domain name = %s", domainName));
+		log.info(String.format("Domain name = %s", domainName));
+
+		String userDomain = Gen.randomAlphaNumeric(10);
+		rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(), domain);
+		Allure.step("created plugin user " + userDomain);
+		log.info("created plugin user " + userDomain);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", domain);
+		String messageIDDomain = messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
+		Allure.step("sent message with id " + messageIDDomain);
+		log.info("sent message with id " + messageIDDomain);
+
+		Allure.step("Switching to default domain");
+		log.info("Switching to default domain");
+		String userDefault = Gen.randomAlphaNumeric(10);
+		rest.pluginUsers().createPluginUser(userDefault, DRoles.ADMIN, data.defaultPass(), null);
+		Allure.step("created plugin user " + userDefault);
+		log.info("created plugin user " + userDefault);
+		rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+		String messageIDDefault = messageSender.sendMessage(userDefault, data.defaultPass(), null, null);
+		Allure.step("sent message with id " + messageIDDefault);
+		log.info("sent message with id " + messageIDDefault);
+
+		String userAdmin = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(userAdmin, DRoles.ADMIN, data.defaultPass(), domain);
+		Allure.step("created admin with username " + userAdmin);
+		log.info("created admin with username " + userAdmin);
+
+		login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
+		Allure.step("logged in as created admin");
+		log.info("logged in as created admin");
+		MessagesPage page = new MessagesPage(driver);
+		page.grid().waitForRowsToLoad();
+
+		Allure.step("checking if new messages are visible");
+		log.info("checking if new messages are visible");
+		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain) >= 0, "Domain admin sees the domain message (1)");
+		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault) < 0, "Domain admin does NOT see the default domain message (2)");
+
+		page.getSandwichMenu().logout();
+		Allure.step("logged out");
+		log.info("logged out");
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
+		Allure.step("logged in as super admin");
+		log.info("logged in as super admin");
+
+		page.grid().waitForRowsToLoad();
+		Allure.step("checking on default domain if messages are visible");
+		log.info("checking on default domain if messages are visible");
+		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain) < 0, "Super admin does NOT see the domain message while on the default domain (3)");
+		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault) >= 0, "Super admin sees the default domain message when on default domain (4)");
+
+		Allure.step("switching to domain " + domainName);
+		log.info("switching to domain " + domainName);
+		page.getDomainSelector().selectOptionByText(domainName);
+		page.grid().waitForRowsToLoad();
+
+		Allure.step("checking if messages are visible");
+		log.info("checking if messages are visible");
+		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDomain) >= 0, "Super admin sees the domain message while on the proper domain (5)");
+		soft.assertTrue(page.grid().scrollTo("Message Id", messageIDDefault) < 0, "Super admin doesn't see the default domain message when on domain (6)");
+
+		rest.pluginUsers().deletePluginUser(userDefault, null);
+		rest.pluginUsers().deletePluginUser(userDomain, domain);
+		rest.pluginUsers().deletePluginUser(userAdmin, domain);
+		Allure.step("delete admin and plugin users");
+		log.info("delete admin and plugin users");
+		soft.assertAll();
+	}
+
+	/* Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain */
+	/*  MSG-14 - Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain  */
+	@Description("MSG-14 - Super admin logs in and views messages for a selected domain, selects 1 message, and changes domain")
+	@Link(name = "EDELIVERY-5066", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5066")
+	@AllureId("MSG-14")
+	@Test(description = "MSG-14", groups = {"multiTenancy"})
+	public void superSelectMessageChangeDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String domainName = rest.getNonDefaultDomain();
+		String domain = rest.getDomainCodeForName(domainName);
+
+		String messageIDDomain = rest.getMessageIDs(domain, 1, false).get(0);
+		String messageIDDefault = rest.getMessageIDs(null, 1, false).get(0);
+
+		MessagesPage page = new MessagesPage(driver);
+
+		String defaultDomainName = page.getDomainSelector().getSelectedValue();
+
+		page.refreshPage();
+		page.grid().waitForRowsToLoad();
+
+		page.grid().scrollToAndSelect("Message Id", messageIDDefault);
+		Allure.step("selected message from default domain");
+		log.info("selected message from default domain");
+
+		page.getDomainSelector().selectOptionByText(domainName);
+		Allure.step("switch domain to " + domainName);
+		log.info("switch domain to " + domainName);
+
+		Allure.step("check Download and Resend buttons status");
+		log.info("check Download and Resend buttons status");
+		soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch");
+		soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch");
+
+
+		page.grid().scrollToAndSelect("Message Id", messageIDDomain);
+		Allure.step("selected message from new domain");
+		log.info("selected message from new domain");
+
+		page.getDomainSelector().selectOptionByText(defaultDomainName);
+		Allure.step("switch domain to default");
+		log.info("switch domain to default");
+
+		Allure.step("check Download and Resend buttons status");
+		log.info("check Download and Resend buttons status");
+		soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch (2)");
+		soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch (2)");
+
+		soft.assertAll();
+	}
+
+	/* MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain */
+	/*  MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain  */
+	@Description("MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain")
+	@Link(name = "EDELIVERY-5067", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5067")
+	@AllureId("MSG-15")
+	@Test(description = "MSG-15", groups = {"multiTenancy"})
+	public void verifyDomainSpecificMsgs() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessagesPage page = navigate();
+
+		Allure.step("trying to go to page 2 if ti exists");
+		log.info("trying to go to page 2 if ti exists");
+		Pagination pag = page.grid().getPagination();
+		if (pag.hasNextPage()) {
+			Allure.step("going to page 2");
+			log.info("going to page 2");
+			pag.goToNextPage();
+		}
+
+		Allure.step("gathering listed ids on page 2");
+		log.info("gathering listed ids on page 2");
+		page.grid().waitForRowsToLoad();
+		List<String> info_dom1 = page.grid().getListedValuesOnColumn("Message Id");
+
+
+		Allure.step("changing domain");
+		log.info("changing domain");
+		page.getDomainSelector().selectAnotherDomain();
+		page.grid().waitForRowsToLoad();
+
+		soft.assertEquals(page.grid().getPagination().getActivePage(), Integer.valueOf(1), "Pagination is set to first page");
+
+		Allure.step("gathering listed info");
+		log.info("gathering listed info");
+		List<String> info_dom2 = page.grid().getListedValuesOnColumn("Message Id");
+
+		Allure.step("checking listed message id are different");
+		log.info("checking listed message id are different");
+		for (String id : info_dom1) {
+			soft.assertFalse(info_dom2.contains(id), "Message is found also in domain 2: " + id);
+		}
+
+		soft.assertAll();
+	}
+
+	/* MSG-16 - Download list of messages (multitenancy)*/
+	/*  MSG-16 - Download list of messages multitenancy  */
+	@Description("MSG-16 - Download list of messages multitenancy")
+	@Link(name = "EDELIVERY-5068", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5068")
+	@AllureId("MSG-16")
+	@Test(description = "MSG-16", groups = {"multiTenancy"})
+	public void downloadMsgs() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessagesPage page = navigate();
+		String domain = selectRandomDomain();
+
+		Allure.step("Click on download csv button");
+		log.info("Click on download csv button");
+		String completeFilePath = page.pressSaveCsvAndSaveFile();
+
+		Allure.step("Click on show link");
+		log.info("Click on show link");
+		page.grid().getGridCtrl().showCtrls();
+
+		Allure.step("Click on All link to show all available column headers");
+		log.info("Click on All link to show all available column headers");
+		page.grid().getGridCtrl().showAllColumns();
+
+		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+		int maxMess = page.grid().getRowsNo();
+
+		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
+		soft.assertAll();
+	}
+
+	/* This test method will verify xml files in downloaded message envelop*/
+	/*  MSG-29- Download message envelop  */
+	@Description("MSG-29- Download message envelop")
+	@Link(name = "EDELIVERY-8179", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8179")
+	@AllureId("MSG-29")
+	@Test(description = "MSG-29", groups = {"multiTenancy", "singleTenancy"})
+	public void checkMsgEnvXML() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+
+		String zipPath = page.downloadMessageEnvelop(0);
+		Allure.step("downloaded message to zip with path " + zipPath);
+		log.info("downloaded message to zip with path " + zipPath);
+		File zipFile = new File(zipPath);
+		ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+
+		String firstXMLFileName = zis.getNextEntry().getName().toString();
+		String secondXMLFileName = zis.getNextEntry().getName().toString();
+
+		String msgStatus = page.grid().getRowInfo(0).get("Message Status");
+
+		String xmlFileNameUser = "user_message_envelope";
+		String xmlFileNameuSignal = "signal_message_envelope";
+
+		if (msgStatus.equals("ACKNOWLEDGED") && msgStatus.equals("RECEIVED")) {
+			if (firstXMLFileName.equals(xmlFileNameUser)) {
+				Allure.step("first xml file is user message envelop");
+				log.info("first xml file is user message envelop");
+				soft.assertTrue(secondXMLFileName.equals(xmlFileNameuSignal), "Second xml file is signal message envelop");
+			} else {
+				Allure.step("first xml file is signal message envelop");
+				log.info("first xml file is signal message envelop");
+				soft.assertTrue(secondXMLFileName.equals(xmlFileNameUser), "Second xml file is user signal message envelop");
+			}
+		}
+		soft.assertAll();
+	}
 
 }
 

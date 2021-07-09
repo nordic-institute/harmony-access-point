@@ -25,8 +25,8 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1
  */
-@Epic("")
-@Feature("")
+@Epic("JMS Monitoring")
+@Feature("UX")
 public class JMSMessPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.JMS_MONITORING);

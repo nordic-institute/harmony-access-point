@@ -31,8 +31,8 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1
  */
-@Epic("")
-@Feature("")
+@Epic("Messages")
+@Feature("UX")
 public class MessagesPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);

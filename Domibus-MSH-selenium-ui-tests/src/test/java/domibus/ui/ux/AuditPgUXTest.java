@@ -29,8 +29,8 @@ import java.util.*;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-@Epic("")
-@Feature("")
+@Epic("Audit")
+@Feature("UX")
 public class AuditPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.AUDIT);

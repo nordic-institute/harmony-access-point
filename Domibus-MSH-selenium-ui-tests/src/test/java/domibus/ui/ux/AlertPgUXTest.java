@@ -10,8 +10,8 @@ import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertPage;
 import utils.TestUtils;
 
-@Epic("")
-@Feature("")
+@Epic("Alerts")
+@Feature("UX")
 public class AlertPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);

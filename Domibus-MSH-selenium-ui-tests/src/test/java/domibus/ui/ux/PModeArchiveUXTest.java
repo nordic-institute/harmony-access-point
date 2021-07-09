@@ -28,8 +28,8 @@ import java.util.Map;
  * @author Catalin Comanici
  * @since 4.1.2
  */
-@Epic("")
-@Feature("")
+@Epic("Pmode Archive")
+@Feature("UX")
 public class PModeArchiveUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PMODE_ARCHIVE);

@@ -31,8 +31,8 @@ import java.util.List;
  */
 
 
-@Epic("")
-@Feature("")
+@Epic("Plugin Users")
+@Feature("UX")
 public class PluginUsersPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PLUGIN_USERS);

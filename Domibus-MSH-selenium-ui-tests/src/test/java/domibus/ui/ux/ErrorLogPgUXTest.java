@@ -27,8 +27,8 @@ import java.util.*;
  */
 
 
-@Epic("")
-@Feature("")
+@Epic("Error Log")
+@Feature("UX")
 public class ErrorLogPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ERROR_LOG);

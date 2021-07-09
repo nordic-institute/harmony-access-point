@@ -26,740 +26,740 @@ import utils.TestUtils;
 import java.io.File;
 import java.util.*;
 
-@Epic("")
-@Feature("")
+@Epic("Properties")
+@Feature("Functional")
 public class Properties2PgTest extends SeleniumTest {
 
-JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PROPERTIES);
+	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PROPERTIES);
 
-String passExpirationDatePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+	String passExpirationDatePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
-private String modifyProperty(String propertyName, Boolean isDomain, String newPropValue) throws Exception {
+	private String modifyProperty(String propertyName, Boolean isDomain, String newPropValue) throws Exception {
 
-Allure.step("going to properties page");
-log.info("going to properties page");
-PropertiesPage page = new PropertiesPage(driver);
-page.getSidebar().goToPage(PAGES.PROPERTIES);
+		Allure.step("going to properties page");
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
 
-Allure.step("waiting for grid to load");
-log.info("waiting for grid to load");
-page.propGrid().waitForRowsToLoad();
+		Allure.step("waiting for grid to load");
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
 
-Allure.step("filtering for property");
-log.info("filtering for property");
-page.filters().filterBy(propertyName, null, null, null, isDomain);
+		Allure.step("filtering for property");
+		log.info("filtering for property");
+		page.filters().filterBy(propertyName, null, null, null, isDomain);
 
-PropGrid grid = page.propGrid();
-grid.waitForRowsToLoad();
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
 
-Allure.step("setting property");
-log.info("setting property");
-String oldVal = (grid.getPropertyValue(propertyName));
-grid.setPropertyValue(propertyName, newPropValue);
-page.getAlertArea().waitForAlert();
+		Allure.step("setting property");
+		log.info("setting property");
+		String oldVal = (grid.getPropertyValue(propertyName));
+		grid.setPropertyValue(propertyName, newPropValue);
+		page.getAlertArea().waitForAlert();
 
-return oldVal;
-}
+		return oldVal;
+	}
 
-/* EDELIVERY-7323 - PROP-18 - Update property domibus.file.upload.maxSize  */
-/*  PROP-18 - Update property domibusfileuploadmaxSize  */
-@Description("PROP-18 - Update property domibusfileuploadmaxSize")
-@Link(name = "EDELIVERY-7323", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7323")
-@AllureId("PROP-18")
-@Test(description = "PROP-18", groups = {"multiTenancy", "singleTenancy"})
-public void updateMaxUploadSize() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/* EDELIVERY-7323 - PROP-18 - Update property domibus.file.upload.maxSize  */
+	/*  PROP-18 - Update property domibusfileuploadmaxSize  */
+	@Description("PROP-18 - Update property domibusfileuploadmaxSize")
+	@Link(name = "EDELIVERY-7323", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7323")
+	@AllureId("PROP-18")
+	@Test(description = "PROP-18", groups = {"multiTenancy", "singleTenancy"})
+	public void updateMaxUploadSize() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-Allure.step("going to properties page");
-log.info("going to properties page");
-PropertiesPage page = new PropertiesPage(driver);
-page.getSidebar().goToPage(PAGES.PROPERTIES);
+		Allure.step("going to properties page");
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
 
-Allure.step("waiting for grid to load");
-log.info("waiting for grid to load");
-page.propGrid().waitForRowsToLoad();
+		Allure.step("waiting for grid to load");
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
 
-page.filters().filterBy("domibus.file.upload.maxSize", null, null, null, false);
+		page.filters().filterBy("domibus.file.upload.maxSize", null, null, null, false);
 
-PropGrid grid = page.propGrid();
-grid.waitForRowsToLoad();
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
 
-grid.setPropertyValue("domibus.file.upload.maxSize", "100");
+		grid.setPropertyValue("domibus.file.upload.maxSize", "100");
 
-soft.assertFalse(page.getAlertArea().isError(), "Success message is shown");
+		soft.assertFalse(page.getAlertArea().isError(), "Success message is shown");
 
-try {
-ClientResponse response = rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", "test comment", null);
-soft.assertEquals(response.getStatus(), 500, "500 error returned");
-} catch (Exception e) {
-e.printStackTrace();
-}
+		try {
+			ClientResponse response = rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", "test comment", null);
+			soft.assertEquals(response.getStatus(), 500, "500 error returned");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-rest.properties().updateGlobalProperty("domibus.file.upload.maxSize", "1000000");
-soft.assertAll();
-}
-
-
-/* EDELIVERY-7325 - PROP-20 - Update property domibus.passwordPolicy.checkDefaultPassword  */
-/*  PROP-20 - Update property domibuspasswordPolicycheckDefaultPassword  */
-@Description("PROP-20 - Update property domibuspasswordPolicycheckDefaultPassword")
-@Link(name = "EDELIVERY-7325", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7325")
-@AllureId("PROP-20")
-@Test(description = "PROP-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
-public void checkDefaultPassword() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String role = DRoles.ADMIN;
-if (data.isMultiDomain()) {
-role = DRoles.SUPER;
-}
-
-String adminUserName = rest.getUsername(null, role, true, false, true);
-logout();
-login(adminUserName, data.defaultPass());
-
-Allure.step("going to properties page");
-log.info("going to properties page");
-PropertiesPage page = new PropertiesPage(driver);
-page.getSidebar().goToPage(PAGES.PROPERTIES);
-
-Allure.step("waiting for grid to load");
-log.info("waiting for grid to load");
-page.propGrid().waitForRowsToLoad();
-
-Allure.step("filtering for property");
-log.info("filtering for property");
-page.filters().filterBy("domibus.passwordPolicy.checkDefaultPassword", null, null, null, false);
-
-PropGrid grid = page.propGrid();
-grid.waitForRowsToLoad();
-
-Allure.step("setting property");
-log.info("setting property");
-grid.setPropertyValue("domibus.passwordPolicy.checkDefaultPassword", "true");
-page.getAlertArea().waitForAlert();
-
-logout();
-Allure.step("login with default user and default pass to check the effect of change");
-log.info("login with default user and default pass to check the effect of change");
-login(data.getAdminUser());
-
-Allure.step("checking that alert is shown, popup is shown, user is on change pass page");
-log.info("checking that alert is shown, popup is shown, user is on change pass page");
-soft.assertTrue(page.getAlertArea().isError(), "Error message is shown after login");
-soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_DEFAULT_PASS, "Correct message is shown - ");
-
-soft.assertTrue(page.hasOpenDialog(), "Page has a open dialog warning");
-soft.assertEquals(new Dialog(driver).getMessage(), DMessages.LOGIN_DEFAULT_PASS, "Popup displays correct message");
-
-soft.assertTrue(driver.getCurrentUrl().contains("changePassword"), "URL contains changePassword");
-soft.assertTrue(new ChangePasswordPage(driver).isLoaded(), "Change password page is loaded");
-
-Allure.step("reseting property value and check effect");
-log.info("reseting property value and check effect");
-
-logout();
-login(adminUserName, data.defaultPass());
-
-Allure.step("going to properties page");
-log.info("going to properties page");
-page = new PropertiesPage(driver);
-page.getSidebar().goToPage(PAGES.PROPERTIES);
-
-Allure.step("waiting for grid to load");
-log.info("waiting for grid to load");
-page.propGrid().waitForRowsToLoad();
-
-Allure.step("filtering for property");
-log.info("filtering for property");
-page.filters().filterBy("domibus.passwordPolicy.checkDefaultPassword", null, null, null, false);
-
-grid = page.propGrid();
-grid.waitForRowsToLoad();
-
-Allure.step("setting property value");
-log.info("setting property value");
-grid.setPropertyValue("domibus.passwordPolicy.checkDefaultPassword", "false");
-page.getAlertArea().waitForAlert();
-
-logout();
-login(data.getAdminUser());
-
-Allure.step("checking the effect of property change");
-log.info("checking the effect of property change");
-soft.assertNull(page.getAlertArea().getAlertMessage(), "After setting prop back to false no more error message appears after login");
-
-soft.assertAll();
-}
+		rest.properties().updateGlobalProperty("domibus.file.upload.maxSize", "1000000");
+		soft.assertAll();
+	}
 
 
-/* EDELIVERY-7330 - PROP-21 - Update property domibus.passwordPolicy.defaultPasswordExpiration  */
-/*  PROP-21 - Update property domibuspasswordPolicydefaultPasswordExpiration  */
-@Description("PROP-21 - Update property domibuspasswordPolicydefaultPasswordExpiration")
-@Link(name = "EDELIVERY-7330", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7330")
-@AllureId("PROP-21")
-@Test(description = "PROP-21", groups = {"multiTenancy", "singleTenancy"})
-public void defaultPassExpiration() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/* EDELIVERY-7325 - PROP-20 - Update property domibus.passwordPolicy.checkDefaultPassword  */
+	/*  PROP-20 - Update property domibuspasswordPolicycheckDefaultPassword  */
+	@Description("PROP-20 - Update property domibuspasswordPolicycheckDefaultPassword")
+	@Link(name = "EDELIVERY-7325", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7325")
+	@AllureId("PROP-20")
+	@Test(description = "PROP-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	public void checkDefaultPassword() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-Allure.step("going to properties page");
-log.info("going to properties page");
-PropertiesPage page = new PropertiesPage(driver);
-page.getSidebar().goToPage(PAGES.PROPERTIES);
+		String role = DRoles.ADMIN;
+		if (data.isMultiDomain()) {
+			role = DRoles.SUPER;
+		}
 
-Allure.step("getting expiry date before change");
-log.info("getting expiry date before change");
-String expiryDateDefAdmin = rest.users().getUser(null, data.getAdminUser().get("username")).getString("expirationDate");
-String rndUser = rest.getUsername(null, DRoles.USER, true, false, true);
-String rndUserExpiryDate = rest.users().getUser(null, rndUser).getString("expirationDate");
+		String adminUserName = rest.getUsername(null, role, true, false, true);
+		logout();
+		login(adminUserName, data.defaultPass());
 
-Allure.step("waiting for grid to load");
-log.info("waiting for grid to load");
-page.propGrid().waitForRowsToLoad();
+		Allure.step("going to properties page");
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
 
-Allure.step("filtering for property");
-log.info("filtering for property");
-page.filters().filterBy("domibus.passwordPolicy.defaultPasswordExpiration", null, null, null, !data.isMultiDomain());
+		Allure.step("waiting for grid to load");
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
 
-PropGrid grid = page.propGrid();
-grid.waitForRowsToLoad();
+		Allure.step("filtering for property");
+		log.info("filtering for property");
+		page.filters().filterBy("domibus.passwordPolicy.checkDefaultPassword", null, null, null, false);
 
-Allure.step("setting property");
-log.info("setting property");
-Integer propVal = Integer.valueOf(grid.getPropertyValue("domibus.passwordPolicy.defaultPasswordExpiration"));
-grid.setPropertyValue("domibus.passwordPolicy.defaultPasswordExpiration", "10");
-page.getAlertArea().waitForAlert();
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
 
-Allure.step("getting expiry date after change");
-log.info("getting expiry date after change");
-String newExpiryDateDefAdmin = rest.users().getUser(null, data.getAdminUser().get("username")).getString("expirationDate");
-String rndUserNewExpiryDate = rest.users().getUser(null, rndUser).getString("expirationDate");
+		Allure.step("setting property");
+		log.info("setting property");
+		grid.setPropertyValue("domibus.passwordPolicy.checkDefaultPassword", "true");
+		page.getAlertArea().waitForAlert();
 
-Allure.step("comparing dates");
-log.info("comparing dates");
-Date defAdminBefore = DateUtils.parseDate(expiryDateDefAdmin, "yyyy-MM-dd'T'HH:mm:ss.SSS");
-Date defAdminAfter = DateUtils.parseDate(newExpiryDateDefAdmin, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+		logout();
+		Allure.step("login with default user and default pass to check the effect of change");
+		log.info("login with default user and default pass to check the effect of change");
+		login(data.getAdminUser());
 
-Date rndExpBefore = DateUtils.parseDate(rndUserExpiryDate, "yyyy-MM-dd'T'HH:mm:ss.SSS");
-Date rndExpAfter = DateUtils.parseDate(rndUserNewExpiryDate, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+		Allure.step("checking that alert is shown, popup is shown, user is on change pass page");
+		log.info("checking that alert is shown, popup is shown, user is on change pass page");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown after login");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_DEFAULT_PASS, "Correct message is shown - ");
+
+		soft.assertTrue(page.hasOpenDialog(), "Page has a open dialog warning");
+		soft.assertEquals(new Dialog(driver).getMessage(), DMessages.LOGIN_DEFAULT_PASS, "Popup displays correct message");
+
+		soft.assertTrue(driver.getCurrentUrl().contains("changePassword"), "URL contains changePassword");
+		soft.assertTrue(new ChangePasswordPage(driver).isLoaded(), "Change password page is loaded");
+
+		Allure.step("reseting property value and check effect");
+		log.info("reseting property value and check effect");
+
+		logout();
+		login(adminUserName, data.defaultPass());
+
+		Allure.step("going to properties page");
+		log.info("going to properties page");
+		page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		Allure.step("waiting for grid to load");
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		Allure.step("filtering for property");
+		log.info("filtering for property");
+		page.filters().filterBy("domibus.passwordPolicy.checkDefaultPassword", null, null, null, false);
+
+		grid = page.propGrid();
+		grid.waitForRowsToLoad();
+
+		Allure.step("setting property value");
+		log.info("setting property value");
+		grid.setPropertyValue("domibus.passwordPolicy.checkDefaultPassword", "false");
+		page.getAlertArea().waitForAlert();
+
+		logout();
+		login(data.getAdminUser());
+
+		Allure.step("checking the effect of property change");
+		log.info("checking the effect of property change");
+		soft.assertNull(page.getAlertArea().getAlertMessage(), "After setting prop back to false no more error message appears after login");
+
+		soft.assertAll();
+	}
 
 
-soft.assertEquals(DateUtils.addDays(defAdminAfter, propVal - 10), defAdminBefore, "Checking days difference between after and before dates for system admin");
-soft.assertEquals(rndExpBefore, rndExpAfter, "Checking days difference between after and before dates for rnd user");
+	/* EDELIVERY-7330 - PROP-21 - Update property domibus.passwordPolicy.defaultPasswordExpiration  */
+	/*  PROP-21 - Update property domibuspasswordPolicydefaultPasswordExpiration  */
+	@Description("PROP-21 - Update property domibuspasswordPolicydefaultPasswordExpiration")
+	@Link(name = "EDELIVERY-7330", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7330")
+	@AllureId("PROP-21")
+	@Test(description = "PROP-21", groups = {"multiTenancy", "singleTenancy"})
+	public void defaultPassExpiration() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		Allure.step("going to properties page");
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		Allure.step("getting expiry date before change");
+		log.info("getting expiry date before change");
+		String expiryDateDefAdmin = rest.users().getUser(null, data.getAdminUser().get("username")).getString("expirationDate");
+		String rndUser = rest.getUsername(null, DRoles.USER, true, false, true);
+		String rndUserExpiryDate = rest.users().getUser(null, rndUser).getString("expirationDate");
+
+		Allure.step("waiting for grid to load");
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		Allure.step("filtering for property");
+		log.info("filtering for property");
+		page.filters().filterBy("domibus.passwordPolicy.defaultPasswordExpiration", null, null, null, !data.isMultiDomain());
+
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
+
+		Allure.step("setting property");
+		log.info("setting property");
+		Integer propVal = Integer.valueOf(grid.getPropertyValue("domibus.passwordPolicy.defaultPasswordExpiration"));
+		grid.setPropertyValue("domibus.passwordPolicy.defaultPasswordExpiration", "10");
+		page.getAlertArea().waitForAlert();
+
+		Allure.step("getting expiry date after change");
+		log.info("getting expiry date after change");
+		String newExpiryDateDefAdmin = rest.users().getUser(null, data.getAdminUser().get("username")).getString("expirationDate");
+		String rndUserNewExpiryDate = rest.users().getUser(null, rndUser).getString("expirationDate");
+
+		Allure.step("comparing dates");
+		log.info("comparing dates");
+		Date defAdminBefore = DateUtils.parseDate(expiryDateDefAdmin, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+		Date defAdminAfter = DateUtils.parseDate(newExpiryDateDefAdmin, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+		Date rndExpBefore = DateUtils.parseDate(rndUserExpiryDate, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+		Date rndExpAfter = DateUtils.parseDate(rndUserNewExpiryDate, "yyyy-MM-dd'T'HH:mm:ss.SSS");
 
 
-soft.assertAll();
-}
+		soft.assertEquals(DateUtils.addDays(defAdminAfter, propVal - 10), defAdminBefore, "Checking days difference between after and before dates for system admin");
+		soft.assertEquals(rndExpBefore, rndExpAfter, "Checking days difference between after and before dates for rnd user");
 
 
-/* EDELIVERY-7331 - PROP-22 - Update property domibus.passwordPolicy.dontReuseLast */
-/*  PROP-22 - Update property domibuspasswordPolicydontReuseLast  */
-@Description("PROP-22 - Update property domibuspasswordPolicydontReuseLast")
-@Link(name = "EDELIVERY-7331", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7331")
-@AllureId("PROP-22")
-@Test(description = "PROP-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
-public void dontReuseLastPass() throws Exception {
-SoftAssert soft = new SoftAssert();
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7331 - PROP-22 - Update property domibus.passwordPolicy.dontReuseLast */
+	/*  PROP-22 - Update property domibuspasswordPolicydontReuseLast  */
+	@Description("PROP-22 - Update property domibuspasswordPolicydontReuseLast")
+	@Link(name = "EDELIVERY-7331", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7331")
+	@AllureId("PROP-22")
+	@Test(description = "PROP-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	public void dontReuseLastPass() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
 //		checking property at domain level
-String username = rest.getUsername(null, DRoles.USER, true, false, true);
-for (int i = 0; i <= 5; i++) {
-Allure.step("changing pass for user " + username);
-log.info("changing pass for user " + username);
-rest.users().changePassForUser(null, username, data.defaultPass() + i);
-}
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
+		for (int i = 0; i <= 5; i++) {
+			Allure.step("changing pass for user " + username);
+			log.info("changing pass for user " + username);
+			rest.users().changePassForUser(null, username, data.defaultPass() + i);
+		}
 
-Integer propVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.dontReuseLast", true, "3"));
+		Integer propVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.dontReuseLast", true, "3"));
 
-boolean isErr = true;
-int count = 0;
-while (isErr && count < 5) {
-Allure.step("attempt " + count);
-log.info("attempt " + count);
-try {
-rest.users().changePassForUser(null, username, data.defaultPass() + (5 - count));
-isErr = false;
-} catch (Exception e) {
-count++;
-}
+		boolean isErr = true;
+		int count = 0;
+		while (isErr && count < 5) {
+			Allure.step("attempt " + count);
+			log.info("attempt " + count);
+			try {
+				rest.users().changePassForUser(null, username, data.defaultPass() + (5 - count));
+				isErr = false;
+			} catch (Exception e) {
+				count++;
+			}
 
-}
+		}
 
-soft.assertEquals(count, 3, "cannot reuse any of the last 3 passwords");
+		soft.assertEquals(count, 3, "cannot reuse any of the last 3 passwords");
 
 
 //		checking property at super level
-if (data.isMultiDomain()) {
-username = rest.getUsername(null, DRoles.SUPER, true, false, true);
-for (int i = 0; i <= 5; i++) {
-Allure.step("changing pass for user " + username);
-log.info("changing pass for user " + username);
-rest.users().changePassForUser(null, username, data.defaultPass() + i);
-}
+		if (data.isMultiDomain()) {
+			username = rest.getUsername(null, DRoles.SUPER, true, false, true);
+			for (int i = 0; i <= 5; i++) {
+				Allure.step("changing pass for user " + username);
+				log.info("changing pass for user " + username);
+				rest.users().changePassForUser(null, username, data.defaultPass() + i);
+			}
 
-propVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.dontReuseLast", false, "2"));
+			propVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.dontReuseLast", false, "2"));
 
-isErr = true;
-count = 0;
-while (isErr && count < 5) {
-Allure.step("attempt " + count);
-log.info("attempt " + count);
-try {
-rest.users().changePassForUser(null, username, data.defaultPass() + (5 - count));
-isErr = false;
-} catch (Exception e) {
-count++;
-}
+			isErr = true;
+			count = 0;
+			while (isErr && count < 5) {
+				Allure.step("attempt " + count);
+				log.info("attempt " + count);
+				try {
+					rest.users().changePassForUser(null, username, data.defaultPass() + (5 - count));
+					isErr = false;
+				} catch (Exception e) {
+					count++;
+				}
 
-}
-soft.assertEquals(count, 2, "cannot reuse any of the last 2 passwords");
-}
-
-
-soft.assertAll();
-}
+			}
+			soft.assertEquals(count, 2, "cannot reuse any of the last 2 passwords");
+		}
 
 
-/* EDELIVERY-7332 - PROP-23 - Update property domibus.passwordPolicy.expiration */
-/*  PROP-23 - Update property domibuspasswordPolicyexpiration  */
-@Description("PROP-23 - Update property domibuspasswordPolicyexpiration")
-@Link(name = "EDELIVERY-7332", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7332")
-@AllureId("PROP-23")
-@Test(description = "PROP-23", groups = {"multiTenancy", "singleTenancy"})
-public void regularPassExpiration() throws Exception {
-SoftAssert soft = new SoftAssert();
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7332 - PROP-23 - Update property domibus.passwordPolicy.expiration */
+	/*  PROP-23 - Update property domibuspasswordPolicyexpiration  */
+	@Description("PROP-23 - Update property domibuspasswordPolicyexpiration")
+	@Link(name = "EDELIVERY-7332", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7332")
+	@AllureId("PROP-23")
+	@Test(description = "PROP-23", groups = {"multiTenancy", "singleTenancy"})
+	public void regularPassExpiration() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
 //		checking property at domain level
-String username = rest.getUsername(null, DRoles.USER, true, false, true);
-Allure.step("getting expiry date before change");
-log.info("getting expiry date before change");
-String oldExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
+		Allure.step("getting expiry date before change");
+		log.info("getting expiry date before change");
+		String oldExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
 
-Integer oldPropVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.expiration", true, "10"));
+		Integer oldPropVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.expiration", true, "10"));
 
-Allure.step("getting expiry date after change");
-log.info("getting expiry date after change");
-String newExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
+		Allure.step("getting expiry date after change");
+		log.info("getting expiry date after change");
+		String newExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
 
-Allure.step("checking the new expiry date is correct");
-log.info("checking the new expiry date is correct");
-Date oldDate = DateUtils.parseDate(oldExpiryDate, passExpirationDatePattern);
-Date newDate = DateUtils.parseDate(newExpiryDate, passExpirationDatePattern);
-soft.assertEquals(oldDate, DateUtils.addDays(newDate, oldPropVal - 10), "date updated correctly");
+		Allure.step("checking the new expiry date is correct");
+		log.info("checking the new expiry date is correct");
+		Date oldDate = DateUtils.parseDate(oldExpiryDate, passExpirationDatePattern);
+		Date newDate = DateUtils.parseDate(newExpiryDate, passExpirationDatePattern);
+		soft.assertEquals(oldDate, DateUtils.addDays(newDate, oldPropVal - 10), "date updated correctly");
 
-if (data.isMultiDomain()) {
+		if (data.isMultiDomain()) {
 //		checking property at SUPER level
-username = rest.getUsername(null, DRoles.SUPER, true, false, true);
-Allure.step("getting expiry date before change");
-log.info("getting expiry date before change");
-oldExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
+			username = rest.getUsername(null, DRoles.SUPER, true, false, true);
+			Allure.step("getting expiry date before change");
+			log.info("getting expiry date before change");
+			oldExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
 
-oldPropVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.expiration", false, "10"));
+			oldPropVal = Integer.valueOf(modifyProperty("domibus.passwordPolicy.expiration", false, "10"));
 
-Allure.step("getting expiry date after change");
-log.info("getting expiry date after change");
-newExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
+			Allure.step("getting expiry date after change");
+			log.info("getting expiry date after change");
+			newExpiryDate = rest.users().getUser(null, username).getString("expirationDate");
 
-Allure.step("checking the new expiry date is correct");
-log.info("checking the new expiry date is correct");
-oldDate = DateUtils.parseDate(oldExpiryDate, passExpirationDatePattern);
-newDate = DateUtils.parseDate(newExpiryDate, passExpirationDatePattern);
-soft.assertEquals(oldDate, DateUtils.addDays(newDate, oldPropVal - 10), "date updated correctly");
-}
-
-
-soft.assertAll();
-}
+			Allure.step("checking the new expiry date is correct");
+			log.info("checking the new expiry date is correct");
+			oldDate = DateUtils.parseDate(oldExpiryDate, passExpirationDatePattern);
+			newDate = DateUtils.parseDate(newExpiryDate, passExpirationDatePattern);
+			soft.assertEquals(oldDate, DateUtils.addDays(newDate, oldPropVal - 10), "date updated correctly");
+		}
 
 
-/*     EDELIVERY-7333 - PROP-24 - Update property domibus.passwordPolicy.pattern */
-/*  PROP-24 - Update property domibuspasswordPolicypattern  */
-@Description("PROP-24 - Update property domibuspasswordPolicypattern")
-@Link(name = "EDELIVERY-7333", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7333")
-@AllureId("PROP-24")
-@Test(description = "PROP-24", groups = {"multiTenancy", "singleTenancy"})
-public void checkPolicyPattern() throws Exception {
-SoftAssert soft = new SoftAssert();
+		soft.assertAll();
+	}
+
+
+	/*     EDELIVERY-7333 - PROP-24 - Update property domibus.passwordPolicy.pattern */
+	/*  PROP-24 - Update property domibuspasswordPolicypattern  */
+	@Description("PROP-24 - Update property domibuspasswordPolicypattern")
+	@Link(name = "EDELIVERY-7333", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7333")
+	@AllureId("PROP-24")
+	@Test(description = "PROP-24", groups = {"multiTenancy", "singleTenancy"})
+	public void checkPolicyPattern() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
 //		checking property at domain level
-String username = rest.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 
-String oldPropVal = modifyProperty("domibus.passwordPolicy.pattern", true, "[0-9].{8,32}");
+		String oldPropVal = modifyProperty("domibus.passwordPolicy.pattern", true, "[0-9].{8,32}");
 
-try {
-rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(10));
-} catch (Exception e) {
-soft.assertTrue(false, "Updating pass to only numbers failed for user");
-}
+		try {
+			rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(10));
+		} catch (Exception e) {
+			soft.assertTrue(false, "Updating pass to only numbers failed for user");
+		}
 
-rest.properties().updateDomibusProperty("domibus.passwordPolicy.pattern", oldPropVal, null);
+		rest.properties().updateDomibusProperty("domibus.passwordPolicy.pattern", oldPropVal, null);
 
-if (data.isMultiDomain()) {
+		if (data.isMultiDomain()) {
 //		checking property at super level
-String superUsername = rest.getUsername(null, DRoles.SUPER, true, false, true);
+			String superUsername = rest.getUsername(null, DRoles.SUPER, true, false, true);
 
-modifyProperty("domibus.passwordPolicy.pattern", false, "[0-9].{8,32}");
+			modifyProperty("domibus.passwordPolicy.pattern", false, "[0-9].{8,32}");
 
-try {
-rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(10));
-} catch (Exception e) {
-soft.assertTrue(false, "Updating pass to only numbers failed for super");
-}
-rest.properties().updateGlobalProperty("domibus.passwordPolicy.pattern", oldPropVal);
-}
-
-
-soft.assertAll();
-}
+			try {
+				rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(10));
+			} catch (Exception e) {
+				soft.assertTrue(false, "Updating pass to only numbers failed for super");
+			}
+			rest.properties().updateGlobalProperty("domibus.passwordPolicy.pattern", oldPropVal);
+		}
 
 
-/* EDELIVERY-7334 - PROP-25 - Update property domibus.passwordPolicy.validationMessage */
-/*  PROP-25 - Update property domibuspasswordPolicyvalidationMessage  */
-@Description("PROP-25 - Update property domibuspasswordPolicyvalidationMessage")
-@Link(name = "EDELIVERY-7334", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7334")
-@AllureId("PROP-25")
-@Test(description = "PROP-25", groups = {"multiTenancy", "singleTenancy"})
-public void checkPolicyValidationMessage() throws Exception {
-SoftAssert soft = new SoftAssert();
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7334 - PROP-25 - Update property domibus.passwordPolicy.validationMessage */
+	/*  PROP-25 - Update property domibuspasswordPolicyvalidationMessage  */
+	@Description("PROP-25 - Update property domibuspasswordPolicyvalidationMessage")
+	@Link(name = "EDELIVERY-7334", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7334")
+	@AllureId("PROP-25")
+	@Test(description = "PROP-25", groups = {"multiTenancy", "singleTenancy"})
+	public void checkPolicyValidationMessage() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
 //		checking property at domain level
-String username = rest.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
 
-String newValidationMessage = "newUSERValidationMessage";
-String oldPropVal = modifyProperty("domibus.passwordPolicy.validationMessage", true, newValidationMessage);
+		String newValidationMessage = "newUSERValidationMessage";
+		String oldPropVal = modifyProperty("domibus.passwordPolicy.validationMessage", true, newValidationMessage);
 
-String newSuperValidationMessage = "newSUPERValidationMessage";
+		String newSuperValidationMessage = "newSUPERValidationMessage";
 
-if (data.isMultiDomain()) {
-String oldSuperPropVal = modifyProperty("domibus.passwordPolicy.validationMessage", false, newSuperValidationMessage);
-}
+		if (data.isMultiDomain()) {
+			String oldSuperPropVal = modifyProperty("domibus.passwordPolicy.validationMessage", false, newSuperValidationMessage);
+		}
 
-UsersPage page = new UsersPage(driver);
-page.getSidebar().goToPage(PAGES.USERS);
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
 
-UsersGrid grid = page.getUsersGrid();
-grid.waitForRowsToLoad();
+		UsersGrid grid = page.getUsersGrid();
+		grid.waitForRowsToLoad();
 
-page.getNewBtn().click();
+		page.getNewBtn().click();
 
-UserModal modal = new UserModal(driver);
-modal.getPasswordInput().fill("notGood");
+		UserModal modal = new UserModal(driver);
+		modal.getPasswordInput().fill("notGood");
 
 
-soft.assertEquals(modal.getPassErrMess().getText(), "Password should follow all of these rules:\n\n" + newValidationMessage, "User validation message changed according to property");
+		soft.assertEquals(modal.getPassErrMess().getText(), "Password should follow all of these rules:\n\n" + newValidationMessage, "User validation message changed according to property");
 
-if (data.isMultiDomain()) {
+		if (data.isMultiDomain()) {
 
-page.refreshPage();
-grid.waitForRowsToLoad();
+			page.refreshPage();
+			grid.waitForRowsToLoad();
 
-page.getNewBtn().click();
-modal.getRoleSelect().selectOptionByText(DRoles.SUPER);
+			page.getNewBtn().click();
+			modal.getRoleSelect().selectOptionByText(DRoles.SUPER);
 
-modal.getPasswordInput().fill("notGood");
-soft.assertEquals(modal.getPassErrMess().getText(), "Password should follow all of these rules:\n\n" + newSuperValidationMessage, "Super validation message changed according to property");
+			modal.getPasswordInput().fill("notGood");
+			soft.assertEquals(modal.getPassErrMess().getText(), "Password should follow all of these rules:\n\n" + newSuperValidationMessage, "Super validation message changed according to property");
 
-rest.properties().updateGlobalProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
-}
+			rest.properties().updateGlobalProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
+		}
 
-rest.properties().updateDomibusProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
-soft.assertAll();
-}
+		rest.properties().updateDomibusProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
+		soft.assertAll();
+	}
 
-/* EDELIVERY-7336 - PROP-27 - Update property domibus.property.length.max */
-/*  PROP-27 - Update property domibuspropertylengthmax  */
-@Description("PROP-27 - Update property domibuspropertylengthmax")
-@Link(name = "EDELIVERY-7336", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7336")
-@AllureId("PROP-27")
-@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"})
-public void checkPropertyLengthMax() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/* EDELIVERY-7336 - PROP-27 - Update property domibus.property.length.max */
+	/*  PROP-27 - Update property domibuspropertylengthmax  */
+	@Description("PROP-27 - Update property domibuspropertylengthmax")
+	@Link(name = "EDELIVERY-7336", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7336")
+	@AllureId("PROP-27")
+	@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"})
+	public void checkPropertyLengthMax() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-String expectedErrorTemplate = "Could not update property: Invalid property value [%s] for property [%s]. Maximum accepted length is: %s";
-String newMaxLength = "10";
+		String expectedErrorTemplate = "Could not update property: Invalid property value [%s] for property [%s]. Maximum accepted length is: %s";
+		String newMaxLength = "10";
 
-PropertiesPage page = new PropertiesPage(driver);
+		PropertiesPage page = new PropertiesPage(driver);
 
-String oldVal = modifyProperty("domibus.property.length.max", false, "10");
+		String oldVal = modifyProperty("domibus.property.length.max", false, "10");
 
-if (page.getAlertArea().isError()) {
-soft.fail("Could not update property domibus.property.length.max");
-}
+		if (page.getAlertArea().isError()) {
+			soft.fail("Could not update property domibus.property.length.max");
+		}
 
-try {
-String globalNewVal = Gen.randomAlphaNumeric(12);
+		try {
+			String globalNewVal = Gen.randomAlphaNumeric(12);
 //			modifyProperty("domibus.instance.name", false, globalNewVal);
 //			soft.assertEquals(page.getAlertArea().getAlertMessage()
 //					, String.format(expectedErrorTemplate, globalNewVal, "domibus.instance.name", newMaxLength)
 //					, "Correct error message is shown (GLOBAL)");
-String global_oldVal = rest.properties().getPropertyValue("domibus.instance.name", false, null);
-ClientResponse response = rest.properties().updateGlobalProperty("domibus.instance.name", globalNewVal);
-soft.assertFalse(response.getStatus() == 200, "Response is not success");
+			String global_oldVal = rest.properties().getPropertyValue("domibus.instance.name", false, null);
+			ClientResponse response = rest.properties().updateGlobalProperty("domibus.instance.name", globalNewVal);
+			soft.assertFalse(response.getStatus() == 200, "Response is not success");
 
-rest.properties().updateGlobalProperty("domibus.instance.name", global_oldVal);
-} catch (Exception e) {
-}
-try {
+			rest.properties().updateGlobalProperty("domibus.instance.name", global_oldVal);
+		} catch (Exception e) {
+		}
+		try {
 
-String globalNewVal = Gen.randomAlphaNumeric(12);
-modifyProperty("domibus.ui.support.team.name", true, globalNewVal);
-soft.assertEquals(page.getAlertArea().getAlertMessage()
-, String.format(expectedErrorTemplate, globalNewVal, "domibus.ui.support.team.name", newMaxLength)
-, "Correct error message is shown (DOMAIN)");
+			String globalNewVal = Gen.randomAlphaNumeric(12);
+			modifyProperty("domibus.ui.support.team.name", true, globalNewVal);
+			soft.assertEquals(page.getAlertArea().getAlertMessage()
+					, String.format(expectedErrorTemplate, globalNewVal, "domibus.ui.support.team.name", newMaxLength)
+					, "Correct error message is shown (DOMAIN)");
 
-} catch (Exception e) {
-}
+		} catch (Exception e) {
+		}
 
-rest.properties().updateGlobalProperty("domibus.property.length.max", oldVal);
+		rest.properties().updateGlobalProperty("domibus.property.length.max", oldVal);
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
 
 
-/* EDELIVERY-7337 - PROP-28 - Update property domibus.property.validation.enabled */
-/*  PROP-28 - Update property domibuspropertyvalidationenabled  */
-@Description("PROP-28 - Update property domibuspropertyvalidationenabled")
-@Link(name = "EDELIVERY-7337", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7337")
-@AllureId("PROP-28")
-@Test(description = "PROP-28", groups = {"multiTenancy", "singleTenancy"})
-public void propertyValidation() throws Exception {
-SoftAssert soft = new SoftAssert();
+	/* EDELIVERY-7337 - PROP-28 - Update property domibus.property.validation.enabled */
+	/*  PROP-28 - Update property domibuspropertyvalidationenabled  */
+	@Description("PROP-28 - Update property domibuspropertyvalidationenabled")
+	@Link(name = "EDELIVERY-7337", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7337")
+	@AllureId("PROP-28")
+	@Test(description = "PROP-28", groups = {"multiTenancy", "singleTenancy"})
+	public void propertyValidation() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-List<String> toUdateDomain = Arrays.asList("domibus.alert.cert.expired.active"
-, "domibus.passwordPolicy.expiration"
-, "domibus.sendMessage.messageIdPattern"
+		List<String> toUdateDomain = Arrays.asList("domibus.alert.cert.expired.active"
+				, "domibus.passwordPolicy.expiration"
+				, "domibus.sendMessage.messageIdPattern"
 //				,"domibus.dispatcher.concurency"
 //				,"domibus.pull.retrry.cron"
 //				,"domibus.alert.sender.email"
 //				,"domibus.attachment.temp.storage.location"
-);
+		);
 
-List<String> toUdateGlobal = Arrays.asList(
-"domibus.auth.unsecureLoginAllowed"
-, "domibus.alert.cleaner.cron"
+		List<String> toUdateGlobal = Arrays.asList(
+				"domibus.auth.unsecureLoginAllowed"
+				, "domibus.alert.cleaner.cron"
 //				, "domibus.alert.sender.email"
 //				, "domibus.passwordPolicy.expiration"
 //				, "wsplugin.dispatcher.worker.cronExpression"
 //				, "domibus.alert.sender.smtp.url"
 //				, "domibus.alert.sender.smtp.url"
-);
+		);
 
-PropertiesPage page = new PropertiesPage(driver);
+		PropertiesPage page = new PropertiesPage(driver);
 
-String oldVal = modifyProperty("domibus.property.validation.enabled", false, "false");
+		String oldVal = modifyProperty("domibus.property.validation.enabled", false, "false");
 
-if (data.isMultiDomain()) {
-for (String prop : toUdateGlobal) {
-soft.assertTrue(isPropUpdateSuccess(prop, Gen.randomAlphaNumeric(5), false, null), "Global properties can be updated to invalid values when validation is turned off");
-}
-}
+		if (data.isMultiDomain()) {
+			for (String prop : toUdateGlobal) {
+				soft.assertTrue(isPropUpdateSuccess(prop, Gen.randomAlphaNumeric(5), false, null), "Global properties can be updated to invalid values when validation is turned off");
+			}
+		}
 
-for (String domProp : toUdateDomain) {
-soft.assertTrue(isPropUpdateSuccess(domProp, Gen.randomAlphaNumeric(5), true, null), "Domain properties can be updated to invalid values when validation is turned off");
-}
+		for (String domProp : toUdateDomain) {
+			soft.assertTrue(isPropUpdateSuccess(domProp, Gen.randomAlphaNumeric(5), true, null), "Domain properties can be updated to invalid values when validation is turned off");
+		}
 
-rest.properties().updateGlobalProperty("domibus.property.validation.enabled", oldVal);
-soft.assertAll();
-}
+		rest.properties().updateGlobalProperty("domibus.property.validation.enabled", oldVal);
+		soft.assertAll();
+	}
 
-private boolean isPropUpdateSuccess(String propname, String propval, boolean isDomain, String domain) throws Exception {
-String currentVal = rest.properties().getPropertyValue(propname, isDomain, domain);
-boolean toreturn = false;
-try {
-ClientResponse response = null;
-if (isDomain) {
-response = rest.properties().updateDomibusProperty(propname, currentVal, domain);
-} else {
-response = rest.properties().updateGlobalProperty(propname, currentVal);
-}
+	private boolean isPropUpdateSuccess(String propname, String propval, boolean isDomain, String domain) throws Exception {
+		String currentVal = rest.properties().getPropertyValue(propname, isDomain, domain);
+		boolean toreturn = false;
+		try {
+			ClientResponse response = null;
+			if (isDomain) {
+				response = rest.properties().updateDomibusProperty(propname, currentVal, domain);
+			} else {
+				response = rest.properties().updateGlobalProperty(propname, currentVal);
+			}
 
-if (response.getStatus() == 200) {
-toreturn = true;
-}
-Allure.step(response.getEntity(String.class));
-log.debug(response.getEntity(String.class));
+			if (response.getStatus() == 200) {
+				toreturn = true;
+			}
+			Allure.step(response.getEntity(String.class));
+			log.debug(response.getEntity(String.class));
 
-} catch (Exception e) {
-} finally {
-if (isDomain) {
-rest.properties().updateDomibusProperty(propname, currentVal, domain);
-} else {
-rest.properties().updateGlobalProperty(propname, currentVal);
-}
+		} catch (Exception e) {
+		} finally {
+			if (isDomain) {
+				rest.properties().updateDomibusProperty(propname, currentVal, domain);
+			} else {
+				rest.properties().updateGlobalProperty(propname, currentVal);
+			}
 
-}
-return toreturn;
-}
-
-
-/*     EDELIVERY-7340 - PROP-31 - Update domain property domain.title */
-/*  PROP-31 - Update domain property domaintitle  */
-@Description("PROP-31 - Update domain property domaintitle")
-@Link(name = "EDELIVERY-7340", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7340")
-@AllureId("PROP-31")
-@Test(description = "PROP-31", groups = {"multiTenancy"})
-public void domainTitle() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String newDomainTitle = Gen.randomAlphaNumeric(5);
-PropertiesPage page = new PropertiesPage(driver);
-
-String oldVal = modifyProperty("domain.title", true, newDomainTitle);
-
-page.refreshPage();
-
-soft.assertEquals(page.getDomainFromTitle(), newDomainTitle, "new domain title has taken effect");
-
-rest.properties().updateDomibusProperty("domain.title", oldVal);
-soft.assertAll();
-}
-
-/* EDELIVERY-7341 - PROP-32 - Update domain property domibus.UI.title.name */
-/*  PROP-32 - Update domain property domibusUItitlename  */
-@Description("PROP-32 - Update domain property domibusUItitlename")
-@Link(name = "EDELIVERY-7341", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7341")
-@AllureId("PROP-32")
-@Test(description = "PROP-32", groups = {"multiTenancy", "singleTenancy"})
-public void uiTitleName() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String newUITitle = Gen.randomAlphaNumeric(5);
-PropertiesPage page = new PropertiesPage(driver);
-
-String oldVal = modifyProperty("domibus.UI.title.name", true, newUITitle);
-
-page.refreshPage();
-
-soft.assertEquals(driver.getTitle(), newUITitle, "new ui title has taken effect");
-
-rest.properties().updateDomibusProperty("domibus.UI.title.name", oldVal);
-soft.assertAll();
-}
-
-/*     EDELIVERY-7344 - PROP-35 - Update domain property domibus.ui.csv.rows.max */
-/*  PROP-35 - Update domain property domibusuicsvrowsmax  */
-@Description("PROP-35 - Update domain property domibusuicsvrowsmax")
-@Link(name = "EDELIVERY-7344", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7344")
-@AllureId("PROP-35")
-@Test(description = "PROP-35", groups = {"multiTenancy", "singleTenancy"})
-public void csvRowsMax() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String expetedErrorMessage = "The number of elements to export [%s] exceeds the maximum allowed [%s].";
-
-PropertiesPage page = new PropertiesPage(driver);
-
-String oldVal = modifyProperty("domibus.ui.csv.rows.max", true, "5");
-page.refreshPage();
-
-page.grid().waitForRowsToLoad();
-
-int totalItems = page.grid().getPagination().getTotalItems();
-
-page.getSaveCSVButton().click();
-soft.assertTrue(page.getAlertArea().isError(), "error message present");
-
-soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(expetedErrorMessage, totalItems, 5), "correct error message listed");
-
-rest.properties().updateDomibusProperty("domibus.ui.csv.rows.max", oldVal);
-soft.assertAll();
-}
-
-/*    EDELIVERY-7343 - PROP-34 - Update domain property domibus.monitoring.connection.party.enabled */
-/*  PROP-34 - Update domain property domibusmonitoringconnectionpartyenabled  */
-@Description("PROP-34 - Update domain property domibusmonitoringconnectionpartyenabled")
-@Link(name = "EDELIVERY-7343", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7343")
-@AllureId("PROP-34")
-@Test(description = "PROP-34", groups = {"multiTenancy", "singleTenancy"})
-public void monitoringParty() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String partyID = rest.pmodeParties().getParties(null).getJSONObject(0).getString("joinedIdentifiers");
-String oldVal = modifyProperty("domibus.monitoring.connection.party.enabled", true, partyID);
-
-List<String> monitored = rest.connMonitor().getMonitoredParties(null);
-
-soft.assertTrue(monitored.size() == 1, "Only one monitored party");
-soft.assertEquals(monitored.get(0), partyID, "monitored party is correct");
-
-rest.properties().updateDomibusProperty("domibus.monitoring.connection.party.enabled", oldVal);
-soft.assertAll();
-}
-
-/*        EDELIVERY-7352 - PROP-42 - Admin modifies properties */
-/*  PROP-42 - Admin modifies properties  */
-@Description("PROP-42 - Admin modifies properties")
-@Link(name = "EDELIVERY-7352", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7352")
-@AllureId("PROP-42")
-@Test(description = "PROP-42", groups = {"multiTenancy"})
-public void adminAccessToProperties() throws Exception {
-SoftAssert soft = new SoftAssert();
-
-String adminUsername = rest.getUsername(null, DRoles.ADMIN, true, false, true);
-
-login(adminUsername, data.defaultPass());
-
-PropertiesPage page = new PropertiesPage(driver);
-page.getSidebar().goToPage(PAGES.PROPERTIES);
-
-String filename = page.pressSaveCsvAndSaveFile();
-
-Scanner scanner = new Scanner(new File(filename));
-while (scanner.hasNextLine()) {
-if (scanner.nextLine().contains("GLOBAL")) {
-soft.fail("Global property found");
-}
-}
-scanner.close();
+		}
+		return toreturn;
+	}
 
 
-soft.assertAll();
-}
+	/*     EDELIVERY-7340 - PROP-31 - Update domain property domain.title */
+	/*  PROP-31 - Update domain property domaintitle  */
+	@Description("PROP-31 - Update domain property domaintitle")
+	@Link(name = "EDELIVERY-7340", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7340")
+	@AllureId("PROP-31")
+	@Test(description = "PROP-31", groups = {"multiTenancy"})
+	public void domainTitle() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-/* EDELIVERY-7351 - PROP-41 - Check properties value for each domain*/
-/*  PROP-41 - Check properties value for each domain  */
-@Description("PROP-41 - Check properties value for each domain")
-@Link(name = "EDELIVERY-7351", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7351")
-@AllureId("PROP-41")
-@Test(description = "PROP-41", groups = {"multiTenancy"})
-public void propertyValuesSegragatedByDomain() throws Exception {
-SoftAssert soft = new SoftAssert();
+		String newDomainTitle = Gen.randomAlphaNumeric(5);
+		PropertiesPage page = new PropertiesPage(driver);
 
-String oldVal = modifyProperty("domibus.UI.title.name", true, "testDefault");
+		String oldVal = modifyProperty("domain.title", true, newDomainTitle);
 
-PropertiesPage page = new PropertiesPage(driver);
-page.getDomainSelector().selectAnotherDomain();
+		page.refreshPage();
 
-String anotherDomVal = page.propGrid().getPropertyValue("domibus.UI.title.name");
+		soft.assertEquals(page.getDomainFromTitle(), newDomainTitle, "new domain title has taken effect");
 
-soft.assertNotEquals(anotherDomVal , "testDefault" , "Property value differs on the other domain");
+		rest.properties().updateDomibusProperty("domain.title", oldVal);
+		soft.assertAll();
+	}
 
-rest.properties().updateDomibusProperty("domibus.UI.title.name", oldVal, null);
+	/* EDELIVERY-7341 - PROP-32 - Update domain property domibus.UI.title.name */
+	/*  PROP-32 - Update domain property domibusUItitlename  */
+	@Description("PROP-32 - Update domain property domibusUItitlename")
+	@Link(name = "EDELIVERY-7341", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7341")
+	@AllureId("PROP-32")
+	@Test(description = "PROP-32", groups = {"multiTenancy", "singleTenancy"})
+	public void uiTitleName() throws Exception {
+		SoftAssert soft = new SoftAssert();
 
-soft.assertAll();
-}
+		String newUITitle = Gen.randomAlphaNumeric(5);
+		PropertiesPage page = new PropertiesPage(driver);
 
-/* PROP-36 - Update domain properties domibus.ui.support.team.email and domibus.ui.support.team.name */
-/*  PROP-41 - Check properties value for each domain  */
-@Description("PROP-41 - Check properties value for each domain")
-@Link(name = "EDELIVERY-7351", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7351")
-@AllureId("PROP-41")
-@Test(description = "PROP-41", groups = {"multiTenancy"})
-public void supportTeamData() throws Exception {
-SoftAssert soft = new SoftAssert();
+		String oldVal = modifyProperty("domibus.UI.title.name", true, newUITitle);
 
-modifyProperty("domibus.ui.support.team.email", true, "test@email.com");
-modifyProperty("domibus.ui.support.team.name", true, "Test support Team");
+		page.refreshPage();
 
-String newEmail = rest.properties().getPropertyValue("domibus.ui.support.team.email", true, null);
-String newTeamName = rest.properties().getPropertyValue("domibus.ui.support.team.name", true, null);
+		soft.assertEquals(driver.getTitle(), newUITitle, "new ui title has taken effect");
 
-soft.assertEquals(newEmail ,"test@email.com" , "");
-soft.assertEquals(newTeamName , "Test support Team", "");
+		rest.properties().updateDomibusProperty("domibus.UI.title.name", oldVal);
+		soft.assertAll();
+	}
+
+	/*     EDELIVERY-7344 - PROP-35 - Update domain property domibus.ui.csv.rows.max */
+	/*  PROP-35 - Update domain property domibusuicsvrowsmax  */
+	@Description("PROP-35 - Update domain property domibusuicsvrowsmax")
+	@Link(name = "EDELIVERY-7344", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7344")
+	@AllureId("PROP-35")
+	@Test(description = "PROP-35", groups = {"multiTenancy", "singleTenancy"})
+	public void csvRowsMax() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String expetedErrorMessage = "The number of elements to export [%s] exceeds the maximum allowed [%s].";
+
+		PropertiesPage page = new PropertiesPage(driver);
+
+		String oldVal = modifyProperty("domibus.ui.csv.rows.max", true, "5");
+		page.refreshPage();
+
+		page.grid().waitForRowsToLoad();
+
+		int totalItems = page.grid().getPagination().getTotalItems();
+
+		page.getSaveCSVButton().click();
+		soft.assertTrue(page.getAlertArea().isError(), "error message present");
+
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(expetedErrorMessage, totalItems, 5), "correct error message listed");
+
+		rest.properties().updateDomibusProperty("domibus.ui.csv.rows.max", oldVal);
+		soft.assertAll();
+	}
+
+	/*    EDELIVERY-7343 - PROP-34 - Update domain property domibus.monitoring.connection.party.enabled */
+	/*  PROP-34 - Update domain property domibusmonitoringconnectionpartyenabled  */
+	@Description("PROP-34 - Update domain property domibusmonitoringconnectionpartyenabled")
+	@Link(name = "EDELIVERY-7343", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7343")
+	@AllureId("PROP-34")
+	@Test(description = "PROP-34", groups = {"multiTenancy", "singleTenancy"})
+	public void monitoringParty() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String partyID = rest.pmodeParties().getParties(null).getJSONObject(0).getString("joinedIdentifiers");
+		String oldVal = modifyProperty("domibus.monitoring.connection.party.enabled", true, partyID);
+
+		List<String> monitored = rest.connMonitor().getMonitoredParties(null);
+
+		soft.assertTrue(monitored.size() == 1, "Only one monitored party");
+		soft.assertEquals(monitored.get(0), partyID, "monitored party is correct");
+
+		rest.properties().updateDomibusProperty("domibus.monitoring.connection.party.enabled", oldVal);
+		soft.assertAll();
+	}
+
+	/*        EDELIVERY-7352 - PROP-42 - Admin modifies properties */
+	/*  PROP-42 - Admin modifies properties  */
+	@Description("PROP-42 - Admin modifies properties")
+	@Link(name = "EDELIVERY-7352", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7352")
+	@AllureId("PROP-42")
+	@Test(description = "PROP-42", groups = {"multiTenancy"})
+	public void adminAccessToProperties() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String adminUsername = rest.getUsername(null, DRoles.ADMIN, true, false, true);
+
+		login(adminUsername, data.defaultPass());
+
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		String filename = page.pressSaveCsvAndSaveFile();
+
+		Scanner scanner = new Scanner(new File(filename));
+		while (scanner.hasNextLine()) {
+			if (scanner.nextLine().contains("GLOBAL")) {
+				soft.fail("Global property found");
+			}
+		}
+		scanner.close();
 
 
-soft.assertAll();
-}
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7351 - PROP-41 - Check properties value for each domain*/
+	/*  PROP-41 - Check properties value for each domain  */
+	@Description("PROP-41 - Check properties value for each domain")
+	@Link(name = "EDELIVERY-7351", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7351")
+	@AllureId("PROP-41")
+	@Test(description = "PROP-41", groups = {"multiTenancy"})
+	public void propertyValuesSegragatedByDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String oldVal = modifyProperty("domibus.UI.title.name", true, "testDefault");
+
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getDomainSelector().selectAnotherDomain();
+
+		String anotherDomVal = page.propGrid().getPropertyValue("domibus.UI.title.name");
+
+		soft.assertNotEquals(anotherDomVal, "testDefault", "Property value differs on the other domain");
+
+		rest.properties().updateDomibusProperty("domibus.UI.title.name", oldVal, null);
+
+		soft.assertAll();
+	}
+
+	/* PROP-36 - Update domain properties domibus.ui.support.team.email and domibus.ui.support.team.name */
+	/*  PROP-41 - Check properties value for each domain  */
+	@Description("PROP-41 - Check properties value for each domain")
+	@Link(name = "EDELIVERY-7351", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7351")
+	@AllureId("PROP-41")
+	@Test(description = "PROP-41", groups = {"multiTenancy"})
+	public void supportTeamData() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		modifyProperty("domibus.ui.support.team.email", true, "test@email.com");
+		modifyProperty("domibus.ui.support.team.name", true, "Test support Team");
+
+		String newEmail = rest.properties().getPropertyValue("domibus.ui.support.team.email", true, null);
+		String newTeamName = rest.properties().getPropertyValue("domibus.ui.support.team.name", true, null);
+
+		soft.assertEquals(newEmail, "test@email.com", "");
+		soft.assertEquals(newTeamName, "Test support Team", "");
+
+
+		soft.assertAll();
+	}
 
 
 }
