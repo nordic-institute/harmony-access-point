@@ -216,6 +216,9 @@ public class WSPluginBackendReliabilityServiceTest {
 
             backendMessage.getCreationTime();
             result = ONE_MINUTE_AGO;
+            
+            rule.getRetry();
+            result = "OK";
 
             rule.getRetryTimeout();
             result = RETRY_TIMOUT;
@@ -253,6 +256,9 @@ public class WSPluginBackendReliabilityServiceTest {
 
             backendMessage.getCreationTime();
             result = ONE_MINUTE_AGO;
+
+            rule.getRetry();
+            result = "OK";
 
             rule.getRetryTimeout();
             result = RETRY_TIMOUT;

@@ -64,7 +64,7 @@ public class WSPluginBackendReliabilityService {
         backendMessage.setScheduled(false);
         LOG.debug("Backend message [{}] updated for retry", backendMessage);
 
-        if (hasAttemptsLeft(backendMessage, rule.getRetryTimeout())) {
+        if (rule.getRetry() != null && hasAttemptsLeft(backendMessage, rule.getRetryTimeout())) {
             setWaitingForRetry(backendMessage, rule);
         } else {
             setFailed(backendMessage);

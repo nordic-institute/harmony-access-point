@@ -45,7 +45,7 @@ public class ToRoutingCriteriaFactory implements CriteriaFactory {
         @Override
         public boolean matches(final UserMessage userMessage, final String expression) {
             setExpression(expression);
-            final PartyId partyId = userMessage.getPartyInfo().getTo().getPartyId();
+            final PartyId partyId = userMessage.getPartyInfo().getTo().getToPartyId();
             if (matches(partyId.getValue() + ":" + partyId.getType())) {
                 return true;
             }

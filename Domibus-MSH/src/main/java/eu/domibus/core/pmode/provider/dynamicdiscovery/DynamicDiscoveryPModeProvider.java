@@ -199,10 +199,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getTo() != null &&
-                userMessage.getPartyInfo().getTo().getPartyId() != null &&
-                userMessage.getPartyInfo().getTo().getPartyId() != null
+                userMessage.getPartyInfo().getTo().getToPartyId() != null &&
+                userMessage.getPartyInfo().getTo().getToPartyId() != null
                 ) {
-            to = userMessage.getPartyInfo().getTo().getPartyId();
+            to = userMessage.getPartyInfo().getTo().getToPartyId();
         }
         if (to == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", messageId, null);
@@ -217,9 +217,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getFrom() != null &&
-                userMessage.getPartyInfo().getFrom().getPartyId() != null
+                userMessage.getPartyInfo().getFrom().getFromPartyId() != null
                 ) {
-            from = userMessage.getPartyInfo().getFrom().getPartyId();
+            from = userMessage.getPartyInfo().getFrom().getFromPartyId();
         }
         if (from == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", messageId, null);
@@ -365,11 +365,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             receiverParty.setType(type);
         }
 
-        userMessage.getPartyInfo().getTo().setPartyId(receiverParty);
-        if(userMessage.getPartyInfo().getTo().getRole() == null) {
+        userMessage.getPartyInfo().getTo().setToPartyId(receiverParty);
+        if(userMessage.getPartyInfo().getTo().getToRole() == null) {
             String responderRoleValue = dynamicDiscoveryService.getResponderRole();
             PartyRole partyRole = partyRoleDao.findOrCreateRole(responderRoleValue);
-            userMessage.getPartyInfo().getTo().setRole(partyRole);
+            userMessage.getPartyInfo().getTo().setToRole(partyRole);
         }
 
         LOG.debug("Add public certificate to the truststore");

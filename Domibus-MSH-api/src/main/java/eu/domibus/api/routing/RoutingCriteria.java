@@ -11,18 +11,18 @@ import java.io.Serializable;
  */
 public class RoutingCriteria implements Serializable {
 
-    private int entityId;
+    private String entityId;
 
     private String name;
 
     @CustomWhiteListed(permitted = "./")
     private String expression;
 
-    public int getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 

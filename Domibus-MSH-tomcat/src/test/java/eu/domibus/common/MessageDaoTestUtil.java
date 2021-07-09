@@ -155,15 +155,15 @@ public class MessageDaoTestUtil {
 
     private To createTo(String role, String partyId) {
         To to = new To();
-        to.setRole(partyRoleDao.findOrCreateRole(role));
-        to.setPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
+        to.setToRole(partyRoleDao.findOrCreateRole(role));
+        to.setToPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
         return to;
     }
 
     private From createFrom(String role, String partyId) {
         From from = new From();
-        from.setRole(partyRoleDao.findOrCreateRole(role));
-        from.setPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
+        from.setFromRole(partyRoleDao.findOrCreateRole(role));
+        from.setFromPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
         return from;
     }
 

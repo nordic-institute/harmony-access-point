@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 public class PluginUserRO {
 
-    private Integer entityId;
+    private String entityId;
 
     @SizeIfPresent(min = 4, max = 255)
     @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
@@ -45,11 +45,11 @@ public class PluginUserRO {
 
     private LocalDateTime expirationDate;
 
-    public Integer getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(Integer entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 

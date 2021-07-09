@@ -30,7 +30,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.util.UUID;
 
 import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
-import static eu.domibus.core.plugin.handler.DatabaseMessageHandlerTest.createUserMessage;
 
 /**
  * @author Arun Raj
@@ -525,17 +524,17 @@ public class BackendMessageValidatorTest {
 
     private From getFrom(String value, String type) {
         From from = new From();
-        from.setPartyId(new PartyId());
-        from.getPartyId().setValue(value);
-        from.getPartyId().setType(type);
+        from.setFromPartyId(new PartyId());
+        from.getFromPartyId().setValue(value);
+        from.getFromPartyId().setType(type);
         return from;
     }
 
     private To getTo(String value, String type) {
         To to = new To();
-        to.setPartyId(new PartyId());
-        to.getPartyId().setValue(value);
-        to.getPartyId().setType(type);
+        to.setToPartyId(new PartyId());
+        to.getToPartyId().setValue(value);
+        to.getToPartyId().setType(type);
         return to;
     }
 

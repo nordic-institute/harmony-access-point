@@ -1,11 +1,13 @@
 package eu.domibus.core.audit.envers;
 
+import eu.domibus.api.model.DatePrefixedSequenceIdGenerator;
 import eu.domibus.core.audit.CustomRevisionEntityListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
@@ -13,6 +15,8 @@ import org.hibernate.envers.RevisionTimestamp;
 import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.model.AbstractBaseEntity.DOMIBUS_SCALABLE_SEQUENCE;
 
 /**
  * Own implementation of hibernate-envers Revision entity, in order to store the user and the modification type.
@@ -28,8 +32,13 @@ public class RevisionLog {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RevisionLog.class);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = DOMIBUS_SCALABLE_SEQUENCE)
+    @GenericGenerator(
+            name = DOMIBUS_SCALABLE_SEQUENCE,
+            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
+            parameters = {@org.hibernate.annotations.Parameter(name = DatePrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50")})
     @RevisionNumber
+    @Column(name = "ID")
     private long id;
 
     @RevisionTimestamp

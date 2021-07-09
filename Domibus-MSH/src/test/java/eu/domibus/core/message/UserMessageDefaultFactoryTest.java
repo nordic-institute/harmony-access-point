@@ -171,11 +171,11 @@ public class UserMessageDefaultFactoryTest {
         new Expectations(userMessageDefaultFactory) {{
             source.getFrom();
             result = from;
-            from.getRole();
+            from.getFromRole();
             result = anyString;
             source.getTo();
             result = to;
-            to.getRole();
+            to.getToRole();
             result = anyString;
         }};
 

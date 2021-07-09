@@ -210,18 +210,18 @@ public class DatabaseMessageHandlerTest {
         PartyInfo partyInfo = new PartyInfo();
 
         From from = new From();
-        from.setRole(getRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"));
+        from.setFromRole(getRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"));
 
-        from.setPartyId(new PartyId());
-        from.getPartyId().setValue(DOMIBUS_GREEN);
-        from.getPartyId().setType(DEF_PARTY_TYPE);
+        from.setFromPartyId(new PartyId());
+        from.getFromPartyId().setValue(DOMIBUS_GREEN);
+        from.getFromPartyId().setType(DEF_PARTY_TYPE);
         partyInfo.setFrom(from);
 
         To to = new To();
-        to.setRole(getRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"));
-        to.setPartyId(new PartyId());
-        to.getPartyId().setValue(DOMIBUS_RED);
-        to.getPartyId().setType(DEF_PARTY_TYPE);
+        to.setToRole(getRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"));
+        to.setToPartyId(new PartyId());
+        to.getToPartyId().setValue(DOMIBUS_RED);
+        to.getToPartyId().setType(DEF_PARTY_TYPE);
         partyInfo.setTo(to);
 
         userMessage.setPartyInfo(partyInfo);

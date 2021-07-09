@@ -44,6 +44,7 @@ public abstract class AbstractEventProperty<T> extends AbstractBaseEntity {
         this.event = event;
     }
 
+    @Transient
     public abstract T getValue();
 
 }

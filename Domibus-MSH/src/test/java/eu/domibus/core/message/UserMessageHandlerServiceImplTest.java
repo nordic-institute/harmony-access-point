@@ -1175,21 +1175,21 @@ public class UserMessageHandlerServiceImplTest {
 
         From from = new From();
         PartyRole role = getPartyRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
-        from.setRole(role);
+        from.setFromRole(role);
 
         PartyId sender = new PartyId();
         sender.setValue(BLUE);
         sender.setType(DEF_PARTY_TYPE);
-        from.setPartyId(sender);
+        from.setFromPartyId(sender);
         partyInfo.setFrom(from);
 
         To to = new To();
-        to.setRole(getPartyRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"));
+        to.setToRole(getPartyRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"));
 
         PartyId receiver = new PartyId();
         receiver.setValue(RED);
         receiver.setType(DEF_PARTY_TYPE);
-        to.setPartyId(receiver);
+        to.setToPartyId(receiver);
         partyInfo.setTo(to);
 
         userMessage.setPartyInfo(partyInfo);

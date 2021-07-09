@@ -8,6 +8,13 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
+    <!-- sequences -->
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <sqlFile path="src/main/resources/db/scripts/oracle-sequence-create.sql"/>
+        <sqlFile path="src/main/resources/db/scripts/oracle-sequence-functions.sql" endDelimiter="\n/"/>
+    </changeSet>
+
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">

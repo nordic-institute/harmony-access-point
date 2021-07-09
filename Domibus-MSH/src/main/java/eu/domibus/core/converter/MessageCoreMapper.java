@@ -84,8 +84,10 @@ public interface MessageCoreMapper {
     eu.domibus.api.usermessage.domain.UserMessage userMessageToUserMessageApi(UserMessage userMessage);
 
     @WithoutAuditAndEntityId
-    @Mapping(target = "partyInfo.from.role.value", source = "partyInfo.from.role")
-    @Mapping(target = "partyInfo.to.role.value", source = "partyInfo.to.role")
+    @Mapping(target = "partyInfo.from.fromRole.value", source = "partyInfo.from.role")
+    @Mapping(target = "partyInfo.to.toRole.value", source = "partyInfo.to.role")
+    @Mapping(target = "partyInfo.from.fromPartyId", source = "partyInfo.from.partyId")
+    @Mapping(target = "partyInfo.to.toPartyId", source = "partyInfo.to.partyId")
     @Mapping(target = "mpc.value", source = "mpc")
     @Mapping(target = "messageProperties", source = "messageProperties.property")
     @Mapping(target = "messageId", source = "messageInfo.messageId")

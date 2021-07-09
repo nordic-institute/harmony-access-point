@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+
+    <mapped-superclass class="eu.domibus.api.model.AbstractBaseAuditEntity" access="FIELD">
+        <attributes>
+            <basic name="creationTime">
+                <column name="CREATION_TIME"/>
+            </basic>
+            <basic name="modificationTime">
+                <column name="MODIFICATION_TIME"/>
+            </basic>
+            <basic name="createdBy">
+                <column name="CREATED_BY"/>
+            </basic>
+            <basic name="modifiedBy">
+                <column name="MODIFIED_BY"/>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+    <mapped-superclass class="eu.domibus.api.model.AbstractBaseEntity" access="FIELD">
+        <attributes>
+            <id name="entityId">
+                <column name="ID_PK"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </mapped-superclass>
+    <mapped-superclass class="eu.domibus.api.model.AbstractNoGeneratedPkEntity" access="FIELD">
+        <attributes>
+            <id name="entityId">
+                <column name="ID_PK"/>
+            </id>
+        </attributes>
+    </mapped-superclass>
+    <entity class="eu.domibus.core.audit.envers.RevisionLog" access="FIELD">
+        <attributes>
+            <id name="id">
+                <column name="ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+</entity-mappings>
