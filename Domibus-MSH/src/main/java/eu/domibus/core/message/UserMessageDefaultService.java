@@ -607,10 +607,10 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] signalMessageLogs.", deleteResult);
         deleteResult = signalMessageRawEnvelopeDao.deleteMessages(ids);
         LOG.info("Deleted [{}] signalMessageRaws.", deleteResult);
-        deleteResult = signalMessageDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] signalMessages.", deleteResult);
         deleteResult = receiptDao.deleteReceipts(ids);
         LOG.info("Deleted [{}] receipts.", deleteResult);
+        deleteResult = signalMessageDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] signalMessages.", deleteResult);
         deleteResult = userMessageRawEnvelopeDao.deleteMessages(ids);
         LOG.info("Deleted [{}] userMessageRaws.", deleteResult);
         deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(ids);
