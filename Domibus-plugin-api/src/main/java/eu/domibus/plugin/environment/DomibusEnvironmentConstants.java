@@ -6,7 +6,9 @@ package eu.domibus.plugin.environment;
  * @author Cosmin Baciu
  * @since 4.2
  */
-public class DomibusEnvironmentConstants {
+public final class DomibusEnvironmentConstants {
+
+    private DomibusEnvironmentConstants() {};
 
     public static final String DOMIBUS_ENVIRONMENT_SERVER_NAME = "domibus.environment.server.name";
     public static final String DOMIBUS_ENVIRONMENT_SERVER_WEBLOGIC = "weblogic";
