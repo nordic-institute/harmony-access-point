@@ -3,6 +3,7 @@ package eu.domibus.core.jms.multitenancy;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
@@ -32,7 +33,7 @@ import javax.jms.Session;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.common.JMSConstants.*;
+import static eu.domibus.api.jms.JMSConstants.*;
 
 /**
  * @author Ion Perpegel
@@ -96,7 +97,7 @@ public class MessageListenerContainerConfiguration {
     PullMessageSender pullMessageListener;
 
     @Autowired
-    @Qualifier(DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired

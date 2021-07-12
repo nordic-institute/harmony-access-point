@@ -17,7 +17,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.JMSConstants;
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;

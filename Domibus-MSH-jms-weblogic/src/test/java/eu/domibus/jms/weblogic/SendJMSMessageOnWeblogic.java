@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Hashtable;
-import java.util.Map;
 
 public class SendJMSMessageOnWeblogic {
 
@@ -24,16 +23,13 @@ public class SendJMSMessageOnWeblogic {
     private static final String PASSWORD = "weblogic1";
     private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
     //private static final String FOREIGN_CONNECTION_FACTORY_JNDI = "jms/ForeignConnectionFactory";
-    private static final String QUEUE = "jms/domibus.backend.jms.inQueue";
+    private static final String QUEUE = "jms/domibus.backend.jms.replyQueue";
 
     public static void main(String[] args) throws Exception {
         try {
-            Security.runAs(new Subject(), new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() {
-                    new SendJMSMessageOnWeblogic().run();
-                    return null;
-                }
+            Security.runAs(new Subject(), (PrivilegedExceptionAction<Object>) () -> {
+                new SendJMSMessageOnWeblogic().run();
+                return null;
             });
         } catch (PrivilegedActionException e) {
             throw e;

@@ -16,7 +16,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import java.util.Optional;
 
-import static eu.domibus.common.JMSConstants.CLUSTER_COMMAND_TOPIC;
+import static eu.domibus.api.jms.JMSConstants.CLUSTER_COMMAND_TOPIC;
 
 /**
  * JMS listener responsible of executing internal commands

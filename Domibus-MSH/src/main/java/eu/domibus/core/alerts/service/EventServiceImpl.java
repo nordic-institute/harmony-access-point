@@ -35,7 +35,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static eu.domibus.common.JMSConstants.ALERT_MESSAGE_QUEUE;
+import static eu.domibus.api.jms.JMSConstants.ALERT_MESSAGE_QUEUE;
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
 

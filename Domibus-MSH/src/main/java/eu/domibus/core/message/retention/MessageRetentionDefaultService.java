@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.common.JMSConstants.RETENTION_MESSAGE_QUEUE;
+import static eu.domibus.api.jms.JMSConstants.RETENTION_MESSAGE_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 
 /**

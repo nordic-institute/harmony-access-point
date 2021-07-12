@@ -1,6 +1,6 @@
 package eu.domibus.jms.activemq;
 
-import eu.domibus.common.JMSConstants;
+import eu.domibus.api.jms.JMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.command.ActiveMQQueue;

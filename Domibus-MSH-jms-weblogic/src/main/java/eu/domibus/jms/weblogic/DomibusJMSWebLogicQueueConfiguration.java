@@ -16,6 +16,7 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 
 import static eu.domibus.common.JMSConstants.*;
+import static eu.domibus.api.jms.JMSConstants.*;
 
 /**
  * @author Cosmin Baciu
