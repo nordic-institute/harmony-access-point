@@ -1,6 +1,6 @@
 package eu.domibus.plugin.jms.configuration;
 
-import eu.domibus.common.JMSConstants;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.WildFlyCondition;
@@ -28,7 +28,7 @@ public class JMSPluginWildFlyConfiguration extends JMSPluginApplicationServerCon
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginWildFlyConfiguration.class);
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

@@ -3,7 +3,7 @@ package eu.domibus.plugin.jms;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.common.JMSConstants;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
@@ -42,7 +42,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
     private JMSPluginImpl jmsPluginImpl;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory jmsConnectionFactory;
 
 

@@ -1,8 +1,8 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +27,7 @@ public class UIReplicationConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(UIReplicationConfiguration.class);
 
     @Bean("uiReplicationJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                                        @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                        Optional<JndiDestinationResolver> internalDestinationResolver,

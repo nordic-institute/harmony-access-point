@@ -2,9 +2,9 @@ package eu.domibus.core.alerts.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.cache.ClassTemplateLoader;
@@ -21,7 +21,6 @@ import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
-
 import java.util.Optional;
 
 import static org.springframework.jms.support.converter.MessageType.TEXT;
@@ -47,7 +46,7 @@ public class AlertContextConfiguration {
     }
 
     @Bean
-    public JmsTemplate jsonJmsTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate jsonJmsTemplate(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                        MappingJackson2MessageConverter jackson2MessageConverter) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
@@ -70,7 +69,7 @@ public class AlertContextConfiguration {
     }
 
     @Bean("alertJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                Optional<JndiDestinationResolver> internalDestinationResolver,

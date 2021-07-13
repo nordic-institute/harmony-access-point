@@ -4,7 +4,7 @@ package eu.domibus.messaging;
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
  */
-public class MessageConstants {
+public final class MessageConstants {
 
     private MessageConstants() {}
 
