@@ -49,7 +49,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.core.message.pull.PullContext.MPC;
 import static eu.domibus.core.message.pull.PullContext.PMODE_KEY;
-import static eu.domibus.api.jms.JMSConstants.PULL_MESSAGE_QUEUE;
+import static eu.domibus.jms.spi.InternalJMSConstants.PULL_MESSAGE_QUEUE;
 
 /**
  * @author Thomas Dussart

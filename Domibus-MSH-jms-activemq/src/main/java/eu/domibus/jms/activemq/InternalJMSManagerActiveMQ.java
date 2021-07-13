@@ -5,10 +5,7 @@ import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
-import eu.domibus.jms.spi.InternalJMSDestination;
-import eu.domibus.jms.spi.InternalJMSException;
-import eu.domibus.jms.spi.InternalJMSManager;
-import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.*;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
@@ -102,7 +99,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     protected long getMessagesTotalCount(QueueViewMBean queueMbean) {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
-            return NB_MESSAGES_ADMIN;
+            return InternalJMSConstants.NB_MESSAGES_ADMIN;
         }
         return queueMbean.getQueueSize();
     }
@@ -208,7 +205,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     private List<InternalJmsMessage> getInternalJmsMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause, String destinationType) {
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
-        if (QUEUE.equals(destinationType)) {
+        if (InternalJMSConstants.QUEUE.equals(destinationType)) {
             Map<String, Object> criteria = new HashMap<>();
             if (jmsType != null) {
                 criteria.put("JMSType", jmsType);
@@ -275,10 +272,10 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
         Map<String, String> properties = new HashMap<>();
 
-        Integer priority = getCompositeValue(data, JMS_PRIORITY);
+        Integer priority = getCompositeValue(data, InternalJMSConstants.JMS_PRIORITY);
         result.setPriority(priority);
         if (priority != null) {
-            properties.put(JMS_PRIORITY, String.valueOf(priority));
+            properties.put(InternalJMSConstants.JMS_PRIORITY, String.valueOf(priority));
         }
 
         String textValue = getCompositeValue(data, "Text");

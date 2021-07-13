@@ -33,7 +33,7 @@ import javax.jms.Session;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.api.jms.JMSConstants.*;
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
 
 /**
  * @author Ion Perpegel

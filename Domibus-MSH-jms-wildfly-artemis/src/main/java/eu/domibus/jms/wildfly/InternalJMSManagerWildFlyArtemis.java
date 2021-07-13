@@ -6,10 +6,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
-import eu.domibus.jms.spi.InternalJMSDestination;
-import eu.domibus.jms.spi.InternalJMSException;
-import eu.domibus.jms.spi.InternalJMSManager;
-import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.*;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
@@ -145,7 +142,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     protected long getMessagesTotalCount(QueueControl queueControl) {
         if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
             //in multi-tenancy mode we show the number of messages only to super admin
-            return NB_MESSAGES_ADMIN;
+            return InternalJMSConstants.NB_MESSAGES_ADMIN;
         }
         long result;
         try {
@@ -436,7 +433,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
             String objectProperty = textMessage.getStringProperty(name);
             properties.put(name, objectProperty);
         }
-        properties.put(JMS_PRIORITY, String.valueOf(jmsPriority));
+        properties.put(InternalJMSConstants.JMS_PRIORITY, String.valueOf(jmsPriority));
         result.setProperties(properties);
         return result;
     }

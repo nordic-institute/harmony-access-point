@@ -17,7 +17,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -85,19 +85,19 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final int BATCH_SIZE = 100;
 
     @Autowired
-    @Qualifier(JMSConstants.SEND_MESSAGE_QUEUE)
+    @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
 
     @Autowired
-    @Qualifier(JMSConstants.SEND_LARGE_MESSAGE_QUEUE)
+    @Qualifier(InternalJMSConstants.SEND_LARGE_MESSAGE_QUEUE)
     private Queue sendLargeMessageQueue;
 
     @Autowired
-    @Qualifier(JMSConstants.SPLIT_AND_JOIN_QUEUE)
+    @Qualifier(InternalJMSConstants.SPLIT_AND_JOIN_QUEUE)
     private Queue splitAndJoinQueue;
 
     @Autowired
-    @Qualifier(JMSConstants.SEND_PULL_RECEIPT_QUEUE)
+    @Qualifier(InternalJMSConstants.SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
 
     @Autowired
