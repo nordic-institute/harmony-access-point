@@ -1,8 +1,8 @@
 package eu.domibus.jms.activemq;
 
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -37,8 +37,8 @@ public class DomibusJMSActiveMQConfiguration {
     public static final String MQ_BROKER_NAME = "org.apache.activemq:type=Broker,brokerName=";
     public static final String MQ_CONNECTION_FACTORY = "jmsConnectionFactory";
 
-    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
-    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
+    @Bean(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
@@ -51,7 +51,7 @@ public class DomibusJMSActiveMQConfiguration {
     }
 
     @DependsOn("brokerFactory")
-    @Bean(value = JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Bean(value = DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     public ConnectionFactory connectionFactory(@Qualifier(MQ_CONNECTION_FACTORY) ActiveMQConnectionFactory activeMQConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         int maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE);
@@ -89,7 +89,7 @@ public class DomibusJMSActiveMQConfiguration {
     }
 
     @Bean("jmsSender")
-    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory) {
+    public JmsTemplate jmsSender(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory) {
         PriorityJmsTemplate result = new PriorityJmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

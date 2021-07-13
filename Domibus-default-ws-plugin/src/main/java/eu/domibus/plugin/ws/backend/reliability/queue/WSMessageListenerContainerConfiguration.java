@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
-import eu.domibus.common.JMSConstants;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -45,7 +45,7 @@ public class WSMessageListenerContainerConfiguration {
     private WSSendMessageListener wsSendMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired
