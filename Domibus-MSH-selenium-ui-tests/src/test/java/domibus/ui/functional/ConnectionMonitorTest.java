@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import io.qameta.allure.*;
 import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -18,17 +19,22 @@ import utils.PModeXMLUtils;
 import java.io.File;
 
 
-
 /**
  * @author Catalin Comanici
  * @version 4.1
  */
 
 
+@Epic("Connection Monitoring")
+@Feature("Functional")
 public class ConnectionMonitorTest extends SeleniumTest {
 	private static String receiverEndPoint = "http://localhost:8181/domibus/services/msh";
 
 	/* CM-2 - Login as super admin and open Connections Monitoring page */
+	/*  CM-2 - Login as system admin and open Connection Monitoring page  */
+	@Description("CM-2 - Login as system admin and open Connection Monitoring page")
+	@Link(name = "EDELIVERY-5303", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5303")
+	@AllureId("CM-2")
 	@Test(description = "CM-2", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -37,16 +43,22 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("checking error message when no pmode is uploaded");
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
 
+		Allure.step("checking page ..");
 		log.info("checking page ..");
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
 		soft.assertAll();
 	}
 
 	/* CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode */
+	/*  CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode  */
+	@Description("CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode")
+	@Link(name = "EDELIVERY-7240", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7240")
+	@AllureId("CM-1")
 	@Test(description = "CM-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void openWindowNoPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -55,6 +67,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Allure.step("checking error message when no pmode is uploaded");
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		} else {
@@ -64,6 +77,10 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/* CM-3 - Open details view for party that has never been tested or monitored */
+	/*  CM-3 - Open details view for party that has never been tested or monitored  */
+	@Description("CM-3 - Open details view for party that has never been tested or monitored")
+	@Link(name = "EDELIVERY-7241", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7241")
+	@AllureId("CM-3")
 	@Test(description = "CM-3", groups = {"multiTenancy", "singleTenancy"})
 	public void partyNotTested() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -78,6 +95,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 			if (page.grid().connectionStatusIcons.get(i).getText().equals("indeterminate_check_box")) {
 				String partyName = page.grid().getRowSpecificColumnVal(i, "Party");
+				Allure.step("party" + partyName);
 				log.info("party" + partyName);
 
 				page.grid().getActionButton("Details", i).click();
@@ -88,6 +106,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 				String expectedError =
 						String.format("Error retrieving Last Sent Test Message for %s [DOM_001]:No User message found for party [%s]", partyName, partyName);
 				soft.assertEquals(expectedError, page.getAlertArea().getAlertMessage(), "Correct error message is shown");
+				Allure.step("test" + modalTest.getSentMessInfo().get("party"));
 				log.info("test" + modalTest.getSentMessInfo().get("party"));
 
 				soft.assertTrue(modalTest.isMessInfoPresent("send"), "Sent Message info field have no data");
@@ -104,6 +123,10 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/* CM-4 - Open details view for party that has never been tested or monitored and push Test button */
+	/*  CM-4 - Open details view for party that has never been tested or monitored and push Test button  */
+	@Description("CM-4 - Open details view for party that has never been tested or monitored and push Test button")
+	@Link(name = "EDELIVERY-7242", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7242")
+	@AllureId("CM-4")
 	@Test(description = "CM-4", groups = {"multiTenancy", "singleTenancy"})
 	public void sendTestMsg() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -113,30 +136,35 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		ConMonGrid grid = page.grid();
 
 		if (grid.connectionStatusIcons.get(0).getText().equals("indeterminate_check_box")
-					|| grid.connectionStatusIcons.get(0).getText().equals("error")) {
+				|| grid.connectionStatusIcons.get(0).getText().equals("error")) {
 
-				String partyName = grid.getRowSpecificColumnVal(0, "Party");
-				log.info("party " + partyName);
-				TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
-				grid.getActionButton("Details", 0).click();
+			String partyName = grid.getRowSpecificColumnVal(0, "Party");
+			Allure.step("party " + partyName);
+			log.info("party " + partyName);
+			TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
+			grid.getActionButton("Details", 0).click();
 
-				page.getAlertArea().closeButton.click();
-				modalTest.getTestbutton().click();
+			page.getAlertArea().closeButton.click();
+			modalTest.getTestbutton().click();
 
-				page.getAlertArea().isShown();
-				soft.assertFalse(modalTest.isMessInfoPresent("send"), "Sent message Info fields have data present");
+			page.getAlertArea().isShown();
+			soft.assertFalse(modalTest.isMessInfoPresent("send"), "Sent message Info fields have data present");
 
-				if (page.getAlertArea().isError()) {
-					soft.assertTrue(modalTest.isMessInfoPresent("receive"), "Received info fields are blank");
-				} else {
-					soft.assertFalse(modalTest.isMessInfoPresent("receive"), "Received info fields are not blank");
-				}
-				modalTest.getCloseBtn().click();
+			if (page.getAlertArea().isError()) {
+				soft.assertTrue(modalTest.isMessInfoPresent("receive"), "Received info fields are blank");
+			} else {
+				soft.assertFalse(modalTest.isMessInfoPresent("receive"), "Received info fields are not blank");
+			}
+			modalTest.getCloseBtn().click();
 		}
 		soft.assertAll();
 	}
 
 	/* CM-5 - Open details view for party and push Update button */
+	/*  CM-5 - Open details view for party and push Update button  */
+	@Description("CM-5 - Open details view for party and push Update button")
+	@Link(name = "EDELIVERY-7243", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7243")
+	@AllureId("CM-5")
 	@Test(description = "CM-5", groups = {"multiTenancy", "singleTenancy"})
 	public void checkUpdateFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -162,6 +190,10 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/*CM-6 - Push Refresh button */
+	/*  CM-6 - Push Refresh button   */
+	@Description("CM-6 - Push Refresh button ")
+	@Link(name = "EDELIVERY-7244", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7244")
+	@AllureId("CM-6")
 	@Test(description = "CM-6", groups = {"multiTenancy", "singleTenancy"})
 	public void checkRefreshFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -186,6 +218,10 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/*CM-7 - Push Send button */
+	/*  CM-7 - Push Send button   */
+	@Description("CM-7 - Push Send button ")
+	@Link(name = "EDELIVERY-7245", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7245")
+	@AllureId("CM-7")
 	@Test(description = "CM-7", groups = {"multiTenancy", "singleTenancy"})
 	public void checkSendFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -209,11 +245,16 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/* CM-11 - Remove destination party as a responder in connection testing process */
+	/*  CM-11 - Remove destination party as a responder in connection testing process  */
+	@Description("CM-11 - Remove destination party as a responder in connection testing process")
+	@Link(name = "EDELIVERY-7249", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7249")
+	@AllureId("CM-11")
 	@Test(description = "CM-11", groups = {"multiTenancy", "singleTenancy"})
 	public void currentSystemNotAsInitiator() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 
+		Allure.step("upload pmode");
 		log.info("upload pmode");
 		String filepath = "pmodes/NoResponderInitiator.xml";
 		rest.pmode().uploadPMode(filepath, null);
@@ -236,11 +277,16 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/*CM-12 - Make sure destination party is not responding and test connection*/
+	/*  CM-12 - Make sure destination party is not responding and test connection  */
+	@Description("CM-12 - Make sure destination party is not responding and test connection")
+	@Link(name = "EDELIVERY-7250", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7250")
+	@AllureId("CM-12")
 	@Test(description = "CM-12", groups = {"multiTenancy", "singleTenancy"})
 	public void recPartyInactive() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 
+		Allure.step("upload pmode");
 		log.info("upload pmode");
 		String filepath = "pmodes/Edelivery-blue.xml";
 		rest.pmode().uploadPMode(filepath, null);
@@ -266,6 +312,10 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/* CM-13 - Test connection when destination party certificate is invalid or expired*/
+	/*  CM-13 - Test connection when destination party certificate is invalid or expired  */
+	@Description("CM-13 - Test connection when destination party certificate is invalid or expired")
+	@Link(name = "EDELIVERY-7251", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7251")
+	@AllureId("CM-13")
 	@Test(description = "CM-13", groups = {"multiTenancy", "singleTenancy"})
 	public void wrongRecCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -281,6 +331,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		String pathToInvalidCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
 
 		tPage.uploadFile(pathToInvalidCert, "test123", soft);
+		Allure.step(page.getAlertArea().getAlertMessage() + "   -  Message after upload event");
 		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);

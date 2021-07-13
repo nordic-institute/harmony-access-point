@@ -1,6 +1,9 @@
 package domibus;
 
 import domibus.ui.SeleniumTest;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Attachment;
+import io.qameta.allure.model.Status;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -12,6 +15,8 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -21,50 +26,54 @@ import java.util.Calendar;
  * @since 4.1.2
  */
 public class FailListener implements ITestListener {
-	
+
 	static int test_count = 0;
 	static int passed_count = 0;
 	static int failed_count = 0;
 	static int skipped_count = 0;
 	static int total_test_count = 0;
 	Logger log = LoggerFactory.getLogger("ROOT");
-	
+
 	@Override
 	public void onStart(ITestContext context) {
 		total_test_count = context.getSuite().getAllMethods().size();
 		log.info("Tests methods to run - " + total_test_count);
 	}
-	
+
 	@Override
 	public void onTestSuccess(ITestResult result) {
 		test_count++;
 		passed_count++;
 		logTestCounts();
 	}
-	
+
 	@Override
 	public void onTestFailure(ITestResult result) {
+		takeScreenshot(result);
+//		Allure.addAttachment("screenshot_name", "image/png", allureReportScreenshot(result), ".png");
+		allureReportScreenshot(result);
 		test_count++;
 		failed_count++;
 		logTestCounts();
-		takeScreenshot(result);
 	}
-	
+
 	@Override
 	public void onTestSkipped(ITestResult result) {
+		takeScreenshot(result);
+		//		Allure.addAttachment("screenshot_name", allureReportScreenshot(result));
+		allureReportScreenshot(result);
 		test_count++;
 		skipped_count++;
 		logTestCounts();
-		takeScreenshot(result);
 	}
-	
+
 	private void takeScreenshot(ITestResult result) {
 		String time = new SimpleDateFormat("dd-MM_HH-mm-ss").format(Calendar.getInstance().getTime());
 		String testMeth = result.getName();
 		String className = result.getTestClass().getRealClass().getSimpleName();
 		String outputPath = ((SeleniumTest) result.getInstance()).data.getReportsFolder();
 		String filename = String.format("%s%s_%s_%s.png", outputPath, className, testMeth, time);
-		
+
 		try {
 			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
 			((SeleniumTest) result.getInstance()).log.info("copying screenshot to " + filename);
@@ -75,13 +84,31 @@ public class FailListener implements ITestListener {
 			log.error("EXCEPTION: ", e);
 		}
 	}
-	
+
+	@Attachment(value = "screenshot", type = "image/png", fileExtension = ".png")
+	private byte[] allureReportScreenshot(ITestResult result) {
+		log.info("taking screenshot");
+		String testMeth = result.getName();
+		String className = result.getTestClass().getRealClass().getSimpleName();
+		String filename = String.format("%s_%s.png", className, testMeth);
+
+		try {
+			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
+			TakesScreenshot scrShot = ((TakesScreenshot) driver);
+			byte[] srcFile = scrShot.getScreenshotAs(OutputType.BYTES);
+			return srcFile;
+		} catch (Exception e) {
+			log.error("EXCEPTION: ", e);
+		}
+		return null;
+	}
+
 	private void logTestCounts() {
 		log.info(String.format("-------- Passed - %s --------", passed_count));
 		log.info(String.format("-------- Failed - %s --------", failed_count));
 		log.info(String.format("-------- Skipped - %s --------", skipped_count));
 		log.info(String.format("-------- Ran %s tests out of %s --------", test_count, total_test_count));
 	}
-	
-	
+
+
 }
