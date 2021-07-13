@@ -4,7 +4,9 @@ package eu.domibus.common;
  * @author Cosmin Baciu
  * @author Sebastian-Ion TINCU
  * @since 4.2
+ * @deprecated use instead {@link DomibusJMSConstants}
  */
+@Deprecated
 public interface JMSConstants {
 
     /**
