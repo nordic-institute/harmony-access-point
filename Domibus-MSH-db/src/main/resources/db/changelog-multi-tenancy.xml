@@ -14,6 +14,12 @@
                         incrementBy="1" startValue="2" cacheSize="20" cycle="false" ordered="false"/>
     </changeSet>
 
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836-multitenancy">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <sqlFile path="src/main/resources/db/scripts/oracle-sequence-create.sql"/>
+        <sqlFile path="src/main/resources/db/scripts/oracle-sequence-functions.sql" endDelimiter="\n/"/>
+    </changeSet>
+
     <!-- Quartz tables -->
     <include file="changelog-quartz.xml" relativeToChangelogFile="true"/>
 
