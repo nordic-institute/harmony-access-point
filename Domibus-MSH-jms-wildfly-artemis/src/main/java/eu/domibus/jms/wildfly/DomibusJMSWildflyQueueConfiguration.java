@@ -15,7 +15,9 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
-import static eu.domibus.common.JMSConstants.*;
+import static eu.domibus.common.DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY;
+import static eu.domibus.common.DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY;
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
 
 /**
  * @author Cosmin Baciu
