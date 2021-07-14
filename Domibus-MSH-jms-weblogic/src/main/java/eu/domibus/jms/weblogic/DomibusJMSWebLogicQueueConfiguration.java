@@ -2,6 +2,7 @@ package eu.domibus.jms.weblogic;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +16,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
-import static eu.domibus.common.JMSConstants.*;
+import static eu.domibus.common.DomibusJMSConstants.*;
 import static eu.domibus.jms.spi.InternalJMSConstants.*;
 
 /**
@@ -49,7 +50,7 @@ public class DomibusJMSWebLogicQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean(SEND_MESSAGE_QUEUE)
+    @Bean(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     public JndiObjectFactoryBean sendMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.dispatch.queue");

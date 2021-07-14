@@ -3,7 +3,7 @@ package eu.domibus.core.jms.multitenancy;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.JMSConstants;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
@@ -97,7 +97,7 @@ public class MessageListenerContainerConfiguration {
     PullMessageSender pullMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired
