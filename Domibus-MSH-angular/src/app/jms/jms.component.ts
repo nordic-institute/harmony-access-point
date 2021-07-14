@@ -350,13 +350,7 @@ export class JmsComponent extends mix(BaseListComponent)
 
   deleteAll() {
     try {
-      // let queues = this.getAllowedDestinationQueues([row]);
-      // this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
-      //   .afterClosed().subscribe(result => {
-      //   if (result && result.destination) {
-          this.serverRemoveAll(this.currentSearchSelectedSource.name);
-        // }
-      // });
+      this.serverRemoveAll(this.currentSearchSelectedSource.name);
     } catch (ex) {
       this.alertService.exception('Exception trying to delete all messages:', ex);
     }
