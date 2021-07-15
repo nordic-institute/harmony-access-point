@@ -325,9 +325,9 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteAllMessages(String source) {
-        LOG.debug("Started to delete all JMS messages from the source: {}", source);
+        LOG.debug("Starting to delete all JMS messages from the source: {}", source);
         internalJmsManager.deleteAllMessages(source);
-        LOG.debug("Finished to delete all JMS messages from the source: {}", source);
+        LOG.debug("Finish to delete all JMS messages from the source: {}", source);
     }
 
     @Override
