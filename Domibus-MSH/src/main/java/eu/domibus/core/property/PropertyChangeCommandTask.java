@@ -46,6 +46,7 @@ public class PropertyChangeCommandTask implements CommandTask {
         try {
             LOGGER.trace("Updating the value of [{}] property on domain [{}], no broadcast", propName, domain);
             domibusPropertyProvider.setProperty(domain, propName, propVal, false);
+            LOGGER.info("Property [{}] updated.", propName);
         } catch (Exception ex) {
             LOGGER.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain, ex);
         }
