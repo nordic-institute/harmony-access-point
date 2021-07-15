@@ -61,7 +61,7 @@ public class PropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier
         }
 
         //signal for other nodes in the cluster
-        LOG.trace("Broadcasting property [{}] changed event", propertyName);
+        LOG.debug("Broadcasting property [{}] changed event", propertyName);
         try {
             signalService.signalDomibusPropertyChange(domainCode, propertyName, propertyValue);
         } catch (Exception ex) {
