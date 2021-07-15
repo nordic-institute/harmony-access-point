@@ -32,6 +32,8 @@ public interface InternalJMSManager {
 
     int deleteMessages(String source, String[] messageIds);
 
+    void deleteAllMessages(String source);
+
     int moveMessages(String source, String destination, String[] messageIds);
 
     InternalJmsMessage getMessage(String source, String messageId);

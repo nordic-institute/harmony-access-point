@@ -113,6 +113,14 @@ public interface JMSManager {
     void deleteMessages(String source, String[] messageIds);
 
     /**
+     * Delete all JMS Messages from {@code source}
+     *
+     * @param source     JMS Queue
+     *
+     */
+    void deleteAllMessages(String source);
+
+    /**
      * Move a list of messages from {@code source} to {@code destination}
      *
      * @param source      JMS Queue

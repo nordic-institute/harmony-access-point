@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -322,6 +321,13 @@ public class JMSManagerImpl implements JMSManager {
         LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
         jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageDeletedAudit(jmsMessageDomainDTO.getJmsMessageId(),
                 source, jmsMessageDomainDTO.getDomainCode()));
+    }
+
+    @Override
+    public void deleteAllMessages(String source) {
+        LOG.debug("Starting to delete all JMS messages from the source: {}", source);
+        internalJmsManager.deleteAllMessages(source);
+        LOG.debug("Finish to delete all JMS messages from the source: {}", source);
     }
 
     @Override

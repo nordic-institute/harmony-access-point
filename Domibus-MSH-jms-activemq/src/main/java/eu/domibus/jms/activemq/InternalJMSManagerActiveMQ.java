@@ -174,6 +174,16 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     @Override
+    public void deleteAllMessages(String source) {
+        try {
+            QueueViewMBean queue = getQueueViewMBean(source);
+            queue.purge();
+        } catch (Exception e) {
+            throw new InternalJMSException("Failed to delete messages from source [" + source + "]", e);
+        }
+    }
+
+    @Override
     public InternalJmsMessage getMessage(String source, String messageId) {
         try {
             QueueViewMBean queue = getQueueViewMBean(source);

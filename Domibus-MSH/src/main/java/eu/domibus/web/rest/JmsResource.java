@@ -63,14 +63,16 @@ public class JmsResource extends BaseResource {
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
 
         List<String> messageIds = request.getSelectedMessages();
-        String[] ids = messageIds.toArray(new String[0]);
+        String[] ids = (messageIds!= null ? messageIds.toArray(new String[0]) : new String[0]);
 
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
             jmsManager.deleteMessages(request.getSource(), ids);
+        } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE_ALL) {
+            jmsManager.deleteAllMessages(request.getSource());
         } else {
-            throw new RequestValidationException("Invalid action specified. Valid actions are 'move' and 'remove'");
+            throw new RequestValidationException("Invalid action specified. Valid actions are 'move', 'remove' and 'remove all'");
         }
 
         response.setOutcome("Success");

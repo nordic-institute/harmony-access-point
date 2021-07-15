@@ -491,6 +491,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
+    public void deleteAllMessages(String source) {
+        deleteMessages(getMessageDestinationName(removeJmsModule(source)), "");
+    }
+
+    @Override
     public InternalJmsMessage getMessage(String source, String messageId) {
         InternalJmsMessage internalJmsMessage = null;
         for (InternalJMSDestination internalJmsDestination : getInternalJMSDestinations(removeJmsModule(source))) {
