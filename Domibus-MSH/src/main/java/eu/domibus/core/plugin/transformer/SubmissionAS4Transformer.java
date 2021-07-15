@@ -165,6 +165,7 @@ public class SubmissionAS4Transformer {
                 final PartProperty property = partPropertyDictionaryService.findOrCreatePartProperty(entry.getKey(), entry.getValue(), entry.getType());
                 properties.add(property);
             }
+            partInfo.setPartOrder(result.size());
             result.add(partInfo);
         }
 

@@ -645,6 +645,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         for (final Ebms3PartInfo ebms3PartInfo : ebms3PartInfos) {
             PartInfo partInfo = convert(ebms3PartInfo);
+            partInfo.setPartOrder(result.size());
             result.add(partInfo);
         }
 
