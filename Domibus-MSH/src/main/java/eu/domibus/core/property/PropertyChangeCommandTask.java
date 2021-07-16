@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.clustering.CommandTask;
 import eu.domibus.logging.DomibusLogger;
@@ -41,12 +42,14 @@ public class PropertyChangeCommandTask implements CommandTask {
 
         final String propName = properties.get(CommandProperty.PROPERTY_NAME);
         final String propVal = properties.get(CommandProperty.PROPERTY_VALUE);
+        final DomibusPropertyMetadata.Type propType = domibusPropertyProvider.getPropertyType(propName);
 
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         try {
             LOGGER.trace("Updating the value of [{}] property on domain [{}], no broadcast", propName, domain);
             domibusPropertyProvider.setProperty(domain, propName, propVal, false);
-            LOGGER.info("Property [{}] updated.", propName);
+            LOGGER.info("Property [{}] updated to [{}]", propName,
+                    propType == DomibusPropertyMetadata.Type.PASSWORD ? "******" : propVal);
         } catch (Exception ex) {
             LOGGER.error("Error trying to set property [{}] with value [{}] on domain [{}]", propName, propVal, domain, ex);
         }
