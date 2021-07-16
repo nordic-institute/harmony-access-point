@@ -99,6 +99,9 @@
 
         <profile>
             <id>bamboo-remote</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -182,12 +185,12 @@
     </profiles>
 
     <dependencies>
-		<!-- USED FOR ENHANCED REPORTS-->
-		<dependency>
-			<groupId>io.qameta.allure</groupId>
-			<artifactId>allure-testng</artifactId>
-			<version>2.14.0</version>
-		</dependency>
+        <!-- USED FOR ENHANCED REPORTS-->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>2.14.0</version>
+        </dependency>
 
         <!--USED ONLY FOR SOAP REQUEST CLASSES-->
         <dependency>

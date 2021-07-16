@@ -36,7 +36,7 @@ public class AllPgTest extends SeleniumTest {
 	private static String errCode = "EBMS_0001";
 
 	private ArrayList<PAGES> pagesToSkip = new ArrayList<PAGES>(Arrays.asList(new PAGES[]{PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE
-			, PAGES.TRUSTSTORES_DOMIBUS, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING}));
+			, PAGES.TRUSTSTORES_DOMIBUS, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING, PAGES.TRUSTSTORES_TLS}));
 
 
 	/*Check extension of downloaded file on all pages*/
@@ -52,7 +52,7 @@ public class AllPgTest extends SeleniumTest {
 
 		for (PAGES ppage : PAGES.values()) {
 
-			if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.CONNECTION_MONITORING) || ppage.equals(PAGES.LOGGING)) {
+			if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.CONNECTION_MONITORING) || ppage.equals(PAGES.LOGGING) || ppage.equals(PAGES.TRUSTSTORES_TLS)) {
 //skipping these pages as they dont have download csv feature available
 				continue;
 			}
