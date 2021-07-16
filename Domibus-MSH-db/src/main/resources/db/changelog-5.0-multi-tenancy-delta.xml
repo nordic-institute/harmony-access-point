@@ -8,6 +8,12 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
 
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836-multitenancy">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
+        <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
+    </changeSet>
+
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
             <column name="VERSION" type="VARCHAR(30)"/>
