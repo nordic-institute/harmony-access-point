@@ -149,4 +149,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         return result;
     }
+
+    @Override
+    public DomibusPropertyMetadata.Type getPropertyType(String propertyName) {
+        DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        return meta.getTypeAsEnum();
+    }
 }

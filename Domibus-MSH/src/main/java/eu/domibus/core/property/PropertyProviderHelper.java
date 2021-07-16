@@ -97,7 +97,7 @@ public class PropertyProviderHelper {
         return (domainCode == null) ? null : new Domain(domainCode, domainCode);
     }
 
-    // duplicated part of the code from context provider so that we can brake the circular dependency
+    // duplicated part of the code from context provider so that we can break the circular dependency
     protected boolean isMultiTenantAware() {
         if (isMultiTenantAware == null) {
             synchronized (isMultiTenantAwareLock) {

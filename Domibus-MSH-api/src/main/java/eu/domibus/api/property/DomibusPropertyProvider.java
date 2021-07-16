@@ -147,4 +147,11 @@ public interface DomibusPropertyProvider {
      * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails or if the domain is null
      */
     void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
+
+    /**
+     * Retrieves the type of the property
+     * @param propertyName  the name of the property
+     * @return the type of the property
+     */
+    DomibusPropertyMetadata.Type getPropertyType(String propertyName);
 }
