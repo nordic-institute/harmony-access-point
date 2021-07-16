@@ -6,10 +6,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyType;
 import eu.domibus.plugin.ws.exception.WSPluginException;
-import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
-
+import org.apache.commons.lang3.RegExUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -63,16 +61,14 @@ public class WSPluginDispatchRulesService {
     protected List<WSPluginDispatchRule> generateRules() {
         List<WSPluginDispatchRule> result = new ArrayList<>();
 
-        List<String> nestedProperties = domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE)
-                .stream()
-                .map(s -> StringUtils.substringBefore(s, "."))
-                .collect(toList());
-        if (CollectionUtils.isEmpty(nestedProperties)) {
+        List<String> ruleNames = getRuleNames(domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE));
+
+        if (CollectionUtils.isEmpty(ruleNames)) {
             LOG.info("No properties with base [{}]", PUSH_RULE_BASE);
             return result;
         }
 
-        List<WSPluginDispatchRuleBuilder> builderSortedByIndex = nestedProperties
+        List<WSPluginDispatchRuleBuilder> builderSortedByIndex = ruleNames
                 .stream()
                 .map(WSPluginDispatchRuleBuilder::new)
                 .collect(toList());
@@ -91,9 +87,22 @@ public class WSPluginDispatchRulesService {
         return result;
     }
 
+    protected List<String> getRuleNames(List<String> nestedProperties) {
+        List<String> ruleNames = nestedProperties
+                .stream()
+                .filter(s -> !containsIgnoreCase(s, "."))
+                .collect(toList());
+        if(LOG.isDebugEnabled()){
+            for (String nestedProperty : ruleNames) {
+                LOG.debug("rule name found: [{}]", nestedProperty);
+            }
+        }
+        return ruleNames;
+    }
+
     protected List<WSBackendMessageType> getTypes(String property) {
         List<WSBackendMessageType> result = new ArrayList<>();
-        String[] messageTypes = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ",");
+        String[] messageTypes = split(RegExUtils.replaceAll(property, " ", ""), ",");
         LOG.debug("get WSBackendMessageType with property: [{}]", property);
         for (String type : messageTypes) {
             try {
@@ -134,11 +143,11 @@ public class WSPluginDispatchRulesService {
     protected void setRetryInformation(WSPluginDispatchRuleBuilder ruleBuilder, String property) {
         ruleBuilder.withRetry(property);
         LOG.debug("set retry information with property value: [{}]", property);
-        if (StringUtils.isBlank(property)) {
+        if (isBlank(property)) {
             return;
         }
         try {
-            String[] retryValues = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ";");
+            String[] retryValues = split(RegExUtils.replaceAll(property, " ", ""), ";");
             ruleBuilder.withRetryTimeout(Integer.parseInt(trim(retryValues[0])));
             ruleBuilder.withRetryCount(Integer.parseInt(trim(retryValues[1])));
             ruleBuilder.withRetryStrategy(WSPluginRetryStrategyType.valueOf(trim(retryValues[2])));

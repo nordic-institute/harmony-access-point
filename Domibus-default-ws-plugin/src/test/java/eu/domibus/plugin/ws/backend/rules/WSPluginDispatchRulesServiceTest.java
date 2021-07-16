@@ -273,4 +273,18 @@ public class WSPluginDispatchRulesServiceTest {
 
         assertNull(strategyFound);
     }
+
+    @Test
+    public void getRuleNames() {
+        ArrayList<String> nestedProperties = new ArrayList<>();
+        nestedProperties.add("rule1");
+        nestedProperties.add("rule1.property1");
+        nestedProperties.add("rule2.property");
+
+        List<String> ruleNames = rulesService.getRuleNames(nestedProperties);
+
+        assertEquals(1, ruleNames.size());
+        assertEquals("rule1", ruleNames.get(0));
+    }
+
 }
