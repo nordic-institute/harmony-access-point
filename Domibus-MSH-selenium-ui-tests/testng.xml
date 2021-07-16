@@ -121,6 +121,8 @@
             <class name="domibus.ui.functional.MessagesPgTest">
                 <methods>
                     <exclude name="downloadMsgs"/>
+                    <!-- disabled due to issues EDELIVERY-8311 and EDELIVERY-8312-->
+                    <exclude name="checkMsgEnvXML"></exclude>
                 </methods>
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests">

@@ -614,15 +614,17 @@ public class MessagesPgTest extends SeleniumTest {
 		File zipFile = new File(zipPath);
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
 
-		String firstXMLFileName = zis.getNextEntry().getName().toString();
-		String secondXMLFileName = zis.getNextEntry().getName().toString();
-
 		String msgStatus = page.grid().getRowInfo(0).get("Message Status");
 
-		String xmlFileNameUser = "user_message_envelope";
-		String xmlFileNameuSignal = "signal_message_envelope";
 
 		if (msgStatus.equals("ACKNOWLEDGED") && msgStatus.equals("RECEIVED")) {
+
+			String firstXMLFileName = zis.getNextEntry().getName().toString();
+			String secondXMLFileName = zis.getNextEntry().getName().toString();
+
+			String xmlFileNameUser = "user_message_envelope";
+			String xmlFileNameuSignal = "signal_message_envelope";
+
 			if (firstXMLFileName.equals(xmlFileNameUser)) {
 				Allure.step("first xml file is user message envelop");
 				log.info("first xml file is user message envelop");
