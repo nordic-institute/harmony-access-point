@@ -135,6 +135,27 @@
                        </configuration>
                    </execution>
 
+                   <!-- partitioning starts here -->
+                   <execution>
+                       <id>generate-oracle-script-partitioning</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog_partitioning.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-partitioning.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-${project.version}-partitioning.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- partitioning ends here -->
+
                    <!-- 5.0 starts here -->
                    <execution>
                        <id>generate-mysql-script-data</id>
