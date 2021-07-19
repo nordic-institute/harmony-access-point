@@ -233,14 +233,18 @@ public class UsersPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.USERS);
 		page.grid().waitForRowsToLoad();
 
-		String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
-		Allure.step("downloaded file with name " + fileName);
-		log.info("downloaded file with name " + fileName);
 
+		Allure.step("include deleted users");
+		log.info("include deleted users");
 		page.includeDeletedUsers();
 		page.grid().waitForRowsToLoad();
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
+
+		String fileName = page.pressSaveCsvAndSaveFile();
+
+		Allure.step("downloaded file with name " + fileName);
+		log.info("downloaded file with name " + fileName);
 
 		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
