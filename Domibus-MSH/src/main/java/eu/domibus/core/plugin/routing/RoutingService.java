@@ -210,7 +210,7 @@ public class RoutingService {
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageId() + "]");
+        LOG.debug("Getting the backend filter for message [{}] for backendFilters [{}]", userMessage.getMessageId(), backendFilters);
         for (final BackendFilter filter : backendFilters) {
             final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
             if (backendFilterMatching) {
@@ -223,16 +223,21 @@ public class RoutingService {
     }
 
     protected boolean isBackendFilterMatching(BackendFilter filter, Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        if (filter.getRoutingCriterias() != null) {
+        if (!CollectionUtils.isEmpty(filter.getRoutingCriterias())) {
             for (final RoutingCriteria routingCriteriaEntity : filter.getRoutingCriterias()) {
                 final IRoutingCriteria criteria = criteriaMap.get(StringUtils.upperCase(routingCriteriaEntity.getName()));
                 boolean matches = criteria.matches(userMessage, routingCriteriaEntity.getExpression());
+                if (matches) {
+                    LOG.debug("Criteria [{}] matches for message [{}]", routingCriteriaEntity, userMessage);
+                }
                 //if at least one criteria does not match it means the filter is not matching
                 if (!matches) {
+                    LOG.debug("Criteria [{}] doesn't matches for message [{}]", routingCriteriaEntity, userMessage);
                     return false;
                 }
             }
         }
+        LOG.debug("Criterias [{}] matches for message [{}]", filter.getRoutingCriterias(), userMessage);
         return true;
     }
 
