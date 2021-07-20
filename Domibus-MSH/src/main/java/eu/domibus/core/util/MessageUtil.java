@@ -161,7 +161,7 @@ public class MessageUtil {
         UserMessage result = new UserMessage();
 
         final String mpc = getAttribute(userMessageNode, "mpc");
-        result.setMpc(mpc);
+        result.setMpc(StringUtils.isEmpty(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
 
         final MessageInfo messageInfo = createMessageInfo(userMessageNode);
         result.setMessageInfo(messageInfo);
