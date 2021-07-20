@@ -147,4 +147,8 @@ public class TestRunData {
 	public String downloadFolderPath() {
 		return System.getProperty("user.dir") + File.separator + "downloadFiles";
 	}
+
+	public String getConfig() {
+		return prop.getProperty("testedConfig");
+	}
 }
