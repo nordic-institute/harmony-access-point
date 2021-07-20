@@ -83,7 +83,7 @@ public class TLSTruststoreResourceIT {
     static class ContextConfiguration {
         @Bean
         public TLSTruststoreResource tlsTruststoreResource() {
-            return new TLSTruststoreResource(null, null, null,null, null, null, null);
+            return new TLSTruststoreResource(null, null, null, null, null, null, null);
         }
 
         @Bean
