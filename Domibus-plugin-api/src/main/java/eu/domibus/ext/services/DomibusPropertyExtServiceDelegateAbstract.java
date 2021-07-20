@@ -93,7 +93,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
      */
     protected Boolean onGetLocalBooleanPropertyValue(String propertyName, DomibusPropertyMetadataDTO propMeta) {
         LOG.warn("Property [{}] is not stored globally and not handled locally so 'false' was returned.", propertyName);
-        return false;
+        return null;
     }
 
     @Override
