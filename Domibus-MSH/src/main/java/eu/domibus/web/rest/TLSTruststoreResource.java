@@ -1,6 +1,9 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -10,6 +13,7 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,16 +33,19 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class TLSTruststoreResource extends TruststoreResourceBase {
 
     private final TLSCertificateManager tlsCertificateManager;
+    private final DomainContextProvider domainProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    protected static final String TRUSTSTORE_BACKUP_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
-    public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
+    public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager, DomainContextProvider domainProvider, DomibusPropertyProvider domibusPropertyProvider,
                                  PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
         super(coreMapper, errorHandlerService, multiPartFileUtil, auditService);
-
+        this.domainProvider = domainProvider;
+        this.domibusPropertyProvider = domibusPropertyProvider;
         this.tlsCertificateManager = tlsCertificateManager;
     }
+ //  final  String TRUSTSTORE_BACKUP_LOCATION = domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
 
     @PostMapping()
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile file,
@@ -71,20 +78,20 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
-        tlsCertificateManager.addCertificate(fileContent, alias, TRUSTSTORE_BACKUP_LOCATION);
+        tlsCertificateManager.addCertificate(fileContent, alias, getTrustStoreBackUpLocation());
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        tlsCertificateManager.removeCertificate(alias, TRUSTSTORE_BACKUP_LOCATION);
+        tlsCertificateManager.removeCertificate(alias, getTrustStoreBackUpLocation());
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password, TRUSTSTORE_BACKUP_LOCATION);
+        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password, getTrustStoreBackUpLocation());
     }
 
     @Override
@@ -100,6 +107,10 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @Override
     protected List<TrustStoreEntry> doGetTrustStoreEntries() {
         return tlsCertificateManager.getTrustStoreEntries();
+    }
+
+    protected String getTrustStoreBackUpLocation() {
+        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
     }
 
 }

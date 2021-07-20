@@ -1,6 +1,8 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
@@ -68,6 +70,12 @@ public class TLSTruststoreResourceIT {
     @Mocked
     protected AuditService auditService;
 
+    @Mocked
+    protected DomainContextProvider domainProvider;
+
+    @Mocked
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     private MockMvc mockMvc;
 
     @Configuration
@@ -75,7 +83,7 @@ public class TLSTruststoreResourceIT {
     static class ContextConfiguration {
         @Bean
         public TLSTruststoreResource tlsTruststoreResource() {
-            return new TLSTruststoreResource(null, null, null, null, null);
+            return new TLSTruststoreResource(null, null, null,null, null, null, null);
         }
 
         @Bean
@@ -98,6 +106,8 @@ public class TLSTruststoreResourceIT {
         ReflectionTestUtils.setField(tlsTruststoreResource, "errorHandlerService", errorHandlerService);
         ReflectionTestUtils.setField(tlsTruststoreResource, "multiPartFileUtil", multiPartFileUtil);
         ReflectionTestUtils.setField(tlsTruststoreResource, "auditService", auditService);
+        ReflectionTestUtils.setField(tlsTruststoreResource, "domainProvider", domainProvider);
+        ReflectionTestUtils.setField(tlsTruststoreResource, "domibusPropertyProvider", domibusPropertyProvider);
 //        ReflectionTestUtils.setField(tlsTruststoreResource, "csvServiceImpl", csvServiceImpl);
     }
 
