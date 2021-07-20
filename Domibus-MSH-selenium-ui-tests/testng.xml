@@ -153,6 +153,9 @@
                 <methods>
                     <!--                    need fixes -->
                     <exclude name="updateAndSave"/>
+
+                    <!--depends on a cron running and it is unreliable -->
+                    <exclude name="updateSuspensionTime"/>
                 </methods></class>
             <class name="domibus.ui.functional.Properties2PgTest">
                 <methods>

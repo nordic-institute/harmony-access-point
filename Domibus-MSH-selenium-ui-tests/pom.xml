@@ -59,16 +59,16 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
-                            <argLine>
-                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
-                            </argLine>
+<!--                            <argLine>-->
+<!--                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"-->
+<!--                            </argLine>-->
                             <systemPropertyVariables>
                                 <propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
                                 <runBrowser>firefox</runBrowser>
                             </systemPropertyVariables>
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
-                                <suiteXmlFile>testng.xml</suiteXmlFile>
+                                <suiteXmlFile>testng_ftests.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <properties>
                                 <property>
@@ -108,9 +108,9 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
-                            <argLine>
-                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
-                            </argLine>
+<!--                            <argLine>-->
+<!--                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"-->
+<!--                            </argLine>-->
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>
@@ -190,6 +190,12 @@
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-testng</artifactId>
             <version>2.14.0</version>
+        </dependency>
+		 <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>5.0.8</version>
+
         </dependency>
 
         <!--USED ONLY FOR SOAP REQUEST CLASSES-->

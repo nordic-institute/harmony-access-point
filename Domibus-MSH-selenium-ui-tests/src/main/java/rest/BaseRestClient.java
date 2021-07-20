@@ -373,4 +373,12 @@ public class BaseRestClient {
 		params.put("newPassword", newPass);
 		return jsonPUT(resource.path(RestServicePaths.PASSWORD), params.toString());
 	}
+
+	public String getBuildInfo() throws Exception {
+		String info = requestGET(resource.path("/rest/application/info"), null).getEntity(String.class);
+		return new JSONObject(sanitizeResponse(info)).getString("version");
+	}
+
+
+
 }
