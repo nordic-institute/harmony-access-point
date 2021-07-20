@@ -199,10 +199,12 @@ public class RoutingService {
         validateFilters(filters);
 
         List<BackendFilterEntity> allBackendFilterEntities = backendFilterDao.findAll();
+        LOG.debug("Delete BackendFilterEntities [{}]", allBackendFilterEntities);
         backendFilterDao.delete(allBackendFilterEntities);
 
         List<BackendFilterEntity> backendFilterEntities = backendFilterCoreMapper.backendFilterListToBackendFilterEntityList(filters);
         updateFilterIndices(backendFilterEntities);
+        LOG.debug("Update BackendFilterEntities [{}]", backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
 
         invalidateBackendFiltersCache();
