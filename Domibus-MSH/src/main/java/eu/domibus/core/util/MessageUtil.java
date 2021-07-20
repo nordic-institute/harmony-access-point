@@ -160,7 +160,7 @@ public class MessageUtil {
         }
         UserMessage result = new UserMessage();
 
-        String mpc = getAttribute(userMessageNode, "mpc");
+        final String mpc = getAttribute(userMessageNode, "mpc");
         LOG.debug("Message mpc:[{}]",mpc);
         String value = StringUtils.isEmpty(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc;
         if(LOG.isDebugEnabled()){
