@@ -10,6 +10,7 @@
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
         <version>4.2.2</version>
+        <relativePath>../neds-pom.xml</relativePath>
     </parent>
     <artifactId>domibus-plugin-api</artifactId>
     <packaging>jar</packaging>
