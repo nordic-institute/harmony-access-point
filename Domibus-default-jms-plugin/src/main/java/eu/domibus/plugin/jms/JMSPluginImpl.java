@@ -146,7 +146,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
         final String queueValue = jmsPluginQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId, queueValue));
     }
 
     @Override
@@ -215,13 +215,15 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     private class DownloadMessageCreator implements MessageCreator {
         private String messageId;
+        private String destination;
 
-        public DownloadMessageCreator(final String messageId) {
+        public DownloadMessageCreator(final String messageId, String destination) {
             this.messageId = messageId;
+            this.destination = destination;
         }
 
         @Override
-        public Message createMessage(final Session session) throws JMSException {
+        public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
                 downloadMessage(messageId, mapMessage);
@@ -231,6 +233,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             mapMessage.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, JMSMessageConstants.MESSAGE_TYPE_INCOMING);
             final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
             mapMessage.setStringProperty(MessageConstants.DOMAIN, currentDomain.getCode());
+            mapMessage.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_QUEUE, destination);
             return mapMessage;
         }
     }
