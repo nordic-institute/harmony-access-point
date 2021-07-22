@@ -373,6 +373,20 @@ public abstract class PModeProvider {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
     }
 
+    /**
+     * It will check if the messages are sent to the same Domibus instance
+     *
+     * @param pmodeKey pmode key
+     * @return boolean true if there is the same AP
+     */
+    public boolean checkSelfSending(String pmodeKey) {
+        final Party receiver = getReceiverParty(pmodeKey);
+        final Party sender = getSenderParty(pmodeKey);
+
+        //check endpoint
+        return StringUtils.trimToEmpty(receiver.getEndpoint()).equalsIgnoreCase(StringUtils.trimToEmpty(sender.getEndpoint()));
+    }
+
     public abstract List<String> getMpcList();
 
     public abstract List<String> getMpcURIList();

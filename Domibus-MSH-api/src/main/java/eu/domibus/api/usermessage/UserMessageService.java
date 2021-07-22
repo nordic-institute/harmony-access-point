@@ -188,4 +188,6 @@ public interface UserMessageService {
      * @return a string representing the envelope in xml format
      */
     String getSignalMessageEnvelope(String userMessageId);
+
+    eu.domibus.api.model.UserMessage findByMessageId(String messageId) throws MessageNotFoundException;
 }

@@ -17,7 +17,6 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -64,9 +63,6 @@ public class PullReceiptListener implements MessageListener {
 
     @Autowired
     UserMessageHandlerService userMessageHandlerService;
-
-    @Autowired
-    private SignalMessageDao signalMessageDao;
 
     @Autowired
     UserMessageService userMessageService;
@@ -125,7 +121,7 @@ public class PullReceiptListener implements MessageListener {
                 return;
             }
 
-            if (userMessageHandlerService.checkSelfSending(pModeKey)) {
+            if (pModeProvider.checkSelfSending(pModeKey)) {
                 removeSelfSendingPrefix(receipt.getSignalMessage());
             }
             final Ebms3SignalMessage ebms3SignalMessage = convert(receipt.getSignalMessage(), receipt);

@@ -4,12 +4,18 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.ErrorResult;
+import eu.domibus.common.ErrorResultImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS;
@@ -22,8 +28,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @Service
 public class ErrorServiceImpl implements ErrorService {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorServiceImpl.class);
 
     protected ErrorLogDao errorLogDao;
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -48,9 +52,17 @@ public class ErrorServiceImpl implements ErrorService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail) {
+    public void createErrorLog(String messageInErrorId, ErrorCode errorCode, String errorDetail) {
         MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
-        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, ErrorCode.EBMS_0004, errorDetail);
+        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, errorCode, errorDetail);
+        errorLogDao.create(errorLogEntry);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public void createErrorLog(final EbMS3Exception ebms3Exception) {
+        final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        ErrorLogEntry errorLogEntry = new ErrorLogEntry(ebms3Exception, sendingRole);
         errorLogDao.create(errorLogEntry);
     }
 
@@ -60,5 +72,23 @@ public class ErrorServiceImpl implements ErrorService {
         int batchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE);
 
         errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days, batchSize);
+    }
+
+    @Override
+    public List<? extends ErrorResult> getErrors(String messageId) {
+        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
+        return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
+        ErrorResultImpl result = new ErrorResultImpl();
+        result.setErrorCode(errorLogEntry.getErrorCode());
+        result.setErrorDetail(errorLogEntry.getErrorDetail());
+        result.setMessageInErrorId(errorLogEntry.getMessageInErrorId());
+        result.setMshRole(eu.domibus.common.MSHRole.valueOf(errorLogEntry.getMshRole().name()));
+        result.setNotified(errorLogEntry.getNotified());
+        result.setTimestamp(errorLogEntry.getTimestamp());
+
+        return result;
     }
 }

@@ -105,7 +105,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         mshRole.setRole(MSHRole.RECEIVING);
         userMessageLog.setMshRole(mshRole);
         userMessageLog.setReceived(new Date());
-        userMessageLogService.save(userMessage, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MSHRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
+        userMessageLogService.save(userMessage, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MSHRole.RECEIVING.name(), 1, "backendWebservice");
 
         javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();

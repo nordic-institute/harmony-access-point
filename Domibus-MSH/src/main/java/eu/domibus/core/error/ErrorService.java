@@ -1,7 +1,10 @@
 package eu.domibus.core.error;
 
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.ErrorResult;
+import eu.domibus.core.ebms3.EbMS3Exception;
+
+import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -16,10 +19,15 @@ public interface ErrorService {
      */
     void createErrorLog(ErrorLogEntry errorLogEntry);
 
-    void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail);
+    void createErrorLog(String messageInErrorId, ErrorCode errorCode, String errorDetail);
+
+
+    void createErrorLog(EbMS3Exception ebms3Exception);
 
     /**
      * delete ErrorLogEntry records not having messageId and older than x days
      */
     public void deleteErrorLogWithoutMessageIds();
+
+    List<? extends ErrorResult> getErrors(String messageId);
 }

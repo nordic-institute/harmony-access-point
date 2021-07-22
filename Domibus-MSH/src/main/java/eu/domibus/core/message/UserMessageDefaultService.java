@@ -31,7 +31,6 @@ import eu.domibus.core.message.dictionary.MessagePropertyDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
@@ -40,9 +39,6 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIMessageDao;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -82,6 +78,9 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
     static final String DOES_NOT_EXIST = "] does not exist";
+
+    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
+    private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
 
     @Autowired
@@ -110,22 +109,13 @@ public class UserMessageDefaultService implements UserMessageService {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private MessageInfoDao messageInfoDao;
-
-    @Autowired
     private SignalMessageDao signalMessageDao;
-
-    @Autowired
-    private MessagePropertyDao propertyDao;
 
     @Autowired
     private MessageAttemptDao messageAttemptDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
-
-    @Autowired
-    private UIMessageDao uiMessageDao;
 
     @Autowired
     private MessageAcknowledgementDao messageAcknowledgementDao;
@@ -152,19 +142,10 @@ public class UserMessageDefaultService implements UserMessageService {
     PModeServiceHelper pModeServiceHelper;
 
     @Autowired
-    private MessageExchangeService messageExchangeService;
-
-    @Autowired
     private MessageCoreMapper messageCoreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    private PullMessageService pullMessageService;
-
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected MessageGroupDao messageGroupDao;
@@ -174,9 +155,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     protected DatabaseMessageHandler databaseMessageHandler;
-
-    @Autowired
-    private PModeProvider pModeProvider;
 
     @Autowired
     MessageConverterService messageConverterService;
@@ -194,7 +172,7 @@ public class UserMessageDefaultService implements UserMessageService {
     NonRepudiationService nonRepudiationService;
 
     @Autowired
-    protected PartInfoDao partInfoDao;
+    protected PartInfoService partInfoService;
 
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
@@ -216,6 +194,10 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
+
+    public UserMessageServiceHelper getHelper() {
+        return userMessageServiceHelper;
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -351,8 +333,6 @@ public class UserMessageDefaultService implements UserMessageService {
     /**
      * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
      *
-     * @param userMessageLog
-     * @param jmsMessage
      */
     protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
@@ -565,7 +545,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
-        partInfoDao.clearPayloadData(userMessage.getEntityId());
+        partInfoService.clearPayloadData(userMessage);
         userMessageLog.setDeleted(new Date());
 
         if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
@@ -595,8 +575,8 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
 
-        List<String> filenames = partInfoDao.findFileSystemPayloadFilenames(userMessageIds);
-        partInfoDao.deletePayloadFiles(filenames);
+        List<String> filenames = partInfoService.findFileSystemPayloadFilenames(userMessageIds);
+        partInfoService.deletePayloadFiles(filenames);
 
         List<String> signalMessageId = new ArrayList<>();
 
@@ -638,7 +618,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
         auditService.addMessageDownloadedAudit(messageId);
-        final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        final List<PartInfo> partInfoList = partInfoService.findPartInfo(userMessage);
         return messageToBytes(userMessage, partInfoList);
     }
 
@@ -669,13 +649,22 @@ public class UserMessageDefaultService implements UserMessageService {
         return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
     }
 
+    @Override
+    public UserMessage findByMessageId(String messageId) throws MessageNotFoundException {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
+        return userMessage;
+    }
+
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 
         UserMessage userMessage = getUserMessageById(messageId);
 
         Map<String, InputStream> result = new HashMap<>();
-        final List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        final List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
         InputStream messageStream = messageToStream(userMessage, partInfos);
         result.put("message.xml", messageStream);
 
