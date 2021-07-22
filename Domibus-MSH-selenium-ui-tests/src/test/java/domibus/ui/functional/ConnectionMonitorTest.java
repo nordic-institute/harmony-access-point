@@ -204,9 +204,9 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
 		page.grid().getActionButton("Send", 0).click();
-		new DWait(driver).forXMillis(100);
+		new DWait(driver).forXMillis(500);
 		page.grid().getActionButton("Refresh", 0).click();
-		new DWait(driver).forXMillis(100);
+		new DWait(driver).forXMillis(500);
 
 		String afterSentData = page.grid().getSendRecStatus("Send", 0);
 
