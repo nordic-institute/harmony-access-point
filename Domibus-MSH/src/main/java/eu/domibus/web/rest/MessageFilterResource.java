@@ -6,13 +6,13 @@ import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,14 +27,21 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/rest/messagefilters")
 public class MessageFilterResource extends BaseResource {
 
-    @Autowired
-    private RoutingService routingService;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageFilterResource.class);
 
-    @Autowired
-    private BackendFilterCoreMapper backendFilterCoreMapper;
+    private final RoutingService routingService;
+
+    private final BackendFilterCoreMapper backendFilterCoreMapper;
+
+    public MessageFilterResource(RoutingService routingService,
+                                 BackendFilterCoreMapper backendFilterCoreMapper) {
+        this.routingService = routingService;
+        this.backendFilterCoreMapper = backendFilterCoreMapper;
+    }
 
     @GetMapping
     public MessageFilterResultRO getMessageFilter() {
+        LOG.debug("GET messageFilter");
         final Pair<List<MessageFilterRO>, Boolean> backendFiltersInformation = getBackendFiltersInformation();
 
         MessageFilterResultRO resultRO = new MessageFilterResultRO();
@@ -45,6 +52,7 @@ public class MessageFilterResource extends BaseResource {
 
     @PutMapping
     public void updateMessageFilters(@RequestBody List<MessageFilterRO> messageFilterROS) {
+        LOG.debug("PUT messageFilters [{}]", messageFilterROS);
         List<BackendFilter> backendFilters = backendFilterCoreMapper.messageFilterROListToBackendFilterList(messageFilterROS);
         routingService.updateBackendFilters(backendFilters);
     }
@@ -56,6 +64,7 @@ public class MessageFilterResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv() {
+        LOG.debug("GET csv");
         List<MessageFilterRO> list = getBackendFiltersInformation().getKey();
         getCsvService().validateMaxRows(list.size());
         return exportToCSV(list.stream().map(this::fromMessageFilterRO).collect(Collectors.toList()), MessageFilterCSV.class, "message-filter");

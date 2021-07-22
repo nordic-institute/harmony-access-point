@@ -92,4 +92,15 @@ public class MessageFilterRO implements Serializable {
                 .append(isPersisted)
                 .toHashCode();
     }
+
+    @Override
+    public String toString() {
+        return "MessageFilterRO{" +
+                "entityId='" + entityId + '\'' +
+                ", index=" + index +
+                ", routingCriterias=" + routingCriterias +
+                ", backendName='" + backendName + '\'' +
+                ", isPersisted=" + isPersisted +
+                '}';
+    }
 }
