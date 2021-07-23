@@ -44,6 +44,7 @@ SET CLI_ORACLE_DATA_SOURCES=resources\oracle\02-data-sources.cli
 SET CLI_COMMON_MESSAGING=resources\common\01-messaging.cli
 SET CLI_COMMON_NON_CLUSTER=resources\common\02-non-cluster.cli
 SET CLI_COMMON_CLUSTER=resources\common\02-cluster.cli
+SET CLI_COMMON_INTERFACES=resources\common\03-interfaces.cli
 
 ECHO -------------- JBOSS_HOME: %JBOSS_HOME%
 ECHO -------------- SERVER_CONFIG: %SERVER_CONFIG%

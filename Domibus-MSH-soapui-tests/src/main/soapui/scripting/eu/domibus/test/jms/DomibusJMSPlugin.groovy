@@ -77,7 +77,10 @@ class DomibusJMSPlugin {
         return ic
     }
 
-    def connectUsingJMSApi(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE, String initialContextFactory) {
+    def connectUsingJMSApi(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE, String initialContextFactory, String applicationServerType) {
+        log.info "Connect using JMS API: PROVIDER_URL:$PROVIDER_URL, USER=$USER, PASSWORD=$PASSWORD, " +
+                "CONNECTION_FACTORY_JNDI=$CONNECTION_FACTORY_JNDI, QUEUE=$QUEUE, " +
+                "initialContextFactory=$initialContextFactory, applicationServerType=$applicationServerType"
 
         MapMessage messageMap = null
         try {
@@ -92,7 +95,7 @@ class DomibusJMSPlugin {
 
             messageMap = session.createMapMessage()
         } catch (Exception ex) {
-            log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Weblogic deployment failed. " +
+            log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in $applicationServerType deployment failed. " +
                     "PROVIDER_URL: $PROVIDER_URL | USER: $USER | PASSWORD: $PASSWORD | " +
                     "CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
             assert 0, "Exception occurred when trying to connect: " + ex
@@ -146,15 +149,15 @@ class DomibusJMSPlugin {
 
         switch (jmsClientType) {
             case "weblogic":
-                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPassword, jmsConnectionFactory, queue, "weblogic.jndi.WLInitialContextFactory")
+                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPassword, jmsConnectionFactory, queue, "weblogic.jndi.WLInitialContextFactory", "Weblogic")
                 break
             case "tomcat":
                 log.info("JmsServer Tomcat. Reading connection details.")
                 messageMap = connectToActiveMQ(jmsURL, serverUser, serverPassword, queue)
                 break
             case "wildfly":
-                log.info("JmsServer Tomcat. Reading connection details.")
-                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPassword, jmsConnectionFactory, queue, "org.jboss.naming.remote.client.InitialContextFactory")
+                log.info("JmsServer Wildfly. Reading connection details.")
+                messageMap = connectUsingJMSApi(jmsURL, serverUser, serverPassword, jmsConnectionFactory, queue, "org.jboss.naming.remote.client.InitialContextFactory", "Wildfly")
                 break
 
             default:
@@ -166,16 +169,23 @@ class DomibusJMSPlugin {
     }
 
     def sendMessageAndClean(messageMap) {
-
         log.info "sending message"
         try {
             jmsSender.send(messageMap)
-            jmsConnectionHandler.close()
         } catch (Exception ex) {
-            log.error "sendMessageAndClean    [][]  Sending and closing connection  to JMS queue"
-            assert 0, "Exception occurred when trying to connect: " + ex
+            log.error "sendMessageAndClean    [][]  Sending message"
+            assert 0, "Exception occurred when trying to send: " + ex
         }
         log.info "message sent"
+
+        log.info "cleaning up"
+        try {
+            jmsConnectionHandler.close()
+        } catch(Exception ex) {
+            log.error "sendMessageAndClean    [][]  Closing connection to JMS queue"
+            assert 0, "Exception occurred when trying to close the connection: " + ex
+        }
+        log.info "cleaned up"
     }
 
 }
