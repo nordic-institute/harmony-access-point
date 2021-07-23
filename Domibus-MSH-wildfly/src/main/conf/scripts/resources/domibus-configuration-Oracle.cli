@@ -8,4 +8,6 @@ run-batch --file=${CLI_COMMON_MESSAGING} --verbose
 
 run-batch --file=${CLI_COMMON_NON_CLUSTER} --verbose
 
+run-batch --file=${CLI_COMMON_INTERFACES} --verbose
+
 exit

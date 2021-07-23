@@ -3,6 +3,3 @@
 
 /subsystem=messaging-activemq/server=default/connection-factory=edeliveryConnectionFactory:add(discovery-group="dg-group1",entries=["java:/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)
 /subsystem=messaging-activemq/server=default/connection-factory=edeliveryRemoteConnectionFactory:add(discovery-group="dg-group1",entries=["java:jboss/exported/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)
-
-/interface=public:undefine-attribute(name=inet-address)
-/interface=public:write-attribute(name=any-address,value=true)
