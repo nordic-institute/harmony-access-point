@@ -48,27 +48,26 @@ public class PartInfoServiceImplTest {
     private PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Test
-    public void clearPayloadData_empty(@Injectable final UserMessage userMessage) {
+    public void clearPayloadData_empty() {
         new Expectations(partInfoService) {{
-            partInfoService.findPartInfo(userMessage);
+            partInfoDao.findPartInfoByUserMessageEntityId(1L);
             result = new ArrayList<>();
             times = 1;
         }};
 
-        partInfoService.clearPayloadData(userMessage.getEntityId());
+        partInfoService.clearPayloadData(1L);
 
         new FullVerifications() {
         };
     }
 
     @Test
-    public void clearPayloadData_find2(@Injectable final UserMessage userMessage,
-                                       @Injectable final PartInfo partInfo1,
+    public void clearPayloadData_find2(@Injectable final PartInfo partInfo1,
                                        @Injectable final PartInfo partInfo2) {
         List<PartInfo> partInfos = asList(partInfo1, partInfo2);
         new Expectations(partInfoService) {{
-            partInfoService.findPartInfo(userMessage);
-            this.result = partInfos;
+            partInfoDao.findPartInfoByUserMessageEntityId(1L);
+            result = partInfos;
             times = 1;
 
             partInfoService.clearDatabasePayloads(partInfos);
@@ -77,9 +76,10 @@ public class PartInfoServiceImplTest {
             times = 1;
         }};
 
-        partInfoService.clearPayloadData(userMessage.getEntityId());
+        partInfoService.clearPayloadData(1L);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -158,6 +158,7 @@ public class PartInfoServiceImplTest {
         partInfo.setHref(href);
         return partInfo;
     }
+
     public static eu.domibus.api.usermessage.domain.PartInfo getPartInfo(String name, String value, String href) {
         eu.domibus.api.usermessage.domain.PartInfo partInfo = new eu.domibus.api.usermessage.domain.PartInfo();
         PartProperties partProperties = new PartProperties();
