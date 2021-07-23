@@ -8,8 +8,6 @@ import eu.domibus.common.ErrorResult;
 import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +73,7 @@ public class ErrorServiceImpl implements ErrorService {
     }
 
     @Override
-    public List<? extends ErrorResult> getErrors(String messageId) {
+    public List<ErrorResult> getErrors(String messageId) {
         List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
         return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
     }

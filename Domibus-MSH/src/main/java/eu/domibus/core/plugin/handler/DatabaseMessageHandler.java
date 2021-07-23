@@ -126,6 +126,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected PartInfoService partInfoService;
 
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -144,7 +147,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
         boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage, partInfos);
         if (shouldDeleteDownloadedMessage) {
-            partInfoService.clearPayloadData(userMessage);
+            partInfoService.clearPayloadData(userMessage.getEntityId());
 
             // Sets the message log status to DELETED
             userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
@@ -201,7 +204,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             /* check the message belongs to the authenticated user */
             boolean found = false;
             for (String recipient : recipients) {
-                String originalUser = userMessageService.getHelper().getOriginalUser(userMessage, recipient);
+                String originalUser = userMessageServiceHelper.getOriginalUser(userMessage, recipient);
                 if (originalUser != null && originalUser.equalsIgnoreCase(authOriginalUser)) {
                     found = true;
                     break;
@@ -218,7 +221,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (authOriginalUser != null) {
             LOG.debug("OriginalUser is [{}]", authOriginalUser);
             /* check the message belongs to the authenticated user */
-            String originalUser = userMessageService.getHelper().getOriginalUser(userMessage, recipient);
+            String originalUser = userMessageServiceHelper.getOriginalUser(userMessage, recipient);
             if (originalUser != null && !originalUser.equalsIgnoreCase(authOriginalUser)) {
                 LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
                 throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");

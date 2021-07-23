@@ -195,10 +195,6 @@ public class UserMessageDefaultService implements UserMessageService {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    public UserMessageServiceHelper getHelper() {
-        return userMessageServiceHelper;
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
@@ -545,7 +541,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
-        partInfoService.clearPayloadData(userMessage);
+        partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
 
         if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&

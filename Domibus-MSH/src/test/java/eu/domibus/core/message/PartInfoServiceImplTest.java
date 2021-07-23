@@ -55,7 +55,7 @@ public class PartInfoServiceImplTest {
             times = 1;
         }};
 
-        partInfoService.clearPayloadData(userMessage);
+        partInfoService.clearPayloadData(userMessage.getEntityId());
 
         new FullVerifications() {
         };
@@ -77,7 +77,7 @@ public class PartInfoServiceImplTest {
             times = 1;
         }};
 
-        partInfoService.clearPayloadData(userMessage);
+        partInfoService.clearPayloadData(userMessage.getEntityId());
 
         new FullVerifications() {};
     }

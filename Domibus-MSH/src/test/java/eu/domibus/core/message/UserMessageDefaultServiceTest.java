@@ -483,7 +483,7 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
             times = 1;
 
-            partInfoService.clearPayloadData(userMessage);
+            partInfoService.clearPayloadData(userMessage.getEntityId());
         }};
     }
 
@@ -517,7 +517,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.deleteMessage(messageId);
 
         new FullVerifications() {{
-            partInfoService.clearPayloadData(userMessage);
+            partInfoService.clearPayloadData(userMessage.getEntityId());
             times = 1;
 
             userMessageLog.setDeleted((Date) any);

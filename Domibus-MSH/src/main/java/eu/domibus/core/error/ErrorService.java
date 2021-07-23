@@ -29,5 +29,5 @@ public interface ErrorService {
      */
     public void deleteErrorLogWithoutMessageIds();
 
-    List<? extends ErrorResult> getErrors(String messageId);
+    List<ErrorResult> getErrors(String messageId);
 }

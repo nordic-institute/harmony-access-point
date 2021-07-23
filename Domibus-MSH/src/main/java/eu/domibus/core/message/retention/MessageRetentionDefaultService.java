@@ -267,7 +267,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     protected void deletePayload(UserMessage userMessage, UserMessageLog userMessageLog) {
-        partInfoService.clearPayloadData(userMessage);
+        partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
     }
 

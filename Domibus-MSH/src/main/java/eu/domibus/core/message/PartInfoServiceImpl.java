@@ -65,10 +65,10 @@ public class PartInfoServiceImpl implements PartInfoService {
 
     @Transactional(propagation = Propagation.MANDATORY)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void clearPayloadData(UserMessage userMessage) {
+    public void clearPayloadData(long entityId) {
         LOG.debug("Start clearing payloadData");
 
-        List<PartInfo> partInfos = findPartInfo(userMessage);
+        List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(entityId);
 
         if (CollectionUtils.isEmpty(partInfos)) {
             LOG.debug("No payloads to clear");
@@ -131,7 +131,7 @@ public class PartInfoServiceImpl implements PartInfoService {
             return;
         }
 
-        LOG.debug("Thre are [{}] payloads on filesystem to delete: [{}] ", filenames.size(), filenames);
+        LOG.debug("There are [{}] payloads on filesystem to delete: [{}] ", filenames.size(), filenames);
         for (String filename : filenames) {
             LOG.debug("Deleting payload data file: [{}]", filename);
             deletePayloadFile(filename);
