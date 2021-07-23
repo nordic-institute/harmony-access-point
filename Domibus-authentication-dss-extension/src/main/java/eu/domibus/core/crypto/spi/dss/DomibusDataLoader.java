@@ -72,9 +72,6 @@ public class DomibusDataLoader implements DataLoader {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDataLoader.class);
 
-    public static final int TIMEOUT_CONNECTION = 6000;
-
-    public static final int TIMEOUT_SOCKET = 6000;
 
     public static final int CONNECTIONS_MAX_TOTAL = 20;
 
@@ -90,8 +87,6 @@ public class DomibusDataLoader implements DataLoader {
 
     private ProxyConfig proxyConfig;
 
-    private int timeoutConnection = TIMEOUT_CONNECTION;
-    private int timeoutSocket = TIMEOUT_SOCKET;
     private int connectionsMaxTotal = CONNECTIONS_MAX_TOTAL;
     private int connectionsMaxPerRoute = CONNECTIONS_MAX_PER_ROUTE;
     private boolean redirectsEnabled = true;
@@ -149,11 +144,14 @@ public class DomibusDataLoader implements DataLoader {
 
     private ServiceUnavailableRetryStrategy serviceUnavailableRetryStrategy;
 
+    private DssExtensionPropertyManager dssExtensionPropertyManager;
+
     /**
      * The default constructor for CommonsDataLoader.
      */
-    public DomibusDataLoader() {
-        this(null);
+    public DomibusDataLoader(DssExtensionPropertyManager dssExtensionPropertyManager) {
+        this(dssExtensionPropertyManager,null);
+
     }
 
     /**
@@ -161,8 +159,9 @@ public class DomibusDataLoader implements DataLoader {
      *
      * @param contentType The content type of each request
      */
-    public DomibusDataLoader(final String contentType) {
+    public DomibusDataLoader(DssExtensionPropertyManager dssExtensionPropertyManager,final String contentType) {
         this.contentType = contentType;
+        this.dssExtensionPropertyManager=dssExtensionPropertyManager;
     }
 
     private HttpClientConnectionManager getConnectionManager() {
@@ -249,8 +248,14 @@ public class DomibusDataLoader implements DataLoader {
         httpClientBuilder = configCredentials(httpClientBuilder, url);
 
         final RequestConfig.Builder custom = RequestConfig.custom();
-        custom.setSocketTimeout(timeoutSocket);
-        custom.setConnectTimeout(timeoutConnection);
+
+        int socketTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_SOCKET_TIME_OUT);
+        int connectionTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIME_OUT);
+        int connectionRequestTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_REQUEST_TIME_OUT);
+
+        custom.setSocketTimeout(socketTimeout);
+        custom.setConnectTimeout(connectionTimeout);
+        custom.setConnectionRequestTimeout(connectionRequestTimeout);
         custom.setRedirectsEnabled(redirectsEnabled);
 
         final RequestConfig requestConfig = custom.build();
@@ -261,7 +266,7 @@ public class DomibusDataLoader implements DataLoader {
         httpClientBuilder.setServiceUnavailableRetryStrategy(serviceUnavailableRetryStrategy);
 
 
-        LOG.debug("Return http client for url:[{}] with timeoutSocket:[{}],timeoutConnection:[{}],redirectsEnabled:[{}] ", url, timeoutSocket, timeoutConnection, redirectsEnabled);
+        LOG.debug("Return http client for url:[{}] with , socketTimeout:[{}], connectionTimeout:[{}],connectionRequestTimeout:[{}], redirectsEnabled:[{}] ", url, socketTimeout,connectionTimeout,connectionRequestTimeout, redirectsEnabled);
         return httpClientBuilder.build();
     }
 
@@ -619,42 +624,6 @@ public class DomibusDataLoader implements DataLoader {
         try (InputStream content = responseEntity.getContent()) {
             return DSSUtils.toByteArray(content);
         }
-    }
-
-    /**
-     * Used when the {@code HttpClient} is created.
-     *
-     * @return the value (millis)
-     */
-    public int getTimeoutConnection() {
-        return timeoutConnection;
-    }
-
-    /**
-     * Used when the {@code HttpClient} is created.
-     *
-     * @param timeoutConnection the value (millis)
-     */
-    public void setTimeoutConnection(final int timeoutConnection) {
-        this.timeoutConnection = timeoutConnection;
-    }
-
-    /**
-     * Used when the {@code HttpClient} is created.
-     *
-     * @return the value (millis)
-     */
-    public int getTimeoutSocket() {
-        return timeoutSocket;
-    }
-
-    /**
-     * Used when the {@code HttpClient} is created.
-     *
-     * @param timeoutSocket the value (millis)
-     */
-    public void setTimeoutSocket(final int timeoutSocket) {
-        this.timeoutSocket = timeoutSocket;
     }
 
     /**
