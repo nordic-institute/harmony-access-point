@@ -146,6 +146,8 @@ public class DomibusDataLoader implements DataLoader {
 
     private DssExtensionPropertyManager dssExtensionPropertyManager;
 
+    public final static int MILIS_TO_SECONDS = 1000;
+
     /**
      * The default constructor for CommonsDataLoader.
      */
@@ -253,9 +255,9 @@ public class DomibusDataLoader implements DataLoader {
         int connectionTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIME_OUT);
         int connectionRequestTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_REQUEST_TIME_OUT);
 
-        custom.setSocketTimeout(socketTimeout);
-        custom.setConnectTimeout(connectionTimeout);
-        custom.setConnectionRequestTimeout(connectionRequestTimeout);
+        custom.setSocketTimeout(socketTimeout*MILIS_TO_SECONDS);
+        custom.setConnectTimeout(connectionTimeout*MILIS_TO_SECONDS);
+        custom.setConnectionRequestTimeout(connectionRequestTimeout*MILIS_TO_SECONDS);
         custom.setRedirectsEnabled(redirectsEnabled);
 
         final RequestConfig requestConfig = custom.build();
