@@ -268,9 +268,10 @@ public class DomibusDataLoader implements DataLoader {
         httpClientBuilder.setServiceUnavailableRetryStrategy(serviceUnavailableRetryStrategy);
 
 
-        LOG.debug("Return http client for url:[{}] with , socketTimeout:[{}], connectionTimeout:[{}],connectionRequestTimeout:[{}], redirectsEnabled:[{}] ", url, socketTimeout,connectionTimeout,connectionRequestTimeout, redirectsEnabled);
+        LOG.debug("Return http client for url:[{}] with , socketTimeout:[{}s], connectionTimeout:[{}s],connectionRequestTimeout:[{}s], redirectsEnabled:[{}] ", url, socketTimeout,connectionTimeout,connectionRequestTimeout, redirectsEnabled);
         return httpClientBuilder.build();
     }
+
 
     /**
      * Define the Credentials
