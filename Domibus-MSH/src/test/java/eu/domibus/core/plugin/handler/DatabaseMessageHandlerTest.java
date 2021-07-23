@@ -394,18 +394,28 @@ public class DatabaseMessageHandlerTest {
             assertEquals(ErrorCode.EBMS_0008, mpEx.getEbms3ErrorCode());
         }
 
-        new Verifications() {{
+        new FullVerifications() {{
             authUtils.getOriginalUserFromSecurityContext();
-            messageIdGenerator.generateMessageId();
-            times = 0;
-            userMessageLogService.getMessageStatus(MESS_ID);
-            times = 0;
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            times = 0;
-            pModeProvider.getLegConfiguration(anyString);
-            times = 0;
-            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-            times = 0;
+            times = 1;
+
+            authUtils.isUnsecureLoginAllowed();
+            times = 1;
+
+            authUtils.hasUserOrAdminRole();
+            times = 1;
+
+            errorService.createErrorLog((EbMS3Exception) any);
+            times = 1;
+//            messageIdGenerator.generateMessageId();
+//            times = 0;
+//            userMessageLogService.getMessageStatus(MESS_ID);
+//            times = 0;
+//            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+//            times = 0;
+//            pModeProvider.getLegConfiguration(anyString);
+//            times = 0;
+//            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
+//            times = 0;
         }};
 
     }
@@ -416,6 +426,9 @@ public class DatabaseMessageHandlerTest {
         String refToMessageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
 
         new Expectations() {{
+            submission.getMessageId();
+            result = "messageId";
+
             backendMessageValidator.validateSubmissionSending(submission);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "RefToMessageId value is too long (over 255 characters)", refToMessageId, null);
         }};
@@ -428,26 +441,39 @@ public class DatabaseMessageHandlerTest {
             assertEquals(ErrorCode.EBMS_0008, mpEx.getEbms3ErrorCode());
         }
 
-        new Verifications() {{
+        new FullVerifications() {{
             authUtils.getOriginalUserFromSecurityContext();
-            userMessageLogService.getMessageStatus(MESS_ID);
-            times = 0;
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            times = 0;
-            pModeProvider.getLegConfiguration(anyString);
-            times = 0;
-            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-            times = 0;
+            times = 1;
+            authUtils.isUnsecureLoginAllowed();
+            times = 1;
+            authUtils.hasUserOrAdminRole();
+            times = 1;
+            errorService.createErrorLog((EbMS3Exception) any);
+            times = 1;
+
+//            userMessageLogService.getMessageStatus(MESS_ID);
+//            times = 0;
+//            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+//            times = 0;
+//            pModeProvider.getLegConfiguration(anyString);
+//            times = 0;
+//            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
+//            times = 0;
         }};
 
     }
 
     @Test
-    public void testSubmitMessageGreen2RedNOk(@Injectable final Submission messageData) throws Exception {
+    public void testSubmitMessageGreen2RedNOk(@Injectable final Submission submission,
+                                              @Injectable final Party gatewayParty,
+                                              @Injectable final Party from,
+                                              @Injectable final Party to) throws Exception {
         new Expectations() {{
+            submission.getMessageId();
+            result = "messageId";
 
             UserMessage userMessage = createUserMessage();
-            transformer.transformFromSubmission(messageData);
+            transformer.transformFromSubmission(submission);
             result = userMessage;
 
             messageIdGenerator.generateMessageId();
@@ -463,113 +489,175 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getGatewayParty();
             result = confParty;
 
-            backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
+            transformer.generatePartInfoList(submission);
+            result = new ArrayList<>();
+
+            messageExchangeService.forcePullOnMpc(userMessage);
+            result = false;
+
+            pModeProvider.getSenderParty(pModeKey);
+            result = from;
+            pModeProvider.getReceiverParty(pModeKey);
+            result = to;
+            backendMessageValidator.validateParties(from, to);
+
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            backendMessageValidator.validateInitiatorParty(gatewayParty, from);
+//            backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name [" + GREEN + "] does not correspond to the access point's name [" + BLUE + "]", null, null);
 
         }};
 
         try {
-            databaseMessageHandler.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
-            assert (mpEx.getMessage().contains("does not correspond to the access point's name"));
+            assertTrue(mpEx.getMessage().contains("does not correspond to the access point's name"));
         }
 
-        new Verifications() {{
+        new FullVerifications() {{
             authUtils.getOriginalUserFromSecurityContext();
+            times = 1;
+            authUtils.isUnsecureLoginAllowed();
+            times = 1;
+            authUtils.hasUserOrAdminRole();
+            times = 1;
             messageIdGenerator.generateMessageId();
+            times = 1;
+
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            times = 1;
             backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
+            times = 1;
             backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
-            backendMessageValidator.validateResponderParty(withAny(new Party()), withAny(new Party()));
-            times = 0;
-            pModeProvider.getLegConfiguration(anyString);
-            times = 0;
-            messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
-            times = 0;
-            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-            times = 0;
+            times = 1;
+            backendMessageValidator.validateSubmissionSending(submission);
+            times = 1;
+            errorService.createErrorLog((EbMS3Exception) any);
+            times = 1;
         }};
 
     }
 
     @Test
     /* Tests a submit message where from and to parties are the same. */
-    public void testSubmitMessageBlue2BlueNOk(@Injectable final Submission messageData) throws Exception {
+    public void testSubmitMessageBlue2BlueNOk(@Injectable final Submission submission,
+                                              @Injectable final MessageExchangeConfiguration userMessageExchangeConfiguration,
+                                              @Injectable final Party from,
+                                              @Injectable final Party to) throws Exception {
         new Expectations() {{
+            submission.getMessageId();
+            result = "messageId";
 
             UserMessage userMessage = createUserMessage();
-            transformer.transformFromSubmission(messageData);
+            transformer.transformFromSubmission(submission);
             result = userMessage;
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
+            transformer.generatePartInfoList(submission);
+            result = new ArrayList<>();
+
+            messageExchangeService.forcePullOnMpc(userMessage);
+            result = false;
+
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            result = userMessageExchangeConfiguration;
+            times = 1;
+
+            userMessageExchangeConfiguration.getPmodeKey();
+            result = "pmodeKey";
+
+            pModeProvider.getSenderParty("pmodeKey");
+            result =from;
+
+            pModeProvider.getReceiverParty("pmodeKey");
+            result =to;
+
+            backendMessageValidator.validateParties(from, to);
+//            backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name is the same as the responder party's one", null, null);
         }};
 
         try {
-            databaseMessageHandler.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
-            assert (mpEx.getMessage().contains("The initiator party's name is the same as the responder party's one"));
+            assertTrue(mpEx.getMessage().contains("The initiator party's name is the same as the responder party's one"));
         }
 
-        new Verifications() {{
+        new FullVerifications() {{
             authUtils.getOriginalUserFromSecurityContext();
+            times = 1;
+            authUtils.isUnsecureLoginAllowed();
+            times = 1;
+            authUtils.hasUserOrAdminRole();
+            times = 1;
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
-
-            backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
-            times = 0;
-            backendMessageValidator.validateResponderParty(withAny(new Party()), withAny(new Party()));
-            times = 0;
-            pModeProvider.getLegConfiguration(anyString);
-            times = 0;
-            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-            times = 0;
+            times = 1;
+            backendMessageValidator.validateSubmissionSending(submission);
+            times = 1;
+            errorService.createErrorLog((EbMS3Exception) any);
+            times = 1;
         }};
     }
 
 
     @Test
-    public void testSubmitMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
+    public void testSubmitMessagePModeNOk(@Injectable final Submission submission) throws Exception {
         new Expectations() {{
+            submission.getMessageId();
+            result = "messageId";
 
             UserMessage userMessage = createUserMessage();
-            transformer.transformFromSubmission(messageData);
+            transformer.transformFromSubmission(submission);
             result = userMessage;
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
+
+            transformer.generatePartInfoList(submission);
+            result = new ArrayList<>();
+
+            messageExchangeService.forcePullOnMpc(userMessage);
+            result = false;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode could not be found. Are PModes configured in the database?", MESS_ID, null);
         }};
 
         try {
-            databaseMessageHandler.submit(messageData, BACKEND);
+            databaseMessageHandler.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
-            assert (mpEx.getMessage().contains("PMode could not be found. Are PModes configured in the database?"));
+            assertTrue(mpEx.getMessage().contains("PMode could not be found. Are PModes configured in the database?"));
         }
 
-        new Verifications() {{
+        new FullVerifications() {{
             authUtils.getOriginalUserFromSecurityContext();
+            times = 1;
+            authUtils.isUnsecureLoginAllowed();
+            times = 1;
+            authUtils.hasUserOrAdminRole();
+            times = 1;
             messageIdGenerator.generateMessageId();
+            times = 1;
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            pModeProvider.getLegConfiguration(anyString);
-            times = 0;
-            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-            times = 0;
+            times = 1;
+            backendMessageValidator.validateSubmissionSending(submission);
+            times = 1;
+            errorService.createErrorLog((EbMS3Exception) any);
+            times = 1;
+
         }};
     }
 
@@ -586,7 +674,6 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
-            ;
 
             messageExchangeService.getMessageStatus(messageExchangeConfiguration);
             result = new PModeException(DomibusCoreErrorCode.DOM_003, "invalid pullprocess configuration");
@@ -598,7 +685,7 @@ public class DatabaseMessageHandlerTest {
         } catch (PModeMismatchException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
-            assert (mpEx.getMessage().contains("invalid pullprocess configuration"));
+            assertTrue(mpEx.getMessage().contains("invalid pullprocess configuration"));
         }
 
         new Verifications() {{
@@ -624,7 +711,7 @@ public class DatabaseMessageHandlerTest {
             Assert.fail("It should throw " + DuplicateMessageException.class.getCanonicalName());
         } catch (DuplicateMessageException ex) {
             LOG.debug("DuplicateMessageException catched: " + ex.getMessage());
-            assert (ex.getMessage().contains("already exists. Message identifiers must be unique"));
+            assertTrue(ex.getMessage().contains("already exists. Message identifiers must be unique"));
         }
 
         new Verifications() {{
@@ -706,7 +793,7 @@ public class DatabaseMessageHandlerTest {
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0303, mpEx.getEbms3ErrorCode());
-            assert (mpEx.getMessage().contains("Could not store binary data for message due to IO exception"));
+            assertTrue(mpEx.getMessage().contains("Could not store binary data for message due to IO exception"));
         }
 
         new Verifications() {{
@@ -913,7 +1000,7 @@ public class DatabaseMessageHandlerTest {
             Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
         } catch (MessageNotFoundException mnfEx) {
             LOG.debug("Expected :", mnfEx);
-            assert (mnfEx.getMessage().contains("was not found"));
+            assertTrue(mnfEx.getMessage().contains("was not found"));
         }
 
         new Verifications() {{
@@ -939,7 +1026,7 @@ public class DatabaseMessageHandlerTest {
             errorLogEntry.setErrorDetail(ex.getErrorDetail());
             errorLogEntry.setMessageInErrorId(ex.getRefToMessageId());
             errorLogEntry.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
-            
+
             list.add(errorLogEntry);
 
             errorService.getErrors(MESS_ID);
