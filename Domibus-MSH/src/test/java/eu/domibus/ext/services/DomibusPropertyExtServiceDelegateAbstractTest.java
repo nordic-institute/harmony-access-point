@@ -352,8 +352,8 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
     @Test
     public void onGetLocalBooleanPropertyValue(@Mocked DomibusPropertyMetadataDTO propMeta) {
         String property = "";
-        boolean b = domibusPropertyExtServiceDelegateAbstract.onGetLocalBooleanPropertyValue(property, propMeta);
-        assertFalse(b);
+        Boolean b = domibusPropertyExtServiceDelegateAbstract.onGetLocalBooleanPropertyValue(property, propMeta);
+        assertNull(b);
     }
 
     @Test
