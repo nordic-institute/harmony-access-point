@@ -69,8 +69,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
     private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
-    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
-    private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
 
@@ -133,7 +131,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
 
-        final UserMessage userMessage = userMessageService.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
         final UserMessageLog messageLog = userMessageLogService.findByMessageId(messageId);
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
@@ -177,13 +175,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
         LOG.info("Browsing message with id [{}]", messageId);
 
-        UserMessage userMessage = userMessageService.findByMessageId(messageId);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
+        UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
         checkMessageAuthorization(userMessage);
-return messagingService.getSubmission(userMessage);
+        return messagingService.getSubmission(userMessage);
 
     }
 

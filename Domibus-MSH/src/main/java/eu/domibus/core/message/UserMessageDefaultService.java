@@ -578,8 +578,6 @@ public class UserMessageDefaultService implements UserMessageService {
         List<String> filenames = partInfoService.findFileSystemPayloadFilenames(userMessageIds);
         partInfoService.deletePayloadFiles(filenames);
 
-        List<String> signalMessageId = new ArrayList<>();
-
         em.flush();
         int deleteResult = userMessageLogDao.deleteMessageLogs(ids);
         LOG.info("Deleted [{}] userMessageLogs.", deleteResult);
@@ -599,10 +597,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
         deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
         LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
-//        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
-//        LOG.info("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
-//        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageId);
-//        LOG.info("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
         LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
 
@@ -650,7 +644,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public UserMessage findByMessageId(String messageId) throws MessageNotFoundException {
+    public UserMessage getByMessageId(String messageId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
@@ -658,6 +652,10 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessage;
     }
 
+    @Override
+    public UserMessage findByMessageId(String messageId) {
+        return userMessageDao.findByMessageId(messageId);
+    }
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 

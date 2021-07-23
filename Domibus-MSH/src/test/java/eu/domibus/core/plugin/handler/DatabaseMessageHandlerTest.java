@@ -56,6 +56,7 @@ import static org.junit.Assert.assertTrue;
  * <p>
  * in the Verifications() the execution "times" is by default 1.
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class DatabaseMessageHandlerTest {
 
@@ -406,16 +407,6 @@ public class DatabaseMessageHandlerTest {
 
             errorService.createErrorLog((EbMS3Exception) any);
             times = 1;
-//            messageIdGenerator.generateMessageId();
-//            times = 0;
-//            userMessageLogService.getMessageStatus(MESS_ID);
-//            times = 0;
-//            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-//            times = 0;
-//            pModeProvider.getLegConfiguration(anyString);
-//            times = 0;
-//            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-//            times = 0;
         }};
 
     }
@@ -450,15 +441,6 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             errorService.createErrorLog((EbMS3Exception) any);
             times = 1;
-
-//            userMessageLogService.getMessageStatus(MESS_ID);
-//            times = 0;
-//            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-//            times = 0;
-//            pModeProvider.getLegConfiguration(anyString);
-//            times = 0;
-//            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
-//            times = 0;
         }};
 
     }
@@ -737,7 +719,7 @@ public class DatabaseMessageHandlerTest {
 
         try {
             databaseMessageHandler.submit(messageData, BACKEND);
-            Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
+            Assert.fail("It should throw AccessDeniedException");
         } catch (AccessDeniedException ex) {
             LOG.debug("AccessDeniedException catched: " + ex.getMessage());
             assertTrue(ex.getMessage().contains("You are not allowed to handle this message. You are authorized as [mycorner]"));
@@ -866,7 +848,7 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testValidateOriginalUserOK(@Injectable final UserMessage userMessage) throws Exception {
+    public void testValidateOriginalUserOK(@Injectable final UserMessage userMessage) {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
         List<String> recipients = new ArrayList<>();
         recipients.add(MessageConstants.ORIGINAL_SENDER);
@@ -881,7 +863,7 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test(expected = AccessDeniedException.class)
-    public void testValidateOriginalUserNoFR() throws Exception {
+    public void testValidateOriginalUserNoFR() {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
 
         final UserMessage userMessage = createUserMessage();
@@ -893,7 +875,7 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test(expected = AccessDeniedException.class)
-    public void testValidateOriginalUserNoMatch() throws Exception {
+    public void testValidateOriginalUserNoMatch() {
         String originalUser = "nobodywho";
 
         final UserMessage userMessage = createUserMessage();
@@ -961,7 +943,7 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void testDownloadMessageAuthUserNok(@Injectable UserMessage userMessage,
-                                               @Injectable final UserMessageLog messageLog) throws Exception {
+                                               @Injectable final UserMessageLog messageLog) {
 
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
         new Expectations(databaseMessageHandler) {{
@@ -977,7 +959,7 @@ public class DatabaseMessageHandlerTest {
 
         try {
             databaseMessageHandler.checkMessageAuthorization(userMessage);
-            Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
+            Assert.fail("It should throw AccessDeniedException");
         } catch (AccessDeniedException adEx) {
             LOG.debug("Expected :", adEx);
             assertTrue(adEx.getMessage().contains("You are not allowed to handle this message"));
@@ -992,7 +974,7 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testDownloadMessageNoMsgFound() throws Exception {
+    public void testDownloadMessageNoMsgFound() {
 
 
         try {
@@ -1083,7 +1065,7 @@ public class DatabaseMessageHandlerTest {
         eu.domibus.common.MessageStatus status = null;
         try {
             status = databaseMessageHandler.getStatus(MESS_ID);
-            Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
+            Assert.fail("It should throw AccessDeniedException");
         } catch (AccessDeniedException ex) {
             // ok
         }
