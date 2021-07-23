@@ -161,9 +161,9 @@ public class MessageUtil {
         UserMessage result = new UserMessage();
 
         final String mpc = getAttribute(userMessageNode, "mpc");
-        String value = StringUtils.isEmpty(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc;
+        LOG.debug("Check incoming message mpc value:[{}] and assign default mpc value:[{}] if empty",mpc,Ebms3Constants.DEFAULT_MPC);
 
-        LOG.debug("Message mpc:[{}]",value);
+        String value = StringUtils.isEmpty(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc;
         result.setMpc(value);
 
         final MessageInfo messageInfo = createMessageInfo(userMessageNode);
