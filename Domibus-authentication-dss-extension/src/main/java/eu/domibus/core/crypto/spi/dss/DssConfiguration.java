@@ -190,7 +190,7 @@ public class DssConfiguration {
 
     @Bean
     public DomibusDataLoader dataLoader(ProxyHelper proxyHelper) {
-        DomibusDataLoader dataLoader = new DomibusDataLoader();
+        DomibusDataLoader dataLoader = new DomibusDataLoader(dssExtensionPropertyManager());
         dataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         dataLoader.setSslTrustStore(mergeCustomTlsTrustStoreWithCacert());
         return dataLoader;
