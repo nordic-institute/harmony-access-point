@@ -152,7 +152,7 @@ public class DomibusDataLoader implements DataLoader {
      * The default constructor for CommonsDataLoader.
      */
     public DomibusDataLoader(DssExtensionPropertyManager dssExtensionPropertyManager) {
-        this(dssExtensionPropertyManager,null);
+        this(dssExtensionPropertyManager, null);
 
     }
 
@@ -161,9 +161,9 @@ public class DomibusDataLoader implements DataLoader {
      *
      * @param contentType The content type of each request
      */
-    public DomibusDataLoader(DssExtensionPropertyManager dssExtensionPropertyManager,final String contentType) {
+    public DomibusDataLoader(DssExtensionPropertyManager dssExtensionPropertyManager, final String contentType) {
         this.contentType = contentType;
-        this.dssExtensionPropertyManager=dssExtensionPropertyManager;
+        this.dssExtensionPropertyManager = dssExtensionPropertyManager;
     }
 
     private HttpClientConnectionManager getConnectionManager() {
@@ -251,13 +251,13 @@ public class DomibusDataLoader implements DataLoader {
 
         final RequestConfig.Builder custom = RequestConfig.custom();
 
-        int socketTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_SOCKET_TIME_OUT);
-        int connectionTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIME_OUT);
-        int connectionRequestTimeout=dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_REQUEST_TIME_OUT);
+        int socketTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_SOCKET_TIMEOUT);
+        int connectionTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIMEOUT);
+        int connectionRequestTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_REQUEST_TIMEOUT);
 
-        custom.setSocketTimeout(socketTimeout*MILIS_TO_SECONDS);
-        custom.setConnectTimeout(connectionTimeout*MILIS_TO_SECONDS);
-        custom.setConnectionRequestTimeout(connectionRequestTimeout*MILIS_TO_SECONDS);
+        custom.setSocketTimeout(socketTimeout * MILIS_TO_SECONDS);
+        custom.setConnectTimeout(connectionTimeout * MILIS_TO_SECONDS);
+        custom.setConnectionRequestTimeout(connectionRequestTimeout * MILIS_TO_SECONDS);
         custom.setRedirectsEnabled(redirectsEnabled);
 
         final RequestConfig requestConfig = custom.build();
@@ -268,7 +268,7 @@ public class DomibusDataLoader implements DataLoader {
         httpClientBuilder.setServiceUnavailableRetryStrategy(serviceUnavailableRetryStrategy);
 
 
-        LOG.debug("Return http client for url:[{}] with , socketTimeout:[{}s], connectionTimeout:[{}s],connectionRequestTimeout:[{}s], redirectsEnabled:[{}] ", url, socketTimeout,connectionTimeout,connectionRequestTimeout, redirectsEnabled);
+        LOG.debug("Return http client for url:[{}] with , socketTimeout:[{}s], connectionTimeout:[{}s],connectionRequestTimeout:[{}s], redirectsEnabled:[{}] ", url, socketTimeout, connectionTimeout, connectionRequestTimeout, redirectsEnabled);
         return httpClientBuilder.build();
     }
 
