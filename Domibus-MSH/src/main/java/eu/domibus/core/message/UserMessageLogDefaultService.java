@@ -49,7 +49,7 @@ public class UserMessageLogDefaultService {
     protected NotificationStatusDao notificationStatusDao;
 
 
-    private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint) {
+    private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String backendName) {
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setUserMessage(userMessage);
         final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
@@ -68,10 +68,10 @@ public class UserMessageLogDefaultService {
     }
 
     @Transactional
-    public UserMessageLog save(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String mpc, String backendName, String endpoint, String service, String action, Boolean sourceMessage, Boolean messageFragment) {
+    public UserMessageLog save(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String backendName) {
         final MessageStatus status = MessageStatus.valueOf(messageStatus);
         // Builds the user message log
-        final UserMessageLog userMessageLog = createUserMessageLog(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint);
+        final UserMessageLog userMessageLog = createUserMessageLog(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
         userMessageLog.setUserMessage(userMessage);
 
         if (!userMessage.isTestMessage()) {
@@ -148,5 +148,16 @@ public class UserMessageLogDefaultService {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
+    public void replicationUserMessageSubmitted(String messageId) {
+        uiReplicationSignalService.userMessageSubmitted(messageId);
+    }
 
+    public UserMessageLog findByMessageId(String messageId) {
+        return userMessageLogDao.findByMessageId(messageId);
+    }
+
+    public eu.domibus.common.MessageStatus getMessageStatus(String messageId) {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    }
 }

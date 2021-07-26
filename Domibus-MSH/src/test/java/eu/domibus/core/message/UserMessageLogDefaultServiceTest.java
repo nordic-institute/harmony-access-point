@@ -118,7 +118,7 @@ public class UserMessageLogDefaultServiceTest {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(messageId);
         userMessage.setConversationId(messageId);
-        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, null, null, null, null);
+        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(new UserMessage(), withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
