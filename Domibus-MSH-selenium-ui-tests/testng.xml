@@ -172,5 +172,6 @@
     <listeners>
         <listener class-name="utils.customReporter.ExcelReportReporter"/>
         <listener class-name="domibus.FailListener"/>
+        <listener class-name="domibus.ExtentReportListener"/>
     </listeners>
 </suite>

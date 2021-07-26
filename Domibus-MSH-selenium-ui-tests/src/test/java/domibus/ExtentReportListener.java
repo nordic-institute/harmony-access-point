@@ -19,7 +19,7 @@ public class ExtentReportListener implements ITestListener {
 
 		private static ExtentReports extent = new ExtentReports();
 		private static TestRunData data = new TestRunData();
-		static ExtentSparkReporter htmlReporter = new ExtentSparkReporter(data.getReportsFolder() + "/extent-report.html");
+		static ExtentSparkReporter htmlReporter = new ExtentSparkReporter(data.getReportsFolder() + "extent-report.html");
 
 		static {
 			htmlReporter.config().setDocumentTitle("Test Run report");
