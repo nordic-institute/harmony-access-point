@@ -25,9 +25,11 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.3.10</cxf.version>
-        <spring.version>5.2.9.RELEASE</spring.version>
-        <spring.security.version>5.4.5</spring.security.version>
+        <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
+        <cxf.version>3.3.11</cxf.version>
+        <wss4j-ws-security.version>2.2.6</wss4j-ws-security.version>
+        <spring.version>5.2.16.RELEASE</spring.version>
+        <spring.security.version>5.4.7</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
         <activemq.version>5.15.14</activemq.version>
@@ -127,7 +129,7 @@
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
         <activation.version>1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
-        <wss4j-ws-security.version>2.2.5</wss4j-ws-security.version>
+
         <xmlsec.version>2.1.5</xmlsec.version>
         <httpcore.version>4.4.5</httpcore.version>
         <ehcache.version>2.10.6</ehcache.version>
