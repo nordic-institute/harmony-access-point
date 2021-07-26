@@ -18,7 +18,6 @@
         <module>Domibus-MSH-jms-spi-helper</module>
         <module>Domibus-MSH-soapui-tests</module>
         <module>Domibus-plugin-api</module>
-        <module>Domibus-MSH-fiware</module>
         <module>Domibus-MSH-test</module>
         <module>Domibus-MSH-test-common</module>
         <module>Domibus-iam-spi</module>
