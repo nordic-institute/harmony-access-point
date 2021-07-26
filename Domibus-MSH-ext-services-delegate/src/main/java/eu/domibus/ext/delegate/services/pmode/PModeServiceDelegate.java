@@ -35,7 +35,7 @@ public class PModeServiceDelegate implements PModeExtService {
     }
 
     @Override
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         return pModeService.getPModeFile(id);
     }
 

@@ -249,7 +249,7 @@ public class PModeResourceTest {
         stringList.add("1");
 
         new Expectations(pModeResource) {{
-            pModeProvider.removePMode(anyInt);
+            pModeProvider.removePMode(anyLong);
             result = exception;
         }};
 
