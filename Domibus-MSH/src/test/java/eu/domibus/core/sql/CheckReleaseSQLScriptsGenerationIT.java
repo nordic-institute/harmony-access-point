@@ -54,7 +54,8 @@ public class CheckReleaseSQLScriptsGenerationIT {
 
         checkPresenceOfMySQLDDLs_ForRelease(domibusArtifactVersion, sqlScriptsDirectory);
 
-        checkPresenceOfOracleDDLs_ForRelease(domibusArtifactVersion, sqlScriptsDirectory);
+        // NIIS does not support Oracle
+        // checkPresenceOfOracleDDLs_ForRelease(domibusArtifactVersion, sqlScriptsDirectory);
     }
 
     protected void checkPresenceOfOracleDDLs_ForRelease(String domibusArtifactVersion, File sqlScriptsDirectory) throws IOException {

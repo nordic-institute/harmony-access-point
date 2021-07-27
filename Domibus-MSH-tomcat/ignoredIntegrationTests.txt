@@ -1,0 +1,11 @@
+#java.lang.IllegalStateException: Failed to load ApplicationContext
+#Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'brokerFactory' defined in class path resource [eu/domibus/tomcat/activemq/DomibusActiveMQConfiguration.class]: Invocation of init method failed; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.apache.activemq.xbean.XBeanBrokerService#0' defined in URL [file:////home/andu/niis/harmony-access-point/Domibus-MSH-tomcat/target/test-classes/internal/activemq.xml]: Invocation of init method failed; nested exception is javax.management.InstanceAlreadyExistsException: org.apache.activemq:type=Broker,brokerName=localhost
+#Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.apache.activemq.xbean.XBeanBrokerService#0' defined in URL [file:////home/andu/niis/harmony-access-point/Domibus-MSH-tomcat/target/test-classes/internal/activemq.xml]: Invocation of init method failed; nested exception is javax.management.InstanceAlreadyExistsException: org.apache.activemq:type=Broker,brokerName=localhost
+#Caused by: javax.management.InstanceAlreadyExistsException: org.apache.activemq:type=Broker,brokerName=localhost
+
+MessagingDaoTestIT.java
+DomibusPropertyProviderIT.java
+GetMessageErrorsIT.java
+UserDaoImplTestIT.java
+UserRoleDaoImplTestIT.java
+SetPolicyInInterceptorIT.java
