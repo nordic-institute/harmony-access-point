@@ -69,7 +69,8 @@ public class PModeResource extends BaseResource {
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
             @PathVariable(value = "id") String id,
-            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit, @DefaultValue("false") @QueryParam("archiveAudit") boolean archiveAudit) {
+            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit,
+            @DefaultValue("false") @QueryParam("archiveAudit") boolean archiveAudit) {
 
         long idPmode = Long.parseLong(id);
         final byte[] rawConfiguration = pModeProvider.getPModeFile(idPmode);
@@ -112,7 +113,8 @@ public class PModeResource extends BaseResource {
     public ValidationResponseRO uploadPMode(
             @RequestPart("file") @Valid MultipartFile pModeFile,
             //we permit more chars for description
-            @RequestParam("description") @CustomWhiteListed(permitted = ".,;:/*\"&=+%\r\n") String pModeDescription) throws PModeException {
+            @RequestParam("description") @CustomWhiteListed(permitted = ".,;:/*\"&=+%\r\n") String pModeDescription)
+            throws PModeException {
 
         byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
 
@@ -128,7 +130,7 @@ public class PModeResource extends BaseResource {
         }
         try {
             for (String pModeId : pModeIds) {
-                pModeProvider.removePMode(Integer.parseInt(pModeId));
+                pModeProvider.removePMode(Long.parseLong(pModeId));
             }
         } catch (Exception ex) {
             LOG.error("Impossible to delete PModes", ex);
@@ -139,7 +141,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Integer id) {
+    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Long id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);
