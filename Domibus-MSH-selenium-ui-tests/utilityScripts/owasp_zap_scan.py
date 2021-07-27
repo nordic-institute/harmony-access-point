@@ -65,4 +65,4 @@ log.info("Printing HTML report to file")
 with open('../zap_report.html', "w") as myfile:
 	myfile.write(zap.core.htmlreport())
 
-log.info('Shutdown ZAP -> ' + zap.core.shutdown())
+# log.info('Shutdown ZAP -> ' + zap.core.shutdown())
