@@ -59,13 +59,18 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     @Override
     public void submit(Runnable task, Runnable errorHandler, File lockFile) {
-        LOG.trace("Submitting task with lock file [{}]", lockFile);
+        submit(task, errorHandler, lockFile, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void submit(Runnable task, Runnable errorHandler, File lockFile, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockFile, timeout, timeUnit);
 
         SetLockOnFileRunnable setLockOnFileRunnable = new SetLockOnFileRunnable(task, lockFile);
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(setLockOnFileRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
 
-        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, waitForTask, timeout, timeUnit);
     }
 
     @Override
@@ -100,6 +105,10 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        return submitRunnable(taskExecutor, task, null, waitForTask, timeout, timeUnit);
+    }
+
+    protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, Runnable errorHandler, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         final Future<?> utrFuture = taskExecutor.submit(task);
 
         if (waitForTask) {
@@ -109,11 +118,21 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
                 LOG.debug("Task completed");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new DomainTaskException("Could not execute task", e);
+                handleRunnableError(e, errorHandler);
             } catch (ExecutionException | TimeoutException e) {
-                throw new DomainTaskException("Could not execute task", e);
+                handleRunnableError(e, errorHandler);
             }
         }
         return utrFuture;
+    }
+
+    protected void handleRunnableError(Exception exception, Runnable errorHandler) {
+        if(errorHandler != null) {
+            LOG.debug("Running the error handler");
+            errorHandler.run();
+            return;
+        }
+
+        throw new DomainTaskException("Could not execute task", exception);
     }
 }
