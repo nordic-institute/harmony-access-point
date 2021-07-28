@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Cosmin Baciu
@@ -80,7 +81,8 @@ public class DomibusContextRefreshedListener {
         if (useLockForExecution()) {
             LOG.debug("Handling execution using lock file.");
             final File fileLock = getLockFileLocation();
-            domainTaskExecutor.submit(task, null, fileLock);
+            domainTaskExecutor.submit(task, null, fileLock, true, 10L, TimeUnit.MINUTES);
+            LOG.debug("Finished handling execution using lock file.");
         } else {
             LOG.debug("Handling execution without lock.");
             task.run();
