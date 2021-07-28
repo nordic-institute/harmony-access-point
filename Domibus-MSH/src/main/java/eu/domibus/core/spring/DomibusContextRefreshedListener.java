@@ -81,7 +81,10 @@ public class DomibusContextRefreshedListener {
         if (useLockForExecution()) {
             LOG.debug("Handling execution using lock file.");
             final File fileLock = getLockFileLocation();
-            domainTaskExecutor.submit(task, null, fileLock, true, 10L, TimeUnit.MINUTES);
+            Runnable errorHandler = () -> {
+                LOG.warn("An error has occurred while initializing Domibus. This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.");
+            };
+            domainTaskExecutor.submit(task, errorHandler, fileLock, true, 3L, TimeUnit.MINUTES);
             LOG.debug("Finished handling execution using lock file.");
         } else {
             LOG.debug("Handling execution without lock.");

@@ -105,6 +105,10 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        return submitRunnable(taskExecutor, task, null, waitForTask, timeout, timeUnit);
+    }
+
+    protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, Runnable errorHandler, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         final Future<?> utrFuture = taskExecutor.submit(task);
 
         if (waitForTask) {
@@ -114,11 +118,21 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
                 LOG.debug("Task completed");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new DomainTaskException("Could not execute task", e);
+                handleRunnableError(e, errorHandler);
             } catch (ExecutionException | TimeoutException e) {
-                throw new DomainTaskException("Could not execute task", e);
+                handleRunnableError(e, errorHandler);
             }
         }
         return utrFuture;
+    }
+
+    protected void handleRunnableError(Exception exception, Runnable errorHandler) {
+        if(errorHandler != null) {
+            LOG.debug("Running the error handler");
+            errorHandler.run();
+            return;
+        }
+
+        throw new DomainTaskException("Could not execute task", exception);
     }
 }
