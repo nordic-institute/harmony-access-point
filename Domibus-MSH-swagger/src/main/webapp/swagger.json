@@ -705,12 +705,12 @@
         "open" : {
           "type" : "boolean"
         },
+        "readable" : {
+          "type" : "boolean"
+        },
         "uri" : {
           "type" : "string",
           "format" : "uri"
-        },
-        "readable" : {
-          "type" : "boolean"
         },
         "filename" : {
           "type" : "string"
