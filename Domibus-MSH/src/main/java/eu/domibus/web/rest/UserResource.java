@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
@@ -23,6 +24,7 @@ import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.UserFilterRequestRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
 import eu.domibus.web.rest.ro.UserResultRO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -70,6 +72,9 @@ public class UserResource extends BaseResource {
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    private DomainService domainService;
 
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
@@ -180,6 +185,14 @@ public class UserResource extends BaseResource {
 
             if (Strings.isNullOrEmpty(user.getRoles())) {
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User role cannot be null.");
+            }
+
+            if (StringUtils.isEmpty(user.getDomain())) {
+                throw new DomainTaskException("Could not create user: domain is empty");
+            }
+
+            if (!domainService.getDomains().stream().anyMatch(d -> user.getDomain().equalsIgnoreCase(d.getCode()))) {
+                throw new DomainTaskException("Could not create user: unknown domain (" + user.getDomain() + ")");
             }
         });
     }
