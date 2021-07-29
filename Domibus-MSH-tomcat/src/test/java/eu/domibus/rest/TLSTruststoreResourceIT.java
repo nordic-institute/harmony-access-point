@@ -12,10 +12,17 @@ import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.ebms3.sender.client.TLSReaderServiceImpl;
 import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Soumya
@@ -102,4 +109,35 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     public void removeTLSCertificate() {
         tlsTruststoreResource.removeTLSCertificate("tlscert");
     }
+
+
+    @Test
+    public void getEntries_ok() throws IOException {
+        TrustStoreRO trustStore1 = new TrustStoreRO();
+        trustStore1.setName("blue_gw");
+        TrustStoreRO trustStore2 = new TrustStoreRO();
+        trustStore2.setName("red_gw");
+        List<TrustStoreRO> entriesRO = new ArrayList<>();
+        entriesRO.add(trustStore1);
+        entriesRO.add(trustStore2);
+
+        final File domibusConfigLocation = new File("target/test-classes");
+        System.setProperty("domibus.config.location", domibusConfigLocation.getAbsolutePath());
+        final File projectRoot = new File("").getAbsoluteFile().getParentFile();
+        copyClientauthenticationFile(domibusConfigLocation, projectRoot);
+
+        entriesRO = tlsTruststoreResource.getTLSTruststoreEntries();
+
+        Assert.assertEquals(entriesRO.size(), 2);
+        Assert.assertEquals(entriesRO.get(0).getName(), "blue_gw");
+        FileUtils.forceDelete(new File(domibusConfigLocation, "default_clientauthentication.xml"));
+    }
+
+    private static void copyClientauthenticationFile(File domibusConfigLocation, File projectRoot) throws IOException {
+        final File clientauthenticationFile = new File(projectRoot, "Domibus-MSH-tomcat/src/test/resources/default_clientauthentication.xml");
+        final File destclientauthenticationFile = new File(domibusConfigLocation, "default_clientauthentication.xml");
+        FileUtils.copyFile(clientauthenticationFile, destclientauthenticationFile);
+    }
+
+
 }
