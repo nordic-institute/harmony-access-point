@@ -65,6 +65,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "");
+            Assert.fail();
         } catch (RequestValidationException ex) {
 
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:Failed to upload the truststoreFile file since its password was empty.");
@@ -78,6 +79,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123");
+            Assert.fail();
         } catch (DomibusCertificateException ex) {
             Assert.assertEquals(ex.getMessage(), "Could not find client authentication file for domain [default]");
         }
@@ -100,5 +102,4 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     public void removeTLSCertificate() {
         tlsTruststoreResource.removeTLSCertificate("tlscert");
     }
-
 }
