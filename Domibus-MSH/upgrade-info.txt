@@ -1,6 +1,7 @@
 Domibus 4.2.3 (from 4.2.2):
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Replace the default dss extension jar into  "/conf/domibus/extentions/lib"
 Domibus 4.2.2 (from 4.2.1):
                 - [Mysql8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:
