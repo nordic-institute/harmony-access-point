@@ -284,9 +284,4 @@ public abstract class AbstractIT {
         return body;
     }
 
-    protected File getDomibusConfigLocation() {
-        return new File("target/test-classes");
-    }
-
-
 }

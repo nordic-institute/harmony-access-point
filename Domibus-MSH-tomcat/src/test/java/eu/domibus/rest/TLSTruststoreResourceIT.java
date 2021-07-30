@@ -14,15 +14,12 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +111,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
 
     @Test
-    public void getEntries_ok() throws IOException {
+    public void getEntries_ok() {
         TrustStoreRO trustStore1 = new TrustStoreRO();
         trustStore1.setName("blue_gw");
         TrustStoreRO trustStore2 = new TrustStoreRO();
@@ -125,16 +122,10 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         //Overriding the config location in AbstractIT
         System.setProperty("domibus.config.location", new File("src/test/resources").getAbsolutePath());
 
-        String fileName = "default_clientauthentication.xml";
-
-        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
-        final File destAuthenticationFile = new File(getDomibusConfigLocation(), fileName);
-        FileUtils.copyInputStreamToFile(inputStream, destAuthenticationFile);
         entriesRO = tlsTruststoreResource.getTLSTruststoreEntries();
 
         Assert.assertEquals(entriesRO.size(), 2);
         Assert.assertEquals(entriesRO.get(0).getName(), "blue_gw");
-        FileUtils.forceDelete(new File(getDomibusConfigLocation(), fileName));
     }
 
 }
