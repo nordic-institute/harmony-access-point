@@ -19,10 +19,10 @@ public abstract class AbstractDictionaryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractDictionaryService.class);
 
-    protected <T> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
+    protected <T extends AbstractBaseEntity> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
         T entity = callTask(findTask);
         if (entity != null) {
-            LOG.debug("Dictionary entry [{}] found with id [{}]", entityDescription, ((AbstractBaseEntity) entity).getEntityId());
+            LOG.debug("Dictionary entry [{}] found with id [{}]", entityDescription, entity.getEntityId());
             return entity;
         }
 
@@ -39,7 +39,7 @@ public abstract class AbstractDictionaryService {
                 }
             }
             entity = callTask(findTask);
-            LOG.debug("Dictionary entry [{}] created with id [{}]", entityDescription, ((AbstractBaseEntity) entity).getEntityId());
+            LOG.debug("Dictionary entry [{}] created with id [{}]", entityDescription, entity.getEntityId());
             return entity;
         }
     }
