@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
@@ -28,6 +29,9 @@ import java.util.List;
  * @author Soumya
  * @since 5.0
  */
+@ImportResource({
+        "classpath:config/default_clientauthentication.xml"
+})
 public class TLSTruststoreResourceIT extends AbstractIT {
 
     @Autowired
@@ -121,16 +125,14 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         entriesRO.add(trustStore1);
         entriesRO.add(trustStore2);
 
-        final File domibusConfigLocation = new File("target/test-classes");
-        System.setProperty("domibus.config.location", domibusConfigLocation.getAbsolutePath());
         final File projectRoot = new File("").getAbsoluteFile().getParentFile();
-        copyClientauthenticationFile(domibusConfigLocation, projectRoot);
+        copyClientauthenticationFile(getDomibusConfigLocation(), projectRoot);
 
         entriesRO = tlsTruststoreResource.getTLSTruststoreEntries();
 
         Assert.assertEquals(entriesRO.size(), 2);
         Assert.assertEquals(entriesRO.get(0).getName(), "blue_gw");
-        FileUtils.forceDelete(new File(domibusConfigLocation, "default_clientauthentication.xml"));
+        FileUtils.forceDelete(new File(getDomibusConfigLocation(), "default_clientauthentication.xml"));
     }
 
     private static void copyClientauthenticationFile(File domibusConfigLocation, File projectRoot) throws IOException {
