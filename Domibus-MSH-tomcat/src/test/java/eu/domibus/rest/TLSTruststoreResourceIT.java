@@ -10,6 +10,7 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.ebms3.sender.client.TLSReaderServiceImpl;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -21,6 +22,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,13 +84,13 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     @Test
     public void replaceTrust_WithPass() {
         byte[] content = {1, 0, 1};
-        String filename = "file";
+        String filename = "file.jks";
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123");
             Assert.fail();
-        } catch (DomibusCertificateException ex) {
-            Assert.assertEquals(ex.getMessage(), "Could not find client authentication file for domain [default]");
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals(ex.getMessage(), "Exception loading truststore.");
         }
     }
 
@@ -120,22 +122,19 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         List<TrustStoreRO> entriesRO = new ArrayList<>();
         entriesRO.add(trustStore1);
         entriesRO.add(trustStore2);
+        //Overriding the config location in AbstractIT
+        System.setProperty("domibus.config.location", new File("src/test/resources").getAbsolutePath());
 
-        final File projectRoot = new File("").getAbsoluteFile().getParentFile();
-        copyClientauthenticationFile(getDomibusConfigLocation(), projectRoot);
+        String fileName = "default_clientauthentication.xml";
 
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+        final File destAuthenticationFile = new File(getDomibusConfigLocation(), fileName);
+        FileUtils.copyInputStreamToFile(inputStream, destAuthenticationFile);
         entriesRO = tlsTruststoreResource.getTLSTruststoreEntries();
 
         Assert.assertEquals(entriesRO.size(), 2);
         Assert.assertEquals(entriesRO.get(0).getName(), "blue_gw");
-        FileUtils.forceDelete(new File(getDomibusConfigLocation(), "default_clientauthentication.xml"));
+        FileUtils.forceDelete(new File(getDomibusConfigLocation(), fileName));
     }
-
-    private static void copyClientauthenticationFile(File domibusConfigLocation, File projectRoot) throws IOException {
-        final File clientauthenticationFile = new File(projectRoot, "Domibus-MSH-tomcat/src/test/resources/default_clientauthentication.xml");
-        final File destclientauthenticationFile = new File(domibusConfigLocation, "default_clientauthentication.xml");
-        FileUtils.copyFile(clientauthenticationFile, destclientauthenticationFile);
-    }
-
 
 }
