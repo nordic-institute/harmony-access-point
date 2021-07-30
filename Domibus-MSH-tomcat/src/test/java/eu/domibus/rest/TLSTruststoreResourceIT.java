@@ -17,7 +17,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.File;
@@ -29,9 +28,6 @@ import java.util.List;
  * @author Soumya
  * @since 5.0
  */
-@ImportResource({
-        "classpath:config/default_clientauthentication.xml"
-})
 public class TLSTruststoreResourceIT extends AbstractIT {
 
     @Autowired
