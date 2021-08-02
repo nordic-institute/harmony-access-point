@@ -70,7 +70,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(setLockOnFileRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
 
-        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, waitForTask, timeout, timeUnit);
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
     }
 
     @Override
