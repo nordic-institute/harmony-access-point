@@ -1091,8 +1091,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
         v_tab_message_new  VARCHAR2(30) := 'MIGR_TB_MESSAGE_PROPERTIES';
         CURSOR c_property IS
-            SELECT TP.ID_PK,
-                   UM.ID_PK USER_MESSAGE_ID_FK,
+            SELECT UM.ID_PK USER_MESSAGE_ID_FK,
                    TP.NAME,
                    TP.VALUE,
                    TP.TYPE,
@@ -1118,10 +1117,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 LOOP
                     BEGIN
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_message_new ||
-                                          ' (ID_PK, USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                                          ' (USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
                             USING
-                            property(i).ID_PK,
                             property(i).USER_MESSAGE_ID_FK,
                             get_tb_d_msg_property_rec(property(i).NAME, property(i).VALUE, property(i).TYPE),
                             property(i).CREATION_TIME,
@@ -1264,10 +1262,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 LOOP
                     BEGIN
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                                          ' (PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
                             USING
-                            HIBERNATE_SEQUENCE.nextval,
                             part_prop(i).PART_INFO_ID_FK,
                             get_tb_d_part_property_rec(part_prop(i).NAME,
                                                        part_prop(i).VALUE,

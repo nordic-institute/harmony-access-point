@@ -1453,7 +1453,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
-        DECLARE id_pk BIGINT;
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
         DECLARE name VARCHAR(255);
@@ -1467,8 +1466,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_property CURSOR FOR
-            SELECT TP.ID_PK,
-                   UM.ID_PK USER_MESSAGE_ID_FK,
+            SELECT UM.ID_PK USER_MESSAGE_ID_FK,
                    TP.NAME,
                    TP.VALUE,
                    TP.TYPE,
@@ -1501,7 +1499,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
                         CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_property -> execute immediate error: ', @p2));
                     END;
 
-                FETCH c_property INTO id_pk, user_message_id_fk, name, value, type, creation_time, created_by,
+                FETCH c_property INTO user_message_id_fk, name, value, type, creation_time, created_by,
                         modification_time, modified_by;
 
                 IF done THEN
@@ -1510,10 +1508,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
 
                 CALL MIGRATE_42_TO_50_get_tb_d_msg_property_rec(name, value, type, calculated_message_property_fk);
 
-                INSERT INTO MIGR_TB_MESSAGE_PROPERTIES (ID_PK, USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME,
+                INSERT INTO MIGR_TB_MESSAGE_PROPERTIES (USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME,
                         CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (id_pk,
-                        user_message_id_fk,
+                VALUES (user_message_id_fk,
                         calculated_message_property_fk,
                         creation_time,
                         created_by,
