@@ -1453,7 +1453,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
-        DECLARE id_pk BIGINT;
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
         DECLARE name VARCHAR(255);
