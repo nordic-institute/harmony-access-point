@@ -2222,6 +2222,10 @@
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
 
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_ID" tableName="TB_ERROR_LOG">
+            <column name="ERROR_SIGNAL_MESSAGE_ID"/>
+        </createIndex>
+
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
