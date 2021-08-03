@@ -1,5 +1,10 @@
 Domibus 5.0
 - Switch to using UTC to save timestamp values.
+- All date time values missing a timezone offset received from Domibus clients are considered to be in UTC offset; all
+of the following values point to the same instant - the 21st of July 2021, 12:27:00 [UTC] -:
+    - a date value of "2021-07-21T14:27:00+02:00[Europe/Brussels]" will be interpreted to be in the Europe/Brussels timezone with a +02:00 offset (i.e. CEST);
+    - a date value of "2021-07-21T14:27:00+02:00" will be interpreted to have an offset of +02:00;
+    - a date value of "2021-07-21T12:27:00" will be interpreted to be in the UTC timezone with a +00:00 offset.
 - Update all libraries to the latest version: Apache CXF 3.4.0, Ehcache 3.8.1, Hibernate Validator 6.1.5.Final, ActiveMQ 5.16.0, etc
 - Added a new property domibus.connection.cxf.ssl.offload.enable to allow support for offloading the SSL onto a forward SSL proxy
 - WS Plugin listPendingMessages Request will accept following optional parameters in order to filter the pending messages: messageId, conversationId, refToMessageId, fromPartyId, finalRecipient, originalSender, receivedFrom and receivedTo

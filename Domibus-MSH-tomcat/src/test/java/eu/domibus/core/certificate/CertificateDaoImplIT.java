@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -256,7 +256,7 @@ public class CertificateDaoImplIT extends AbstractIT {
     }
 
     private Date getDate(LocalDateTime localDateTime1) {
-        return Date.from(localDateTime1.atZone(ZoneId.systemDefault()).toInstant());
+        return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
     }
 
     @Test

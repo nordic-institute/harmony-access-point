@@ -1,5 +1,7 @@
 package eu.domibus.plugin.fs.jaxb;
 
+import eu.domibus.plugin.convert.StringToLocalDateTimeConverter;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,12 +14,17 @@ import java.time.format.DateTimeFormatter;
  */
 public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
+
+    private final StringToLocalDateTimeConverter converter;
+
+    public DateTimeAdapter() {
+        this.converter = new StringToLocalDateTimeConverter(FORMATTER);
+    }
+
     @Override
-    public LocalDateTime unmarshal(String s) throws Exception {
-        if (s == null) {
-            return null;
-        }
-        return LocalDateTime.parse(s, DateTimeFormatter.ISO_DATE_TIME);
+    public LocalDateTime unmarshal(String s) {
+        return converter.convert(s);
     }
 
     @Override
@@ -25,6 +32,6 @@ public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
         if (dt == null) {
             return null;
         }
-        return dt.format(DateTimeFormatter.ISO_DATE_TIME);
+        return dt.format(FORMATTER);
     }
 }

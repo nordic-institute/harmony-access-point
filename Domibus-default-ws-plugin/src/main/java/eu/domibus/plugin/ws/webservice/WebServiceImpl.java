@@ -36,7 +36,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -442,11 +442,11 @@ public class WebServiceImpl implements WebServicePluginInterface {
             LocalDateTime dateTime = LocalDateTime.now();
 
             if (errorResult.getNotified() != null) {
-                dateTime = errorResult.getNotified().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                dateTime = errorResult.getNotified().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             }
             errorResultImpl.setNotified(dateTime);
             if (errorResult.getTimestamp() != null) {
-                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             }
             errorResultImpl.setTimestamp(dateTime);
             errorList.getItem().add(errorResultImpl);

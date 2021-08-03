@@ -3,7 +3,7 @@ package eu.domibus.core.csv.serializer;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -24,7 +24,7 @@ public class CvsSerializerLocalDateTime implements CvsSerializer {
     @Override
     public String serialize(Object fieldValue) {
         DateTimeFormatter f = DateTimeFormatter.ofPattern(CSV_DATE_PATTERN);
-        ZonedDateTime d = ((LocalDateTime) fieldValue).atZone(ZoneId.systemDefault());
+        ZonedDateTime d = ((LocalDateTime) fieldValue).atZone(ZoneOffset.UTC);
         return d.format(f);
     }
 }

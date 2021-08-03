@@ -25,7 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -114,7 +114,7 @@ public class CsvServiceImplTest {
         List<MessageLogInfo> messageLogInfoList = getMessageList(date, testMessage);
 
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
-        ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
         String csvDate = d.format(f);
 
         setCsvSerializer();
@@ -220,7 +220,7 @@ public class CsvServiceImplTest {
     @Test
     public void serializeFieldValue_Date() throws NoSuchFieldException, IllegalAccessException {
         TestCsvFields o = new TestCsvFields();
-        o.setDateField(Date.from(LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).toInstant()));
+        o.setDateField(Date.from(LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).toInstant()));
 
         Field declaredField = TestCsvFields.class.getDeclaredField("dateField");
 
@@ -228,7 +228,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).getOffset().toString().replace(":", "");
+        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).getOffset().toString().replace(":", "");
         Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
@@ -246,7 +246,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneId.systemDefault()).getOffset().toString().replace(":", "");
+        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).getOffset().toString().replace(":", "");
         Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
@@ -300,7 +300,7 @@ public class CsvServiceImplTest {
         List<ErrorLogRO> errorLogROList = getErrorLogList(date);
 
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
-        ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
         String csvDate = d.format(f);
 
         setCsvSerializer();
