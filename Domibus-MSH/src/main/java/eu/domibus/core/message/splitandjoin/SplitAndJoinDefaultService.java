@@ -584,7 +584,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     protected void createLogEntry(String sourceMessageId, String errorDetail) {
         LOG.debug("Creating error entry for message [{}]", sourceMessageId);
-        errorService.createErrorLog(MSHRole.SENDING, sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
+        errorService.createErrorLog(sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
     }
 
     @Transactional

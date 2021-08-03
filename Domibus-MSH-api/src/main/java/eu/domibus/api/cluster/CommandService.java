@@ -15,6 +15,6 @@ public interface CommandService {
 
     List<Command> findCommandsByServerName(String serverName);
 
-    void deleteCommand(Integer commandId);
+    void deleteCommand(Long commandId);
 
 }

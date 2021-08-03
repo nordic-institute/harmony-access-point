@@ -123,7 +123,7 @@ public abstract class PModeProvider {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void removePMode(int id) {
+    public void removePMode(long id) {
         LOG.debug("Removing PMode with id: [{}]", id);
         configurationRawDAO.deleteById(id);
     }
@@ -371,6 +371,20 @@ public abstract class PModeProvider {
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
+    }
+
+    /**
+     * It will check if the messages are sent to the same Domibus instance
+     *
+     * @param pmodeKey pmode key
+     * @return boolean true if there is the same AP
+     */
+    public boolean checkSelfSending(String pmodeKey) {
+        final Party receiver = getReceiverParty(pmodeKey);
+        final Party sender = getSenderParty(pmodeKey);
+
+        //check endpoint
+        return StringUtils.trimToEmpty(receiver.getEndpoint()).equalsIgnoreCase(StringUtils.trimToEmpty(sender.getEndpoint()));
     }
 
     public abstract List<String> getMpcList();

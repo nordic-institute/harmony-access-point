@@ -172,12 +172,6 @@
         "visibleByDefault": false
       },
       {
-        "name": "Message Subtype",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
         "name": "Deleted",
         "type": "datetime",
         "sortable": true,

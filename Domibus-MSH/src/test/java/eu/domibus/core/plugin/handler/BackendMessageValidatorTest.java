@@ -9,6 +9,9 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.payload.PayloadProfileValidator;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
 import mockit.Expectations;
@@ -23,13 +26,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.UUID;
 
 import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
+import static eu.domibus.core.plugin.handler.BackendMessageValidator.MESSAGE_WITH_ID_STR;
 
 /**
  * @author Arun Raj
@@ -57,6 +58,15 @@ public class BackendMessageValidatorTest {
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private MessagePropertyValidator messagePropertyValidator;
+
+    @Injectable
+    private PayloadProfileValidator payloadProfileValidator;
+
+    @Injectable
+    private PropertyProfileValidator propertyProfileValidator;
 
     @Tested
     private BackendMessageValidator backendMessageValidatorObj;
@@ -745,28 +755,24 @@ public class BackendMessageValidatorTest {
         thrown.expectMessage("Action" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateAction(StringUtils.repeat("X", 256));
     }
-}
 
-class MessageIdPatternRetriever extends DefaultHandler {
-
-    private static final String PROP_KEY = "prop";
-    private static String MessageIdPattern;
-    private boolean bHasMessageIdPattern;
-
-    public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
-        if (PROP_KEY.equalsIgnoreCase(qName) && BackendMessageValidator.KEY_MESSAGEID_PATTERN.equalsIgnoreCase(atts.getValue("key"))) {
-            bHasMessageIdPattern = true;
-        }
+    @Test
+    public void validateMessageIsUnique_notFound() throws DuplicateMessageException {
+        new Expectations() {{
+            userMessageLogDao.getMessageStatus("messageId");
+            result = MessageStatus.READY_TO_PULL;
+        }};
+        thrown.expect(DuplicateMessageException.class);
+        thrown.expectMessage(MESSAGE_WITH_ID_STR + "messageId" + BackendMessageValidator.ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
+        backendMessageValidatorObj.validateMessageIsUnique("messageId");
     }
 
-    public void characters(char[] ch, int start, int length) throws SAXException {
-        if (bHasMessageIdPattern) {
-            MessageIdPattern = new String(ch, start, length);
-            bHasMessageIdPattern = false;
-        }
-    }
-
-    public String getMessageIdPattern() {
-        return MessageIdPattern;
+    @Test
+    public void validateMessageIsUnique_ok() throws DuplicateMessageException {
+        new Expectations() {{
+            userMessageLogDao.getMessageStatus("messageId");
+            result = MessageStatus.NOT_FOUND;
+        }};
+        backendMessageValidatorObj.validateMessageIsUnique("messageId");
     }
 }

@@ -1,7 +1,6 @@
 package eu.domibus;
 
 import com.google.gson.Gson;
-import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -9,15 +8,12 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
-import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,27 +22,13 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.activemq.ActiveMQXAConnection;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.Bus;
-import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.bus.extension.ExtensionManagerBus;
-import org.apache.cxf.bus.managers.PhaseManagerImpl;
-import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.message.ExchangeImpl;
-import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.ws.policy.PolicyBuilder;
-import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -57,14 +39,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.jms.*;
-import javax.sql.DataSource;
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.*;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -302,6 +283,5 @@ public abstract class AbstractIT {
         }
         return body;
     }
-
 
 }

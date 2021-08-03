@@ -86,8 +86,6 @@ public interface UserMessageHandlerService {
 
     Boolean checkTestMessage(final LegConfiguration legConfiguration);
 
-    Boolean checkSelfSending(String pmodeKey);
-
     List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
             throws EbMS3Exception, SOAPException, TransformerException;
 

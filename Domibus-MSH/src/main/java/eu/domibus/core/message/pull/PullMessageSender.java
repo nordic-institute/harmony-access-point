@@ -6,7 +6,9 @@ import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -32,14 +34,12 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -68,10 +68,6 @@ public class PullMessageSender {
 
     @Autowired
     private EbMS3MessageBuilder messageBuilder;
-
-    @Qualifier("jaxbContextEBMS")
-    @Autowired
-    private JAXBContext jaxbContext;
 
     @Autowired
     private UserMessageHandlerService userMessageHandlerService;
@@ -159,7 +155,7 @@ public class PullMessageSender {
             handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;
-            if (userMessageHandlerService.checkSelfSending(pModeKey)) {
+            if (pModeProvider.checkSelfSending(pModeKey)) {
                 sendMessageId += UserMessageHandlerService.SELF_SENDING_SUFFIX;
             }
             try {

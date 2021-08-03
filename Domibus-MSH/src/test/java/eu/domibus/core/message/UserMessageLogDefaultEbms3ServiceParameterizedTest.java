@@ -78,7 +78,7 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
 
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(messageId);
-        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, service, action, null, null);
+        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));

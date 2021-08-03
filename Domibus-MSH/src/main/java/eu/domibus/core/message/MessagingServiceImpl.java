@@ -1,13 +1,14 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionException;
@@ -16,13 +17,14 @@ import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
-import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.plugin.Submission;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +32,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
 
 /**
  * @author Ioana Dragusanu
@@ -44,12 +44,12 @@ public class MessagingServiceImpl implements MessagingService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagingServiceImpl.class);
 
     public static final String MIME_TYPE_APPLICATION_UNKNOWN = "application/unknown";
-    public static final String PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
-
-    protected static Long BYTES_IN_MB = 1048576L;
 
     @Autowired
-    PartInfoDao partInfoDao;
+    private PartInfoService partInfoService;
+
+    @Autowired
+    private SubmissionAS4Transformer transformer;
 
     @Autowired
     protected UserMessageDao userMessageDao;
@@ -62,9 +62,6 @@ public class MessagingServiceImpl implements MessagingService {
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
@@ -81,9 +78,6 @@ public class MessagingServiceImpl implements MessagingService {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    protected PayloadPersistenceHelper payloadPersistenceHelper;
-
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
     @Counter(clazz = MessagingServiceImpl.class, value = "storeMessage")
@@ -92,15 +86,14 @@ public class MessagingServiceImpl implements MessagingService {
             return;
         }
 
-
         final Boolean testMessage = checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
         userMessage.setTestMessage(testMessage);
 
         if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
-            if (scheduleSourceMessagePayloads(userMessage, partInfoList)) {
-                validatePayloadSizeBeforeSchedulingSave(legConfiguration, userMessage, partInfoList);
+            if (partInfoService.scheduleSourceMessagePayloads(partInfoList)) {
+               partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
 
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(
@@ -119,46 +112,13 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("Saving Messaging");
     }
-
+    
     @Override
     public void saveUserMessageAndPayloads(UserMessage userMessage, List<PartInfo> partInfoList) {
         userMessageDao.create(userMessage);
 
         setPayloadsContentType(partInfoList);
-        partInfoList.stream().forEach(partInfo -> {
-            partInfo.setUserMessage(userMessage);
-            partInfoDao.create(partInfo);
-        });
-    }
-
-    protected boolean scheduleSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos) {
-        if (CollectionUtils.isEmpty(partInfos)) {
-            LOG.debug("SourceMessages does not have any payloads");
-            return false;
-        }
-
-        long totalPayloadLength = 0;
-        for (PartInfo partInfo : partInfos) {
-            totalPayloadLength += partInfo.getLength();
-        }
-        LOG.debug("SourceMessage payloads totalPayloadLength(bytes) [{}]", totalPayloadLength);
-
-        final Long payloadsScheduleThresholdMB = domibusPropertyProvider.getLongProperty(PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
-        LOG.debug("Using configured payloadsScheduleThresholdMB [{}]", payloadsScheduleThresholdMB);
-
-        final Long payloadsScheduleThresholdBytes = payloadsScheduleThresholdMB * BYTES_IN_MB;
-        if (totalPayloadLength > payloadsScheduleThresholdBytes) {
-            LOG.debug("The SourceMessage payloads will be scheduled for saving");
-            return true;
-        }
-        return false;
-
-    }
-
-    protected void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, UserMessage userMessage, List<PartInfo> partInfos) {
-        for (PartInfo partInfo : partInfos) {
-            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength(), true);
-        }
+        partInfoList.forEach(partInfo -> partInfoService.create(partInfo, userMessage));
     }
 
     protected void storeSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
@@ -194,6 +154,12 @@ public class MessagingServiceImpl implements MessagingService {
             storePayload(userMessage, mshRole, legConfiguration, backendName, partInfo);
         }
         LOG.debug("Finished storing payloads");
+    }
+
+    @Override
+    public Submission getSubmission(UserMessage userMessage) {
+        List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
+        return transformer.transformFromMessaging(userMessage, partInfos);
     }
 
     protected void storePayload(UserMessage userMessage, MSHRole mshRole, LegConfiguration legConfiguration, String backendName, PartInfo partInfo) {
