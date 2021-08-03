@@ -50,6 +50,15 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     public static final String ACTION_ARCHIVE = "archive";
 
+    /**
+     *
+     * @param domain The domain property qualifier
+     * @return
+     */
+    public boolean getDomainEnabled(String domain) {
+        String value = getDomainProperty(domain, DOMAIN_ENABLED);
+        return BooleanUtils.toBoolean(value);
+    }
 
     /**
      * @param domain The domain property qualifier

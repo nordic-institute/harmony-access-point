@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
+    public static final String DOMAIN_ENABLED = "fsplugin.domain.enabled";
+
     public static final String LOCATION = "fsplugin.messages.location";
 
     public static final String SENT_ACTION = "fsplugin.messages.sent.action";
