@@ -114,7 +114,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(PASSWORD, Type.PASSWORD, Module.FS_PLUGIN, true, Usage.DOMAIN, false, true, true, false),
                 // with fallback - domain like in ST and full domain in MT
                 new DomibusPropertyMetadataDTO(LOCATION, Type.URI, Module.FS_PLUGIN, Usage.DOMAIN, false),
-                new DomibusPropertyMetadataDTO(DOMAIN_ENABLED, Type.BOOLEAN, Module.FS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DOMAIN_ENABLED, Type.BOOLEAN, Module.FS_PLUGIN, false , Usage.DOMAIN, true, true, false, false),
                 new DomibusPropertyMetadataDTO(SEND_DELAY, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Type.NUMERIC, Module.FS_PLUGIN, Usage.GLOBAL, true),
                 new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, Usage.DOMAIN, true),
