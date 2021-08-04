@@ -51,6 +51,8 @@ public class JMSManagerImpl implements JMSManager {
 
     private static final String SELECTOR = "selector";
 
+    private static final String PROPERTY_JNDI_NAME = "Jndi";
+
     /**
      * queue names to be skip from showing into GUI interface
      */
@@ -396,8 +398,8 @@ public class JMSManagerImpl implements JMSManager {
             }
         }
 
-        if (queue.getProperties().containsKey("Jndi")) {
-            String jndi = (String) queue.getProperty("Jndi");
+        if (queue.getProperties().containsKey(PROPERTY_JNDI_NAME)) {
+            String jndi = (String) queue.getProperty(PROPERTY_JNDI_NAME);
             if (StringUtils.equals(jndi, originalQueue)) {
                 LOG.trace("Queue Jndi [{}] is matching original queue [{}]", jndi, originalQueue);
                 return true;
