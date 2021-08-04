@@ -35,6 +35,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Topic;
+import javax.management.ObjectName;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,8 @@ public class JMSManagerImpl implements JMSManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSManagerImpl.class);
 
     private static final String SELECTOR = "selector";
+
+    private static final String PROPERTY_JNDI_NAME = "Jndi";
 
     /**
      * queue names to be skip from showing into GUI interface
@@ -354,9 +357,14 @@ public class JMSManagerImpl implements JMSManager {
         }
 
         Map<String, JMSDestination> destinations = getDestinations();
-        if (destinations.values().stream().noneMatch(dest -> StringUtils.equals(destination, dest.getName()))) {
+        JMSDestination destinationQueue = destinations.values().stream()
+                .filter(dest -> StringUtils.equals(destination, dest.getName()))
+                .findFirst().orElse(null);
+
+        if (destinationQueue == null) {
             throw new RequestValidationException("Cannot find destination with the name [" + destination + "].");
         }
+        LOG.debug("Destination queue found: [{}]", destinationQueue.getName());
 
         Arrays.stream(jmsMessageIds).forEach(msgId -> {
             InternalJmsMessage msg = internalJmsManager.getMessage(source, msgId);
@@ -364,10 +372,51 @@ public class JMSManagerImpl implements JMSManager {
                 throw new RequestValidationException("Cannot find the message with id [" + msgId + "].");
             }
             String originalQueue = msg.getCustomProperties().get("originalQueue");
-            if (StringUtils.isNotEmpty(originalQueue) && !StringUtils.equals(destination, originalQueue)) {
+            if (StringUtils.isNotEmpty(originalQueue) && !matchQueue(originalQueue, destinationQueue)) {
                 throw new RequestValidationException("Cannot move the message [" + msgId + "] to other than the original queue [" + originalQueue + "].");
             }
         });
+    }
+
+    protected boolean matchQueue(String originalQueue, JMSDestination queue) {
+        if (StringUtils.equals(queue.getName(), originalQueue)) {
+            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), originalQueue);
+            return true;
+        }
+        if (StringUtils.equals(queue.getFullyQualifiedName(), originalQueue)) {
+            LOG.trace("Queue FQ name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), originalQueue);
+            return true;
+        }
+
+        if (queue.getProperties() == null) {
+            return false;
+        }
+
+        if (LOG.isTraceEnabled()) {
+            for (String key : queue.getProperties().keySet()) {
+                LOG.debug("Queue property [{}]: [{}]", key, queue.getProperty(key));
+            }
+        }
+
+        if (queue.getProperties().containsKey(PROPERTY_JNDI_NAME)) {
+            String jndi = (String) queue.getProperty(PROPERTY_JNDI_NAME);
+            if (StringUtils.equals(jndi, originalQueue)) {
+                LOG.trace("Queue Jndi [{}] is matching original queue [{}]", jndi, originalQueue);
+                return true;
+            }
+        }
+
+        if (queue.getProperties().containsKey("ObjectName")) {
+            ObjectName objectName = (ObjectName) queue.getProperty("ObjectName");
+            String name = objectName == null ? null : objectName.getKeyProperty("Name");
+            if (StringUtils.equals(name, originalQueue)) {
+                LOG.trace("ObjectName [{}] is matching original queue [{}]", name, originalQueue);
+                return true;
+            }
+            LOG.trace("ObjectName [{}] not matching original queue [{}]", name, originalQueue);
+        }
+
+        return false;
     }
 
     protected List<JMSMessageDomainDTO> getJMSMessageDomain(String source, String[] messageIds) {

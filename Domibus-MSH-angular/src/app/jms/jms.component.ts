@@ -250,6 +250,12 @@ export class JmsComponent extends mix(BaseListComponent)
       return;
     }
 
+    // a jms message can be moved only from DLQ
+    if (/DLQ/.test(this.currentSearchSelectedSource.name) == false) {
+      this.alertService.error('Moving messages is only allowed from DLQ queue');
+      return;
+    }
+
     try {
       let queues = this.getAllowedDestinationQueues(elements);
       this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
@@ -272,20 +278,22 @@ export class JmsComponent extends mix(BaseListComponent)
       const message = messages[0];
       originalQueueName = this.getOriginalQueueName(message);
     }
-    console.log(`Original queue name for the message is [${originalQueueName}]. Current queue name is [${this.getJndi(this.selectedSource)}].`);
+    console.log(`Original queue name for the message: [${originalQueueName}]. Current queue name: [${this.selectedSource.name}]. Current queue Jndi: [${this.getJndi(this.selectedSource)}].`);
 
     let allowedQueues: any[];
     if (originalQueueName) {
-      allowedQueues = this.queues.filter(queue => queue.name.includes(originalQueueName) || originalQueueName == this.getJndi(queue));
+      // a jms message with originalQueue property can be moved only to the original queue
+      allowedQueues = this.queues.filter(queue => queue.name.includes(originalQueueName) || originalQueueName.includes(queue.name) || originalQueueName == this.getJndi(queue));
       if (allowedQueues.length == 0) {
         throw new Error(`Cannot move the selected messages because the original queue [${originalQueueName}] cannot be found.`);
       }
     } else {
+      // a jms message without originalQueue property can be moved in any queue
       console.warn(`Could not find the original queue [${originalQueueName}] for the selected message; returning all as allowed destination queues.`);
       allowedQueues = this.queues;
     }
 
-    // exclude source queue
+    // exclude current source queue
     console.log(`Excluding the current queue [${this.selectedSource.name}] from the allowed destination queues.`);
     allowedQueues = allowedQueues.filter(el => el.name != this.selectedSource.name);
     if (allowedQueues.length == 0) {
@@ -298,7 +306,6 @@ export class JmsComponent extends mix(BaseListComponent)
     if (queue.properties && queue.properties.Jndi) {
       return queue.properties.Jndi;
     }
-    return queue.name;
   }
 
   getCommonOriginalQueueName(messages: any[]): any {
