@@ -649,9 +649,6 @@ public class JMSManagerImplTest {
             queue1.getFullyQualifiedName();
             result = "domibus.queue1";
 
-            queue1.getProperties();
-            result = null;
-
             internalJmsManager.getMessage(source, "id1");
             result = msg;
 
