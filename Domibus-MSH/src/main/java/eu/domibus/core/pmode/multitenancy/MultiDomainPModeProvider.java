@@ -284,7 +284,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         return getCurrentPModeProvider().getPModeFile(id);
     }
 
@@ -299,7 +299,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public void removePMode(int id) {
+    public void removePMode(long id) {
         getCurrentPModeProvider().removePMode(id);
     }
 

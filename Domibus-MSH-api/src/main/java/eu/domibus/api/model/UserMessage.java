@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "UserMessage.findByGroupEntityId", query = "select mg.sourceMessage from MessageGroupEntity mg where mg.entityId=:ENTITY_ID"),
         @NamedQuery(name = "UserMessage.findByMessageId", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.messageId in :MESSAGEIDS"),
+        @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.entityId in :IDS"),
         @NamedQuery(name = "UserMessage.findUserMessageByGroupId",
                 query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
         @NamedQuery(name = "UserMessage.find",
@@ -105,11 +106,11 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public String getConversationId() {
-        return conversationId;
+        return StringUtils.SPACE.equals(this.conversationId) ? StringUtils.EMPTY : this.conversationId;
     }
 
     public void setConversationId(String conversationId) {
-        this.conversationId = conversationId;
+        this.conversationId = StringUtils.EMPTY.equals(conversationId) ? StringUtils.SPACE : conversationId;
     }
 
     public PartyInfo getPartyInfo() {
@@ -152,6 +153,13 @@ public class UserMessage extends AbstractBaseEntity {
 
     public AgreementRefEntity getAgreementRef() {
         return agreementRef;
+    }
+
+    public String getAgreementRefValue() {
+        if(agreementRef == null) {
+            return null;
+        }
+        return agreementRef.getValue();
     }
 
     public void setAgreementRef(AgreementRefEntity agreementRef) {

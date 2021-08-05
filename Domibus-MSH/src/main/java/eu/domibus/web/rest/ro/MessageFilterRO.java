@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MessageFilterRO implements Serializable {
 
-    private int entityId;
+    private String entityId;
 
     private int index;
 
@@ -25,11 +25,11 @@ public class MessageFilterRO implements Serializable {
 
     private boolean isPersisted;
 
-    public int getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 
@@ -91,5 +91,16 @@ public class MessageFilterRO implements Serializable {
                 .append(backendName)
                 .append(isPersisted)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "MessageFilterRO{" +
+                "entityId='" + entityId + '\'' +
+                ", index=" + index +
+                ", routingCriterias=" + routingCriterias +
+                ", backendName='" + backendName + '\'' +
+                ", isPersisted=" + isPersisted +
+                '}';
     }
 }

@@ -4,6 +4,28 @@ Domibus 5.0
 - Added a new property domibus.connection.cxf.ssl.offload.enable to allow support for offloading the SSL onto a forward SSL proxy
 - WS Plugin listPendingMessages Request will accept following optional parameters in order to filter the pending messages: messageId, conversationId, refToMessageId, fromPartyId, finalRecipient, originalSender, receivedFrom and receivedTo
 - WS Plugin can push notifications to a backend web service (notifications and submit message)
+- [Mysql8 only]
+    - Mysql8 versions older than 8.0.24 throw "ERROR 1067: Invalid default value", if UTC_TIMESTAMP set as default value for timestamp columns when execute 'mysql-5.0-SNAPSHOT.ddl' scripts.
+        - This is due to a bug(#101486) in the older mysql8 versions.
+        - Execute below command with 'root' user as a workaround to run the 'mysql-5.0-SNAPSHOT.ddl' script.
+            - set global sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+Domibus 4.2.2
+- Handle runtime error while dispatching SEND_ENQUEUED messages.
+- Add http timeout for certificate CRL download.
+- Renamed procedures and several indexes to match Oracle 11g constraints.
+- Added new property 'domibus.action.resend.wait.minutes' - Minimum expected waiting time for 'Resend' action, for the received messages get stuck in SEND_ENQUEUED status.
+- Properties for fs-plugin purges (messages.sent.purge.expired, messages.failed.purge.expired, messages.received.purge.expired, messages.locks.purge.expired) expiration limit if 0 or empty: purge disabled
+- Resend failed messages is not stable
+- NullPointer for default delete message mechanism for messages in SEND_FAILURE
+- Fixed REST endpoint for SEND_FAILURE Messages
+- Fixed issue in the  mysql-4.2.1-to-4.2.2-migration.ddl
+Domibus 4.2.1
+- Use DefaultMPC value for User Messages received without the optional MPC attribute.
+- Improve performance of the default view of the Messages page in Domibus Admin Console.
+- Enhance the retention worker deletion strategies.
+- Upgraded several libraries: CXF 3.3.9, BouncyCastle to 1.67
+- Fix known issue about class cast exception on OpenJDK11 (11.0.10.0.9)
+- Property domibus.logging.cxf.limit has been increased to 18000 (the size limit at which messages are truncated in the logs)
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:

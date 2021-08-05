@@ -4,7 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;

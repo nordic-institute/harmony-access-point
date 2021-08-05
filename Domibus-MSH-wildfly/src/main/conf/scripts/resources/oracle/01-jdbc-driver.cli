@@ -1,0 +1,2 @@
+module add --name=com.oracle --resources=${ORACLE_JDBC_DRIVER_DIR}/${ORACLE_JDBC_DRIVER_NAME} --dependencies=javax.api,javax.transaction.api --allow-nonexistent-resources
+/subsystem=datasources/jdbc-driver=com.oracle:add(driver-name="com.oracle", driver-module-name="com.oracle", driver-class-name=oracle.jdbc.driver.OracleDriver, driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource)

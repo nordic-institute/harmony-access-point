@@ -1,9 +1,8 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Maps;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.dao.ListDao;
+import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.scheduler.ReprogrammableService;
@@ -70,7 +69,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
         String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
-                "inner join m.messageProperties p,  " +
+                "left join m.messageProperties p,  " +
                 "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
@@ -259,16 +258,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             }
         }
 
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredUserMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = userMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(from);
-        queryParameterized.setMaxResults(max);
         long startTime = 0;
         if (LOG.isDebugEnabled()) {
             startTime = System.currentTimeMillis();
         }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+
+        final List<MessageLogInfo> resultList = super.findAllInfoPaged(from, max, column, asc, filters);
+
         if (LOG.isDebugEnabled()) {
             final long endTime = System.currentTimeMillis();
             LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
@@ -278,9 +274,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Timer(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
-    public int deleteMessageLogs(List<String> messageIds) {
+    public int deleteMessageLogs(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteUserMessageLogs result [{}]", result);
         return result;
@@ -291,15 +287,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public String findLastTestMessageId(String party) {
-        return findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
-    }
-
-    protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
         Map<String, Object> filters = new HashMap<>();
         filters.put("testMessage", true);
-        filters.put("mshRole", mshRole);
+        filters.put("mshRole", MSHRole.SENDING);
         filters.put("toPartyId", party);
-        filters.put("messageType", messageType);
         String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
         TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
         TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);

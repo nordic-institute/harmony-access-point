@@ -117,6 +117,7 @@ export class EditUserComponent implements OnInit {
     } else {
       domainCtrl.disable();
       this.userForm.patchValue({domain: this.currentDomain});
+      this.user.domain = this.currentDomain;
     }
 
     await this.getPasswordPolicy(role);

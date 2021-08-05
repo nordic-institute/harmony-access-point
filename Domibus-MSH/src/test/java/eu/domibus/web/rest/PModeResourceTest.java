@@ -70,7 +70,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true, false);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode("0", true, false);
 
         // Then
         validateResponseEntity(responseEntity, HttpStatus.OK);
@@ -86,7 +86,7 @@ public class PModeResourceTest {
         }};
 
         // When
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true, false);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode("0", true, false);
 
         // Then
         validateResponseEntity(responseEntity, HttpStatus.NO_CONTENT);
@@ -100,7 +100,7 @@ public class PModeResourceTest {
             pModeProvider.getPModeFile(0);
             result = byteA;
         }};
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, true, false);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode("0", true, false);
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
@@ -110,7 +110,7 @@ public class PModeResourceTest {
 
         }};
 
-        responseEntity = pModeResource.downloadPmode(0, false, false);
+        responseEntity = pModeResource.downloadPmode("0", false, false);
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
@@ -130,7 +130,7 @@ public class PModeResourceTest {
             result = byteA;
         }};
 
-        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode(0, false, true);
+        ResponseEntity<? extends Resource> responseEntity = pModeResource.downloadPmode("0", false, true);
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
@@ -249,7 +249,7 @@ public class PModeResourceTest {
         stringList.add("1");
 
         new Expectations(pModeResource) {{
-            pModeProvider.removePMode(anyInt);
+            pModeProvider.removePMode(anyLong);
             result = exception;
         }};
 
@@ -339,7 +339,7 @@ public class PModeResourceTest {
         final String description = "description";
 
         PModeResponseRO pModeResponseRO = new PModeResponseRO();
-        pModeResponseRO.setId(1);
+        pModeResponseRO.setId("1");
         pModeResponseRO.setUsername(username);
         pModeResponseRO.setDescription(description);
         pModeResponseRO.setConfigurationDate(date);
@@ -358,7 +358,7 @@ public class PModeResourceTest {
 
         // Then
         Assert.assertEquals(1, pModeResponseROSGot.size());
-        Assert.assertEquals(1, pModeResponseRO.getId());
+        Assert.assertEquals("1", pModeResponseRO.getId());
         Assert.assertEquals(date, pModeResponseRO.getConfigurationDate());
         Assert.assertEquals(username, pModeResponseRO.getUsername());
         Assert.assertEquals(description, pModeResponseRO.getDescription());

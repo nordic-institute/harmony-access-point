@@ -31,8 +31,7 @@ public class AlertArea extends DComponent {
 	public void waitForAlert(){
 		try {
 			wait.forElementToBeVisible(alertContainer);
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {}
 	}
 
 	public void closeAlert() throws Exception{

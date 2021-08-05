@@ -45,11 +45,11 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         userMessage.getMpcValue();
         userMessage.getServiceValue();
         userMessage.getActionValue();
-        userMessage.getAgreementRef();
-        userMessage.getPartyInfo().getFrom().getPartyId().getValue();
-        userMessage.getPartyInfo().getFrom().getRole().getValue();
-        userMessage.getPartyInfo().getTo().getPartyId().getValue();
-        userMessage.getPartyInfo().getTo().getRole().getValue();
+        userMessage.getAgreementRefValue();
+        userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
+        userMessage.getPartyInfo().getFrom().getRoleValue();
+        userMessage.getPartyInfo().getTo().getToPartyId().getValue();
+        userMessage.getPartyInfo().getTo().getRoleValue();
     }
 
     @Transactional
@@ -77,10 +77,10 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Timer(clazz = UserMessageDao.class, value = "deleteMessages")
     @Counter(clazz = UserMessageDao.class, value = "deleteMessages")
-    public int deleteMessages(List<String> messageIds) {
-        LOG.debug("deleteMessages [{}]", messageIds.size());
+    public int deleteMessages(List<Long> ids) {
+        LOG.debug("deleteMessages [{}]", ids.size());
         final Query deleteQuery = em.createNamedQuery("UserMessage.deleteMessages");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result = deleteQuery.executeUpdate();
         LOG.debug("deleteMessages result [{}]", result);
         return result;

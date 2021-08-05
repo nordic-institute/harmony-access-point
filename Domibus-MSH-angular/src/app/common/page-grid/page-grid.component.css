@@ -1,0 +1,3 @@
+::ng-deep .highlighted-row .datatable-body-cell {
+  color: red !important;
+}

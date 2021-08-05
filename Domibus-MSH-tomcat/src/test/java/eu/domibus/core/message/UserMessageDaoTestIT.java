@@ -2,7 +2,8 @@ package eu.domibus.core.message;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
-import eu.domibus.test.util.MessageTestUtility;
+import eu.domibus.core.message.dictionary.*;
+import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,19 +47,19 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();
         partyIdDao.create(senderPartyId);
-        userMessage.getPartyInfo().getFrom().setPartyId(senderPartyId);
+        userMessage.getPartyInfo().getFrom().setFromPartyId(senderPartyId);
 
         final PartyRole senderPartyRole = messageTestUtility.createSenderPartyRole();
         partyRoleDao.create(senderPartyRole);
-        userMessage.getPartyInfo().getFrom().setRole(senderPartyRole);
+        userMessage.getPartyInfo().getFrom().setFromRole(senderPartyRole);
 
         final PartyId receiverPartyId = messageTestUtility.createReceiverPartyId();
         partyIdDao.create(receiverPartyId);
-        userMessage.getPartyInfo().getTo().setPartyId(receiverPartyId);
+        userMessage.getPartyInfo().getTo().setToPartyId(receiverPartyId);
 
         final PartyRole receiverPartyRole = messageTestUtility.createReceiverPartyRole();
         partyRoleDao.create(receiverPartyRole);
-        userMessage.getPartyInfo().getTo().setRole(receiverPartyRole);
+        userMessage.getPartyInfo().getTo().setToRole(receiverPartyRole);
 
         final ActionEntity actionEntity = messageTestUtility.createActionEntity();
         actionDao.create(actionEntity);
@@ -82,7 +83,7 @@ public class UserMessageDaoTestIT extends AbstractIT {
         final Set<MessageProperty> messageProperties = dbUserMessage.getMessageProperties();
         messageProperties.forEach(messageProperty -> messageProperty.getValue());
 
-        userMessage.getPartyInfo().getFrom().getRole().getValue();
+        userMessage.getPartyInfo().getFrom().getFromRole().getValue();
 
         System.out.println(userMessage);
     }

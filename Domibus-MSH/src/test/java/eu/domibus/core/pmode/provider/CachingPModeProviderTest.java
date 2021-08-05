@@ -25,7 +25,7 @@ import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.util.PojoInstaciatorUtil;
+import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
-import static eu.domibus.core.message.MessageExchangeConfiguration.PMODEKEY_SEPARATOR;
+import static eu.domibus.api.pmode.PModeConstants.PMODEKEY_SEPARATOR;
 import static org.junit.Assert.*;
 
 /**
@@ -1353,7 +1353,7 @@ public class CachingPModeProviderTest {
 
         MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getPartyId();
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = null;
         }};
         try {
@@ -1375,7 +1375,7 @@ public class CachingPModeProviderTest {
 
         Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getPartyId();
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = fromPartyId;
 
             cachingPModeProvider.findPartyName(partyId1);
@@ -1395,7 +1395,7 @@ public class CachingPModeProviderTest {
         MSHRole mshRole1 = MSHRole.SENDING;
 
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getPartyId();
+            userMessage.getPartyInfo().getTo().getToPartyId();
             result = null;
 
             cachingPModeProvider.findSenderParty(userMessage);
@@ -1421,7 +1421,7 @@ public class CachingPModeProviderTest {
 
         Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getPartyId();
+            userMessage.getPartyInfo().getTo().getToPartyId();
             result = toPartyId;
 
             cachingPModeProvider.findPartyName(partyId1);
@@ -1438,7 +1438,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findInitiatorRole_RoleNotProvided(@Injectable UserMessage userMessage) {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getRole().getValue();
+            userMessage.getPartyInfo().getFrom().getRoleValue();
             result = " ";
         }};
         try {
@@ -1453,7 +1453,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findInitiatorRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getRole().getValue();
+            userMessage.getPartyInfo().getFrom().getRoleValue();
             result = initiatorRole.getValue();
 
             cachingPModeProvider.getBusinessProcessRole(initiatorRole.getValue());
@@ -1467,7 +1467,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findResponderRole_RoleNotProvided(@Injectable UserMessage userMessage) {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getRole().getValue();
+            userMessage.getPartyInfo().getTo().getRoleValue();
             result = " ";
         }};
         try {
@@ -1482,7 +1482,7 @@ public class CachingPModeProviderTest {
     @Test
     public void findResponderRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getTo().getRole().getValue();
+            userMessage.getPartyInfo().getTo().getRoleValue();
             result = responderRole.getValue();
 
             cachingPModeProvider.getBusinessProcessRole(responderRole.getValue());

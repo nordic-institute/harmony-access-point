@@ -4,6 +4,7 @@ import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService;
 import org.springframework.stereotype.Service;
 
@@ -25,22 +26,22 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String TEXT_XML = "text/xml";
 
-    protected PartPropertyDao partPropertyDao;
-    protected MessagePropertyDao messagePropertyDao;
-    protected PartyIdDao partyIdDao;
-    protected PartyRoleDao partyRoleDao;
-    protected AgreementDao agreementDao;
-    protected ServiceDao serviceDao;
-    protected ActionDao actionDao;
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
+    protected MessagePropertyDictionaryService messagePropertyDictionaryService;
+    protected PartyIdDictionaryService partyIdDictionaryService;
+    protected PartyRoleDictionaryService partyRoleDictionaryService;
+    protected AgreementDictionaryService agreementDictionaryService;
+    protected ServiceDictionaryService serviceDictionaryService;
+    protected ActionDictionaryService actionDictionaryService;
 
-    public UserMessageDefaultFactory(PartPropertyDao partPropertyDao, MessagePropertyDao messagePropertyDao, PartyIdDao partyIdDao, PartyRoleDao partyRoleDao, AgreementDao agreementDao, ServiceDao serviceDao, ActionDao actionDao) {
-        this.partPropertyDao = partPropertyDao;
-        this.messagePropertyDao = messagePropertyDao;
-        this.partyIdDao = partyIdDao;
-        this.partyRoleDao = partyRoleDao;
-        this.agreementDao = agreementDao;
-        this.serviceDao = serviceDao;
-        this.actionDao = actionDao;
+    public UserMessageDefaultFactory(PartPropertyDictionaryService partPropertyDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartyIdDictionaryService partyIdDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService, AgreementDictionaryService agreementDictionaryService, ServiceDictionaryService serviceDictionaryService, ActionDictionaryService actionDictionaryService) {
+        this.partPropertyDictionaryService = partPropertyDictionaryService;
+        this.messagePropertyDictionaryService = messagePropertyDictionaryService;
+        this.partyIdDictionaryService = partyIdDictionaryService;
+        this.partyRoleDictionaryService = partyRoleDictionaryService;
+        this.agreementDictionaryService = agreementDictionaryService;
+        this.serviceDictionaryService = serviceDictionaryService;
+        this.actionDictionaryService = actionDictionaryService;
     }
 
     @Override
@@ -53,8 +54,8 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         result.setTimestamp(sourceMessage.getTimestamp());
         result.setConversationId(sourceMessage.getConversationId());
         result.setAgreementRef(getAgreementRef(sourceMessage));
-        result.setAction(actionDao.findOrCreateAction(sourceMessage.getActionValue()));
-        result.setService(serviceDao.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
+        result.setAction(actionDictionaryService.findOrCreateAction(sourceMessage.getActionValue()));
+        result.setService(serviceDictionaryService.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
         result.setPartyInfo(createPartyInfo(sourceMessage.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(sourceMessage.getMessageProperties()));
 
@@ -70,8 +71,8 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         result.setConversationId(userMessageFragment.getConversationId());
         result.setAgreementRef(getAgreementRef(userMessageFragment));
-        result.setAction(actionDao.findOrCreateAction(userMessageFragment.getActionValue()));
-        result.setService(serviceDao.findOrCreateService(userMessageFragment.getService().getValue(), userMessageFragment.getService().getType()));
+        result.setAction(actionDictionaryService.findOrCreateAction(userMessageFragment.getActionValue()));
+        result.setService(serviceDictionaryService.findOrCreateService(userMessageFragment.getService().getValue(), userMessageFragment.getService().getType()));
 
         result.setPartyInfo(createPartyInfo(userMessageFragment.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(userMessageFragment.getMessageProperties()));
@@ -96,7 +97,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         partInfo.setLength(new File(fragmentFile).length());
         partInfo.setMime(APPLICATION_OCTET_STREAM);
 
-        PartProperty partProperty = partPropertyDao.findOrCreateProperty(Property.MIME_TYPE, APPLICATION_OCTET_STREAM, null);
+        PartProperty partProperty = partPropertyDictionaryService.findOrCreatePartProperty(Property.MIME_TYPE, APPLICATION_OCTET_STREAM, null);
         Set<PartProperty> partProperties = new HashSet<>();
         partProperties.add(partProperty);
         partInfo.setPartProperties(partProperties);
@@ -108,7 +109,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         if (agreementRef == null) {
             return null;
         }
-        return agreementDao.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
+        return agreementDictionaryService.findOrCreateAgreement(agreementRef.getValue(), agreementRef.getType());
     }
 
     protected ServiceEntity createService(UserMessage userMessage) {
@@ -124,24 +125,24 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         if (source.getFrom() != null) {
             final From from = new From();
-            PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(source.getFrom().getRole().getValue());
-            from.setRole(fromPartyRole);
+            PartyRole fromPartyRole = partyRoleDictionaryService.findOrCreateRole(source.getFrom().getRoleValue());
+            from.setFromRole(fromPartyRole);
 
-            PartyId fromPartyId = source.getFrom().getPartyId();
-            PartyId fromParty = partyIdDao.findOrCreateParty(fromPartyId.getValue(), fromPartyId.getType());
-            from.setPartyId(fromParty);
+            PartyId fromPartyId = source.getFrom().getFromPartyId();
+            PartyId fromParty = partyIdDictionaryService.findOrCreateParty(fromPartyId.getValue(), fromPartyId.getType());
+            from.setFromPartyId(fromParty);
 
             partyInfo.setFrom(from);
         }
 
         if (source.getTo() != null) {
             final To to = new To();
-            PartyRole toPartyRole = partyRoleDao.findOrCreateRole(source.getTo().getRole().getValue());
-            to.setRole(toPartyRole);
+            PartyRole toPartyRole = partyRoleDictionaryService.findOrCreateRole(source.getTo().getRoleValue());
+            to.setToRole(toPartyRole);
 
-            PartyId toPartyId = source.getTo().getPartyId();
-            PartyId toParty = partyIdDao.findOrCreateParty(toPartyId.getValue(), toPartyId.getType());
-            to.setPartyId(toParty);
+            PartyId toPartyId = source.getTo().getToPartyId();
+            PartyId toParty = partyIdDictionaryService.findOrCreateParty(toPartyId.getValue(), toPartyId.getType());
+            to.setToPartyId(toParty);
 
             partyInfo.setTo(to);
         }
@@ -154,7 +155,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         for (MessageProperty sourceProperty : userMessageProperties) {
             if (ALLOWED_PROPERTIES.contains(sourceProperty.getName())) {
-                MessageProperty messageProperty = messagePropertyDao.findOrCreateProperty(sourceProperty.getName(), sourceProperty.getValue(), sourceProperty.getType());
+                MessageProperty messageProperty = messagePropertyDictionaryService.findOrCreateMessageProperty(sourceProperty.getName(), sourceProperty.getValue(), sourceProperty.getType());
                 messageProperties.add(messageProperty);
             }
         }

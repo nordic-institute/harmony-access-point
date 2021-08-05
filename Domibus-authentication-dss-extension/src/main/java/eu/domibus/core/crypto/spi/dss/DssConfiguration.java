@@ -4,6 +4,8 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
+import eu.domibus.core.crypto.spi.dss.listeners.encryption.DssPropertyEncryptionListener;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -17,7 +19,6 @@ import eu.europa.esig.dss.spi.client.http.IgnoreDataLoader;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
-
 import eu.europa.esig.dss.tsl.alerts.LOTLAlert;
 import eu.europa.esig.dss.tsl.alerts.TLAlert;
 import eu.europa.esig.dss.tsl.alerts.detections.LOTLLocationChangeDetection;
@@ -36,6 +37,7 @@ import eu.europa.esig.dss.tsl.source.TLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.springframework.beans.factory.ObjectProvider;
@@ -64,7 +66,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 
 /**
@@ -83,6 +85,8 @@ public class DssConfiguration {
     private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
 
     private final static String CACERT_PATH = "/lib/security/cacerts";
+
+    public static final String DEFAULT_DOMAIN = "default";
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
@@ -130,6 +134,9 @@ public class DssConfiguration {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
+    private DomainExtService domainExtService;
+
+    @Autowired
     private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
 
     @Autowired
@@ -137,6 +144,10 @@ public class DssConfiguration {
 
     @Autowired
     private ServerInfoExtService serverInfoExtService;
+
+    @Autowired
+    private PasswordEncryptionExtService passwordEncryptionService;
+
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -157,7 +168,7 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()),trustedListTrustStore());
+        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()), trustedListTrustStore());
         boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
         boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
         boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
@@ -196,7 +207,7 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper,KeyStore trustedListTrustStore) {
+    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper, KeyStore trustedListTrustStore) {
         CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         return commonsDataLoader;
@@ -281,11 +292,11 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DssRefreshCommand dssRefreshCommand(TLValidationJob job, DssExtensionPropertyManager dssExtensionPropertyManager,File cacheDirectory) {
+    public DssRefreshCommand dssRefreshCommand(TLValidationJob job, DssExtensionPropertyManager dssExtensionPropertyManager, File cacheDirectory) {
         return new DssRefreshCommand(job, cacheDirectory);
     }
 
-   @Bean
+    @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CustomTrustedLists otherTrustedLists() {
         final List<TLSource> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
@@ -398,9 +409,36 @@ public class DssConfiguration {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
+    @Bean
+    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
+        return new DssPropertyEncryptionListener(passwordEncryptionService, this, domibusConfigurationExtService, domainExtService);
+    }
+
+    /**
+     * @return True if password encryption is active
+     */
+    public boolean isPasswordEncryptionActive() {
+        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
+        return BooleanUtils.toBoolean(passwordEncryptionActive);
+    }
+
+    /**
+     * get the base (mapped to default) and other domains property
+     *
+     * @param domain
+     * @param propertyName
+     * @return
+     */
+    public String getDomainProperty(String domain, String propertyName) {
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            DomainDTO domainDTO = domainExtService.getDomain(domain);
+            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
+        }
+        return domibusPropertyExtService.getProperty(propertyName);
+    }
 
     @Bean
-    public TLValidationJob job(LOTLSource europeanLOTL,CommonsDataLoader dataLoader,CacheCleaner cacheCleaner) {
+    public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner) {
         TLValidationJob job = new TLValidationJob();
         job.setOnlineDataLoader(onlineLoader(dataLoader));
         job.setOfflineDataLoader(offlineLoader(dataLoader));
@@ -495,8 +533,4 @@ public class DssConfiguration {
         String nodeName = serverInfoExtService.getNodeName();
         return new File(dssCachePath + File.separator + nodeName + File.separator);
     }
-
-
-
-
 }

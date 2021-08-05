@@ -36,6 +36,21 @@ public interface UserMessageService {
 
     String getFinalRecipient(final String messageId);
 
+    /**
+     *
+     * @param messageId of the {@link eu.domibus.api.model.UserMessage}
+     * @return database object
+     * @throws MessageNotFoundException if not found
+     */
+    eu.domibus.api.model.UserMessage getByMessageId(String messageId) throws MessageNotFoundException;
+
+    /**
+     *
+     * @param messageId of the {@link eu.domibus.api.model.UserMessage}
+     * @return database object or null
+     */
+    eu.domibus.api.model.UserMessage findByMessageId(String messageId);
+
     Map<String,String> getProperties(Long messageEntityId);
 
     String getOriginalSender(String messageId);
@@ -43,8 +58,6 @@ public interface UserMessageService {
     List<String> getFailedMessages(String finalRecipient);
 
     Long getFailedMessageElapsedTime(String messageId);
-
-    void restoreFailedMessage(String messageId);
 
     void sendEnqueuedMessage(String messageId);
 

@@ -17,7 +17,6 @@ public abstract class MessageLogInfoFilter {
 
     private static final String LOG_MESSAGE_ID = "message.messageId";
     private static final String LOG_MSH_ROLE = "log.mshRole.role";
-    private static final String LOG_MESSAGE_TYPE = "log.messageType";
     private static final String LOG_MESSAGE_STATUS = "log.messageStatus.messageStatus";
     private static final String LOG_NOTIFICATION_STATUS = "log.notificationStatus.status";
     private static final String LOG_DELETED = "log.deleted";
@@ -43,15 +42,13 @@ public abstract class MessageLogInfoFilter {
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
-    
+
     protected String getHQLKey(String originalColumn) {
         switch (originalColumn) {
             case "messageId":
                 return LOG_MESSAGE_ID;
             case "mshRole":
                 return LOG_MSH_ROLE;
-            case "messageType":
-                return LOG_MESSAGE_TYPE;
             case "messageStatus":
                 return LOG_MESSAGE_STATUS;
             case "notificationStatus":
@@ -59,6 +56,8 @@ public abstract class MessageLogInfoFilter {
             case "deleted":
                 return LOG_DELETED;
             case "received":
+            case "receivedFrom":
+            case "receivedTo":
                 return LOG_RECEIVED;
             case "sendAttempts":
                 return LOG_SEND_ATTEMPTS;
@@ -95,18 +94,16 @@ public abstract class MessageLogInfoFilter {
         }
     }
 
-    protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
+    protected StringBuilder filterQuery(String query, String sortColumn, boolean asc, Map<String, Object> filters) {
         StringBuilder result = new StringBuilder(query);
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             handleFilter(result, query, filter);
         }
 
-        if (column != null) {
-            String usedColumn = getHQLKey(column);
-            if (asc) {
-                result.append(" order by ").append(usedColumn).append(" asc");
-            } else {
-                result.append(" order by ").append(usedColumn).append(" desc");
+        if (sortColumn != null) {
+            String usedColumn = getHQLKey(sortColumn);
+            if (!StringUtils.isBlank(usedColumn)) {
+                result.append(" order by ").append(usedColumn).append(asc ? " asc" : " desc");
             }
         }
 
@@ -115,29 +112,27 @@ public abstract class MessageLogInfoFilter {
 
     private void handleFilter(StringBuilder result, String query, Map.Entry<String, Object> filter) {
         if (filter.getValue() != null) {
+            String tableName = getHQLKey(filter.getKey());
+            if (StringUtils.isBlank(tableName)) {
+                return;
+            }
+
             setSeparator(query, result);
             if (!(filter.getValue() instanceof Date)) {
                 if (!(filter.getValue().toString().isEmpty())) {
-                    String tableName = getHQLKey(filter.getKey());
                     result.append(tableName).append(" = :").append(filter.getKey());
                 }
             } else {
                 if (!(filter.getValue().toString().isEmpty())) {
                     String s = filter.getKey();
                     if (s.equals("receivedFrom")) {
-                        result.append(LOG_RECEIVED).append(" >= :").append(filter.getKey());
+                        result.append(tableName).append(" >= :").append(filter.getKey());
                     } else if (s.equals("receivedTo")) {
-                        result.append(LOG_RECEIVED).append(" <= :").append(filter.getKey());
+                        result.append(tableName).append(" <= :").append(filter.getKey());
                     }
                 }
             }
-        }/* else {
-            if (filter.getKey().equals("testMessage")) {
-                setSeparator(query, result);
-                String tableName = getHQLKey(filter.getKey());
-                result.append(tableName).append(" is null");
-            }
-        }*/
+        }
     }
 
     private void setSeparator(String query, StringBuilder result) {

@@ -27,6 +27,12 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
         super(MessageGroupEntity.class);
     }
 
+    public MessageGroupEntity findByUserMessageEntityIdWithMessageHeader(Long userMessageEntityId) {
+        final TypedQuery<MessageGroupEntity> namedQuery = em.createNamedQuery("MessageGroupEntity.findByUserMessageEntityIdWithMessageHeader", MessageGroupEntity.class);
+        namedQuery.setParameter("USER_MESSAGE_ENTITY_ID", userMessageEntityId);
+        return DataAccessUtils.singleResult(namedQuery.getResultList());
+    }
+
     public MessageGroupEntity findByUserMessageEntityId(Long userMessageEntityId) {
         final TypedQuery<MessageGroupEntity> namedQuery = em.createNamedQuery("MessageGroupEntity.findByUserMessageEntityId", MessageGroupEntity.class);
         namedQuery.setParameter("USER_MESSAGE_ENTITY_ID", userMessageEntityId);

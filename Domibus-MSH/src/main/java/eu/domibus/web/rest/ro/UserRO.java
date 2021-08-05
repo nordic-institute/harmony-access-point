@@ -9,18 +9,18 @@ import java.util.List;
  */
 public class UserRO implements Serializable {
 
-    private Integer id;
+    private String id;
     private String username;
     private List<String> authorities;
     private boolean defaultPasswordUsed;
     private Integer daysTillExpiration;
     private boolean externalAuthProvider;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

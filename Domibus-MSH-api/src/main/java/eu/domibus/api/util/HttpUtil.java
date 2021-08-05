@@ -11,9 +11,4 @@ import java.security.NoSuchAlgorithmException;
  */
 public interface HttpUtil {
     ByteArrayInputStream downloadURL(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException;
-
-    ByteArrayInputStream downloadURLDirect(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException;
-
-    ByteArrayInputStream downloadURLViaProxy(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException;
-
 }

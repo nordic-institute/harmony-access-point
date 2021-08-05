@@ -16,26 +16,33 @@ public class From {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_PARTY_ID_FK")
-    protected PartyId partyId;
+    protected PartyId fromPartyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FROM_ROLE_ID_FK")
-    protected PartyRole role;
+    protected PartyRole fromRole;
 
-    public PartyId getPartyId() {
-        return partyId;
+    public PartyId getFromPartyId() {
+        return fromPartyId;
     }
 
-    public void setPartyId(PartyId partyId) {
-        this.partyId = partyId;
+    public void setFromPartyId(PartyId partyId) {
+        this.fromPartyId = partyId;
     }
 
-    public PartyRole getRole() {
-        return role;
+    public PartyRole getFromRole() {
+        return fromRole;
     }
 
-    public void setRole(PartyRole role) {
-        this.role = role;
+    public String getRoleValue() {
+       if(fromRole == null) {
+           return null;
+       }
+       return fromRole.getValue();
+    }
+
+    public void setFromRole(PartyRole role) {
+        this.fromRole = role;
     }
 
     @Override
@@ -47,24 +54,24 @@ public class From {
         From from = (From) o;
 
         return new EqualsBuilder()
-                .append(partyId, from.partyId)
-                .append(role, from.role)
+                .append(fromPartyId, from.fromPartyId)
+                .append(fromRole, from.fromRole)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(partyId)
-                .append(role)
+                .append(fromPartyId)
+                .append(fromRole)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("partyId", partyId)
-                .append("role", role)
+                .append("partyId", fromPartyId)
+                .append("role", fromRole)
                 .toString();
     }
 }

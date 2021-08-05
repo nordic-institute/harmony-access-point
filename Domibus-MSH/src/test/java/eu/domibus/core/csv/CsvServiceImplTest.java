@@ -123,8 +123,8 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Next Attempt Timezone Id,Next Attempt Offset Seconds,Conversation Id,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
-        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
+        Assert.assertTrue(exportToCSV.contains("Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Next Attempt Timezone Id,Next Attempt Offset Seconds,Conversation Id,Message Type,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
+        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
     private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
@@ -322,7 +322,7 @@ public class CsvServiceImplTest {
         RoutingCriteria fromRoutingCriteria = new RoutingCriteria();
         fromRoutingCriteria.setName("from");
         fromRoutingCriteria.setExpression("from:from");
-        fromRoutingCriteria.setEntityId(1);
+        fromRoutingCriteria.setEntityId("1");
         messageFilterRO.setPersisted(true);
         messageFilterRO.setFrom(fromRoutingCriteria);
         messageFilterROList.add(messageFilterRO);

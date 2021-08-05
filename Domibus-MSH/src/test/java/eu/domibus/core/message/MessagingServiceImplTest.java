@@ -1,31 +1,26 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.usermessage.domain.PayloadInfo;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
-import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,9 +63,6 @@ public class MessagingServiceImplTest {
     CompressionService compressionService;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
     DomainTaskExecutor domainTaskExecutor;
 
     @Injectable
@@ -83,13 +75,13 @@ public class MessagingServiceImplTest {
     UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    PayloadPersistenceHelper payloadPersistenceHelper;
-
-    @Injectable
-    PartInfoDao partInfoDao;
+    PartInfoService partInfoService;
 
     @Injectable
     UserMessageDao userMessageDao;
+
+    @Injectable
+    SubmissionAS4Transformer transformer;
 
     @Test
     public void testStoreOutgoingPayload(@Injectable UserMessage userMessage,
@@ -149,45 +141,13 @@ public class MessagingServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testScheduleSourceMessagePayloads(@Injectable final UserMessage userMessage,
-                                                  @Injectable final Domain domain,
-                                                  @Injectable final PayloadInfo payloadInfo,
-                                                  @Injectable final PartInfo partInfo) {
-
-
-        List<PartInfo> partInfos = new ArrayList<>();
-        partInfos.add(partInfo);
-
-        new Expectations() {{
-//            messaging.getUserMessage().getPayloadInfo();
-//            result = payloadInfo;
-
-            payloadInfo.getPartInfo();
-            result = partInfos;
-
-            partInfo.getLength();
-            result = 20 * MessagingServiceImpl.BYTES_IN_MB;
-
-            domibusPropertyProvider.getLongProperty(MessagingServiceImpl.PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD);
-            result = 15;
-        }};
-
-        final boolean scheduleSourceMessagePayloads = messagingService.scheduleSourceMessagePayloads(userMessage, null);
-        Assert.assertTrue(scheduleSourceMessagePayloads);
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testStoreMessageCalls(@Injectable final UserMessage userMessage) {
         messagingService.storeMessagePayloads(userMessage, null,MSHRole.SENDING, legConfiguration, "backend");
-
     }
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testStoreOutgoingMessage(@Injectable Messaging messaging,
-                                         @Injectable UserMessage userMessage,
+    public void testStoreOutgoingMessage(@Injectable UserMessage userMessage,
                                          @Injectable PartInfo partInfo,
                                          @Injectable PayloadPersistence payloadPersistence) throws Exception {
 
@@ -198,11 +158,11 @@ public class MessagingServiceImplTest {
             payloadPersistenceProvider.getPayloadPersistence((PartInfo) any, userMessage);
             result = payloadPersistence;
 
-            messaging.getUserMessage();
-            result = userMessage;
-
             userMessage.getPartyInfo();
             result = partInfos;
+
+            partInfo.toString();
+            result = "partInfo";
         }};
 
         final String backend = "backend";

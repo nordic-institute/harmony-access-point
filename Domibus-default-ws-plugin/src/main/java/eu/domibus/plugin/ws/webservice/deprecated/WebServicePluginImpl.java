@@ -241,6 +241,7 @@ public class WebServicePluginImpl implements BackendInterface {
 
                 prop.setName(property.getName());
                 prop.setValue(property.getValue());
+                prop.setType(property.getType());
                 partProperties.getProperty().add(prop);
             }
         }

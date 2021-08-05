@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import io.qameta.allure.*;
 import ddsl.dcomponents.AlertArea;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DObject;
@@ -23,8 +24,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@Epic("Generic")
+@Feature("Functional")
 public class AllPgTest extends SeleniumTest {
-	
+
 	private static String blackListedString = "'\\u0022(){}[];,+=%&*#<>/\\\\";
 	private static String messageStatus = "ACKNOWLEDGED";
 	private static String apRole = "SENDING";
@@ -33,35 +36,34 @@ public class AllPgTest extends SeleniumTest {
 	private static String errCode = "EBMS_0001";
 
 	private ArrayList<PAGES> pagesToSkip = new ArrayList<PAGES>(Arrays.asList(new PAGES[]{PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE
-			, PAGES.TRUSTSTORES, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING}));
-
+			, PAGES.TRUSTSTORES_DOMIBUS, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING, PAGES.TRUSTSTORES_TLS}));
 
 
 	/*Check extension of downloaded file on all pages*/
+	/*  ALLDOM-1 - Verify extension of downloaded CSV file  */
+	@Description("ALLDOM-1 - Verify extension of downloaded CSV file")
+	@Link(name = "EDELIVERY-6360", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6360")
+	@AllureId("ALLDOM-1")
 	@Test(description = "ALLDOM-1", groups = {"multiTenancy", "singleTenancy"})
 	public void checkFileExtension() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		DomibusPage page = new DomibusPage(driver);
-		
+
 		for (PAGES ppage : PAGES.values()) {
 
-			if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.CONNECTION_MONITORING) || ppage.equals(PAGES.LOGGING)) {
-				//skipping these pages as they dont have download csv feature available
+			if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.CONNECTION_MONITORING) || ppage.equals(PAGES.LOGGING) || ppage.equals(PAGES.TRUSTSTORES_TLS)) {
+//skipping these pages as they dont have download csv feature available
 				continue;
 			}
 
 			page.getSidebar().goToPage(ppage);
 
-			log.info("Clean given directory");
-			FileUtils.cleanDirectory(new File(data.downloadFolderPath()));
-
+			Allure.step("Click on download csv button");
 			log.info("Click on download csv button");
 			String filename = page.pressSaveCsvAndSaveFile();
-			
-			log.info("Wait for download to complete");
-			page.wait.forXMillis(3000);
 
+			Allure.step("Check if file is downloaded at given location");
 			log.info("Check if file is downloaded at given location");
 			soft.assertTrue(filename != null, "File is downloaded successfully");
 			soft.assertTrue(StringUtils.endsWith(filename, ".csv"), "Downloaded file extension is csv");
@@ -70,6 +72,10 @@ public class AllPgTest extends SeleniumTest {
 	}
 
 	/*Check that forbidden characters are not accepted in input filters of all pages*/
+	/*  ALLDOM-5 - Verify that characters blacklisted using property domibususerInputblackList are not accepted in any input  */
+	@Description("ALLDOM-5 - Verify that characters blacklisted using property domibususerInputblackList are not accepted in any input")
+	@Link(name = "EDELIVERY-6154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6154")
+	@AllureId("ALLDOM-5")
 	@Test(description = "ALLDOM-5", groups = {"multiTenancy", "singleTenancy"})
 	public void checkFilterIpData() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -78,7 +84,7 @@ public class AllPgTest extends SeleniumTest {
 		for (PAGES pageName : PAGES.values()) {
 
 			if (pagesToSkip.contains(pageName)) {
-				//skipping these pages as they don't have filter area available to pass forbidden char
+//skipping these pages as they don't have filter area available to pass forbidden char
 				continue;
 			}
 
@@ -86,12 +92,15 @@ public class AllPgTest extends SeleniumTest {
 			searchSpecificPage(pageName, blackListedString);
 
 			if (pageName.equals(PAGES.PMODE_PARTIES)) {
+				Allure.step("No gui validation is present for Pmode parties page");
 				log.debug("No gui validation is present for Pmode parties page");
 				soft.assertFalse(new DObject(driver, new AlertArea(driver).alertMessage).isPresent(), "No alert message is shown");
-			} else if (pageName.equals(PAGES.ALERTS)){
+			} else if (pageName.equals(PAGES.ALERTS)) {
+				Allure.step("Search button is disabled in case of invalid data present in alert id");
 				log.debug("Search button is disabled in case of invalid data present in alert id");
-				soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(),"Search button is not enabled");
+				soft.assertFalse(new AlertPage(driver).filters().getSearchButton().isEnabled(), "Search button is not enabled");
 			} else {
+				Allure.step("Error alert message is shown in case of forbidden char");
 				log.debug("Error alert message is shown in case of forbidden char");
 				soft.assertTrue(pg.getAlertArea().isError(), "Error for forbidden char is shown");
 			}
@@ -100,6 +109,10 @@ public class AllPgTest extends SeleniumTest {
 	}
 
 	/* Verify that changing the selected domain resets all selected search filters and results */
+	/*  ALLDOM-3 - Verify that changing the selected domain resets all selected search filters and results  */
+	@Description("ALLDOM-3 - Verify that changing the selected domain resets all selected search filters and results")
+	@Link(name = "EDELIVERY-6369", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6369")
+	@AllureId("ALLDOM-3")
 	@Test(description = "ALLDOM-3", groups = {"multiTenancy"})
 	public void verifyResetSearch() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -140,12 +153,10 @@ public class AllPgTest extends SeleniumTest {
 				continue;
 //				soft.assertNotEquals(searchData, new AlertPage(driver).filters().getAlertIdInput().getText(), "Grid has diff data for both domain -6");
 
-			}
-			else if (PAGES.PROPERTIES.equals(pageName)) {
+			} else if (PAGES.PROPERTIES.equals(pageName)) {
 				soft.assertNotEquals(searchData, new PropertiesPage(driver).filters().getNameInput().getText(), "Grid has diff data for both domain -6");
-			}
-			else {
-				soft. fail("something went wrong");
+			} else {
+				soft.fail("something went wrong");
 			}
 		}
 		soft.assertAll();
@@ -156,6 +167,7 @@ public class AllPgTest extends SeleniumTest {
 
 		switch (page) {
 			case MESSAGES:
+				Allure.step("Enter user defined data in input fields of Message page");
 				log.debug("Enter user defined data in input fields of Message page");
 				MessagesPage mPage = new MessagesPage(driver);
 				mPage.getFilters().advancedFilterBy(inputData, messageStatus, inputData, inputData,
@@ -163,6 +175,7 @@ public class AllPgTest extends SeleniumTest {
 				return mPage.getFilters().getMessageIDInput().getText();
 
 			case ERROR_LOG:
+				Allure.step("Enter user defined data in input fields of Error log page");
 				log.debug("Enter user defined data in input fields of Error log page");
 				ErrorLogPage errorLogPage = new ErrorLogPage(driver);
 				errorLogPage.filters().advancedSearch(inputData, inputData, null, null, inputData,
@@ -170,12 +183,14 @@ public class AllPgTest extends SeleniumTest {
 				return errorLogPage.filters().getSignalMessIDInput().getText();
 
 			case PMODE_PARTIES:
+				Allure.step("Enter user defined data in input fields of Pmode parties page");
 				log.debug("Enter user defined data in input fields of Pmode parties page");
 				PModePartiesPage pModePartiesPage = new PModePartiesPage(driver);
 				pModePartiesPage.filters().filter(inputData, inputData, inputData, inputData, PartiesFilters.PROCESS_ROLE.IR);
 				return pModePartiesPage.filters().getPartyIDInput().getText();
 
 			case JMS_MONITORING:
+				Allure.step("Enter user defined data in input fields of JMS Monitoring page");
 				log.debug("Enter user defined data in input fields of JMS Monitoring page");
 				JMSMonitoringPage jmsMonitoringPage = new JMSMonitoringPage(driver);
 				jmsMonitoringPage.filters().getJmsSelectorInput().fill(inputData);
@@ -184,25 +199,28 @@ public class AllPgTest extends SeleniumTest {
 				return jmsMonitoringPage.filters().getJmsTypeInput().getText();
 
 			case PLUGIN_USERS:
+				Allure.step("Enter user defined data in fields of Plugin user page");
 				log.debug("Enter user defined data in fields of Plugin user page");
 				PluginUsersPage pluginUsersPage = new PluginUsersPage(driver);
 				pluginUsersPage.filters().search(null, null, inputData, inputData);
 				return pluginUsersPage.filters().getUsernameInput().getText();
 
 			case ALERTS:
+				Allure.step("Enter user defined data in input fields of Alert page");
 				log.debug("Enter user defined data in input fields of Alert page");
 				AlertPage aPage = new AlertPage(driver);
 				aPage.filters().getAdvancedLink().click();
 				aPage.filters().getAlertIdInput().fill(inputData);
 				return aPage.filters().alertIdValidation.getText();
 			case PROPERTIES:
+				Allure.step("Enter user defined data in input fields of PROPERTIES page");
 				log.debug("Enter user defined data in input fields of PROPERTIES page");
 				PropertiesPage pPage = new PropertiesPage(driver);
-				pPage.filters().filterBy(inputData, inputData,inputData,inputData,true);
+				pPage.filters().filterBy(inputData, inputData, inputData, inputData, true);
 				return pPage.filters().getNameInput().getText();
 		}
 		return null;
 	}
-	
-	
+
+
 }

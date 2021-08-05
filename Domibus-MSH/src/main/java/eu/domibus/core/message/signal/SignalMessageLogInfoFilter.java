@@ -16,32 +16,36 @@ import java.util.Map;
 @Service(value = "signalMessageLogInfoFilter")
 public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
 
-    private static final String CONVERSATION_ID = "conversationId";
-
     private static final String EMPTY_CONVERSATION_ID = "'',";
 
     @Override
     protected String getHQLKey(String originalColumn) {
-        if (StringUtils.equals(originalColumn, CONVERSATION_ID)) {
-            return "";
+        switch (originalColumn) {
+            case "conversationId":
+            case "notificationStatus":
+            case "failed":
+            case "restored":
+            case "sendAttempts":
+            case "sendAttemptsMax":
+            case "nextAttempt":
+                return "";
+            case "messageId":
+                return "signal.signalMessageId";
+            case "refToMessageId":
+                return "signal.refToMessageId";
+            default:
+                return super.getHQLKey(originalColumn);
         }
-        if (StringUtils.equals(originalColumn, "notificationStatus")) {
-            return "";
-        }
-        if (StringUtils.equals(originalColumn, "messageId")) {
-            return "signal.signalMessageId";
-        }
-        if (StringUtils.equals(originalColumn, "refToMessageId")) {
-            return "signal.refToMessageId";
-        }
-        return super.getHQLKey(originalColumn);
     }
 
     @Override
     protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
-        // these filters are not applicable to signal messages:
-        filters.put(CONVERSATION_ID, null);
-        filters.put("notificationStatus", null);
+        // remove filters not applicable to signal messages:
+        filters.keySet().forEach(key -> {
+            if (StringUtils.isBlank(getHQLKey(key))) {
+                filters.put(key, null);
+            }
+        });
 
         return super.filterQuery(query, column, asc, filters);
     }
@@ -75,8 +79,8 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                         (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom " +
                                         "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
-                        "left join message.partyInfo.from.partyId partyFrom " +
-                        "left join message.partyInfo.to.partyId partyTo " +
+                        "left join message.partyInfo.from.fromPartyId partyFrom " +
+                        "left join message.partyInfo.to.toPartyId partyTo " +
                         (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' " +
                                         "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
@@ -95,18 +99,17 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         mappings.put("messaging", Arrays.asList(messageTable));
         mappings.put("message", Arrays.asList(messageTable));
         mappings.put("signal", Arrays.asList(messageTable));
-        //  mappings.put("info", Arrays.asList(messageTable));
         mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
         mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
-        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
-        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.partyId partyTo "));
+        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.fromPartyId partyFrom "));
+        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.toPartyId partyTo "));
         return mappings;
     }
 
     @Override
     protected Map<String, List<String>> createWhereMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "1=1"; // signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId ";
+        String messageCriteria = "1=1";
         mappings.put("message", Arrays.asList(messageCriteria));
         mappings.put("signal", Arrays.asList(messageCriteria));
         mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));

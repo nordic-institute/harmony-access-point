@@ -8,16 +8,15 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -66,9 +65,6 @@ public class PullReceiptListener implements MessageListener {
     UserMessageHandlerService userMessageHandlerService;
 
     @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
     UserMessageService userMessageService;
 
     @Autowired
@@ -94,7 +90,7 @@ public class PullReceiptListener implements MessageListener {
             }
             domainContextProvider.setCurrentDomain(domainCode);
             final String refToMessageId = message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
-            final String pModeKey = message.getStringProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+            final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             LOG.info("Sending pull receipt for pulled UserMessage [{}], domain [{}].", refToMessageId, domainCode);
             LOG.debug("pModekey is [{}]", pModeKey);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
@@ -125,7 +121,7 @@ public class PullReceiptListener implements MessageListener {
                 return;
             }
 
-            if (userMessageHandlerService.checkSelfSending(pModeKey)) {
+            if (pModeProvider.checkSelfSending(pModeKey)) {
                 removeSelfSendingPrefix(receipt.getSignalMessage());
             }
             final Ebms3SignalMessage ebms3SignalMessage = convert(receipt.getSignalMessage(), receipt);
@@ -147,7 +143,7 @@ public class PullReceiptListener implements MessageListener {
         ebms3MessageInfo.setRefToMessageId(signalMessage.getRefToMessageId());
         result.setMessageInfo(ebms3MessageInfo);
         Ebms3Receipt receipt = new Ebms3Receipt();
-        receipt.getAny().add(receiptEntity.getRawXml());
+        receipt.getAny().add(new String(receiptEntity.getRawXml()));
         result.setReceipt(receipt);
         
         return result;

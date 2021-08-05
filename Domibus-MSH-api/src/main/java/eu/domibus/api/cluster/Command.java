@@ -25,7 +25,7 @@ public class Command {
     public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
     public static final String RELOAD_TLS_TRUSTSTORE = "RELOAD_TLS_TRUSTSTORE";
 
-    private int entityId;
+    private long entityId;
     protected String commandName;
     protected String serverName;
     protected Date creationTime;
@@ -56,11 +56,11 @@ public class Command {
         this.creationTime = creationTime;
     }
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(long entityId) {
         this.entityId = entityId;
     }
 

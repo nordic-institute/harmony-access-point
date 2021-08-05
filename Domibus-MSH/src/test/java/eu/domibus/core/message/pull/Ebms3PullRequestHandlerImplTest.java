@@ -22,7 +22,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.test.util.MessageTestUtility;
+import eu.domibus.test.common.MessageTestUtility;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.phase.PhaseInterceptorChain;

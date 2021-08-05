@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.jms.Queue;
 import java.util.Map;
 
-import static eu.domibus.common.JMSConstants.ALERT_MESSAGE_QUEUE;
+import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 import static eu.domibus.core.alerts.service.EventServiceImpl.MAX_DESCRIPTION_LENGTH;
 
 /**

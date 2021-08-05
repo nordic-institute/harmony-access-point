@@ -89,10 +89,12 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
         validateProperty(propertyName, propertyValue);
 
+        DomibusPropertyMetadata.Type propertyType = domibusPropertyProvider.getPropertyType(propertyName);
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", propertyValue, propertyName);
             domibusPropertyProvider.setProperty(propertyName, propertyValue);
-            LOG.info("Property [{}] updated.", propertyName);
+            LOG.info("Property [{}] updated to [{}]", propertyName,
+                    propertyType == DomibusPropertyMetadata.Type.PASSWORD ? "******" : propertyValue);
             return;
         }
         if (!authUtils.isSuperAdmin()) {
@@ -102,7 +104,8 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         domainTaskExecutor.submit(() -> {
             LOG.debug("Setting the value [{}] for the global/super property [{}].", propertyValue, propertyName);
             domibusPropertyProvider.setProperty(propertyName, propertyValue);
-            LOG.info("Property [{}] updated.", propertyName);
+            LOG.info("Property [{}] updated to [{}]", propertyName,
+                    propertyType == DomibusPropertyMetadata.Type.PASSWORD ? "******" : propertyValue);
         });
     }
 

@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>domibus-MSH-tomcat</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>Domibus MSH Tomcat</name>
 
     <properties>
@@ -31,16 +31,6 @@
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-MSH</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-angular</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-services-delegate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -78,6 +68,7 @@
             <artifactId>domibus-logging</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <!-- End Domibus modules -->
 
         <!-- Spring -->
@@ -288,25 +279,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-ws-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-jms-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-fs-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test</artifactId>
+            <artifactId>domibus-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -326,7 +299,12 @@
             <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ext-services-delegate</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- End Test dependencies -->
     </dependencies>
 
@@ -347,6 +325,11 @@
             <testResource>
                 <directory>src/main/conf/domibus/internal</directory>
                 <targetPath>internal</targetPath>
+            </testResource>
+            <testResource>
+                <directory>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</directory>
+                <targetPath>config/database</targetPath>
+                <filtering>true</filtering>
             </testResource>
         </testResources>
         <plugins>
@@ -424,11 +407,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
+              <!--  <configuration>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</additionalClasspathElement>
                     </additionalClasspathElements>
-                </configuration>
+                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -461,10 +444,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -22,7 +22,6 @@ public interface AuthCoreMapper {
     User userResponseROToUser(UserResponseRO user);
 
     @WithoutAuditAndEntityId
-    @Mapping(source = "authorities", target = "roles")
     @Mapping(ignore = true, target = "attemptCount")
     @Mapping(ignore = true, target = "suspensionDate")
     @Mapping(ignore = true, target = "passwordChangeDate")
@@ -41,11 +40,6 @@ public interface AuthCoreMapper {
         userUi.setPassword(user.getPassword());
         userUi.setDeleted(user.isDeleted());
 
-        if (userUi.getRoles() != null) {
-            userUi.clearRoles();
-            user.getAuthorities().forEach(s -> userUi.addRole(userRoleToAuthority(s)));
-        }
-
         return userUi;
     }
 
@@ -55,11 +49,7 @@ public interface AuthCoreMapper {
     @Mapping(ignore = true, target = "domain")
     @Mapping(ignore = true, target = "expirationDate")
     User userSecurityToUserApi(eu.domibus.core.user.ui.User user);
-
-    default UserRole userRoleToAuthority(String s) {
-        return new UserRole(s);
-    }
-
+    
     default String userRoleToAuthority(UserRole userRole) {
         return userRole.getName();
     }

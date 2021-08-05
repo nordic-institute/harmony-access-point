@@ -28,9 +28,8 @@ public class LoginPage extends DomibusPage {
 	
 	public LoginPage(WebDriver driver) {
 		super(driver);
-		
+
 		log.debug(".... init");
-		
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 	

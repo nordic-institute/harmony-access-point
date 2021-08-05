@@ -1,7 +1,7 @@
 package eu.domibus.plugin.jms.configuration;
 
 import com.codahale.metrics.MetricRegistry;
-import eu.domibus.common.JMSConstants;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
@@ -10,10 +10,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.jms.JMSPluginImpl;
-import eu.domibus.plugin.jms.JMSPluginQueueService;
 import eu.domibus.plugin.jms.JMSMessageConstants;
 import eu.domibus.plugin.jms.JMSMessageTransformer;
+import eu.domibus.plugin.jms.JMSPluginImpl;
+import eu.domibus.plugin.jms.JMSPluginQueueService;
 import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -81,7 +81,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("backendJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                                                                  Optional<JndiDestinationResolver> jndiDestinationResolver) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
@@ -101,7 +101,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

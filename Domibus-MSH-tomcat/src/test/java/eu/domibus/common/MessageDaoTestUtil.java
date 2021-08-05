@@ -4,6 +4,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,7 @@ public class MessageDaoTestUtil {
         signalMessageLogDao.create(signalMessageLog);
     }
 
-    public void createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
@@ -103,8 +104,13 @@ public class MessageDaoTestUtil {
         partyInfo.setTo(createTo(RESPONDER_ROLE, "domibus-red"));
         userMessage.setPartyInfo(partyInfo);
 
-        userMessage.setService(serviceDao.findOrCreateService("bdx:noprocess", "tc1"));
-        userMessage.setAction(actionDao.findOrCreateAction("TC1Leg1"));
+        final String serviceValue = isTestMessage ? "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service": "bdx:noprocess";
+        final String serviceType = isTestMessage ? null : "tc1";
+        final String actionValue = isTestMessage ? "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test" : "TC1Leg1";
+        userMessage.setService(serviceDao.findOrCreateService(serviceValue, serviceType));
+        userMessage.setAction(actionDao.findOrCreateAction(actionValue));
+
+        userMessage.setTestMessage(isTestMessage);
 
         userMessageDao.create(userMessage);
 
@@ -116,19 +122,48 @@ public class MessageDaoTestUtil {
 
         userMessageLog.setUserMessage(userMessage);
         userMessageLogDao.create(userMessageLog);
+
+        return userMessageLog;
+    }
+
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false);
+    }
+
+    public UserMessageLog createUserMessageLog(String msgId, Date received) {
+        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false);
+    }
+
+    public UserMessageLog createTestMessage(String msgId) {
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true);
+
+        SignalMessage signal = new SignalMessage();
+        signal.setUserMessage(userMessageLog.getUserMessage());
+        signal.setSignalMessageId("signal-" + msgId);
+        signalMessageDao.create(signal);
+
+        SignalMessageLog signalMessageLog = new SignalMessageLog();
+        signalMessageLog.setReceived(new Date());
+        signalMessageLog.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
+        signalMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.RECEIVED));
+
+        signalMessageLog.setSignalMessage(signal);
+        signalMessageLogDao.create(signalMessageLog);
+
+        return userMessageLog;
     }
 
     private To createTo(String role, String partyId) {
         To to = new To();
-        to.setRole(partyRoleDao.findOrCreateRole(role));
-        to.setPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
+        to.setToRole(partyRoleDao.findOrCreateRole(role));
+        to.setToPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
         return to;
     }
 
     private From createFrom(String role, String partyId) {
         From from = new From();
-        from.setRole(partyRoleDao.findOrCreateRole(role));
-        from.setPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
+        from.setFromRole(partyRoleDao.findOrCreateRole(role));
+        from.setFromPartyId(partyIdDao.findOrCreateParty(partyId, PARTY_ID_TYPE));
         return from;
     }
 

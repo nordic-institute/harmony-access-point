@@ -1,6 +1,8 @@
 package eu.domibus.core.message.acknowledge;
 
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
+import eu.domibus.api.model.UserMessage;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Ignore;
@@ -22,15 +24,15 @@ public class MessageAcknowledgeDefaultConverterTest {
     MessageAcknowledgeDefaultConverter messageAcknowledgeDefaultConverter;
 
     @Test
-    public void testCreate() {
+    public void testCreate(@Injectable UserMessage userMessage) {
         String user = "baciuco";
         String messageId = "1";
         Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
         String from = "C3";
         String to = "C4";
 
-        final MessageAcknowledgementEntity messageAcknowledgementEntity = messageAcknowledgeDefaultConverter.create(user, messageId, acknowledgeTimestamp, from, to);
-        assertEquals(messageAcknowledgementEntity.getCreateUser(), user);
+        final MessageAcknowledgementEntity messageAcknowledgementEntity = messageAcknowledgeDefaultConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
+        assertEquals(messageAcknowledgementEntity.getCreatedBy(), user);
         assertEquals(messageAcknowledgementEntity.getAcknowledgeDate(), acknowledgeTimestamp);
         assertEquals(messageAcknowledgementEntity.getFrom(), from);
         assertEquals(messageAcknowledgementEntity.getTo(), to);
@@ -38,17 +40,17 @@ public class MessageAcknowledgeDefaultConverterTest {
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testConvert()  {
+    public void testConvert(@Injectable UserMessage userMessage)  {
         String user = "baciuco";
         String messageId = "1";
         Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
         String from = "C3";
         String to = "C4";
 
-        final MessageAcknowledgementEntity messageAcknowledgementEntity = messageAcknowledgeDefaultConverter.create(user, messageId, acknowledgeTimestamp, from, to);
+        final MessageAcknowledgementEntity messageAcknowledgementEntity = messageAcknowledgeDefaultConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
 
         final MessageAcknowledgement converted = messageAcknowledgeDefaultConverter.convert(messageAcknowledgementEntity);
-        assertEquals(messageAcknowledgementEntity.getCreateUser(), converted.getCreateUser());
+        assertEquals(messageAcknowledgementEntity.getCreatedBy(), converted.getCreateUser());
         assertEquals(messageAcknowledgementEntity.getAcknowledgeDate(), converted.getAcknowledgeDate());
         assertEquals(messageAcknowledgementEntity.getFrom(), converted.getFrom());
         assertEquals(messageAcknowledgementEntity.getTo(), converted.getTo());

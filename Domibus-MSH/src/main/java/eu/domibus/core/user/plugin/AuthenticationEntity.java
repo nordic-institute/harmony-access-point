@@ -71,6 +71,7 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
      * It returns the Name property or certificateId, depending on the identification type
      */
     @Override
+    @Transient
     public String getUniqueIdentifier() {
         if (isBasic()) {
             return getUserName();
@@ -107,14 +108,17 @@ public class AuthenticationEntity extends UserEntityBaseImpl implements UserEnti
         return Type.PLUGIN;
     }
 
+    @Transient
     public boolean isBasic() {
         return StringUtils.isNotBlank(getUserName());
     }
 
+    @Transient
     public boolean isSuspended() {
         return !isActive() && getSuspensionDate() != null;
     }
 
+    @Transient
     public AuthType getAuthenticationType() {
         return isBasic() ? AuthType.BASIC : AuthType.CERTIFICATE;
     }

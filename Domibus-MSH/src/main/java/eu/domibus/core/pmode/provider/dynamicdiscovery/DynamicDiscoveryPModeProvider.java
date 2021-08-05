@@ -11,8 +11,9 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.MshRoleDao;
-import eu.domibus.core.message.PartyRoleDao;
+import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
+import eu.domibus.core.message.dictionary.PartyRoleDao;
+import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -77,7 +78,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     protected CertificateService certificateService;
 
     @Autowired
-    protected PartyRoleDao partyRoleDao;
+    protected PartyRoleDictionaryService partyRoleDictionaryService;
+
+    @Autowired
+    protected PartyIdDictionaryService partyIdDictionaryService;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -200,10 +204,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getTo() != null &&
-                userMessage.getPartyInfo().getTo().getPartyId() != null &&
-                userMessage.getPartyInfo().getTo().getPartyId() != null
+                userMessage.getPartyInfo().getTo().getToPartyId() != null &&
+                userMessage.getPartyInfo().getTo().getToPartyId() != null
                 ) {
-            to = userMessage.getPartyInfo().getTo().getPartyId();
+            to = userMessage.getPartyInfo().getTo().getToPartyId();
         }
         if (to == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid To party identifier", messageId, null);
@@ -218,9 +222,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         if(userMessage != null &&
                 userMessage.getPartyInfo() != null &&
                 userMessage.getPartyInfo().getFrom() != null &&
-                userMessage.getPartyInfo().getFrom().getPartyId() != null
+                userMessage.getPartyInfo().getFrom().getFromPartyId() != null
                 ) {
-            from = userMessage.getPartyInfo().getFrom().getPartyId();
+            from = userMessage.getPartyInfo().getFrom().getFromPartyId();
         }
         if (from == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Invalid From party identifier", messageId, null);
@@ -356,21 +360,22 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Error while extracting CommonName from certificate", userMessage.getMessageId(), e);
         }
         //set toPartyId in UserMessage
-        final PartyId receiverParty = new PartyId();
         String type = dynamicDiscoveryService.getPartyIdType();
         LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", cn, type);
-        receiverParty.setValue(cn);
+
         // double check not to add empty value as a type
         // because it is invalid by the oasis messaging  xsd
-        if (!StringUtils.isEmpty(type)) {
-            receiverParty.setType(type);
+        if (StringUtils.isEmpty(type)) {
+            type = null;
         }
 
-        userMessage.getPartyInfo().getTo().setPartyId(receiverParty);
-        if(userMessage.getPartyInfo().getTo().getRole() == null) {
+        final PartyId receiverParty = partyIdDictionaryService.findOrCreateParty(cn, type);
+
+        userMessage.getPartyInfo().getTo().setToPartyId(receiverParty);
+        if(userMessage.getPartyInfo().getTo().getToRole() == null) {
             String responderRoleValue = dynamicDiscoveryService.getResponderRole();
-            PartyRole partyRole = partyRoleDao.findOrCreateRole(responderRoleValue);
-            userMessage.getPartyInfo().getTo().setRole(partyRole);
+            PartyRole partyRole = partyRoleDictionaryService.findOrCreateRole(responderRoleValue);
+            userMessage.getPartyInfo().getTo().setToRole(partyRole);
         }
 
         LOG.debug("Add public certificate to the truststore");

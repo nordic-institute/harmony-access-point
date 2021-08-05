@@ -7,7 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-
 import java.util.HashMap;
 
 public class TestMessDetailsModal extends DComponent {
@@ -80,6 +79,30 @@ public class TestMessDetailsModal extends DComponent {
 		info.put("id", weToDInput(fromMessageId).getText());
 		
 		return info;
+	}
+
+	public Boolean isMessInfoPresent(String fieldName){
+
+		if(fieldName.equalsIgnoreCase("send")) {
+
+			return getSentMessInfo().get("party").isEmpty()
+					&& getSentMessInfo().get("url").isEmpty()
+					&& getSentMessInfo().get("time").isEmpty()
+					&& getSentMessInfo().get("id").isEmpty();
+		}
+		else if(fieldName.equalsIgnoreCase("receive"))
+		{
+			return getRespMessInfo().get("party").isEmpty()
+					&& getRespMessInfo().get("url").isEmpty()
+					&& getRespMessInfo().get("time").isEmpty()
+					&& getRespMessInfo().get("id").isEmpty();
+		}
+
+		return null ;
+
+
+
+
 	}
 	
 	

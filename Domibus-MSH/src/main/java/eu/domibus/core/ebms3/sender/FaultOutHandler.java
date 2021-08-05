@@ -8,9 +8,8 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.util.Collections;
+import java.util.MissingResourceException;
 import java.util.Set;
 
 /**
@@ -62,8 +62,17 @@ public class FaultOutHandler extends AbstractFaultHandler {
      */
     @Override
     public boolean handleFault(final SOAPMessageContext context) {
+        if (context == null) {
+            LOG.error("Context is null and shouldn't be");
+            throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
+        }
+
         final SOAPMessage soapMessage = context.getMessage();
-        final Ebms3Messaging ebms3Messaging = extractMessaging(soapMessage);
+        final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessage);
+        if(ebms3Messaging == null) {
+            LOG.trace("Messaging header is null, error log not created");
+            return true;
+        }
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
         final String messageId = signalMessageResult.getSignalMessage().getSignalMessageId();
 

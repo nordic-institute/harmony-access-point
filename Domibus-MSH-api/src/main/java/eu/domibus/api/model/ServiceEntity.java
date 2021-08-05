@@ -12,9 +12,14 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_SERVICE")
-@NamedQuery(name = "Service.findByValueAndType", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type=:TYPE")
+@NamedQueries({
+        @NamedQuery(name = "Service.findByValueAndType", hints = {
+                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type=:TYPE"),
+        @NamedQuery(name = "Service.findByValue", hints = {
+                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type is null")
+})
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ServiceEntity extends AbstractBaseEntity {
 

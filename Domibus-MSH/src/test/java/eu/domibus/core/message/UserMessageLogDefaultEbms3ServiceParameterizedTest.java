@@ -2,6 +2,8 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -76,7 +78,7 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
 
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(messageId);
-        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, service, action, null, null);
+        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
@@ -89,10 +91,7 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
             Assert.assertEquals(NotificationStatus.NOTIFIED, userMessageLog.getNotificationStatus());
             Assert.assertEquals(MSHRole.SENDING, userMessageLog.getMshRole());
             Assert.assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
-//            Assert.assertEquals(mpc, userMessageLog.getMpc());
             Assert.assertEquals(backendName, userMessageLog.getBackend());
-//            Assert.assertEquals(endpoint, userMessageLog.getEndpoint());
-//            Assert.assertEquals(userMessageLogDefaultService.checkTestMessage(service,action)? MessageSubtype.TEST : null, userMessageLog.getMessageSubtype());
         }};
     }
 }

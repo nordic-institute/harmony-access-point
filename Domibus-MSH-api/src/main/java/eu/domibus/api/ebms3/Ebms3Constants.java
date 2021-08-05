@@ -4,7 +4,9 @@ package eu.domibus.api.ebms3;
  * @author Cosmin Baciu
  * @since 3.3
  */
-public class Ebms3Constants {
+public final class Ebms3Constants {
+
+    private Ebms3Constants(){}
 
     public static final String TEST_ACTION = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test";
     public static final String TEST_SERVICE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service";

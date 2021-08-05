@@ -78,15 +78,15 @@ public class PropertyProviderHelper {
         return filteredPropertyNames;
     }
 
-    // duplicated part of the code from context provider so that we can brake the circular dependency
+    // duplicated part of the code from context provider so that we can break the circular dependency
     protected String getCurrentDomainCode() {
         if (!isMultiTenantAware()) {
-            LOG.debug("No multi-tenancy aware: returning the default domain");
+            LOG.trace("No multi-tenancy aware: returning the default domain");
             return DomainService.DEFAULT_DOMAIN.getCode();
         }
 
         String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
-        LOG.debug("Multi-tenancy aware: returning the domain [{}]", domainCode);
+        LOG.trace("Multi-tenancy aware: returning the domain [{}]", domainCode);
 
         return domainCode;
     }
@@ -97,7 +97,7 @@ public class PropertyProviderHelper {
         return (domainCode == null) ? null : new Domain(domainCode, domainCode);
     }
 
-    // duplicated part of the code from context provider so that we can brake the circular dependency
+    // duplicated part of the code from context provider so that we can break the circular dependency
     protected boolean isMultiTenantAware() {
         if (isMultiTenantAware == null) {
             synchronized (isMultiTenantAwareLock) {

@@ -7,37 +7,36 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
+import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
-import eu.domibus.messaging.*;
+import eu.domibus.messaging.MessageConstants;
+import eu.domibus.messaging.MessageNotFoundException;
+import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
@@ -52,7 +51,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -71,8 +69,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
     private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
-    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
-    private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
 
@@ -83,25 +79,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected UserMessageDefaultService userMessageService;
 
     @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
     protected SplitAndJoinService splitAndJoinService;
 
     @Autowired
     protected PModeDefaultService pModeDefaultService;
 
     @Autowired
-    protected UserMessageServiceHelper userMessageServiceHelper;
-
-    @Autowired
-    protected MessagePropertyValidator messagePropertyValidator;
-
-    @Autowired
     private SubmissionAS4Transformer transformer;
-
-    @Autowired
-    private UserMessageDao userMessageDao;
 
     @Autowired
     private MessagingService messagingService;
@@ -110,28 +94,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private SignalMessageDao signalMessageDao;
 
     @Autowired
-    private UserMessageLogDao userMessageLogDao;
-
-    @Autowired
     private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
     private PayloadFileStorageProvider storageProvider;
 
     @Autowired
-    private ErrorLogDao errorLogDao;
-
-    @Autowired
     private PModeProvider pModeProvider;
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;
-
-    @Autowired
-    private PayloadProfileValidator payloadProfileValidator;
-
-    @Autowired
-    private PropertyProfileValidator propertyProfileValidator;
 
     @Autowired
     private BackendMessageValidator backendMessageValidator;
@@ -143,40 +115,39 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private PullMessageService pullMessageService;
 
     @Autowired
-    protected PartInfoDao partInfoDao;
-
-    @Autowired
     protected MessageFragmentDao messageFragmentDao;
 
     @Autowired
-    protected MpcDao mpcDao;
+    protected MpcDictionaryService mpcDictionaryService;
 
     @Autowired
-    protected MshRoleDao mshRoleDao;
+    protected ErrorService errorService;
+
+    @Autowired
+    protected PartInfoService partInfoService;
+
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog messageLog = userMessageLogService.findByMessageId(messageId);
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", messageId);
-            List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(messageLog.getEntityId());
-            return transformer.transformFromMessaging(userMessage, partInfoList);
+            return messagingService.getSubmission(userMessage);
         }
 
-        checkMessageAuthorization(userMessage, messageLog);
+        checkMessageAuthorization(userMessage);
 
-        List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
         boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage, partInfos);
         if (shouldDeleteDownloadedMessage) {
-            partInfoDao.clearPayloadData(userMessage.getEntityId());
+            partInfoService.clearPayloadData(userMessage.getEntityId());
 
             // Sets the message log status to DELETED
             userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
@@ -207,19 +178,14 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
         LOG.info("Browsing message with id [{}]", messageId);
 
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
-        }
+        UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-        checkMessageAuthorization(userMessage, userMessageLog);
+        checkMessageAuthorization(userMessage);
+        return messagingService.getSubmission(userMessage);
 
-        List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
-        return transformer.transformFromMessaging(userMessage, partInfos);
     }
 
-    protected void checkMessageAuthorization(UserMessage userMessage, UserMessageLog userMessageLog) throws MessageNotFoundException {
+    protected void checkMessageAuthorization(UserMessage userMessage) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
         }
@@ -269,7 +235,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
 
         // check if user can get the status/errors of that message (only admin or original users are authorized to do that)
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessage userMessage = userMessageService.findByMessageId(messageId);
         String originalUser = authUtils.getOriginalUserFromSecurityContext();
         List<String> recipients = new ArrayList<>();
         recipients.add(MessageConstants.ORIGINAL_SENDER);
@@ -280,27 +246,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+        return userMessageLogService.getMessageStatus(messageId);
     }
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
-        return errorsForMessage.stream().map(errorLogEntry -> convert(errorLogEntry)).collect(Collectors.toList());
-    }
-
-    protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
-        ErrorResultImpl result = new ErrorResultImpl();
-        result.setErrorCode(errorLogEntry.getErrorCode());
-        result.setErrorDetail(errorLogEntry.getErrorDetail());
-        result.setMessageInErrorId(errorLogEntry.getMessageInErrorId());
-        result.setMshRole(eu.domibus.common.MSHRole.valueOf(errorLogEntry.getMshRole().name()));
-        result.setNotified(errorLogEntry.getNotified());
-        result.setTimestamp(errorLogEntry.getTimestamp());
-
-        return result;
+        return errorService.getErrors(messageId);
     }
 
     //TODO refactor this method in order to reuse existing code from the method submit
@@ -322,9 +274,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         try {
             // handle if the messageId is unique.
-            if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
-                throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
-            }
+            backendMessageValidator.validateMessageIsUnique(messageId);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
@@ -349,25 +299,22 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
             MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
-                    backendName, to.getEndpoint(), userMessage.getService().getValue(), userMessage.getActionValue(), null, true);
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                    backendName);
             prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
 
-
-            uiReplicationSignalService.userMessageSubmitted(messageId);
+            userMessageLogService.replicationUserMessageSubmitted(messageId);
 
             LOG.info("Message fragment submitted");
             return messageId;
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-            errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
+            errorService.createErrorLog(ebms3Ex);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-            errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
+            errorService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage());
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }
@@ -387,9 +334,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
-    public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
-        if (StringUtils.isNotEmpty(messageData.getMessageId())) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
+    public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
+        if (StringUtils.isNotEmpty(submission.getMessageId())) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
@@ -400,21 +347,23 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         String displayUser = (originalUser == null) ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
-        UserMessage userMessage = transformer.transformFromSubmission(messageData);
-        List<PartInfo> partInfos = transformer.generatePartInfoList(messageData);
-        if (userMessage == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
-            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
-        }
         String messageId = null;
         try {
+            backendMessageValidator.validateSubmissionSending(submission);
+
+            UserMessage userMessage = transformer.transformFromSubmission(submission);
+
+            if (userMessage == null) {
+                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
+                throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
+            }
+            List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
+
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
             validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-
-            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
@@ -440,9 +389,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 fillMpc(userMessage, legConfiguration, to);
             }
 
-            payloadProfileValidator.validate(userMessage, partInfos, pModeKey);
-            propertyProfileValidator.validate(userMessage, pModeKey);
-            messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
+            backendMessageValidator.validatePayloadProfile(userMessage, partInfos, pModeKey);
+            backendMessageValidator.validatePropertyProfile(userMessage, pModeKey);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSourceMessage(splitAndJoin);
@@ -466,7 +414,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
                     //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
                     //to internal storage folder so we will not delete them
-                    partInfoDao.clearFileSystemPayloads(partInfos);
+                    partInfoService.clearFileSystemPayloads(partInfos);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), messageId, e);
@@ -480,27 +428,29 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
             final boolean sourceMessage = userMessage.isSourceMessage();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpcValue(),
-                    backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                    backendName);
 
             if (!sourceMessage) {
                 prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
             }
 
-            uiReplicationSignalService.userMessageSubmitted(messageId);
+            userMessageLogService.replicationUserMessageSubmitted(messageId);
             LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-            errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
+            errorService.createErrorLog(ebms3Ex);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-            errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
+            errorService.createErrorLog(messageId, ErrorCode.EBMS_0004, p.getMessage());
             throw new PModeMismatchException(p.getMessage(), p);
+        } catch (ConfigurationException ex) {
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
+            errorService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage());
+            throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }
 
@@ -552,7 +502,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDao.findOrCreateMpc(mpc);
+        MpcEntity mpcObject = mpcDictionaryService.findOrCreateMpc(mpc);
         userMessage.setMpc(mpcObject);
     }
 

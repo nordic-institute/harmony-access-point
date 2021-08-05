@@ -16,6 +16,7 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -139,6 +140,9 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
 
     @Injectable
     MessageStatusDao messageStatusDao;
+
+    @Injectable
+    ReceiptDao receiptDao;
 
     @Test
     public void testGenerateReceipt_WithReliabilityAndResponseRequired(@Injectable final Source messageToReceiptTransform,

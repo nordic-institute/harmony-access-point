@@ -148,13 +148,11 @@ public class Pagination extends DComponent {
 		log.debug("skip to FIRST page of results");
 		
 		try {
-//			weToDLink(pgLinks.get(0)).click();
 			weToDLink(skipFirstLnk).click();
 			wait.forAttributeToContain(pgLinks.get(0), "class", "active");
 		} catch (Exception e) {
 		}
 		PageFactory.initElements(driver, this);
-		
 	}
 	
 	public void skipToLastPage() throws Exception {

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.jms.configuration;
 
-import eu.domibus.common.JMSConstants;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.TomcatCondition;
@@ -36,7 +36,7 @@ public class JMSPluginTomcatConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory) {
+    public JmsTemplate mshToBackendTemplate(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
         jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

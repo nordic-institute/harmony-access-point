@@ -52,7 +52,9 @@ public class Ebms3Converter {
         final SignalMessageError signalMessageError = convertSignalMessageError(ebms3Messaging);
         result.setSignalMessageError(signalMessageError);
         final ReceiptEntity receiptEntity = ebms3SignalMapper.ebms3ReceiptToEntity(ebms3Messaging.getSignalMessage());
-        receiptEntity.setSignalMessage(signalMessage);
+        if (receiptEntity != null) {
+            receiptEntity.setSignalMessage(signalMessage);
+        }
         result.setReceiptEntity(receiptEntity);
         final PullRequest pullRequest = ebms3SignalMapper.ebms3PullRequestToEntity(ebms3Messaging.getSignalMessage());
         result.setPullRequest(pullRequest);

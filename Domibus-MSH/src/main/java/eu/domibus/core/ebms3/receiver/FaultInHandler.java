@@ -1,20 +1,19 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorService;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -150,7 +149,10 @@ public class FaultInHandler extends AbstractFaultHandler {
         context.setMessage(soapMessageWithEbMS3Error);
 
         final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessageWithEbMS3Error);
-
+        if(ebms3Messaging == null) {
+            LOG.trace("Messaging header is null, error log not created");
+            return;
+        }
         final String senderParty = LOG.getMDC(DomibusLogger.MDC_FROM);
         final String receiverParty = LOG.getMDC(DomibusLogger.MDC_TO);
         final String service = LOG.getMDC(DomibusLogger.MDC_SERVICE);

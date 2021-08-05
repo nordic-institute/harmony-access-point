@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import eu.domibus.ext.domain.MessageAttemptDTO;
@@ -33,14 +34,18 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     protected UserMessageSecurityService userMessageSecurityService;
 
+    protected UserMessageRestoreService restoreService;
+
     public MessageMonitoringServiceDelegate(UserMessageService userMessageService,
                                             MessageExtMapper messageExtMapper,
                                             MessageAttemptService messageAttemptService,
-                                            UserMessageSecurityService userMessageSecurityService) {
+                                            UserMessageSecurityService userMessageSecurityService,
+                                            UserMessageRestoreService restoreService) {
         this.userMessageService = userMessageService;
         this.messageExtMapper = messageExtMapper;
         this.messageAttemptService = messageAttemptService;
         this.userMessageSecurityService = userMessageSecurityService;
+        this.restoreService = restoreService;
     }
 
     @Override
@@ -66,7 +71,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void restoreFailedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
-        userMessageService.restoreFailedMessage(messageId);
+        restoreService.restoreFailedMessage(messageId);
     }
 
     @Override

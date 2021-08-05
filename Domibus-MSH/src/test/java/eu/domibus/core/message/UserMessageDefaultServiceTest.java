@@ -9,7 +9,6 @@ import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
-import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.MessageInfo;
@@ -24,7 +23,10 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.dictionary.MessagePropertyDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -48,12 +50,11 @@ import org.junit.runner.RunWith;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.persistence.EntityManager;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author Cosmin Baciu, Soumya
@@ -63,7 +64,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JMockit.class)
 public class UserMessageDefaultServiceTest {
 
-  private static final long SYSTEM_DATE = new Date().getTime();
+    private static final long SYSTEM_DATE = new Date().getTime();
     public static final String MESSAGE_ID = "1000";
 
     @Tested
@@ -104,6 +105,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     protected RoutingService routingService;
+
+    @Injectable
+    protected PartInfoService partInfoService;
 
     @Injectable
     private JMSManager jmsManager;
@@ -192,11 +196,22 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     private ReprogrammableService reprogrammableService;
 
+    @Injectable
+    private SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
+
+    @Injectable
+    private UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+
+    @Injectable
+    private ReceiptDao receiptDao;
+
+    @Injectable
+    UserMessageDefaultRestoreService userMessageDefaultRestoreService;
+
     @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
     EntityManager em;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
                                            @Injectable MessageGroupEntity messageGroupEntity,
                                            @Injectable UserMessage userMessageFragment) throws MessagingProcessingException {
@@ -213,7 +228,6 @@ public class UserMessageDefaultServiceTest {
 
         new Verifications() {{
             userMessageFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, 1L, fragment1);
-//            databaseMessageHandler.submitMessageFragment(sourceMessage, userMessageFragment, backendName);
         }};
     }
 
@@ -322,161 +336,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.getFailedMessageElapsedTime(messageId);
     }
 
-    @Test(expected = UserMessageException.class)
-    public void testRestoreMessageWhenMessageIsDeleted(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getFailedMessage(messageId);
-            result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.DELETED;
-
-        }};
-
-        userMessageDefaultService.restoreFailedMessage(messageId);
-    }
-
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testRestorePushedMessage(@Injectable final UserMessageLog userMessageLog,
-                                         @Injectable final UserMessage userMessage) {
-        final String messageId = "1";
-        final Integer newMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getFailedMessage(messageId);
-            result = userMessageLog;
-
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
-            result = MessageStatus.SEND_ENQUEUED;
-
-            userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-            result = newMaxAttempts;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.SEND_ENQUEUED;
-
-        }};
-
-        userMessageDefaultService.restoreFailedMessage(messageId);
-
-        new FullVerifications(userMessageDefaultService) {{
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
-
-            MessageStatusEntity messageStatus = new MessageStatusEntity();
-            messageStatus.setMessageStatus(MessageStatus.SEND_ENQUEUED);
-            userMessageLog.setMessageStatus(messageStatus);
-            userMessageLog.setRestored(withAny(new Date()));
-            userMessageLog.setFailed(null);
-            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
-            userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-            userMessageLogDao.update(userMessageLog);
-            uiReplicationSignalService.messageChange(anyString);
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
-
-        }};
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testRestorePUlledMessage(@Injectable final UserMessageLog userMessageLog,
-                                         @Injectable final UserMessage userMessage) {
-        final String messageId = "1";
-        final Integer newMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getFailedMessage(messageId);
-            result = userMessageLog;
-
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
-            result = MessageStatus.READY_TO_PULL;
-
-            userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-            result = newMaxAttempts;
-
-        }};
-
-        userMessageDefaultService.restoreFailedMessage(messageId);
-
-        new Verifications() {{
-//            userMessageLog.setMessageStatus(MessageStatus.READY_TO_PULL);
-//            times = 1;
-            userMessageLog.setRestored(withAny(new Date()));
-            times = 1;
-            userMessageLog.setFailed(null);
-            times = 1;
-            reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
-            times = 1;
-            userMessageLog.setSendAttemptsMax(newMaxAttempts);
-            times = 1;
-
-            userMessageLogDao.update(userMessageLog);
-            times = 1;
-
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
-            times = 0;
-
-            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            pModeService.getLegConfiguration(messageId);
-            result = null;
-
-        }};
-
-        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-        assertEquals(1, (int) maxAttemptsConfiguration);
-
-    }
-
-    @Test
-    public void testMaxAttemptsConfiguration(@Injectable final LegConfiguration legConfiguration) {
-        final String messageId = "1";
-        final Integer pModeMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            pModeService.getLegConfiguration(messageId);
-            result = legConfiguration;
-
-            pModeServiceHelper.getMaxAttempts(legConfiguration);
-            result = pModeMaxAttempts;
-
-        }};
-
-        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-        Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
-    }
-
-    @Test
-    public void testComputeMaxAttempts(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final Integer pModeMaxAttempts = 5;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-            result = pModeMaxAttempts;
-
-            userMessageLog.getSendAttemptsMax();
-            result = pModeMaxAttempts;
-
-        }};
-
-        final Integer maxAttemptsConfiguration = userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-        assertEquals(11, (int) maxAttemptsConfiguration);
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testScheduleSending(@Injectable final JmsMessage jmsMessage,
                                     @Mocked DispatchMessageCreator dispatchMessageCreator,
                                     @Injectable UserMessageLog userMessageLog,
@@ -484,19 +344,23 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
+            userMessage.getMessageId();
+            result = messageId;
+
             new DispatchMessageCreator(messageId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
             result = jmsMessage;
 
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog, jmsMessage);
+            times = 1;
+
         }};
 
         userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
 
-        new Verifications() {{
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog, jmsMessage);
-        }};
+        new FullVerifications() {};
 
     }
 
@@ -512,58 +376,6 @@ public class UserMessageDefaultServiceTest {
             jmsManager.sendMessageToQueue((JmsMessage) any, sendPullReceiptQueue);
         }};
 
-    }
-
-    @Test
-    public void testRestoreFailedMessagesDuringPeriodWhenAPreviousMessageIsFailing() {
-        final String finalRecipient = "C4";
-        final Date startDate = new Date();
-        final Date endDate = new Date();
-
-        final String failedMessage1 = "1";
-        final String failedMessage2 = "2";
-        final List<String> failedMessages = new ArrayList<>();
-        failedMessages.add(failedMessage1);
-        failedMessages.add(failedMessage2);
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findFailedMessages(finalRecipient, startDate, endDate);
-            result = failedMessages;
-
-            userMessageDefaultService.restoreFailedMessage(failedMessage1);
-
-            userMessageDefaultService.restoreFailedMessage(failedMessage2);
-            result = new RuntimeException("Problem restoring message 2");
-        }};
-
-        final List<String> restoredMessages = userMessageDefaultService.restoreFailedMessagesDuringPeriod(startDate, endDate, finalRecipient);
-        assertNotNull(restoredMessages);
-        assertEquals(1, restoredMessages.size());
-        assertEquals(failedMessage1, restoredMessages.iterator().next());
-    }
-
-    @Test
-    public void testRestoreFailedMessagesDuringPeriod() {
-        final String finalRecipient = "C4";
-        final Date startDate = new Date();
-        final Date endDate = new Date();
-
-        final String failedMessage1 = "1";
-        final String failedMessage2 = "2";
-        final List<String> failedMessages = new ArrayList<>();
-        failedMessages.add(failedMessage1);
-        failedMessages.add(failedMessage2);
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findFailedMessages(finalRecipient, startDate, endDate);
-            result = failedMessages;
-
-            userMessageDefaultService.restoreFailedMessage(anyString);
-        }};
-
-        final List<String> restoredMessages = userMessageDefaultService.restoreFailedMessagesDuringPeriod(startDate, endDate, finalRecipient);
-        assertNotNull(restoredMessages);
-        assertEquals(restoredMessages, failedMessages);
     }
 
     @Test(expected = UserMessageException.class)
@@ -615,7 +427,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.notifyMessageDeleted(userMessage,userMessageLog);
+            backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
@@ -631,7 +443,8 @@ public class UserMessageDefaultServiceTest {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
         new Expectations() {{
-           em.unwrap(Session.class); result = session;
+            em.unwrap(Session.class);
+            result = session;
         }};
 
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
@@ -642,68 +455,80 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
-                                             @Injectable UserMessage userMessage,
+    public void marksTheUserMessageAsDeleted(@Injectable UserMessage userMessage,
                                              @Injectable UserMessageLog userMessageLog,
                                              @Injectable SignalMessage signalMessage,
                                              @Injectable MessageInfo messageInfo) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            messaging.getUserMessage();
-            result = userMessage;
-
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
-            messaging.getSignalMessage();
+            signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
             result = signalMessage;
+
+            signalMessage.getUserMessage();
+            result = userMessage;
+
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new FullVerifications() {{
-            userMessageLog.setDeleted((Date)any);
+            userMessageLog.setDeleted((Date) any);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
             userMessageLog.getMessageStatus();
+            backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
+            times = 1;
+
+            partInfoService.clearPayloadData(userMessage.getEntityId());
+        }};
+    }
+
+    @Test
+    public void marksTheUserMessageAsDeleted_emptySignal(@Injectable UserMessage userMessage,
+                                                         @Injectable SignalMessage signalMessage,
+                                                         @Injectable UserMessageLog userMessageLog) {
+        final String messageId = "1";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+            result = signalMessage;
+
+            signalMessage.getUserMessage();
+            result = userMessage;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.DOWNLOADED;
+
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+            times =1;
+
+            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+            times =1;
+
+        }};
+
+        userMessageDefaultService.deleteMessage(messageId);
+
+        new FullVerifications() {{
+            partInfoService.clearPayloadData(userMessage.getEntityId());
+            times = 1;
+
+            userMessageLog.setDeleted((Date) any);
+            times = 1;
+
             backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
             times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void marksTheUserMessageAsDeleted_emptySignal(@Injectable Messaging messaging,
-                                                         @Injectable UserMessage userMessage,
-                                                         @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            messaging.getUserMessage();
-            result = userMessage;
-
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result = userMessageLog;
-
-            messaging.getSignalMessage();
-            result = null;
-        }};
-
-        userMessageDefaultService.deleteMessage(messageId);
-
-        new FullVerifications() {{
-            userMessageLog.setDeleted((Date)any);
-            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-            userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
-            userMessageLog.getMessageStatus();
-            backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
-            times = 1;
-        }};
-    }
-
-    @Test(expected = UserMessageException.class)
     public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) throws Exception {
         final String messageId = UUID.randomUUID().toString();
 
@@ -716,34 +541,17 @@ public class UserMessageDefaultServiceTest {
         }};
 
         //tested method
-        userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+        try {
+            userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+            fail();
+        } catch (Exception e) {
+            //OK
+        }
 
 
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
             userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture());
-            Assert.assertEquals(messageId, messageIdActual);
-        }};
-    }
-
-    @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusFailed(final @Mocked UserMessageLog userMessageLog) {
-        final String messageId = UUID.randomUUID().toString();
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.SEND_FAILURE;
-        }};
-
-        //tested method
-        userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
-
-        new FullVerifications(userMessageDefaultService) {{
-            String messageIdActual;
-            userMessageDefaultService.restoreFailedMessage(messageIdActual = withCapture());
             Assert.assertEquals(messageId, messageIdActual);
         }};
     }
@@ -877,7 +685,6 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void scheduleSendingWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
                                                   @Injectable UserMessageLog userMessageLog,
                                                   @Mocked DispatchMessageCreator dispatchMessageCreator,
@@ -885,23 +692,30 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         int retryCount = 3;
-        boolean isSplitAndJoin = false;
 
         new Expectations(userMessageDefaultService) {{
+            userMessageLog.getEntityId();
+            result = 10L;
+
+            userMessageDao.read(10L);
+            result = userMessage;
+
+            userMessage.getMessageId();
+            result = messageId;
+
             new DispatchMessageCreator(messageId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage(retryCount);
             result = jmsMessage;
 
+            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
+            times = 1;
         }};
 
         userMessageDefaultService.scheduleSending(userMessageLog, retryCount);
 
-        new Verifications() {{
-            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
-            times = 1;
-        }};
+        new FullVerifications() {};
     }
 
     @Test
@@ -1060,11 +874,12 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test(expected = MessageNotFoundException.class)
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getUserMessageById_notFound() {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations() {{
+            userMessageDao.findByMessageId(messageId);
+            result = null;
         }};
 
         userMessageDefaultService.getUserMessageById(messageId);

@@ -55,6 +55,7 @@ public abstract class AbstractBaseAuditEntity implements DomibusBaseEntity {
         setModificationTime(time);
     }
 
+    @Transient
     protected String getDataBaseUser() {
         final DatabaseUtil databaseUtil = SpringContextProvider.getApplicationContext().getBean(DatabaseUtil.DATABASE_USER, DatabaseUtil.class);
         LOG.trace("DataBase UserName: [{}]", databaseUtil.getDatabaseUserName());

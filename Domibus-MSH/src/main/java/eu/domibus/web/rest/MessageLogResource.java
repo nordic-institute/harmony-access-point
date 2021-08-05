@@ -62,6 +62,8 @@ public class MessageLogResource extends BaseResource {
     private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
     private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
     private static final String PROPERTY_TO_PARTY_ID = "toPartyId";
+    private static final String PROPERTY_NEXTATTEMPT_TIMEZONEID = "nextAttemptTimezoneId";
+    private static final String PROPERTY_NEXTATTEMPT_OFFSET = "nextAttemptOffsetSeconds";
 
     public static final String COLUMN_NAME_AP_ROLE = "AP Role";
 
@@ -119,7 +121,6 @@ public class MessageLogResource extends BaseResource {
         }
         filters.put(PROPERTY_RECEIVED_FROM, from);
         filters.put(PROPERTY_RECEIVED_TO, to);
-        //filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         LOG.debug("using filters [{}]", filters);
 
@@ -140,6 +141,9 @@ public class MessageLogResource extends BaseResource {
         if (defaultTo.equals(to)) {
             filters.remove(PROPERTY_RECEIVED_TO);
         }
+        // return also the current messageType to be shown in GUI
+        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
+
         result.setFilter(filters);
         result.setMshRoles(MSHRole.values());
         result.setMsgTypes(MessageType.values());
@@ -162,12 +166,12 @@ public class MessageLogResource extends BaseResource {
 
         filters.put(PROPERTY_RECEIVED_FROM, dateUtil.fromString(request.getReceivedFrom()));
         filters.put(PROPERTY_RECEIVED_TO, dateUtil.fromString(request.getReceivedTo()));
-        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         int maxNumberRowsToExport = getCsvService().getPageSizeForExport();
         List<MessageLogInfo> resultList;
         if (uiReplicationSignalService.isReplicationEnabled()) {
             /** use TB_MESSAGE_UI table instead */
+            filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
             resultList = uiMessageService.findPaged(0, maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
             getCsvService().validateMaxRows(resultList.size(), () -> uiMessageService.countMessages(filters));
         } else {
@@ -210,7 +214,7 @@ public class MessageLogResource extends BaseResource {
     }
 
     private List<String> getExcludedProperties() {
-        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
+        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT, PROPERTY_NEXTATTEMPT_TIMEZONEID, PROPERTY_NEXTATTEMPT_OFFSET);
         if (!domibusConfigurationService.isFourCornerEnabled()) {
             excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
             excludedProperties.add(PROPERTY_FINAL_RECIPIENT);

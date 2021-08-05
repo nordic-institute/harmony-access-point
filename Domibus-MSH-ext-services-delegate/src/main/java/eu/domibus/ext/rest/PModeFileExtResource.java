@@ -51,7 +51,7 @@ public class PModeFileExtResource {
     @ApiOperation(value = "Get PMode file", notes = "Retrieve the PMode file of specified id",
             authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") int id) {
+    public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") long id) {
         LOG.debug("downloadPMode -> start");
         final byte[] rawConfiguration = pModeExtService.getPModeFile(id);
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);

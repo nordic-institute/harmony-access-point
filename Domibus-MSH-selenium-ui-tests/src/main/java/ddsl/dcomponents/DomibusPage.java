@@ -1,9 +1,12 @@
 package ddsl.dcomponents;
 
+import com.codahale.metrics.Timer;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
+import metricss.MyMetrics;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -52,14 +55,16 @@ public class DomibusPage extends DComponent {
 	}
 	
 	public void refreshPage() {
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
 		driver.navigate().refresh();
 		try {
-			wait.forXMillis(300);
+			wait.forXMillis(100);
 			waitForPageToLoad();
-			wait.forXMillis(300);
+			wait.forXMillis(100);
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
+		context.stop();
 	}
 	
 	public String getTitle() throws Exception {
@@ -90,7 +95,7 @@ public class DomibusPage extends DComponent {
 	}
 	
 	public void waitForPageToLoad() throws Exception {
-		wait.forElementToBeVisible(getSandwichMenu().expandButton);
+		wait.forElementToBeVisible(getSidebar().sideBar);
 	}
 	
 	public void waitForPageTitle() throws Exception {
@@ -109,13 +114,25 @@ public class DomibusPage extends DComponent {
 		}
 		return false;
 	}
-	
+
+	public String getCurrentLoggedInUser() {
+		log.info("getting user from local storage");
+		String username = null;
+
+		try {
+			username = ((JavascriptExecutor) driver).executeScript("return JSON.parse(localStorage.currentUser).username").toString();
+		} catch (Exception e) {}
+
+		return username;
+	}
+
 	public DButton getSaveCSVButton() {
 		return weToDButton(saveCSV);
 	}
 	
 	public String pressSaveCsvAndSaveFile() throws Exception {
-		
+		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+
 		log.info("Customized location for download");
 		String filePath = data.downloadFolderPath();
 		
@@ -133,7 +150,8 @@ public class DomibusPage extends DComponent {
 		if(!DFileUtils.isFileDownloaded(filePath)){
 			throw new Exception("Could not find file");
 		}
-		
+
+		context.stop();
 		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
 	}
 	

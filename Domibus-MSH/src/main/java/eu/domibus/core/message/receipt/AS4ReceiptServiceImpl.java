@@ -1,10 +1,10 @@
 package eu.domibus.core.message.receipt;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -13,6 +13,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -79,6 +80,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected Ebms3Converter ebms3Converter;
     protected MshRoleDao mshRoleDao;
     protected MessageStatusDao messageStatusDao;
+    protected ReceiptDao receiptDao;
 
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
@@ -95,7 +97,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                                  XMLUtil xmlUtil,
                                  Ebms3Converter ebms3Converter,
                                  MshRoleDao mshRoleDao,
-                                 MessageStatusDao messageStatusDao) {
+                                 MessageStatusDao messageStatusDao,
+                                 ReceiptDao receiptDao) {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
@@ -112,6 +115,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.ebms3Converter = ebms3Converter;
         this.mshRoleDao = mshRoleDao;
         this.messageStatusDao = messageStatusDao;
+        this.receiptDao = receiptDao;
     }
 
     @Override
@@ -207,7 +211,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
         Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(responseMessage);
-        final SignalMessage signalMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getSignalMessage());
+        SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
+        final ReceiptEntity receiptEntity = signalMessageResult.getReceiptEntity();
 
         if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity
@@ -223,7 +229,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getSignalMessageId(), signalMessage.getRefToMessageId());
         // Stores the signal message
         signalMessageDao.create(signalMessage);
-        // Updating the reference to the signal message
+        //stores the receipt
+        receiptDao.create(receiptEntity);
 
         MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.ACKNOWLEDGED);
         MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);

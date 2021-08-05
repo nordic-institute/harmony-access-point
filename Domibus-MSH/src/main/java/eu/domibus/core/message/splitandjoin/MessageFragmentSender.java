@@ -53,7 +53,7 @@ public class MessageFragmentSender extends AbstractUserMessageSender {
 
     @Override
     protected SOAPMessage createSOAPMessage(UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
-        final MessageGroupEntity groupEntity = messageGroupDao.findByUserMessageEntityId(userMessage.getEntityId());
+        final MessageGroupEntity groupEntity = messageGroupDao.findByUserMessageEntityIdWithMessageHeader(userMessage.getEntityId());
         MessageFragmentEntity messageFragmentEntity = messageFragmentDao.read(userMessage.getEntityId());
         List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
         return messageBuilder.buildSOAPMessageForFragment(userMessage, messageFragmentEntity, partInfos, groupEntity, legConfiguration);

@@ -11,6 +11,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.usermessage.domain.*;
+import eu.domibus.core.message.dictionary.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -170,11 +171,11 @@ public class UserMessageDefaultFactoryTest {
         new Expectations(userMessageDefaultFactory) {{
             source.getFrom();
             result = from;
-            from.getRole();
+            from.getFromRole();
             result = anyString;
             source.getTo();
             result = to;
-            to.getRole();
+            to.getToRole();
             result = anyString;
         }};
 

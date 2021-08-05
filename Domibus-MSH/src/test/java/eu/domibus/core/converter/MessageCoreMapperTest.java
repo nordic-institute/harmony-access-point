@@ -87,10 +87,10 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         From fromConvertedBack = (From) getPartyIdProperty(convertedBack, "from");
         To toConvertedBack = (To) getPartyIdProperty(convertedBack, "to");
 
-        fromConvertedBack.getPartyId().setEntityId(fromToConvert.getPartyId().getEntityId());
-        fromConvertedBack.getRole().setEntityId(fromToConvert.getRole().getEntityId());
-        toConvertedBack.getPartyId().setEntityId(toToConvert.getPartyId().getEntityId());
-        toConvertedBack.getRole().setEntityId(toToConvert.getRole().getEntityId());
+        fromConvertedBack.getFromPartyId().setEntityId(fromToConvert.getFromPartyId().getEntityId());
+        fromConvertedBack.getFromRole().setEntityId(fromToConvert.getFromRole().getEntityId());
+        toConvertedBack.getToPartyId().setEntityId(toToConvert.getToPartyId().getEntityId());
+        toConvertedBack.getToRole().setEntityId(toToConvert.getToRole().getEntityId());
         convertedBack.getMpc().setEntityId(toConvert.getMpc().getEntityId());
 
         MessageProperty messagePropertyConvertedBack = getAnyMessageProperty(convertedBack);

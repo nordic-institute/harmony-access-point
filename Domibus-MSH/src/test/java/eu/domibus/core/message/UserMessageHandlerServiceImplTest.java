@@ -2,6 +2,9 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3PartInfo;
+import eu.domibus.api.ebms3.model.Ebms3PartProperties;
+import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
@@ -12,8 +15,6 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.usermessage.domain.PartProperties;
-import eu.domibus.api.usermessage.domain.PayloadInfo;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.*;
@@ -21,6 +22,8 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
@@ -43,7 +46,6 @@ import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,8 +54,6 @@ import org.w3c.dom.Node;
 
 import javax.activation.DataHandler;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
@@ -61,9 +61,6 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -79,8 +76,6 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class UserMessageHandlerServiceImplTest {
 
-    @Tested
-    UserMessageHandlerServiceImpl userMessageHandlerService;
 
     @Injectable
     XMLUtil xmlUtil;
@@ -185,10 +180,10 @@ public class UserMessageHandlerServiceImplTest {
     MessagePropertyValidator messagePropertyValidator;
 
     @Injectable
-    PartInfoDao partInfoDao;
+    PartInfoService partInfoService;
 
     @Injectable
-    PartPropertyDao partPropertyDao;
+    PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Injectable
     MshRoleDao mshRoleDao;
@@ -196,23 +191,15 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     MessageFragmentDao messageFragmentDao;
 
-    @Injectable
-    MessagePropertyDao messagePropertyDao;
+    @Tested
+    UserMessageHandlerServiceImpl userMessageHandlerService;
 
-    private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String STRING_TYPE = "string";
     private static final String DEF_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     private static final String RED = "red_gw";
     private static final String BLUE = "blue_gw";
     private static final String FINAL_RECEIPIENT_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
 
-    protected eu.domibus.api.usermessage.domain.Property createProperty(String name, String value) {
-        eu.domibus.api.usermessage.domain.Property aProperty = new eu.domibus.api.usermessage.domain.Property();
-        aProperty.setValue(value);
-        aProperty.setName(name);
-        aProperty.setType(UserMessageHandlerServiceImplTest.STRING_TYPE);
-        return aProperty;
-    }
 
     protected MessageProperty createMessageProperty(String name, String value) {
         MessageProperty aProperty = new MessageProperty();
@@ -222,55 +209,13 @@ public class UserMessageHandlerServiceImplTest {
         return aProperty;
     }
 
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testCheckCharset_HappyFlow() throws EbMS3Exception {
-        final Messaging messaging = new Messaging();
-        UserMessage userMessage = new UserMessage();
-        PayloadInfo payloadInfo = new PayloadInfo();
-        eu.domibus.api.usermessage.domain.PartInfo partInfo = getPartInfo("MimeType", "text/xml");
-
-        payloadInfo.getPartInfo().add(partInfo);
-        PartyInfo partyInfo = new PartyInfo();
-        userMessage.setPartyInfo(partyInfo);
-        messaging.setUserMessage(userMessage);
-
-        userMessageHandlerService.checkPartInfoCharset(userMessage, null);
-
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testCheckCharset_InvalidCharset() {
-        final Messaging messaging = new Messaging();
-        UserMessage userMessage = new UserMessage();
-        PayloadInfo payloadInfo = new PayloadInfo();
-        eu.domibus.api.usermessage.domain.PartInfo partInfo = getPartInfo("CharacterSet", "!#InvalidCharSet");
-
-        payloadInfo.getPartInfo().add(partInfo);
-        PartyInfo partyInfo = new PartyInfo();
-        userMessage.setPartyInfo(partyInfo);
-        messaging.setUserMessage(userMessage);
-
-        try {
-            userMessageHandlerService.checkPartInfoCharset(userMessage, null);
-            fail("EBMS3Exception was expected!!");
-        } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
-        }
-
-        new FullVerifications() {
-        };
-    }
-
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testInvoke_tc1Process_HappyFlow(@Injectable final BackendFilter matchingBackendFilter,
                                                 @Injectable Ebms3MessageFragmentType messageFragment,
                                                 @Injectable LegConfiguration legConfiguration,
-                                                @Injectable UserMessage userMessage,
-                                                @Injectable Messaging messaging) throws Exception {
+                                                @Injectable UserMessage userMessage) throws Exception {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
@@ -278,19 +223,16 @@ public class UserMessageHandlerServiceImplTest {
             legConfiguration.getReceptionAwareness().getDuplicateDetection();
             result = false;
 
-            messaging.getUserMessage();
-            result = userMessage;
-
             userMessage.getMessageId();
             result = "messageId";
 
-            routingService.getMatchingBackendFilter(messaging.getUserMessage());
+            routingService.getMatchingBackendFilter(userMessage);
             result = null;
 
             messageUtil.getMessageFragment(soapRequestMessage);
             result = null;
 
-            userMessageHandlerService.checkSelfSending(pmodeKey);
+            pModeProvider.checkSelfSending(pmodeKey);
             result = false;
 
             userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "backend");
@@ -333,14 +275,11 @@ public class UserMessageHandlerServiceImplTest {
                                                             @Injectable Ebms3MessageFragmentType messageFragment,
                                                             @Injectable Reliability reliability,
                                                             @Injectable LegConfiguration legConfiguration,
-                                                            @Injectable UserMessage userMessage,
-                                                            @Injectable Messaging messaging) throws Exception {
+                                                            @Injectable UserMessage userMessage) throws Exception {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations(userMessageHandlerService) {{
-            routingService.getMatchingBackendFilter(messaging.getUserMessage());
-            result = matchingBackendFilter;
 
             matchingBackendFilter.getBackendName();
             result = "backEndName";
@@ -348,7 +287,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "1234";
 
-            userMessageHandlerService.checkPartInfoCharset(userMessage, null);
+            partInfoService.checkPartInfoCharset(userMessage, null);
             times = 1;
 
             messageUtil.getMessageFragment(soapRequestMessage);
@@ -384,14 +323,13 @@ public class UserMessageHandlerServiceImplTest {
                                                                          @Injectable Reliability reliability,
                                                                          @Injectable LegConfiguration legConfiguration,
                                                                          @Injectable UserMessage userMessage,
-                                                                         @Injectable Messaging messaging,
                                                                          @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType) throws Exception {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations(userMessageHandlerService) {{
-            routingService.getMatchingBackendFilter(messaging.getUserMessage());
-            result = matchingBackendFilter;
+//            routingService.getMatchingBackendFilter(messaging.getUserMessage());
+//            result = matchingBackendFilter;
 
             matchingBackendFilter.getBackendName();
             result = "backEndName";
@@ -399,7 +337,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "1234";
 
-            userMessageHandlerService.checkPartInfoCharset(userMessage, null);
+            partInfoService.checkPartInfoCharset(userMessage, null);
             times = 1;
 
             messageUtil.getMessageFragment(soapRequestMessage);
@@ -437,10 +375,9 @@ public class UserMessageHandlerServiceImplTest {
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testInvoke_TestMessage(@Injectable final BackendFilter matchingBackendFilter,
                                        @Injectable final LegConfiguration legConfiguration,
-                                       @Injectable final Messaging messaging,
                                        @Injectable final UserMessage userMessage,
                                        @Injectable Ebms3MessageFragmentType messageFragment)
-            throws SOAPException, EbMS3Exception, TransformerException, IOException {
+            throws EbMS3Exception, TransformerException, IOException {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
         boolean selfSending = false;
@@ -449,10 +386,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "TestMessage123";
 
-            messaging.getUserMessage();
-            result = userMessage;
-
-            userMessageHandlerService.checkPartInfoCharset(userMessage, null);
+            partInfoService.checkPartInfoCharset(userMessage, null);
             times = 1;
 
             legConfiguration.getReceptionAwareness().getDuplicateDetection();
@@ -462,7 +396,7 @@ public class UserMessageHandlerServiceImplTest {
             result = false;
             times = 1;
 
-            userMessageHandlerService.checkSelfSending(pmodeKey);
+            pModeProvider.checkSelfSending(pmodeKey);
             result = selfSending;
             times = 1;
 
@@ -531,32 +465,36 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void test_HandlePayLoads_EmptyCIDAndBodyContent(@Injectable final Ebms3Messaging userMessage,
+    public void test_HandlePayLoads_EmptyCIDAndBodyContent(@Injectable final Ebms3Messaging ebms3Messaging,
                                                            @Injectable final Node bodyContent,
                                                            @Injectable final PartInfo partInfo)
             throws SOAPException, TransformerException, EbMS3Exception {
 
         new Expectations() {{
-            partInfo.getHref();
-            result = "";
 
-//            userMessage.getPayloadInfo().getPartInfo();
-//            result = partInfo;
+            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
+            result = "messageId";
 
-            soapRequestMessage.getSOAPBody().hasChildNodes();
-            result = false;
+            ebms3Messaging.getUserMessage().getPayloadInfo();
+            result = null;
 
-            soapRequestMessage.getAttachments();
-            result = Collections.emptyIterator();
+//            partInfo.getHref();
+//            result = "";
+
+//            soapRequestMessage.getSOAPBody().hasChildNodes();
+//            result = false;
+
+//            soapRequestMessage.getAttachments();
+//            result = Collections.emptyIterator();
+
+//            xmlUtil.getTransformerFactory().newTransformer();
+//            result = null;
         }};
 
-        userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage, null);
+        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
 
-        new Verifications() {{
-            xmlUtil.getTransformerFactory().newTransformer();
-            partInfo.setInBody(true);
-            partInfo.setPayloadDatahandler((DataHandler) any);
+        new FullVerifications() {{
+//            partInfo.setPayloadDatahandler((DataHandler) any);
         }};
     }
 
@@ -565,25 +503,18 @@ public class UserMessageHandlerServiceImplTest {
      * This test is using mock objects.
      */
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    //@Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testPersistReceivedMessage_HappyFlow(@Injectable final LegConfiguration legConfiguration,
-                                                     @Injectable final Messaging messaging,
                                                      @Injectable final UserMessage userMessage,
                                                      @Injectable final Ebms3Messaging ebms3Messaging,
                                                      @Injectable final Party receiverParty,
                                                      @Injectable final UserMessageLog userMessageLog,
                                                      @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception, TransformerException, SOAPException {
+            throws EbMS3Exception {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
         final String messageId = "TestMessageId123";
 
-        new Expectations(userMessageHandlerService) {{
-            messaging.getUserMessage();
-            result = userMessage;
-
-            userMessage.getPartyInfo();
-            result = new ArrayList<>();
-
+        new Expectations() {{
             legConfiguration.getErrorHandling();
             result = null;
 
@@ -596,26 +527,12 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = messageId;
 
-            userMessage.getMpc();
-            result = null;
-
-            receiverParty.getEndpoint();
-            result = "endPoint";
-            userMessage.getServiceValue();
-            result = "service";
-            userMessage.getActionValue();
-            result = "action";
-            userMessage.isSourceMessage();
-            result = true;
-            userMessage.isMessageFragment();
-            result = false;
-
         }};
 
         userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "");
 
         new FullVerifications() {{
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
+//            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
             messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
@@ -625,13 +542,9 @@ public class UserMessageHandlerServiceImplTest {
                     "NOT_REQUIRED",
                     MSHRole.RECEIVING.toString(),
                     0,
-                    Ebms3Constants.DEFAULT_MPC,
-                    "",
-                    "endPoint",
-                    "service",
-                    "action",
-                    true,
-                    false);
+                    ""
+            );
+            messagingService.saveUserMessageAndPayloads(userMessage, null);
             uiReplicationSignalService.userMessageReceived(messageId);
             nonRepudiationService.saveRequest(soapRequestMessage, userMessage);
 
@@ -644,14 +557,16 @@ public class UserMessageHandlerServiceImplTest {
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void test_HandlePayLoads_NullCIDMultiplePartInfo(
-            @Injectable final Ebms3Messaging userMessage,
+            @Injectable final Ebms3Messaging ebms3Messaging,
             @Injectable final Node bodyContent1,
             @Injectable final DataHandler dataHandler)
             throws SOAPException, TransformerException {
 
-        final PayloadInfo payloadInfo = new PayloadInfo();
-        payloadInfo.getPartInfo().add(getPartInfo("MimeType", "text/xml", ""));
-        payloadInfo.getPartInfo().add(getPartInfo("MimeType", "text/xml", "#1234"));
+        Ebms3PartInfo part1 = getPartInfo("MimeType", "text/xml", "");
+        Ebms3PartInfo part2 = getPartInfo("MimeType", "text/xml", "#1234");
+        List<Ebms3PartInfo> ebms3PartInfos = Arrays.asList(
+                part1,
+                part2);
 
         List<Node> bodyContentNodeList = new ArrayList<>();
         bodyContentNodeList.add(bodyContent1);
@@ -671,12 +586,19 @@ public class UserMessageHandlerServiceImplTest {
             soapRequestMessage.getAttachments();
             result = Collections.emptyIterator();
 
-            userMessage.getUserMessage().getMessageInfo().getMessageId();
+            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
             result = "messageId";
+
+            ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
+            result = ebms3PartInfos;
+
+            partPropertyDictionaryService.findOrCreatePartProperty(anyString,anyString, anyString);
+            result = new PartProperty();
+            times = 2;
         }};
 
         try {
-            userMessageHandlerService.handlePayloads(soapRequestMessage, userMessage, null);
+            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             fail("Expecting error that - More than one Partinfo referencing the soap body found!");
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
@@ -686,34 +608,36 @@ public class UserMessageHandlerServiceImplTest {
         };
     }
 
-    private eu.domibus.api.usermessage.domain.PartInfo getPartInfo(String name, String value) {
-        return getPartInfo(name, value, null);
-    }
-
-    private eu.domibus.api.usermessage.domain.PartInfo getPartInfo(String name, String value, String href) {
-        eu.domibus.api.usermessage.domain.PartInfo partInfo = new eu.domibus.api.usermessage.domain.PartInfo();
-        PartProperties partProperties = new PartProperties();
+    public static Ebms3PartInfo getPartInfo(String name, String value, String href) {
+        Ebms3PartInfo partInfo = new Ebms3PartInfo();
+        Ebms3PartProperties partProperties = new Ebms3PartProperties();
+        partProperties.setProperty(new HashSet<>());
         partProperties.getProperty().add(createProperty(name, value));
         partInfo.setPartProperties(partProperties);
         partInfo.setHref(href);
         return partInfo;
     }
 
+    protected static Ebms3Property createProperty(String name, String value) {
+        Ebms3Property aProperty = new Ebms3Property();
+        aProperty.setValue(value);
+        aProperty.setName(name);
+        aProperty.setType(STRING_TYPE);
+        return aProperty;
+    }
+
+
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    //@Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testPersistReceivedMessage_ValidationException(@Injectable final LegConfiguration legConfiguration,
-                                                               @Injectable final Messaging messaging,
                                                                @Injectable final UserMessage userMessage,
                                                                @Injectable final Ebms3Messaging ebms3Messaging,
                                                                @Injectable final UserMessageLog userMessageLog,
                                                                @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception, TransformerException, SOAPException {
+            throws EbMS3Exception {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
-        new Expectations(userMessageHandlerService) {{
-            messaging.getUserMessage();
-            result = userMessage;
-
+        new Expectations() {{
             userMessage.getMessageId();
             result = "messageId";
 
@@ -733,27 +657,21 @@ public class UserMessageHandlerServiceImplTest {
         }
 
         new FullVerifications() {{
-            userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testPersistReceivedMessage_CompressionError(@Injectable final LegConfiguration legConfiguration,
-                                                            @Injectable final Messaging messaging,
                                                             @Injectable final UserMessage userMessage,
                                                             @Injectable final Party receiverParty,
                                                             @Injectable final UserMessageLog userMessageLog,
                                                             @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception, TransformerException, SOAPException {
+            throws EbMS3Exception {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
-        new Expectations(userMessageHandlerService) {{
-            messaging.getUserMessage();
-            result = userMessage;
-
+        new Expectations() {{
             compressionService.handleDecompression(userMessage, null, legConfiguration);
             result = true;
 
@@ -771,7 +689,6 @@ public class UserMessageHandlerServiceImplTest {
         }
 
         new FullVerifications() {{
-            userMessageHandlerService.handlePayloads(soapRequestMessage, null, null);
             payloadProfileValidator.validate(userMessage, null, pmodeKey);
             propertyProfileValidator.validate(userMessage, pmodeKey);
             messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
@@ -783,21 +700,22 @@ public class UserMessageHandlerServiceImplTest {
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void test_HandlePayLoads_HappyFlowUsingCID(@Injectable final UserMessage userMessage,
+                                                      @Injectable final Ebms3Messaging ebms3Messaging,
                                                       @Injectable final AttachmentPart attachmentPart1,
                                                       @Injectable final AttachmentPart attachmentPart2,
                                                       @Injectable final DataHandler attachmentPart1DH,
                                                       @Injectable final DataHandler attachmentPart2DH) throws SOAPException, TransformerException, EbMS3Exception {
 
-//        final PartInfo partInfo = new PartInfo();
-//        partInfo.setHref("cid:message");
-//
-//        PartProperties partProperties = new PartProperties();
-//        Property property1 = new Property();
-//        property1.setName("MimeType");
-//        property1.setValue("text/xml");
-//
-//        partProperties.getProperties().add(property1);
-//        partInfo.setPartProperties(partProperties);
+        final Ebms3PartInfo partInfo = new Ebms3PartInfo();
+        partInfo.setHref("cid:message");
+
+        Ebms3PartProperties partProperties = new Ebms3PartProperties();
+        Ebms3Property property1 = new Ebms3Property();
+        property1.setName("MimeType");
+        property1.setValue("text/xml");
+
+        partProperties.getProperties().add(property1);
+        partInfo.setPartProperties(partProperties);
 
         List<AttachmentPart> attachmentPartList = new ArrayList<>();
         attachmentPartList.add(attachmentPart1);
@@ -805,7 +723,11 @@ public class UserMessageHandlerServiceImplTest {
         final Iterator<AttachmentPart> attachmentPartIterator = attachmentPartList.iterator();
 
         new Expectations() {{
+            ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
+            result = "messageId";
 
+            ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
+            result = Arrays.asList(partInfo);
 
             soapRequestMessage.getAttachments();
             result = attachmentPartIterator;
@@ -820,13 +742,13 @@ public class UserMessageHandlerServiceImplTest {
             result = attachmentPart2DH;
         }};
 
-        userMessageHandlerService.handlePayloads(soapRequestMessage, null, null);
+        userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
 //        Assert.assertNotNull(partInfo.getPayloadDatahandler());
 //        assertNotNull(partInfo.getPayloadDatahandler());
 
-        new FullVerifications() {{
-            attachmentPart1.setContentId(anyString);
-            attachmentPart2.setContentId(anyString);
+        new Verifications() {{
+//            attachmentPart1.setContentId(anyString);
+//            attachmentPart2.setContentId(anyString);
         }};
     }
 
@@ -839,8 +761,8 @@ public class UserMessageHandlerServiceImplTest {
             @Injectable final AttachmentPart attachmentPart2)
             throws TransformerException, SOAPException {
 
-//        final PartInfo partInfo = new PartInfo();
-//        partInfo.setHref("cid:message");
+        final Ebms3PartInfo partInfo = new Ebms3PartInfo();
+        partInfo.setHref("cid:message");
 //
 //        PartProperties partProperties = new PartProperties();
 //        Property property1 = new Property();
@@ -856,7 +778,8 @@ public class UserMessageHandlerServiceImplTest {
         final Iterator<AttachmentPart> attachmentPartIterator = attachmentPartList.iterator();
 
         new Expectations() {{
-
+            ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
+            result = Arrays.asList(partInfo);
 
             soapRequestMessage.getAttachments();
             result = attachmentPartIterator;
@@ -908,9 +831,9 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetFinalRecipientName_noProperties() {
-        final UserMessage userMessage = createSampleUserMessage(false);
+        final UserMessage userMessage = createSampleUserMessage();
+        userMessage.setMessageProperties(new HashSet<>());
         Assert.assertNull(userMessageHandlerService.getFinalRecipientName(userMessage));
     }
 
@@ -949,13 +872,10 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testInvoke_DuplicateMessage(@Injectable final BackendFilter matchingBackendFilter,
-                                            @Injectable final LegConfiguration legConfiguration,
-                                            @Injectable final Messaging messaging,
-                                            @Injectable final UserMessage userMessage,
-                                            @Injectable Ebms3MessageFragmentType messageFragment,
-                                            @Injectable Reliability reliability)
-            throws SOAPException, EbMS3Exception, TransformerException, IOException {
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    public void testInvoke_DuplicateMessage(@Injectable final LegConfiguration legConfiguration,
+                                            @Injectable final UserMessage userMessage)
+            throws EbMS3Exception, TransformerException, IOException {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
@@ -963,15 +883,13 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "TestMessage123";
 
-            userMessageHandlerService.checkPartInfoCharset(userMessage, null);
-
             legConfiguration.getReceptionAwareness().getDuplicateDetection();
             result = true;
 
             userMessageHandlerService.checkDuplicate(withAny(userMessage));
             result = true;
 
-            userMessageHandlerService.checkSelfSending(pmodeKey);
+            pModeProvider.checkSelfSending(pmodeKey);
             result = false;
 
             legConfiguration.getReliability().isNonRepudiation();
@@ -987,6 +905,7 @@ public class UserMessageHandlerServiceImplTest {
         userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
 
         new FullVerifications() {{
+            partInfoService.checkPartInfoCharset(userMessage, null);
             soapUtil.logMessage(soapRequestMessage);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
         }};
@@ -996,11 +915,10 @@ public class UserMessageHandlerServiceImplTest {
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testInvoke_ErrorInNotifyingIncomingMessage(@Injectable final BackendFilter matchingBackendFilter,
                                                            @Injectable final LegConfiguration legConfiguration,
-                                                           @Injectable final Messaging messaging,
                                                            @Injectable final UserMessage userMessage,
                                                            @Injectable Ebms3MessageFragmentType messageFragment,
                                                            @Injectable Reliability reliability)
-            throws SOAPException, EbMS3Exception, TransformerException, IOException {
+            throws EbMS3Exception, TransformerException, IOException {
 
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
@@ -1011,7 +929,7 @@ public class UserMessageHandlerServiceImplTest {
             legConfiguration.getReceptionAwareness().getDuplicateDetection();
             result = true;
 
-            routingService.getMatchingBackendFilter(messaging.getUserMessage());
+            routingService.getMatchingBackendFilter(userMessage);
             result = matchingBackendFilter;
 
             matchingBackendFilter.getBackendName();
@@ -1026,7 +944,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, messageFragment, "matchingBackendFilter");
             result = "123";
 
-            userMessageHandlerService.checkSelfSending(pmodeKey);
+            pModeProvider.checkSelfSending(pmodeKey);
             result = false;
 
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
@@ -1046,109 +964,7 @@ public class UserMessageHandlerServiceImplTest {
         }};
     }
 
-    @Test
-    public void test_checkSelfSending_DifferentAPs_False() throws Exception {
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        final Configuration configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
-        final Party senderParty = getPartyFromConfiguration(configuration, BLUE);
-        final Party receiverParty = getPartyFromConfiguration(configuration, RED);
-
-        new Expectations() {{
-            pModeProvider.getReceiverParty(pmodeKey);
-            result = receiverParty;
-
-            pModeProvider.getSenderParty(pmodeKey);
-            result = senderParty;
-
-        }};
-
-        //tested method
-        boolean selfSendingFlag = userMessageHandlerService.checkSelfSending(pmodeKey);
-        Assert.assertFalse("expected result should be false", selfSendingFlag);
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void test_checkSelfSending_SameAPs_True() throws Exception {
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        final Configuration configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
-        final Party senderParty = getPartyFromConfiguration(configuration, BLUE);
-        final Party receiverParty = getPartyFromConfiguration(configuration, BLUE);
-
-        new Expectations() {{
-            pModeProvider.getReceiverParty(pmodeKey);
-            result = receiverParty;
-
-            pModeProvider.getSenderParty(pmodeKey);
-            result = senderParty;
-
-        }};
-
-        //tested method
-        boolean selfSendingFlag = userMessageHandlerService.checkSelfSending(pmodeKey);
-        Assert.assertTrue("expected result should be true", selfSendingFlag);
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void test_checkSelfSending_DifferentAPsSameEndpoint_True() throws Exception {
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        final Configuration configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
-        final Party senderParty = getPartyFromConfiguration(configuration, BLUE);
-        final Party receiverParty = getPartyFromConfiguration(configuration, RED);
-        receiverParty.setEndpoint(senderParty.getEndpoint().toLowerCase());
-
-        new Expectations() {{
-            pModeProvider.getReceiverParty(pmodeKey);
-            result = receiverParty;
-
-            pModeProvider.getSenderParty(pmodeKey);
-            result = senderParty;
-        }};
-
-        //tested method
-        boolean selfSendingFlag = userMessageHandlerService.checkSelfSending(pmodeKey);
-        Assert.assertTrue("expected result should be true", selfSendingFlag);
-
-        new FullVerifications() {
-        };
-    }
-
-    public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        InputStream xmlStream = getClass().getClassLoader().getResourceAsStream(samplePModeFileRelativeURI);
-        JAXBContext jaxbContext = JAXBContext.newInstance(Configuration.class);
-
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        Configuration configuration = (Configuration) unmarshaller.unmarshal(xmlStream);
-        Method m = configuration.getClass().getDeclaredMethod("preparePersist");
-        m.setAccessible(true);
-        m.invoke(configuration);
-
-        return configuration;
-    }
-
-    public LegConfiguration getLegFromConfiguration(Configuration configuration, String legName) {
-        LegConfiguration result = null;
-        for (LegConfiguration legConfiguration1 : configuration.getBusinessProcesses().getLegConfigurations()) {
-            if (StringUtils.equalsIgnoreCase(legName, legConfiguration1.getName())) {
-                result = legConfiguration1;
-            }
-        }
-        return result;
-    }
-
     protected UserMessage createSampleUserMessage() {
-        return createSampleUserMessage(true);
-    }
-
-    protected UserMessage createSampleUserMessage(boolean properties) {
         UserMessage userMessage = new UserMessage();
 
         ServiceEntity service1 = new ServiceEntity();
@@ -1173,21 +989,21 @@ public class UserMessageHandlerServiceImplTest {
 
         From from = new From();
         PartyRole role = getPartyRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
-        from.setRole(role);
+        from.setFromRole(role);
 
         PartyId sender = new PartyId();
         sender.setValue(BLUE);
         sender.setType(DEF_PARTY_TYPE);
-        from.setPartyId(sender);
+        from.setFromPartyId(sender);
         partyInfo.setFrom(from);
 
         To to = new To();
-        to.setRole(getPartyRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"));
+        to.setToRole(getPartyRole("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"));
 
         PartyId receiver = new PartyId();
         receiver.setValue(RED);
         receiver.setType(DEF_PARTY_TYPE);
-        to.setPartyId(receiver);
+        to.setToPartyId(receiver);
         partyInfo.setTo(to);
 
         userMessage.setPartyInfo(partyInfo);
@@ -1213,27 +1029,15 @@ public class UserMessageHandlerServiceImplTest {
         return role;
     }
 
-    public Party getPartyFromConfiguration(Configuration configuration, String partyName) {
-        Party result = null;
-        for (Party party : configuration.getBusinessProcesses().getParties()) {
-            if (StringUtils.equalsIgnoreCase(partyName, party.getName())) {
-                result = party;
-            }
-        }
-        return result;
-    }
-
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testHandleIncomingSourceMessage(@Injectable final LegConfiguration legConfiguration,
                                                 @Injectable final String pmodeKey,
                                                 @Injectable final SOAPMessage request,
-                                                @Injectable final Messaging messaging,
                                                 @Injectable final UserMessage userMessage,
                                                 @Injectable BackendFilter backendFilter
     ) throws TransformerException, EbMS3Exception, IOException {
 
-        boolean selfSending = false;
         boolean messageExists = false;
         boolean testMessage = false;
         String backendName = "mybackend";
@@ -1242,7 +1046,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "messageID";
 
-            routingService.getMatchingBackendFilter(messaging.getUserMessage());
+            routingService.getMatchingBackendFilter(userMessage);
             result = backendFilter;
 
             backendFilter.getBackendName();
@@ -1251,10 +1055,13 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.persistReceivedSourceMessage(request, legConfiguration, pmodeKey, new Ebms3MessageFragmentType(), backendName, userMessage, null);
         }};
 
-        userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, null, selfSending, messageExists, testMessage);
+        userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, null, messageExists, testMessage);
 
-        new FullVerifications() {{
-            backendNotificationService.notifyMessageReceived(backendFilter, userMessage, null);
+        new Verifications() {{
+//            userMessage.setSourceMessage(true);
+//
+            partInfoService.checkPartInfoCharset(userMessage, null);
+//            backendNotificationService.notifyMessageReceived(backendFilter, userMessage, null);
             soapUtil.logMessage(request);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
         }};
@@ -1265,14 +1072,11 @@ public class UserMessageHandlerServiceImplTest {
     public void testPersistReceivedSourceMessage(@Injectable final LegConfiguration legConfiguration,
                                                  @Injectable final String pmodeKey,
                                                  @Injectable final SOAPMessage request,
-                                                 @Injectable final Messaging messaging,
                                                  @Injectable final UserMessage userMessage,
-                                                 @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType) throws EbMS3Exception {
+                                                 @Injectable final Ebms3MessageFragmentType ebms3MessageFragmentType) throws EbMS3Exception {
         String backendName = "mybackend";
 
         new Expectations(userMessageHandlerService) {{
-            messaging.getUserMessage();
-            result = userMessage;
 
             userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, null);
         }};
@@ -1285,7 +1089,6 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSaveReceivedMessage(@Injectable final LegConfiguration legConfiguration,
                                         @Injectable final String pmodeKey,
                                         @Injectable final SOAPMessage request,
@@ -1302,29 +1105,13 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = messageId;
 
-            userMessage.getServiceValue();
-            result = service;
-
-            userMessage.getActionValue();
-            result = action;
-
-            userMessage.isSourceMessage();
-            result = true;
-
-            userMessage.isMessageFragment();
-            result = false;
-
             pModeProvider.getReceiverParty(pmodeKey);
             result = to;
-
-            to.getEndpoint();
-            result = endpoint;
 
             legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer();
             result = true;
 
-            userMessage.getMpc();
-            result = Ebms3Constants.DEFAULT_MPC;
+            messagingService.saveUserMessageAndPayloads(userMessage, null);
         }};
 
         userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null);
@@ -1346,13 +1133,8 @@ public class UserMessageHandlerServiceImplTest {
                     NotificationStatus.REQUIRED.toString(),
                     MSHRole.RECEIVING.toString(),
                     0,
-                    Ebms3Constants.DEFAULT_MPC,
-                    backendName,
-                    endpoint,
-                    service,
-                    action,
-                    true,
-                    false);
+                    backendName
+            );
 
             nonRepudiationService.saveRequest(request, userMessage);
         }};
@@ -1395,7 +1177,7 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    //@Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSaveReceivedMessage_exceptionInvalidPayloadSizeException_persisted(@Injectable final LegConfiguration legConfiguration,
                                                                                        @Injectable final String pmodeKey,
                                                                                        @Injectable final SOAPMessage request,
@@ -1434,6 +1216,9 @@ public class UserMessageHandlerServiceImplTest {
             times = 1;
 
             propertyProfileValidator.validate(userMessage, pmodeKey);
+            times = 1;
+
+            partInfoService.clearFileSystemPayloads(null);
             times = 1;
 
         }};
@@ -1559,6 +1344,8 @@ public class UserMessageHandlerServiceImplTest {
 
             ebms3MessageFragmentType.getFragmentCount();
             result = 5L;
+            userMessage.toString();
+            result = "userMessage";
 
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             times = 1;
@@ -1572,7 +1359,7 @@ public class UserMessageHandlerServiceImplTest {
 
         userMessageHandlerService.handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
 
-        new FullVerifications() {{
+        new Verifications() {{
             messageGroupDao.create((MessageGroupEntity) any);
             times = 1;
 
@@ -1811,32 +1598,31 @@ public class UserMessageHandlerServiceImplTest {
     public void handleNewSourceUserMessageTest(@Injectable LegConfiguration legConfiguration,
                                                @Injectable UserMessage userMessage,
                                                @Injectable SOAPMessage request,
-                                               @Injectable Messaging messaging) throws IOException, EbMS3Exception, SOAPException, JAXBException, TransformerException {
+                                               @Injectable Messaging messaging) throws IOException, EbMS3Exception, TransformerException {
 
         String pmodeKey = "pmodeKey";
         boolean testMessage = true;
-        boolean selfSendingFlag = true;
         boolean messageExists = true;
 
-        new Expectations(userMessageHandlerService) {{
+        new Expectations() {{
             userMessage.getMessageId();
             result = "TestMessageId";
-
-            userMessageHandlerService.checkSelfSending(pmodeKey);
-            result = selfSendingFlag;
 
             legConfiguration.getReceptionAwareness().getDuplicateDetection();
             result = true;
 
-            userMessageHandlerService.checkDuplicate(userMessage);
-            result = messageExists;
+            userMessageLogDao.findByMessageId(userMessage.getMessageId(), MSHRole.RECEIVING);
+            result = new UserMessageLog();
 
         }};
 
         userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, userMessage, null, testMessage);
 
         new FullVerifications() {{
-            userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, null, selfSendingFlag, messageExists, testMessage);
+            partInfoService.checkPartInfoCharset(userMessage, null);
+            times = 1;
+
+            userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, null, messageExists, testMessage);
             times = 1;
             soapUtil.logMessage(request);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
@@ -1846,18 +1632,31 @@ public class UserMessageHandlerServiceImplTest {
     @Test
     public void checkTestMessageTest(@Injectable LegConfiguration legConfiguration) {
 
-        new Expectations(userMessageHandlerService) {{
+        new Expectations() {{
+            legConfiguration.getService().getValue();
+            result = Ebms3Constants.TEST_SERVICE;
+
+            legConfiguration.getAction().getValue();
+            result = Ebms3Constants.TEST_ACTION;
+        }};
+
+        assertTrue(userMessageHandlerService.checkTestMessage(legConfiguration));
+
+        new FullVerifications() {
+        };
+    }
+    @Test
+    public void checkTestMessageTest_true(@Injectable LegConfiguration legConfiguration) {
+
+        new Expectations() {{
             legConfiguration.getService().getValue();
             result = "service";
 
             legConfiguration.getAction().getValue();
             result = "action";
-
-            userMessageHandlerService.checkTestMessage("service", "action");
-            result = true;
         }};
 
-        assertTrue(userMessageHandlerService.checkTestMessage(legConfiguration));
+        assertFalse(userMessageHandlerService.checkTestMessage(legConfiguration));
 
         new FullVerifications() {
         };

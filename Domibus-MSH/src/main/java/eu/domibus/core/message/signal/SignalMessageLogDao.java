@@ -1,8 +1,7 @@
 package eu.domibus.core.message.signal;
 
-import com.google.common.collect.Maps;
-import eu.domibus.api.model.*;
-import eu.domibus.core.dao.BasicDao;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
@@ -54,32 +53,16 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         }
     }
 
-    @Override
-    public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredSignalMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = signalMessageLogInfoFilter.applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(from);
-        queryParameterized.setMaxResults(max);
-        return queryParameterized.getResultList();
-    }
-
     @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
-    public int deleteMessageLogs(List<String> messageIds) {
+    public int deleteMessageLogs(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("IDS", ids);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteSignalMessageLogs result [{}]", result);
         return result;
     }
 
-
-    public Integer countAll() {
-        final Query nativeQuery = em.createNativeQuery("SELECT count(sm.ID_PK) FROM  TB_SIGNAL_MESSAGE sm");
-        final Number singleResult = (Number) nativeQuery.getSingleResult();
-        return singleResult.intValue();
-    }
 
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return signalMessageLogInfoFilter;

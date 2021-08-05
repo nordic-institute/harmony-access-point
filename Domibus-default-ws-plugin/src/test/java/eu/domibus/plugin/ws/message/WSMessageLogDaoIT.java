@@ -1,18 +1,13 @@
 package eu.domibus.plugin.ws.message;
 
 import eu.domibus.common.JPAConstants;
-import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
-import eu.domibus.test.dao.InMemoryDataBaseConfig;
+import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceContext;
@@ -26,10 +21,7 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, WSPluginDaoTestConfig.class})
-@ActiveProfiles("IN_MEMORY_DATABASE")
-public class WSMessageLogDaoIT {
+public class WSMessageLogDaoIT extends AbstractBackendWSIT {
 
     @Autowired
     private WSMessageLogDao wsMessageLogDao;
@@ -40,6 +32,8 @@ public class WSMessageLogDaoIT {
 
     @Before
     public void setUp() throws Exception {
+        wsMessageLogDao.deleteAll(wsMessageLogDao.findAll());
+
         WSMessageLogEntity entity1 = new WSMessageLogEntity();
         entity1.setMessageId("messageID_1");
         entity1.setOriginalSender("urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
@@ -76,8 +70,6 @@ public class WSMessageLogDaoIT {
         entity4.setFromPartyId("domibus-blue2");
         entity4.setReceived(new Date());
         wsMessageLogDao.create(entity4);
-
-
     }
 
     @Test
@@ -92,6 +84,7 @@ public class WSMessageLogDaoIT {
 
         WSMessageLogEntity entity = new WSMessageLogEntity();
         entity.setMessageId("messageId");
+        entity.setReceived(new Date());
         wsMessageLogDao.create(entity);
         em.flush();
 

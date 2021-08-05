@@ -90,7 +90,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <sql dbms="mysql">
-            ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+            CREATE UNIQUE INDEX UIDX_D_MSG_PROP_NAME_VALUE_TYPE ON TB_D_MESSAGE_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
         </sql>
         <sql dbms="oracle">
             ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
@@ -115,7 +115,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <sql dbms="mysql">
-            ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+            CREATE UNIQUE INDEX UIDX_D_PART_PROP_NAME_VALUE_TYPE ON TB_D_PART_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
         </sql>
         <sql dbms="oracle">
             ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
@@ -156,7 +156,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_SERVICE_VALUE_TYPE" tableName="TB_D_SERVICE"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_SERVICE_VALUE_TYPE ON TB_D_SERVICE (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_SERVICE ADD CONSTRAINT UK_D_SERVICE_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -175,7 +180,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_PARTY_VALUE_TYPE" tableName="TB_D_PARTY"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_PARTY_VALUE_TYPE ON TB_D_PARTY (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_PARTY ADD CONSTRAINT UK_D_PARTY_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -212,7 +222,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_AGREEMENT_VALUE_TYPE ON TB_D_AGREEMENT (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_AGREEMENT ADD CONSTRAINT UK_D_AGREEMENT_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -394,7 +409,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -470,7 +485,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -486,7 +501,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -499,9 +514,6 @@
 
         <!-- TB_MESSAGE_PROPERTIES -->
         <createTable tableName="MIGR_TB_MESSAGE_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_MSG_PROPERTIES"/>
-            </column>
             <column name="USER_MESSAGE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -517,6 +529,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey columnNames="USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK" tableName="MIGR_TB_MESSAGE_PROPERTIES"/>
 
         <!-- TB_PART_INFO -->
         <createTable tableName="MIGR_TB_PART_INFO">
@@ -549,9 +562,6 @@
 
         <!-- TB_PART_PROPERTIES -->
         <createTable tableName="MIGR_TB_PART_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_PART_PROPERTIES"/>
-            </column>
             <column name="PART_INFO_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -567,6 +577,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey columnNames="PART_INFO_ID_FK, PART_INFO_PROPERTY_FK" tableName="MIGR_TB_PART_PROPERTIES"/>
 
         <!-- TB_ERROR_LOG -->
         <createTable tableName="MIGR_TB_ERROR_LOG">

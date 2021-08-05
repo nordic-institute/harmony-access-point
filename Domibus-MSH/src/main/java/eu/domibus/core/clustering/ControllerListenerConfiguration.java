@@ -1,8 +1,8 @@
 package eu.domibus.core.clustering;
 
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,7 +16,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import java.util.Optional;
 
-import static eu.domibus.common.JMSConstants.CLUSTER_COMMAND_TOPIC;
+import static eu.domibus.jms.spi.InternalJMSConstants.CLUSTER_COMMAND_TOPIC;
 
 /**
  * JMS listener responsible of executing internal commands
@@ -29,7 +29,7 @@ public class ControllerListenerConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerConfiguration.class);
 
     @Bean("controllerListener")
-    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  @Qualifier(CLUSTER_COMMAND_TOPIC) Topic destination,
                                                                                  ControllerListenerService messageListener,
                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,

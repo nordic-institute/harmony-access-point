@@ -6,6 +6,7 @@ import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.certificate.CertificateExchangeType;
@@ -14,9 +15,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -205,12 +204,12 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     }
 
     protected List<String> getPmodeKeyValues(SoapMessage message) {
-        String pmodeKey = (String) message.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
+        String pmodeKey = (String) message.get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
         if (StringUtils.isEmpty(pmodeKey)) {
             return null;
         }
 
-        return Arrays.asList(StringUtils.splitByWholeSeparator(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR));
+        return Arrays.asList(StringUtils.splitByWholeSeparator(pmodeKey, PModeConstants.PMODEKEY_SEPARATOR));
     }
 
     protected List<? extends Certificate> getSenderCertificateChain(SoapMessage msg) {

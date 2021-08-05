@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +28,7 @@ public class DomibusCacheServiceImplTest {
     private CacheManager cacheManager;
 
     @Injectable
-    private EntityManager entityManager;
+    private LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
 
     @Mocked
     private Cache cache;
@@ -118,7 +118,7 @@ public class DomibusCacheServiceImplTest {
     public void clear2LCaches(@Injectable DomibusCacheServiceNotifier domibusCacheServiceNotifier, @Injectable SessionFactory sessionFactory) {
 
         new Expectations(domibusCacheService) {{
-            entityManager.getEntityManagerFactory().unwrap(SessionFactory.class);
+            localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
             result = sessionFactory;
 
             domibusCacheService.notifyClear2LCaches();

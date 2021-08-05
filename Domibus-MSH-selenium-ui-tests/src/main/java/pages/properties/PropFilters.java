@@ -14,19 +14,22 @@ public class PropFilters extends FilterArea {
 
 
 	@FindBy(id = "filterPropertyName_id")
-	WebElement nameInputLct;
+	public WebElement nameInputLct;
 
 	@FindBy(id = "filterPropertyType_id")
-	WebElement typeInputLct;
+	public WebElement typeInputLct;
 
 	@FindBy(id = "filterPropertyModule_id")
-	WebElement moduleInputLct;
+	public WebElement moduleInputLct;
 
 	@FindBy(id = "filterPropertyValue_id")
-	WebElement valueInputLct;
+	public WebElement valueInputLct;
 
 	@FindBy(id = "includeSuperProperties_id")
-	WebElement showDomainChkLct;
+	public WebElement showDomainChkLct;
+
+	@FindBy(name = "filterIsWritable")
+	public WebElement writableChkLct;
 
 	public PropFilters(WebDriver driver) {
 		super(driver);
@@ -59,6 +62,7 @@ public class PropFilters extends FilterArea {
 		}
 
 		clickSearch();
+//		wait.forXMillis(500);
 
 	}
 

@@ -7,10 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.PartInfoDao;
-import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -31,7 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.common.JMSConstants.RETENTION_MESSAGE_QUEUE;
+import static eu.domibus.jms.spi.InternalJMSConstants.RETENTION_MESSAGE_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 
 /**
@@ -71,7 +68,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     private UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    protected PartInfoDao partInfoDao;
+    protected PartInfoService partInfoService;
 
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
@@ -270,7 +267,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     protected void deletePayload(UserMessage userMessage, UserMessageLog userMessageLog) {
-        partInfoDao.clearPayloadData(userMessage.getEntityId());
+        partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
     }
 

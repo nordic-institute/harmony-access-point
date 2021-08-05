@@ -6,7 +6,7 @@ import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.dictionary.*;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -30,28 +30,28 @@ public class SubmissionAS4TransformerTest {
     private MessageIdGenerator messageIdGenerator;
 
     @Injectable
-    private MpcDao mpcDao;
+    private MpcDictionaryService mpcDictionaryService;
 
     @Injectable
-    private MessagePropertyDao messagePropertyDao;
+    private MessagePropertyDictionaryService messagePropertyDictionaryService;
 
     @Injectable
-    private ServiceDao serviceDao;
+    private ServiceDictionaryService serviceDictionaryService;
 
     @Injectable
-    private ActionDao actionDao;
+    private ActionDictionaryService actionDictionaryService;
 
     @Injectable
-    private AgreementDao agreementDao;
+    private AgreementDictionaryService agreementDictionaryService;
 
     @Injectable
-    private PartyIdDao partyIdDao;
+    private PartyIdDictionaryService partyIdDictionaryService;
 
     @Injectable
-    private PartyRoleDao partyRoleDao;
+    private PartyRoleDictionaryService partyRoleDictionaryService;
 
     @Injectable
-    private PartPropertyDao partPropertyDao;
+    private PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Tested
     private SubmissionAS4Transformer submissionAS4Transformer;
@@ -114,19 +114,19 @@ public class SubmissionAS4TransformerTest {
             userMessage.getAction().getValue();
             result = action;
 
-            userMessage.getPartyInfo().getFrom().getRole();
+            userMessage.getPartyInfo().getFrom().getFromRole();
             result = fromRole;
 
-            userMessage.getPartyInfo().getTo().getRole();
+            userMessage.getPartyInfo().getTo().getToRole();
             result = toRole;
 
 //            userMessage.getPayloadInfo().getPartInfo();
 //            result = partInfoList;
 
-            userMessage.getPartyInfo().getFrom().getPartyId();
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = fromPartyIdSet;
 
-            userMessage.getPartyInfo().getTo().getPartyId();
+            userMessage.getPartyInfo().getTo().getToPartyId();
             result = toPartyIdSet;
 
         }};
@@ -143,7 +143,6 @@ public class SubmissionAS4TransformerTest {
             times = 1;
         }};
     }
-
 
 
     @Test
@@ -181,7 +180,6 @@ public class SubmissionAS4TransformerTest {
         Assert.assertEquals(fileNameWithoutPath, typedProperty2.getValue());
 
     }
-
 
 
     @Test

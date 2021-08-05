@@ -5,7 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.JMSConstants;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
@@ -94,7 +94,7 @@ public class AlertServiceImpl implements AlertService {
                             DomibusPropertyProvider domibusPropertyProvider,
                             AlertCoreMapper alertCoreMapper,
                             JMSManager jmsManager,
-                            @Qualifier(JMSConstants.ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
+                            @Qualifier(InternalJMSConstants.ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
                             AlertConfigurationService alertConfigurationService,
                             ServerInfoService serverInfoService,
                             CommonConfigurationManager alertConfigurationManager,

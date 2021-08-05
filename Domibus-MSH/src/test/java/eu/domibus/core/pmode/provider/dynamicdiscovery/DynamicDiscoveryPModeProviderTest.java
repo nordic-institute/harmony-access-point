@@ -279,12 +279,12 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn("false").when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED));
         try {
-            partyId = userMessage.getPartyInfo().getFrom().getPartyId();
+            partyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals(("Sender party could not found for the value  " + partyId), ex.getErrorDetail());
+            assertEquals(("Sender party could not be found for the value  " + partyId), ex.getErrorDetail());
         }
 
         doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
@@ -454,7 +454,7 @@ public class DynamicDiscoveryPModeProviderTest {
         partyId.setType((toPartyIdType));
 
         To to = new To();
-        to.setPartyId(partyId);
+        to.setToPartyId(partyId);
 
         PartyInfo partyInfo = new PartyInfo();
         partyInfo.setTo(to);
@@ -464,7 +464,7 @@ public class DynamicDiscoveryPModeProviderTest {
         partyId.setType((fromPartyIdType));
 
         From from = new From();
-        from.setPartyId(partyId);
+        from.setFromPartyId(partyId);
         partyInfo.setFrom(from);
 
         userMessageToBuild.setPartyInfo(partyInfo);

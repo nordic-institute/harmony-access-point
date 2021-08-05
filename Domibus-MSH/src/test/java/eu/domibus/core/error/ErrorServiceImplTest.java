@@ -1,12 +1,20 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.MshRoleDao;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.common.ErrorResult;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS;
@@ -61,5 +69,26 @@ public class ErrorServiceImplTest {
             Assert.assertEquals(days, daysActual);
             Assert.assertEquals(batchSize, batchSizeActual);
         }};
+    }
+
+    @Test
+    public void getErrors() {
+        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", "MESS_ID", null);
+        List<ErrorLogEntry> list = new ArrayList<>();
+        MSHRoleEntity mshRole = new MSHRoleEntity();
+        mshRole.setRole(MSHRole.RECEIVING);
+        ErrorLogEntry errorLogEntry = new ErrorLogEntry(ex, mshRole);
+        list.add(errorLogEntry);
+
+        new Expectations(){{
+            errorLogDao.getErrorsForMessage("MESS_ID");
+            result = list;
+        }};
+
+        List<? extends ErrorResult> result = errorService.getErrors("MESS_ID");
+
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(errorLogEntry.getErrorCode(), result.get(0).getErrorCode());
+        Assert.assertEquals(errorLogEntry.getErrorDetail(), result.get(0).getErrorDetail());
     }
 }

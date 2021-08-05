@@ -22,6 +22,8 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
@@ -42,6 +44,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -56,7 +59,6 @@ import org.w3c.dom.Node;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import javax.xml.bind.JAXBException;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -154,13 +156,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected MessagePropertyValidator messagePropertyValidator;
 
     @Autowired
-    protected PartInfoDao partInfoDao;
+    protected PartInfoService partInfoService;
 
     @Autowired
-    protected MessagePropertyDao messagePropertyDao;
-
-    @Autowired
-    protected PartPropertyDao partPropertyDao;
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Autowired
     protected MshRoleDao mshRoleDao;
@@ -172,9 +171,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Transactional(propagation = Propagation.REQUIRED)
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
-    public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
+    public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException {
         //check if the message is sent to the same Domibus instance
-        final boolean selfSendingFlag = checkSelfSending(pmodeKey);
+        final boolean selfSendingFlag = pModeProvider.checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(userMessage);
 
         handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, messageExists, testMessage);
@@ -190,12 +189,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Transactional
     @Override
-    public SOAPMessage handleNewSourceUserMessage(final LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, UserMessage userMessage, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
+    public SOAPMessage handleNewSourceUserMessage(final LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, UserMessage userMessage, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException {
         //check if the message is sent to the same Domibus instance
-        final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(userMessage);
 
-        handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, selfSendingFlag, messageExists, testMessage);
+        handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, messageExists, testMessage);
 
         return null;
     }
@@ -206,13 +204,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final SOAPMessage request,
             final UserMessage userMessage,
             List<PartInfo> partInfoList,
-            boolean selfSending,
             boolean messageExists,
             boolean testMessage) throws IOException, TransformerException, EbMS3Exception {
         soapUtil.logMessage(request);
 
         String messageId = userMessage.getMessageId();
-        checkPartInfoCharset(userMessage, partInfoList);
+        partInfoService.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
@@ -254,7 +251,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             boolean selfSending,
             boolean messageExists,
             boolean testMessage)
-            throws IOException, TransformerException, EbMS3Exception, SOAPException {
+            throws IOException, TransformerException, EbMS3Exception {
         soapUtil.logMessage(request);
 
         if (selfSending) {
@@ -265,14 +262,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         String messageId = userMessage.getMessageId();
-        checkPartInfoCharset(userMessage, partInfoList);
+        partInfoService.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (!messageExists) {
             if (testMessage) {
                 // ping messages are only stored and not notified to the plugins
-                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, null, null, null);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, null, null);
             } else {
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
@@ -295,56 +292,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
     }
 
-
-    /**
-     * It will check if the messages are sent to the same Domibus instance
-     *
-     * @param pmodeKey pmode key
-     * @return boolean true if there is the same AP
-     */
-    @Override
-    public Boolean checkSelfSending(String pmodeKey) {
-        final Party receiver = pModeProvider.getReceiverParty(pmodeKey);
-        final Party sender = pModeProvider.getSenderParty(pmodeKey);
-
-        //check endpoint
-        return StringUtils.trimToEmpty(receiver.getEndpoint()).equalsIgnoreCase(StringUtils.trimToEmpty(sender.getEndpoint()));
-    }
-
-    /**
-     * Required for AS4_TA_12
-     *
-     * @param userMessage the UserMessage received
-     * @throws EbMS3Exception if an attachment with an invalid charset is received
-     */
-    protected void checkPartInfoCharset(final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
-        LOG.debug("Checking charset for attachments");
-        if (partInfoList == null) {
-            LOG.debug("No partInfo found");
-            return;
-        }
-
-        for (final PartInfo partInfo : partInfoList) {
-            if (partInfo.getPartProperties() == null) {
-                continue;
-            }
-            for (final Property property : partInfo.getPartProperties()) {
-                if (Property.CHARSET.equalsIgnoreCase(property.getName()) && !Property.CHARSET_PATTERN.matcher(property.getValue()).matches()) {
-                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, property.getValue(), userMessage.getMessageId());
-                    EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, property.getValue() + " is not a valid Charset", userMessage.getMessageId(), null);
-                    ex.setMshRole(MSHRole.RECEIVING);
-                    throw ex;
-                }
-            }
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public Boolean checkTestMessage(final UserMessage message) {
-        return checkTestMessage(message.getService().getValue(), message.getActionValue());
+        return checkTestMessage(message.getServiceValue(), message.getActionValue());
     }
 
     /**
@@ -379,6 +332,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     protected String persistReceivedMessage(
             final SOAPMessage request,
             final LegConfiguration legConfiguration,
@@ -387,7 +341,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             List<PartInfo> partInfoList,
             Ebms3MessageFragmentType ebms3MessageFragmentType,
             final String backendName)
-            throws SOAPException, TransformerException, EbMS3Exception {
+            throws EbMS3Exception {
+
+        //add messageId to MDC map
+        if (StringUtils.isNotBlank(userMessage.getMessageId())) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        }
         LOG.info("Persisting received message");
 
         boolean compressed = compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
@@ -431,7 +390,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throw ex;
         } catch (InvalidPayloadSizeException e) {
             if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
-                partInfoDao.clearFileSystemPayloads(partInfoList);
+                partInfoService.clearFileSystemPayloads(partInfoList);
             }
             LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageId(), e);
@@ -451,13 +410,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 notificationStatus.toString(),
                 MSHRole.RECEIVING.toString(),
                 0,
-                StringUtils.isEmpty(userMessage.getMpcValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpcValue(),
-                backendName,
-                to.getEndpoint(),
-                userMessage.getService().getValue(),
-                userMessage.getActionValue(),
-                userMessage.isSourceMessage(),
-                userMessage.isMessageFragment());
+                backendName);
 
         uiReplicationSignalService.userMessageReceived(userMessage.getMessageId());
 
@@ -571,7 +524,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");
 
-        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
+         final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
 
         List<PartInfo> partInfoList = getPartInfoList(ebms3Messaging);
         if (ebms3MessageFragmentType != null) {
@@ -630,6 +583,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         List<PartInfo> result = new ArrayList<>();
 
         if (ebms3Messaging.getUserMessage().getPayloadInfo() == null) {
+            LOG.trace("UserMessage has no payload info");
             return result;
         }
         final List<Ebms3PartInfo> ebms3PartInfos = ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
@@ -639,6 +593,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         for (final Ebms3PartInfo ebms3PartInfo : ebms3PartInfos) {
             PartInfo partInfo = convert(ebms3PartInfo);
+            partInfo.setPartOrder(result.size());
             result.add(partInfo);
         }
 
@@ -658,12 +613,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         result.setHref(ebms3PartInfo.getHref());
 
         final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
-        final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
-        if (ebms3PartInfoPartProperties != null || CollectionUtils.isNotEmpty(ebms3Properties)) {
+        if (ebms3PartInfoPartProperties != null) {
+            final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
             Set<PartProperty> partProperties = new HashSet<>();
 
             for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDao.findPropertyByNameValueAndType(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
+                final PartProperty property = partPropertyDictionaryService.findOrCreatePartProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
                 if (property != null) {
                     partProperties.add(property);
                 }

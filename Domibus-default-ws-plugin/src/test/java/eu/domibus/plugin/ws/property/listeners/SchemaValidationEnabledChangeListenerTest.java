@@ -22,11 +22,14 @@ public class SchemaValidationEnabledChangeListenerTest {
     @Mocked
     private Endpoint backendInterfaceEndpoint;
 
+    @Mocked
+    private Endpoint backendInterfaceEndpointDeprecated;
+
     private SchemaValidationEnabledChangeListener listener;
 
     @Before
     public void setUp()  {
-        listener = new SchemaValidationEnabledChangeListener(backendInterfaceEndpoint);
+        listener = new SchemaValidationEnabledChangeListener(backendInterfaceEndpoint, backendInterfaceEndpointDeprecated);
     }
 
     @Test
@@ -44,14 +47,18 @@ public class SchemaValidationEnabledChangeListenerTest {
     @Test
     public void propertyValueChanged() {
         HashMap<String, Object> propBag = new HashMap<>();
+        HashMap<String, Object> propBagDeprecated = new HashMap<>();
         new Expectations() {{
             backendInterfaceEndpoint.getProperties();
             result = propBag;
+            backendInterfaceEndpointDeprecated.getProperties();
+            result = propBagDeprecated;
         }};
 
         listener.propertyValueChanged("default", "wsplugin.schema.validation.enabled", "true");
 
         Assert.assertEquals("true", propBag.get("schema-validation-enabled"));
+        Assert.assertEquals("true", propBagDeprecated.get("schema-validation-enabled"));
 
         new FullVerifications(){};
     }

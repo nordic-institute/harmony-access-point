@@ -17,7 +17,8 @@ public class LoggingGrid extends DGrid {
 	public LoggingGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
-		
+
+		this.container = container;
 	}
 	
 	By buttonSelector = By.tagName("mat-button-toggle");

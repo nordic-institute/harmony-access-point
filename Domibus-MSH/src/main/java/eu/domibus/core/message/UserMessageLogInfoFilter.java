@@ -62,8 +62,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                                 "left join message.messageProperties propsFrom "  +
                                 "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join log.timezoneOffset timezoneOffset " +
-                        "left join message.partyInfo.from.partyId partyFrom " +
-                        "left join message.partyInfo.to.partyId partyTo " +
+                        "left join message.partyInfo.from.fromPartyId partyFrom " +
+                        "left join message.partyInfo.to.toPartyId partyTo " +
                         (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' "  +
                                 "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
@@ -85,15 +85,15 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
        // mappings.put("info", Arrays.asList(messageTable));
         mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties propsFrom "));
         mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties propsTo "));
-        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
-        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.partyId partyTo "));
+        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.fromPartyId partyFrom "));
+        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.toPartyId partyTo "));
         return mappings;
     }
 
     @Override
     protected Map<String, List<String>> createWhereMappings() {
         Map<String, List<String>> mappings = new HashMap<>();
-        String messageCriteria = "1=1" ; // "message.messageInfo = info ";
+        String messageCriteria = "1=1" ;
         mappings.put("message", Arrays.asList(messageCriteria));
         mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
         mappings.put("propsTo", Arrays.asList(messageCriteria, "and propsTo.name = 'finalRecipient' "));

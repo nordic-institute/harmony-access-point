@@ -8,15 +8,11 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
-import eu.domibus.jms.spi.InternalJMSDestination;
-import eu.domibus.jms.spi.InternalJMSException;
-import eu.domibus.jms.spi.InternalJMSManager;
-import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.*;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +38,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
+
+import static eu.domibus.jms.spi.InternalJMSConstants.*;
 
 /**
  * @author Cosmin Baciu, Catalin Enache
@@ -215,7 +213,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
             InternalJMSDestination destination = new InternalJMSDestination();
             destination.setName(destName);
             destination.setFullyQualifiedName(removeJmsModule(destinationFQName));
-            destination.setType(QUEUE);
+            destination.setType(InternalJMSConstants.QUEUE);
             destination.setProperty(PROPERTY_OBJECT_NAME, jmsDestination);
             String configQueueJndiName = (String) mbsc.getAttribute(configQueue, ATTR_JNDI_NAME);
             destination.setProperty(PROPERTY_JNDI_NAME, configQueueJndiName);
@@ -493,6 +491,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     @Override
+    public void deleteAllMessages(String source) {
+        deleteMessages(getMessageDestinationName(removeJmsModule(source)), "");
+    }
+
+    @Override
     public InternalJmsMessage getMessage(String source, String messageId) {
         InternalJmsMessage internalJmsMessage = null;
         for (InternalJMSDestination internalJmsDestination : getInternalJMSDestinations(removeJmsModule(source))) {
@@ -651,7 +654,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         List<InternalJMSDestination> destinations = getInternalJMSDestinations(sourceWithoutJMSModule);
         for (InternalJMSDestination destination : destinations) {
             String destinationType = destination.getType();
-            if (QUEUE.equals(destinationType)) {
+            if (InternalJMSConstants.QUEUE.equals(destinationType)) {
                 try {
                     ObjectName jmsDestination = destination.getProperty(PROPERTY_OBJECT_NAME);
                     internalJmsMessages.addAll(getMessagesFromDestination(jmsDestination, selector));
@@ -681,7 +684,7 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
         InternalJMSDestination destination = getInternalJMSDestination(removeJmsModule(source));
         String destinationType = destination.getType();
-        if (QUEUE.equals(destinationType)) {
+        if (InternalJMSConstants.QUEUE.equals(destinationType)) {
             Map<String, Object> criteria = new HashMap<>();
             if (jmsType != null) {
                 criteria.put(JMS_TYPE, jmsType);

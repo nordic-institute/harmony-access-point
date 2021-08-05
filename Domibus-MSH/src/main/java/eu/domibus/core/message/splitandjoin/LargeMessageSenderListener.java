@@ -3,7 +3,6 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.core.ebms3.sender.AbstractMessageSenderListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.MDCKey;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Message;
@@ -16,7 +15,6 @@ import javax.jms.Message;
 public class LargeMessageSenderListener extends AbstractMessageSenderListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LargeMessageSenderListener.class);
 
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
     public void onMessage(final Message message) {
         LOG.debug("Processing large message [{}]", message);
@@ -31,5 +29,10 @@ public class LargeMessageSenderListener extends AbstractMessageSenderListener {
     @Override
     public void sendUserMessage(String messageId, int retryCount) {
         super.messageSenderService.sendUserMessage(messageId, retryCount);
+    }
+
+    @Override
+    public DomibusLogger getLogger() {
+        return LOG;
     }
 }

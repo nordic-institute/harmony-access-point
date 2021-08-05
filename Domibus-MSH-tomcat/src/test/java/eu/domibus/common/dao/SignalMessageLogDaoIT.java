@@ -3,6 +3,8 @@ package eu.domibus.common.dao;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
@@ -72,6 +74,10 @@ public class SignalMessageLogDaoIT extends AbstractIT {
                 {"receivedTo", after},
                 {"mshRole", MSHRole.RECEIVING},
                 {"messageStatus", MessageStatus.RECEIVED},
+                // these filters should be ignored:
+                {"notificationStatus", NotificationStatus.NOTIFIED},
+                {"conversationId", "1"},
+                {"failed", now},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
         long count = signalMessageLogDao.countEntries(filters);
@@ -92,4 +98,32 @@ public class SignalMessageLogDaoIT extends AbstractIT {
         Assert.assertEquals(2, messages.size());
     }
 
+    @Test
+    @Transactional
+    public void testFindAllInfoPagedWithOrder() {
+        Map<String, Object> filters = Stream.of(new Object[][]{
+                {"receivedFrom", before},
+                {"receivedTo", after},
+                // these filters should be ignored:
+                {"notificationStatus", NotificationStatus.NOTIFIED},
+                {"conversationId", "1"},
+                {"failed", now},
+        }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
+
+        String[] columnsToTest = new String[]{"nextAttempt", "sendAttempts", "sendAttemptsMax", "failed", "restored", "conversationId", "notificationStatus", "messageStatus", "mshRole", "refToMessageId", "toPartyId", "finalRecipient"};
+        for (String column : columnsToTest) {
+            List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, column, false, filters);
+            Assert.assertEquals(2, messages.size());
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindLastTestMessageId() {
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+        String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
+
+        String messageId = signalMessageLogDao.findLastTestMessageId(testParty);
+        Assert.assertEquals("signal-msg-test-1", messageId);
+    }
 }

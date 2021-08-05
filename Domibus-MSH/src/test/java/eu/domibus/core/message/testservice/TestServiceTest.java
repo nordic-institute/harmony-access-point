@@ -382,7 +382,7 @@ public class TestServiceTest {
             times = 0;
             userMessageLogDao.findLastTestMessageId(partyId);
             result = userMessageId;
-            userMessageLogDao.findByMessageId(userMessageId);
+            userMessageLogDao.findByMessageIdSafely(userMessageId);
             result = userMessageLog;
         }};
         TestServiceMessageInfoRO lastTestSent = testService.getLastTestSentWithErrors(partyId);
@@ -399,7 +399,7 @@ public class TestServiceTest {
             times = 0;
             userMessageLogDao.findLastTestMessageId(anyString);
             result = userMessageId;
-            userMessageLogDao.findByMessageId(userMessageId);
+            userMessageLogDao.findByMessageIdSafely(userMessageId);
             result = null;
         }};
 

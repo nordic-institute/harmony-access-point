@@ -1,6 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -116,7 +118,7 @@ public class UserMessageLogDefaultServiceTest {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(messageId);
         userMessage.setConversationId(messageId);
-        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, mpc, backendName, endpoint, null, null, null, null);
+        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(new UserMessage(), withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));

@@ -19,7 +19,7 @@ import java.sql.Timestamp;
         @NamedQuery(name = "MessageAttemptEntity.findAttemptsByMessageId",
                 query = "select attempt from MessageAttemptEntity attempt where attempt.userMessage.messageId = :MESSAGE_ID"),
         @NamedQuery(name = "MessageAttemptEntity.deleteAttemptsByMessageIds",
-                query = "delete from MessageAttemptEntity attempt where attempt.userMessage.messageId IN :MESSAGEIDS"),
+                query = "delete from MessageAttemptEntity attempt where attempt.userMessage.entityId IN :IDS"),
 })
 public class MessageAttemptEntity extends AbstractBaseEntity {
 

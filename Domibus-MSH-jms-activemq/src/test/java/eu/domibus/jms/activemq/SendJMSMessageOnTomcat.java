@@ -79,6 +79,9 @@ public class SendJMSMessageOnTomcat {
 
             producer.send(messageMap);
 
+            MessageConsumer consumer = session.createConsumer(destination);
+            Message message = consumer.receive(6000);
+
             connection.close();
         } catch (JMSException e) {
             e.printStackTrace();

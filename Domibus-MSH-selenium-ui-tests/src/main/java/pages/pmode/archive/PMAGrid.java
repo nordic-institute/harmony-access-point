@@ -18,6 +18,8 @@ public class PMAGrid extends DGrid {
 	public PMAGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
+
+		this.container = container;
 	}
 
 	public boolean isActionEnabledForRow(int rowNo, String actionName) throws Exception {

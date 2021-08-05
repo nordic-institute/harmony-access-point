@@ -30,8 +30,8 @@ public class SignalMessageLogInfoFilterTest {
             "left join log.messageInfo info " +
             "left join message.messageProperties.property propsFrom " +
             "left join message.messageProperties.property propsTo " +
-            "left join message.partyInfo.from.partyId partyFrom " +
-            "left join message.partyInfo.to.partyId partyTo " +
+            "left join message.partyInfo.from.fromPartyId partyFrom " +
+            "left join message.partyInfo.to.toPartyId partyTo " +
             "where message.messageInfo = info and propsFrom.name = 'originalSender'" +
             "and propsTo.name = 'finalRecipient'";
 
@@ -78,18 +78,17 @@ public class SignalMessageLogInfoFilterTest {
 
         Assert.assertFalse(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
         Assert.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
-        Assert.assertTrue(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
+        Assert.assertFalse(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assert.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
         Assert.assertTrue(resultQueryString.contains("log.received <= :receivedTo"));
         Assert.assertTrue(resultQueryString.contains("signal.signalMessageId = :messageId"));
         Assert.assertTrue(resultQueryString.contains("signal.refToMessageId = :refToMessageId"));
         Assert.assertTrue(resultQueryString.contains("log.received = :received"));
-        Assert.assertTrue(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
+        Assert.assertFalse(resultQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assert.assertTrue(resultQueryString.contains("propsTo.value = :finalRecipient"));
-        Assert.assertTrue(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
+        Assert.assertFalse(resultQueryString.contains("log.nextAttempt = :nextAttempt"));
         Assert.assertTrue(resultQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(resultQueryString.contains("log.deleted = :deleted"));
-        Assert.assertTrue(resultQueryString.contains("log.messageType = :messageType"));
         Assert.assertTrue(resultQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(resultQueryString.contains("partyTo.value = :toPartyId"));
         Assert.assertTrue(resultQueryString.contains("log.mshRole.role = :mshRole"));
@@ -107,7 +106,7 @@ public class SignalMessageLogInfoFilterTest {
                 "originalSender", "333");
 
         String messageTable = "join log.signalMessage signal join signal.userMessage message";
-        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
+        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         String propsCriteria = "and propsFrom.name = 'originalSender' ";
 
         String result = signalMessageLogInfoFilter.getCountQueryBody(filters);

@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
@@ -44,7 +45,6 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DispatchClientDefaultProvider.class);
 
-    public static final String PMODE_KEY_CONTEXT_PROPERTY = "PMODE_KEY_CONTEXT_PROPERTY";
     public static final String MESSAGING_KEY_CONTEXT_PROPERTY = "MESSAGING_KEY_CONTEXT_PROPERTY";
     public static final String ASYMMETRIC_SIG_ALGO_PROPERTY = "ASYMMETRIC_SIG_ALGO_PROPERTY";
     public static final String MESSAGE_ID = "MESSAGE_ID";
@@ -103,7 +103,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);
         dispatch.getRequestContext().put(PolicyConstants.POLICY_OVERRIDE, policy);
         dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
-        dispatch.getRequestContext().put(PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
+        dispatch.getRequestContext().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
         client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
         final HTTPConduit httpConduit = (HTTPConduit) client.getConduit();

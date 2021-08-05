@@ -25,7 +25,7 @@ import java.util.Set;
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "PartInfo.findPartInfos", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "PartInfo.findPartInfos", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID order by pi.partOrder"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
         @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
@@ -78,6 +78,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "ENCRYPTED")
     protected Boolean encrypted;
 
+    @Transient
     public String getMimeProperty() {
         return partProperties.stream()
                 .filter(partProperty -> partProperty.getName().equals(Ebms3Property.MIME_TYPE))
@@ -87,10 +88,12 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
                 .orElse(null);
     }
 
+    @Transient
     public DataHandler getPayloadDatahandler() {
         return payloadDatahandler;
     }
 
+    @Transient
     public void setPayloadDatahandler(final DataHandler payloadDatahandler) {
         this.payloadDatahandler = payloadDatahandler;
     }
@@ -143,10 +146,12 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.userMessage = userMessage;
     }
 
+    @Transient
     public Set<PartProperty> getPartProperties() {
         return partProperties;
     }
 
+    @Transient
     public void setPartProperties(Set<PartProperty> partProperties) {
         this.partProperties = partProperties;
     }
@@ -180,6 +185,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     }
 
+    @Transient
     protected Cipher getDecryptCipher() {
         LOG.debug("Getting decrypt cipher for payload [{}]", href);
         final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
@@ -202,10 +208,12 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.href = value;
     }
 
+    @Transient
     public long getLength() {
         return length;
     }
 
+    @Transient
     public void setLength(long length) {
         this.length = length;
     }

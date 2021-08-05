@@ -25,7 +25,7 @@ public interface PModeExtService {
      * @param id id of the PMode to download/get
      * @return array of bytes
      */
-    byte[] getPModeFile(int id);
+    byte[] getPModeFile(long id);
 
     /**
      * Returns PMode current file information

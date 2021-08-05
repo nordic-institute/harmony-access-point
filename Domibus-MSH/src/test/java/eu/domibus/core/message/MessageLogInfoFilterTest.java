@@ -38,7 +38,6 @@ public class MessageLogInfoFilterTest {
         filters.put("conversationId", "CONVERSATIONID");
         filters.put("messageId", "MESSAGEID");
         filters.put("mshRole", "MSHROLE");
-        filters.put("messageType", "MESSAGETYPE");
         filters.put("messageStatus", "MESSAGESTATUS");
         filters.put("notificationStatus", "NOTIFICATIONSTATUS");
         filters.put("deleted", "DELETED");
@@ -86,7 +85,6 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("log.nextAttempt = :nextAttempt"));
         Assert.assertTrue(filterQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(filterQueryString.contains("log.deleted = :deleted"));
-        Assert.assertTrue(filterQueryString.contains("log.messageType = :messageType"));
         Assert.assertTrue(filterQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(filterQueryString.contains("partyTo.value = :toPartyId"));
         Assert.assertTrue(filterQueryString.contains("log.mshRole.role = :mshRole"));
@@ -112,7 +110,6 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("log.nextAttempt = :nextAttempt"));
         Assert.assertTrue(filterQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
         Assert.assertTrue(filterQueryString.contains("log.deleted = :deleted"));
-        Assert.assertTrue(filterQueryString.contains("log.messageType = :messageType"));
         Assert.assertTrue(filterQueryString.contains("log.received >= :receivedFrom"));
         Assert.assertTrue(filterQueryString.contains("partyTo.value = :toPartyId"));
         Assert.assertTrue(filterQueryString.contains("log.mshRole.role = :mshRole"));
@@ -234,7 +231,7 @@ public class MessageLogInfoFilterTest {
         String mainTable = "UserMessageLog log ";
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
-        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
+        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         Map<String, List<String>> mappings = ImmutableMap.of(
                 "message", Arrays.asList(messageTable),
                 "info", Arrays.asList(messageTable),

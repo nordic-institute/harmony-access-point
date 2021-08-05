@@ -11,27 +11,26 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
-import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.JMSConstants;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.dictionary.MessagePropertyDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
@@ -40,9 +39,6 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIMessageDao;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -64,7 +60,6 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -83,22 +78,25 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
     static final String DOES_NOT_EXIST = "] does not exist";
+
+    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
+    private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
 
     @Autowired
-    @Qualifier(JMSConstants.SEND_MESSAGE_QUEUE)
+    @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
 
     @Autowired
-    @Qualifier(JMSConstants.SEND_LARGE_MESSAGE_QUEUE)
+    @Qualifier(InternalJMSConstants.SEND_LARGE_MESSAGE_QUEUE)
     private Queue sendLargeMessageQueue;
 
     @Autowired
-    @Qualifier(JMSConstants.SPLIT_AND_JOIN_QUEUE)
+    @Qualifier(InternalJMSConstants.SPLIT_AND_JOIN_QUEUE)
     private Queue splitAndJoinQueue;
 
     @Autowired
-    @Qualifier(JMSConstants.SEND_PULL_RECEIPT_QUEUE)
+    @Qualifier(InternalJMSConstants.SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
 
     @Autowired
@@ -111,22 +109,13 @@ public class UserMessageDefaultService implements UserMessageService {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private MessageInfoDao messageInfoDao;
-
-    @Autowired
     private SignalMessageDao signalMessageDao;
-
-    @Autowired
-    private MessagePropertyDao propertyDao;
 
     @Autowired
     private MessageAttemptDao messageAttemptDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
-
-    @Autowired
-    private UIMessageDao uiMessageDao;
 
     @Autowired
     private MessageAcknowledgementDao messageAcknowledgementDao;
@@ -153,19 +142,10 @@ public class UserMessageDefaultService implements UserMessageService {
     PModeServiceHelper pModeServiceHelper;
 
     @Autowired
-    private MessageExchangeService messageExchangeService;
-
-    @Autowired
     private MessageCoreMapper messageCoreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    private PullMessageService pullMessageService;
-
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected MessageGroupDao messageGroupDao;
@@ -175,9 +155,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     protected DatabaseMessageHandler databaseMessageHandler;
-
-    @Autowired
-    private PModeProvider pModeProvider;
 
     @Autowired
     MessageConverterService messageConverterService;
@@ -195,13 +172,25 @@ public class UserMessageDefaultService implements UserMessageService {
     NonRepudiationService nonRepudiationService;
 
     @Autowired
-    protected PartInfoDao partInfoDao;
+    protected PartInfoService partInfoService;
 
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
 
     @Autowired
     private ReprogrammableService reprogrammableService;
+
+    @Autowired
+    SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
+
+    @Autowired
+    UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+
+    @Autowired
+    ReceiptDao receiptDao;
+
+    @Autowired
+    private UserMessageDefaultRestoreService restoreService;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -266,48 +255,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
-    @Transactional
-    @Override
-    public void restoreFailedMessage(String messageId) {
-        LOG.info("Restoring message [{}]", messageId);
-        final UserMessageLog userMessageLog = getFailedMessage(messageId);
-
-        if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
-        }
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-
-        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(newMessageStatus);
-        final Date currentDate = new Date();
-        userMessageLog.setRestored(currentDate);
-        userMessageLog.setFailed(null);
-        reprogrammableService.setRescheduleInfo(userMessageLog, currentDate);
-
-        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog, messageId);
-        LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
-        userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-        userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(messageId);
-
-
-        if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
-            scheduleSending(userMessage, userMessageLog);
-        } else {
-            try {
-                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-                Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
-                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", messageId);
-                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            } catch (EbMS3Exception ebms3Ex) {
-                LOG.error("Error restoring user message to ready to pull[" + messageId + "]", ebms3Ex);
-            }
-        }
-    }
-
     @Override
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);
@@ -347,27 +294,10 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
             sendEnqueuedMessage(messageId);
         } else {
-            restoreFailedMessage(messageId);
+            restoreService.restoreFailedMessage(messageId);
         }
 
         auditService.addMessageResentAudit(messageId);
-    }
-
-    protected Integer getMaxAttemptsConfiguration(final String messageId) {
-        final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageId);
-        Integer result = 1;
-        if (legConfiguration == null) {
-            LOG.warn("Could not get the leg configuration for message [{}]. Using the default maxAttempts configuration [{}]", messageId, result);
-        } else {
-            result = pModeServiceHelper.getMaxAttempts(legConfiguration);
-        }
-        return result;
-    }
-
-    protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog, final String messageId) {
-        Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(messageId);
-        // always increase maxAttempts (even when not reached by sendAttempts)
-        return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
     protected Integer getUserMessagePriority(UserMessage userMessage) {
@@ -399,8 +329,6 @@ public class UserMessageDefaultService implements UserMessageService {
     /**
      * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
      *
-     * @param userMessageLog
-     * @param jmsMessage
      */
     protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
@@ -491,7 +419,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, messageId)
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }
@@ -504,7 +432,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
@@ -531,7 +459,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
         jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
@@ -543,7 +471,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
-                .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
+                .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
         jmsManager.sendMessageToQueue(jmsMessage, sendPullReceiptQueue);
@@ -567,7 +495,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
             try {
-                restoreFailedMessage(messageId);
+                restoreService.restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
                 LOG.error("Failed to restore message [" + messageId + "]", e);
@@ -613,7 +541,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
-        partInfoDao.clearPayloadData(userMessage.getEntityId());
+        partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
 
         if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
@@ -629,47 +557,48 @@ public class UserMessageDefaultService implements UserMessageService {
         em.unwrap(Session.class)
                 .setJdbcBatchSize(BATCH_SIZE);
 
+        List<Long> ids = userMessageLogs
+                .stream()
+                .map(UserMessageLogDto::getEntityId)
+                .collect(Collectors.toList());
+
         List<String> userMessageIds = userMessageLogs
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList());
 
-        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
-        LOG.trace("Deleting user messages [{}]", userMessageIds);
 
-        List<String> filenames = partInfoDao.findFileSystemPayloadFilenames(userMessageIds);
-        partInfoDao.deletePayloadFiles(filenames);
+        LOG.debug("Deleting [{}] user messages", ids.size());
+        LOG.trace("Deleting user messages [{}]", ids);
 
-        List<String> signalMessageId = new ArrayList<>();
-
-        /* --- TODO IOANA fix deletion with new schema
-        List<Messaging> messagings = messagingDao.findMessagings(userMessageIds);
-        LOG.debug("Deleting [{}] messagings", messagings.size());
-        for (Messaging messaging : messagings) {
-            LOG.trace("Deleting messaging [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
-            if (messaging.getSignalMessage() != null) {
-                signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
-            }
-            em.remove(messaging);
-        }
-        */
+        List<String> filenames = partInfoService.findFileSystemPayloadFilenames(userMessageIds);
+        partInfoService.deletePayloadFiles(filenames);
 
         em.flush();
-        int deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
-        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
-        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
-        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageId);
-        LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
-        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
-        LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
+        int deleteResult = userMessageLogDao.deleteMessageLogs(ids);
+        LOG.info("Deleted [{}] userMessageLogs.", deleteResult);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(ids);
+        LOG.info("Deleted [{}] signalMessageLogs.", deleteResult);
+        deleteResult = signalMessageRawEnvelopeDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] signalMessageRaws.", deleteResult);
+        deleteResult = receiptDao.deleteReceipts(ids);
+        LOG.info("Deleted [{}] receipts.", deleteResult);
+        deleteResult = signalMessageDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] signalMessages.", deleteResult);
+        deleteResult = userMessageRawEnvelopeDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] userMessageRaws.", deleteResult);
+        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(ids);
+        LOG.info("Deleted [{}] attempts.", deleteResult);
+
+
         deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
-        LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
-        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
-        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
-        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageId);
-        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
-        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
-        LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+        LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
+        LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+
+
+        deleteResult = userMessageDao.deleteMessages(ids);
+        LOG.info("Deleted [{}] userMessages.", deleteResult);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
@@ -679,7 +608,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
         auditService.addMessageDownloadedAudit(messageId);
-        final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        final List<PartInfo> partInfoList = partInfoService.findPartInfo(userMessage);
         return messageToBytes(userMessage, partInfoList);
     }
 
@@ -710,13 +639,26 @@ public class UserMessageDefaultService implements UserMessageService {
         return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
     }
 
+    @Override
+    public UserMessage getByMessageId(String messageId) throws MessageNotFoundException {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
+        return userMessage;
+    }
+
+    @Override
+    public UserMessage findByMessageId(String messageId) {
+        return userMessageDao.findByMessageId(messageId);
+    }
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 
         UserMessage userMessage = getUserMessageById(messageId);
 
         Map<String, InputStream> result = new HashMap<>();
-        final List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        final List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
         InputStream messageStream = messageToStream(userMessage, partInfos);
         result.put("message.xml", messageStream);
 

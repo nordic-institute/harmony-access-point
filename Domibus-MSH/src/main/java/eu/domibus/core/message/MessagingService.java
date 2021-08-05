@@ -1,12 +1,10 @@
 package eu.domibus.core.message;
 
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.plugin.Submission;
 
 import java.util.List;
 
@@ -23,4 +21,5 @@ public interface MessagingService {
 
     void storePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, LegConfiguration legConfiguration, String backendName);
 
+    Submission getSubmission(UserMessage userMessage);
 }

@@ -7,7 +7,9 @@ import eu.domibus.messaging.MessageConstants;
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
  */
-public class JMSMessageConstants {
+public final class JMSMessageConstants {
+
+    private JMSMessageConstants() {}
 
     public static final String JMS_PLUGIN_PROPERTY_PREFIX = "jmsplugin";
     public static final String MPC = "mpc";
@@ -78,7 +80,5 @@ public class JMSMessageConstants {
     public static final String QUEUE_IN_CONCURRENCY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in.concurrency";
 
     public static final String MESSAGE_NOTIFICATIONS = JMS_PLUGIN_PROPERTY_PREFIX + "." + "messages.notifications";
-
-
 
 }

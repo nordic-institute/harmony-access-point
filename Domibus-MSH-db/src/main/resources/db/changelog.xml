@@ -10,13 +10,18 @@
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp,Cosmin Baciu" id="EDELIVERY-7803-oracle sequence">
-        <comment>create oracle sequence</comment>
+        <comment>create HIBERNATE_SEQUENCE</comment>
         <!--
         - the sequence starts at 100 to allocate the first 100 primary keys for the initial data insert eg default users, user roles, etc
         - maxValue is omitted meaning that the sequence has not upper boundary value
         -->
         <createSequence sequenceName="HIBERNATE_SEQUENCE" minValue="1"
                         incrementBy="20" startValue="100" cacheSize="1000" cycle="false" ordered="false"/>
+    </changeSet>
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
+        <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
 
     <!-- Quartz tables -->
@@ -123,7 +128,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <sql dbms="mysql">
-            ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+            CREATE UNIQUE INDEX UIDX_D_MSG_PROP_NAME_VALUE_TYPE ON TB_D_MESSAGE_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
         </sql>
         <sql dbms="oracle">
             ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
@@ -148,7 +153,7 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <sql dbms="mysql">
-            ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME(100), VALUE(100), TYPE(50));
+            CREATE UNIQUE INDEX UIDX_D_PART_PROP_NAME_VALUE_TYPE ON TB_D_PART_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
         </sql>
         <sql dbms="oracle">
             ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
@@ -189,7 +194,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_SERVICE_VALUE_TYPE" tableName="TB_D_SERVICE"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_SERVICE_VALUE_TYPE ON TB_D_SERVICE (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_SERVICE ADD CONSTRAINT UK_D_SERVICE_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -208,7 +218,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE,TYPE" constraintName="UK_D_PARTY_VALUE_TYPE" tableName="TB_D_PARTY"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_PARTY_VALUE_TYPE ON TB_D_PARTY (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_PARTY ADD CONSTRAINT UK_D_PARTY_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -245,7 +260,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT"/>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_AGREEMENT_VALUE_TYPE ON TB_D_AGREEMENT (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_AGREEMENT ADD CONSTRAINT UK_D_AGREEMENT_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
 
         <createTable tableName="TB_D_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -456,7 +476,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
         <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
             <column name="FK_MSG_ACKNOWLEDGE"/>
@@ -698,16 +718,13 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
                                  constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_MESSAGE"/>
         <createIndex indexName="FK_USER_MESSAGE_ID" tableName="TB_PART_INFO">
             <column name="USER_MESSAGE_ID_FK"/>
         </createIndex>
 
         <createTable tableName="TB_PART_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_PART_PROPERTIES"/>
-            </column>
             <column name="PART_INFO_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -723,9 +740,10 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey columnNames="PART_INFO_ID_FK, PART_INFO_PROPERTY_FK" tableName="TB_PART_PROPERTIES"/>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_PROPERTY_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"
@@ -737,12 +755,8 @@
         <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
             <column name="PART_INFO_PROPERTY_FK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
 
         <createTable tableName="TB_MESSAGE_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_MSG_PROPERTIES"/>
-            </column>
             <column name="USER_MESSAGE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -758,6 +772,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey columnNames="USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK" tableName="TB_MESSAGE_PROPERTIES"/>
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
                                  constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
@@ -772,13 +787,12 @@
         <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
             <column name="MESSAGE_PROPERTY_FK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="USER_MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
 
         <createTable tableName="TB_USER_MESSAGE_RAW">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -862,7 +876,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -881,7 +895,7 @@
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="BLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -931,9 +945,9 @@
             <column name="USER_MESSAGE_ID_FK"/>
         </createIndex>
 
-        <createTable tableName="TB_USER_MESSAGE_DELETION_JOB">
+        <createTable tableName="TB_USER_MSG_DELETION_JOB">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE_DELETION_JOB"/>
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MSG_DELETION_JOB"/>
             </column>
             <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
             <column name="MPC" type="VARCHAR(255)"/>
@@ -1099,10 +1113,10 @@
                 <constraints primaryKey="true" primaryKeyName="PK_ENCRYPTION_KEY"/>
             </column>
             <column name="KEY_USAGE" type="VARCHAR(255)" remarks="The encryption usage: PAYLOAD"/>
-            <column name="SECRET_KEY" type="BLOB"  remarks="The secret key used for symmetric encryption">
+            <column name="SECRET_KEY" type="LONGBLOB"  remarks="The secret key used for symmetric encryption">
                 <constraints nullable="false"/>
             </column>
-            <column name="INIT_VECTOR" type="BLOB" remarks="The initialization vector used for encryption">
+            <column name="INIT_VECTOR" type="LONGBLOB" remarks="The initialization vector used for encryption">
                 <constraints nullable="false"/>
             </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -1747,7 +1761,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_PM_CONFIGURATION_RAW"/>
             </column>
             <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
-            <column name="XML" type="BLOB"/>
+            <column name="XML" type="LONGBLOB"/>
             <column defaultValue="" name="DESCRIPTION" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -1771,7 +1785,7 @@
             <column name="CONFIGURATIONDATE_MOD" type="BOOLEAN"/>
             <column name="DESCRIPTION" type="VARCHAR(255)"/>
             <column name="DESCRIPTION_MOD" type="VARCHAR(255)"/>
-            <column name="XML" type="BLOB"/>
+            <column name="XML" type="LONGBLOB"/>
             <column name="XML_MOD" type="BOOLEAN"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_RAW_AUD"

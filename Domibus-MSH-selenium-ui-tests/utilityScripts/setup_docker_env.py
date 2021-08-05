@@ -7,10 +7,13 @@ from yaml import dump
 from requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
 
+file_name = "../../../docker/development/corners/docker-compose-wf-mysql-mt.yml"
 my_webserver_key = "wildfly"
-my_url = "https://ec.europa.eu/cefdigital/code/projects/EDELIVERY/repos/docker/raw/development/corners/docker-compose-wf-mysql-mt.yml"
-my_user = sys.argv[1]
-my_pass = sys.argv[2]
+
+# GET YML FILE CONTENT
+file = open(file_name)
+content = file.read()
+file.close()
 
 # GET DOMIBUS VERSION FROM POM FILE
 version = ""
@@ -19,10 +22,6 @@ for child in root:
 	if "version" in child.tag:
 		version = child.text.strip()
 
-# GET YML FILE CONTENT
-params = {"at" : "refs/heads/development"}
-tmp_resp = requests.get(my_url, params=params, auth=HTTPBasicAuth(my_user, my_pass))
-content = tmp_resp.content
 
 # Load in yaml obj and put correct ports for wildfly
 data = yaml.unsafe_load(content)
@@ -64,9 +63,3 @@ os.makedirs(download_path)
 
 with open(yml_path, 'w') as f:
     print(output, file=f)
-
-
-
-
-
-
