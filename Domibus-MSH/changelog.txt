@@ -1,3 +1,12 @@
+Domibus 4.2.3
+- Fixed the move of messages from the DLQ queue
+- Fixed an issue when receiving a message without a payload
+- Fixed DSS Refresh Connection timeout parameter
+- Fixed typo on tomcat context.xml
+- Fixed an issue when a message is deleted when using default MPC issue
+- Fixed an issue when Domibus does not start when using multitenancy
+- Update Tomcat distributed full version to the latest one
+- Create index for TB_ERROR_LOG to improve purging time
 Domibus 4.2.2
 - Handle runtime error while dispatching SEND_ENQUEUED messages.
 - Add http timeout for certificate CRL download.
