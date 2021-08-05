@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Topic;
-import javax.management.ObjectName;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,8 +50,6 @@ public class JMSManagerImpl implements JMSManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSManagerImpl.class);
 
     private static final String SELECTOR = "selector";
-
-    private static final String PROPERTY_JNDI_NAME = "Jndi";
 
     /**
      * queue names to be skip from showing into GUI interface
@@ -73,6 +71,10 @@ public class JMSManagerImpl implements JMSManager {
 
     @Autowired
     private JMSDestinationMapper jmsDestinationMapper;
+
+    @Autowired(required = false)
+    @Qualifier("internalDestinationResolver")
+    private JndiDestinationResolver jndiDestinationResolver;
 
     @Autowired
     private JMSMessageMapper jmsMessageMapper;
@@ -275,8 +277,22 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected void addOriginalQueueToMessage(JmsMessage message, String destination) {
-        LOG.debug("Adding property originalQueue [{}]", destination);
-        message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination);
+        String queueName = destination;
+
+        try {
+            if (jndiDestinationResolver != null && destination != null) {
+                Destination jmsDestination = jndiDestinationResolver.resolveDestinationName(null, destination, false);
+                LOG.debug("Jms destination [{}] resolved to: [{}]", destination, jmsDestination);
+                if (jmsDestination instanceof Queue) {
+                    queueName = ((Queue) jmsDestination).getQueueName();
+                }
+            }
+        } catch (JMSException e) {
+            LOG.warn("Could not resolve jms destination [{}]", destination, e);
+        }
+
+        LOG.debug("Adding property originalQueue [{}]", queueName);
+        message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, queueName);
     }
 
     protected InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
@@ -371,51 +387,38 @@ public class JMSManagerImpl implements JMSManager {
             if (msg == null) {
                 throw new RequestValidationException("Cannot find the message with id [" + msgId + "].");
             }
-            String originalQueue = msg.getCustomProperties().get("originalQueue");
-            if (StringUtils.isNotEmpty(originalQueue) && !matchQueue(originalQueue, destinationQueue)) {
+            String originalQueue = msg.getCustomProperties().get(JmsMessage.PROPERTY_ORIGINAL_QUEUE);
+            if (StringUtils.isNotEmpty(originalQueue) && !matchQueue(destinationQueue, originalQueue)) {
                 throw new RequestValidationException("Cannot move the message [" + msgId + "] to other than the original queue [" + originalQueue + "].");
             }
         });
     }
 
-    protected boolean matchQueue(String originalQueue, JMSDestination queue) {
-        if (StringUtils.equals(queue.getName(), originalQueue)) {
-            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), originalQueue);
-            return true;
-        }
-        if (StringUtils.equals(queue.getFullyQualifiedName(), originalQueue)) {
-            LOG.trace("Queue FQ name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), originalQueue);
-            return true;
-        }
-
-        if (queue.getProperties() == null) {
-            return false;
-        }
-
+    protected boolean matchQueue(JMSDestination queue, String queueName) {
         if (LOG.isTraceEnabled()) {
-            for (String key : queue.getProperties().keySet()) {
-                LOG.debug("Queue property [{}]: [{}]", key, queue.getProperty(key));
+            LOG.trace("Trying to match original queue name [{}] with queue [{}] [{}] [{}]", queueName, queue, queue.getName(), queue.getFullyQualifiedName());
+            if (queue.getProperties() != null) {
+                queue.getProperties().keySet().forEach(p -> {
+                    LOG.trace("Property [{}]: [{}]", p, queue.getProperty(p));
+                });
             }
         }
 
-        if (queue.getProperties().containsKey(PROPERTY_JNDI_NAME)) {
-            String jndi = (String) queue.getProperty(PROPERTY_JNDI_NAME);
-            if (StringUtils.equals(jndi, originalQueue)) {
-                LOG.trace("Queue Jndi [{}] is matching original queue [{}]", jndi, originalQueue);
-                return true;
-            }
+        if (StringUtils.equals(queue.getName(), queueName)) {
+            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), queueName);
+            return true;
+        }
+        if (StringUtils.equals(queue.getFullyQualifiedName(), queueName)) {
+            LOG.trace("Queue FQ name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), queueName);
+            return true;
         }
 
-        if (queue.getProperties().containsKey("ObjectName")) {
-            ObjectName objectName = (ObjectName) queue.getProperty("ObjectName");
-            String name = objectName == null ? null : objectName.getKeyProperty("Name");
-            if (StringUtils.equals(name, originalQueue)) {
-                LOG.trace("ObjectName [{}] is matching original queue [{}]", name, originalQueue);
-                return true;
-            }
-            LOG.trace("ObjectName [{}] not matching original queue [{}]", name, originalQueue);
+        String shortQueueName = queueName.contains("!") ? queueName.substring(queueName.lastIndexOf('!') + 1) : queueName;
+        if (StringUtils.endsWithAny(queue.getName(),
+                "." + queueName, "@" + queueName, "!" + queueName, "@" + shortQueueName, "!" + shortQueueName)) {
+            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), queueName);
+            return true;
         }
-
         return false;
     }
 

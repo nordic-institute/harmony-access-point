@@ -22,12 +22,10 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Session;
+import javax.jms.*;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -49,13 +47,15 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     protected JmsOperations mshToBackendTemplate;
     protected JMSMessageTransformer jmsMessageTransformer;
     protected MetricRegistry metricRegistry;
+    protected JndiDestinationResolver jndiDestinationResolver;
 
     public JMSPluginImpl(MetricRegistry metricRegistry,
                          JMSExtService jmsExtService,
                          DomainContextExtService domainContextExtService,
                          JMSPluginQueueService jmsPluginQueueService,
                          JmsOperations mshToBackendTemplate,
-                         JMSMessageTransformer jmsMessageTransformer) {
+                         JMSMessageTransformer jmsMessageTransformer,
+                         JndiDestinationResolver jndiDestinationResolver) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
@@ -63,6 +63,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         this.mshToBackendTemplate = mshToBackendTemplate;
         this.jmsMessageTransformer = jmsMessageTransformer;
         this.metricRegistry = metricRegistry;
+        this.jndiDestinationResolver = jndiDestinationResolver;
     }
 
     @Override
@@ -231,9 +232,20 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }
             mapMessage.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, JMSMessageConstants.MESSAGE_TYPE_INCOMING);
+
             final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
             mapMessage.setStringProperty(MessageConstants.DOMAIN, currentDomain.getCode());
-            mapMessage.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_QUEUE, destination);
+
+            String queueName = destination;
+            if (jndiDestinationResolver != null) {
+                Destination jmsDestination = jndiDestinationResolver.resolveDestinationName(session, destination, false);
+                LOG.debug("Jms destination [{}] resolved to: [{}]", destination, jmsDestination);
+                if (jmsDestination instanceof Queue) {
+                    queueName = ((Queue) jmsDestination).getQueueName();
+                }
+            }
+            mapMessage.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_QUEUE, queueName);
+
             return mapMessage;
         }
     }
