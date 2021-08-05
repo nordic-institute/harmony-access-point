@@ -478,12 +478,12 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void renameMessageFile(String domain, String messageId, MessageStatus status) {
-        LOG.debug("Preparing to rename file using domain [{}], messageId [{}] and messageStatus [{}]", domain, messageId, status);
-
         if (!fsPluginProperties.getDomainEnabled(domain)) {
             LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
+
+        LOG.debug("Preparing to rename file using domain [{}], messageId [{}] and messageStatus [{}]", domain, messageId, status);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
