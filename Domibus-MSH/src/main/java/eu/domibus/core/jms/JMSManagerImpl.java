@@ -73,6 +73,7 @@ public class JMSManagerImpl implements JMSManager {
     private JMSDestinationMapper jmsDestinationMapper;
 
     @Autowired(required = false)
+    @Qualifier("internalDestinationResolver")
     private JndiDestinationResolver jndiDestinationResolver;
 
     @Autowired
