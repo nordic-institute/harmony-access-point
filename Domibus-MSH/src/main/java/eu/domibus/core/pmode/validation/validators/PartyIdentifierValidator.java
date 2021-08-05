@@ -76,7 +76,7 @@ public class PartyIdentifierValidator implements PModeValidator {
                 .collect(Collectors.groupingBy(Identifier::getPartyId))
                 .entrySet().stream()
                 .filter(map -> map.getValue().size() > 1)
-                .flatMap(e -> e.getValue().stream())
+                .flatMap(map -> map.getValue().stream())
                 .collect(Collectors.toSet());
 
         duplicateIdentifiers.forEach(identifier -> {
@@ -96,14 +96,15 @@ public class PartyIdentifierValidator implements PModeValidator {
     protected List<ValidationIssue> validateDuplicateIdentifiersInAllParties(Party party, List<Party> allParties) {
         List<ValidationIssue> issues = new ArrayList<>();
         Set<Identifier> identifierSet = new HashSet<>(party.getIdentifiers());
+
         allParties.stream().filter(party1 -> allParties.indexOf(party1) > allParties.indexOf(party)).forEach(party1 -> {
             List<Identifier> duplicateIdentifiers = getDuplicateIdentifiers(identifierSet, party1);
+
             duplicateIdentifiers.forEach(identifier -> {
                 issues.add(createIssue(identifier.getPartyId(), party.getName(), "Duplicate party identifier [%s] found in party [%s] and in party [" + party1.getName() + "]"));
             });
 
         });
-
         return issues;
     }
 
@@ -114,8 +115,8 @@ public class PartyIdentifierValidator implements PModeValidator {
      */
     protected List<Identifier> getDuplicateIdentifiers(Set<Identifier> identifierSet, Party party1) {
         List<Identifier> duplicateIdentifiers = new ArrayList<>();
-        identifierSet.forEach(p -> party1.getIdentifiers().stream()
-                .filter(p1 -> p.getPartyId().equals(p1.getPartyId()))
+        identifierSet.forEach(identifier -> party1.getIdentifiers().stream()
+                .filter(party -> identifier.getPartyId().equals(party.getPartyId()))
                 .forEach(duplicateIdentifiers::add));
         return duplicateIdentifiers;
     }
