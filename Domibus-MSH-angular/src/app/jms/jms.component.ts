@@ -278,12 +278,12 @@ export class JmsComponent extends mix(BaseListComponent)
       const message = messages[0];
       originalQueueName = this.getOriginalQueueName(message);
     }
-    console.log(`Original queue name for the message: [${originalQueueName}]. Current queue name: [${this.selectedSource.name}]. Current queue Jndi: [${this.getJndi(this.selectedSource)}].`);
+    console.log(`Original queue name for the message: [${originalQueueName}]. Current queue name: [${this.selectedSource.name}]. Current queue details: `, this.selectedSource);
 
     let allowedQueues: any[];
     if (originalQueueName) {
       // a jms message with originalQueue property can be moved only to the original queue
-      allowedQueues = this.queues.filter(queue => queue.name.includes(originalQueueName) || originalQueueName.includes(queue.name) || originalQueueName == this.getJndi(queue));
+      allowedQueues = this.queues.filter(queue => this.isMatch(queue, originalQueueName));
       if (allowedQueues.length == 0) {
         throw new Error(`Cannot move the selected messages because the original queue [${originalQueueName}] cannot be found.`);
       }
@@ -302,10 +302,8 @@ export class JmsComponent extends mix(BaseListComponent)
     return allowedQueues;
   }
 
-  private getJndi(queue: any): string {
-    if (queue.properties && queue.properties.Jndi) {
-      return queue.properties.Jndi;
-    }
+  private isMatch(queue: any, name: string): boolean {
+    return queue.name.includes(name) || name.includes(queue.name);
   }
 
   getCommonOriginalQueueName(messages: any[]): any {
