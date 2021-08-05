@@ -90,6 +90,6 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
     }
 
     private Date yesterday() {
-        return Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneOffset.UTC).toInstant());
+        return Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC));
     }
 }

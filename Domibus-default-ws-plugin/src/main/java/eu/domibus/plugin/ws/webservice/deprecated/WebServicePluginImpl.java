@@ -426,7 +426,7 @@ public class WebServicePluginImpl implements BackendInterface {
             errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
             errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
             errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
-            LocalDateTime dateTime = LocalDateTime.now();
+            LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
 
             if (errorResult.getNotified() != null) {
                 dateTime = errorResult.getNotified().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();

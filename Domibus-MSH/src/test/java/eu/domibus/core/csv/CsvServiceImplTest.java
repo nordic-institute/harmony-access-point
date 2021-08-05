@@ -42,25 +42,26 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class CsvServiceImplTest {
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 1, 1, 12, 59);
+
     private static final String MESSAGE_FILTER_HEADER = "Plugin,From,To,Action,Service,Persisted";
 
-    private static final String LINE_SEPARATOR = "\n";
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
+
     @Injectable
-    private List<CvsSerializer> cvsSerializers;
+    private List<CsvSerializer> csvSerializers;
 
     @Tested
-    CsvServiceImpl csvServiceImpl;
+    private CsvServiceImpl csvServiceImpl;
 
     private void setCsvSerializer() {
-        ReflectionTestUtils.setField(csvServiceImpl, "cvsSerializers", Arrays.asList(
-                new CvsSerializerDate(),
-                new CvsSerializerErrorCode(),
-                new CvsSerializerRoutingCriteria(),
-                new CvsSerializerLocalDateTime(),
-                new CvsSerializerMap(),
-                new CvsSerializerNull()));
+        ReflectionTestUtils.setField(csvServiceImpl, "csvSerializers", Arrays.asList(
+                new CsvSerializerDate(),
+                new CsvSerializerErrorCode(),
+                new CsvSerializerRoutingCriteria(),
+                new CsvSerializerLocalDateTime(),
+                new CsvSerializerMap(),
+                new CsvSerializerNull()));
     }
 
     @Test
@@ -228,8 +229,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).getOffset().toString().replace(":", "");
-        Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
+        Assert.assertEquals("2020-01-01 12:59:00GMT+0000", s);
 
         new FullVerifications() {
         };
@@ -246,8 +246,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        String timeOffset = LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).getOffset().toString().replace(":", "");
-        Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
+        Assert.assertEquals("2020-01-01 12:59:00GMT+0000"   , s);
 
         new FullVerifications() {
         };
