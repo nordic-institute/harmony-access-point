@@ -5,7 +5,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
@@ -19,6 +18,7 @@ import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.AlertCoreMapper;
 import eu.domibus.core.scheduler.ReprogrammableService;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -264,7 +264,7 @@ public class AlertServiceImpl implements AlertService {
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
-            final Date nextAttempt = Date.from(java.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toInstant(ZoneOffset.UTC));;
+            final Date nextAttempt = Date.from(java.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).atZone(ZoneOffset.UTC).toInstant());
             reprogrammableService.setRescheduleInfo(alertEntity, nextAttempt);
 
             alertEntity.setAttempts(attempts);
@@ -272,7 +272,7 @@ public class AlertServiceImpl implements AlertService {
         }
 
         if (FAILED == alertEntity.getAlertStatus()) {
-            alertEntity.setReportingTimeFailure(Date.from(java.time.LocalDateTime.now().toInstant(ZoneOffset.UTC)));
+            alertEntity.setReportingTimeFailure(Date.from(java.time.LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant()));
             alertEntity.setAttempts(alertEntity.getMaxAttempts());
         }
         LOG.debug("Alert[{}]: change status to:[{}]", alert.getEntityId(), alertEntity.getAlertStatus());
@@ -326,7 +326,7 @@ public class AlertServiceImpl implements AlertService {
     @Transactional
     public void cleanAlerts() {
         final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
-        final Date alertLimitDate = Date.from(java.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).toInstant(ZoneOffset.UTC));
+        final Date alertLimitDate = Date.from(java.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).atZone(ZoneOffset.UTC).toInstant());
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
         alertDao.deleteAll(alerts);

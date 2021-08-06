@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import javax.jms.Queue;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
@@ -322,7 +323,7 @@ public class AlertServiceImplTest {
     @Test
     public void handleAlertStatusFailedWithRemainingAttempts(
             final @Injectable eu.domibus.core.alerts.model.persist.Alert persistedAlert,
-            @Mocked final org.joda.time.LocalDateTime dateTime) throws ParseException {
+            @Mocked final java.time.LocalDateTime dateTime) throws ParseException {
         final int nextAttemptInMinutes = 10;
         final Alert alert = new Alert();
         final long entityId = 1;
@@ -349,7 +350,7 @@ public class AlertServiceImplTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
-            dateTime.now().plusMinutes(nextAttemptInMinutes).toDate();
+            dateTime.now().plusMinutes(nextAttemptInMinutes).atZone(ZoneOffset.UTC).toInstant();
             result = nextAttempt;
         }};
 

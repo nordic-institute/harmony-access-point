@@ -2,11 +2,11 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.util.DateUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -39,13 +39,16 @@ public class DateUtilImpl implements DateUtil {
     }
 
     public Timestamp fromISO8601(String value) {
-        DateTime dateTime = new DateTime(value);
-        return new Timestamp(dateTime.getMillis());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS][.SSSSSS][.SSS][z]");
+        LocalDateTime dateTime = LocalDateTime.parse(value, formatter);
+        Date date = Date.from(dateTime.atZone(ZoneOffset.UTC).toInstant());
+        // LocalDateTime dateTime1 = LocalDateTime.of(value)
+        return new Timestamp(date.getTime());
     }
 
     @Override
     public Date getStartOfDay() {
-        return LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
+        return Date.from(LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneOffset.UTC).toInstant());
     }
 
     @Override

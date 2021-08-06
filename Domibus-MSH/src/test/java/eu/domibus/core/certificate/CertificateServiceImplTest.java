@@ -28,7 +28,6 @@ import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,12 +39,17 @@ import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
@@ -265,8 +269,8 @@ public class CertificateServiceImplTest {
                                          @Mocked final Enumeration<String> aliasEnum,
                                          @Mocked final X509Certificate blueCertificate,
                                          @Mocked final X509Certificate redCertificate) throws KeyStoreException {
-        final Date validFrom = LocalDateTime.now().toDate();
-        final Date validUntil = LocalDateTime.now().plusDays(10).toDate();
+        final Date validFrom = Date.from(LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant());
+        final Date validUntil = Date.from(LocalDateTime.now().plusDays(10).atZone(ZoneOffset.UTC).toInstant());
         new Expectations() {{
             aliasEnum.hasMoreElements();
             returns(true, true, false);
@@ -528,11 +532,11 @@ public class CertificateServiceImplTest {
             result = imminentExpirationFrequency;
 
             final LocalDateTime now = dateTime.now();
-            now.plusDays(imminentExpirationDelay).toDate();
+            Date.from(now.plusDays(imminentExpirationDelay).atZone(ZoneOffset.UTC).toInstant());
             result = offset;
 
             final LocalDateTime now1 = dateTime.now();
-            now1.minusDays(imminentExpirationFrequency).toDate();
+            Date.from(now1.minusDays(imminentExpirationFrequency).atZone(ZoneOffset.UTC).toInstant());
             result = notificationDate;
 
             certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, (Date) any, offset);
@@ -591,11 +595,11 @@ public class CertificateServiceImplTest {
             result = revokedFrequency;
 
             final LocalDateTime now = dateTime.now();
-            now.minusDays(revokedDuration).toDate();
+            Date.from(now.minusDays(revokedDuration).atZone(ZoneOffset.UTC).toInstant());
             result = endNotification;
 
             final LocalDateTime now1 = dateTime.now();
-            now1.minusDays(revokedFrequency).toDate();
+            Date.from(now1.minusDays(revokedFrequency).atZone(ZoneOffset.UTC).toInstant());
             result = notificationDate;
 
             certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);
