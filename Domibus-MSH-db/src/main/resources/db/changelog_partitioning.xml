@@ -6,7 +6,7 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
-    <changeSet author="idragusa" id="Partition tables">
+    <changeSet author="idragusa" id="Partition tables" dbms="oracle">
         <sql>
             ALTER TABLE TB_USER_MESSAGE MODIFY
             PARTITION BY RANGE (ID_PK) (
