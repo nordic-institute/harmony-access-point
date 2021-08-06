@@ -3180,7 +3180,5 @@
 
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
-    <!-- Create stored procedures used by the deletion jobs -->
-    <include file="common/changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
