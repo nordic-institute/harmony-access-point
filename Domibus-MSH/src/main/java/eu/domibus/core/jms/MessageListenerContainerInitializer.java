@@ -116,9 +116,11 @@ public class MessageListenerContainerInitializer {
             final PluginMessageListenerContainer pluginMessageListenerContainer = entry.getValue();
 
             MessageListenerContainer instance = pluginMessageListenerContainer.createMessageListenerContainer(domainDTO);
-            instance.start();
-            instances.add(instance);
-            LOG.info("{} initialized for domain [{}]", pluginMessageListenerContainerName, domain);
+            if (instance != null) { // if null domain is disabled
+                instance.start();
+                instances.add(instance);
+                LOG.info("{} initialized for domain [{}]", pluginMessageListenerContainerName, domain);
+            }
         }
     }
 

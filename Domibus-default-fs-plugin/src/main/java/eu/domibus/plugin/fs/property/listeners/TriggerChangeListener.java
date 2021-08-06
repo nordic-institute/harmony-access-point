@@ -1,6 +1,9 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.services.DomibusSchedulerExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +24,13 @@ import static java.util.stream.Stream.of;
  */
 @Component
 public class TriggerChangeListener implements PluginPropertyChangeListener {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
 
     @Autowired
     protected DomibusSchedulerExtService domibusSchedulerExt;
+
+    @Autowired
+    protected FSPluginProperties fsPluginProperties;
 
     public static final Map<String, String> CRON_PROPERTY_NAMES_TO_JOB_MAP = unmodifiableMap(of(
             new String[][]{
@@ -41,6 +48,11 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
+        if (!fsPluginProperties.getDomainEnabled(domainCode)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin exiting...", domainCode);
+            return;
+        }
+
         String jobName = CRON_PROPERTY_NAMES_TO_JOB_MAP.get(propertyName);
         if (StringUtils.endsWithIgnoreCase(propertyName, SEND_WORKER_INTERVAL)) {
             rescheduleWithRepeatInterval(domainCode, jobName, propertyValue);
@@ -54,7 +66,7 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
     }
 
     protected void rescheduleWithRepeatInterval(String domainCode, String jobName, String repeatInterval) {
-        Integer interval = 0;
+        Integer interval;
         try {
             interval = Integer.valueOf(repeatInterval);
         } catch (NumberFormatException e) {
