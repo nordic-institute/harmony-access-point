@@ -264,7 +264,7 @@ public class AlertServiceImpl implements AlertService {
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
-            final Date nextAttempt = Date.from(java.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).atZone(ZoneOffset.UTC).toInstant());
+            final Date nextAttempt = Date.from(java.time.LocalDateTime.now(ZoneOffset.UTC).plusMinutes(minutesBetweenAttempt).toInstant(ZoneOffset.UTC));
             reprogrammableService.setRescheduleInfo(alertEntity, nextAttempt);
 
             alertEntity.setAttempts(attempts);
@@ -272,7 +272,7 @@ public class AlertServiceImpl implements AlertService {
         }
 
         if (FAILED == alertEntity.getAlertStatus()) {
-            alertEntity.setReportingTimeFailure(Date.from(java.time.LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant()));
+            alertEntity.setReportingTimeFailure(Date.from(java.time.LocalDateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC)));
             alertEntity.setAttempts(alertEntity.getMaxAttempts());
         }
         LOG.debug("Alert[{}]: change status to:[{}]", alert.getEntityId(), alertEntity.getAlertStatus());
@@ -326,7 +326,7 @@ public class AlertServiceImpl implements AlertService {
     @Transactional
     public void cleanAlerts() {
         final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
-        final Date alertLimitDate = Date.from(java.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).atZone(ZoneOffset.UTC).toInstant());
+        final Date alertLimitDate = Date.from(java.time.LocalDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).toInstant(ZoneOffset.UTC));
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
         alertDao.deleteAll(alerts);

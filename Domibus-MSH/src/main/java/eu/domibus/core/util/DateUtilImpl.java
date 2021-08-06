@@ -39,21 +39,19 @@ public class DateUtilImpl implements DateUtil {
     }
 
     public Timestamp fromISO8601(String value) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS][.SSSSSS][.SSS][z]");
-        LocalDateTime dateTime = LocalDateTime.parse(value, formatter);
-        Date date = Date.from(dateTime.atZone(ZoneOffset.UTC).toInstant());
-        // LocalDateTime dateTime1 = LocalDateTime.of(value)
+        LocalDateTime dateTime = LocalDateTime.parse(value, DateTimeFormatter.ISO_DATE_TIME);
+        Date date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
         return new Timestamp(date.getTime());
     }
 
     @Override
     public Date getStartOfDay() {
-        return Date.from(LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneOffset.UTC).toInstant());
+        return Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC));
     }
 
     @Override
     public String getCurrentTime(DateTimeFormatter dateTimeFormatter) {
-        return java.time.LocalDateTime.now().format(dateTimeFormatter);
+        return java.time.LocalDateTime.now(ZoneOffset.UTC).format(dateTimeFormatter);
     }
 
     @Override

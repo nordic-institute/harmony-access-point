@@ -693,12 +693,12 @@ public class CertificateServiceImpl implements CertificateService {
         final String accessPoint = getAccessPointName();
         final Integer revokedDuration = configuration.getExpiredDuration();
         final Integer revokedFrequency = configuration.getExpiredFrequency();
-        Date endNotification = Date.from(LocalDateTime.now().minusDays(revokedDuration).atZone(ZoneOffset.UTC).toInstant());
-        Date notificationDate = Date.from(LocalDateTime.now().minusDays(revokedFrequency).atZone(ZoneOffset.UTC).toInstant());
+        Date endNotification = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant(ZoneOffset.UTC));
+        Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant(ZoneOffset.UTC));
 
         LOG.debug("Searching for expired certificate with notification date smaller than:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
         certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
-            certificate.setAlertExpiredNotificationDate(Date.from(LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneOffset.UTC).toInstant()));
+            certificate.setAlertExpiredNotificationDate(Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC)));
             certificateDao.saveOrUpdate(certificate);
             final String alias = certificate.getAlias();
             final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
@@ -738,9 +738,9 @@ public class CertificateServiceImpl implements CertificateService {
         final Integer imminentExpirationDelay = configuration.getImminentExpirationDelay();
         final Integer imminentExpirationFrequency = configuration.getImminentExpirationFrequency();
 
-        final Date today = Date.from(LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneOffset.UTC).toInstant());
-        final Date maxDate = Date.from(LocalDateTime.now().plusDays(imminentExpirationDelay).atZone(ZoneOffset.UTC).toInstant());
-        final Date notificationDate =  Date.from(LocalDateTime.now().minusDays(imminentExpirationFrequency).atZone(ZoneOffset.UTC).toInstant());
+        final Date today = Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC));
+        final Date maxDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant(ZoneOffset.UTC));
+        final Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant(ZoneOffset.UTC));
 
         LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
                 notificationDate, imminentExpirationDelay, maxDate);

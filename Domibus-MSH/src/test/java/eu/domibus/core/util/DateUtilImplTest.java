@@ -32,7 +32,7 @@ public class DateUtilImplTest {
 
         // Then
         LocalDateTime expected = LocalDateTime.of(2020, Month.FEBRUARY, 29, 11, 53, 37);
-        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp", expected, actual.toLocalDateTime());
+        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp", expected.atOffset(ZoneOffset.UTC), actual.toLocalDateTime());
     }
 
     @Test

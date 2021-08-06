@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import javax.jms.Queue;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
@@ -350,8 +351,10 @@ public class AlertServiceImplTest {
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
-            dateTime.now().plusMinutes(nextAttemptInMinutes).atZone(ZoneOffset.UTC).toInstant();
+            java.time.LocalDateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes).toInstant(ZoneOffset.UTC);
             result = nextAttempt;
+        /*    Date.from(dateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes).toInstant(ZoneOffset.UTC));
+            result = nextAttempt;*/
         }};
 
         alertService.handleAlertStatus(alert);
@@ -389,7 +392,7 @@ public class AlertServiceImplTest {
     @Test
     public void handleAlertStatusFailedWithNoMoreAttempts(
             final @Injectable eu.domibus.core.alerts.model.persist.Alert persistedAlert,
-            @Mocked final org.joda.time.LocalDateTime dateTime) throws ParseException {
+            @Mocked final LocalDateTime dateTime) throws ParseException {
         final Alert alert = new Alert();
         final long entityId = 1;
         alert.setEntityId(entityId);
@@ -412,7 +415,7 @@ public class AlertServiceImplTest {
             persistedAlert.getAlertStatus();
             result = AlertStatus.FAILED;
 
-            dateTime.now().toDate();
+            Date.from(dateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
             result = failureTime;
         }};
 
@@ -468,9 +471,9 @@ public class AlertServiceImplTest {
         }};
 
         alertService.findAlerts(alertCriteria);
-        new Verifications(){{
-           alertCoreMapper.alertPersistListToAlertServiceList(alerts);
-           times=1;
+        new Verifications() {{
+            alertCoreMapper.alertPersistListToAlertServiceList(alerts);
+            times = 1;
         }};
 
     }
@@ -488,7 +491,7 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void cleanAlerts(final @Mocked org.joda.time.LocalDateTime localDateTime) throws ParseException {
+    public void cleanAlerts(final @Injectable LocalDateTime localDateTime) throws ParseException {
         final int alertLifeTimeInDays = 10;
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
@@ -496,7 +499,8 @@ public class AlertServiceImplTest {
         new Expectations() {{
             commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
-            localDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
+            long longAlertLifeTimeInDays = alertLifeTimeInDays;
+            Date.from(localDateTime.now(ZoneOffset.UTC).minusDays(longAlertLifeTimeInDays).toInstant(ZoneOffset.UTC));
             result = alertLimitDate;
             alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
             result = alerts;
@@ -548,7 +552,7 @@ public class AlertServiceImplTest {
 
         new Verifications() {{
             alertDao.filterAlerts(alertCriteria);
-            times=1;
+            times = 1;
             alertCoreMapper.alertPersistListToAlertServiceList(alerts);
         }};
     }
@@ -716,6 +720,6 @@ public class AlertServiceImplTest {
 
         String finalDescription = alertService.getDescription(alert, next);
 
-        assertEquals("[" + ALERT_DESCRIPTION_TEST + "] " + ALERT_DESCRIPTION+ "_1" , finalDescription);
+        assertEquals("[" + ALERT_DESCRIPTION_TEST + "] " + ALERT_DESCRIPTION + "_1", finalDescription);
     }
 }

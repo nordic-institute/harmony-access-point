@@ -200,7 +200,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     @Test
     public void testCheckCertificateValidityEnabled() throws Exception {
         final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now().minusDays(2).atZone(ZoneOffset.UTC).toInstant()), Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneOffset.UTC).toInstant()), null);
+        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant(ZoneOffset.UTC)), Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC)), null);
         List<Certificate> certificateChain = new ArrayList<>();
         certificateChain.add(certificate);
         List<Certificate> expiredCertificateChain = new ArrayList<>();
@@ -222,7 +222,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Test
     public void testCheckCertificateValidityDisabled() throws Exception {
-        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now().minusDays(2).atZone(ZoneOffset.UTC).toInstant()), Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneOffset.UTC).toInstant()), null);
+        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant(ZoneOffset.UTC)), Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC)), null);
         List<Certificate> expiredCertificateChain = new ArrayList<>();
         expiredCertificateChain.add(expiredCertificate);
 

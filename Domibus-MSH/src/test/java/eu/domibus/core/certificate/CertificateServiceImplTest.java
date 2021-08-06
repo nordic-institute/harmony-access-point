@@ -269,8 +269,8 @@ public class CertificateServiceImplTest {
                                          @Mocked final Enumeration<String> aliasEnum,
                                          @Mocked final X509Certificate blueCertificate,
                                          @Mocked final X509Certificate redCertificate) throws KeyStoreException {
-        final Date validFrom = Date.from(LocalDateTime.now().atZone(ZoneOffset.UTC).toInstant());
-        final Date validUntil = Date.from(LocalDateTime.now().plusDays(10).atZone(ZoneOffset.UTC).toInstant());
+        final Date validFrom = Date.from(LocalDateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
+        final Date validUntil = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant(ZoneOffset.UTC));
         new Expectations() {{
             aliasEnum.hasMoreElements();
             returns(true, true, false);
@@ -531,12 +531,12 @@ public class CertificateServiceImplTest {
             imminentExpirationCertificateConfiguration.getImminentExpirationFrequency();
             result = imminentExpirationFrequency;
 
-            final LocalDateTime now = dateTime.now();
-            Date.from(now.plusDays(imminentExpirationDelay).atZone(ZoneOffset.UTC).toInstant());
+            final LocalDateTime now = dateTime.now(ZoneOffset.UTC);
+            Date.from(now.plusDays(imminentExpirationDelay).toInstant(ZoneOffset.UTC));
             result = offset;
 
-            final LocalDateTime now1 = dateTime.now();
-            Date.from(now1.minusDays(imminentExpirationFrequency).atZone(ZoneOffset.UTC).toInstant());
+            final LocalDateTime now1 = dateTime.now(ZoneOffset.UTC);
+            Date.from(now1.minusDays(imminentExpirationFrequency).toInstant(ZoneOffset.UTC));
             result = notificationDate;
 
             certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, (Date) any, offset);
@@ -594,12 +594,12 @@ public class CertificateServiceImplTest {
             expiredCertificateConfiguration.getExpiredFrequency();
             result = revokedFrequency;
 
-            final LocalDateTime now = dateTime.now();
-            Date.from(now.minusDays(revokedDuration).atZone(ZoneOffset.UTC).toInstant());
+            final LocalDateTime now = dateTime.now(ZoneOffset.UTC);
+            Date.from(now.minusDays(revokedDuration).toInstant(ZoneOffset.UTC));
             result = endNotification;
 
-            final LocalDateTime now1 = dateTime.now();
-            Date.from(now1.minusDays(revokedFrequency).atZone(ZoneOffset.UTC).toInstant());
+            final LocalDateTime now1 = dateTime.now(ZoneOffset.UTC);
+            Date.from(now1.minusDays(revokedFrequency).toInstant(ZoneOffset.UTC));
             result = notificationDate;
 
             certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);
@@ -1659,7 +1659,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                           @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+                                          @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
 
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
         boolean overwrite = true;
@@ -1676,7 +1676,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void doRemoveCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                  @Mocked String alias1, @Mocked String alias2) {
+                                     @Mocked String alias1, @Mocked String alias2) {
 
         List<String> certificates = Arrays.asList(alias1, alias2);
 
@@ -1696,7 +1696,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void doRemoveCertificatesNotRemoved(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                     @Mocked String alias1, @Mocked String alias2) {
+                                               @Mocked String alias1, @Mocked String alias2) {
 
         List<String> certificates = Arrays.asList(alias1, alias2);
 
