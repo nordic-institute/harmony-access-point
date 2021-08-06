@@ -130,6 +130,14 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void deliverMessage(DeliverMessageEvent event) {
+        String fsPluginDomain = fsDomainService.getFSPluginDomain();
+        LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
+
+        if (!fsPluginProperties.getDomainEnabled(fsPluginDomain)) {
+            LOG.error("Domain [{}] is disabled for FSPlugin", fsPluginDomain);
+            return;
+        }
+
         String messageId = event.getMessageId();
         LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getFinalRecipient());
         FSMessage fsMessage;
@@ -151,9 +159,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
         final String messageIdFolder = sanitizeFileName(messageId);
 
-
-        String fsPluginDomain = fsDomainService.getFSPluginDomain();
-        LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
 
         // Persist message
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(fsPluginDomain);
@@ -342,6 +347,11 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSendFailedMessage(String domain, String messageId) {
+        if (!fsPluginProperties.getDomainEnabled(domain)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            return;
+        }
+
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFileMessage = findMessageFile(outgoingFolder, messageId)) {
@@ -381,6 +391,11 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected void handleSentMessage(String domain, String messageId) {
         LOG.debug("Preparing to handle sent message using domain [{}] and messageId [{}]", domain, messageId);
+
+        if (!fsPluginProperties.getDomainEnabled(domain)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            return;
+        }
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
@@ -463,6 +478,11 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void renameMessageFile(String domain, String messageId, MessageStatus status) {
+        if (!fsPluginProperties.getDomainEnabled(domain)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            return;
+        }
+
         LOG.debug("Preparing to rename file using domain [{}], messageId [{}] and messageStatus [{}]", domain, messageId, status);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
