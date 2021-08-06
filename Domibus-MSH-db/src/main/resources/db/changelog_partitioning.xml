@@ -3,8 +3,6 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
-
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
@@ -16,7 +14,6 @@
             UPDATE INDEXES;
         </sql>
 
-        <!-- <dropUniqueConstraint uniqueColumns="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>-->
         <sql>
             ALTER TABLE TB_MESSAGE_ACKNW MODIFY
             PARTITION BY REFERENCE ( FK_MSG_ACK_USER_MSG );
