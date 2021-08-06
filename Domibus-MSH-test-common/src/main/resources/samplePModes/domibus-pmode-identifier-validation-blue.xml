@@ -29,6 +29,10 @@
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
+			<party name="red_gw1"
+				   endpoint="http://localhost:8080/domibus/services/msh">
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn1"/>
+			</party>
 		</parties>
 		<meps>
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
