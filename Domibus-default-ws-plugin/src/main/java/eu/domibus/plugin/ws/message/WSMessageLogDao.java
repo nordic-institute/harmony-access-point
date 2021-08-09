@@ -13,7 +13,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,7 +72,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
 
     /**
      * Find all entries in the plugin table, for finalRecipient, limited to maxCount. When maxCount is 0, return all.
-     * 
+     *
      * @deprecated to be removed when the deprecated package is removed
      */
     @Deprecated
@@ -163,7 +163,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     }
 
     private Date asDate(LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
     }
 
 

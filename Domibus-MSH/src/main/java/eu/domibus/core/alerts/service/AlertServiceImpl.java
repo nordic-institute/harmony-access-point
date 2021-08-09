@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
@@ -18,7 +19,6 @@ import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.AlertCoreMapper;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
+import java.time.ZoneOffset;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -189,7 +190,7 @@ public class AlertServiceImpl implements AlertService {
         final Event next = alertEntity.getEvents().iterator().next();
         next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
-        mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneId.systemDefault()).format(alertEntity.getReportingTime().toInstant()));
+        mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneOffset.UTC).format(alertEntity.getReportingTime().toInstant()));
         mailModel.put(DESCRIPTION, getDescription(alertEntity, next));
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
 
@@ -264,7 +265,7 @@ public class AlertServiceImpl implements AlertService {
         if (attempts < maxAttempts) {
             LOG.debug("Alert[{}]: send attempts[{}], max attempts[{}]", alert.getEntityId(), attempts, maxAttempts);
             final Integer minutesBetweenAttempt = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
-            final Date nextAttempt = Date.from(java.time.LocalDateTime.now(ZoneOffset.UTC).plusMinutes(minutesBetweenAttempt).toInstant(ZoneOffset.UTC));
+            final Date nextAttempt = org.joda.time.LocalDateTime.now().plusMinutes(minutesBetweenAttempt).toDate();
             reprogrammableService.setRescheduleInfo(alertEntity, nextAttempt);
 
             alertEntity.setAttempts(attempts);
@@ -272,7 +273,7 @@ public class AlertServiceImpl implements AlertService {
         }
 
         if (FAILED == alertEntity.getAlertStatus()) {
-            alertEntity.setReportingTimeFailure(Date.from(java.time.LocalDateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC)));
+            alertEntity.setReportingTimeFailure(org.joda.time.LocalDateTime.now().toDate());
             alertEntity.setAttempts(alertEntity.getMaxAttempts());
         }
         LOG.debug("Alert[{}]: change status to:[{}]", alert.getEntityId(), alertEntity.getAlertStatus());
@@ -326,7 +327,7 @@ public class AlertServiceImpl implements AlertService {
     @Transactional
     public void cleanAlerts() {
         final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
-        final Date alertLimitDate = Date.from(java.time.LocalDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).toInstant(ZoneOffset.UTC));
+        final Date alertLimitDate = org.joda.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
         final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
         alertDao.deleteAll(alerts);

@@ -235,6 +235,9 @@ public class FSPluginImplTest {
 
             backendFS.getFileNameExtension(TEXT_XML);
             result = ".xml";
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
     }
 
@@ -371,6 +374,9 @@ public class FSPluginImplTest {
         new Expectations(1, backendFS) {{
             backendFS.browseMessage(messageId, null);
             result = new MessageNotFoundException("message not found");
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.deliverMessage(messageEvent);
@@ -392,6 +398,9 @@ public class FSPluginImplTest {
 
             fsDomainService.getFSPluginDomain();
             result = FSSendMessagesService.DEFAULT_DOMAIN;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
 
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = new FSSetUpException("Test-forced exception");
@@ -423,7 +432,8 @@ public class FSPluginImplTest {
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
 
-
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.deliverMessage(messageEvent);
@@ -466,6 +476,9 @@ public class FSPluginImplTest {
 
             fsFileNameHelper.deriveFileName(file, MessageStatus.SEND_ENQUEUED);
             result = "content_" + messageId + ".xml.SEND_ENQUEUED";
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.messageStatusChanged(event);
@@ -499,6 +512,9 @@ public class FSPluginImplTest {
             result = new FileObject[]{contentFile};
 
             fsPluginProperties.isSentActionDelete(null);
+            result = true;
+
+            fsPluginProperties.getDomainEnabled(anyString);
             result = true;
         }};
 
@@ -585,6 +601,9 @@ public class FSPluginImplTest {
 
             sentDirectory.resolveFile(file);
             result = archivedFile;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.handleSentMessage(null, messageId);
@@ -614,6 +633,9 @@ public class FSPluginImplTest {
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
 
         }};
 
@@ -645,6 +667,9 @@ public class FSPluginImplTest {
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
 
         }};
 
@@ -684,6 +709,9 @@ public class FSPluginImplTest {
 
             backendFS.getErrorsForMessage(messageId);
             result = errorList;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.messageStatusChanged(event);

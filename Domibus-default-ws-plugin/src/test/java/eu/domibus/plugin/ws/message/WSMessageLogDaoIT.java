@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
@@ -113,7 +113,7 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
         Assert.assertEquals(1, wsMessageLogEntityList.size());
         Assert.assertEquals("messageID_3", wsMessageLogEntityList.get(0).getMessageId());
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         wsMessageLogEntityList =  wsMessageLogDao.findAllWithFilter(null, null, null,
                 null, null, null, now.minus(Period.ofDays(3)), now, 0);
         Assert.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));

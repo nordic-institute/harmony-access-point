@@ -1,10 +1,13 @@
 package eu.domibus.plugin.ws.jaxb;
 
+import eu.domibus.plugin.convert.StringToTemporalAccessorConverter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,13 +20,24 @@ import java.time.format.DateTimeFormatter;
 @RunWith(JMockit.class)
 public class DateTimeAdapterTest {
 
-    @Tested
+    @Injectable
+    private StringToTemporalAccessorConverter converter;
+
+    @Tested(availableDuringSetup = true)
     private DateTimeAdapter dateTimeAdapter;
+
+    @Before
+    public void setup() throws IllegalAccessException {
+        FieldUtils.writeField(dateTimeAdapter, "converter", converter, true);
+    }
 
     @Test
     public void testUnmarshall_returnsNullDateTimeForNullInputString() throws Exception {
         // GIVEN
         String input = null;
+        new Expectations() {{
+            converter.convert(input); result = null;
+        }};
 
         // WHEN
         LocalDateTime result = dateTimeAdapter.unmarshal(input);
@@ -35,9 +49,9 @@ public class DateTimeAdapterTest {
     @Test
     public void testUnmarshall_returnsParsedDateTimeForNonNullInputString(@Injectable LocalDateTime parsedDateTime) throws Exception {
         // GIVEN
-        String input = "any";
-        new Expectations(LocalDateTime.class) {{
-            LocalDateTime.parse(input, DateTimeFormatter.ISO_DATE_TIME); result = parsedDateTime;
+        String input = "2019-04-17T09:34:36";
+        new Expectations() {{
+            converter.convert(input); result = parsedDateTime;
         }};
 
         // WHEN
@@ -61,7 +75,7 @@ public class DateTimeAdapterTest {
 
 
     @Test
-    public void testUnmarshall_returnsFormattedDateTimeForNonNullInputDateTime(@Injectable LocalDateTime inputDate) throws Exception {
+    public void testMarshall_returnsFormattedDateTimeForNonNullInputDateTime(@Injectable LocalDateTime inputDate) throws Exception {
         // GIVEN
         String formattedDateTime = "2019-04-17T09:34:36";
         new Expectations() {{

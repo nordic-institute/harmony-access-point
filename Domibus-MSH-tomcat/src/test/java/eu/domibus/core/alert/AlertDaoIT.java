@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
@@ -158,6 +158,6 @@ public class AlertDaoIT extends AbstractIT {
     }
 
     public static Date asDate(LocalDateTime localDate) {
-        return Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+        return Date.from(localDate.atZone(ZoneOffset.UTC).toInstant());
     }
 }
