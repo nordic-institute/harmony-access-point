@@ -36,7 +36,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -439,14 +439,14 @@ public class WebServiceImpl implements WebServicePluginInterface {
             errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
             errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
             errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
-            LocalDateTime dateTime = LocalDateTime.now();
+            LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
 
             if (errorResult.getNotified() != null) {
-                dateTime = errorResult.getNotified().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                dateTime = errorResult.getNotified().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             }
             errorResultImpl.setNotified(dateTime);
             if (errorResult.getTimestamp() != null) {
-                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             }
             errorResultImpl.setTimestamp(dateTime);
             errorList.getItem().add(errorResultImpl);

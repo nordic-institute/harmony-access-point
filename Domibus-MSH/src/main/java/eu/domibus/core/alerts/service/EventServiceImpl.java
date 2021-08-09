@@ -30,14 +30,14 @@ import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
+import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 
 /**
  * @author Thomas Dussart
@@ -207,7 +207,7 @@ public class EventServiceImpl implements EventService {
                     .map(ErrorLogEntry::getErrorDetail)
                     .distinct()
                     .collect(Collectors.joining(" "));
-            
+
             if (StringUtils.isNotBlank(errors)) {
                 event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors, MAX_DESCRIPTION_LENGTH));
             }
@@ -314,7 +314,7 @@ public class EventServiceImpl implements EventService {
         event.addStringKeyValue(PasswordExpirationEventProperties.USER.name(), user.getUserName());
 
         LocalDate expDate = user.getPasswordChangeDate().plusDays(maxPasswordAgeInDays).toLocalDate();
-        event.addDateKeyValue(PasswordExpirationEventProperties.EXPIRATION_DATE.name(), Date.from(expDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        event.addDateKeyValue(PasswordExpirationEventProperties.EXPIRATION_DATE.name(), Date.from(expDate.atStartOfDay(ZoneOffset.UTC).toInstant()));
 
         return event;
     }

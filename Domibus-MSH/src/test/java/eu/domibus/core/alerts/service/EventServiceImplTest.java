@@ -31,6 +31,7 @@ import javax.jms.Queue;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
@@ -257,8 +258,7 @@ public class EventServiceImplTest {
     public void enqueuePasswordExpirationEvent(@Mocked PasswordExpirationAlertModuleConfiguration passwordExpirationAlertModuleConfiguration) throws ParseException {
         int maxPasswordAge = 15;
         LocalDateTime passwordDate = LocalDateTime.of(2018, 10, 1, 21, 58, 59);
-        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        final Date expirationDate = parser.parse("16/10/2018 00:00:00");
+        final Date expirationDate = Date.from(LocalDateTime.of(2018, 10, 16, 0, 0, 0).atZone(ZoneOffset.UTC).toInstant());
         User user = initPasswordTestUser(passwordDate);
         eu.domibus.core.alerts.model.persist.Event persistedEvent = new eu.domibus.core.alerts.model.persist.Event();
         persistedEvent.setEntityId(1);

@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -36,21 +36,19 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
 @RunWith(JMockit.class)
 public class WSPluginBackendReliabilityServiceTest {
 
-    public static final Date ONE_MINUTE_AGO = Date.from(LocalDateTime.now().minusMinutes(1)
-            .atZone(ZoneId.systemDefault()).toInstant());
+    public static final Date ONE_MINUTE_AGO = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1)
+            .toInstant(ZoneOffset.UTC));
 
-    public static final Date YESTERDAY = Date.from(LocalDateTime.now().minusDays(1)
-            .atZone(ZoneId.systemDefault()).toInstant());
+    public static final Date YESTERDAY = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1)
+            .toInstant(ZoneOffset.UTC));
 
     public static final Date A_DATE = Date.from(LocalDateTime.of(2020, 12, 31, 23, 59)
-            .atZone(ZoneId.systemDefault()).toInstant());
+            .toInstant(ZoneOffset.UTC));
 
     public static final Date NEW_DATE = Date.from(LocalDateTime.of(2030, 12, 31, 23, 59)
-            .atZone(ZoneId.systemDefault()).toInstant());
+            .atZone(ZoneOffset.UTC).toInstant());
 
     public static final long ID = 12L;
-
-    public static final String RULE_NAME = "ruleName";
 
     public static final int RETRY_COUNT = 5;
 
@@ -80,6 +78,7 @@ public class WSPluginBackendReliabilityServiceTest {
 
     @Injectable
     protected PluginEventExtService pluginEventExtService;
+
     @Injectable
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
@@ -216,7 +215,7 @@ public class WSPluginBackendReliabilityServiceTest {
 
             backendMessage.getCreationTime();
             result = ONE_MINUTE_AGO;
-            
+
             rule.getRetry();
             result = "OK";
 
