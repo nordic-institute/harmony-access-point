@@ -36,11 +36,11 @@ public class CsvServiceImpl implements CsvService {
 
     public static final String APPLICATION_EXCEL_STR = "application/ms-excel";
     private final DomibusPropertyProvider domibusPropertyProvider;
-    private final List<CvsSerializer> cvsSerializers;
+    private final List<CsvSerializer> csvSerializers;
 
-    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider, List<CvsSerializer> cvsSerializers) {
+    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider, List<CsvSerializer> csvSerializers) {
         this.domibusPropertyProvider = domibusPropertyProvider;
-        this.cvsSerializers = cvsSerializers;
+        this.csvSerializers = csvSerializers;
     }
 
     @Override
@@ -166,7 +166,7 @@ public class CsvServiceImpl implements CsvService {
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
         LOG.trace("Serialization for field [{}]", field);
         Object fieldValue = field.get(elem);
-        for (CvsSerializer serializer : cvsSerializers) {
+        for (CsvSerializer serializer : csvSerializers) {
             if (serializer.canHandle(fieldValue)) {
                 LOG.trace("Serializer: [{}]", this);
                 String result = serializer.serialize(fieldValue);

@@ -12,11 +12,22 @@
 
     <artifactId>domibus-default-ws-plugin-stub-utils</artifactId>
     <version>5.0-SNAPSHOT</version>
-
     <name>Domibus MSH Default WS Plugin Stub Utils</name>
 
-
     <dependencies>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-plugin-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- these dependencies are not included in jdk11 -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
