@@ -17,6 +17,8 @@ import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -669,5 +671,42 @@ public class JMSManagerImplTest {
 
         new FullVerifications() {
         };
+    }
+    
+    @Test
+    public void test_matchQueue() {
+        List<Pair<String, String>> matchingQueueNames = Arrays.asList(
+                // weblogic
+                new ImmutablePair<>("eDeliveryModule!DomibusBusinessMessageOutQueue", "DomibusBusinessMessageOutQueue")
+                ,
+                // weblogic cluster
+                new ImmutablePair<>("eDeliveryModule!DomibusBusinessMessageOutQueue", "sv2@DomibusBusinessMessageOutQueue")
+        );
+
+        matchingQueueNames.forEach(test -> {
+            String originalQueueName = test.getLeft();
+            String testQueueName = test.getRight();
+            JMSDestination testQueue = new JMSDestination();
+            testQueue.setName(testQueueName);
+
+            boolean result = jmsManager.matchQueue(testQueue, originalQueueName);
+            Assert.assertTrue("[" + testQueueName + "] should match [" + originalQueueName + "]", result);
+        });
+
+        List<Pair<String, String>> notMatchingQueueNames = Arrays.asList(
+                new ImmutablePair<>("QueueName", "LongQueueName")
+                ,
+                new ImmutablePair<>("ABC!Name", "Name@QueueName")
+        );
+
+        notMatchingQueueNames.forEach(test -> {
+            String originalQueueName = test.getLeft();
+            String testQueueName = test.getRight();
+            JMSDestination testQueue = new JMSDestination();
+            testQueue.setName(testQueueName);
+
+            boolean result = jmsManager.matchQueue(testQueue, originalQueueName);
+            Assert.assertFalse("[" + testQueueName + "] should not match [" + originalQueueName + "]", result);
+        });
     }
 }
