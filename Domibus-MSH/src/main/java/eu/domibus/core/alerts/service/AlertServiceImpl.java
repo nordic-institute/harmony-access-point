@@ -5,7 +5,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
@@ -19,6 +18,7 @@ import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.AlertCoreMapper;
 import eu.domibus.core.scheduler.ReprogrammableService;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +30,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
-import java.time.ZoneOffset;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
 
