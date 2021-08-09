@@ -404,7 +404,9 @@ public class JMSManagerImpl implements JMSManager {
             }
         }
 
-        if (StringUtils.equals(queue.getName(), queueName)) {
+        String shortQueueName = queueName.contains("!") ? queueName.substring(queueName.lastIndexOf('!') + 1) : queueName;
+
+        if (StringUtils.equalsAny(queue.getName(), queueName, shortQueueName)) {
             LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), queueName);
             return true;
         }
@@ -413,7 +415,6 @@ public class JMSManagerImpl implements JMSManager {
             return true;
         }
 
-        String shortQueueName = queueName.contains("!") ? queueName.substring(queueName.lastIndexOf('!') + 1) : queueName;
         if (StringUtils.endsWithAny(queue.getName(),
                 "." + queueName, "@" + queueName, "!" + queueName, "@" + shortQueueName, "!" + shortQueueName)) {
             LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), queueName);
