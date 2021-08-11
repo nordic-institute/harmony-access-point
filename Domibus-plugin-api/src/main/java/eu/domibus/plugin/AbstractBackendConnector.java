@@ -193,10 +193,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return name;
     }
 
-    protected String trim(String messageId) {
-        return StringUtils.stripToEmpty(StringUtils.trimToEmpty(messageId));
-    }
-
     public void setMode(Mode mode) {
         this.mode = mode;
     }

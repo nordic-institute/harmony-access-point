@@ -94,9 +94,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event containing details about the deliver message event
      */
-    default void deliverMessage(final DeliverMessageEvent event) {
-
-    }
+    void deliverMessage(final DeliverMessageEvent event);
 
     /**
      * Initiates a pull request for the given mpc
@@ -182,9 +180,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event The event containing the details of the send failed event
      */
-    default void messageSendFailed(MessageSendFailedEvent event) {
-
-    }
+    void messageSendFailed(MessageSendFailedEvent event);
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
@@ -192,9 +188,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event The event containing the details of the message send success event
      */
-    default void messageSendSuccess(final MessageSendSuccessEvent event){
-
-    }
+    void messageSendSuccess(final MessageSendSuccessEvent event);
 
     /**
      * Describes the behaviour of the plugin regarding message delivery to the backend application
