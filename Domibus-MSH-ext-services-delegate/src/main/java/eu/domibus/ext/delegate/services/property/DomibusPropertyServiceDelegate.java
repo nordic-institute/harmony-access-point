@@ -105,16 +105,9 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         }
     }
 
-    @Override
-    public String getDomainProperty(DomainDTO domain, String propertyName) {
+    protected String getDomainProperty(DomainDTO domain, String propertyName) {
         final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
         return domibusPropertyProvider.getProperty(domibusDomain, propertyName);
-    }
-
-    @Override
-    public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
-        final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
-        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override
@@ -134,26 +127,6 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public boolean containsPropertyKey(String propertyName) {
         return domibusPropertyProvider.containsPropertyKey(propertyName);
-    }
-
-    @Override
-    public String getDomainProperty(DomainDTO domainDTO, String propertyName, String defaultValue) {
-        final Domain domain = domibusExtMapper.domainDTOToDomain(domainDTO);
-        String value = domibusPropertyProvider.getProperty(domain, propertyName);
-        if (StringUtils.isEmpty(value)) {
-            value = defaultValue;
-        }
-        return value;
-    }
-
-    @Override
-    public String getDomainResolvedProperty(DomainDTO domainCode, String propertyName) {
-        return getDomainProperty(domainCode, propertyName);
-    }
-
-    @Override
-    public String getResolvedProperty(String propertyName) {
-        return getProperty(propertyName);
     }
 
     @Override

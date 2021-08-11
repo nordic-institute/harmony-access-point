@@ -46,12 +46,6 @@ public class PModeServiceDelegate implements PModeExtService {
     }
 
     @Override
-    public List<ValidationIssueDTO> updatePModeFile(byte[] bytes, String description) {
-        List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
-        return domibusExtMapper.validationIssueToValidationIssueDTO(issues);
-    }
-
-    @Override
     public List<ValidationIssueDTO> updatePModeFile(MultipartFile file, String description) {
         byte[] bytes = multiPartFileUtil.validateAndGetFileContent(file, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
         List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
