@@ -33,6 +33,12 @@
         </xsd:restriction>
     </xsd:simpleType>
 
+    <xsd:simpleType name="ProcessingType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="PUSH"/>
+            <xsd:enumeration value="PUL"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:complexType name="LargePayloadType">
         <xsd:sequence>
             <xsd:element name="value" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
@@ -49,6 +55,7 @@
                 <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
                 <xsd:element name="finalRecipient" type="tns:max255-non-empty-string"/>
                 <xsd:element name="originalSender" type="tns:max255-non-empty-string"/>
+                <xsd:element name="processingType" type="tns:ProcessingType"/>
                 <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" type="tns:LargePayloadType"/>
             </xsd:sequence>
