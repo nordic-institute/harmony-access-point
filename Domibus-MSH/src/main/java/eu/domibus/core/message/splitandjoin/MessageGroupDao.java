@@ -2,8 +2,10 @@ package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
@@ -63,5 +65,15 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
         query.setParameter("MSH_ROLE", MSHRole.SENDING);
         query.setParameter("SOURCE_MSG_STATUS", MessageStatus.SEND_ENQUEUED);
         return query.getResultList();
+    }
+
+    @Override
+    public void create(MessageGroupEntity messageGroupEntity) {
+        if(messageGroupEntity.getSourceMessage() == null) {
+            UserMessage um = new UserMessage();
+            um.setEntityId(UserMessageDefaultService.DEFAULT_USER_MESSAGE_ID_PK);
+            messageGroupEntity.setSourceMessage(um);
+        }
+        super.create(messageGroupEntity);
     }
 }

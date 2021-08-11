@@ -1,7 +1,9 @@
 package eu.domibus.core.error;
 
 import eu.domibus.api.model.MSHRoleEntity;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.ListDao;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -115,6 +117,11 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     @Override
     public void create(ErrorLogEntry errorLogEntry) {
         errorLogEntryTruncateUtil.truncate(errorLogEntry);
+        if(errorLogEntry.getUserMessage() == null) {
+            UserMessage um = new UserMessage();
+            um.setEntityId(UserMessageDefaultService.DEFAULT_USER_MESSAGE_ID_PK);
+            errorLogEntry.setUserMessage(um);
+        }
         super.create(errorLogEntry);
     }
 

@@ -89,7 +89,7 @@
             PARTITION BY REFERENCE ( FK_ERROR_LOG_MSG_ID );
         </sql>
 
-        <sqlFile path="src/main/resources/db/common/oracle-create-partitions.sql"/>
+        <sqlFile path="src/main/resources/db/common/oracle-create-partitions.sql" endDelimiter="\n/"/>
 
     </changeSet>
 
