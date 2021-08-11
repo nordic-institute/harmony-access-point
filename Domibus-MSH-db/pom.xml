@@ -301,6 +301,24 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-step4</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step4.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step4.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.2-to-5.0-data-migration-step4.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
 
                    <execution>
                        <id>generate-oracle-script-migration-step1</id>
@@ -353,6 +371,24 @@
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step3.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-migration-step4</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-step4.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step4.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.2-to-5.0-data-migration-step4.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
