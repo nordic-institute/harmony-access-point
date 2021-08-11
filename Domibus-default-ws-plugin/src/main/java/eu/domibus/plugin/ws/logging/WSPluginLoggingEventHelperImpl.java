@@ -68,10 +68,10 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
     @Override
     public String checkIfOperationIsAllowed(LogEvent logEvent) {
-        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
+        if (logEvent != null && logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
             return SUBMIT_REQUEST;
         }
-        if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(OPERATION_RETRIEVE_MESSAGE)) {
+        if (logEvent != null && logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(OPERATION_RETRIEVE_MESSAGE)) {
             return RETRIEVE_MESSAGE_RESPONSE;
         }
         return null;
