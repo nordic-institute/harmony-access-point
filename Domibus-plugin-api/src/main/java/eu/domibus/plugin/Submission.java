@@ -42,6 +42,8 @@ public class Submission {
     private String fromRole;
     private String toRole;
     private String mpc;
+    private ProcessingType processingType;
+
 
 
     /**
@@ -462,6 +464,29 @@ public class Submission {
     }
 
     /**
+     * Returns a {@link java.util.Set} of {@link eu.domibus.plugin.Submission.Payload} elements representing the payloads
+     * of this plugin. A {@link eu.domibus.plugin.Submission.Payload} contains information describing the payload and the payload itself.
+     *
+     * @return a {@link java.util.Set} of {@link eu.domibus.plugin.Submission.Payload} elements representing the payloads of this plugin
+     */
+
+    /**
+     * Returns a {@link ProcessingType} indicating how the messages should be processed.
+     * @return a {@link ProcessingType}
+     */
+    public ProcessingType getProcessingType() {
+        return processingType;
+    }
+
+    /**
+     * Sets a {@link ProcessingType} indicating how the messages should be processed.
+     * @param processingType {@link ProcessingType}
+     */
+    public void setProcessingType(ProcessingType processingType) {
+        this.processingType = processingType;
+    }
+
+    /**
      * This method adds one payload to the {@link java.util.Set} of {@link eu.domibus.plugin.Submission.Payload} elements.
      * In this case the parameter contentId and the payload data itself were set. By default a payload added with this method
      * is considered to be NOT part of the soap body.
@@ -695,6 +720,8 @@ public class Submission {
         public void setFilepath(String filepath) {
             this.filepath = filepath;
         }
+
+
 
         @Override
         public boolean equals(final Object o) {

@@ -1,12 +1,13 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 
 import java.util.Map;
 
 /**
  * File System message
- * 
+ *
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
 public class FSMessage {
@@ -14,7 +15,7 @@ public class FSMessage {
     private final Map<String, FSPayload> payloads;
 
     protected final UserMessage metadata;
-    
+
     /**
      * Creates a FSMessage with the given payloads and metadata
      * @param payloads The payloads map (contentId, payload)

@@ -4,6 +4,7 @@ import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPayloadException;
@@ -85,6 +86,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         UserMessage metadata = messageIn.getMetadata();
         Submission submission = new Submission();
         submission.setMpc(metadata.getMpc());
+        submission.setProcessingType(ProcessingType.valueOf(messageIn.getMetadata().getProcessingType().value()));
         setPartyInfoToSubmission(submission, metadata.getPartyInfo());
         setCollaborationInfoToSubmission(submission, metadata.getCollaborationInfo());
         setMessagePropertiesToSubmission(submission, metadata.getMessageProperties());

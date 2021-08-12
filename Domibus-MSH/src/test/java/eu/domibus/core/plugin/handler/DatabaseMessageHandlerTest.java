@@ -34,6 +34,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.*;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -272,7 +273,7 @@ public class DatabaseMessageHandlerTest {
             messageExchangeConfiguration.getPmodeKey();
             result = pModeKey;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = MessageStatus.SEND_ENQUEUED;
 
             pModeProvider.getSenderParty(pModeKey);
@@ -321,7 +322,7 @@ public class DatabaseMessageHandlerTest {
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = MessageStatus.READY_TO_PULL;
 
             Party sender = new Party();
@@ -657,7 +658,7 @@ public class DatabaseMessageHandlerTest {
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = new PModeException(DomibusCoreErrorCode.DOM_003, "invalid pullprocess configuration");
         }};
 
@@ -840,7 +841,7 @@ public class DatabaseMessageHandlerTest {
             compressionService.handleCompression(MESS_ID, partInfo, legConfiguration);
             result = true;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = MessageStatus.READY_TO_PULL;
 
         }};
@@ -1144,7 +1145,7 @@ public class DatabaseMessageHandlerTest {
             result = to;
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
-            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
             result = messageStatus;
         }};
 

@@ -25,6 +25,7 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,14 +116,12 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * {@inheritDoc}
      */
     @Override
-    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
+    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration, ProcessingType processingType) {
         MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
-        List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
-        if (!processes.isEmpty()) {
+        if (ProcessingType.PULL.equals(processingType)) {
+            List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
             processValidator.validatePullProcess(Lists.newArrayList(processes));
             messageStatus = MessageStatus.READY_TO_PULL;
-        } else {
-            LOG.debug("No pull process found for message configuration");
         }
         return messageStatusDao.findOrCreate(messageStatus);
     }
@@ -139,7 +138,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 return messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL);
             }
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            return getMessageStatus(userMessageExchangeConfiguration);
+            return getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
         }
@@ -186,7 +185,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         validPullProcesses.forEach(pullProcess ->
                 pullProcess.getLegs().stream().filter(distinctByKey(LegConfiguration::getDefaultMpc)).
                         forEach(legConfiguration ->
-                        preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
+                                preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
     }
 
     private List<Process> getValidProcesses(List<Process> pullProcesses) {
@@ -269,7 +268,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     protected Set<String> getPartyIds(String mpc, Party initiator) {
         if (initiator != null && CollectionUtils.isNotEmpty(initiator.getIdentifiers())) {
             Set<String> collect = initiator.getIdentifiers().stream().map(identifier -> identifier.getPartyId()).collect(Collectors.toSet());
-            LOG.trace("Retrieving party id(s), initiator list with size:[{}] found",collect.size());
+            LOG.trace("Retrieving party id(s), initiator list with size:[{}] found", collect.size());
             return collect;
         }
         if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
