@@ -26,10 +26,10 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.GreaterThan;
 
 import javax.jms.Queue;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -55,7 +55,6 @@ public class AlertServiceImplTest {
     public static final String ALERT_DESCRIPTION_TEST = "Alert description";
     @Tested
     AlertServiceImpl alertService;
-
     @Injectable
     private EventDao eventDao;
 
@@ -322,17 +321,15 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void handleAlertStatusFailedWithRemainingAttempts(
-            final @Injectable eu.domibus.core.alerts.model.persist.Alert persistedAlert,
-            @Mocked final java.time.LocalDateTime dateTime) throws ParseException {
-        final int nextAttemptInMinutes = 10;
+    public void handleAlertStatusFailedWithRemainingAttempts(final @Injectable eu.domibus.core.alerts.model.persist.Alert persistedAlert) {
+        final int nextAttemptInMinutes = 1;
         final Alert alert = new Alert();
         final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
+        LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes);
+        Date nextAttempt = Date.from(dateTime.toInstant(ZoneOffset.UTC));
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        Date nextAttempt = parser.parse("25/10/1977 00:00:00");
 
         new Expectations() {{
             alertDao.read(entityId);
@@ -350,11 +347,6 @@ public class AlertServiceImplTest {
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
-
-            java.time.LocalDateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes).toInstant(ZoneOffset.UTC);
-            result = nextAttempt;
-        /*    Date.from(dateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes).toInstant(ZoneOffset.UTC));
-            result = nextAttempt;*/
         }};
 
         alertService.handleAlertStatus(alert);
@@ -362,7 +354,7 @@ public class AlertServiceImplTest {
         new VerificationsInOrder() {{
             persistedAlert.setAlertStatus(AlertStatus.FAILED);
             times = 1;
-            reprogrammableService.setRescheduleInfo(persistedAlert, nextAttempt);
+            reprogrammableService.setRescheduleInfo(persistedAlert, withArgThat(new GreaterThan<>(nextAttempt)));
             persistedAlert.setAttempts(1);
             times = 1;
             persistedAlert.setAlertStatus(AlertStatus.RETRY);
@@ -391,15 +383,14 @@ public class AlertServiceImplTest {
 
     @Test
     public void handleAlertStatusFailedWithNoMoreAttempts(
-            final @Injectable eu.domibus.core.alerts.model.persist.Alert persistedAlert,
-            @Mocked final LocalDateTime dateTime) throws ParseException {
+            final @Injectable eu.domibus.core.alerts.model.persist.Alert persistedAlert) throws ParseException {
         final Alert alert = new Alert();
         final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
+        LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
+        Date failureTime = Date.from(dateTime.toInstant(ZoneOffset.UTC));
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        Date failureTime = parser.parse("25/10/1977 00:00:00");
 
         new Expectations() {{
             alertDao.read(entityId);
@@ -415,8 +406,6 @@ public class AlertServiceImplTest {
             persistedAlert.getAlertStatus();
             result = AlertStatus.FAILED;
 
-            Date.from(dateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
-            result = failureTime;
         }};
 
         alertService.handleAlertStatus(alert);
@@ -426,8 +415,9 @@ public class AlertServiceImplTest {
             times = 1;
             reprogrammableService.removeRescheduleInfo(persistedAlert);
 
-            persistedAlert.setReportingTimeFailure(failureTime);
+            persistedAlert.setReportingTimeFailure(withArgThat(new GreaterThan<>(failureTime)));
             times = 1;
+
             persistedAlert.setAttempts(2);
             times = 1;
         }};
@@ -491,17 +481,17 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void cleanAlerts(final @Injectable LocalDateTime localDateTime) throws ParseException {
-        final int alertLifeTimeInDays = 10;
-        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
-        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(new eu.domibus.core.alerts.model.persist.Alert());
+    public void cleanAlerts(@Injectable eu.domibus.core.alerts.model.persist.Alert alert) {
+        Integer alertLifeTimeInDays = 10;
+        LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        Date alertLimitDate = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+
+        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = new ArrayList<>();
+        alerts.add(alert);
         new Expectations() {{
             commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
-            long longAlertLifeTimeInDays = alertLifeTimeInDays;
-            Date.from(localDateTime.now(ZoneOffset.UTC).minusDays(longAlertLifeTimeInDays).toInstant(ZoneOffset.UTC));
-            result = alertLimitDate;
+
             alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
             result = alerts;
 
