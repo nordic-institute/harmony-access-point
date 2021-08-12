@@ -27,16 +27,6 @@ public interface PasswordEncryptionExtService {
     boolean isValueEncrypted(final String propertyValue);
 
     /**
-     * Decrypts a specific property value configured for a specific domain
-     *
-     * @param domain The domain in which the property has been configured
-     * @param propertyName The property name
-     * @param encryptedFormatValue The encrypted value of the property. Eg. ENC(.....)
-     * @return The decrypted value
-     */
-    String decryptProperty(DomainDTO domain, String propertyName, String encryptedFormatValue);
-
-    /**
      * Encrypts a property value configured for a specific domain
      *
      * @param domain The domain in which the property has been configured
