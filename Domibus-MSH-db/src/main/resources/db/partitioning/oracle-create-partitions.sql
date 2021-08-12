@@ -16,13 +16,14 @@ END;
 set serveroutput on size 30000;
 BEGIN
     DECLARE
+        number_of_partitions CONSTANT  NUMBER := 6; -- one partition every 4 hours
         p_id   NUMBER;
         p_name VARCHAR2(20);
         p_high NUMBER;
     BEGIN
-        FOR p_number IN 0 .. 24
+        FOR p_number IN 0 .. (number_of_partitions-1)
             LOOP
-                select generate_partition(sysdate + p_number / 24) into p_id from dual;
+                select generate_partition(TRUNC(sysdate) + p_number / number_of_partitions ) into p_id from dual;
                 p_name := 'P' || p_id;
                 p_high := p_id || '0000000000';
                 execute immediate 'ALTER TABLE TB_USER_MESSAGE ADD PARTITION ' || p_name || ' VALUES LESS THAN (' ||
