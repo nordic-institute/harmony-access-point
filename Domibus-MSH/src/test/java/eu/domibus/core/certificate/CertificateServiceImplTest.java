@@ -1675,29 +1675,32 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doRemoveCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                     @Mocked String alias1, @Mocked String alias2) {
-
+    public void doRemoveCertificates(@Injectable KeyStore trustStore) {
+        final String trustStorePassword = "pwd";
+        final String alias1 = "alias1";
+        final String alias2 = "alias2";
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = true;
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, TRUST_STORE_LOCATION, certificates, TRUST_STORE_BACKUP_LOCATION);
 
         assertTrue(result);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
         }};
     }
 
     @Test
-    public void doRemoveCertificatesNotRemoved(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                               @Mocked String alias1, @Mocked String alias2) {
+    public void doRemoveCertificatesNotRemoved(@Mocked KeyStore trustStore) {
 
+        final String trustStorePassword = "pwd";
+        final String alias1 = "alias1";
+        final String alias2 = "alias2";
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
@@ -1705,7 +1708,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, TRUST_STORE_LOCATION, certificates, TRUST_STORE_BACKUP_LOCATION);
 
         assertFalse(result);
     }
