@@ -45,16 +45,6 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     }
 
     @Override
-    public String getDomainProperty(DomainDTO domain, String propertyName) {
-        return null;
-    }
-
-    @Override
-    public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
-
-    }
-
-    @Override
     public List<NotificationType> getConfiguredNotifications(String notificationPropertyName) {
         return null;
     }
@@ -72,21 +62,6 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     @Override
     public boolean containsPropertyKey(String propertyName) {
         return false;
-    }
-
-    @Override
-    public String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue) {
-        return null;
-    }
-
-    @Override
-    public String getDomainResolvedProperty(DomainDTO domain, String propertyName) {
-        return null;
-    }
-
-    @Override
-    public String getResolvedProperty(String propertyName) {
-        return null;
     }
 
     @Override

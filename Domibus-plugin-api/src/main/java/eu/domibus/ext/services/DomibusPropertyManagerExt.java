@@ -66,17 +66,4 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @return the current property value
      */
     String getKnownPropertyValue(String domainCode, String propertyName);
-
-    /**
-     * Replaces/Sets the current property value on the specified domain
-     *
-     * @param domainCode    the domain on which the property value is set
-     * @param propertyName  the property name whose value is set
-     * @param propertyValue the new property value
-     */
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyManagerExt#setKnownPropertyValue(java.lang.String, java.lang.String) }
-     */
-    @Deprecated
-    void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue);
 }
