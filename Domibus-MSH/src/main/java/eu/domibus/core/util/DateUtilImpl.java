@@ -47,22 +47,28 @@ public class DateUtilImpl implements DateUtil {
     public Timestamp fromISO8601(String value) {
         Date date = null;
         try {
-            LOG.debug("Parsing an offset date time value");
-            OffsetDateTime dateTime = OffsetDateTime.parse(value);
-            date = Date.from(dateTime.toInstant());
-        } catch (DateTimeParseException ex) {
-            LOG.info("Error during Parsing offset date time value");
-        }
-        try {
-            LOG.debug("Parsing local date time value");
-            LocalDateTime dateTime = LocalDateTime.parse(value);
-            date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+            try {
+                LOG.debug("Parsing an offset date time value");
+                OffsetDateTime dateTime = OffsetDateTime.parse(value);
+                date = Date.from(dateTime.toInstant());
+            } catch (DateTimeParseException ex) {
+                LOG.debug("Error during Parsing offset date time value");
+                try {
+                    LOG.debug("Parsing local date time value");
+                    LocalDateTime dateTime = LocalDateTime.parse(value);
+                    date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
 
+                } catch (DateTimeParseException timeParseException) {
+                    LOG.debug("Error during Parsing local date time value");
+                    throw timeParseException;
+                }
+                throw ex;
+            }
         } catch (DateTimeParseException ex) {
-            LOG.info("Error during Parsing local date time value");
-        }
-        if (date == null) {
-            throw new DateTimeParseException("Cannot parse datetime value", value, 0);
+            LOG.debug("Exception occurred during parsing of date time. [{}]", ex);
+            if (date == null) {
+                throw new DateTimeParseException("Cannot parse datetime value", value, 0);
+            }
         }
 
         return new Timestamp(date.getTime());

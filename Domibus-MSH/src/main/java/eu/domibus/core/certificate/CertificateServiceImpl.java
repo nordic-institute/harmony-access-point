@@ -654,7 +654,7 @@ public class CertificateServiceImpl implements CertificateService {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
         LocalDateTime certificateEnd = LocalDateTime.ofInstant(notAfter.toInstant(),ZoneOffset.UTC);
-        // LocalDateTime.from(notAfter(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
+
         LOG.debug("Current date[{}], offset date[{}], certificate end date:[{}]", now, offsetDate, certificateEnd);
         if (now.isAfter(certificateEnd)) {
             return CertificateStatus.REVOKED;
