@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_EXT;
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_FILE_FORMATTER;
@@ -88,7 +89,7 @@ public class BackupServiceImplTest {
         final String expectedValue = "2019-09-02_15_01_55.123";
 
         new Expectations(LocalDateTime.class) {{
-            LocalDateTime.now();
+            LocalDateTime.now(ZoneOffset.UTC);
             result = now;
         }};
 
