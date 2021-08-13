@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="idragusa" id="Partition tables" dbms="oracle">
         <sql>
@@ -89,7 +89,7 @@
             PARTITION BY REFERENCE ( FK_ERROR_LOG_MSG_ID );
         </sql>
 
-        <sqlFile path="src/main/resources/db/common/oracle-create-partitions.sql" endDelimiter="\n/"/>
+        <sqlFile path="src/main/resources/db/partitioning/oracle-create-partitions.sql" endDelimiter="\n/"/>
 
     </changeSet>
 
