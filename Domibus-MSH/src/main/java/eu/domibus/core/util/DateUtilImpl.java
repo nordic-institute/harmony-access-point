@@ -1,5 +1,7 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -47,27 +49,19 @@ public class DateUtilImpl implements DateUtil {
     public Timestamp fromISO8601(String value) {
         Date date = null;
         try {
-            try {
-                LOG.debug("Parsing an offset date time value");
-                OffsetDateTime dateTime = OffsetDateTime.parse(value);
-                date = Date.from(dateTime.toInstant());
-            } catch (DateTimeParseException ex) {
-                LOG.debug("Error during Parsing offset date time value");
-                try {
-                    LOG.debug("Parsing local date time value");
-                    LocalDateTime dateTime = LocalDateTime.parse(value);
-                    date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
-
-                } catch (DateTimeParseException timeParseException) {
-                    LOG.debug("Error during Parsing local date time value");
-                    throw timeParseException;
-                }
-                throw ex;
-            }
+            LOG.debug("Parsing an offset date time value: [{}]", value);
+            OffsetDateTime dateTime = OffsetDateTime.parse(value);
+            date = Date.from(dateTime.toInstant());
         } catch (DateTimeParseException ex) {
-            LOG.debug("Exception occurred during parsing of date time. [{}]", ex);
-            if (date == null) {
-                throw new DateTimeParseException("Cannot parse datetime value", value, 0);
+            LOG.debug("Error during Parsing offset date time value: [{}]", value);
+
+            try {
+                LOG.debug("Parsing local date time value: [{}]", value);
+                LocalDateTime dateTime = LocalDateTime.parse(value);
+                date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+            } catch (DateTimeParseException exception) {
+                LOG.debug("Exception occurred during parsing of date time", exception);
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Cannot parse datetime value", exception);
             }
         }
 
