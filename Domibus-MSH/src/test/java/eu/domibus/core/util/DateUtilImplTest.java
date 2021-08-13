@@ -7,10 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Date;
 
 /**
@@ -23,7 +20,22 @@ public class DateUtilImplTest {
     private DateUtilImpl dateUtilImpl;
 
     @Test
-    public void convertsIso8601ValuesToDates() {
+    public void convertsIso8601ValuesToDates_SummerTime() {
+        // Given
+        String value = "2020-08-29T11:53:37";
+
+        // When
+        Timestamp actual = dateUtilImpl.fromISO8601(value);
+
+        // Then
+        LocalDateTime expected = LocalDateTime.of(2020, Month.AUGUST, 29, 11, 53, 37);
+
+        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp",
+                expected.toInstant(ZoneOffset.UTC).atZone(ZoneId.systemDefault()).toLocalDateTime(), actual.toLocalDateTime());
+    }
+
+    @Test
+    public void convertsIso8601ValuesToDates_WinterTime() {
         // Given
         String value = "2020-02-29T11:53:37";
 
@@ -32,13 +44,15 @@ public class DateUtilImplTest {
 
         // Then
         LocalDateTime expected = LocalDateTime.of(2020, Month.FEBRUARY, 29, 11, 53, 37);
-        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp", expected.atOffset(ZoneOffset.UTC), actual.toLocalDateTime());
+
+        Assert.assertEquals("Should have converted correctly the ISO 8601 value to a timestamp",
+                expected.toInstant(ZoneOffset.UTC).atZone(ZoneId.systemDefault()).toLocalDateTime(), actual.toLocalDateTime());
     }
 
     @Test
     public void convertsIso8601ValuesToDates_EpochZulu() {
         // Given
-        String value = "1970-01-01T00:00:00Z";
+        String value = "1970-01-01T00:00:00";
 
         // When
         Timestamp actual = dateUtilImpl.fromISO8601(value);
@@ -57,8 +71,9 @@ public class DateUtilImplTest {
         Timestamp actual = dateUtilImpl.fromISO8601(value);
 
         // Then
-        Instant expected = LocalDateTime.of(2020, Month.FEBRUARY, 29, 11, 53, 37).atOffset(ZoneOffset.of("+02:00")).toInstant();
-        Assert.assertEquals("Should have converted correctly the offset ISO 8601 value to a timestamp", expected, actual.toInstant());
+        OffsetDateTime expected = OffsetDateTime.of(2020, 2, 29, 11, 53, 37, 0, ZoneOffset.of("+02:00"));
+        Assert.assertEquals("Should have converted correctly the offset ISO 8601 value to a timestamp",
+                expected.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime(), actual.toLocalDateTime());
     }
 
     @Test
@@ -88,7 +103,7 @@ public class DateUtilImplTest {
     @Test
     public void convertsIso8601ValuesPassedInAsStringToDates() {
         // Given
-        String value = "1989-12-24T12:59:59Z";
+        String value = "1989-12-24T12:59:59";
 
         // When
         Date actual = dateUtilImpl.fromString(value);
@@ -114,7 +129,7 @@ public class DateUtilImplTest {
 
         // Then
         Assert.assertEquals("Should have returned the correct start of day as a date",
-                LocalDateTime.now().toLocalDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant(), actual.toInstant());
+                LocalDateTime.now(ZoneOffset.UTC).toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant(), actual.toInstant());
     }
 
 }

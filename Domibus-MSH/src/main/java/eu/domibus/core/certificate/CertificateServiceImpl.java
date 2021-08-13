@@ -651,9 +651,10 @@ public class CertificateServiceImpl implements CertificateService {
     protected CertificateStatus getCertificateStatus(Date notAfter) {
         int revocationOffsetInDays = domibusPropertyProvider.getIntegerProperty(REVOCATION_TRIGGER_OFFSET_PROPERTY);
         LOG.debug("Property [{}], value [{}]", REVOCATION_TRIGGER_OFFSET_PROPERTY, revocationOffsetInDays);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
-        LocalDateTime certificateEnd = LocalDateTime.from(notAfter.toInstant());
+        LocalDateTime certificateEnd = LocalDateTime.ofInstant(notAfter.toInstant(),ZoneOffset.UTC);
+        // LocalDateTime.from(notAfter(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
         LOG.debug("Current date[{}], offset date[{}], certificate end date:[{}]", now, offsetDate, certificateEnd);
         if (now.isAfter(certificateEnd)) {
             return CertificateStatus.REVOKED;

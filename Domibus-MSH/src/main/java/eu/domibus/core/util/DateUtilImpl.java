@@ -1,13 +1,17 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +22,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class DateUtilImpl implements DateUtil {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
 
     @Override
     public Date fromString(String value) {
@@ -39,8 +45,26 @@ public class DateUtilImpl implements DateUtil {
     }
 
     public Timestamp fromISO8601(String value) {
-        LocalDateTime dateTime = LocalDateTime.parse(value, DateTimeFormatter.ISO_DATE_TIME);
-        Date date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+        Date date = null;
+        try {
+            LOG.debug("Parsing an offset date time value");
+            OffsetDateTime dateTime = OffsetDateTime.parse(value);
+            date = Date.from(dateTime.toInstant());
+        } catch (DateTimeParseException ex) {
+            LOG.info("Error during Parsing offset date time value");
+        }
+        try {
+            LOG.debug("Parsing local date time value");
+            LocalDateTime dateTime = LocalDateTime.parse(value);
+            date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+
+        } catch (DateTimeParseException ex) {
+            LOG.info("Error during Parsing local date time value");
+        }
+        if (date == null) {
+            throw new DateTimeParseException("Cannot parse datetime value", value, 0);
+        }
+
         return new Timestamp(date.getTime());
     }
 
