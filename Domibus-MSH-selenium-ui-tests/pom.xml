@@ -113,7 +113,7 @@
 <!--                            </argLine>-->
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
-                                <suiteXmlFile>testng.xml</suiteXmlFile>
+                                <suiteXmlFile>testng_ftests.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <systemPropertyVariables>
                                 <propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
