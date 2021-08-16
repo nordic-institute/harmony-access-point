@@ -1,6 +1,5 @@
 package eu.domibus.core.audit.envers;
 
-import eu.domibus.api.model.DatePrefixedSequenceIdGenerator;
 import eu.domibus.core.audit.CustomRevisionEntityListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,11 +31,10 @@ public class RevisionLog {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RevisionLog.class);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = DOMIBUS_SCALABLE_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
             name = DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
-            parameters = {@org.hibernate.annotations.Parameter(name = DatePrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50")})
+            strategy = "eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator")
     @RevisionNumber
     @Column(name = "ID")
     private long id;
