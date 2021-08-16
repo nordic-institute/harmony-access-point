@@ -7,6 +7,7 @@ import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
@@ -206,6 +207,16 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final Submission target = new Submission();
         try {
             target.setMpc(messageIn.getStringProperty(MPC));
+            String processingTypeProperty = messageIn.getStringProperty(PROCESSING_TYPE);
+            if(StringUtils.isEmpty(processingTypeProperty)){
+                throw new DefaultJmsPluginException("Missing processingType property. This property is needed to determine if the message should be pushed or pulled.");
+            }
+            try {
+                ProcessingType processingType = ProcessingType.valueOf(processingTypeProperty);
+                target.setProcessingType(processingType);
+            }catch (IllegalArgumentException e){
+                throw new DefaultJmsPluginException("Value for processingType property:["+processingTypeProperty+"] is incorrect. Should be PUSH or PULL.",e);
+            }
             populateMessageInfo(target, messageIn);
             populatePartyInfo(target, messageIn);
             populateCollaborationInfo(target, messageIn);
