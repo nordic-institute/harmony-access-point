@@ -3,17 +3,14 @@ package eu.domibus.core.plugin;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListenerService;
-import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -31,36 +28,6 @@ public class BackendConnectorServiceTest {
     @Injectable
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
-    @Test
-    public void getRequiredNotificationTypeList(@Injectable BackendConnector<?, ?> backendConnector,
-                                                @Injectable NotificationListenerService notificationListenerService) {
-        new Expectations(backendConnectorService) {{
-            asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendConnector.getName());
-            result = notificationListenerService;
-
-            backendConnectorService.isInstanceOfNotificationListener(notificationListenerService);
-            result = true;
-        }};
-
-        backendConnectorService.getRequiredNotificationTypeList(backendConnector);
-
-        new Verifications() {{
-            notificationListenerService.getRequiredNotificationTypeList();
-
-            backendConnector.getRequiredNotifications();
-            times = 0;
-        }};
-    }
-
-    @Test
-    public void isInstanceOfNotificationListener(@Injectable NotificationListenerService notificationListenerService) {
-        assertTrue(backendConnectorService.isInstanceOfNotificationListener(notificationListenerService));
-    }
-
-    @Test
-    public void isInstanceOfNotificationListener(@Injectable AsyncNotificationConfiguration asyncNotificationConfiguration) {
-        assertFalse(backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration));
-    }
 
     @Test
     public void isAbstractBackendConnector(@Injectable AbstractBackendConnector abstractBackendConnector) {
@@ -72,17 +39,4 @@ public class BackendConnectorServiceTest {
         assertFalse(backendConnectorService.isAbstractBackendConnector(backendConnector));
     }
 
-    @Test
-    public void isListerAnInstanceOfAsyncPluginConfiguration(@Injectable AbstractBackendConnector abstractBackendConnector,
-                                                             @Injectable NotificationListenerService notificationListenerService) {
-        new Expectations(backendConnectorService) {{
-            backendConnectorService.isAbstractBackendConnector(abstractBackendConnector);
-            result = true;
-
-            abstractBackendConnector.getLister();
-            result = notificationListenerService;
-        }};
-
-        assertTrue(backendConnectorService.isListerAnInstanceOfAsyncPluginConfiguration(abstractBackendConnector));
-    }
 }

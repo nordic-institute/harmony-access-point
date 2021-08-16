@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
@@ -139,7 +140,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         }
 
         String messageId = event.getMessageId();
-        LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getFinalRecipient());
+        LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
         FSMessage fsMessage;
 
         // Browse message
@@ -151,7 +152,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         }
 
         //extract final recipient
-        final String finalRecipient = event.getFinalRecipient();
+        final String finalRecipient = event.getProps().get(MessageConstants.FINAL_RECIPIENT);
         if (StringUtils.isBlank(finalRecipient)) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED);
             throw new FSPluginException("Unable to extract finalRecipient from message " + messageId);
