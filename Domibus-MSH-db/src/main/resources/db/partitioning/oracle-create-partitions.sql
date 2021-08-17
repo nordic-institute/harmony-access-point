@@ -26,7 +26,7 @@ BEGIN
                 select generate_partition(TRUNC(sysdate) + p_number / number_of_partitions ) into p_id from dual;
                 p_name := 'P' || p_id;
                 p_high := p_id || '0000000000';
-                execute immediate 'ALTER TABLE TB_USER_MESSAGE ADD PARTITION ' || p_name || ' VALUES LESS THAN (' ||
+                EXECUTE IMMEDIATE 'ALTER TABLE TB_USER_MESSAGE ADD PARTITION ' || p_name || ' VALUES LESS THAN (' ||
                                   p_high || ')';
                 -- DBMS_OUTPUT.PUT_LINE(p_name || ' ' || p_high);
             END LOOP;
