@@ -180,7 +180,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         processes.add(process);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
         doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
-        messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
+        messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PULL);
     }
 
     @Test

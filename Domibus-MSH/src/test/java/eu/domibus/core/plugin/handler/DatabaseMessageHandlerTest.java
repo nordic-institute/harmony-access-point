@@ -455,6 +455,9 @@ public class DatabaseMessageHandlerTest {
             submission.getMessageId();
             result = "messageId";
 
+            submission.getProcessingType();
+            result=ProcessingType.PUSH;
+
             UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(submission);
             result = userMessage;
@@ -474,9 +477,6 @@ public class DatabaseMessageHandlerTest {
 
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
-
-            messageExchangeService.forcePullOnMpc(userMessage);
-            result = false;
 
             pModeProvider.getSenderParty(pModeKey);
             result = from;
@@ -536,6 +536,9 @@ public class DatabaseMessageHandlerTest {
             submission.getMessageId();
             result = "messageId";
 
+            submission.getProcessingType();
+            result=ProcessingType.PUSH;
+
             UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(submission);
             result = userMessage;
@@ -545,9 +548,6 @@ public class DatabaseMessageHandlerTest {
 
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
-
-            messageExchangeService.forcePullOnMpc(userMessage);
-            result = false;
 
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             result = userMessageExchangeConfiguration;
@@ -599,6 +599,9 @@ public class DatabaseMessageHandlerTest {
             submission.getMessageId();
             result = "messageId";
 
+            submission.getProcessingType();
+            result=ProcessingType.PUSH;
+
             UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(submission);
             result = userMessage;
@@ -608,9 +611,6 @@ public class DatabaseMessageHandlerTest {
 
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
-
-            messageExchangeService.forcePullOnMpc(userMessage);
-            result = false;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode could not be found. Are PModes configured in the database?", MESS_ID, null);
@@ -647,6 +647,9 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{
+
+            messageData.getProcessingType();
+            result=ProcessingType.PULL;
             UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
@@ -658,7 +661,7 @@ public class DatabaseMessageHandlerTest {
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PULL);
             result = new PModeException(DomibusCoreErrorCode.DOM_003, "invalid pullprocess configuration");
         }};
 
