@@ -119,7 +119,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         errorLogEntryTruncateUtil.truncate(errorLogEntry);
         if(errorLogEntry.getUserMessage() == null) {
             UserMessage um = new UserMessage();
-            um.setEntityId(UserMessageDefaultService.DEFAULT_USER_MESSAGE_ID_PK);
+            um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
             errorLogEntry.setUserMessage(um);
         }
         super.create(errorLogEntry);

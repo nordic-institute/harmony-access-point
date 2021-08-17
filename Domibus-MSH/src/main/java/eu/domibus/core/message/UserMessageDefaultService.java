@@ -83,8 +83,6 @@ public class UserMessageDefaultService implements UserMessageService {
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
 
-    public static final long DEFAULT_USER_MESSAGE_ID_PK = 19700101; // 1st of January 1970
-
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;

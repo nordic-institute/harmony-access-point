@@ -71,7 +71,7 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
     public void create(MessageGroupEntity messageGroupEntity) {
         if(messageGroupEntity.getSourceMessage() == null) {
             UserMessage um = new UserMessage();
-            um.setEntityId(UserMessageDefaultService.DEFAULT_USER_MESSAGE_ID_PK);
+            um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
             messageGroupEntity.setSourceMessage(um);
         }
         super.create(messageGroupEntity);
