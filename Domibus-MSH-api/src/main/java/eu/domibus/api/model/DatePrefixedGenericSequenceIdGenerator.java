@@ -22,10 +22,10 @@ import java.util.Properties;
 /**
  * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) increment.
  *
- * @author idragusa
+ * @author François Gautier
  * @since 5.0
  */
-public class DatePrefixedGenericSequenceIdGenerator implements PersistentIdentifierGenerator, Configurable {
+public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefixedSequenceIdGeneratorGenerator {
 
     public static final String DATA_BASE_ENGINE_IS_UNKNOWN = "DataBaseEngine is unknown [";
     private final DatePrefixedOracleSequenceIdGenerator datePrefixedOracleSequenceIdGenerator = new DatePrefixedOracleSequenceIdGenerator();
@@ -55,64 +55,40 @@ public class DatePrefixedGenericSequenceIdGenerator implements PersistentIdentif
         dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
     }
 
+    public DomibusDatePrefixedSequenceIdGeneratorGenerator getGenerator() {
+        initDbEngine();
+        if (DataBaseEngine.ORACLE == dataBaseEngine) {
+            return datePrefixedOracleSequenceIdGenerator;
+        }
+        if (DataBaseEngine.MYSQL == dataBaseEngine) {
+            return datePrefixedMysqlSequenceIdGenerator;
+        }
+        throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
+    }
+
     /**
      * @return id of the shape: yyMMddHHDDDDDDDDDD ex: 210809150000000050
      */
     @Override
     public Serializable generate(SharedSessionContractImplementor session,
                                  Object object) throws HibernateException {
-        initDbEngine();
-
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            return datePrefixedOracleSequenceIdGenerator.generate(session, object);
-        }
-        if (DataBaseEngine.MYSQL == dataBaseEngine) {
-            return datePrefixedMysqlSequenceIdGenerator.generate(session, object);
-        }
-        throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
+        return getGenerator().generateDomibus(session, object);
     }
 
 
     @Override
     public String[] sqlCreateStrings(Dialect dialect) throws HibernateException {
-        initDbEngine();
-
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            return datePrefixedOracleSequenceIdGenerator.sqlCreateStrings(dialect);
-        }
-        if (DataBaseEngine.MYSQL == dataBaseEngine) {
-            return datePrefixedMysqlSequenceIdGenerator.sqlCreateStrings(dialect);
-        }
-        throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
-
+        return getGenerator().sqlCreateStrings(dialect);
     }
 
     @Override
     public String[] sqlDropStrings(Dialect dialect) throws HibernateException {
-        initDbEngine();
-
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            return datePrefixedOracleSequenceIdGenerator.sqlDropStrings(dialect);
-        }
-        if (DataBaseEngine.MYSQL == dataBaseEngine) {
-            return datePrefixedMysqlSequenceIdGenerator.sqlDropStrings(dialect);
-        }
-        throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
-
+        return getGenerator().sqlDropStrings(dialect);
     }
 
     @Override
     public Object generatorKey() {
-        initDbEngine();
-
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            return datePrefixedOracleSequenceIdGenerator.generatorKey();
-        }
-        if (DataBaseEngine.MYSQL == dataBaseEngine) {
-            return datePrefixedMysqlSequenceIdGenerator.generatorKey();
-        }
-        throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
-
+        return getGenerator().generatorKey();
     }
 
     @Override
