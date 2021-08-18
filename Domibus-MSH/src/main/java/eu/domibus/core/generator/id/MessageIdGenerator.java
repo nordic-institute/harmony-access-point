@@ -25,4 +25,8 @@ public class MessageIdGenerator {
         String messageIdSuffix = domibusPropertyProvider.getProperty(MESSAGE_ID_SUFFIX_PROPERTY);
         return uuidGenerator.generate() + "@" + messageIdSuffix;
     }
+
+    public String generatePullRequestId() {
+        return uuidGenerator.generate().toString();
+    }
 }
