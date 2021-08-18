@@ -1,4 +1,6 @@
 Domibus 5.0 (from 4.2.2)
+                - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
+                to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Run the appropriate DB migration script(mysql-4.2.2-to-5.0-migration.ddl for MySQL or oracle-4.2.2-to-5.0-migration.ddl for Oracle)
