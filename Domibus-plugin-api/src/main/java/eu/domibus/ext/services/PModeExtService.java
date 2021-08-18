@@ -34,18 +34,6 @@ public interface PModeExtService {
      */
     PModeArchiveInfoDTO getCurrentPmode();
 
-
-    /**
-     * Upload a new version of the PMode file
-     *
-     * @param bytes PMode file to be uploaded
-     * @param description of the PMode uploaded version
-     * @return List<String> as errors
-     * @deprecated Use instead {@link eu.domibus.ext.services.PModeExtService#updatePModeFile(MultipartFile, String) }
-     */
-    @Deprecated
-    List<ValidationIssueDTO> updatePModeFile(byte[] bytes, String description);
-
     /**
      * Upload a new version of the PMode file
      *

@@ -12,8 +12,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
-
 /**
  * Helper class involved in dispatching the calls of the domibus property provider to the core or external property managers
  * Responsible also for caching the values
@@ -93,7 +91,7 @@ public class PropertyProviderDispatcher {
     protected void setExternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyManagerExt manager) {
         if (domain == null) {
             LOG.debug("Setting property [{}] of manager [{}] without domain.", propertyName, manager);
-            setExternalModulePropertyValue(manager, propertyName, propertyValue);
+            manager.setKnownPropertyValue(propertyName, propertyValue);
             return;
         }
         LOG.debug("Setting property [{}] of manager [{}] on domain [{}].", propertyName, manager, domain);
@@ -126,17 +124,6 @@ public class PropertyProviderDispatcher {
         String currentDomainCode = propertyProviderHelper.getCurrentDomainCode();
         LOG.trace("Going to call getKnownPropertyValue for current domain [{}] as property manager [{}] doesn't have the method without domain defined", currentDomainCode, propertyManager);
         return propertyManager.getKnownPropertyValue(currentDomainCode, propertyName);
-    }
-
-    protected void setExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
-        if (classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class})) {
-            LOG.debug("Calling setKnownPropertyValue method");
-            propertyManager.setKnownPropertyValue(name, value);
-            return;
-        }
-        LOG.debug("Calling deprecated setKnownPropertyValue method");
-        String currentDomainCode = propertyProviderHelper.getCurrentDomainCode();
-        propertyManager.setKnownPropertyValue(currentDomainCode, name, value);
     }
 
     //this method needs to be public for the ehCache to be able to call it

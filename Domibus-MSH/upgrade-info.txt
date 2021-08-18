@@ -5,12 +5,20 @@ Domibus 5.0 (from 4.2.2)
                 - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.
                 - To execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) use the current 'TIMEZONE' value as IN parameter for mysql and oracle DB.
                   The current 'TIMEZONE' value should be the timezone in which the date time values have been previously saved (e.g. 'Europe/Brussels').
-                - Data migration scripts should be run in order to migrate data from old tables to the new tables (Oracle).
-                Domibus application (.war) should be stopped while running these:
+                - Data migration scripts should be run in order to migrate data from old tables to the new tables:
+                    - o [Oracle only]
+                        Domibus application (.war) should be stopped while running these:
                         - step 1: oracle-4.2.2-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                         - step 2: oracle-4.2.2-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                         If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                         - step 3: oracle-4.2.2-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                        This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                    o [Mysql only]
+                        Domibus application (.war) should be stopped while running these:
+                        - step 1: mysql-4.2.2-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                        - step 2: mysql-4.2.2-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                        If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
+                        - step 3: mysql-4.2.2-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                         This step isn't reversible so it must be executed once step 1 and step 2 are successful
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
@@ -97,6 +105,15 @@ Domibus 5.0 (from 4.2.2)
                             - in the file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                                     - remove the <xa-datasource jndi-name="java:/jdbc/cipaeDeliveryDs"...> datasource
                                     - clone the <datasource jndi-name="java:/jdbc/cipaeDeliveryNonXADs"...> datasource and set the jndi-name attribute to "java:/jdbc/cipaeDeliveryDs" and the pool-name attribute to either "eDeliveryMysqlDS" or "eDeliveryOracleDS"
+                - Removed deprecated API:
+                    o classes: eu.domibus.submission.WeblogicNotificationListenerService, eu.domibus.plugin.NotificationListener, eu.domibus.plugin.NotificationListenerService, eu.domibus.common.JMSConstants
+                    o methods: eu.domibus.plugin.BackendConnector.messageSendFailed(java.lang.String), eu.domibus.plugin.BackendConnector.messageSendSuccess(java.lang.String), eu.domibus.plugin.BackendConnector.deliverMessage(java.lang.String),
+                               eu.domibus.ext.services.DomibusPropertyManagerExt.setKnownPropertyValue(java.lang.String, java.lang.String, java.lang.String), eu.domibus.common.DeliverMessageEvent.setFinalRecipient(java.lang.String),
+                               eu.domibus.common.DeliverMessageEvent.getFinalRecipient(java.lang.String), eu.domibus.common.DeliverMessageEvent.getProperties(), eu.domibus.common.MessageDeletedBatchEvent.getMessageIds,
+                               eu.domibus.common.MessageDeletedBatchEvent.setMessageIds, eu.domibus.common.MessageSendFailedEvent.getProperties, eu.domibus.common.MessageSendSuccessEvent.getProperties,
+                               eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
+                               eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
+                               eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
 Domibus 4.2.2 (from 4.2.1):
                 - [Mysql8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:

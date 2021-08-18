@@ -42,15 +42,6 @@ public class MessageSendFailedEvent implements Serializable, MessageEvent {
         return Collections.unmodifiableMap(properties);
     }
 
-    /**
-     * Needed for backward compatibility between 4.2 and 5.0
-     * @deprecated Use instead {@link MessageEvent#getProps()}
-     */
-    @Deprecated
-    public Map<String, Object> getProperties() {
-        return Collections.unmodifiableMap(properties);
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)

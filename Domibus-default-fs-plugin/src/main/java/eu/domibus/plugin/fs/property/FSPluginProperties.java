@@ -9,7 +9,6 @@ import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,14 +202,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     private String decryptPasswordProperty(String domain, String passwordPropertyToDecrypt) {
-        String result = getDomainProperty(domain, passwordPropertyToDecrypt);
-        if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
-            LOG.debug("Decrypting property [{}] for domain [{}]", passwordPropertyToDecrypt, domain);
-            //passwords are encrypted using the key of the default domain; this is because there is no clear segregation between FS Plugin properties per domain
-            final DomainDTO domainDTO = domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
-            result = pluginPasswordEncryptionService.decryptProperty(domainDTO, passwordPropertyToDecrypt, result);
-        }
-        return result;
+        return getDomainProperty(domain, passwordPropertyToDecrypt);
     }
 
     /**

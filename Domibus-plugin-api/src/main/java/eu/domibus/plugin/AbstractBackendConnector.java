@@ -49,20 +49,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     protected MessageLister lister;
 
-    //for backward compatibility purposes
-    protected NotificationListener notificationListener;
-
     public AbstractBackendConnector(final String name) {
         this.name = name;
     }
 
     public void setLister(final MessageLister lister) {
         this.lister = lister;
-
-        //for backward compatibility purposes
-        if (lister instanceof NotificationListener) {
-            notificationListener = (NotificationListener) lister;
-        }
     }
 
     public MessageLister getLister() {
@@ -172,17 +164,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public void deliverMessage(final String messageId) {
-        throw new UnsupportedOperationException("This method is deprecated, use eu.domibus.plugin.AbstractBackendConnector.deliverMessage(eu.domibus.common.DeliverMessageEvent) instead");
-    }
-
-    @Override
     public void deliverMessage(final DeliverMessageEvent event) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
-    }
-
-    @Override
-    public void messageSendSuccess(String messageId) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 
@@ -193,11 +175,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
-    }
-
-    @Override
-    public void messageSendFailed(String messageId) {
         throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
     }
 
@@ -216,22 +193,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return name;
     }
 
-    protected String trim(String messageId) {
-        return StringUtils.stripToEmpty(StringUtils.trimToEmpty(messageId));
-    }
-
     public void setMode(Mode mode) {
         this.mode = mode;
     }
 
     @Override
     public Mode getMode() {
-        //for backward compatibility purposes
-        if (notificationListener != null) {
-            Mode listenerMode = notificationListener.getMode();
-            LOG.trace("Using plugin mode [{}] from the NotificationListenerService", listenerMode);
-            return listenerMode;
-        }
         if(mode != null) {
             LOG.trace("Using configured plugin mode [{}]", mode);
             return mode;
@@ -247,12 +214,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public List<NotificationType> getRequiredNotifications() {
-        //for backward compatibility purposes
-        if (notificationListener != null) {
-            List<NotificationType> listenerRequiredNotificationTypeList = notificationListener.getRequiredNotificationTypeList();
-            LOG.trace("Using notifications [{}] from the NotificationListenerService", listenerRequiredNotificationTypeList);
-            return listenerRequiredNotificationTypeList;
-        }
         if(requiredNotifications != null) {
             LOG.trace("Using notifications [{}] from the plugin", requiredNotifications);
             return requiredNotifications;
@@ -260,14 +221,5 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         List<NotificationType> defaultNotifications = BackendConnector.super.getRequiredNotifications();
         LOG.trace("Using default notifications [{}]", defaultNotifications);
         return defaultNotifications;
-    }
-
-    @Override
-    public void messageDeletedEvent(MessageDeletedEvent event) {
-        //for backward compatibility purposes
-        if (notificationListener != null) {
-            LOG.debug("Calling deleteMessageCallback from the NotificationListenerService for message id [{}]", event.getMessageId());
-            notificationListener.deleteMessageCallback(event.getMessageId());
-        }
     }
 }

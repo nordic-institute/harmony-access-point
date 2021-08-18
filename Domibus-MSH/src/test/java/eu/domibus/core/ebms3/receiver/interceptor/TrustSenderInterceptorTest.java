@@ -2,19 +2,18 @@ package eu.domibus.core.ebms3.receiver.interceptor;
 
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider;
 import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
+import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.pki.PKIUtil;
-import eu.domibus.api.spring.SpringContextProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +37,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
@@ -198,7 +200,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     @Test
     public void testCheckCertificateValidityEnabled() throws Exception {
         final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, new DateTime().minusDays(2).toDate(), new DateTime().minusDays(1).toDate(), null);
+        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant(ZoneOffset.UTC)), Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC)), null);
         List<Certificate> certificateChain = new ArrayList<>();
         certificateChain.add(certificate);
         List<Certificate> expiredCertificateChain = new ArrayList<>();
@@ -220,7 +222,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Test
     public void testCheckCertificateValidityDisabled() throws Exception {
-        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, new DateTime().minusDays(2).toDate(), new DateTime().minusDays(1).toDate(), null);
+        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant(ZoneOffset.UTC)), Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC)), null);
         List<Certificate> expiredCertificateChain = new ArrayList<>();
         expiredCertificateChain.add(expiredCertificate);
 

@@ -1,5 +1,7 @@
 package eu.domibus.common;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,5 +35,13 @@ public class MessageDeletedEvent implements MessageEvent {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("messageId", messageId)
+                .append("properties", properties)
+                .toString();
     }
 }

@@ -30,8 +30,4 @@ public class MessageReceivePluginImplementationTest extends AbstractBackendConne
         return null;
     }
 
-    @Override
-    public void messageSendFailed(String messageId) {
-
-    }
 }

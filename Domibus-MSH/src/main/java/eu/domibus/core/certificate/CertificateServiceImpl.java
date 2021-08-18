@@ -19,7 +19,6 @@ import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +27,6 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,11 +40,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
@@ -648,9 +651,10 @@ public class CertificateServiceImpl implements CertificateService {
     protected CertificateStatus getCertificateStatus(Date notAfter) {
         int revocationOffsetInDays = domibusPropertyProvider.getIntegerProperty(REVOCATION_TRIGGER_OFFSET_PROPERTY);
         LOG.debug("Property [{}], value [{}]", REVOCATION_TRIGGER_OFFSET_PROPERTY, revocationOffsetInDays);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
-        LocalDateTime certificateEnd = LocalDateTime.fromDateFields(notAfter);
+        LocalDateTime certificateEnd = LocalDateTime.ofInstant(notAfter.toInstant(),ZoneOffset.UTC);
+
         LOG.debug("Current date[{}], offset date[{}], certificate end date:[{}]", now, offsetDate, certificateEnd);
         if (now.isAfter(certificateEnd)) {
             return CertificateStatus.REVOKED;
@@ -690,13 +694,12 @@ public class CertificateServiceImpl implements CertificateService {
         final String accessPoint = getAccessPointName();
         final Integer revokedDuration = configuration.getExpiredDuration();
         final Integer revokedFrequency = configuration.getExpiredFrequency();
-
-        Date endNotification = LocalDateTime.now().minusDays(revokedDuration).toDate();
-        Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
+        Date endNotification = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant(ZoneOffset.UTC));
+        Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant(ZoneOffset.UTC));
 
         LOG.debug("Searching for expired certificate with notification date smaller than:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
         certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
-            certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
+            certificate.setAlertExpiredNotificationDate(Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC)));
             certificateDao.saveOrUpdate(certificate);
             final String alias = certificate.getAlias();
             final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
@@ -736,9 +739,9 @@ public class CertificateServiceImpl implements CertificateService {
         final Integer imminentExpirationDelay = configuration.getImminentExpirationDelay();
         final Integer imminentExpirationFrequency = configuration.getImminentExpirationFrequency();
 
-        final Date today = LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
-        final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
-        final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
+        final Date today = Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC));
+        final Date maxDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant(ZoneOffset.UTC));
+        final Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant(ZoneOffset.UTC));
 
         LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
                 notificationDate, imminentExpirationDelay, maxDate);
