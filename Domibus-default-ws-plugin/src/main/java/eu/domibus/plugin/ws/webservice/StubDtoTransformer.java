@@ -5,9 +5,11 @@ import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,8 +165,21 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
         populateCollaborationInfo(result, messaging);
         populateMessageProperties(result, messaging);
         populatePayloadInfo(result, messaging);
-        result.setProcessingType(eu.domibus.plugin.ProcessingType.valueOf(messaging.getProcessingType().value()));
+        result.setProcessingType(getProcessingType(messaging));
         return result;
+    }
+
+    private eu.domibus.plugin.ProcessingType getProcessingType(final UserMessage messaging) {
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ProcessingType processingType = messaging.getProcessingType();
+        if(processingType==null){
+            LOG.debug("Processing type is empty, setting processing type to default PUSH");
+            return eu.domibus.plugin.ProcessingType.PUSH;
+        }
+        try {
+            return ProcessingType.valueOf(processingType.value());
+        }catch (IllegalArgumentException e){
+            throw new WSPluginException("Value for processingType property:["+ processingType.value() +"] is incorrect. Should be PUSH or PULL.",e);
+        }
     }
 
     private void populateMessageInfo(Submission result, UserMessage messaging) {
