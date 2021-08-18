@@ -207,16 +207,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final Submission target = new Submission();
         try {
             target.setMpc(messageIn.getStringProperty(MPC));
-            String processingTypeProperty = messageIn.getStringProperty(PROCESSING_TYPE);
-            if(StringUtils.isEmpty(processingTypeProperty)){
-                throw new DefaultJmsPluginException("Missing processingType property. This property is needed to determine if the message should be pushed or pulled.");
-            }
-            try {
-                ProcessingType processingType = ProcessingType.valueOf(processingTypeProperty);
-                target.setProcessingType(processingType);
-            }catch (IllegalArgumentException e){
-                throw new DefaultJmsPluginException("Value for processingType property:["+processingTypeProperty+"] is incorrect. Should be PUSH or PULL.",e);
-            }
+            target.setProcessingType(getProcessingType(messageIn));
             populateMessageInfo(target, messageIn);
             populatePartyInfo(target, messageIn);
             populateCollaborationInfo(target, messageIn);
@@ -227,6 +218,24 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             throw new DefaultJmsPluginException(ex);
         }
         return target;
+    }
+
+    private ProcessingType getProcessingType(MapMessage messageIn) {
+        String processingTypeProperty;
+        try {
+            processingTypeProperty = messageIn.getStringProperty(PROCESSING_TYPE);
+        } catch (JMSException e) {
+            LOG.debug("Property:[{}] is empty, setting processing type to default PUSH",PROCESSING_TYPE);
+            return ProcessingType.PUSH;
+        }
+        if(StringUtils.isEmpty(processingTypeProperty)){
+            return ProcessingType.PUSH;
+        }
+        try {
+            return ProcessingType.valueOf(processingTypeProperty);
+        }catch (IllegalArgumentException e){
+            throw new DefaultJmsPluginException("Value for processingType property:["+ processingTypeProperty +"] is incorrect. Should be PUSH or PULL.",e);
+        }
     }
 
     private void populateMessageInfo(Submission target, MapMessage messageIn) throws JMSException {
