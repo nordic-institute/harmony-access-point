@@ -3157,7 +3157,7 @@
     <changeSet author="dussath" id="EDELIVERY-4669">
         <comment>Create pull request table</comment>
         <createTable tableName="TB_PULL_REQUEST">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="PULL_REQUEST_UUID" type="VARCHAR(255)" >
                 <constraints primaryKey="true" primaryKeyName="PK_PULL_REQUEST"/>
             </column>
             <column name="MPC" type="VARCHAR(255)">
