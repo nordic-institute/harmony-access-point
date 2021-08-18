@@ -1,8 +1,10 @@
 package eu.domibus.core.pulling;
 
 import javax.persistence.*;
-
-
+/**
+ * @author Thomas Dussart
+ * @since 5.0
+ */
 @Entity
 @Table(name = "TB_PULL_REQUEST")
 @NamedQueries({

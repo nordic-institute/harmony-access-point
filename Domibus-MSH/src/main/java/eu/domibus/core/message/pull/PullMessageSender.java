@@ -184,7 +184,7 @@ public class PullMessageSender {
                 LOG.trace("Delete pull request with UUID:[{}]",pullRequestId);
                 pullRequestDao.deletePullRequest(pullRequestId);
             } catch (JMSException e) {
-                e.printStackTrace();
+                LOG.error("Error deleting pull request:[{}]", e.getMessage(), e);
             }
         }
     }

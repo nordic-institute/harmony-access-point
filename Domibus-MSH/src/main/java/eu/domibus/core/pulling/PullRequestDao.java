@@ -10,6 +10,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+/**
+ * @author Thomas Dussart
+ * @since 5.0
+ */
+
 @Repository("pullRequestDAO")
 public class PullRequestDao {
 
