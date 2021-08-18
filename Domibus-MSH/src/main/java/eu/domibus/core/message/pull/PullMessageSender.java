@@ -125,9 +125,11 @@ public class PullMessageSender {
         String mpcName = null;
         UserMessage userMessage = null;
         List<PartInfo> partInfos = null;
+        String pullRequestId = null;
         try {
             final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
             final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
+            pullRequestId = map.getStringProperty(PullContext.PULL_REQUEST_ID);
             notifyBusinessOnError = Boolean.valueOf(map.getStringProperty(PullContext.NOTIFY_BUSINNES_ON_ERROR));
             Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
             Ebms3PullRequest pullRequest = new Ebms3PullRequest();
@@ -178,14 +180,9 @@ public class PullMessageSender {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
             }
             checkConnectionProblem(e, mpcName);
-        }finally {
-            try {
-                String pullRequestId=map.getStringProperty(PullContext.PULL_REQUEST_ID);
-                LOG.trace("Delete pull request with UUID:[{}]",pullRequestId);
-                pullRequestDao.deletePullRequest(pullRequestId);
-            } catch (JMSException e) {
-                LOG.error("Error deleting pull request:[{}]", e.getMessage(), e);
-            }
+        } finally {
+            LOG.trace("Delete pull request with UUID:[{}]", pullRequestId);
+            pullRequestDao.deletePullRequest(pullRequestId);
         }
     }
 
