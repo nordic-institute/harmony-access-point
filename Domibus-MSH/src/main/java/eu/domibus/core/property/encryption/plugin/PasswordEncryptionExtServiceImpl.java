@@ -61,14 +61,6 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     }
 
     @Override
-    public String decryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
-        LOG.debug("Decrypting property [{}] for domain [{}]", propertyName, domainDTO);
-
-        final Domain domain = coreMapper.domainDTOToDomain(domainDTO);
-        return passwordDecryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
-    }
-
-    @Override
     public PasswordEncryptionResultDTO encryptProperty(DomainDTO domainDTO, String propertyName, String encryptedFormatValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domainDTO);
 

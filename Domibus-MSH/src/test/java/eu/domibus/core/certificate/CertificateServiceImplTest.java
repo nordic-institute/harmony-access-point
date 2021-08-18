@@ -28,24 +28,29 @@ import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.GreaterThan;
 
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
@@ -265,8 +270,8 @@ public class CertificateServiceImplTest {
                                          @Mocked final Enumeration<String> aliasEnum,
                                          @Mocked final X509Certificate blueCertificate,
                                          @Mocked final X509Certificate redCertificate) throws KeyStoreException {
-        final Date validFrom = LocalDateTime.now().toDate();
-        final Date validUntil = LocalDateTime.now().plusDays(10).toDate();
+        final Date validFrom = Date.from(LocalDateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
+        final Date validUntil = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant(ZoneOffset.UTC));
         new Expectations() {{
             aliasEnum.hasMoreElements();
             returns(true, true, false);
@@ -399,7 +404,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void retrieveCertificates(@Mocked final KeyStore keyStore, @Mocked final KeyStore trustStore) {
+    public void retrieveCertificates(@Injectable final KeyStore keyStore, @Injectable final KeyStore trustStore) {
 
         Certificate certificate = new Certificate();
         certificate.setNotAfter(new Date());
@@ -495,18 +500,19 @@ public class CertificateServiceImplTest {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
-    public void sendCertificateImminentExpirationAlerts(final @Mocked ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration,
-                                                        @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
+    public void sendCertificateImminentExpirationAlerts(final @Injectable ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration, @Injectable final Certificate certificate) throws ParseException {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        Date offset = parser.parse("25/10/1977 00:00:00");
-        Date notificationDate = parser.parse("25/10/1977 00:00:00");
         Date notAfter = parser.parse("23/10/1977 00:00:00");
         final int imminentExpirationDelay = 10;
         final int imminentExpirationFrequency = 14;
         final String accesPoint = "red_gw";
         final String alias = "blue_gw";
-
+        final Date today = Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC));
+        final Date maxDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant(ZoneOffset.UTC));
+        final Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant(ZoneOffset.UTC));
+        List<Certificate> certificates = new ArrayList<>();
+        certificates.add(certificate);
         new Expectations() {{
 
             pModeProvider.isConfigurationLoaded();
@@ -527,16 +533,8 @@ public class CertificateServiceImplTest {
             imminentExpirationCertificateConfiguration.getImminentExpirationFrequency();
             result = imminentExpirationFrequency;
 
-            final LocalDateTime now = dateTime.now();
-            now.plusDays(imminentExpirationDelay).toDate();
-            result = offset;
-
-            final LocalDateTime now1 = dateTime.now();
-            now1.minusDays(imminentExpirationFrequency).toDate();
-            result = notificationDate;
-
-            certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, (Date) any, offset);
-            result = Lists.newArrayList(certificate);
+            certificateDao.findImminentExpirationToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), today, withArgThat(new GreaterThan<>(maxDate)));
+            result = certificates;
 
             certificate.getAlias();
             result = alias;
@@ -547,9 +545,9 @@ public class CertificateServiceImplTest {
         }};
         certificateService.sendCertificateImminentExpirationAlerts();
         new VerificationsInOrder() {{
-            certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, (Date) any, offset);
+            certificateDao.findImminentExpirationToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), today, withArgThat(new GreaterThan<>(maxDate)));
             times = 1;
-            certificateDao.saveOrUpdate(certificate);
+            certificateDao.saveOrUpdate(certificates.get(0));
             times = 1;
             eventService.enqueueImminentCertificateExpirationEvent(accesPoint, alias, notAfter);
             times = 1;
@@ -558,17 +556,19 @@ public class CertificateServiceImplTest {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
-    public void sendCertificateExpiredAlerts(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                             @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
+    public void sendCertificateExpiredAlerts(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
+                                             @Injectable final Certificate certificate) throws ParseException {
 
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-        Date endNotification = parser.parse("25/10/1977 00:00:00");
-        Date notificationDate = parser.parse("25/10/1977 00:00:00");
         Date notAfter = parser.parse("23/10/1977 00:00:00");
         final int revokedDuration = 10;
         final int revokedFrequency = 14;
         final String accesPoint = "red_gw";
         final String alias = "blue_gw";
+        Date endNotification = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant(ZoneOffset.UTC));
+        Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant(ZoneOffset.UTC));
+        List<Certificate> certificates = new ArrayList<>();
+        certificates.add(certificate);
 
         new Expectations() {{
 
@@ -590,16 +590,8 @@ public class CertificateServiceImplTest {
             expiredCertificateConfiguration.getExpiredFrequency();
             result = revokedFrequency;
 
-            final LocalDateTime now = dateTime.now();
-            now.minusDays(revokedDuration).toDate();
-            result = endNotification;
-
-            final LocalDateTime now1 = dateTime.now();
-            now1.minusDays(revokedFrequency).toDate();
-            result = notificationDate;
-
-            certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);
-            result = Lists.newArrayList(certificate);
+            certificateDao.findExpiredToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), withArgThat(new GreaterThan<>(endNotification)));
+            result = certificates;
 
             certificate.getAlias();
             result = alias;
@@ -610,9 +602,9 @@ public class CertificateServiceImplTest {
         }};
         certificateService.sendCertificateExpiredAlerts();
         new VerificationsInOrder() {{
-            certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification);
+            certificateDao.findExpiredToNotifyAsAlert(withArgThat(new GreaterThan<>(notificationDate)), withArgThat(new GreaterThan<>(endNotification)));
             times = 1;
-            certificateDao.saveOrUpdate(certificate);
+            certificateDao.saveOrUpdate(certificates.get(0));
             times = 1;
             eventService.enqueueCertificateExpiredEvent(accesPoint, alias, notAfter);
             times = 1;
@@ -1655,7 +1647,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                           @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+                                          @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
 
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
         boolean overwrite = true;
@@ -1671,29 +1663,32 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doRemoveCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                  @Mocked String alias1, @Mocked String alias2) {
-
+    public void doRemoveCertificates(@Injectable KeyStore trustStore) {
+        final String trustStorePassword = "pwd";
+        final String alias1 = "alias1";
+        final String alias2 = "alias2";
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = true;
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, TRUST_STORE_LOCATION, certificates, TRUST_STORE_BACKUP_LOCATION);
 
         assertTrue(result);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
         }};
     }
 
     @Test
-    public void doRemoveCertificatesNotRemoved(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
-                                     @Mocked String alias1, @Mocked String alias2) {
+    public void doRemoveCertificatesNotRemoved(@Injectable KeyStore trustStore) {
 
+        final String trustStorePassword = "pwd";
+        final String alias1 = "alias1";
+        final String alias2 = "alias2";
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
@@ -1701,7 +1696,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, TRUST_STORE_LOCATION, certificates, TRUST_STORE_BACKUP_LOCATION);
 
         assertFalse(result);
     }

@@ -94,22 +94,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event containing details about the deliver message event
      */
-    default void deliverMessage(final DeliverMessageEvent event) {
-
-    }
-
-    /**
-     * Delivers the message with the associated messageId to the backend application. Plugins working in Mode.PUSH mode
-     * MUST OVERRIDE this method. For plugins working in Mode.PULL this method never gets called. The message can be
-     * retrieved by a subclass by calling super.downloadMessage(messageId, target)
-     *
-     * @param messageId containing details about the deliver message event
-     * @deprecated use {@link BackendConnector#deliverMessage(DeliverMessageEvent)}
-     */
-    @Deprecated
-    default void deliverMessage(final String messageId) {
-
-    }
+    void deliverMessage(final DeliverMessageEvent event);
 
     /**
      * Initiates a pull request for the given mpc
@@ -188,20 +173,6 @@ public interface BackendConnector<U, T> {
      */
     void payloadProcessedEvent(PayloadProcessedEvent event);
 
-
-    /**
-     * This method gets called when an outgoing message associated with a Mode.PUSH plugin and an associated
-     * PMode[1].errorHandling.Report.ProcessErrorNotifyProducer=true has finally failed to be delivered. The error details
-     * are provided by #getErrorsForMessage. This is only called for messages that have no rerty attempts left.
-     *
-     * @param messageId the Id of the failed message
-     * @deprecated use {@link BackendConnector#messageSendFailed(MessageSendFailedEvent)} )}
-     */
-    @Deprecated
-    default void messageSendFailed(String messageId) {
-
-    }
-
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin and an associated
      * PMode[1].errorHandling.Report.ProcessErrorNotifyProducer=true has finally failed to be delivered. The error details
@@ -209,21 +180,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event The event containing the details of the send failed event
      */
-    default void messageSendFailed(MessageSendFailedEvent event) {
-
-    }
-
-    /**
-     * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
-     * to the intended receiving MSH
-     *
-     * @param messageId the Id of the successful message
-     * @deprecated use {@link BackendConnector#messageSendSuccess(MessageSendSuccessEvent)}
-     */
-    @Deprecated
-    default void messageSendSuccess(String messageId) {
-
-    }
+    void messageSendFailed(MessageSendFailedEvent event);
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
@@ -231,9 +188,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event The event containing the details of the message send success event
      */
-    default void messageSendSuccess(final MessageSendSuccessEvent event){
-
-    }
+    void messageSendSuccess(final MessageSendSuccessEvent event);
 
     /**
      * Describes the behaviour of the plugin regarding message delivery to the backend application

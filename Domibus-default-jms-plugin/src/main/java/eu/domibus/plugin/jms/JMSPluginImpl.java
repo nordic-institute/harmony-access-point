@@ -142,7 +142,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
     public void deliverMessage(final DeliverMessageEvent event) {
         String messageId = event.getMessageId();
-        LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getFinalRecipient());
+        LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
         final String queueValue = jmsPluginQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
@@ -175,7 +175,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
-        LOG.info("Message delete batch event [{}]", event.getMessageIds());
+        LOG.info("Message delete batch event");
     }
 
     @Override

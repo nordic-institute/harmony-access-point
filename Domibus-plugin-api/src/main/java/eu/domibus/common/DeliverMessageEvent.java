@@ -16,18 +16,15 @@ import java.util.Map;
 public class DeliverMessageEvent implements Serializable, MessageEvent {
 
     protected String messageId;
-    protected String finalRecipient;
 
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
 
-    public DeliverMessageEvent(String messageId, String finalRecipient) {
+    public DeliverMessageEvent(String messageId) {
         this.messageId = messageId;
-        this.finalRecipient = finalRecipient;
     }
 
-    public DeliverMessageEvent(String messageId, String finalRecipient, Map<String, String> properties) {
+    public DeliverMessageEvent(String messageId, Map<String, String> properties) {
         this.messageId = messageId;
-        this.finalRecipient = finalRecipient;
         this.properties = properties;
     }
 
@@ -40,19 +37,6 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
         this.messageId = messageId;
     }
 
-    /**
-     * Needed for backward compatibility between 4.2 and 5.0
-     * @deprecated Use instead {@link MessageEvent#getProps()}
-     */
-    @Deprecated
-    public String getFinalRecipient() {
-        return finalRecipient;
-    }
-
-    public void setFinalRecipient(String finalRecipient) {
-        this.finalRecipient = finalRecipient;
-    }
-
     @Override
     public void addProperty(String key, String value) {
         properties.put(key, value);
@@ -63,20 +47,11 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
         return Collections.unmodifiableMap(properties);
     }
 
-    /**
-     * Needed for backward compatibility between 4.2 and 5.0
-     * @deprecated Use instead {@link MessageEvent#getProps()}
-     */
-    @Deprecated
-    public Map<String, Object> getProperties() {
-        return Collections.unmodifiableMap(properties);
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("messageId", messageId)
-                .append("finalRecipient", finalRecipient)
+                .append("properties", properties)
                 .toString();
     }
 }
