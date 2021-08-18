@@ -3166,10 +3166,6 @@
         </createTable>
     </changeSet>
 
-    <!-- End User Tables -->
-
-
-    <!-- inserts -->
     <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
         <insert tableName="TB_USER_ROLE">
             <column name="ID_PK" value="1" type="INT"/>
@@ -3180,6 +3176,11 @@
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
+
+    <!-- End User Tables -->
+
+
+    <!-- inserts -->
 
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
