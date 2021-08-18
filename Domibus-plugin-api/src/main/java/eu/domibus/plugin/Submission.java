@@ -464,13 +464,6 @@ public class Submission {
     }
 
     /**
-     * Returns a {@link java.util.Set} of {@link eu.domibus.plugin.Submission.Payload} elements representing the payloads
-     * of this plugin. A {@link eu.domibus.plugin.Submission.Payload} contains information describing the payload and the payload itself.
-     *
-     * @return a {@link java.util.Set} of {@link eu.domibus.plugin.Submission.Payload} elements representing the payloads of this plugin
-     */
-
-    /**
      * Returns a {@link ProcessingType} indicating how the messages should be processed.
      * @return a {@link ProcessingType}
      */

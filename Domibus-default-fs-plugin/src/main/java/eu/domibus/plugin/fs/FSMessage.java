@@ -1,6 +1,5 @@
 package eu.domibus.plugin.fs;
 
-import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 
 import java.util.Map;
