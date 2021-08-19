@@ -68,7 +68,7 @@
                             </systemPropertyVariables>
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
-                                <suiteXmlFile>testng_ftests.xml</suiteXmlFile>
+                                <suiteXmlFile>testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <properties>
                                 <property>
@@ -113,7 +113,7 @@
 <!--                            </argLine>-->
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
-                                <suiteXmlFile>testng_ftests.xml</suiteXmlFile>
+                                <suiteXmlFile>testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <systemPropertyVariables>
                                 <propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
@@ -195,8 +195,8 @@
             <groupId>com.aventstack</groupId>
             <artifactId>extentreports</artifactId>
             <version>5.0.8</version>
-
         </dependency>
+
 
         <!--USED ONLY FOR SOAP REQUEST CLASSES-->
         <dependency>

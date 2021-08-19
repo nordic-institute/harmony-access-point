@@ -8,6 +8,7 @@
             <exclude name="TlsConfig"></exclude>
         </run>
     </groups>
+
     <test name="NoData">
         <classes>
             <class name="domibus.ui.ux.AuditPgUXTest">
@@ -23,6 +24,7 @@
             </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
+            <class name="domibus.ui.ux.LoggingPgUXTest"/>
             <class name="domibus.ui.ux.MessagesPgUXTest">
                 <methods>
                     <exclude name="csvFileDownloadHeaders"/>
@@ -54,7 +56,13 @@
 
                 </methods>
             </class>
-            <class name="domibus.ui.ux.UsersPgUXTest"/>
+            <class name="domibus.ui.ux.UsersPgUXTest">
+                <methods>
+<!--            disabled due to bug EDELIVERY-8340        -->
+                    <exclude name="csvFileDownload"/>
+                </methods>
+            </class>
+
             <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
             <class name="domibus.ui.functional.ErrorLogPgTest">
@@ -116,6 +124,7 @@
                 </methods>
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests">
+            <class name="domibus.ui.functional.PModeValidationsTest">
             </class>
             <class name="domibus.ui.functional.PmodePartiesPgTest"/>
             <class name="domibus.ui.functional.PmodeParties2PgTest">
