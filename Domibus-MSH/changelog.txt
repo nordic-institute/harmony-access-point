@@ -13,7 +13,9 @@ of the following values point to the same instant - the 21st of July 2021, 12:27
         - This is due to a bug(#101486) in the older mysql8 versions.
         - Execute below command with 'root' user as a workaround to run the 'mysql-5.0-SNAPSHOT.ddl' script.
             - set global sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-- FSPlugin: in multitenancy mode a domain could be disabled - by setting a property e.g. DOMAIN1.fsplugin.domain.enabled (default to true) in fs-plugin.properties file
+- FSPlugin - in multitenancy mode:
+    - added specific domain property file e.g domain1-fs-plugin.properties
+    - a domain could be disabled - by setting a property e.g. domain1.fsplugin.domain.enabled (default to true) in the specific domain domain1-fs-plugin.properties file
 Domibus 4.2.2
 - Handle runtime error while dispatching SEND_ENQUEUED messages.
 - Add http timeout for certificate CRL download.

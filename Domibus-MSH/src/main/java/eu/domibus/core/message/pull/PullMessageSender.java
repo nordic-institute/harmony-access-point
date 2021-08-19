@@ -26,6 +26,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pulling.PullRequestDao;
 import eu.domibus.core.status.DomibusStatusService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -96,6 +97,9 @@ public class PullMessageSender {
     @Autowired
     private PullFrequencyHelper pullFrequencyHelper;
 
+    @Autowired
+    private PullRequestDao pullRequestDao;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
@@ -121,10 +125,11 @@ public class PullMessageSender {
         String mpcName = null;
         UserMessage userMessage = null;
         List<PartInfo> partInfos = null;
-
+        String pullRequestId = null;
         try {
             final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
             final String pModeKey = map.getStringProperty(PullContext.PMODE_KEY);
+            pullRequestId = map.getStringProperty(PullContext.PULL_REQUEST_ID);
             notifyBusinessOnError = Boolean.valueOf(map.getStringProperty(PullContext.NOTIFY_BUSINNES_ON_ERROR));
             Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
             Ebms3PullRequest pullRequest = new Ebms3PullRequest();
@@ -175,6 +180,9 @@ public class PullMessageSender {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
             }
             checkConnectionProblem(e, mpcName);
+        } finally {
+            LOG.trace("Delete pull request with UUID:[{}]", pullRequestId);
+            pullRequestDao.deletePullRequest(pullRequestId);
         }
     }
 
