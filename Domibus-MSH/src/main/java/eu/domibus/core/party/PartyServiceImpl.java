@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -497,7 +497,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     protected List<ValidationIssue> updateConfiguration(Date configurationDate, Configuration updatedConfiguration) throws PModeValidationException {
-        ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneId.systemDefault());
+        ZonedDateTime confDate = ZonedDateTime.ofInstant(configurationDate.toInstant(), ZoneOffset.UTC);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssO");
         String updatedDescription = "Updated parties to version of " + confDate.format(formatter);
 

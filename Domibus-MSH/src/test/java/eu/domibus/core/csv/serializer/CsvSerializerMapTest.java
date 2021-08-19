@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(JMockit.class)
-public class CvsSerializerMapTest {
+public class CsvSerializerMapTest {
 
     @Tested
-    CvsSerializerMap cvsSerializerMap;
+    CsvSerializerMap cvsSerializerMap;
 
     @Test
     public void canHandle() {

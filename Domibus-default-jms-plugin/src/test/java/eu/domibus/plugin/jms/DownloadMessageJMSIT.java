@@ -3,6 +3,7 @@ package eu.domibus.plugin.jms;
 
 
 import eu.domibus.api.model.*;
+import eu.domibus.common.DeliverMessageEvent;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -23,6 +24,7 @@ import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * This JUNIT implements the Test cases Download Message-03 and Download Message-04.
@@ -67,7 +69,8 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         // Prepare the request to the backend
         String messageId = "invalid@e-delivery.eu";
 
-        backendJms.deliverMessage(messageId);
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageId, new HashMap<>());
+        backendJms.deliverMessage(deliverMessageEvent);
 
         Assert.fail("DownloadMessageFault was expected but was not raised");
     }

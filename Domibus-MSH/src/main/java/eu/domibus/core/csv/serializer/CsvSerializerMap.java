@@ -10,7 +10,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Service
-public class CvsSerializerMap implements CvsSerializer {
+public class CsvSerializerMap implements CsvSerializer {
 
     @Override
     public boolean canHandle(Object fieldValue) {

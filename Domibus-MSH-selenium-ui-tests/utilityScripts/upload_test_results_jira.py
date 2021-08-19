@@ -14,7 +14,7 @@ headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 
 projectKey = 'EDELIVERY'
 cycleNameStub = 'SEL_WF_MT_'
-parentCycleId = 143
+parentCycleId = 491
 boardID = 111
 buildNoSource = "http://localhost:9088/domibus/rest/application/info"
 
@@ -217,10 +217,11 @@ def execute_execution(test_result):
 def wait_job_finish(token):
     log.info("checking progress of cycle clone job with id " + token)
     id = 0
+    time.sleep(200)
 
-    for tries in range(0, 60):
+    for tries in range(0, 100):
         log.info("waiting for job progress")
-        time.sleep(5)
+        time.sleep(30)
         resp = requests.get(baseUrl + jobProgress + token, cookies=cookiesJar, headers=headers)
         if resp.status_code != 200:
             log.info("Checking status failed with status " + resp.status_code)
@@ -235,7 +236,7 @@ def wait_job_finish(token):
         if int(id) > 0:
             log.info("id = " + str(id))
             break
-    time.sleep(20)
+    time.sleep(30)
     return id
 
 

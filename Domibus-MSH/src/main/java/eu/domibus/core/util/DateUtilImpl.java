@@ -1,13 +1,19 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +24,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class DateUtilImpl implements DateUtil {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
 
     @Override
     public Date fromString(String value) {
@@ -39,18 +47,35 @@ public class DateUtilImpl implements DateUtil {
     }
 
     public Timestamp fromISO8601(String value) {
-        DateTime dateTime = new DateTime(value);
-        return new Timestamp(dateTime.getMillis());
+        Date date = null;
+        try {
+            LOG.debug("Parsing an offset date time value: [{}]", value);
+            OffsetDateTime dateTime = OffsetDateTime.parse(value);
+            date = Date.from(dateTime.toInstant());
+        } catch (DateTimeParseException ex) {
+            LOG.debug("Error during Parsing offset date time value: [{}]", value);
+
+            try {
+                LOG.debug("Parsing local date time value: [{}]", value);
+                LocalDateTime dateTime = LocalDateTime.parse(value);
+                date = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+            } catch (DateTimeParseException exception) {
+                LOG.debug("Exception occurred during parsing of date time", exception);
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Cannot parse datetime value", exception);
+            }
+        }
+
+        return new Timestamp(date.getTime());
     }
 
     @Override
     public Date getStartOfDay() {
-        return LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
+        return Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC));
     }
 
     @Override
     public String getCurrentTime(DateTimeFormatter dateTimeFormatter) {
-        return java.time.LocalDateTime.now().format(dateTimeFormatter);
+        return java.time.LocalDateTime.now(ZoneOffset.UTC).format(dateTimeFormatter);
     }
 
     @Override

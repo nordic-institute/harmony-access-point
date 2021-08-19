@@ -2,6 +2,7 @@ package eu.domibus.core.message.dictionary;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -18,9 +19,10 @@ public abstract class AbstractDictionaryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractDictionaryService.class);
 
-    protected <T> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
+    protected <T extends AbstractBaseEntity> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
         T entity = callTask(findTask);
         if (entity != null) {
+            LOG.debug("Dictionary entry [{}] found with id [{}]", entityDescription, entity.getEntityId());
             return entity;
         }
 
@@ -32,10 +34,13 @@ public abstract class AbstractDictionaryService {
                 if (e.getCause() instanceof ConstraintViolationException) {
                     LOG.info("Constraint violation when trying to insert dictionary entry [{}], trying again (once)...", entityDescription);
                     callTask(findOrCreateTask);
+                } else {
+                    throw e;
                 }
-                throw e;
             }
-            return callTask(findTask);
+            entity = callTask(findTask);
+            LOG.debug("Dictionary entry [{}] created with id [{}]", entityDescription, entity.getEntityId());
+            return entity;
         }
     }
 

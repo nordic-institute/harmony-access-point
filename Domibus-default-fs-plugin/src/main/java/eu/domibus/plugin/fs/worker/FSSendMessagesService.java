@@ -95,6 +95,11 @@ public class FSSendMessagesService {
 
         final String domain = fsDomainService.getFSPluginDomain();
 
+        if (!fsPluginProperties.getDomainEnabled(domain)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            return;
+        }
+
         sendMessagesSafely(domain);
 
         clearObservedFiles(domain);
@@ -113,6 +118,11 @@ public class FSSendMessagesService {
     }
 
     protected void sendMessages(final String domain) {
+        if (!fsPluginProperties.getDomainEnabled(domain)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            return;
+        }
+
         LOG.debug("Sending messages for domain [{}]", domain);
 
         authenticateForDomain(domain);

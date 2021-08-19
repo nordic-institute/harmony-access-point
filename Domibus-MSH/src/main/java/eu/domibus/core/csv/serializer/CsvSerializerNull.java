@@ -1,22 +1,24 @@
 package eu.domibus.core.csv.serializer;
 
-import eu.domibus.common.ErrorCode;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
 @Service
-public class CvsSerializerErrorCode implements CvsSerializer {
+public class CsvSerializerNull implements CsvSerializer {
 
     @Override
     public boolean canHandle(Object fieldValue) {
-        return fieldValue instanceof ErrorCode;
+        return fieldValue == null;
     }
 
     @Override
     public String serialize(Object fieldValue) {
-        return ((ErrorCode) fieldValue).name();
+        return Objects.toString(fieldValue, StringUtils.EMPTY);
     }
 }

@@ -1,5 +1,7 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
@@ -59,6 +61,9 @@ public class UserResourceTest {
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    DomainService domainService;
+
     private List<UserResponseRO> getUserResponseList() {
         final List<UserResponseRO> userResponseROList = new ArrayList<>();
         UserResponseRO userResponseRO = getUserResponseRO();
@@ -71,6 +76,7 @@ public class UserResourceTest {
         userResponseRO.setUserName("username");
         userResponseRO.setEmail("email");
         userResponseRO.setActive(true);
+        userResponseRO.setDomain("default");
         userResponseRO.setAuthorities(Arrays.asList("ROLE_USER"));
         userResponseRO.updateRolesField();
         userResponseRO.setStatus("PERSISTED");
@@ -78,16 +84,24 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testUsers() {
+    public void testUsers(@Injectable Domain domain) {
         // Given
         final List<User> userList = new ArrayList<User>();
         userList.add(new User("username", "email", true, Arrays.asList("ROLE_USER"), UserState.PERSISTED, null, false));
 
         final List<UserResponseRO> userResponseROList = getUserResponseList();
+        List<Domain> domainsList = new ArrayList<>();
+        domainsList.add(domain);
 
         new Expectations() {{
             userManagementService.findUsers();
             result = userList;
+
+            domain.getCode();
+            result = "default";
+
+            domainService.getDomains();
+            result = domainsList;
 
             authCoreMapper.userListToUserResponseROList(userList);
             result = userResponseROList;

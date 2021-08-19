@@ -1,10 +1,13 @@
 package eu.domibus.plugin.ws.jaxb;
 
+import eu.domibus.plugin.convert.StringToTemporalAccessorConverter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,13 +20,24 @@ import java.time.format.DateTimeFormatter;
 @RunWith(JMockit.class)
 public class TimeAdapterTest {
 
-    @Tested
+    @Injectable
+    private StringToTemporalAccessorConverter converter;
+
+    @Tested(availableDuringSetup = true)
     private TimeAdapter timeAdapter;
+
+    @Before
+    public void setup() throws IllegalAccessException {
+        FieldUtils.writeField(timeAdapter, "converter", converter, true);
+    }
 
     @Test
     public void testUnmarshall_returnsNullTimeForNullInputString() throws Exception {
         // GIVEN
         String input = null;
+        new Expectations() {{
+            converter.convert(input); result = null;
+        }};
 
         // WHEN
         LocalTime result = timeAdapter.unmarshal(input);
@@ -35,9 +49,9 @@ public class TimeAdapterTest {
     @Test
     public void testUnmarshall_returnsParsedTimeForNonNullInputString(@Injectable LocalTime parsedTime) throws Exception {
         // GIVEN
-        String input = "any";
-        new Expectations(LocalTime.class) {{
-            LocalTime.parse(input, DateTimeFormatter.ISO_TIME); result = parsedTime;
+        String input = "09:34:36";
+        new Expectations() {{
+            converter.convert(input); result = parsedTime;
         }};
 
         // WHEN
@@ -61,7 +75,7 @@ public class TimeAdapterTest {
 
 
     @Test
-    public void testUnmarshall_returnsFormattedTimeForNonNullInputTime(@Injectable LocalTime input) throws Exception {
+    public void testMarshall_returnsFormattedTimeForNonNullInputTime(@Injectable LocalTime input) throws Exception {
         // GIVEN
         String formattedTime = "09:34:36";
         new Expectations() {{

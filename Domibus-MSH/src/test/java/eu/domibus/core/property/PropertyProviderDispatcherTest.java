@@ -197,28 +197,6 @@ public class PropertyProviderDispatcherTest {
         }};
     }
 
-    @Test
-    public void setPropertyValue(@Mocked DomibusPropertyManagerExt propertyManager) {
-        String propertyName = "prop1";
-        String proertyValue = "propVal1";
-        new Expectations(propertyProviderDispatcher) {{
-            classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
-            returns(true, false);
-            propertyProviderHelper.getCurrentDomainCode();
-            result = "default";
-        }};
-
-        propertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
-        new Verifications() {{
-            propertyManager.setKnownPropertyValue(propertyName, proertyValue);
-        }};
-
-        propertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
-        new Verifications() {{
-            propertyProviderHelper.getCurrentDomainCode();
-            propertyManager.setKnownPropertyValue("default", propertyName, proertyValue);
-        }};
-    }
 
     @Test
     public void getExternalPropertyValue_noDomain(@Mocked DomibusPropertyManagerExt manager) {

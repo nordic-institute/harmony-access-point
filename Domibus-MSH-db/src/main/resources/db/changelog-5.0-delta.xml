@@ -15,6 +15,16 @@
         <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
 
+    <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
+            <column name="sequence_name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
+            </column>
+            <column name="next_val" type="bigint"/>
+        </createTable>
+    </changeSet>
+
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
@@ -484,6 +494,17 @@
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
                                  initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+    </changeSet>
+
+    <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="1" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_ADMIN"/>
+        </insert>
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="2" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_USER"/>
+        </insert>
     </changeSet>
 
 

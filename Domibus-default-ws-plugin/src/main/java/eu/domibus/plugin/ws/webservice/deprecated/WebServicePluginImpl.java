@@ -18,9 +18,9 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +33,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -426,14 +426,14 @@ public class WebServicePluginImpl implements BackendInterface {
             errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
             errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
             errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
-            LocalDateTime dateTime = LocalDateTime.now();
+            LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
 
             if (errorResult.getNotified() != null) {
-                dateTime = errorResult.getNotified().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                dateTime = errorResult.getNotified().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             }
             errorResultImpl.setNotified(dateTime);
             if (errorResult.getTimestamp() != null) {
-                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             }
             errorResultImpl.setTimestamp(dateTime);
             errorList.getItem().add(errorResultImpl);

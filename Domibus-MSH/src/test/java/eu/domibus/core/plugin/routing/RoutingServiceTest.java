@@ -15,7 +15,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -597,10 +596,7 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFilterEntities_defaultPlugin(@Injectable NotificationListener notificationListener1,
-                                                          @Injectable NotificationListener notificationListener2,
-                                                          @Injectable NotificationListener notificationListener3,
-                                                          @Injectable BackendFilterEntity backendFilterEntity) {
+    public void createBackendFilterEntities_defaultPlugin(@Injectable BackendFilterEntity backendFilterEntity) {
         RoutingService routingService = new RoutingService();
 
         List<String> pluginToAdd = asList(FS_PLUGIN.getPluginName(),

@@ -132,6 +132,9 @@ public class FSSendMessagesServiceTest {
             fsDomainService.getFSPluginDomain();
             result = domain0;
 
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
+
         }};
 
         //tested method
@@ -160,6 +163,9 @@ public class FSSendMessagesServiceTest {
             result = new FileObject[]{metadataFile, contentFile};
 
             instance.canReadFileSafely((FileObject) any, anyString);
+            result = true;
+
+            fsPluginProperties.getDomainEnabled(anyString);
             result = true;
         }};
 
@@ -196,6 +202,9 @@ public class FSSendMessagesServiceTest {
             result = new FileObject[]{metadataFile, contentFile};
 
             instance.canReadFileSafely((FileObject) any, anyString);
+            result = true;
+
+            fsPluginProperties.getDomainEnabled(anyString);
             result = true;
         }};
 
@@ -235,6 +244,9 @@ public class FSSendMessagesServiceTest {
 
             instance.canReadFileSafely((FileObject) any, anyString);
             result = true;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         instance.sendMessages(domain1);
@@ -263,6 +275,9 @@ public class FSSendMessagesServiceTest {
 
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         instance.sendMessages(domain1);

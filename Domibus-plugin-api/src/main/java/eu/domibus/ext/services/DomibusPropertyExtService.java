@@ -88,35 +88,6 @@ public interface DomibusPropertyExtService {
     }
 
     /**
-     * Gets the property value with the provided name for a specific domain
-     *
-     * @param domain The domain property
-     * @param propertyName The property name for which the value is retrieved
-     * @return The property value
-     */
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
-     */
-    @Deprecated
-    default String getDomainProperty(DomainDTO domain, String propertyName) {
-        return null;
-    }
-
-    /**
-     * Sets the property value with the provided name for a specific domain
-     *
-     * @param domain The domain property
-     * @param propertyName The property name for which the value is updated
-     * @param propertyValue The new property value
-     */
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#setProperty(java.lang.String, java.lang.String) }
-     */
-    @Deprecated
-    default void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
-    }
-
-    /**
      * Sets the property value with the provided name for the current domain
      *
      * @param propertyName  The property name for which the value is updated
@@ -147,37 +118,6 @@ public interface DomibusPropertyExtService {
         return false;
     }
 
-    /**
-     * Gets the property value with the provided name for a specific domain
-     *
-     * @param domain       The domain property
-     * @param propertyName The property name for which the value is retrieved
-     * @param defaultValue The default value to return in case the property value is not found
-     * @return The property value
-     */
-    @Deprecated
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
-     */
-    default String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue) {
-        return null;
-    }
-
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
-     */
-    @Deprecated
-    default String getDomainResolvedProperty(DomainDTO domain, String propertyName) {
-        return null;
-    }
-
-    /**
-     * @deprecated Use instead {@link DomibusPropertyExtService#getProperty(java.lang.String) }
-     */
-    @Deprecated
-    default String getResolvedProperty(String propertyName) {
-        return null;
-    }
 
     /**
      * Sets the property value with the provided name for a specific domain

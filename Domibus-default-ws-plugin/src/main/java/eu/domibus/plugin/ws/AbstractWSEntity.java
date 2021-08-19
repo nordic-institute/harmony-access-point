@@ -15,11 +15,10 @@ import static eu.domibus.common.JPAConstants.*;
 public class AbstractWSEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =  DOMIBUS_SCALABLE_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator =  DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
             name = DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = DATE_PREFIXED_SEQUENCE_ID_GENERATOR,
-            parameters = {@org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = SEQUENCE_INCREMENT_SIZE)})
+            strategy = DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
     @Column(name = "ID_PK")
     private long entityId;
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
  * @since 4.2
  */
 @Service
-public class CvsSerializerRoutingCriteria implements CvsSerializer {
+public class CsvSerializerRoutingCriteria implements CsvSerializer {
 
     @Override
     public boolean canHandle(Object fieldValue) {

@@ -67,14 +67,6 @@ public class FSPluginPropertiesTest {
         } catch (DomibusPropertyExtException e) {
             assertEquals(true, e.getMessage().contains(propertyName));
         }
-
-        try {
-            fsPluginProperties.setKnownPropertyValue("default", propertyName, "testValue");
-            Assert.fail("Expected exception was not raised!");
-        } catch (DomibusPropertyExtException e) {
-            assertEquals(true, e.getMessage().contains(propertyName));
-        }
-
     }
 
 }

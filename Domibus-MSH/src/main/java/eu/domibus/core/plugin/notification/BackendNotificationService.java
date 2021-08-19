@@ -25,7 +25,6 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -193,7 +192,6 @@ public class BackendNotificationService {
 
     protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
         MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
-        messageDeletedBatchEvent.setMessageIds(messageDeletedEvents.stream().map(MessageDeletedEvent::getMessageId).collect(toList()));
         messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
         backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
     }
@@ -365,15 +363,6 @@ public class BackendNotificationService {
         }
 
         pluginEventNotifier.notifyPlugin(backendConnector, messageId, properties);
-
-        //for backward compatibility
-        if (backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
-            NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
-            Map<String, Object> newProperties = properties.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-            notificationListener.notify(messageId, notificationType, newProperties);
-        }
     }
 
     public void notifyOfSendFailure(final UserMessage userMessage, UserMessageLog userMessageLog) {

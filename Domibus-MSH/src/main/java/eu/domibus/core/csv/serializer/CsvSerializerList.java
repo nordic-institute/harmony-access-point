@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * @since 4.2
  */
 @Service
-public class CvsSerializerList implements CvsSerializer {
+public class CsvSerializerList implements CsvSerializer {
 
     @Override
     public boolean canHandle(Object fieldValue) {

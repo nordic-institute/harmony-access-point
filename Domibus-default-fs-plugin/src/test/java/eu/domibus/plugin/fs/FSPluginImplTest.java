@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.*;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
@@ -122,7 +123,7 @@ public class FSPluginImplTest {
     private final String location = "ram:///BackendFSImplTest";
     private final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
     private final String finalRecipientFolder = "urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
-    private final DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, finalRecipientFolder, new HashMap<>());
+    private DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, new HashMap<>());
     private final String messageIdFolder = messageId;
 
     @Before
@@ -149,6 +150,10 @@ public class FSPluginImplTest {
 
         failedFolder = rootDir.resolveFile(FSFilesManager.FAILED_FOLDER);
         failedFolder.createFolder();
+
+        final HashMap<String, String> properties = new HashMap<>();
+        properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipientFolder);
+        messageEvent = new DeliverMessageEvent(messageId, properties);
     }
 
     @After
@@ -235,6 +240,9 @@ public class FSPluginImplTest {
 
             backendFS.getFileNameExtension(TEXT_XML);
             result = ".xml";
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
     }
 
@@ -371,6 +379,9 @@ public class FSPluginImplTest {
         new Expectations(1, backendFS) {{
             backendFS.browseMessage(messageId, null);
             result = new MessageNotFoundException("message not found");
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.deliverMessage(messageEvent);
@@ -392,6 +403,9 @@ public class FSPluginImplTest {
 
             fsDomainService.getFSPluginDomain();
             result = FSSendMessagesService.DEFAULT_DOMAIN;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
 
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = new FSSetUpException("Test-forced exception");
@@ -423,7 +437,8 @@ public class FSPluginImplTest {
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
 
-
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.deliverMessage(messageEvent);
@@ -466,6 +481,9 @@ public class FSPluginImplTest {
 
             fsFileNameHelper.deriveFileName(file, MessageStatus.SEND_ENQUEUED);
             result = "content_" + messageId + ".xml.SEND_ENQUEUED";
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.messageStatusChanged(event);
@@ -499,6 +517,9 @@ public class FSPluginImplTest {
             result = new FileObject[]{contentFile};
 
             fsPluginProperties.isSentActionDelete(null);
+            result = true;
+
+            fsPluginProperties.getDomainEnabled(anyString);
             result = true;
         }};
 
@@ -585,6 +606,9 @@ public class FSPluginImplTest {
 
             sentDirectory.resolveFile(file);
             result = archivedFile;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.handleSentMessage(null, messageId);
@@ -614,6 +638,9 @@ public class FSPluginImplTest {
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
 
         }};
 
@@ -645,6 +672,9 @@ public class FSPluginImplTest {
 
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
 
         }};
 
@@ -684,6 +714,9 @@ public class FSPluginImplTest {
 
             backendFS.getErrorsForMessage(messageId);
             result = errorList;
+
+            fsPluginProperties.getDomainEnabled(anyString);
+            result = true;
         }};
 
         backendFS.messageStatusChanged(event);

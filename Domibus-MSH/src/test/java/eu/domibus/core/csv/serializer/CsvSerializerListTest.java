@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static eu.domibus.core.csv.serializer.CvsSerializer.LIST_DELIMITER;
+import static eu.domibus.core.csv.serializer.CsvSerializer.LIST_DELIMITER;
 
 @RunWith(JMockit.class)
-public class CvsSerializerListTest {
+public class CsvSerializerListTest {
 
     @Tested
-    CvsSerializerList cvsSerializerList;
+    CsvSerializerList cvsSerializerList;
 
     @Test
     public void canHandle() {
