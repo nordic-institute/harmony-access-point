@@ -1,4 +1,5 @@
 Domibus 5.0
+- new sequence for id generation (in Oracle: sequence, in mysql H2: Table) of the format: yyMMddHHDDDDDDDDDD (ex: 210809150000000050)
 - Switch to using UTC to save timestamp values.
 - All date time values missing a timezone offset received from Domibus clients are considered to be in UTC offset; all
 of the following values point to the same instant - the 21st of July 2021, 12:27:00 [UTC] -:

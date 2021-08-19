@@ -8,8 +8,7 @@ import org.hibernate.MappingException;
 import org.hibernate.boot.model.relational.Database;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.Configurable;
-import org.hibernate.id.PersistentIdentifierGenerator;
+import org.hibernate.id.enhanced.TableGenerator;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.LongType;
 import org.hibernate.type.Type;
@@ -28,6 +27,10 @@ import java.util.Properties;
 public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefixedSequenceIdGeneratorGenerator {
 
     public static final String DATA_BASE_ENGINE_IS_UNKNOWN = "DataBaseEngine is unknown [";
+    public static final String POOLED = "pooled";
+    public static final String INITIAL_VALUE = "1000";
+    public static final String INC_PARAM = "50";
+    public static final String TRUE = "true";
     private final DatePrefixedOracleSequenceIdGenerator datePrefixedOracleSequenceIdGenerator = new DatePrefixedOracleSequenceIdGenerator();
     private final DatePrefixedMysqlSequenceIdGenerator datePrefixedMysqlSequenceIdGenerator = new DatePrefixedMysqlSequenceIdGenerator();
     private DataBaseEngine dataBaseEngine = null;
@@ -35,10 +38,10 @@ public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefix
     @Override
     public void configure(Type type, Properties params,
                           ServiceRegistry serviceRegistry) throws MappingException {
-        params.put("optimizer", "pooled");
-        params.put("initial_value", "1000");
-        params.put("increment_size", "50");
-        params.put("prefer_entity_table_as_segment_value", "true");
+        params.put(TableGenerator.OPT_PARAM, POOLED);
+        params.put(TableGenerator.INITIAL_PARAM, INITIAL_VALUE);
+        params.put(TableGenerator.INCREMENT_PARAM, INC_PARAM);
+        params.put(TableGenerator.CONFIG_PREFER_SEGMENT_PER_ENTITY, TRUE);
         datePrefixedOracleSequenceIdGenerator.configure(LongType.INSTANCE, params, serviceRegistry);
         datePrefixedMysqlSequenceIdGenerator.configure(LongType.INSTANCE, params, serviceRegistry);
     }
@@ -60,7 +63,7 @@ public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefix
         if (DataBaseEngine.ORACLE == dataBaseEngine) {
             return datePrefixedOracleSequenceIdGenerator;
         }
-        if (DataBaseEngine.MYSQL == dataBaseEngine) {
+        if (DataBaseEngine.MYSQL == dataBaseEngine || DataBaseEngine.H2 == dataBaseEngine) {
             return datePrefixedMysqlSequenceIdGenerator;
         }
         throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
@@ -75,13 +78,20 @@ public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefix
         return getGenerator().generateDomibus(session, object);
     }
 
-
+    /**
+     * @deprecated not used
+     */
     @Override
+    @Deprecated
     public String[] sqlCreateStrings(Dialect dialect) throws HibernateException {
         return getGenerator().sqlCreateStrings(dialect);
     }
 
+    /**
+     * @deprecated not used
+     */
     @Override
+    @Deprecated
     public String[] sqlDropStrings(Dialect dialect) throws HibernateException {
         return getGenerator().sqlDropStrings(dialect);
     }
