@@ -42,7 +42,6 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   @HostListener('input', ['$event.target.value'])
   input(value: string) {
     this.lastValue = value;
-    console.log('this.onChange', value)
     this.onChange(value);
   }
 

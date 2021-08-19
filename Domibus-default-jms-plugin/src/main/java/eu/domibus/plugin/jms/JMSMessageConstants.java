@@ -9,6 +9,7 @@ import eu.domibus.messaging.MessageConstants;
  */
 public class JMSMessageConstants {
 
+    public static final String PROPERTY_ORIGINAL_QUEUE = "originalQueue";
     public static final String JMS_PLUGIN_PROPERTY_PREFIX = "jmsplugin";
     public static final String MPC = "mpc";
     public static final String MESSAGE_ID = "messageId";
