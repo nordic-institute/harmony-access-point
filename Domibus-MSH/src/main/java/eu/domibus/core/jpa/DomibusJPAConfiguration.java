@@ -85,29 +85,9 @@ public class DomibusJPAConfiguration {
                 jpaProperties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver.get());
             }
         }
-        initMysqlOrm(domibusConfigurationService, result);
+
         result.setJpaProperties(jpaProperties);
         return result;
-    }
-
-    private void initMysqlOrm(DomibusConfigurationService domibusConfigurationService, LocalContainerEntityManagerFactoryBean result) {
-        if (DataBaseEngine.ORACLE == domibusConfigurationService.getDataBaseEngine()) {
-            return;
-        }
-
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        try {
-            Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:" + CONFIG_DOMIBUS_ORM + "*-mysql-orm.xml");
-            LOG.debug("resolver.getResources -> classpath*:config/domibus/orm/*-mysql-orm.xml found [{}] resources. [{}]", pluginDefaultResourceList.length, pluginDefaultResourceList);
-
-            result.setMappingResources(Arrays.stream(pluginDefaultResourceList)
-                    .map(this::getRelativePath)
-                    .filter(StringUtils::isNotBlank)
-                    .toArray(String[]::new));
-        } catch (IOException e) {
-            LOG.error("Resources classpath*:config/domibus/orm/*-mysql-orm.xml", e);
-        }
-
     }
 
     protected String getRelativePath(Resource resource) {

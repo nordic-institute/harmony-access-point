@@ -20,11 +20,10 @@ public abstract class AbstractBaseEntity extends AbstractBaseAuditEntity {
 
     @XmlTransient
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = DOMIBUS_SCALABLE_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
             name = DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = "eu.domibus.api.model.DatePrefixedSequenceIdGenerator",
-            parameters = {@Parameter(name = DatePrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "50")})
+            strategy = "eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator")
     @Column(name = "ID_PK")
     private long entityId;
 
