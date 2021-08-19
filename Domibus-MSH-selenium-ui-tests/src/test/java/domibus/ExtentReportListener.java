@@ -3,6 +3,7 @@ package domibus;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.markuputils.Markup;
+import com.aventstack.extentreports.reporter.ExtentReporter;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 import org.testng.ITestContext;
@@ -34,11 +35,14 @@ public class ExtentReportListener implements ITestListener {
 			extent.setSystemInfo("Multitenancy: ","" + data.isMultiDomain());
 			try {
 				extent.setSystemInfo("Build: ", new DomibusRestClient().getBuildInfo());
+				extent.setSystemInfo("Browser", data.getRunBrowser());
 			} catch (Exception e) { }
 		}
 
-		public static void closeReport(){
-			extent.flush();
+
+		public void onStart(ITestContext context){
+			System.out.println("'' = " + 'd');
+			context.getAllTestMethods();
 		}
 
 		public static ExtentTest createTest(ITestResult result){
@@ -75,7 +79,7 @@ public class ExtentReportListener implements ITestListener {
 		}
 
 		public void onFinish(ITestContext context) {
-			closeReport();
+			extent.flush();
 		}
 
 

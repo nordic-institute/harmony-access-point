@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import com.mysql.cj.log.Log;
 import io.qameta.allure.*;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
@@ -11,6 +12,7 @@ import org.testng.asserts.SoftAssert;
 import pages.logging.LoggingGrid;
 import pages.logging.LoggingPage;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Epic("Logging")
@@ -22,7 +24,7 @@ public class LoggingPgTest extends SeleniumTest {
 	@Description("LOG-1 - Check availability of Logging page to Admin Super admin ")
 	@Link(name = "EDELIVERY-5353", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5353")
 	@AllureId("LOG-1")
-	@Test(description = "LOG-1", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "LOG-1", groups = {"multiTenancy"})
 	public void accessRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -44,55 +46,6 @@ public class LoggingPgTest extends SeleniumTest {
 
 	}
 
-	/* Check Ui of Logging page */
-	/*  LOG-2 - Check Ui of Logging page   */
-	@Description("LOG-2 - Check Ui of Logging page ")
-	@Link(name = "EDELIVERY-5354", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5354")
-	@AllureId("LOG-2")
-	@Test(description = "LOG-2", groups = {"multiTenancy", "singleTenancy"})
-	public void openPage() throws Exception {
-		SoftAssert soft = new SoftAssert();
-
-		Allure.step("Login and go to Logging page");
-		log.info("Login and go to Logging page");
-		LoggingPage page = new LoggingPage(driver);
-		page.getSidebar().goToPage(PAGES.LOGGING);
-		page.grid().waitForRowsToLoad();
-
-		Allure.step("Checking page components");
-		log.info("Checking page components");
-		soft.assertTrue(page.getPackageClassInputField().isVisible(), "search input is visible");
-		soft.assertTrue(page.getSearchButton().isVisible(), "search button is visible");
-		soft.assertTrue(page.getResetButton().isVisible(), "reset button is visible");
-		soft.assertTrue(page.getShowClassesCheckbox().isVisible(), "show classes checkbox is visible");
-		soft.assertFalse(page.getShowClassesCheckbox().isChecked(), "show classes checkbox is not checked by default");
-		soft.assertTrue(page.loggingGrid().isPresent(), "grid with loggers is shown");
-		soft.assertTrue(page.loggingGrid().getRowsNo() > 0, "grid has loggers listed");
-
-		soft.assertAll();
-	}
-
-	/*  LOG-3 - Check default value in search filter   */
-	@Description("LOG-3 - Check default value in search filter ")
-	@Link(name = "EDELIVERY-5355", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5355")
-	@AllureId("LOG-3")
-	@Test(description = "LOG-3", groups = {"multiTenancy", "singleTenancy"})
-	public void verifyPackageName() throws Exception {
-		SoftAssert soft = new SoftAssert();
-
-		Allure.step("Login and go to Logging page");
-		log.info("Login and go to Logging page");
-		LoggingPage page = new LoggingPage(driver);
-		page.getSidebar().goToPage(PAGES.LOGGING);
-		page.grid().waitForRowsToLoad();
-
-		Allure.step("Checking page components");
-		log.info("Checking page components");
-		soft.assertTrue(page.getPackageClassInputField().isVisible(), "search input is visible");
-
-		soft.assertTrue(page.getPackageClassInputField().getText().equals("eu.domibus"), "default package name is correct");
-		soft.assertAll();
-	}
 
 	/*  Verify Checkbox feature to show classes */
 	/*  LOG-4 - User selected checkbox for Show classes    */
@@ -197,7 +150,7 @@ public class LoggingPgTest extends SeleniumTest {
 
 		Allure.step("Enter cxf in search filter");
 		log.info("Enter cxf in search filter");
-		page.getPackageClassInputField().fill(searchTerm);
+		page.getSearchInputField().fill(searchTerm);
 
 		Allure.step("Click on search button");
 		log.info("Click on search button");
@@ -215,72 +168,111 @@ public class LoggingPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* LOG-7 - User changes number of visible rows */
-	/*  LOG-7 - User changes number of visible rows  */
-	@Description("LOG-7 - User changes number of visible rows")
-	@Link(name = "EDELIVERY-5359", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5359")
-	@AllureId("LOG-7")
-	@Test(description = "LOG-7", groups = {"multiTenancy", "singleTenancy"})
-	public void changeNumberOfVisibleRows() throws Exception {
+	/*  EDELIVERY-7179 - LOG-14 - Modify log level for a few packages perform a search and reset logging level   */
+	@Test(description = "LOG-14", groups = {"multiTenancy", "singleTenancy"})
+	public void searchAndReset() throws Exception {
+		String packageNameToModify = "eu.domibus.core.alerts.configuration.certificate";
+		String packageNameToSearch = "eu.domibus.api.property";
+
 		SoftAssert soft = new SoftAssert();
 		LoggingPage page = new LoggingPage(driver);
-
-		Allure.step("Login into application with admin user");
-		log.info("Login into application with admin user");
 		page.getSidebar().goToPage(PAGES.LOGGING);
 		page.grid().waitForRowsToLoad();
 
-		Allure.step("Extract total number of items available");
-		log.info("Extract total number of items available");
-		page.grid().getPagination().getTotalItems();
+		page.setLoggingLevel("ALL", packageNameToModify);
 
-		Allure.step("Check number of expected pages ");
-		log.info("Check number of expected pages ");
-		int totalPagesBeforeUpdate = page.grid().getPagination().getExpectedNoOfPages();
+		log.info(" performing search");
+		page.search(packageNameToSearch);
 
-		Allure.step("Check presence of last page by navigation");
-		log.info("Check presence of last page by navigation");
-		page.grid().getPagination().goToPage(totalPagesBeforeUpdate);
-		page.grid().waitForRowsToLoad();
+		log.info("reset log levels");
+		page.getResetButton().click();
 
-		Allure.step("Change page selector size value to 25");
-		log.info("Change page selector size value to 25");
-		page.grid().getPagination().getPageSizeSelect().selectOptionByText("25");
-		page.grid().waitForRowsToLoad();
-
-		soft.assertTrue(page.grid().getRowsNo() == 25, "Number of rows is  equal to 25");
-
-		Allure.step("Calculate no of expected pages ");
-		log.info("Calculate no of expected pages ");
-		int totalPagesAfterUpdate = page.grid().getPagination().getExpectedNoOfPages();
-
-		Allure.step("Verify last page presence by navigation ");
-		log.info("Verify last page presence by navigation ");
-		page.grid().getPagination().goToPage(totalPagesAfterUpdate);
+		log.info("checking level is properly reset");
+		page.search(packageNameToModify);
+		soft.assertEquals(page.loggingGrid().getRowInfo(0).get("Logger Level"), "DEBUG", "Level is reset to DEBUG");
 
 		soft.assertAll();
 	}
 
 
-	/* EDELIVERY-7181 - LOG-16 - Sort the grid */
-	/*  LOG-16 - Sort the grid  */
-	@Description("LOG-16 - Sort the grid")
-	@Link(name = "EDELIVERY-7181", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7181")
-	@AllureId("LOG-16")
-	@Test(description = "LOG-16", groups = {"multiTenancy", "singleTenancy"})
-	public void gridNotSortable() throws Exception {
+	/*  EDELIVERY-7178 - LOG-13 - Modify log level for a package and then set it to a different value for it's parent package   */
+	@Test(description = "LOG-13", groups = {"multiTenancy", "singleTenancy"})
+	public void modifyLevelForChildAndParent() throws Exception {
+		String parentPackageName = "eu.domibus.core.alerts.configuration.certificate";
+		String childPackageName = "eu.domibus.core.alerts.configuration.certificate.expired";
+
 		SoftAssert soft = new SoftAssert();
 		LoggingPage page = new LoggingPage(driver);
 		page.getSidebar().goToPage(PAGES.LOGGING);
 		page.grid().waitForRowsToLoad();
 
-		String columnName = page.grid().getSortedColumnName();
-		soft.assertNull(columnName, "do default sorted column");
+		page.getResetButton().click();
 
-		page.loggingGrid().sortBy("Logger Name");
+		page.setLoggingLevel("ALL", childPackageName);
 
-		columnName = page.grid().getSortedColumnName();
-		soft.assertNull(columnName, "column marked as sorted");
+		page.setLoggingLevel("ERROR", parentPackageName);
+
+		soft.assertEquals(page.loggingGrid().getRowInfo("Logger Name", childPackageName).get("Logger Level"), "ALL", "Level is set to ALL after parent level is set to ERROR");
+
+		soft.assertAll();
+	}
+
+
+	/*  EDELIVERY-7177 - LOG-12 - Modify log level for a package and set it to a different value for a subpackage   */
+	@Test(description = "LOG-12", groups = {"multiTenancy", "singleTenancy"})
+	public void modifyLevelForPackageAndSubpackage() throws Exception {
+		String parentPackageName = "eu.domibus.web";
+		String childPackageName = "eu.domibus.web.rest";
+		String levelForParent = "TRACE";
+		String levelForChild = "WARN";
+
+		SoftAssert soft = new SoftAssert();
+		LoggingPage page = new LoggingPage(driver);
+		page.getSidebar().goToPage(PAGES.LOGGING);
+		page.grid().waitForRowsToLoad();
+
+		page.getResetButton().click();
+
+		page.setLoggingLevel(levelForParent, parentPackageName);
+		page.setLoggingLevel(levelForChild, childPackageName);
+
+		page.search(parentPackageName);
+
+		LoggingGrid grid = page.loggingGrid();
+		for (int i = 0; i < grid.getRowsNo(); i++) {
+			HashMap<String, String> info = grid.getRowInfo(i);
+			if (info.get("Logger Name").startsWith(childPackageName)) {
+				soft.assertEquals(info.get("Logger Level"), levelForChild);
+			} else {
+				soft.assertEquals(info.get("Logger Level"), levelForParent);
+			}
+		}
+
+		soft.assertAll();
+	}
+
+
+	/*  EDELIVERY-7176 - LOG-11 - Modify log level for a particular package  */
+	@Test(description = "LOG-11", groups = {"multiTenancy", "singleTenancy"})
+	public void modifyLevelForPackage() throws Exception {
+		String parentPackageName = "eu.domibus.web";
+		String levelForParent = "TRACE";
+
+		SoftAssert soft = new SoftAssert();
+		LoggingPage page = new LoggingPage(driver);
+		page.getSidebar().goToPage(PAGES.LOGGING);
+		page.grid().waitForRowsToLoad();
+
+		page.getResetButton().click();
+
+		page.setLoggingLevel(levelForParent, parentPackageName);
+		page.search(parentPackageName);
+
+		LoggingGrid grid = page.loggingGrid();
+		for (int i = 0; i < grid.getRowsNo(); i++) {
+			HashMap<String, String> info = grid.getRowInfo(i);
+			soft.assertEquals(info.get("Logger Level"), levelForParent);
+		}
 
 		soft.assertAll();
 	}

@@ -61,7 +61,6 @@ public class PModeCurrentPage extends DomibusPage {
 		return new DButton(driver, downloadBtn);
 	}
 
-
 	public void getPmodeInfoText() {
 		log.debug("Check if Pmode is uploaded or not ");
 		wait.forElementToBeVisible(infoTxt);
@@ -70,7 +69,6 @@ public class PModeCurrentPage extends DomibusPage {
 		}
 		log.debug("Pmode status on pmode current page : " + infoTxt.getText().trim());
 	}
-
 
 	public void saveAndConfirm(String description) throws Exception {
 
@@ -87,6 +85,15 @@ public class PModeCurrentPage extends DomibusPage {
 
 		modal.clickOK();
 	}
+
+	public void modifyListedPmode(String newPmode) throws Exception {
+		getTextArea().fill(newPmode);
+
+		log.info("saving");
+		saveAndConfirm(Gen.randomAlphaNumeric(20));
+	}
+
+
 }
 
 

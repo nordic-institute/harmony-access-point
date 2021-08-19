@@ -8,6 +8,7 @@
             <exclude name="TlsConfig"></exclude>
         </run>
     </groups>
+
     <test name="NoData">
         <classes>
             <class name="domibus.ui.ux.AuditPgUXTest">
@@ -23,6 +24,7 @@
             </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
+            <class name="domibus.ui.ux.LoggingPgUXTest"/>
             <class name="domibus.ui.ux.MessagesPgUXTest">
                 <methods>
                     <exclude name="csvFileDownloadHeaders"/>
@@ -35,11 +37,6 @@
                     <exclude name="verifyCSVHeaders"></exclude>
 
                     <exclude name="createPluginUserFieldValidations"/>
-                    <!--                    bug EDELIVERY-7872 - 4 methods -->
-                    <exclude name="originalUserOnRoleChange"></exclude>
-                    <exclude name="delCertificateUsr"></exclude>
-                    <exclude name="editCertificateUsr"></exclude>
-                    <exclude name="verifyConfPopUp"></exclude>
                 </methods>
             </class>
             <class name="domibus.ui.ux.PluginUsersPg2UXTest">
@@ -49,11 +46,6 @@
                     <exclude name="verifyCSVHeaders"></exclude>
 
                     <exclude name="createPluginUserFieldValidations"/>
-                    <!--                    bug EDELIVERY-7872 - 4 methods -->
-                    <exclude name="originalUserOnRoleChange"></exclude>
-                    <exclude name="delCertificateUsr"></exclude>
-                    <exclude name="editCertificateUsr"></exclude>
-                    <exclude name="verifyConfPopUp"></exclude>
                 </methods>
             </class>
             <class name="domibus.ui.ux.PmodePartiesPgUXTest">
@@ -64,7 +56,13 @@
 
                 </methods>
             </class>
-            <class name="domibus.ui.ux.UsersPgUXTest"/>
+            <class name="domibus.ui.ux.UsersPgUXTest">
+                <methods>
+<!--            disabled due to bug EDELIVERY-8340        -->
+                    <exclude name="csvFileDownload"/>
+                </methods>
+            </class>
+
             <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
             <class name="domibus.ui.functional.ErrorLogPgTest">
@@ -126,6 +124,7 @@
                 </methods>
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests">
+            <class name="domibus.ui.functional.PModeValidationsTest">
             </class>
             <class name="domibus.ui.functional.PmodePartiesPgTest"/>
             <class name="domibus.ui.functional.PmodeParties2PgTest">
