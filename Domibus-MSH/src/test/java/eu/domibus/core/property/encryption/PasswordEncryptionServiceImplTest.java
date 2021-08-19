@@ -17,6 +17,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -709,6 +710,7 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
+    @Ignore
     public void arePropertiesNewlyEncrypted_NoChange() throws IOException {
         final List<String> replacedLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
@@ -722,6 +724,7 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
+    @Ignore
     public void arePropertiesNewlyEncrypted_LinesChanged() throws IOException {
         final List<String> originalLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
@@ -756,6 +759,7 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
+    @Ignore
     public void arePropertiesNewlyEncrypted_ReplacedLinesEmpty() throws IOException {
         final List<String> originalLines = Arrays.asList("#-----------------",
                 "#domibus.deployment.clustered=false",
