@@ -399,15 +399,16 @@
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
 
-    <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
-        <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="1" type="INT"/>
-            <column name="ROLE_NAME" value="ROLE_ADMIN"/>
-        </insert>
-        <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="2" type="INT"/>
-            <column name="ROLE_NAME" value="ROLE_USER"/>
-        </insert>
+    <changeSet author="dussath" id="EDELIVERY-4669">
+        <comment>Create pull request table</comment>
+        <createTable tableName="TB_PULL_REQUEST">
+            <column name="PULL_REQUEST_UUID" type="VARCHAR(255)" >
+                <constraints primaryKey="true" primaryKeyName="PK_PULL_REQUEST"/>
+            </column>
+            <column name="MPC" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
 
