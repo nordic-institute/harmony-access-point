@@ -1,4 +1,6 @@
 Domibus 5.0 (from 4.2.2)
+                - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
+                to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Run the appropriate DB migration script(mysql-4.2.2-to-5.0-migration.ddl for MySQL or oracle-4.2.2-to-5.0-migration.ddl for Oracle)
@@ -109,6 +111,15 @@ Domibus 5.0 (from 4.2.2)
                             - in the file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                                     - remove the <xa-datasource jndi-name="java:/jdbc/cipaeDeliveryDs"...> datasource
                                     - clone the <datasource jndi-name="java:/jdbc/cipaeDeliveryNonXADs"...> datasource and set the jndi-name attribute to "java:/jdbc/cipaeDeliveryDs" and the pool-name attribute to either "eDeliveryMysqlDS" or "eDeliveryOracleDS"
+                - Removed deprecated API:
+                    o classes: eu.domibus.submission.WeblogicNotificationListenerService, eu.domibus.plugin.NotificationListener, eu.domibus.plugin.NotificationListenerService, eu.domibus.common.JMSConstants
+                    o methods: eu.domibus.plugin.BackendConnector.messageSendFailed(java.lang.String), eu.domibus.plugin.BackendConnector.messageSendSuccess(java.lang.String), eu.domibus.plugin.BackendConnector.deliverMessage(java.lang.String),
+                               eu.domibus.ext.services.DomibusPropertyManagerExt.setKnownPropertyValue(java.lang.String, java.lang.String, java.lang.String), eu.domibus.common.DeliverMessageEvent.setFinalRecipient(java.lang.String),
+                               eu.domibus.common.DeliverMessageEvent.getFinalRecipient(java.lang.String), eu.domibus.common.DeliverMessageEvent.getProperties(), eu.domibus.common.MessageDeletedBatchEvent.getMessageIds,
+                               eu.domibus.common.MessageDeletedBatchEvent.setMessageIds, eu.domibus.common.MessageSendFailedEvent.getProperties, eu.domibus.common.MessageSendSuccessEvent.getProperties,
+                               eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
+                               eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
+                               eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
 Domibus 4.2.2 (from 4.2.1):
                 - [Mysql8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:

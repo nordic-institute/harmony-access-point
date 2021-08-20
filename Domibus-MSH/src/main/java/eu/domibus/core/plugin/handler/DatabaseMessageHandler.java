@@ -37,6 +37,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
@@ -297,7 +298,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
-            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
                     backendName);
@@ -368,7 +369,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;
-            if (messageExchangeService.forcePullOnMpc(userMessage)) {
+            if (ProcessingType.PULL.equals(submission.getProcessingType()) && messageExchangeService.forcePullOnMpc(userMessage)) {
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
@@ -423,7 +424,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
             if (messageStatus == null) {
-                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
                 messageStatus = messageStatusEntity.getMessageStatus();
             }
             final boolean sourceMessage = userMessage.isSourceMessage();

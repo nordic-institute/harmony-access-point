@@ -133,16 +133,6 @@ public class DomibusPropertyMetadataDTO {
         this(name, Module.MSH, true, Usage.DOMAIN, true, true, false, false);
     }
 
-    @Deprecated
-    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific, boolean withFallback) {
-        this(name, module, domainSpecific ? DomibusPropertyMetadataDTO.Usage.DOMAIN : Usage.GLOBAL, withFallback);
-    }
-
-    @Deprecated
-    public DomibusPropertyMetadataDTO(String name, String module, boolean domainSpecific) {
-        this(name, module, domainSpecific ? DomibusPropertyMetadataDTO.Usage.DOMAIN : Usage.GLOBAL, false);
-    }
-
     public String getName() {
         return name;
     }
@@ -157,22 +147,6 @@ public class DomibusPropertyMetadataDTO {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.domain.DomibusPropertyMetadataDTO#getUsage() }
-     */
-    @Deprecated
-    public boolean isDomainSpecific() {
-        return domainSpecific;
-    }
-
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.domain.DomibusPropertyMetadataDTO#setUsage(int) }
-     */
-    @Deprecated
-    public void setDomainSpecific(boolean domainSpecific) {
-        this.domainSpecific = domainSpecific;
     }
 
     public int getUsage() {

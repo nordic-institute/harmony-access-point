@@ -17,6 +17,7 @@
         </xsd:documentation>
     </xsd:annotation>
 
+
     <xsd:element name="Messaging" type="Messaging"/>
 
     <xsd:complexType name="Messaging">
@@ -26,6 +27,13 @@
         <xsd:attribute name="mustUnderstand" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
 
+    <xsd:simpleType name="ProcessingType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="PUSH"/>
+            <xsd:enumeration value="PULL"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <xsd:complexType name="UserMessage">
         <xsd:all>
             <xsd:element name="MessageInfo" type="MessageInfo" minOccurs="0"/>
@@ -33,6 +41,7 @@
             <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
             <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
             <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
+            <xsd:element name="ProcessingType" type="ProcessingType" minOccurs="1"/>
         </xsd:all>
         <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
     </xsd:complexType>

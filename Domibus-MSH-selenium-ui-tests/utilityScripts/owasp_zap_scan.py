@@ -54,7 +54,7 @@ scanId = zap.ascan.scan_as_user(contextid=context_id, userid=super_id, recurse=T
 
 progress = 0
 while (progress<100):
-	time.sleep(30)
+	time.sleep(60)
 	progress = int(zap.ascan.status(scanId))
 	log.info("Active Scan progress : " + str(progress) + "%")
 

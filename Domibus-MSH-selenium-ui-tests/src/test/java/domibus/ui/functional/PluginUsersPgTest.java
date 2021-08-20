@@ -700,4 +700,30 @@ public class PluginUsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
+
+	/*      EDELIVERY-7208 - PU-47 - Mark as inactive a BASIC plugin user  */
+	@Description("PU-47 - Mark as inactive a BASIC plugin user")
+	@Link(name = "EDELIVERY-7208", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7208")
+	@AllureId("PU-47")
+	@Test(description = "PU-47", groups = {"multiTenancy"})
+	public void inactivePLUSendMess() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String username = rest.getPluginUser(null, DRoles.ADMIN, false, true).getString("userName");
+		log.info("testing for basic plugin user " + username);
+		boolean success = true;
+		try {
+			messageSender.sendMessage(username, data.defaultPass(), null, null);
+		} catch (Exception e) {
+			success = false;
+			e.printStackTrace();
+		}
+		soft.assertFalse(success, "Message was not sent with disabled plugin user");
+
+		soft.assertAll();
+	}
+
+
+
+
 }

@@ -20,11 +20,15 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
+import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pulling.PullRequest;
+import eu.domibus.core.pulling.PullRequestDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +51,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
-import static eu.domibus.core.message.pull.PullContext.MPC;
-import static eu.domibus.core.message.pull.PullContext.PMODE_KEY;
+import static eu.domibus.core.message.pull.PullContext.*;
 import static eu.domibus.jms.spi.InternalJMSConstants.PULL_MESSAGE_QUEUE;
 
 /**
@@ -111,18 +114,22 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Autowired
     protected MessageStatusDao messageStatusDao;
 
+    @Autowired
+    protected PullRequestDao pullRequestDao;
+
+    @Autowired
+    protected MessageIdGenerator messageIdGenerator;
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
+    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration, ProcessingType processingType) {
         MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
-        List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
-        if (!processes.isEmpty()) {
+        if (ProcessingType.PULL.equals(processingType)) {
+            List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
             processValidator.validatePullProcess(Lists.newArrayList(processes));
             messageStatus = MessageStatus.READY_TO_PULL;
-        } else {
-            LOG.debug("No pull process found for message configuration");
         }
         return messageStatusDao.findOrCreate(messageStatus);
     }
@@ -139,7 +146,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 return messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL);
             }
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            return getMessageStatus(userMessageExchangeConfiguration);
+            return getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
         }
@@ -186,7 +193,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         validPullProcesses.forEach(pullProcess ->
                 pullProcess.getLegs().stream().filter(distinctByKey(LegConfiguration::getDefaultMpc)).
                         forEach(legConfiguration ->
-                        preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
+                                preparePullRequestForMpc(mpc, initiator, pullProcess, legConfiguration)));
     }
 
     private List<Process> getValidProcesses(List<Process> pullProcesses) {
@@ -223,8 +230,15 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForMpc(mpcName);
             LOG.debug("Sending:[{}] pull request for mpcFQN:[{}] to mpc:[{}]", pullRequestNumberForResponder, mpcQualifiedName, mpcName);
             for (int i = 0; i < pullRequestNumberForResponder; i++) {
+                PullRequest pullRequest=new PullRequest();
+                String uuid = messageIdGenerator.generatePullRequestId();
+                pullRequest.setUuid(uuid);
+                pullRequest.setMpc(mpcQualifiedName);
+                LOG.trace("Sending pull request with UUID:[{}], MPC:[{}]",pullRequest.getUuid(),pullRequest.getMpc());
+                pullRequestDao.savePullRequest(pullRequest);
                 jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
                         .property(MPC, mpcQualifiedName)
+                        .property(PULL_REQUEST_ID, uuid)
                         .property(PMODE_KEY, messageExchangeConfiguration.getReversePmodeKey())
                         .property(PullContext.NOTIFY_BUSINNES_ON_ERROR, String.valueOf(legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()))
                         .build(), pullMessageQueue);
@@ -241,14 +255,14 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private boolean pause(Integer maxPullRequestNumber) {
         LOG.trace("Checking if the system should pause the pulling mechanism.");
-        final long queueMessageNumber = jmsManager.getDestinationSize(PULL);
+        final long ongoingPullRequestNumber = pullRequestDao.countPendingPullRequest();
 
-        final boolean shouldPause = queueMessageNumber > maxPullRequestNumber;
+        final boolean shouldPause = ongoingPullRequestNumber > maxPullRequestNumber;
 
         if (shouldPause) {
-            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", queueMessageNumber, maxPullRequestNumber);
+            LOG.debug("[PULL]:Size of the pulling queue:[{}] is higher then the number of pull requests to send:[{}]. Pause adding to the queue so the system can consume the requests.", ongoingPullRequestNumber, maxPullRequestNumber);
         } else {
-            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", queueMessageNumber, maxPullRequestNumber);
+            LOG.trace("[PULL]:Size of the pulling queue:[{}], the number of pull requests to send:[{}].", ongoingPullRequestNumber, maxPullRequestNumber);
         }
         return shouldPause;
     }
@@ -269,7 +283,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     protected Set<String> getPartyIds(String mpc, Party initiator) {
         if (initiator != null && CollectionUtils.isNotEmpty(initiator.getIdentifiers())) {
             Set<String> collect = initiator.getIdentifiers().stream().map(identifier -> identifier.getPartyId()).collect(Collectors.toSet());
-            LOG.trace("Retrieving party id(s), initiator list with size:[{}] found",collect.size());
+            LOG.trace("Retrieving party id(s), initiator list with size:[{}] found", collect.size());
             return collect;
         }
         if (pullMessageService.allowDynamicInitiatorInPullProcess()) {

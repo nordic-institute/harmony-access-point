@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.*;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
@@ -122,7 +123,7 @@ public class FSPluginImplTest {
     private final String location = "ram:///BackendFSImplTest";
     private final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
     private final String finalRecipientFolder = "urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
-    private final DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, finalRecipientFolder, new HashMap<>());
+    private DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, new HashMap<>());
     private final String messageIdFolder = messageId;
 
     @Before
@@ -149,6 +150,10 @@ public class FSPluginImplTest {
 
         failedFolder = rootDir.resolveFile(FSFilesManager.FAILED_FOLDER);
         failedFolder.createFolder();
+
+        final HashMap<String, String> properties = new HashMap<>();
+        properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipientFolder);
+        messageEvent = new DeliverMessageEvent(messageId, properties);
     }
 
     @After

@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
 import com.google.common.base.Predicate;
@@ -20,9 +21,12 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.plugin.ProcessingType;
+import eu.domibus.core.pulling.PullRequestDao;
 import eu.domibus.test.common.PojoInstaciatorUtil;
 import org.junit.Ignore;
 import org.apache.commons.lang3.Validate;
@@ -36,6 +40,7 @@ import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -83,6 +88,12 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Mock
     private PullFrequencyHelper pullFrequencyHelper;
+
+    @Mock
+    private PullRequestDao pullRequestDao;
+
+    @Mock
+    protected MessageIdGenerator messageIdGenerator;
 
     @InjectMocks
     private MessageExchangeServiceImpl messageExchangeService;
@@ -166,7 +177,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         processes.add(process);
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agreementName", "senderParty", "receiverParty", "service", "action", "leg");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
-        return messageExchangeService.getMessageStatus(messageExchangeConfiguration).getMessageStatus();
+        return messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH).getMessageStatus();
     }
 
     @Test(expected = PModeException.class)
@@ -179,7 +190,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         processes.add(process);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
         doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
-        messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+        messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PULL);
     }
 
     @Test
@@ -189,7 +200,8 @@ public class MessageExchangeEbms3ServiceImplTest {
         when(pullFrequencyHelper.getTotalPullRequestNumberPerJobCycle()).thenReturn(25);
         when(pullFrequencyHelper.getPullRequestNumberForMpc("test1")).thenReturn(10);
         when(pullFrequencyHelper.getPullRequestNumberForMpc("test2")).thenReturn(15);
-        when(jmsManager.getDestinationSize("pull")).thenReturn(20l);
+        when(pullRequestDao.countPendingPullRequest()).thenReturn(20l);
+        when(messageIdGenerator.generatePullRequestId()).thenReturn("uuid");
 
         ArgumentCaptor<JmsMessage> mapArgumentCaptor = ArgumentCaptor.forClass(JmsMessage.class);
         messageExchangeService.initiatePullRequest();
@@ -344,7 +356,7 @@ public class MessageExchangeEbms3ServiceImplTest {
                 "action1",
                 "leg1");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.<Process>newArrayList());
-        final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration).getMessageStatus();
+        final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH).getMessageStatus();
         assertEquals(MessageStatus.SEND_ENQUEUED, messageStatus);
 
     }

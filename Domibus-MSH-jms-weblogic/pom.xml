@@ -12,7 +12,7 @@
     </parent>
     <artifactId>domibus-jms-weblogic</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH JMS WebLogic</name>
+    <name>Domibus MSH JMS WebLogic</name>
 
 
     <build>
@@ -96,6 +96,18 @@
         <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.weblogic</groupId>
+            <artifactId>wlthint3client</artifactId>
+            <version>12.1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.weblogic</groupId>
+            <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
+            <version>12.1.2-0-0</version>
             <scope>test</scope>
         </dependency>
         <!-- End Test -->

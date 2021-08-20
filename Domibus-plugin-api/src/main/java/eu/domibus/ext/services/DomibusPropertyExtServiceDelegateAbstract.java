@@ -163,14 +163,6 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         LOG.warn("Property [{}] is not stored globally and not handled locally.", propertyName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-    }
-
     @Override
     public boolean hasKnownProperty(String name) {
         return getKnownProperties().containsKey(name);

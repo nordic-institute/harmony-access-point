@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
@@ -8,6 +7,7 @@ import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.plugin.ProcessingType;
 
 /**
  * @author Thomas Dussart
@@ -22,9 +22,10 @@ public interface MessageExchangeService {
      * The status will be set in messageExchangeContext.
      *
      * @param messageExchangeConfiguration the message configuration used to retrieve the associated process.
+     * @param processingType
      * @return the status of the message.
      */
-    MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration);
+    MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration, ProcessingType processingType);
 
     /**
      * Failed messages have the same final status (SEND_FAILED) being for a pushed or a pulled message.

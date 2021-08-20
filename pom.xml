@@ -72,6 +72,9 @@
         <dependency.check.version>6.2.2</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
+        <wlthint3client.version>12.1.1</wlthint3client.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -1093,6 +1096,16 @@
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>${org.reflections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.weblogic</groupId>
+                <artifactId>wlthint3client</artifactId>
+                <version>${wlthint3client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.weblogic</groupId>
+                <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
+                <version>${com.oracle.css.weblogic.security.wls_7.0.0.0.version}</version>
             </dependency>
             <!-- End Test dependencies -->
         </dependencies>

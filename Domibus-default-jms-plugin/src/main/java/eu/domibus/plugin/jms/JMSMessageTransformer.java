@@ -7,6 +7,7 @@ import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
@@ -206,6 +207,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final Submission target = new Submission();
         try {
             target.setMpc(messageIn.getStringProperty(MPC));
+            target.setProcessingType(getProcessingType(messageIn));
             populateMessageInfo(target, messageIn);
             populatePartyInfo(target, messageIn);
             populateCollaborationInfo(target, messageIn);
@@ -216,6 +218,24 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             throw new DefaultJmsPluginException(ex);
         }
         return target;
+    }
+
+    private ProcessingType getProcessingType(MapMessage messageIn) {
+        String processingTypeProperty;
+        try {
+            processingTypeProperty = messageIn.getStringProperty(PROCESSING_TYPE);
+        } catch (JMSException e) {
+            LOG.debug("Property:[{}] is empty, setting processing type to default PUSH",PROCESSING_TYPE);
+            return ProcessingType.PUSH;
+        }
+        if(StringUtils.isEmpty(processingTypeProperty)){
+            return ProcessingType.PUSH;
+        }
+        try {
+            return ProcessingType.valueOf(processingTypeProperty);
+        }catch (IllegalArgumentException e){
+            throw new DefaultJmsPluginException("Value for processingType property:["+ processingTypeProperty +"] is incorrect. Should be PUSH or PULL.",e);
+        }
     }
 
     private void populateMessageInfo(Submission target, MapMessage messageIn) throws JMSException {
