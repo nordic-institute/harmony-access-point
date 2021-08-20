@@ -64,6 +64,7 @@ public class SendJMSMessageOnTomcat {
             messageMap.setStringProperty("payload_1_description", "message");
             messageMap.setStringProperty("payload_1_mimeContentId", "cid:message");
             messageMap.setStringProperty("payload_1_mimeType", "text/xml");
+            messageMap.setStringProperty("processingType","PUSH");
 
             //messageMap.setStringProperty("p1InBody", "true"); // If true payload_1 will be sent in the body of the AS4 message. Only XML payloads may be sent in the AS4 message body. Optional
 
