@@ -15,6 +15,8 @@ Domibus 5.0 (from 4.2.2)
                         If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                         - step 3: oracle-4.2.2-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                         This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                        - step 4: oracle-4.2.2-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                        This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                     o [Mysql only]
                         Domibus application (.war) should be stopped while running these:
                         - step 1: mysql-4.2.2-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
@@ -22,6 +24,8 @@ Domibus 5.0 (from 4.2.2)
                         If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                         - step 3: mysql-4.2.2-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                         This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                        - step 4: mysql-4.2.2-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                        This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"

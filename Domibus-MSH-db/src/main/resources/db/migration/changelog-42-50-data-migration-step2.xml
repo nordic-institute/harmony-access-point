@@ -11,16 +11,22 @@
      If this step fails the user could execute again: Step 1 and this step
     -->
 
-    <!-- add migration package and execute it -->
-    <changeSet id="EDELIVERY-7970" author="Catalin Enache">
+    <!-- (re)create the migration subprograms  -->
+    <changeSet id="EDELIVERY-7970-2" author="Catalin Enache">
+        <comment>(Re)create the migration subprograms</comment>
         <sqlFile path="src/main/resources/db/migration/oracle/db-migration-package.sql" endDelimiter="\n/" dbms="oracle"/>
+        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-package.sql" endDelimiter="\n//" dbms="mysql"/>
+    </changeSet>
+
+    <!-- execute the migration subprogram -->
+    <changeSet id="EDELIVERY-7970-3" author="Catalin Enache">
         <sql endDelimiter="\n/" dbms="oracle">
-            BEGIN
-                MIGRATE_42_TO_50.MIGRATE;
-            END;
+BEGIN
+    MIGRATE_42_TO_50.MIGRATE;
+END;
+/
         </sql>
 
-        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-package.sql" endDelimiter="\n//" dbms="mysql"/>
         <sql dbms="mysql" endDelimiter="\n//">
 DELIMITER //
 

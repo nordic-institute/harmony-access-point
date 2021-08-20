@@ -13,42 +13,171 @@
     <!-- properties - to be used in column definitions -->
     <include file="../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
-    <!-- drop previously created tables for migration - MIGR_* and TB_D tables -->
+    <!-- clean existing tables -->
     <changeSet id="EDELIVERY-7970" author="Catalin Enache">
         <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
-        <dropTable tableName="MIGR_TB_USER_MESSAGE"/>
-        <dropTable tableName="MIGR_TB_SIGNAL_MESSAGE"/>
 
-        <dropTable tableName="MIGR_TB_SJ_MESSAGE_FRAGMENT"/>
-        <dropTable tableName="MIGR_TB_SJ_MESSAGE_GROUP"/>
-        <dropTable tableName="MIGR_TB_SJ_MESSAGE_HEADER"/>
+        <sql endDelimiter="\n/" dbms="oracle">
+DROP TABLE MIGR_TB_USER_MESSAGE
+/
 
-        <dropTable tableName="MIGR_TB_USER_MESSAGE_LOG"/>
-        <dropTable tableName="MIGR_TB_SIGNAL_MESSAGE_LOG"/>
+DROP TABLE MIGR_TB_SIGNAL_MESSAGE
+/
 
-        <dropTable tableName="MIGR_TB_USER_MESSAGE_RAW"/>
-        <dropTable tableName="MIGR_TB_SIGNAL_MESSAGE_RAW"/>
+DROP TABLE MIGR_TB_SJ_MESSAGE_FRAGMENT
+/
 
-        <dropTable tableName="MIGR_TB_RECEIPT"/>
+DROP TABLE MIGR_TB_SJ_MESSAGE_GROUP
+/
 
-        <dropTable tableName="MIGR_TB_MESSAGE_PROPERTIES"/>
-        <dropTable tableName="MIGR_TB_PART_INFO"/>
-        <dropTable tableName="MIGR_TB_PART_PROPERTIES"/>
+DROP TABLE MIGR_TB_SJ_MESSAGE_HEADER
+/
 
-        <dropTable tableName="MIGR_TB_ERROR_LOG"/>
-        <dropTable tableName="MIGR_TB_MESSAGE_ACKNW"/>
+DROP TABLE MIGR_TB_USER_MESSAGE_LOG
+/
 
-        <dropTable tableName="TB_D_MPC"/>
-        <dropTable tableName="TB_D_ROLE"/>
-        <dropTable tableName="TB_D_SERVICE"/>
-        <dropTable tableName="TB_D_AGREEMENT"/>
-        <dropTable tableName="TB_D_ACTION"/>
-        <dropTable tableName="TB_D_PARTY"/>
-        <dropTable tableName="TB_D_MESSAGE_STATUS"/>
-        <dropTable tableName="TB_D_NOTIFICATION_STATUS"/>
-        <dropTable tableName="TB_D_MESSAGE_PROPERTY"/>
-        <dropTable tableName="TB_D_PART_PROPERTY"/>
-        <dropTable tableName="TB_D_MSH_ROLE"/>
+DROP TABLE MIGR_TB_SIGNAL_MESSAGE_LOG
+/
+
+DROP TABLE MIGR_TB_USER_MESSAGE_RAW
+/
+
+DROP TABLE MIGR_TB_SIGNAL_MESSAGE_RAW
+/
+
+DROP TABLE MIGR_TB_RECEIPT
+/
+
+DROP TABLE MIGR_TB_MESSAGE_PROPERTIES
+/
+
+DROP TABLE MIGR_TB_PART_INFO
+/
+
+DROP TABLE MIGR_TB_PART_PROPERTIES
+/
+
+DROP TABLE MIGR_TB_ERROR_LOG
+/
+
+DROP TABLE MIGR_TB_MESSAGE_ACKNW
+/
+
+DROP TABLE TB_D_MPC
+/
+
+DROP TABLE TB_D_ROLE
+/
+
+DROP TABLE TB_D_SERVICE
+/
+
+DROP TABLE TB_D_AGREEMENT
+/
+
+DROP TABLE TB_D_ACTION
+/
+
+DROP TABLE TB_D_PARTY
+/
+
+DROP TABLE TB_D_MESSAGE_STATUS
+/
+
+DROP TABLE TB_D_NOTIFICATION_STATUS
+/
+
+DROP TABLE TB_D_MESSAGE_PROPERTY
+/
+
+DROP TABLE TB_D_PART_PROPERTY
+/
+
+DROP TABLE TB_D_MSH_ROLE
+/
+        </sql>
+
+        <sql endDelimiter="\n//" dbms="mysql">
+DELIMITER //
+
+DROP TABLE IF EXISTS MIGR_TB_USER_MESSAGE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SIGNAL_MESSAGE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SJ_MESSAGE_FRAGMENT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SJ_MESSAGE_GROUP
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SJ_MESSAGE_HEADER
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_MESSAGE_LOG
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SIGNAL_MESSAGE_LOG
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_MESSAGE_RAW
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SIGNAL_MESSAGE_RAW
+//
+
+DROP TABLE IF EXISTS MIGR_TB_RECEIPT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_MESSAGE_PROPERTIES
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PART_INFO
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PART_PROPERTIES
+//
+
+DROP TABLE IF EXISTS MIGR_TB_ERROR_LOG
+//
+
+DROP TABLE IF EXISTS MIGR_TB_MESSAGE_ACKNW
+//
+
+DROP TABLE IF EXISTS TB_D_MPC
+//
+
+DROP TABLE IF EXISTS TB_D_ROLE
+//
+
+DROP TABLE IF EXISTS TB_D_SERVICE
+//
+
+DROP TABLE IF EXISTS TB_D_AGREEMENT
+//
+
+DROP TABLE IF EXISTS TB_D_ACTION
+//
+
+DROP TABLE IF EXISTS TB_D_PARTY
+//
+
+DROP TABLE IF EXISTS TB_D_MESSAGE_STATUS
+//
+
+DROP TABLE IF EXISTS TB_D_NOTIFICATION_STATUS
+//
+
+DROP TABLE IF EXISTS TB_D_MESSAGE_PROPERTY
+//
+
+DROP TABLE IF EXISTS TB_D_PART_PROPERTY
+//
+
+DROP TABLE IF EXISTS TB_D_MSH_ROLE
+//
+        </sql>
     </changeSet>
 
     <!-- Start Dictionary Tables -->
@@ -621,4 +750,5 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+
 </databaseChangeLog>

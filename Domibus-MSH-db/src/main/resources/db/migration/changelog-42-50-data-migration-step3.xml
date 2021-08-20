@@ -15,6 +15,9 @@
      All operations here are irreversible and should be done once step 1 and step 2 are successful
      -->
 
+    <!-- properties - to be used in column definitions -->
+    <include file="../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
     <changeSet id="EDELIVERY-7970-drop-indexes-uq" author="Catalin Enache">
         <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_MESSAGE_IN_ERROR_ID" />
@@ -308,10 +311,112 @@
         </createIndex>
     </changeSet>
 
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-7822">
+        <createTable tableName="TB_D_TIMEZONE_OFFSET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_TIMEZONE_OFFSET"/>
+            </column>
+            <column name="NEXT_ATTEMPT_TIMEZONE_ID" type="VARCHAR(255)" remarks="Time zone ID on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column name="NEXT_ATTEMPT_OFFSET_SECONDS" type="INT" remarks="Offset in seconds of the time zone on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="NEXT_ATTEMPT_TIMEZONE_ID,NEXT_ATTEMPT_OFFSET_SECONDS" constraintName="UK_D_TIMEZONE_OFFSET" tableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addColumn tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="TB_USER_MESSAGE_LOG">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="TB_MESSAGE_UI">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="TB_MESSAGING_LOCK">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_USER_MESSAGE_LOG">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_UI_TZ_OFFSET" tableName="TB_MESSAGE_UI">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGING_LOCK_TZ_OFFSET" tableName="TB_MESSAGING_LOCK">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_ALERT"
+                                 constraintName="FK_ALERT_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MESSAGE_LOG_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <!-- TODO uncomment when fixing the UI replication -->
+<!--        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGE_UI"-->
+<!--                                 constraintName="FK_MESSAGE_UI_TZ_OFFSET" deferrable="false" initiallyDeferred="false"-->
+<!--                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"-->
+<!--                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>-->
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGING_LOCK"
+                                 constraintName="FK_MESSAGING_LOCK_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-8049"  author="idragusa">
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PART_INFO"
+                                  constraintName="FK_PART_INFO_USER_MSG"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PART_PROPERTIES"
+                                  constraintName="FK_PART_PROPS_PART_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_MESSAGE_ACKNW"/>
+
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+    </changeSet>
+
     <!-- alter Oracle sequence -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence">
         <sql dbms="oracle">
             ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
         </sql>
     </changeSet>
+
+    <include file="../migration/changelog-utc-conversion-procedures.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
