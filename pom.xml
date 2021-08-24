@@ -25,9 +25,9 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.4.3</cxf.version>
+        <cxf.version>3.4.4</cxf.version>
         <spring.version>5.2.9.RELEASE</spring.version>
-        <spring.security.version>5.4.5</spring.security.version>
+        <spring.security.version>5.4.7</spring.security.version>
         <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
         <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
         <hibernate.version>5.4.27.Final</hibernate.version>
