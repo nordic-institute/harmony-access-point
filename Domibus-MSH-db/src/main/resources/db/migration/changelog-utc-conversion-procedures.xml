@@ -7,9 +7,10 @@
 
 
     <changeSet id="EDELIVERY-7849-Migrate_Timestamp_to_UTC " author="Soumya">
-        <sqlFile path="src/main/resources/db/migration/mysql/db-migrate-date-time-to-utc.sql" dbms="mysql"/>
         <sqlFile path="src/main/resources/db/migration/oracle/db-migrate-date-time-to-utc.sql" endDelimiter="\n/"
                  dbms="oracle"/>
+        <sqlFile path="src/main/resources/db/migration/mysql/db-migrate-date-time-to-utc.sql" endDelimiter="\n//"
+                 dbms="mysql"/>
     </changeSet>
 
 </databaseChangeLog>
