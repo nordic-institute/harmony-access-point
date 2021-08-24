@@ -15,6 +15,7 @@ import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +47,7 @@ public class ErrorLogResource extends BaseResource {
     private AuditLogCoreMapper auditLogCoreMapper;
 
     @GetMapping
+    @Transactional
     public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
         LOGGER.debug("Getting error log");
         HashMap<String, Object> filters = createFilterMap(request);

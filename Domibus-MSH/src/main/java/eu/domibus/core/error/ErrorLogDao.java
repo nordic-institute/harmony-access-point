@@ -1,13 +1,11 @@
 package eu.domibus.core.error;
 
 import eu.domibus.api.model.MSHRoleEntity;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +21,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Repository
-@Transactional
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
+@Repository
+@Transactional
 public class ErrorLogDao extends ListDao<ErrorLogEntry> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
-
-    @Autowired
-    private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
 
     public ErrorLogDao() {
         super(ErrorLogEntry.class);
@@ -48,7 +44,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
 
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<ErrorLogEntry> ele) {
-        List<Predicate> predicates = new ArrayList<Predicate>();
+        List<Predicate> predicates = new ArrayList<>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {
                 if (filter.getKey().equals("mshRole")) {
@@ -60,7 +56,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
                             case "":
                                 break;
                             default:
-                                predicates.add(cb.like(ele.<String>get(filter.getKey()), (String) filter.getValue()));
+                                predicates.add(cb.like(ele.get(filter.getKey()), (String) filter.getValue()));
                                 break;
                         }
                     }
@@ -82,7 +78,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
                                 predicates.add(cb.lessThanOrEqualTo(ele.<Date>get("notified"), (Timestamp) filter.getValue()));
                                 break;
                             default:
-                                predicates.add(cb.like(ele.<String>get(filter.getKey()), (String) filter.getValue()));
+                                predicates.add(cb.like(ele.get(filter.getKey()), (String) filter.getValue()));
                                 break;
                         }
                     }
@@ -92,17 +88,6 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
             }
         }
         return predicates;
-    }
-
-    @Override
-    public void create(ErrorLogEntry errorLogEntry) {
-        errorLogEntryTruncateUtil.truncate(errorLogEntry);
-        if(errorLogEntry.getUserMessage() == null) {
-            UserMessage um = new UserMessage();
-            um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
-            errorLogEntry.setUserMessage(um);
-        }
-        super.create(errorLogEntry);
     }
 
     public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {

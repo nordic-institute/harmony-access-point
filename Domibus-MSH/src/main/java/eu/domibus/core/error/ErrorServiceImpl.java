@@ -35,13 +35,28 @@ public class ErrorServiceImpl implements ErrorService {
     protected ErrorLogDao errorLogDao;
     protected DomibusPropertyProvider domibusPropertyProvider;
     protected MshRoleDao mshRoleDao;
+    private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
 
-    public ErrorServiceImpl(ErrorLogDao errorLogDao, DomibusPropertyProvider domibusPropertyProvider, MshRoleDao mshRoleDao) {
+    public ErrorServiceImpl(ErrorLogDao errorLogDao,
+                            DomibusPropertyProvider domibusPropertyProvider,
+                            MshRoleDao mshRoleDao,
+                            ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil) {
         this.errorLogDao = errorLogDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.mshRoleDao = mshRoleDao;
+        this.errorLogEntryTruncateUtil = errorLogEntryTruncateUtil;
     }
-
+    
+    public void create(ErrorLogEntry errorLogEntry) {
+        errorLogEntryTruncateUtil.truncate(errorLogEntry);
+        if(errorLogEntry.getUserMessage() == null) {
+            UserMessage um = new UserMessage();
+            um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
+            errorLogEntry.setUserMessage(um);
+        }
+        errorLogDao.create(errorLogEntry);
+    }
+    
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createErrorLogSending(EbMS3Exception exception, UserMessage userMessage) {
@@ -49,7 +64,7 @@ public class ErrorServiceImpl implements ErrorService {
         MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
         errorLogEntry.setMshRole(role);
         errorLogEntry.setUserMessage(userMessage);
-        errorLogDao.create(errorLogEntry);
+        create(errorLogEntry);
     }
 
     @Override
@@ -58,7 +73,7 @@ public class ErrorServiceImpl implements ErrorService {
         ErrorLogEntry errorLogEntry = ErrorLogEntry.parse(ebms3Messaging);
         MSHRoleEntity role = mshRoleDao.findOrCreate(mshRole);
         errorLogEntry.setMshRole(role);
-        errorLogDao.create(errorLogEntry);
+        create(errorLogEntry);
     }
 
     @Override
@@ -67,7 +82,7 @@ public class ErrorServiceImpl implements ErrorService {
         MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
         final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, errorCode, errorDetail);
         errorLogEntry.setUserMessage(userMessage);
-        errorLogDao.create(errorLogEntry);
+        create(errorLogEntry);
     }
 
     @Override
@@ -76,7 +91,7 @@ public class ErrorServiceImpl implements ErrorService {
         ErrorLogEntry errorLogEntry = new ErrorLogEntry(exception);
         MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
         errorLogEntry.setMshRole(role);
-        errorLogDao.create(errorLogEntry);
+        create(errorLogEntry);
     }
 
     @Override
