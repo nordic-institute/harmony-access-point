@@ -4,7 +4,6 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.security.ChainCertificateInvalidException;
@@ -12,13 +11,12 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -73,10 +71,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     protected ReliabilityService reliabilityService;
 
     @Autowired
-    private ErrorLogDao errorLogDao;
-
-    @Autowired
-    protected MshRoleDao mshRoleDao;
+    private ErrorService errorService;
 
     @Autowired
     protected PartInfoDao partInfoDao;
@@ -112,7 +107,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
 
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-            getLog().debug("PMode key found : " + pModeKey);
+            getLog().debug("PMode key found : [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             getLog().info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
@@ -120,9 +115,12 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             try {
                 policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
             } catch (final ConfigurationException e) {
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Policy configuration invalid", null, e);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("Policy configuration invalid")
+                        .mshRole(MSHRole.SENDING)
+                        .cause(e)
+                        .build();
             }
 
             getLog().debug("pModeKey is [{}]", pModeKey);
@@ -141,12 +139,11 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-                errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0004, cciEx.getMessage()));
+                errorService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, cciEx.getMessage(), userMessage);
                 return;
             }
 
-            getLog().debug("PMode found : " + pModeKey);
+            getLog().debug("PMode found : [{}]", pModeKey);
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
 
@@ -158,13 +155,13 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } catch (final SOAPFaultException soapFEx) {
             getLog().error("A SOAP fault occurred when sending message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
-                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
+                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), userMessage);
             }
             attempt.setError(soapFEx.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (final EbMS3Exception e) {
             getLog().error("EbMS3 exception occurred when sending message with ID [{}]", messageId, e);
-            reliabilityChecker.handleEbms3Exception(e, messageId);
+            reliabilityChecker.handleEbms3Exception(e, userMessage);
             attempt.setError(e.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } catch (Throwable t) {

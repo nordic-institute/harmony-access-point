@@ -14,7 +14,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
@@ -77,7 +77,7 @@ public class AbstractEbms3UserMessageSenderTest {
     protected UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    protected ErrorLogDao errorLogDao;
+    protected ErrorService errorService;
 
     @Injectable
     protected MshRoleDao mshRoleDao;
@@ -226,7 +226,7 @@ public class AbstractEbms3UserMessageSenderTest {
 
         new FullVerifications(abstractUserMessageSender) {{
             EbMS3Exception ebMS3ExceptionActual;
-            reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), messageId);
+            reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ebMS3ExceptionActual.getErrorCode());
             Assert.assertEquals("Policy configuration invalid", ebMS3ExceptionActual.getErrorDetail());
             Assert.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
@@ -285,7 +285,7 @@ public class AbstractEbms3UserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
-            errorLogDao.create(withCapture());
+            errorService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), userMessage);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
         }};
@@ -351,7 +351,7 @@ public class AbstractEbms3UserMessageSenderTest {
             result = EbMS3ExceptionBuilder
                     .getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .errorDetail("Problem occurred during marshalling")
+                    .message("Problem occurred during marshalling")
                     .refToMessageId(messageId)
                     .mshRole(MSHRole.SENDING)
                     .build();
@@ -376,7 +376,7 @@ public class AbstractEbms3UserMessageSenderTest {
             nonRepudiationService.saveRequest(soapMessage, userMessage);
 
             EbMS3Exception ebMS3ExceptionActual;
-            reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), messageId);
+            reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
             Assert.assertEquals("Problem occurred during marshalling", ebMS3ExceptionActual.getErrorDetail());
             Assert.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());

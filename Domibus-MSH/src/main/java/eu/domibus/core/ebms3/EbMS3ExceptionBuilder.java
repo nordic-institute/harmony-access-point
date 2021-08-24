@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
+import org.apache.commons.lang3.StringUtils;
 
 import static eu.domibus.core.ebms3.EbMS3Exception.DEFAULT_RECOVERABLE;
 
@@ -13,6 +14,7 @@ public class EbMS3ExceptionBuilder {
 
     private ErrorCode.EbMS3ErrorCode ebMS3ErrorCode;
     private Throwable cause;
+    private String message;
     private String errorDetail;
     private String refToMessageId;
     private MSHRole mshRole;
@@ -24,7 +26,12 @@ public class EbMS3ExceptionBuilder {
     }
 
     public EbMS3Exception build() {
-        EbMS3Exception ebMS3Exception = new EbMS3Exception(ebMS3ErrorCode, errorDetail, refToMessageId, cause);
+        EbMS3Exception ebMS3Exception = new EbMS3Exception(ebMS3ErrorCode, message, cause);
+        ebMS3Exception.setErrorDetail(message);
+        if(StringUtils.isNotBlank(errorDetail)) {
+            ebMS3Exception.setErrorDetail(errorDetail);
+        }
+        ebMS3Exception.setRefToMessageId(refToMessageId);
         ebMS3Exception.setMshRole(mshRole);
         ebMS3Exception.setRecoverable(recoverable);
         ebMS3Exception.setSignalMessageId(signalMessageId);
@@ -53,8 +60,8 @@ public class EbMS3ExceptionBuilder {
         return errorDetail;
     }
 
-    public EbMS3ExceptionBuilder errorDetail(String errorDetail) {
-        this.errorDetail = errorDetail;
+    public EbMS3ExceptionBuilder message(String message) {
+        this.message = message;
         return this;
     }
 
@@ -91,6 +98,15 @@ public class EbMS3ExceptionBuilder {
 
     public EbMS3ExceptionBuilder signalMessageId(String signalMessageId) {
         this.signalMessageId = signalMessageId;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public EbMS3ExceptionBuilder errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
         return this;
     }
 }

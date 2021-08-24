@@ -37,7 +37,7 @@ public class ErrorLogEntryTruncateUtil {
 
     private boolean checkStringChanged(final String initialString, final String transformedString) {
         if (StringUtils.isNoneEmpty(initialString) && !initialString.equals(transformedString)) {
-            LOG.warn(initialString + " was truncated to " + transformedString + " before saving the error log");
+            LOG.warn("[{}] was truncated to [{}] before saving the error log", initialString, transformedString);
             return true;
         }
         return false;

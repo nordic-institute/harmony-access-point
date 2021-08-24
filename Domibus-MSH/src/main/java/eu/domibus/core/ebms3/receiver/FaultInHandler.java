@@ -2,15 +2,13 @@ package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
-import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorService;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
@@ -55,9 +53,6 @@ public class FaultInHandler extends AbstractFaultHandler {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
-    @Autowired
-    protected MshRoleDao mshRoleDao;
-
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -89,8 +84,13 @@ public class FaultInHandler extends AbstractFaultHandler {
             if (!(cause instanceof EbMS3Exception)) {
                 //do Mapping of non ebms exceptions
                 if (cause instanceof NoMatchingPModeFoundException) {
-                    ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, cause.getMessage(), ((NoMatchingPModeFoundException) cause).getMessageId(), cause);
-                    ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+                    ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                            .message(cause.getMessage())
+                            .refToMessageId(((NoMatchingPModeFoundException) cause).getMessageId())
+                            .cause(cause)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
                 } else {
 
                     if (cause instanceof WebServiceException) {
@@ -100,8 +100,13 @@ public class FaultInHandler extends AbstractFaultHandler {
                     } else {
                         //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
                         final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
-                        ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", messageId, cause);
-                        ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+                        ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                                .message("unknown error occurred")
+                                .refToMessageId(messageId)
+                                .cause(cause)
+                                .mshRole(MSHRole.RECEIVING)
+                                .build();
                     }
                 }
 
@@ -116,11 +121,19 @@ public class FaultInHandler extends AbstractFaultHandler {
                 //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
                 final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
 
-                ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0103, exception.getMessage(), messageId, exception);
-                ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+                ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0103)
+                        .message(exception.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(exception)
+                        .mshRole(MSHRole.RECEIVING)
+                        .build();
             } else {
-                ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", null, null);
-                ebMS3Exception.setMshRole(MSHRole.RECEIVING);
+                ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                        .message("unknown error occurred")
+                        .mshRole(MSHRole.RECEIVING)
+                        .build();
             }
 
             this.processEbMSError(context, ebMS3Exception);
@@ -137,14 +150,12 @@ public class FaultInHandler extends AbstractFaultHandler {
             throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
         }
 
-        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
-
         // at this point an EbMS3Exception is available in any case
         SOAPMessage soapMessageWithEbMS3Error = null;
         try {
             soapMessageWithEbMS3Error = this.messageBuilder.buildSOAPFaultMessage(ebMS3Exception.getFaultInfoError());
         } catch (final EbMS3Exception e) {
-            errorService.createErrorLog(new ErrorLogEntry(e, role));
+            errorService.createErrorLog(e, MSHRole.RECEIVING);
         }
         context.setMessage(soapMessageWithEbMS3Error);
 
@@ -164,7 +175,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         //log the raw xml Signal message
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
-        errorService.createErrorLog(ErrorLogEntry.parse(ebms3Messaging, role));
+        errorService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING);
     }
 
     @Override

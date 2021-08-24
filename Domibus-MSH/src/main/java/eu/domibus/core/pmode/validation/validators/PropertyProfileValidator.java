@@ -8,6 +8,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Property;
 import eu.domibus.common.model.configuration.PropertySet;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -69,7 +70,11 @@ public class PropertyProfileValidator {
             modifiablePropertyList.remove(profiled);
             if (profiled == null) {
                 LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange does not include a property named [" + property.getName() + "]", userMessage.getMessageId(), null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("Property profiling for this exchange does not include a property named [" + property.getName() + "]")
+                        .refToMessageId(userMessage.getMessageId())
+                        .build();
             }
 
             switch (profiled.getDatatype().toLowerCase()) {
@@ -80,13 +85,21 @@ public class PropertyProfileValidator {
                         Integer.parseInt(property.getValue()); //NOSONAR: Validation is done via exception
                         break;
                     } catch (final NumberFormatException e) {
-                        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange requires a INTEGER datatype for property named: " + property.getName() + ", but got " + property.getValue(), userMessage.getMessageId(), null);
+                        throw EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                                .message("Property profiling for this exchange requires a INTEGER datatype for property named: " + property.getName() + ", but got " + property.getValue())
+                                .refToMessageId(userMessage.getMessageId())
+                                .build();
                     }
                 case "boolean":
                     if (property.getValue().equalsIgnoreCase("false") || property.getValue().equalsIgnoreCase("true")) {
                         break;
                     }
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange requires a BOOLEAN datatype for property named: " + property.getName() + ", but got " + property.getValue(), userMessage.getMessageId(), null);
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                            .message("Property profiling for this exchange requires a BOOLEAN datatype for property named: " + property.getName() + ", but got " + property.getValue())
+                            .refToMessageId(userMessage.getMessageId())
+                            .build();
                 default:
                     PropertyProfileValidator.LOG.warn("Validation for Datatype " + profiled.getDatatype() + " not possible. This type is not known by the validator. The value will be accepted unchecked");
             }
@@ -96,7 +109,11 @@ public class PropertyProfileValidator {
         for (final Property property : modifiablePropertyList) {
             if (property.isRequired()) {
                 LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Required property missing [" + property.getName() + "]", userMessage.getMessageId(), null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("Required property missing [" + property.getName() + "]")
+                        .refToMessageId(userMessage.getMessageId())
+                        .build();
             }
         }
 
@@ -108,7 +125,10 @@ public class PropertyProfileValidator {
             int duplicateMessagePropertiesCount = (int) messageProperties.stream().filter(string -> string.getName().equalsIgnoreCase(profiledProperty.getKey())).count();
             if (duplicateMessagePropertiesCount > 1) {
                 LOG.businessError(DomibusMessageCode.BUS_PROPERTY_DUPLICATE, profiledProperty.getKey());
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Duplicate Message property found for property name [" + profiledProperty.getKey() + "]", null, null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0052)
+                        .message("Duplicate Message property found for property name [" + profiledProperty.getKey() + "]")
+                        .build();
             }
         }
     }

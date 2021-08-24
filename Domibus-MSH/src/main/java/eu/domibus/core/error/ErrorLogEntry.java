@@ -2,13 +2,15 @@ package eu.domibus.core.error;
 
 import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -64,8 +66,7 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     /**
      * @param ebms3Exception The Exception to be logged
      */
-    public ErrorLogEntry(final EbMS3Exception ebms3Exception, MSHRoleEntity mshRole) {
-        this.mshRole = mshRole;
+    public ErrorLogEntry(final EbMS3Exception ebms3Exception) {
         this.messageInErrorId = ebms3Exception.getRefToMessageId();
         this.errorSignalMessageId = ebms3Exception.getSignalMessageId();
         this.errorCode = ebms3Exception.getErrorCodeObject();
@@ -88,14 +89,13 @@ public class ErrorLogEntry extends AbstractBaseEntity {
      * @param role      Role of the MSH
      * @return the new error log entry
      */
-    public static ErrorLogEntry parse(final Ebms3Messaging messaging, final MSHRoleEntity role) {
+    public static ErrorLogEntry parse(final Ebms3Messaging messaging) {
         final Ebms3Error error = messaging.getSignalMessage().getError().iterator().next();
 
         final ErrorLogEntry errorLogEntry = new ErrorLogEntry();
         errorLogEntry.setTimestamp(messaging.getSignalMessage().getMessageInfo().getTimestamp());
         errorLogEntry.setErrorSignalMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId());
         errorLogEntry.setErrorCode(ErrorCode.findBy(error.getErrorCode()));
-        errorLogEntry.setMshRole(role);
         errorLogEntry.setMessageInErrorId(error.getRefToMessageInError());
         errorLogEntry.setErrorDetail(error.getErrorDetail());
 

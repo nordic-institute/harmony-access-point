@@ -4,6 +4,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
@@ -15,14 +17,13 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.PojoInstaciatorUtil;
@@ -44,8 +45,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static eu.domibus.api.pmode.PModeConstants.PMODEKEY_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static org.junit.Assert.*;
 
 /**
@@ -1373,7 +1374,10 @@ public class CachingPModeProviderTest {
         partyId1.setValue("domibus-blue");
         fromPartyId.add(partyId1);
 
-        Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
+        Exception expectedException = EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                .message("No matching party found for type [] and value []")
+                .build();
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = fromPartyId;
@@ -1419,7 +1423,10 @@ public class CachingPModeProviderTest {
         partyId1.setValue("domibus-red");
         toPartyId.add(partyId1);
 
-        Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
+        Exception expectedException =  EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                .message("No matching party found for type [] and value []")
+                .build();
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getTo().getToPartyId();
             result = toPartyId;

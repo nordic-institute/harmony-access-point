@@ -5,16 +5,13 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -43,8 +40,7 @@ public class ResponseHandler {
     private final NonRepudiationService nonRepudiationService;
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
-    protected MshRoleDao mshRoleDao;
-    private final ErrorLogDao errorLogDao;
+    private final ErrorService errorService;
     protected Ebms3Converter ebms3Converter;
     protected UserMessageDao userMessageDao;
 
@@ -53,8 +49,7 @@ public class ResponseHandler {
                            NonRepudiationService nonRepudiationService,
                            SignalMessageDao signalMessageDao,
                            MessageUtil messageUtil,
-                           MshRoleDao mshRoleDao,
-                           ErrorLogDao errorLogDao,
+                           ErrorService errorService,
                            Ebms3Converter ebms3Converter,
                            UserMessageDao userMessageDao) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
@@ -62,8 +57,7 @@ public class ResponseHandler {
         this.nonRepudiationService = nonRepudiationService;
         this.signalMessageDao = signalMessageDao;
         this.messageUtil = messageUtil;
-        this.mshRoleDao = mshRoleDao;
-        this.errorLogDao = errorLogDao;
+        this.errorService = errorService;
         this.ebms3Converter = ebms3Converter;
         this.userMessageDao = userMessageDao;
     }
@@ -81,7 +75,7 @@ public class ResponseHandler {
             throw EbMS3ExceptionBuilder
                     .getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .errorDetail("Problem occurred during marshalling")
+                    .message("Problem occurred during marshalling")
                     .refToMessageId(messageId)
                     .mshRole(MSHRole.SENDING)
                     .cause(ex)
@@ -113,14 +107,13 @@ public class ResponseHandler {
 
         signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
-        final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-        createWarningEntries(ebms3MessagingResponse.getSignalMessage(), sendingRole);
+        createWarningEntries(ebms3MessagingResponse.getSignalMessage(), userMessage);
 
         //UI replication
         uiReplicationSignalService.signalMessageReceived(signalMessage.getSignalMessageId());
     }
 
-    protected void createWarningEntries(Ebms3SignalMessage signalMessage, MSHRoleEntity mshRoleEntity) {
+    protected void createWarningEntries(Ebms3SignalMessage signalMessage, UserMessage userMessage) {
         if (signalMessage.getError() == null || signalMessage.getError().isEmpty()) {
             LOGGER.debug("No warning entries to create");
             return;
@@ -136,9 +129,11 @@ public class ResponseHandler {
 
                 LOGGER.warn("Creating warning error with error code [{}], error detail [{}] and refToMessageInError [{}]", errorCode, errorDetail, refToMessageInError);
 
-                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(errorCode), errorDetail, refToMessageInError, null);
-                final ErrorLogEntry errorLogEntry = new ErrorLogEntry(ebMS3Ex, mshRoleEntity);
-                this.errorLogDao.create(errorLogEntry);
+                this.errorService.createErrorLogSending(EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(errorCode))
+                        .message(errorDetail)
+                        .refToMessageId(refToMessageInError)
+                        .build(), userMessage);
             }
         }
     }
@@ -154,9 +149,12 @@ public class ResponseHandler {
 
         for (final Ebms3Error ebms3Error : ebms3SignalMessage.getError()) {
             if (ErrorCode.SEVERITY_FAILURE.equalsIgnoreCase(ebms3Error.getSeverity())) {
-                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()), ebms3Error.getErrorDetail(), ebms3Error.getRefToMessageInError(), null);
-                ebMS3Ex.setMshRole(MSHRole.SENDING);
-                throw ebMS3Ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()))
+                        .message(ebms3Error.getErrorDetail())
+                        .refToMessageId(ebms3Error.getRefToMessageInError())
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             }
         }
 

@@ -7,6 +7,7 @@ import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
@@ -108,8 +109,11 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
-            EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("No message in waiting for callback state found for receipt referring to :[%s]", messageId), messageId, null);
-            return messageBuilder.getSoapMessage(ebMS3Exception);
+            return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message(String.format("No message in waiting for callback state found for receipt referring to :[%s]", messageId))
+                    .refToMessageId(messageId)
+                    .build());
         }
         LOG.debug("[handlePullRequestReceipt]:Message:[{}] delete lock ", messageId);
 
@@ -117,13 +121,16 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         if (lock == null || MessageState.WAITING != lock.getMessageState()) {
             LOG.trace("Message[{}] could not acquire lock", messageId);
             LOG.error("[PULL_RECEIPT]:Message:[{}] time to receipt a pull acknowledgement has expired.", messageId);
-            EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("Time to receipt a pull acknowledgement for message:[%s] has expired", messageId), messageId, null);
-            return messageBuilder.getSoapMessage(ebMS3Exception);
+            return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message(String.format("Time to receipt a pull acknowledgement for message:[%s] has expired", messageId))
+                    .refToMessageId(messageId)
+                    .build());
         }
 
         try {
             String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
-            LOG.debug("PMode key found : " + pModeKey);
+            LOG.debug("PMode key found : [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
             SOAPMessage soapMessage = getSoapMessage(messageId, legConfiguration, userMessage);
@@ -134,11 +141,11 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         } catch (final SOAPFaultException soapFEx) {
             LOG.error("A SOAP fault occurred when handling pull receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
-                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
+                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), userMessage);
             }
         } catch (final EbMS3Exception e) {
             LOG.error("EbMS3 exception occurred when handling pull receipt for message with ID [{}]", messageId, e);
-            reliabilityChecker.handleEbms3Exception(e, messageId);
+            reliabilityChecker.handleEbms3Exception(e, userMessage);
         } catch (ReliabilityException r) {
             LOG.error("Reliability exception occurred when handling pull receipt for message with ID [{}]", messageId, r);
         } finally {
@@ -147,8 +154,11 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         }
         if((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
                 (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
-            EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("There was an error processing the receipt for pulled message:[%s].", messageId), messageId, null);
-            return messageBuilder.getSoapMessage(ebMS3Exception);
+            return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message(String.format("There was an error processing the receipt for pulled message:[%s].", messageId))
+                    .refToMessageId(messageId)
+                    .build());
         }
 
         // when the pull receipt is valid, no response is expected back

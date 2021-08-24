@@ -51,11 +51,9 @@ public class EbMS3Exception extends Exception {
     private boolean recoverable = DEFAULT_RECOVERABLE;
     private String signalMessageId;
 
-    public EbMS3Exception(final ErrorCode.EbMS3ErrorCode ebMS3ErrorCode, final String errorDetail, final String refToMessageId, final Throwable cause) {
-        super(errorDetail, cause);
+    protected EbMS3Exception(final ErrorCode.EbMS3ErrorCode ebMS3ErrorCode, final String message, final Throwable cause) {
+        super(message, cause);
         this.ebMS3ErrorCode = ebMS3ErrorCode;
-        this.errorDetail = errorDetail;
-        this.refToMessageId = refToMessageId;
     }
 
     public boolean isRecoverable() {

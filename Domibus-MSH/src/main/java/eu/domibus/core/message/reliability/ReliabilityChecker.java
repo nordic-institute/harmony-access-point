@@ -1,21 +1,20 @@
 package eu.domibus.core.message.reliability;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
-import eu.domibus.api.model.MSHRoleEntity;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.ResponseResult;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -67,7 +66,7 @@ public class ReliabilityChecker {
     protected PModeProvider pModeProvider;
 
     @Autowired
-    protected ErrorLogDao errorLogDao;
+    protected ErrorService errorService;
 
     @Autowired
     protected ReliabilityMatcher pushMatcher;
@@ -80,9 +79,6 @@ public class ReliabilityChecker {
 
     @Autowired
     protected XMLUtil xmlUtil;
-
-    @Autowired
-    protected MshRoleDao mshRoleDao;
 
     @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
@@ -137,19 +133,25 @@ public class ReliabilityChecker {
 
                     if (!elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_NO_SECURITY_HEADER, messageId);
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: No security header found", messageId, null);
-                        ex.setMshRole(MSHRole.SENDING);
-                        ex.setSignalMessageId(messageId);
-                        throw ex;
+                        throw EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                                .message("Invalid NonRepudiationInformation: No security header found")
+                                .refToMessageId(messageId)
+                                .mshRole(MSHRole.SENDING)
+                                .signalMessageId(messageId)
+                                .build();
                     }
                     final Element securityHeaderResponse = (Element) elementIterator.next();
 
                     if (elementIterator.hasNext()) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_MULTIPLE_SECURITY_HEADERS, messageId);
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: Multiple security headers found", messageId, null);
-                        ex.setMshRole(MSHRole.SENDING);
-                        ex.setSignalMessageId(messageId);
-                        throw ex;
+                        throw EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                                .message("Invalid NonRepudiationInformation: Multiple security headers found")
+                                .refToMessageId(messageId)
+                                .mshRole(MSHRole.SENDING)
+                                .signalMessageId(messageId)
+                                .build();
                     }
 
                     final String wsuIdOfMEssagingElement = ebms3Messaging.getOtherAttributes().get(new QName(WSConstants.WSU_NS, "Id"));
@@ -168,10 +170,13 @@ public class ReliabilityChecker {
                     if (!signatureFound) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_MESSAGING_NOT_SIGNED, messageId);
                         LOG.error("Response message [{}]", soapPartToString(response));
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: eb:Messaging not signed", messageId, null);
-                        ex.setMshRole(MSHRole.SENDING);
-                        ex.setSignalMessageId(messageId);
-                        throw ex;
+                        throw EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                                .message("Invalid NonRepudiationInformation: eb:Messaging not signed")
+                                .refToMessageId(messageId)
+                                .mshRole(MSHRole.SENDING)
+                                .signalMessageId(messageId)
+                                .build();
                     }
 
                     final List<String> referencesFromSecurityHeader = nonRepudiationChecker.getNonRepudiationDetailsFromSecurityInfoNode(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
@@ -180,10 +185,13 @@ public class ReliabilityChecker {
 
                     if (!nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation)) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_NOT_MATCHING_THE_MESSAGE, soapPartToString(response), soapPartToString(request));
-                        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: non repudiation information and request message do not match", messageId, null);
-                        ex.setMshRole(MSHRole.SENDING);
-                        ex.setSignalMessageId(messageId);
-                        throw ex;
+                        throw EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                                .message("Invalid NonRepudiationInformation: non repudiation information and request message do not match")
+                                .refToMessageId(messageId)
+                                .mshRole(MSHRole.SENDING)
+                                .signalMessageId(messageId)
+                                .build();
                     }
 
                     LOG.businessInfo(DomibusMessageCode.BUS_RELIABILITY_SUCCESSFUL, messageId);
@@ -196,10 +204,13 @@ public class ReliabilityChecker {
 
             } else {
                 LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_RECEIPT_INVALID_EMPTY, messageId);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "There is no content inside the receipt element received by the responding gateway", messageId, null);
-                ex.setMshRole(MSHRole.SENDING);
-                ex.setSignalMessageId(messageId);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                        .message("There is no content inside the receipt element received by the responding gateway")
+                        .refToMessageId(messageId)
+                        .mshRole(MSHRole.SENDING)
+                        .signalMessageId(messageId)
+                        .build();
             }
 
         }
@@ -220,10 +231,13 @@ public class ReliabilityChecker {
         final NodeList nodeList = response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN);
         if (nodeList.getLength() == 0 || nodeList.item(0) == null) {
             LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_NO_SECURITY_HEADER, messageId);
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: No element found", messageId, null);
-            ex.setMshRole(MSHRole.SENDING);
-            ex.setSignalMessageId(messageId);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message("Invalid NonRepudiationInformation: No element found")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
+                    .signalMessageId(messageId)
+                    .build();
         }
         return nodeList.item(0);
     }
@@ -265,19 +279,17 @@ public class ReliabilityChecker {
         OK, SEND_FAIL, PULL_FAILED, WAITING_FOR_CALLBACK, ABORT
     }
 
-
     /**
      * This method is responsible for the ebMS3 error handling (creation of errorlogs and marking message as sent)
      *
      * @param exceptionToHandle the exception {@link EbMS3Exception} that needs to be handled
-     * @param messageId         id of the message the exception belongs to
+     * @param userMessage       the userMessage the exception belongs to
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final String messageId) {
-        exceptionToHandle.setRefToMessageId(messageId);
+    public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final UserMessage userMessage) {
+        exceptionToHandle.setRefToMessageId(userMessage.getMessageId());
 
-        final MSHRoleEntity sendingRole = mshRoleDao.findOrCreate(MSHRole.SENDING);
-        this.errorLogDao.create(new ErrorLogEntry(exceptionToHandle, sendingRole));
+        this.errorService.createErrorLogSending(exceptionToHandle, userMessage);
         // The backends are notified that an error occurred in the UpdateRetryLoggingService
     }
 }

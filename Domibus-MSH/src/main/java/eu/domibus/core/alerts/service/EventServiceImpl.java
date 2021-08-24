@@ -14,8 +14,8 @@ import eu.domibus.core.alerts.model.common.PasswordExpirationEventProperties;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
@@ -76,7 +76,7 @@ public class EventServiceImpl implements EventService {
     private UserMessageDao userMessageDao;
 
     @Autowired
-    private ErrorLogDao errorLogDao;
+    private ErrorService errorService;
 
     @Autowired
     private EventMapper eventMapper;
@@ -201,7 +201,7 @@ public class EventServiceImpl implements EventService {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
-            String errors = errorLogDao
+            String errors = errorService
                     .getErrorsForMessage(messageId)
                     .stream()
                     .map(ErrorLogEntry::getErrorDetail)

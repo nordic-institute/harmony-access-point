@@ -1,14 +1,13 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,9 +35,11 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
 
         final NodeList childNodes = securityInfo.getChildNodes();
         if (childNodes == null || childNodes.getLength() == 0) {
-            EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in SignedInfo node", null, null);
-            e.setMshRole(MSHRole.SENDING);
-            throw e;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message("No Reference Data found in SignedInfo node")
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         for (int i = 0; i < childNodes.getLength(); ++i) {
@@ -49,9 +50,11 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
         }
 
         if (result.size() == 0) {
-            EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in SignedInfo node", null, null);
-            e.setMshRole(MSHRole.SENDING);
-            throw e;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message("No Reference Data found in SignedInfo node")
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         return result;
@@ -60,18 +63,22 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
     @Override
     public List<String> getNonRepudiationDetailsFromReceipt(Node nonRepudiationInformation) throws EbMS3Exception {
 
-         if (nonRepudiationInformation == null) {
-            EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Not found NonRepudiationDetails element.", null, null);
-            e.setMshRole(MSHRole.SENDING);
-            throw e;
+        if (nonRepudiationInformation == null) {
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message("Not found NonRepudiationDetails element.")
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         List<String> result = new ArrayList<>();
         final NodeList childNodes = nonRepudiationInformation.getChildNodes();
         if (childNodes == null || childNodes.getLength() == 0) {
-            EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in NonRepudiationInformation node", null, null);
-            e.setMshRole(MSHRole.SENDING);
-            throw e;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message("No Reference Data found in NonRepudiationInformation node")
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         for (int i = 0; i < childNodes.getLength(); ++i) {
@@ -83,9 +90,11 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
         }
 
         if (result.size() == 0) {
-            EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in NonRepudiationInformation node", null, null);
-            e.setMshRole(MSHRole.SENDING);
-            throw e;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message("No Reference Data found in NonRepudiationInformation node")
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         return result;

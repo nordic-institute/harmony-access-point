@@ -15,6 +15,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
@@ -264,7 +265,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     @Override
     public void sendSourceMessageReceipt(String sourceMessageId, String pModeKey) {
-        SOAPMessage receiptMessage ;
+        SOAPMessage receiptMessage;
         try {
             receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, false);
         } catch (EbMS3Exception e) {
@@ -278,9 +279,14 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void sendSignalError(String messageId, String ebMS3ErrorCode, String errorDetail, String pmodeKey) {
         final ErrorCode.EbMS3ErrorCode errorCode = ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebMS3ErrorCode);
 
-        EbMS3Exception ebMS3Exception = new EbMS3Exception(errorCode, errorDetail, messageId, null);
-        ebMS3Exception.setMshRole(MSHRole.RECEIVING);
-        SOAPMessage soapMessage ;
+        EbMS3Exception ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(errorCode)
+                .message(errorDetail)
+                .refToMessageId(messageId)
+                .mshRole(MSHRole.RECEIVING)
+                .build();
+
+        SOAPMessage soapMessage;
         try {
             soapMessage = messageBuilder.buildSOAPFaultMessage(ebMS3Exception.getFaultInfoError());
         } catch (EbMS3Exception e) {
@@ -499,7 +505,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected boolean isGroupExpired(final UserMessage userMessage, String groupId) {
-        LegConfiguration legConfiguration ;
+        LegConfiguration legConfiguration;
         try {
             MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
@@ -558,7 +564,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         final List<UserMessage> groupUserMessages = userMessageDao.findUserMessageByGroupId(groupId);
         groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId()));
 
-        createLogEntry(groupId, errorDetail);
+        LOG.debug("Creating error entry for message [{}]", groupId);
+        errorService.createErrorLogSending(groupId, ErrorCode.EBMS_0004, "[SPLIT] " + errorDetail, groupUserMessages.stream().findAny().orElse(null));
     }
 
 
@@ -580,11 +587,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         final UserMessage sourceUserMessage = userMessageDao.findByGroupEntityId(messageGroupEntity.getEntityId());
         setSourceMessageAsFailed(sourceUserMessage);
-    }
-
-    protected void createLogEntry(String sourceMessageId, String errorDetail) {
-        LOG.debug("Creating error entry for message [{}]", sourceMessageId);
-        errorService.createErrorLog(sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
     }
 
     @Transactional

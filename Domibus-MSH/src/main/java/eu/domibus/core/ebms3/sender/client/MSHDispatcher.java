@@ -9,6 +9,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import org.apache.cxf.message.Message;
@@ -66,9 +67,12 @@ public class MSHDispatcher {
             if(e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
             }
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0005, "Error dispatching message to " + endpoint, null, exception);
-            ex.setMshRole(MSHRole.SENDING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0005)
+                    .message("Error dispatching message to " + endpoint)
+                    .cause(exception)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
         return result;
     }
@@ -96,9 +100,13 @@ public class MSHDispatcher {
             if(e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
             }
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0005, "Error dispatching message to " + endpoint, userMessage.getMessageId(), exception);
-            ex.setMshRole(MSHRole.SENDING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0005)
+                    .message("Error dispatching message to " + endpoint)
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(exception)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
         return result;
     }

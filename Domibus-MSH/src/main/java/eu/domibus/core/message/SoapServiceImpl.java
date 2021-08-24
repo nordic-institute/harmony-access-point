@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -47,14 +48,21 @@ public class SoapServiceImpl implements SoapService {
     public Ebms3Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
         final Node messagingNode = getMessagingNode(message);
         if (messagingNode == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0009)
+                    .message("Messaging header is empty!")
+                    .build();
         }
 
         try {
             return messageUtil.getMessagingWithDom(messagingNode);
         } catch (SOAPException e) {
             LOG.error("Error unmarshalling Messaging header", e);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0009)
+                    .message("Messaging header is empty!")
+                    .cause(e)
+                    .build();
         }
     }
 
@@ -74,7 +82,10 @@ public class SoapServiceImpl implements SoapService {
         new StaxInInterceptor().handleMessage(message);
         final XMLStreamReader xmlStreamReader = message.getContent(XMLStreamReader.class);
         if (xmlStreamReader == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is missing!", null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0009)
+                    .message("Messaging header is missing!")
+                    .build();
         }
         final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
         message.removeContent(XMLStreamReader.class);

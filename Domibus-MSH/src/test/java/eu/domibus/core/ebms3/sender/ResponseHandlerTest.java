@@ -7,8 +7,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -50,9 +49,7 @@ public class ResponseHandlerTest {
     @Injectable
     protected MessageUtil messageUtil;
     @Injectable
-    private ErrorLogDao errorLogDao;
-    @Injectable
-    private MshRoleDao mshRoleDao;
+    private ErrorService errorService;
 
     @Injectable
     private UserMessageDao userMessageDao;

@@ -7,6 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
@@ -116,9 +117,13 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_INCOMING_NOT_FOUND, e, policyName); // Those errors are not expected
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", ebms3Messaging != null ? messageId : "unknown", e);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw new Fault(ex);
+            throw new Fault(EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("no valid security policy found")
+                    .refToMessageId(ebms3Messaging != null ? messageId : "unknown")
+                    .cause(e)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build());
         }
     }
 
