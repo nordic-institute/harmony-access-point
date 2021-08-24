@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -119,7 +120,7 @@ public class DomibusContextRefreshedListenerTest {
         domibusContextRefreshedListener.executeWithLockIfNeeded(task);
 
         new Verifications() {{
-            domainTaskExecutor.submit(task, null, fileLock);
+            domainTaskExecutor.submit(task, (Runnable) any, fileLock, true, 3L, TimeUnit.MINUTES);
             times = 1;
         }};
     }

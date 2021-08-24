@@ -29,6 +29,8 @@ public class SetLockOnFileRunnable implements Runnable {
 
     @Override
     public void run() {
+        LOG.trace("Trying to lock file [{}]", lockFile);
+
         // firstly try to lock the file
         // if this fails, it means that another process has an explicit lock on the file
         try (RandomAccessFile raf = new RandomAccessFile(lockFile, "rw");
@@ -38,6 +40,7 @@ public class SetLockOnFileRunnable implements Runnable {
                 LOG.debug("Could not acquire lock on file [{}] ", lockFile);
                 return;
             }
+            LOG.trace("Finished locking file [{}]", lockFile);
 
             LOG.trace("Start executing task");
             runnable.run();
