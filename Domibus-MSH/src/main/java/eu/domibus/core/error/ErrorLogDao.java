@@ -39,7 +39,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
         query.setParameter("MESSAGE_ID", messageId);
 
-        return query.getResultList();
+        return initializeChildren(query.getResultList());
     }
 
     @Override
@@ -122,4 +122,22 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         }
         return result;
     }
+
+    @Override
+    public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
+        return initializeChildren(super.findPaged(from, max, sortColumn, asc, filters));
+    }
+
+    private List<ErrorLogEntry> initializeChildren(List<ErrorLogEntry> errorLogEntries) {
+        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
+            initializeChildren(errorLogEntry);
+        }
+        return errorLogEntries;
+    }
+
+    private void initializeChildren(ErrorLogEntry errorLogEntry) {
+        //initialize values from the second level cache
+        errorLogEntry.getMshRole();
+    }
+
 }

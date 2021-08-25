@@ -15,20 +15,13 @@ import java.util.Map;
  * @since 3.3
  */
 
-public interface ErrorService {
+public interface ErrorLogService {
 
     void createErrorLogSending(String messageInErrorId, ErrorCode errorCode, String errorDetail, UserMessage userMessage);
 
-    /**
-     * create ErrorLog with {@link eu.domibus.api.model.MSHRole#SENDING}
-     * @param exception
-     * @param userMessage
-     */
-    void createErrorLogSending(EbMS3Exception exception, UserMessage userMessage);
+    void createErrorLog(EbMS3Exception exception, MSHRole mshRole, UserMessage userMessage);
 
-    void createErrorLog(EbMS3Exception exception, MSHRole mshRole);
-
-    void createErrorLog(Ebms3Messaging ebms3Messaging, MSHRole mshRole);
+    void createErrorLog(Ebms3Messaging ebms3Messaging, MSHRole mshRole, UserMessage userMessage);
 
     /**
      * delete ErrorLogEntry records not having messageId and older than x days

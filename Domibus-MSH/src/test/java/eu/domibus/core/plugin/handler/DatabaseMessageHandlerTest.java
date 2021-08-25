@@ -13,7 +13,7 @@ import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
@@ -136,7 +136,7 @@ public class DatabaseMessageHandlerTest {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Injectable
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Injectable
     private PModeProvider pModeProvider;
@@ -410,7 +410,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.hasUserOrAdminRole();
             times = 1;
 
-            errorService.createErrorLogSending((EbMS3Exception) any, null);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
         }};
 
@@ -448,7 +448,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             authUtils.hasUserOrAdminRole();
             times = 1;
-            errorService.createErrorLogSending((EbMS3Exception) any, null);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
         }};
 
@@ -533,7 +533,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            errorService.createErrorLogSending((EbMS3Exception) any, userMessage);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, userMessage);
             times = 1;
         }};
 
@@ -604,7 +604,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            errorService.createErrorLogSending((EbMS3Exception) any, userMessage);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, userMessage);
             times = 1;
         }};
     }
@@ -661,7 +661,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            errorService.createErrorLogSending((EbMS3Exception) any, userMessage);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, userMessage);
             times = 1;
 
         }};
@@ -1043,7 +1043,7 @@ public class DatabaseMessageHandlerTest {
 
             list.add(errorLogEntry);
 
-            errorService.getErrors(MESS_ID);
+            errorLogService.getErrors(MESS_ID);
             result = list;
 
         }};
@@ -1053,7 +1053,7 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            errorService.getErrors(MESS_ID);
+            errorLogService.getErrors(MESS_ID);
             Assert.assertNotNull(results);
             ErrorResult errRes = results.iterator().next();
             Assert.assertEquals(ErrorCode.EBMS_0008, errRes.getErrorCode());

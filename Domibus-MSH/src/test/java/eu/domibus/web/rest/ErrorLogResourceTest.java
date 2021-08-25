@@ -8,7 +8,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
@@ -37,7 +37,7 @@ public class ErrorLogResourceTest {
     ErrorLogResource errorLogResource;
 
     @Injectable
-    ErrorService errorService;
+    ErrorLogService errorLogService;
 
     @Injectable
     DateUtil dateUtil;
@@ -66,10 +66,10 @@ public class ErrorLogResourceTest {
         resultList.add(errorLogEntry);
 
         new Expectations() {{
-            errorService.countEntries((HashMap<String, Object>) any);
+            errorLogService.countEntries((HashMap<String, Object>) any);
             result = 1;
 
-            errorService.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
+            errorLogService.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = resultList;
         }};
 
@@ -124,7 +124,7 @@ public class ErrorLogResourceTest {
         errorLogRO.setNotified(date);
         errorLogROEntries.add(errorLogRO);
         new Expectations() {{
-            errorService.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
+            errorLogService.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
 
             auditLogCoreMapper.errorLogEntryListToErrorLogROList(errorLogEntries);

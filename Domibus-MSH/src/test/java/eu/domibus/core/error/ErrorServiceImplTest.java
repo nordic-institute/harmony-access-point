@@ -31,7 +31,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class ErrorServiceImplTest {
 
     @Tested
-    ErrorServiceImpl errorService;
+    ErrorLogServiceImpl errorService;
 
     @Injectable
     private ErrorLogDao errorLogDao;

@@ -5,7 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -31,7 +31,7 @@ public class FaultOutHandler extends AbstractFaultHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultOutHandler.class);
 
     @Autowired
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Autowired
     private SoapUtil soapUtil;
@@ -75,7 +75,7 @@ public class FaultOutHandler extends AbstractFaultHandler {
 
         //save to database
         LOG.debug("An ebMS3 error was received for message with ebMS3 messageId [{}]. Please check the database for more detailed information.", messageId);
-        this.errorService.createErrorLog(ebms3Messaging, MSHRole.SENDING);
+        this.errorLogService.createErrorLog(ebms3Messaging, MSHRole.SENDING, null);
 
         return true;
     }

@@ -8,7 +8,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
@@ -42,7 +42,7 @@ public class FaultInHandler extends AbstractFaultHandler {
     private EbMS3MessageBuilder messageBuilder;
 
     @Autowired
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
@@ -155,7 +155,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         try {
             soapMessageWithEbMS3Error = this.messageBuilder.buildSOAPFaultMessage(ebMS3Exception.getFaultInfoError());
         } catch (final EbMS3Exception e) {
-            errorService.createErrorLog(e, MSHRole.RECEIVING);
+            errorLogService.createErrorLog(e, MSHRole.RECEIVING, null);
         }
         context.setMessage(soapMessageWithEbMS3Error);
 
@@ -175,7 +175,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         //log the raw xml Signal message
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
-        errorService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING);
+        errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
     }
 
     @Override

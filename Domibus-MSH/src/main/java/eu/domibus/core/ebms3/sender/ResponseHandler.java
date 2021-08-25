@@ -11,7 +11,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -40,7 +40,7 @@ public class ResponseHandler {
     private final NonRepudiationService nonRepudiationService;
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
-    private final ErrorService errorService;
+    private final ErrorLogService errorLogService;
     protected Ebms3Converter ebms3Converter;
     protected UserMessageDao userMessageDao;
 
@@ -49,7 +49,7 @@ public class ResponseHandler {
                            NonRepudiationService nonRepudiationService,
                            SignalMessageDao signalMessageDao,
                            MessageUtil messageUtil,
-                           ErrorService errorService,
+                           ErrorLogService errorLogService,
                            Ebms3Converter ebms3Converter,
                            UserMessageDao userMessageDao) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
@@ -57,7 +57,7 @@ public class ResponseHandler {
         this.nonRepudiationService = nonRepudiationService;
         this.signalMessageDao = signalMessageDao;
         this.messageUtil = messageUtil;
-        this.errorService = errorService;
+        this.errorLogService = errorLogService;
         this.ebms3Converter = ebms3Converter;
         this.userMessageDao = userMessageDao;
     }
@@ -129,11 +129,11 @@ public class ResponseHandler {
 
                 LOGGER.warn("Creating warning error with error code [{}], error detail [{}] and refToMessageInError [{}]", errorCode, errorDetail, refToMessageInError);
 
-                this.errorService.createErrorLogSending(EbMS3ExceptionBuilder.getInstance()
+                this.errorLogService.createErrorLog(EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(errorCode))
                         .message(errorDetail)
                         .refToMessageId(refToMessageInError)
-                        .build(), userMessage);
+                        .build(), MSHRole.SENDING, userMessage);
             }
         }
     }

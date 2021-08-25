@@ -30,21 +30,21 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * Service in charge or persisting errors.
  */
 @Service
-public class ErrorServiceImpl implements ErrorService {
+public class ErrorLogServiceImpl implements ErrorLogService {
 
     protected ErrorLogDao errorLogDao;
     protected DomibusPropertyProvider domibusPropertyProvider;
     protected MshRoleDao mshRoleDao;
-    private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
+    protected ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
 
-    public ErrorServiceImpl(ErrorLogDao errorLogDao,
-                            DomibusPropertyProvider domibusPropertyProvider,
-                            MshRoleDao mshRoleDao,
-                            ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil) {
-        this.errorLogDao = errorLogDao;
-        this.domibusPropertyProvider = domibusPropertyProvider;
-        this.mshRoleDao = mshRoleDao;
+    public ErrorLogServiceImpl(ErrorLogDao errorLogDao,
+                               DomibusPropertyProvider domibusPropertyProvider,
+                               MshRoleDao mshRoleDao,
+                               ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil) {
         this.errorLogEntryTruncateUtil = errorLogEntryTruncateUtil;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.errorLogDao = errorLogDao;
+        this.mshRoleDao = mshRoleDao;
     }
     
     public void create(ErrorLogEntry errorLogEntry) {
@@ -59,9 +59,9 @@ public class ErrorServiceImpl implements ErrorService {
     
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createErrorLogSending(EbMS3Exception exception, UserMessage userMessage) {
+    public void createErrorLog(EbMS3Exception exception, MSHRole mshRole, UserMessage userMessage) {
         ErrorLogEntry errorLogEntry = new ErrorLogEntry(exception);
-        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        MSHRoleEntity role = mshRoleDao.findOrCreate(mshRole);
         errorLogEntry.setMshRole(role);
         errorLogEntry.setUserMessage(userMessage);
         create(errorLogEntry);
@@ -69,7 +69,7 @@ public class ErrorServiceImpl implements ErrorService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createErrorLog(Ebms3Messaging ebms3Messaging, MSHRole mshRole) {
+    public void createErrorLog(Ebms3Messaging ebms3Messaging, MSHRole mshRole, UserMessage userMessage) {
         ErrorLogEntry errorLogEntry = ErrorLogEntry.parse(ebms3Messaging);
         MSHRoleEntity role = mshRoleDao.findOrCreate(mshRole);
         errorLogEntry.setMshRole(role);
@@ -86,15 +86,6 @@ public class ErrorServiceImpl implements ErrorService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createErrorLog(EbMS3Exception exception, MSHRole mshRole) {
-        ErrorLogEntry errorLogEntry = new ErrorLogEntry(exception);
-        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
-        errorLogEntry.setMshRole(role);
-        create(errorLogEntry);
-    }
-
-    @Override
     public void deleteErrorLogWithoutMessageIds() {
         int days = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS);
         int batchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE);
@@ -102,8 +93,8 @@ public class ErrorServiceImpl implements ErrorService {
         errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days, batchSize);
     }
 
-    @Timer(clazz = ErrorServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
-    @Counter(clazz = ErrorServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
+    @Timer(clazz = ErrorLogServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
+    @Counter(clazz = ErrorLogServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     @Override
     public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {
         return errorLogDao.deleteErrorLogsByMessageIdInError(messageIds);
@@ -111,27 +102,12 @@ public class ErrorServiceImpl implements ErrorService {
 
     @Override
     public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
-        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
-        initializeChildren(errorsForMessage);
-        return errorsForMessage;
+        return errorLogDao.getErrorsForMessage(messageId);
     }
 
     @Override
     public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
-        List<ErrorLogEntry> list = errorLogDao.findPaged(from, max, sortColumn, asc, filters);
-        initializeChildren(list);
-        return list;
-    }
-
-    private void initializeChildren(List<ErrorLogEntry> errorLogEntries) {
-        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
-            initializeChildren(errorLogEntry);
-        }
-    }
-
-    private void initializeChildren(ErrorLogEntry errorLogEntry) {
-        //initialize values from the second level cache
-        errorLogEntry.getMshRole();
+        return errorLogDao.findPaged(from, max, sortColumn, asc, filters);
     }
 
     @Override

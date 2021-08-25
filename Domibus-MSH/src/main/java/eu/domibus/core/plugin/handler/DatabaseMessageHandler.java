@@ -13,7 +13,7 @@ import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -102,7 +102,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private PayloadFileStorageProvider storageProvider;
 
     @Autowired
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -254,7 +254,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        return errorService.getErrors(messageId);
+        return errorLogService.getErrors(messageId);
     }
 
     //TODO refactor this method in order to reuse existing code from the method submit
@@ -316,11 +316,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorService.createErrorLogSending(ebms3Ex, userMessage);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            errorService.createErrorLogSending(messageId, ErrorCode.EBMS_0010, p.getMessage(), userMessage);
+            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0010, p.getMessage(), userMessage);
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }
@@ -459,15 +459,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorService.createErrorLogSending(ebms3Ex, userMessage);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, p.getMessage(), userMessage);
+            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, p.getMessage(), userMessage);
             throw new PModeMismatchException(p.getMessage(), p);
         } catch (ConfigurationException ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
-            errorService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, ex.getMessage(), userMessage);
+            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, ex.getMessage(), userMessage);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }

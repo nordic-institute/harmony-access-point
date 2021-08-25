@@ -8,7 +8,7 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -67,7 +67,7 @@ public class TestService {
     private SignalMessageDao signalMessageDao;
 
     @Autowired
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
@@ -264,7 +264,7 @@ public class TestService {
     }
 
     protected String getErrorsForMessage(String userMessageId) {
-        List<ErrorLogEntry> errorLogEntries = errorService.getErrorsForMessage(userMessageId);
+        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
         return errorLogEntries.stream()
                 .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
                 .collect(Collectors.joining(", "));

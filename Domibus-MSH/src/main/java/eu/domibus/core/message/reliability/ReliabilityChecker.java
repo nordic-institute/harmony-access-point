@@ -14,7 +14,7 @@ import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.ResponseResult;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -66,7 +66,7 @@ public class ReliabilityChecker {
     protected PModeProvider pModeProvider;
 
     @Autowired
-    protected ErrorService errorService;
+    protected ErrorLogService errorLogService;
 
     @Autowired
     protected ReliabilityMatcher pushMatcher;
@@ -289,7 +289,7 @@ public class ReliabilityChecker {
     public void handleEbms3Exception(final EbMS3Exception exceptionToHandle, final UserMessage userMessage) {
         exceptionToHandle.setRefToMessageId(userMessage.getMessageId());
 
-        this.errorService.createErrorLogSending(exceptionToHandle, userMessage);
+        this.errorLogService.createErrorLog(exceptionToHandle, MSHRole.SENDING, userMessage);
         // The backends are notified that an error occurred in the UpdateRetryLoggingService
     }
 }

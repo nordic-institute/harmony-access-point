@@ -14,7 +14,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
@@ -77,7 +77,7 @@ public class AbstractEbms3UserMessageSenderTest {
     protected UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    protected ErrorService errorService;
+    protected ErrorLogService errorLogService;
 
     @Injectable
     protected MshRoleDao mshRoleDao;
@@ -285,7 +285,7 @@ public class AbstractEbms3UserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
-            errorService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), userMessage);
+            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), userMessage);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
         }};

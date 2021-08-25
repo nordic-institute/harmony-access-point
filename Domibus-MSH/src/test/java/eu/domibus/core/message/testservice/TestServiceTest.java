@@ -7,7 +7,7 @@ import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -50,7 +50,7 @@ public class TestServiceTest {
     private UserMessageLog userMessageLog;
 
     @Injectable
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Injectable
     private DatabaseMessageHandler databaseMessageHandler;

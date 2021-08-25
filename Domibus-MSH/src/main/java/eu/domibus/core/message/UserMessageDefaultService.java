@@ -20,7 +20,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -152,8 +152,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     protected DatabaseMessageHandler databaseMessageHandler;
+
     @Autowired
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Autowired
     MessageConverterService messageConverterService;
@@ -590,7 +591,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] attempts.", deleteResult);
 
 
-        deleteResult = errorService.deleteErrorLogsByMessageIdInError(userMessageIds);
+        deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(userMessageIds);
         LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
         LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
