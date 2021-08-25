@@ -422,7 +422,7 @@ public class JMSManagerImpl implements JMSManager {
 
         if (StringUtils.endsWithAny(queue.getName(),
                 "." + queueName, "@" + queueName, "!" + queueName, "@" + shortQueueName, "!" + shortQueueName)) {
-            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), queueName);
+            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), queueName);
             return true;
         }
         return false;
