@@ -143,7 +143,6 @@ public class CompressionService {
                 }
             }
 
-
             if (!payloadCompressed) {
                 LOG.debug("Decompression is not needed: payload is not compressed");
                 continue;

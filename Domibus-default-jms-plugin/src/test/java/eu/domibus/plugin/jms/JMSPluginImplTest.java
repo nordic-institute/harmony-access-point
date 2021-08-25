@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
+import org.springframework.jms.support.destination.JndiDestinationResolver;
 
 import javax.jms.MapMessage;
 
@@ -77,6 +78,9 @@ public class JMSPluginImplTest {
 
     @Injectable
     protected JMSMessageTransformer jmsMessageTransformer;
+
+    @Injectable
+    protected JndiDestinationResolver jndiDestinationResolver;
 
     @Injectable
     protected MetricRegistry metricRegistry;

@@ -28,6 +28,7 @@ public abstract class JMSPluginApplicationServerConfiguration {
         LOG.debug("Creating jndiDestinationResolver bean");
         JndiDestinationResolver jndiDestinationResolver = new JndiDestinationResolver();
         jndiDestinationResolver.setFallbackToDynamicDestination(true);
+        jndiDestinationResolver.setCache(true);
         return jndiDestinationResolver;
     }
 
