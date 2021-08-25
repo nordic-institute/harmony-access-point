@@ -37,6 +37,9 @@ public class ErrorServiceImplTest {
     private ErrorLogDao errorLogDao;
 
     @Injectable
+    protected ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
+
+    @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
