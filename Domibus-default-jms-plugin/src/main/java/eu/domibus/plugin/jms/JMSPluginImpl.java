@@ -22,12 +22,10 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Session;
+import javax.jms.*;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -49,13 +47,15 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     protected JmsOperations mshToBackendTemplate;
     protected JMSMessageTransformer jmsMessageTransformer;
     protected MetricRegistry metricRegistry;
+    protected JndiDestinationResolver jndiDestinationResolver;
 
     public JMSPluginImpl(MetricRegistry metricRegistry,
                          JMSExtService jmsExtService,
                          DomainContextExtService domainContextExtService,
                          JMSPluginQueueService jmsPluginQueueService,
                          JmsOperations mshToBackendTemplate,
-                         JMSMessageTransformer jmsMessageTransformer) {
+                         JMSMessageTransformer jmsMessageTransformer,
+                         JndiDestinationResolver jndiDestinationResolver) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
@@ -63,6 +63,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         this.mshToBackendTemplate = mshToBackendTemplate;
         this.jmsMessageTransformer = jmsMessageTransformer;
         this.metricRegistry = metricRegistry;
+        this.jndiDestinationResolver = jndiDestinationResolver;
     }
 
     @Override
@@ -146,7 +147,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
         final String queueValue = jmsPluginQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
+        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId, queueValue));
     }
 
     @Override
@@ -215,13 +216,16 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     private class DownloadMessageCreator implements MessageCreator {
         private String messageId;
+        private String destination;
 
-        public DownloadMessageCreator(final String messageId) {
+        public DownloadMessageCreator(final String messageId, String destination) {
+
             this.messageId = messageId;
+            this.destination = destination;
         }
 
         @Override
-        public Message createMessage(final Session session) throws JMSException {
+        public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
                 downloadMessage(messageId, mapMessage);
@@ -231,6 +235,17 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             mapMessage.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, JMSMessageConstants.MESSAGE_TYPE_INCOMING);
             final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
             mapMessage.setStringProperty(MessageConstants.DOMAIN, currentDomain.getCode());
+
+            String queueName = destination;
+            if (jndiDestinationResolver != null) {
+                Destination jmsDestination = jndiDestinationResolver.resolveDestinationName(session, destination, false);
+                LOG.debug("Jms destination [{}] resolved to: [{}]", destination, jmsDestination);
+                if (jmsDestination instanceof Queue) {
+                    queueName = ((Queue) jmsDestination).getQueueName();
+                }
+            }
+            mapMessage.setStringProperty(JMSMessageConstants.PROPERTY_ORIGINAL_QUEUE, queueName);
+
             return mapMessage;
         }
     }

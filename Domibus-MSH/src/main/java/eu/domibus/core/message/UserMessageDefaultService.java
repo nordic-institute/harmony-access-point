@@ -255,6 +255,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
+    @Transactional
     @Override
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);

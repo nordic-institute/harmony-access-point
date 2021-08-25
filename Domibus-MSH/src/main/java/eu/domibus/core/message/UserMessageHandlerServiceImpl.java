@@ -524,7 +524,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");
 
-         final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
+        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
 
         List<PartInfo> partInfoList = getPartInfoList(ebms3Messaging);
         if (ebms3MessageFragmentType != null) {

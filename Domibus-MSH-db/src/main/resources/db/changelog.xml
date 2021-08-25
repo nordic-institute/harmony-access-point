@@ -1188,6 +1188,9 @@
         <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_ID" tableName="TB_ERROR_LOG">
+            <column name="ERROR_SIGNAL_MESSAGE_ID"/>
+        </createIndex>
 
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
             <column name="VERSION" type="VARCHAR(30)"/>
