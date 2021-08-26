@@ -10,15 +10,15 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,10 +34,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_T
 public class DomainDaoImpl implements DomainDao {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainDaoImpl.class);
-
-    private static final String[] DOMAIN_FILE_EXTENSION = {"properties"};
-    private static final String DOMAIN_FILE_SUFFIX = "-domibus";
-    public static final String SUPER = "super";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -58,23 +54,19 @@ public class DomainDaoImpl implements DomainDao {
             return result;
         }
 
-        final String propertyValue = domibusConfigurationService.getConfigLocation();
-        File confDirectory = new File(propertyValue);
-        final Collection<File> propertyFiles = FileUtils.listFiles(confDirectory, DOMAIN_FILE_EXTENSION, false);
+        final String configLocation = domibusConfigurationService.getConfigLocation();
+        File confDirectory = Paths.get(configLocation, DomainService.DOMAINS_HOME).toFile();
+        final File[] domainHomes = confDirectory.listFiles(File::isDirectory);
 
-        if (propertyFiles == null) {
-            LOG.trace("Could not find any files with extension [{}] in directory [{}]", DOMAIN_FILE_EXTENSION, confDirectory);
+        if (domainHomes == null) {
+            LOG.warn("Invalid domains path: [{}]", confDirectory);
             return result;
         }
 
-        List<String> fileNames = propertyFiles.stream().map(file -> file.getName())
-                .filter(fileName -> StringUtils.containsIgnoreCase(fileName, DOMAIN_FILE_SUFFIX))
-                .filter(fileName -> !StringUtils.containsIgnoreCase(fileName, SUPER)).collect(Collectors.toList());
+        List<String> domainCodes = Arrays.stream(domainHomes).map(File::getName).collect(Collectors.toList());
 
         List<Domain> domains = new ArrayList<>();
-        for (String fileName : fileNames) {
-            LOG.trace("Getting domain code from file [{}]", fileName);
-            String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
+        for (String domainCode : domainCodes) {
             if (isValidDomain(domains, domainCode)) {
                 Domain domain = new Domain();
                 domain.setCode(domainCode.toLowerCase());

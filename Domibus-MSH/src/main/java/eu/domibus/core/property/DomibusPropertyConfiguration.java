@@ -56,7 +56,13 @@ public class DomibusPropertyConfiguration {
         Resource domibusProperties = resolver.getResource("file:///" + domibusConfigLocation + "/domibus.properties");
         resources.add(domibusProperties);
 
-        Resource[] domainProperties = resolver.getResources("file:///" + domibusConfigLocation + "/*-domibus.properties");
+        Resource superProperties = resolver.getResource("file:///" + domibusConfigLocation + "/super-domibus.properties");
+        if (superProperties.exists()) {
+            LOG.debug("Adding the super properties file [{}]", superProperties);
+            resources.add(superProperties);
+        }
+
+        Resource[] domainProperties = resolver.getResources("file:///" + domibusConfigLocation + "/domains/*/domibus.properties");
         LOG.debug("Adding the following domain properties files [{}]", domainProperties);
         resources.addAll(Arrays.asList(domainProperties));
 
