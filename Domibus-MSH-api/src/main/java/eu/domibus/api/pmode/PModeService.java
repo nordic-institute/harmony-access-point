@@ -12,7 +12,7 @@ public interface PModeService {
 
     LegConfiguration getLegConfiguration(String messageId) throws PModeException;
 
-    byte[] getPModeFile(int id);
+    byte[] getPModeFile(long id);
 
     PModeArchiveInfo getCurrentPMode();
 

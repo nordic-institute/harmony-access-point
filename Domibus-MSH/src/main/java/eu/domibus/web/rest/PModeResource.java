@@ -128,7 +128,7 @@ public class PModeResource extends BaseResource {
         }
         try {
             for (String pModeId : pModeIds) {
-                pModeProvider.removePMode(Integer.parseInt(pModeId));
+                pModeProvider.removePMode(Long.parseLong(pModeId));
             }
         } catch (Exception ex) {
             LOG.error("Impossible to delete PModes", ex);
@@ -139,7 +139,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Integer id) {
+    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Long id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);

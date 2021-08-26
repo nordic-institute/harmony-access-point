@@ -289,7 +289,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public void removePMode(int id) {
+    public void removePMode(long id) {
         getCurrentPModeProvider().removePMode(id);
     }
 
