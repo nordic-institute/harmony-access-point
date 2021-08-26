@@ -16,7 +16,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -54,16 +53,10 @@ public class DomainDaoImpl implements DomainDao {
             return result;
         }
 
-        final String configLocation = domibusConfigurationService.getConfigLocation();
-        File confDirectory = Paths.get(configLocation, DomainService.DOMAINS_HOME).toFile();
-        final File[] domainHomes = confDirectory.listFiles(File::isDirectory);
-
-        if (domainHomes == null) {
-            LOG.warn("Invalid domains path: [{}]", confDirectory);
+        List<String> domainCodes = findAllDomainCodes();
+        if (domainCodes == null) {
             return result;
         }
-
-        List<String> domainCodes = Arrays.stream(domainHomes).map(File::getName).collect(Collectors.toList());
 
         List<Domain> domains = new ArrayList<>();
         for (String domainCode : domainCodes) {
@@ -85,6 +78,17 @@ public class DomainDaoImpl implements DomainDao {
         LOG.trace("Found the following domains [{}]", result);
 
         return result;
+    }
+
+    protected List<String> findAllDomainCodes() {
+        final String configLocation = domibusConfigurationService.getConfigLocation();
+        File confDirectory = new File(configLocation + File.separator + DomainService.DOMAINS_HOME);
+        final File[] domainHomes = confDirectory.listFiles(File::isDirectory);
+        if (domainHomes == null) {
+            LOG.warn("Invalid domains path: [{}]", confDirectory);
+            return null;
+        }
+        return Arrays.stream(domainHomes).map(File::getName).collect(Collectors.toList());
     }
 
     protected boolean isValidDomain(List<Domain> domains, String domainCode) {
