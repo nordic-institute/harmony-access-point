@@ -93,7 +93,7 @@ public abstract class PModeProvider {
 
     public abstract boolean isConfigurationLoaded();
 
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         return getRawConfigurationBytes(rawConfiguration);
     }

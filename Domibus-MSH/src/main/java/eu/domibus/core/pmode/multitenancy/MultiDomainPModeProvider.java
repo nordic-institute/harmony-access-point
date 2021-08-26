@@ -274,7 +274,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         return getCurrentPModeProvider().getPModeFile(id);
     }
 

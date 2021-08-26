@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public class PModeResponseRO {
 
-    private int id;
+    private String id;
     private Date configurationDate;
     private String username;
     private String description;
@@ -21,18 +21,18 @@ public class PModeResponseRO {
     public PModeResponseRO() {
     }
 
-    public PModeResponseRO(int id, Date configurationDate, String username, String description) {
-        setId(id);
+    public PModeResponseRO(long id, Date configurationDate, String username, String description) {
+        setId("" + id);
         setConfigurationDate(configurationDate);
         setUsername(username);
         setDescription(description);
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
