@@ -3,7 +3,7 @@ package eu.domibus.core.security;
 import eu.domibus.api.util.AOPUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.CoreServiceExceptionInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -49,24 +49,43 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                 switch (a.getAuthorizationError()) {
                     case INVALID_FORMAT:
                         LOG.error("Invalid incoming message format during authorization:[{}]", a.getMessage());
-                        return new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, a.getMessage(), a.getMessageId(), null);
+                        return EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                                .message(a.getMessage())
+                                .refToMessageId(a.getMessageId())
+                                .build();
                     case AUTHORIZATION_REJECTED:
                         LOG.error("Authorization for incoming message was not granted:[{}]", a.getMessage());
-                        return new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "A0001:Authorization to access the targeted application refused to sender.", a.getMessageId(), null);
+                        return EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                                .message("A0001:Authorization to access the targeted application refused to sender.")
+                                .refToMessageId(a.getMessageId())
+                                .build();
                     case AUTHORIZATION_MODULE_CONFIGURATION_ISSUE:
                     case AUTHORIZATION_SYSTEM_DOWN:
                         LOG.error("Technical issue with the authorization module:[{}]", a.getMessage());
-                        return new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "A0003:Technical issue.", a.getMessageId(), null);
+                        return EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                                .message("A0003:Technical issue.")
+                                .refToMessageId(a.getMessageId())
+                                .build();
                     case AUTHORIZATION_CONNECTION_REJECTED:
                         LOG.error("Connection credential to Authorization was rejected:[{}]", a.getMessage());
-                        return new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "A0002:Technical issue.", a.getMessageId(), null);
+                        return EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                                .message("A0002:Technical issue.")
+                                .refToMessageId(a.getMessageId())
+                                .build();
                     default:
                         LOG.warn("Unknown authorization error:[{}]", a.getAuthorizationError());
                 }
             }
         }
         LOG.error("Authorization module Unforeseen error:[{}]", e.getMessage(), e);
-        return new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "A0003:Technical issue.", null, null);
+        return EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                .message("A0003:Technical issue.")
+                .build();
     }
 
     @Override

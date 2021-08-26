@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -211,9 +212,12 @@ public class PartInfoServiceImpl implements PartInfoService {
             for (final Property property : partInfo.getPartProperties()) {
                 if (Property.CHARSET.equalsIgnoreCase(property.getName()) && !Property.CHARSET_PATTERN.matcher(property.getValue()).matches()) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, property.getValue(), userMessage.getMessageId());
-                    EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, property.getValue() + " is not a valid Charset", userMessage.getMessageId(), null);
-                    ex.setMshRole(MSHRole.RECEIVING);
-                    throw ex;
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                            .message(property.getValue() + " is not a valid Charset")
+                            .refToMessageId( userMessage.getMessageId())
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
                 }
             }
         }

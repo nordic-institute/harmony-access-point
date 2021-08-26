@@ -14,6 +14,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -208,9 +209,12 @@ public class PullMessageSender {
         try {
             return policyService.getPolicy(legConfiguration);
         } catch (final ConfigurationException e) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Policy configuration invalid", null, e);
-            ex.setMshRole(MSHRole.SENDING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("Policy configuration invalid")
+                    .cause(e)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
     }
 

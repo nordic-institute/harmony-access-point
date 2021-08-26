@@ -1,39 +1,35 @@
 package eu.domibus.core.error;
 
 import eu.domibus.api.model.MSHRoleEntity;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.ListDao;
-import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Repository
-@Transactional
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
+@Repository
+@Transactional
 public class ErrorLogDao extends ListDao<ErrorLogEntry> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
-
-    @Autowired
-    private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
 
     public ErrorLogDao() {
         super(ErrorLogEntry.class);
@@ -43,32 +39,12 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
         query.setParameter("MESSAGE_ID", messageId);
 
-        List<ErrorLogEntry> list = query.getResultList();
-        initializeChildren(list);
-        return list;
-    }
-
-    @Override
-    public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
-        List<ErrorLogEntry> list = super.findPaged(from, max, sortColumn, asc, filters);
-        initializeChildren(list);
-        return list;
-    }
-
-    private void initializeChildren(List<ErrorLogEntry> errorLogEntries) {
-        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
-            initializeChildren(errorLogEntry);
-        }
-    }
-
-    private void initializeChildren(ErrorLogEntry errorLogEntry) {
-        //initialize values from the second level cache
-        errorLogEntry.getMshRole();
+        return initializeChildren(query.getResultList());
     }
 
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<ErrorLogEntry> ele) {
-        List<Predicate> predicates = new ArrayList<Predicate>();
+        List<Predicate> predicates = new ArrayList<>();
         for (final Map.Entry<String, Object> filter : filters.entrySet()) {
             if (filter.getValue() != null) {
                 if (filter.getKey().equals("mshRole")) {
@@ -80,7 +56,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
                             case "":
                                 break;
                             default:
-                                predicates.add(cb.like(ele.<String>get(filter.getKey()), (String) filter.getValue()));
+                                predicates.add(cb.like(ele.get(filter.getKey()), (String) filter.getValue()));
                                 break;
                         }
                     }
@@ -102,7 +78,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
                                 predicates.add(cb.lessThanOrEqualTo(ele.<Date>get("notified"), (Timestamp) filter.getValue()));
                                 break;
                             default:
-                                predicates.add(cb.like(ele.<String>get(filter.getKey()), (String) filter.getValue()));
+                                predicates.add(cb.like(ele.get(filter.getKey()), (String) filter.getValue()));
                                 break;
                         }
                     }
@@ -114,19 +90,6 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         return predicates;
     }
 
-    @Override
-    public void create(ErrorLogEntry errorLogEntry) {
-        errorLogEntryTruncateUtil.truncate(errorLogEntry);
-        if(errorLogEntry.getUserMessage() == null) {
-            UserMessage um = new UserMessage();
-            um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
-            errorLogEntry.setUserMessage(um);
-        }
-        super.create(errorLogEntry);
-    }
-
-    @Timer(clazz = ErrorLogDao.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
-    @Counter(clazz = ErrorLogDao.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageIdsInError");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
@@ -159,4 +122,22 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         }
         return result;
     }
+
+    @Override
+    public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
+        return initializeChildren(super.findPaged(from, max, sortColumn, asc, filters));
+    }
+
+    private List<ErrorLogEntry> initializeChildren(List<ErrorLogEntry> errorLogEntries) {
+        for (ErrorLogEntry errorLogEntry : errorLogEntries) {
+            initializeChildren(errorLogEntry);
+        }
+        return errorLogEntries;
+    }
+
+    private void initializeChildren(ErrorLogEntry errorLogEntry) {
+        //initialize values from the second level cache
+        errorLogEntry.getMshRole();
+    }
+
 }

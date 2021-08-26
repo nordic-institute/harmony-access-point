@@ -1,8 +1,12 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageProperty;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -61,9 +65,12 @@ public class MessagePropertyValidator {
     protected void validateProperty(String name, String value, String type, MSHRole mshRole, String messageId) throws EbMS3Exception {
         if (value != null && value.length() > Property.VALUE_MAX_SIZE) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PROPERTY_SIZE_EXCEEDED, name, Property.VALUE_MAX_SIZE);
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, name + " property has a value which exceeds " + Property.VALUE_MAX_SIZE + " characters size.", messageId, null);
-            ex.setMshRole(mshRole);
-            throw ex;
+            throw  EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message(name + " property has a value which exceeds " + Property.VALUE_MAX_SIZE + " characters size.")
+                    .refToMessageId(messageId)
+                    .mshRole(mshRole)
+                    .build();
         }
     }
 }

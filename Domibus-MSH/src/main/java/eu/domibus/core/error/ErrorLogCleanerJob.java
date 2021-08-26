@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ErrorLogCleanerJob extends DomibusQuartzJobBean {
 
     @Autowired
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        errorService.deleteErrorLogWithoutMessageIds();
+        errorLogService.deleteErrorLogWithoutMessageIds();
     }
 }

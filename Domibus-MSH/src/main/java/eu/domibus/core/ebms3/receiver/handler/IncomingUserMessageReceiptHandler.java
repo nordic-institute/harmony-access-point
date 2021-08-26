@@ -7,6 +7,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
@@ -97,8 +98,11 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
             LOG.error("Received a UserMessage receipt for an already acknowledged message with status [{}]", userMessageLog.getMessageStatus());
-            EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, String.format("UserMessage with ID [%s] is already acknowledged", messageId), messageId, null);
-            return messageBuilder.getSoapMessage(ebMS3Exception);
+            return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
+                    .message(String.format("UserMessage with ID [%s] is already acknowledged", messageId))
+                    .refToMessageId(messageId)
+                    .build());
         }
 
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
@@ -120,11 +124,11 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         } catch (final SOAPFaultException soapFEx) {
             LOG.error("A SOAP fault occurred when handling receipt for message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
-                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
+                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), sentUserMessage);
             }
         } catch (final EbMS3Exception e) {
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
-            reliabilityChecker.handleEbms3Exception(e, messageId);
+            reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
         } finally {
             reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
         }

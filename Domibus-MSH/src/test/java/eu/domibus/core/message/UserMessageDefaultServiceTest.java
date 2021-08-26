@@ -17,7 +17,7 @@ import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.converter.MessageCoreMapper;
-import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -167,7 +167,7 @@ public class UserMessageDefaultServiceTest {
     private MessageAttemptDao messageAttemptDao;
 
     @Injectable
-    private ErrorLogDao errorLogDao;
+    private ErrorLogService errorLogService;
 
     @Injectable
     private MessagePropertyDao propertyDao;

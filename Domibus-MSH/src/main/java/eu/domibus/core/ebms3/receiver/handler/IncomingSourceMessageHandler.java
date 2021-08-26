@@ -1,14 +1,14 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +41,12 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
 
         if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             LOG.error("SplitAndJoin feature needs payload storage on the file system");
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
+                    .message("SplitAndJoin feature needs payload storage on the file system")
+                    .refToMessageId(ebms3Messaging.getUserMessage().getMessageInfo().getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
 
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, null);

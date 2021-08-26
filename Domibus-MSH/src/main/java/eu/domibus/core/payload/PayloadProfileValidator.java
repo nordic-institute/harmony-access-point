@@ -1,11 +1,15 @@
 package eu.domibus.core.payload;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartProperty;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -64,7 +68,11 @@ public class PayloadProfileValidator {
         for (Property property : partInfo.getPartProperties()) {
             if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
                 if (!CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue(), messageId, null);
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0052)
+                            .message(CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue())
+                            .refToMessageId(messageId)
+                            .build();
                 }
                 compress = true;
             }
@@ -74,7 +82,11 @@ public class PayloadProfileValidator {
         }
 
         if (compress && mimeType == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0052, "Missing MimeType property when compressions is required", messageId, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0052)
+                    .message("Missing MimeType property when compressions is required")
+                    .refToMessageId(messageId)
+                    .build();
         }
     }
 
@@ -103,7 +115,11 @@ public class PayloadProfileValidator {
             }
             if (profiled == null) {
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_WITH_CID_MISSING, cid);
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling for this exchange does not include a payload with CID: " + cid, userMessage.getMessageId(), null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("Payload profiling for this exchange does not include a payload with CID: " + cid)
+                        .refToMessageId(userMessage.getMessageId())
+                        .build();
             }
             modifiableProfileList.remove(profiled);
 
@@ -120,13 +136,21 @@ public class PayloadProfileValidator {
 
             if (profiled.getMimeType() != null && (!StringUtils.equalsIgnoreCase(profiled.getMimeType(), mime)) ||
                     (partInfo.isInBody() != profiled.isInBody())) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error: expected: " + profiled + ", got " + partInfo, messageId, null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("Payload profiling error: expected: " + profiled + ", got " + partInfo)
+                        .refToMessageId(messageId)
+                        .build();
             }
         }
         for (final Payload payload : modifiableProfileList) {
             if (payload.isRequired()) {
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_MISSING, payload);
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Payload profiling error, missing payload:" + payload, messageId, null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("Payload profiling error, missing payload:" + payload)
+                        .refToMessageId(messageId)
+                        .build();
 
             }
         }

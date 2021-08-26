@@ -1,13 +1,12 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
-import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
-import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -71,9 +70,12 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
         try {
             domainCode = ServletRequestUtils.getStringParameter(httpRequest, "domain");
         } catch (ServletRequestBindingException e) {
-            EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could not determine the domain", null, null);
-            ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-            throw new Fault(new Exception("Could not determine the domain", e));
+            throw new Fault(new Exception("Could not determine the domain",
+                    EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                            .message("Could not determine the domain")
+                            .mshRole(MSHRole.RECEIVING)
+                            .build()));
         }
         if (StringUtils.isEmpty(domainCode)) {
             LOG.debug("No domain specified. Using the default domain");
