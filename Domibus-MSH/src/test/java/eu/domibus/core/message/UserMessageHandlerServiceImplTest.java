@@ -19,6 +19,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
@@ -645,7 +646,11 @@ public class UserMessageHandlerServiceImplTest {
             result = true;
 
             propertyProfileValidator.validate(userMessage, pmodeKey);
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property missing exception", "Message Id", null);
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("Property missing exception")
+                    .refToMessageId("Message Id")
+                    .build();
         }};
 
         try {

@@ -2,6 +2,7 @@
 package eu.domibus.plugin.ws;
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -38,6 +39,9 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         logEntry.setMessageInErrorId(messageId);
         logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         logEntry.setErrorCode(ErrorCode.EBMS_0004);
+        UserMessage um = new UserMessage();
+        um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
+        logEntry.setUserMessage(um);
         logEntry.setTimestamp(new Date());
         errorLogDao.create(logEntry);
 

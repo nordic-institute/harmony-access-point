@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -13,13 +14,10 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.common.model.configuration.Action;
-import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -46,7 +44,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -286,7 +286,11 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
 
             if ((StringUtils.equalsIgnoreCase(action, Ebms3Constants.TEST_ACTION) && (!StringUtils.equalsIgnoreCase(service, Ebms3Constants.TEST_SERVICE)))) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "ebMS3 Test Service: " + Ebms3Constants.TEST_SERVICE + " and ebMS3 Test Action: " + Ebms3Constants.TEST_ACTION + " can only be used together [CORE]", messageId, null);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message("ebMS3 Test Service: " + Ebms3Constants.TEST_SERVICE + " and ebMS3 Test Action: " + Ebms3Constants.TEST_ACTION + " can only be used together [CORE]")
+                        .refToMessageId(messageId)
+                        .build();
             }
 
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(agreementName, senderParty, receiverParty, service, action, leg, mpc);
@@ -300,7 +304,12 @@ public abstract class PModeProvider {
             throw e;
         } catch (IllegalStateException ise) {
             // It can happen if DB is clean and no pmodes are configured yet!
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode could not be found. Are PModes configured in the database?", messageId, ise);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("PMode could not be found. Are PModes configured in the database?")
+                    .refToMessageId(messageId)
+                    .cause(ise)
+                    .build();
         }
     }
 
@@ -308,9 +317,11 @@ public abstract class PModeProvider {
         String senderParty;
         PartyId fromPartyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
         if (fromPartyId == null) {
-            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field From PartyId is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/PartyId");
-            throw exception;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Mandatory field From PartyId is not provided.")
+                    .build();
         }
         try {
             senderParty = findPartyName(fromPartyId);
@@ -326,9 +337,11 @@ public abstract class PModeProvider {
     protected Role findInitiatorRole(UserMessage userMessage) throws EbMS3Exception {
         String initiatorRole = userMessage.getPartyInfo().getFrom().getRoleValue();
         if (StringUtils.isBlank(initiatorRole)) {
-            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Sender Role is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From/Role");
-            throw exception;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Mandatory field Sender Role is not provided.")
+                    .build();
         }
         return getBusinessProcessRole(initiatorRole);
     }
@@ -337,9 +350,11 @@ public abstract class PModeProvider {
         String receiverParty = StringUtils.EMPTY;
         final PartyId toPartyId = userMessage.getPartyInfo().getTo().getToPartyId();
         if (toPartyId == null) {
-            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field To PartyId is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
-            throw exception;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message( "Mandatory field To PartyId is not provided.")
+                    .build();
         }
         try {
             receiverParty = findPartyName(toPartyId);
@@ -361,9 +376,11 @@ public abstract class PModeProvider {
     protected Role findResponderRole(UserMessage userMessage) throws EbMS3Exception {
         String responderRole = userMessage.getPartyInfo().getTo().getRoleValue();
         if (StringUtils.isBlank(responderRole)) {
-            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Receiver Role is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To Role");
-            throw exception;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Mandatory field Receiver Role is not provided.")
+                    .build();
         }
         return getBusinessProcessRole(responderRole);
     }

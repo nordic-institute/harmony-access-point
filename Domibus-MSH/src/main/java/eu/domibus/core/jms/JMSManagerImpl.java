@@ -28,12 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.stereotype.Component;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Topic;
+import javax.management.ObjectName;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,6 +70,10 @@ public class JMSManagerImpl implements JMSManager {
 
     @Autowired
     private JMSDestinationMapper jmsDestinationMapper;
+
+    @Autowired(required = false)
+    @Qualifier("internalDestinationResolver")
+    private JndiDestinationResolver jndiDestinationResolver;
 
     @Autowired
     private JMSMessageMapper jmsMessageMapper;
@@ -270,8 +276,22 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected void addOriginalQueueToMessage(JmsMessage message, String destination) {
-        LOG.debug("Adding property originalQueue [{}]", destination);
-        message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, destination);
+        String queueName = destination;
+
+        try {
+            if (jndiDestinationResolver != null && destination != null) {
+                Destination jmsDestination = jndiDestinationResolver.resolveDestinationName(null, destination, false);
+                LOG.debug("Jms destination [{}] resolved to: [{}]", destination, jmsDestination);
+                if (jmsDestination instanceof Queue) {
+                    queueName = ((Queue) jmsDestination).getQueueName();
+                }
+            }
+        } catch (JMSException e) {
+            LOG.warn("Could not resolve jms destination [{}]", destination, e);
+        }
+
+        LOG.debug("Adding property originalQueue [{}]", queueName);
+        message.getProperties().put(JmsMessage.PROPERTY_ORIGINAL_QUEUE, queueName);
     }
 
     protected InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
@@ -359,20 +379,53 @@ public class JMSManagerImpl implements JMSManager {
         }
 
         Map<String, JMSDestination> destinations = getDestinations();
-        if (destinations.values().stream().noneMatch(dest -> StringUtils.equals(destination, dest.getName()))) {
+        JMSDestination destinationQueue = destinations.values().stream()
+                .filter(dest -> StringUtils.equals(destination, dest.getName()))
+                .findFirst().orElse(null);
+
+        if (destinationQueue == null) {
             throw new RequestValidationException("Cannot find destination with the name [" + destination + "].");
         }
+        LOG.debug("Destination queue found: [{}]", destinationQueue.getName());
 
         Arrays.stream(jmsMessageIds).forEach(msgId -> {
             InternalJmsMessage msg = internalJmsManager.getMessage(source, msgId);
             if (msg == null) {
                 throw new RequestValidationException("Cannot find the message with id [" + msgId + "].");
             }
-            String originalQueue = msg.getCustomProperties().get("originalQueue");
-            if (StringUtils.isNotEmpty(originalQueue) && !StringUtils.equals(destination, originalQueue)) {
+            String originalQueue = msg.getCustomProperties().get(JmsMessage.PROPERTY_ORIGINAL_QUEUE);
+            if (StringUtils.isNotEmpty(originalQueue) && !matchQueue(destinationQueue, originalQueue)) {
                 throw new RequestValidationException("Cannot move the message [" + msgId + "] to other than the original queue [" + originalQueue + "].");
             }
         });
+    }
+
+    protected boolean matchQueue(JMSDestination queue, String queueName) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Trying to match original queue name [{}] with queue [{}] [{}] [{}]", queueName, queue, queue.getName(), queue.getFullyQualifiedName());
+            if (queue.getProperties() != null) {
+                queue.getProperties().keySet().forEach(p -> {
+                    LOG.trace("Property [{}]: [{}]", p, queue.getProperty(p));
+                });
+            }
+        }
+
+        String shortQueueName = queueName.contains("!") ? queueName.substring(queueName.lastIndexOf('!') + 1) : queueName;
+        if (StringUtils.equalsAny(queue.getName(), queueName, shortQueueName)) {
+            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), queueName);
+            return true;
+        }
+        if (StringUtils.equals(queue.getFullyQualifiedName(), queueName)) {
+            LOG.trace("Queue FQ name [{}] is matching original queue [{}]", queue.getFullyQualifiedName(), queueName);
+            return true;
+        }
+
+        if (StringUtils.endsWithAny(queue.getName(),
+                "." + queueName, "@" + queueName, "!" + queueName, "@" + shortQueueName, "!" + shortQueueName)) {
+            LOG.trace("Queue name [{}] is matching original queue [{}]", queue.getName(), queueName);
+            return true;
+        }
+        return false;
     }
 
     protected List<JMSMessageDomainDTO> getJMSMessageDomain(String source, String[] messageIds) {

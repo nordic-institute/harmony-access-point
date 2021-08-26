@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
-import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.ClientInMessageLegConfigurationFactory;
@@ -58,8 +58,11 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         setBindingOperation(message);
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
 
-        EbMS3Exception ex = new EbMS3Exception(ebMS3ErrorCode, errorMessage, StringUtils.isNotBlank(messageId) ? messageId : "unknown", null);
-        ex.setMshRole(MSHRole.SENDING);
-        throw new Fault(ex);
+        throw new Fault(EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ebMS3ErrorCode)
+                .message(errorMessage)
+                .refToMessageId( StringUtils.isNotBlank(messageId) ? messageId : "unknown")
+                .mshRole(MSHRole.SENDING)
+                .build());
     }
 }

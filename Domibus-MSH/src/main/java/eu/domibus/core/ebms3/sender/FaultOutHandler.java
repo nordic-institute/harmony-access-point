@@ -2,13 +2,10 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -34,16 +31,13 @@ public class FaultOutHandler extends AbstractFaultHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultOutHandler.class);
 
     @Autowired
-    private ErrorLogDao errorLogDao;
+    private ErrorLogService errorLogService;
 
     @Autowired
     private SoapUtil soapUtil;
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
-
-    @Autowired
-    protected MshRoleDao mshRoleDao;
 
     @Override
     public Set<QName> getHeaders() {
@@ -81,8 +75,7 @@ public class FaultOutHandler extends AbstractFaultHandler {
 
         //save to database
         LOG.debug("An ebMS3 error was received for message with ebMS3 messageId [{}]. Please check the database for more detailed information.", messageId);
-        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
-        this.errorLogDao.create(ErrorLogEntry.parse(ebms3Messaging, role));
+        this.errorLogService.createErrorLog(ebms3Messaging, MSHRole.SENDING, null);
 
         return true;
     }

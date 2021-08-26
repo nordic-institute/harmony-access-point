@@ -7,6 +7,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
@@ -198,7 +199,11 @@ public class PullMessageEbms3ServiceImplTest {
 //            messageLog.getMpc();
 //            result = mpc;
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "", "", null);
+            result =  EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message("")
+                    .refToMessageId("")
+                    .build();
         }};
 
         pullMessageService.addPullMessageLock(userMessage, messageLog);

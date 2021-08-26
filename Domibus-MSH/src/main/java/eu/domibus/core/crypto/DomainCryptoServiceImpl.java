@@ -14,7 +14,7 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
@@ -146,11 +146,20 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
             AuthenticationError authenticationError = e.getAuthenticationError();
             switch (authenticationError) {
                 case EBMS_0101:
-                    EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender certificate is not valid or has been revoked", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e);
-                    ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-                    throw new WebServiceException(ebMS3Ex);
+                    throw new WebServiceException(EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
+                            .message("Sender certificate is not valid or has been revoked")
+                            .refToMessageId(LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID))
+                            .cause(e)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build());
                 default:
-                    throw new WebServiceException(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "unknown error occurred", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID), e));
+                    throw new WebServiceException(EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                            .message("unknown error occurred")
+                            .refToMessageId(LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID))
+                            .cause(e)
+                            .build());
             }
         }
     }

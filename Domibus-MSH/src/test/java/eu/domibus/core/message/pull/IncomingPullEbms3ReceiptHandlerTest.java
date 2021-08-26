@@ -7,6 +7,7 @@ import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
@@ -242,7 +243,11 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             result = MessageState.WAITING;
 
             incomingPullReceiptHandler.getSoapMessage(messageId, withAny(legConfiguration), withAny(userMessage));
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Payload in body must be valid XML", messageId, null);
+            result =  EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message("Payload in body must be valid XML")
+                    .refToMessageId(messageId)
+                    .build();;
         }};
 
         incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);

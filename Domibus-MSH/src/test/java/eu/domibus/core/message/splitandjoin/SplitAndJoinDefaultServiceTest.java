@@ -20,7 +20,7 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
@@ -136,7 +136,7 @@ public class SplitAndJoinDefaultServiceTest {
     protected MessageGroupService messageGroupService;
 
     @Injectable
-    protected ErrorService errorService;
+    protected ErrorLogService errorLogService;
 
     @Injectable
     public Ebms3Converter ebms3Converter;

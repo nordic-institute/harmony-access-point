@@ -83,10 +83,10 @@ public class SourceMessageSender implements MessageSender {
     @Override
     public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(userMessage, userMessageLog), currentDomain);
+        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(userMessage), currentDomain);
     }
 
-    protected void doSendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
+    protected void doSendMessage(final UserMessage userMessage) {
         String messageId = userMessage.getMessageId();
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
@@ -101,7 +101,7 @@ public class SourceMessageSender implements MessageSender {
         ReliabilityChecker.CheckResult reliabilityCheck = ReliabilityChecker.CheckResult.SEND_FAIL;
         try {
             final String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-            LOG.debug("PMode key found : " + pModeKey);
+            LOG.debug("PMode key found : [{}]", pModeKey);
             LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
@@ -118,7 +118,7 @@ public class SourceMessageSender implements MessageSender {
                 attemptError = cciEx.getMessage();
                 attemptStatus = MessageAttemptStatus.ABORT;
                 LOG.error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                LOG.info("Skipped checking the reliability for message [" + messageId + "]: message sending has been aborted");
+                LOG.info("Skipped checking the reliability for message [{}]: message sending has been aborted", messageId);
                 return;
             }
 
@@ -129,13 +129,13 @@ public class SourceMessageSender implements MessageSender {
         } catch (final SOAPFaultException soapFEx) {
             LOG.error("A SOAP fault occurred when sending source message with ID [{}]", messageId, soapFEx);
             if (soapFEx.getCause() instanceof Fault && soapFEx.getCause().getCause() instanceof EbMS3Exception) {
-                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), messageId);
+                reliabilityChecker.handleEbms3Exception((EbMS3Exception) soapFEx.getCause().getCause(), userMessage);
             }
             attemptError = soapFEx.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
         } catch (final EbMS3Exception e) {
             LOG.error("EbMS3 exception occurred when sending source message with ID [{}]", messageId, e);
-            reliabilityChecker.handleEbms3Exception(e, messageId);
+            reliabilityChecker.handleEbms3Exception(e, userMessage);
             attemptError = e.getMessage();
             attemptStatus = MessageAttemptStatus.ERROR;
         } catch (Throwable t) {

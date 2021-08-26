@@ -14,6 +14,16 @@
         <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
 
+    <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
+            <column name="sequence_name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
+            </column>
+            <column name="next_val" type="bigint"/>
+        </createTable>
+    </changeSet>
+
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
             <column name="VERSION" type="VARCHAR(30)"/>

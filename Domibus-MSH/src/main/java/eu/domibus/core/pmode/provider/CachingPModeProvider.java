@@ -12,6 +12,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
@@ -256,7 +257,10 @@ public class CachingPModeProvider extends PModeProvider {
         processes.stream().forEach(process -> candidates.addAll(process.getLegs()));
         if (candidates.isEmpty()) {
             LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, CURRENTLY_UNAVAILABLE, CURRENTLY_UNAVAILABLE);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No Candidates for Legs found", null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message("No Candidates for Legs found")
+                    .build();
         }
         Optional<LegConfiguration> optional = candidates.stream()
                 .filter(candidate -> candidateMatches(candidate, service, action, mpc))
@@ -266,7 +270,10 @@ public class CachingPModeProvider extends PModeProvider {
             return pullLegName;
         }
         LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, CURRENTLY_UNAVAILABLE, CURRENTLY_UNAVAILABLE);
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("No matching leg found")
+                .build();
     }
 
     protected boolean candidateMatches(LegConfiguration candidate, String service, String action, String mpc) {
@@ -295,7 +302,10 @@ public class CachingPModeProvider extends PModeProvider {
         if (matchingProcesses.isEmpty()) {
             String errorDetail = "None of the Processes matched with message metadata. Process mismatch details:\n" + legFilterCriteria.getProcessMismatchErrorDetails();
             LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, legFilterCriteria.getProcessMismatchErrorDetails(), legFilterCriteria.getLegConfigurationMismatchErrorDetails());
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail, null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message(errorDetail)
+                    .build();
         }
 
         final Set<LegConfiguration> matchingLegs = filterMatchingLegConfigurations(matchingProcesses, legFilterCriteria);
@@ -308,7 +318,10 @@ public class CachingPModeProvider extends PModeProvider {
             }
             String errorDetail = buildErrorDetail.toString();
             LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, legFilterCriteria.getProcessMismatchErrorDetails(), legFilterCriteria.getLegConfigurationMismatchErrorDetails());
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail, null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message(errorDetail)
+                    .build();
         }
 
         Optional<LegConfiguration> selectedLeg = matchingLegs.stream().findFirst();
@@ -429,7 +442,10 @@ public class CachingPModeProvider extends PModeProvider {
                 return action1.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching action found [" + action + "]", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("No matching action found [" + action + "]")
+                .build();
     }
 
     @Override
@@ -439,13 +455,19 @@ public class CachingPModeProvider extends PModeProvider {
                 return mpc;
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found [" + mpcValue + "]", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("No matching mpc found [" + mpcValue + "]")
+                .build();
     }
 
     @Override
     public String findServiceName(final ServiceEntity service) throws EbMS3Exception {
         if (service == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Service is not found in the message", null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message("Service is not found in the message")
+                    .build();
         }
         String type = service.getType();
         String value = service.getValue();
@@ -457,7 +479,10 @@ public class CachingPModeProvider extends PModeProvider {
             if (serviceMatching(service, serviceType, pmodeService))
                 return pmodeService.getName();
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found for type [" + serviceType + "] and value [" + service + "]", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("No matching service found for type [" + serviceType + "] and value [" + service + "]")
+                .build();
     }
 
     private boolean serviceMatching(String service, String serviceType, Service pmodeService) {
@@ -481,7 +506,10 @@ public class CachingPModeProvider extends PModeProvider {
                 return party.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyId + "]", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                .message("No matching party found for type [" + partyIdType + "] and value [" + partyId + "]")
+                .build();
     }
 
     protected boolean identifiersMatching(String partyId, String partyIdType, List<Identifier> identifiers) {
@@ -503,10 +531,6 @@ public class CachingPModeProvider extends PModeProvider {
 
     /**
      * PartyIdType can be null or empty string
-     *
-     * @param partyIdType
-     * @param identifierPartyIdType
-     * @return
      */
     protected boolean isPartyIdTypeMatching(String partyIdType, String identifierPartyIdType) {
         return (isEmpty(partyIdType) && isEmpty(identifierPartyIdType)) || equalsIgnoreCase(partyIdType, identifierPartyIdType);
@@ -527,9 +551,11 @@ public class CachingPModeProvider extends PModeProvider {
         try {
             URI.create(partyIdType);
         } catch (final IllegalArgumentException e) {
-            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
-            ex.setErrorDetail("PartyId " + partyId + " is not a valid URI [CORE]");
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("no matching party found | PartyId " + partyId + " is not a valid URI [CORE]")
+                    .cause(e)
+                    .build();
         }
     }
 
@@ -545,7 +571,10 @@ public class CachingPModeProvider extends PModeProvider {
                 return agreement.getName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching agreement found for type [" + agreementRef.getType() + "] and value [" + agreementRef.getValue() + "]", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("No matching agreement found for type [" + agreementRef.getType() + "] and value [" + agreementRef.getValue() + "]")
+                .build();
     }
 
     @Override
@@ -762,7 +791,10 @@ public class CachingPModeProvider extends PModeProvider {
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         if (rolesEnabled) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("No matching role found with value: " + roleValue)
+                    .build();
         }
 
         return null;
@@ -1051,7 +1083,10 @@ public class CachingPModeProvider extends PModeProvider {
                 return mpc.getQualifiedName();
             }
         }
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching mpc found [" + mpcName + "]", null, null);
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("No matching mpc found [" + mpcName + "]")
+                .build();
     }
 
     @Nullable

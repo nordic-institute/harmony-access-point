@@ -6,10 +6,9 @@ import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.converter.AuditLogCoreMapper;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
@@ -18,7 +17,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -39,7 +37,7 @@ public class ErrorLogResourceTest {
     ErrorLogResource errorLogResource;
 
     @Injectable
-    ErrorLogDao errorLogDao;
+    ErrorLogService errorLogService;
 
     @Injectable
     DateUtil dateUtil;
@@ -68,10 +66,10 @@ public class ErrorLogResourceTest {
         resultList.add(errorLogEntry);
 
         new Expectations() {{
-            errorLogDao.countEntries((HashMap<String, Object>) any);
+            errorLogService.countEntries((HashMap<String, Object>) any);
             result = 1;
 
-            errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
+            errorLogService.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = resultList;
         }};
 
@@ -126,7 +124,7 @@ public class ErrorLogResourceTest {
         errorLogRO.setNotified(date);
         errorLogROEntries.add(errorLogRO);
         new Expectations() {{
-            errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
+            errorLogService.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
 
             auditLogCoreMapper.errorLogEntryListToErrorLogROList(errorLogEntries);
