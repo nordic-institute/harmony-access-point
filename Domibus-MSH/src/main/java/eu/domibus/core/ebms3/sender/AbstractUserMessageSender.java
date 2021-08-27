@@ -139,7 +139,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, cciEx.getMessage(), userMessage);
+                errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, cciEx.getMessage(), MSHRole.SENDING, userMessage);
                 return;
             }
 

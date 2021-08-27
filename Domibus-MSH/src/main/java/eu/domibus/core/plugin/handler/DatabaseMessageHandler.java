@@ -320,7 +320,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0010, p.getMessage(), userMessage);
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }
@@ -459,15 +459,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, p.getMessage(), userMessage);
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, p.getMessage(), MSHRole.SENDING, null);
             throw new PModeMismatchException(p.getMessage(), p);
         } catch (ConfigurationException ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
-            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, ex.getMessage(), userMessage);
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }
