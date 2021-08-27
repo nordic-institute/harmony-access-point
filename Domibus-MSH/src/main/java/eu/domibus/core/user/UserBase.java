@@ -26,7 +26,7 @@ public interface UserBase {
         }
     }
 
-    int getEntityId();
+    long getEntityId();
 
     UserBase.Type getType();
 

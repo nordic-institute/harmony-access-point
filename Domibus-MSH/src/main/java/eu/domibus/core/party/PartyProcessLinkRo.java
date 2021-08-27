@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PartyProcessLinkRo {
 
-    private int entity_id;
+    private long entity_id;
 
     private String processName;
 
@@ -27,11 +27,11 @@ public class PartyProcessLinkRo {
         this.responder = responder;
     }
 
-    public int getEntity_id() {
+    public long getEntity_id() {
         return entity_id;
     }
 
-    public void setEntity_id(int entity_id) {
+    public void setEntity_id(long entity_id) {
         this.entity_id = entity_id;
     }
 

@@ -1,3 +1,5 @@
+Domibus 4.2.4
+- Fixed an issue when the primary key column reaches large values
 Domibus 4.2.3
 - Fixed the move of messages from the DLQ queue
 - Fixed an issue when receiving a message without a payload

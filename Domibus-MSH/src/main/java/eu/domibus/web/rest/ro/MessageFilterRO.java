@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MessageFilterRO implements Serializable {
 
-    private int entityId;
+    private long entityId;
 
     private int index;
 
@@ -25,11 +25,11 @@ public class MessageFilterRO implements Serializable {
 
     private boolean isPersisted;
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(long entityId) {
         this.entityId = entityId;
     }
 
