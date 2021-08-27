@@ -1,5 +1,6 @@
 package eu.domibus.api.routing;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class BackendFilter implements Serializable, Comparable {
 
-    private long entityId;
+    private String entityId;
 
     private int index;
 
@@ -23,11 +24,11 @@ public class BackendFilter implements Serializable, Comparable {
 
     private boolean active;
 
-    public long getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(long entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 
@@ -65,7 +66,7 @@ public class BackendFilter implements Serializable, Comparable {
 
     @Override
     public int compareTo(Object o) {
-        return (int)(this.entityId-((BackendFilter)o).getEntityId());
+        return StringUtils.compare(this.entityId, ((BackendFilter) o).getEntityId());
     }
 
     @Override

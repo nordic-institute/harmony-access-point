@@ -23,11 +23,11 @@ public class ObjectBlacklistValidatorTest {
         RoutingCriteria rt = new RoutingCriteria();
         rt.setName("name");
         rt.setExpression("expression");
-        rt.setEntityId(2);
+        rt.setEntityId("2");
 
         MessageFilterRO ro = new MessageFilterRO();
         ro.setPersisted(false);
-        ro.setEntityId(1);
+        ro.setEntityId("1");
         ro.setBackendName("jms");
         ro.setIndex(2);
         ro.setRoutingCriterias(Arrays.asList(rt, rt));
@@ -49,11 +49,11 @@ public class ObjectBlacklistValidatorTest {
         RoutingCriteria rt = new RoutingCriteria();
         rt.setName("name");
         rt.setExpression("expression;");
-        rt.setEntityId(2);
+        rt.setEntityId("2");
 
         MessageFilterRO ro = new MessageFilterRO();
         ro.setPersisted(false);
-        ro.setEntityId(1);
+        ro.setEntityId("1");
         ro.setBackendName("jms");
         ro.setIndex(2);
         ro.setRoutingCriterias(Arrays.asList(rt, rt));
@@ -76,14 +76,14 @@ public class ObjectBlacklistValidatorTest {
         rt1.setName("name1");
         rt1.setExpression("expression;");
         MessageFilterRO ro1 = new MessageFilterRO();
-        ro1.setEntityId(1);
+        ro1.setEntityId("1");
         ro1.setRoutingCriterias(Arrays.asList(rt1));
 
         RoutingCriteria rt2 = new RoutingCriteria();
         rt2.setName("name2%");
         rt2.setExpression("expression2");
         MessageFilterRO ro2 = new MessageFilterRO();
-        ro2.setEntityId(2);
+        ro2.setEntityId("2");
         ro2.setRoutingCriterias(Arrays.asList(rt2));
 
         new Expectations(blacklistValidator) {{

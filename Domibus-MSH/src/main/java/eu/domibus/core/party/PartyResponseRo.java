@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class PartyResponseRo {
 
-    protected Long entityId;
+    protected String entityId;
 
     protected Set<IdentifierRo> identifiers; //NOSONAR
 
@@ -83,11 +83,11 @@ public class PartyResponseRo {
         this.endpoint = endpoint;
     }
 
-    public Long getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(Long entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 
