@@ -1,3 +1,5 @@
+Domibus 4.2.4 (from 4.2.3):
+                - Replace the Domibus war
 Domibus 4.2.3 (from 4.2.2):
                 - Run the appropriate DB migration script(mysql-4.2.2-to-4.2.3-migration.ddl for MySQL or oracle-4.2.2-to-4.2.3-migration.ddl for Oracle)
                 - Replace the Domibus war
