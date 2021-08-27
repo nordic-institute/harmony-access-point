@@ -17,7 +17,7 @@ import java.util.Map;
 
 public interface ErrorLogService {
 
-    void createErrorLogSending(String messageInErrorId, ErrorCode errorCode, String errorDetail, UserMessage userMessage);
+    void createErrorLog(String messageInErrorId, ErrorCode errorCode, String errorDetail, MSHRole mshRole, UserMessage userMessage);
 
     void createErrorLog(EbMS3Exception exception, MSHRole mshRole, UserMessage userMessage);
 

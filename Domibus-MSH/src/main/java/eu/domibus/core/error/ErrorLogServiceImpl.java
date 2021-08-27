@@ -78,8 +78,8 @@ public class ErrorLogServiceImpl implements ErrorLogService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void createErrorLogSending(String messageInErrorId, ErrorCode errorCode, String errorDetail, UserMessage userMessage) {
-        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
+    public void createErrorLog(String messageInErrorId, ErrorCode errorCode, String errorDetail, MSHRole mshRole, UserMessage userMessage) {
+        MSHRoleEntity role = mshRoleDao.findOrCreate(mshRole);
         final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, errorCode, errorDetail);
         errorLogEntry.setUserMessage(userMessage);
         create(errorLogEntry);
