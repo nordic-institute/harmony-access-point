@@ -71,6 +71,9 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
         if (logEvent == null) {
             return null;
         }
+        if (logEvent.getOperationName() == null) {
+            return null;
+        }
         if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
             return SUBMIT_REQUEST;
         }
