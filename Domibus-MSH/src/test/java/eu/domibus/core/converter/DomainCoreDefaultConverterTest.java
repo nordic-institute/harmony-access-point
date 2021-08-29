@@ -119,6 +119,9 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertPartyResponseRo() throws Exception {
         PartyResponseRo toConvert = (PartyResponseRo) objectService.createInstance(PartyResponseRo.class);
+        toConvert.setEntityId("123");
+        toConvert.getProcessesWithPartyAsInitiator().get(0).setEntityId("1");
+        toConvert.getProcessesWithPartyAsResponder().get(0).setEntityId("2");
         final Party converted = domainCoreConverter.convert(toConvert, Party.class);
         final PartyResponseRo convertedBack = domainCoreConverter.convert(converted, PartyResponseRo.class);
         // these fields are missing in Party, fill them so the assertion works
@@ -156,6 +159,8 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertBackendFilterEntity() throws Exception {
         BackendFilter toConvert = (BackendFilter) objectService.createInstance(BackendFilter.class);
+        toConvert.setEntityId("123");
+        toConvert.getRoutingCriterias().get(0).setEntityId("1234");
         final BackendFilterEntity converted = domainCoreConverter.convert(toConvert, BackendFilterEntity.class);
         final BackendFilter convertedBack = domainCoreConverter.convert(converted, BackendFilter.class);
         convertedBack.setActive(true);
@@ -165,6 +170,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertRoutingCriteria() throws Exception {
         RoutingCriteria toConvert = (RoutingCriteria) objectService.createInstance(RoutingCriteria.class);
+        toConvert.setEntityId("123");
         final RoutingCriteriaEntity converted = domainCoreConverter.convert(toConvert, RoutingCriteriaEntity.class);
         final RoutingCriteria convertedBack = domainCoreConverter.convert(converted, RoutingCriteria.class);
         objectService.assertObjects(convertedBack, toConvert);
@@ -213,6 +219,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertPluginUserRO() throws Exception {
         PluginUserRO toConvert = (PluginUserRO) objectService.createInstance(PluginUserRO.class);
+        toConvert.setEntityId("123");
         final AuthenticationEntity converted = domainCoreConverter.convert(toConvert, AuthenticationEntity.class);
         final PluginUserRO convertedBack = domainCoreConverter.convert(converted, PluginUserRO.class);
         convertedBack.setSuspended(true);
@@ -331,6 +338,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertProcessRo() throws Exception {
         ProcessRo toConvert = (ProcessRo) objectService.createInstance(ProcessRo.class);
+        toConvert.setEntityId("123");
         final Process converted = domainCoreConverter.convert(toConvert, Process.class);
         final ProcessRo convertedBack = domainCoreConverter.convert(converted, ProcessRo.class);
         objectService.assertObjects(convertedBack, toConvert);
