@@ -24,7 +24,7 @@ public class RestBodyValidationInterceptorTest {
     public void handleQueryParamsTestValid() {
         MessageFilterRO ro = new MessageFilterRO();
         ro.setPersisted(false);
-        ro.setEntityId(1);
+        ro.setEntityId("1");
         ro.setBackendName("jms");
 
         new Expectations(restBodyValidationInterceptor) {{
@@ -40,7 +40,7 @@ public class RestBodyValidationInterceptorTest {
     public void handleQueryParamsTestInvalid() {
         MessageFilterRO ro = new MessageFilterRO();
         ro.setPersisted(false);
-        ro.setEntityId(1);
+        ro.setEntityId("1");
         ro.setBackendName("jms;");
 
         new Expectations(restBodyValidationInterceptor) {{

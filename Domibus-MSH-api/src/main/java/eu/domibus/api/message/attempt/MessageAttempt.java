@@ -11,7 +11,7 @@ import java.sql.Timestamp;
  */
 public class MessageAttempt {
 
-    private Integer id;
+    private Long id;
 
     /**
      * Id of the message for which the delivery attempt has been performed.
@@ -76,11 +76,11 @@ public class MessageAttempt {
         this.status = status;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

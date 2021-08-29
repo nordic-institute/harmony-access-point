@@ -37,7 +37,7 @@ public class PModeServiceDelegate implements PModeExtService {
     MultiPartFileUtil multiPartFileUtil;
 
     @Override
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         return pModeService.getPModeFile(id);
     }
 

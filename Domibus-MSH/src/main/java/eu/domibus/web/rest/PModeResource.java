@@ -68,10 +68,11 @@ public class PModeResource extends BaseResource {
 
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
-            @PathVariable(value = "id") int id,
+            @PathVariable(value = "id") String id,
             @DefaultValue("false") @QueryParam("noAudit") boolean noAudit, @DefaultValue("false") @QueryParam("archiveAudit") boolean archiveAudit) {
 
-        final byte[] rawConfiguration = pModeProvider.getPModeFile(id);
+        long idPmode = Long.parseLong(id);
+        final byte[] rawConfiguration = pModeProvider.getPModeFile(idPmode);
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
         if (rawConfiguration != null) {
             resource = new ByteArrayResource(rawConfiguration);
@@ -82,9 +83,9 @@ public class PModeResource extends BaseResource {
             status = HttpStatus.NO_CONTENT;
         } else if (!noAudit) {
             if (archiveAudit) {
-                auditService.addPModeArchiveDownloadedAudit(id);
+                auditService.addPModeArchiveDownloadedAudit(idPmode);
             } else {
-                auditService.addPModeDownloadedAudit(id);
+                auditService.addPModeDownloadedAudit(idPmode);
             }
         }
 
@@ -96,6 +97,7 @@ public class PModeResource extends BaseResource {
 
     @GetMapping(path = "current")
     public PModeResponseRO getCurrentPMode() {
+        LOG.debug("Get current PMode");
         final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
         if (currentPmode != null) {
             final PModeResponseRO convert = domainConverter.convert(currentPmode, PModeResponseRO.class);
@@ -126,7 +128,7 @@ public class PModeResource extends BaseResource {
         }
         try {
             for (String pModeId : pModeIds) {
-                pModeProvider.removePMode(Integer.parseInt(pModeId));
+                pModeProvider.removePMode(Long.parseLong(pModeId));
             }
         } catch (Exception ex) {
             LOG.error("Impossible to delete PModes", ex);
@@ -137,7 +139,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Integer id) {
+    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Long id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);

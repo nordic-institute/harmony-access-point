@@ -225,6 +225,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertEvent() throws Exception {
         PModeResponseRO toConvert = (PModeResponseRO) objectService.createInstance(PModeResponseRO.class);
+        toConvert.setId("123");
         final PModeArchiveInfo converted = domainCoreConverter.convert(toConvert, PModeArchiveInfo.class);
         final PModeResponseRO convertedBack = domainCoreConverter.convert(converted, PModeResponseRO.class);
         convertedBack.setCurrent(true);
