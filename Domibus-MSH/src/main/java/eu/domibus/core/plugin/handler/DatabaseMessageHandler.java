@@ -12,7 +12,8 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -37,6 +38,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
@@ -100,6 +102,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private PayloadFileStorageProvider storageProvider;
 
     @Autowired
+    private ErrorLogService errorLogService;
+
+    @Autowired
     private PModeProvider pModeProvider;
 
     @Autowired
@@ -119,9 +124,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected MpcDictionaryService mpcDictionaryService;
-
-    @Autowired
-    protected ErrorService errorService;
 
     @Autowired
     protected PartInfoService partInfoService;
@@ -175,7 +177,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    public Submission browseMessage(String messageId) throws MessageNotFoundException {
+    public Submission browseMessage(String messageId) {
         LOG.info("Browsing message with id [{}]", messageId);
 
         UserMessage userMessage = userMessageService.getByMessageId(messageId);
@@ -252,7 +254,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        return errorService.getErrors(messageId);
+        return errorLogService.getErrors(messageId);
     }
 
     //TODO refactor this method in order to reuse existing code from the method submit
@@ -293,11 +295,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 messageFragmentDao.create(messageFragmentEntity);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                        .message(exc.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(exc)
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             }
-            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
                     backendName);
@@ -310,11 +316,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorService.createErrorLog(ebms3Ex);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            errorService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage());
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }
@@ -348,10 +354,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.debug("Authorized as [{}]", displayUser);
 
         String messageId = null;
+        UserMessage userMessage = null;
         try {
             backendMessageValidator.validateSubmissionSending(submission);
 
-            UserMessage userMessage = transformer.transformFromSubmission(submission);
+            userMessage = transformer.transformFromSubmission(submission);
 
             if (userMessage == null) {
                 LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
@@ -368,7 +375,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;
-            if (messageExchangeService.forcePullOnMpc(userMessage)) {
+            if (ProcessingType.PULL.equals(submission.getProcessingType()) && messageExchangeService.forcePullOnMpc(userMessage)) {
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
@@ -397,9 +404,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
                 LOG.error("SplitAndJoin feature needs payload storage on the file system");
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageId(), null);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
+                        .message("SplitAndJoin feature needs payload storage on the file system")
+                        .refToMessageId(userMessage.getMessageId())
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             }
 
             try {
@@ -407,9 +417,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                        .message(exc.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(exc)
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             } catch (InvalidPayloadSizeException e) {
                 if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
                     //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
@@ -417,13 +431,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     partInfoService.clearFileSystemPayloads(partInfos);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), messageId, e);
-                ex.setMshRole(MSHRole.SENDING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                        .message(e.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(e)
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             }
 
             if (messageStatus == null) {
-                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
                 messageStatus = messageStatusEntity.getMessageStatus();
             }
             final boolean sourceMessage = userMessage.isSourceMessage();
@@ -441,15 +459,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorService.createErrorLog(ebms3Ex);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorService.createErrorLog(messageId, ErrorCode.EBMS_0004, p.getMessage());
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, p.getMessage(), MSHRole.SENDING, null);
             throw new PModeMismatchException(p.getMessage(), p);
         } catch (ConfigurationException ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
-            errorService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage());
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }

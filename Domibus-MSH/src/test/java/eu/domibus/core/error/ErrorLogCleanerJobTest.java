@@ -24,7 +24,7 @@ public class ErrorLogCleanerJobTest {
     ErrorLogCleanerJob errorLogCleanerJob;
 
     @Injectable
-    private ErrorService errorService;
+    private ErrorLogService errorLogService;
 
     @Injectable
     private DomainService domainService;
@@ -44,7 +44,7 @@ public class ErrorLogCleanerJobTest {
         errorLogCleanerJob.executeJob(context, domain);
 
         new FullVerifications() {{
-            errorService.deleteErrorLogWithoutMessageIds();
+            errorLogService.deleteErrorLogWithoutMessageIds();
         }};
     }
 }

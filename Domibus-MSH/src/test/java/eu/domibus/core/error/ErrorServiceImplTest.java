@@ -6,8 +6,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,27 +31,19 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class ErrorServiceImplTest {
 
     @Tested
-    ErrorServiceImpl errorService;
+    ErrorLogServiceImpl errorService;
 
     @Injectable
     private ErrorLogDao errorLogDao;
+
+    @Injectable
+    protected ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     protected MshRoleDao mshRoleDao;
-
-    @Test
-    public void createErrorLog(final @Mocked ErrorLogEntry errorLogEntry) {
-        //tested method
-        errorService.createErrorLog(errorLogEntry);
-
-        new FullVerifications() {{
-            errorLogDao.create(errorLogEntry);
-        }};
-
-    }
 
     @Test
     public void deleteErrorLogWithoutMessageIds() {
@@ -73,11 +69,17 @@ public class ErrorServiceImplTest {
 
     @Test
     public void getErrors() {
-        EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", "MESS_ID", null);
+        EbMS3Exception ex = EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0008)
+                .message("MessageId value is too long (over 255 characters)")
+                .refToMessageId("MESS_ID")
+                .mshRole(MSHRole.RECEIVING)
+                .build();
         List<ErrorLogEntry> list = new ArrayList<>();
+        ErrorLogEntry errorLogEntry = new ErrorLogEntry(ex);
         MSHRoleEntity mshRole = new MSHRoleEntity();
         mshRole.setRole(MSHRole.RECEIVING);
-        ErrorLogEntry errorLogEntry = new ErrorLogEntry(ex, mshRole);
+        errorLogEntry.setMshRole(mshRole);
         list.add(errorLogEntry);
 
         new Expectations(){{

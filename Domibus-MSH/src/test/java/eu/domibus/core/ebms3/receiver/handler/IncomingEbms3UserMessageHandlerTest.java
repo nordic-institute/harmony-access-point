@@ -6,7 +6,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
@@ -207,7 +207,7 @@ public class IncomingEbms3UserMessageHandlerTest {
             result = true;
 
             userMessageHandlerService.handleNewUserMessage(legConfiguration, withAny(pmodeKey), withAny(soapRequestMessage), withAny(userMessage), null, null, false);
-            result = new EbMS3Exception(null, null, null, null);
+            result = EbMS3ExceptionBuilder.getInstance().build();
 
         }};
 

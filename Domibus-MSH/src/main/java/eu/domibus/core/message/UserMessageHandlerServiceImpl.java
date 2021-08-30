@@ -20,6 +20,7 @@ import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
@@ -234,7 +235,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                        .message(e.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(e)
+                        .build();
             }
         }
     }
@@ -280,7 +286,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                            .message(e.getMessage())
+                            .refToMessageId(messageId)
+                            .cause(e)
+                            .build();
                 }
 
                 if (ebms3MessageFragmentType != null) {
@@ -385,17 +396,25 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, backendName);
             messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
         } catch (CompressionException exc) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "Could not persist message" + exc.getMessage(), userMessage.getMessageId(), exc);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("Could not persist message" + exc.getMessage())
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(exc)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         } catch (InvalidPayloadSizeException e) {
             if (storageProvider.isPayloadsPersistenceFileSystemConfigured()) {
                 partInfoService.clearFileSystemPayloads(partInfoList);
             }
             LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageId(), e);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message(e.getMessage())
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(e)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
 
         Party to = pModeProvider.getReceiverParty(pmodeKey);
@@ -460,16 +479,22 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
         if (legConfiguration.getSplitting() == null) {
             LOG.error("No splitting configuration found on leg [{}]", legConfiguration.getName());
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "No splitting configuration found", userMessage.getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
+                    .message("No splitting configuration found")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
 
         if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
             LOG.error("SplitAndJoin feature works only with payload storage configured on the file system");
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "SplitAndJoin feature needs payload storage on the file system", userMessage.getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
+                    .message("SplitAndJoin feature needs payload storage on the file system")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
 
         final String groupId = ebms3MessageFragmentType.getGroupId();
@@ -478,21 +503,30 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             return;
         }
         if (isTrue(messageGroupEntity.getExpired())) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0051, "More time than Pmode[].Splitting.JoinInterval has passed since the first fragment was received but not all other fragments are received", userMessage.getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0051)
+                    .message("More time than Pmode[].Splitting.JoinInterval has passed since the first fragment was received but not all other fragments are received")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
         if (isTrue(messageGroupEntity.getRejected())) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0040, "A fragment is received that relates to a group that was previously rejected", userMessage.getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0040)
+                    .message("A fragment is received that relates to a group that was previously rejected")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
         final Long fragmentCount = messageGroupEntity.getFragmentCount();
         if (fragmentCount != null && ebms3MessageFragmentType.getFragmentCount() != null && ebms3MessageFragmentType.getFragmentCount() > fragmentCount) {
             LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0048, "An incoming message fragment has a a value greater than the known FragmentCount", userMessage.getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0048)
+                    .message("An incoming message fragment has a a value greater than the known FragmentCount")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
     }
 
@@ -524,7 +558,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throws EbMS3Exception, SOAPException, TransformerException {
         LOG.debug("Start handling payloads");
 
-         final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
+        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
 
         List<PartInfo> partInfoList = getPartInfoList(ebms3Messaging);
         if (ebms3MessageFragmentType != null) {
@@ -540,9 +574,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             if (isBodyloadCid(cid)) {
                 if (bodyloadFound) {
                     LOG.businessError(DomibusMessageCode.BUS_MULTIPLE_PART_INFO_REFERENCING_SOAP_BODY);
-                    EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "More than one Partinfo referencing the soap body found", messageId, null);
-                    ex.setMshRole(MSHRole.RECEIVING);
-                    throw ex;
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                            .message("More than one Partinfo referencing the soap body found")
+                            .refToMessageId(messageId)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
                 }
                 LOG.info("Using soap body payload");
                 bodyloadFound = true;
@@ -569,9 +606,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             }
             if (!payloadFound) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_ATTACHMENT_NOT_FOUND, cid);
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0011, "No Attachment found for cid: " + cid + " of message: " + messageId, messageId, null);
-                ex.setMshRole(MSHRole.RECEIVING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0011)
+                        .message("No Attachment found for cid: " + cid + " of message: " + messageId)
+                        .refToMessageId(messageId)
+                        .mshRole(MSHRole.RECEIVING)
+                        .build();
             }
         }
         LOG.debug("Finished handling payloads");

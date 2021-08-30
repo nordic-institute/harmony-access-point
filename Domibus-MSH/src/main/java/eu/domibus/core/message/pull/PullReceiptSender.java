@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -65,9 +66,12 @@ public class PullReceiptSender {
         if (ebms3Errors != null && !ebms3Errors.isEmpty()) {
             Ebms3Error ebms3Error = ebms3Errors.iterator().next();
             LOG.error("An error occured when sending receipt:error code:[{}], description:[{}]:[{}]", ebms3Error.getErrorCode(), ebms3Error.getShortDescription(), ebms3Error.getErrorDetail());
-            EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()), ebms3Error.getErrorDetail(), ebms3Error.getRefToMessageInError(), null);
-            ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-            throw ebMS3Ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()))
+                    .message(ebms3Error.getErrorDetail())
+                    .refToMessageId(ebms3Error.getRefToMessageInError())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
     }
 }

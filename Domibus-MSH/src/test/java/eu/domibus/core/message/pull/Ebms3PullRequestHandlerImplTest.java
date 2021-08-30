@@ -11,6 +11,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -88,7 +89,11 @@ public class Ebms3PullRequestHandlerImplTest {
 
         final UserMessage userMessage = new MessageTestUtility().createSampleUserMessage();
         final String messageId = userMessage.getMessageId();
-        final EbMS3Exception ebMS3Exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Payload in body must be valid XML", messageId, null);
+        final EbMS3Exception ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                .message("Payload in body must be valid XML")
+                .refToMessageId(messageId)
+                .build();
 
 
         new Expectations() {{
@@ -199,7 +204,7 @@ public class Ebms3PullRequestHandlerImplTest {
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
             EbMS3Exception e = null;
-            reliabilityChecker.handleEbms3Exception(e = withCapture(), messageId);
+            reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getErrorCode());
             Ebms3Error faultInfo = null;
@@ -234,7 +239,7 @@ public class Ebms3PullRequestHandlerImplTest {
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
             EbMS3Exception e = null;
-            reliabilityChecker.handleEbms3Exception(e = withCapture(), messageId);
+            reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
             Ebms3Error faultInfo = null;

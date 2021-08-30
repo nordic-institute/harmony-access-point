@@ -6,8 +6,8 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.converter.AuditLogCoreMapper;
-import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
@@ -37,7 +37,7 @@ public class ErrorLogResource extends BaseResource {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ErrorLogResource.class);
 
     @Autowired
-    private ErrorLogDao errorLogDao;
+    private ErrorLogService errorLogService;
 
     @Autowired
     DateUtil dateUtil;
@@ -53,11 +53,11 @@ public class ErrorLogResource extends BaseResource {
         result.setFilter(filters);
         LOGGER.debug("using filters [{}]", filters);
 
-        long entries = errorLogDao.countEntries(filters);
+        long entries = errorLogService.countEntries(filters);
         LOGGER.debug("count [{}]", entries);
         result.setCount(Ints.checkedCast(entries));
 
-        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(request.getPageSize() * request.getPage(),
+        final List<ErrorLogEntry> errorLogEntries = errorLogService.findPaged(request.getPageSize() * request.getPage(),
                 request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
         result.setErrorLogEntries(convert(errorLogEntries));
 
@@ -77,9 +77,9 @@ public class ErrorLogResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
-        final List<ErrorLogEntry> entries = errorLogDao.findPaged(0, getCsvService().getPageSizeForExport(),
+        final List<ErrorLogEntry> entries = errorLogService.findPaged(0, getCsvService().getPageSizeForExport(),
                 request.getOrderBy(), request.getAsc(), filters);
-        getCsvService().validateMaxRows(entries.size(), () -> errorLogDao.countEntries(filters));
+        getCsvService().validateMaxRows(entries.size(), () -> errorLogService.countEntries(filters));
 
         final List<ErrorLogRO> errorLogROList = auditLogCoreMapper.errorLogEntryListToErrorLogROList(entries);
 

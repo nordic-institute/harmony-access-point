@@ -4,6 +4,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -174,6 +175,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(AGREEMENT_REF_TYPE, "ref_type");
         messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
         messageMap.setStringProperty(PROPERTY_PREFIX + PROPERTY_TEST, "test property");
+        messageMap.setStringProperty(JMSMessageConstants.PROCESSING_TYPE, ProcessingType.PUSH.name());
 
         messageMap.setJMSCorrelationID("12345");
 
@@ -276,6 +278,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, "\t" + FINAL_RECIPIENT + "\t");
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, "\t" + PROTOCOL_AS4 + "\t\t");
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, CUSTOM_AGREEMENT_REF);
+        messageMap.setStringProperty(JMSMessageConstants.PROCESSING_TYPE, ProcessingType.PUSH.name());
 
         messageMap.setJMSCorrelationID("12345");
 
@@ -344,6 +347,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, FINAL_RECIPIENT);
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, PROTOCOL_AS4);
+        messageMap.setStringProperty(JMSMessageConstants.PROCESSING_TYPE, ProcessingType.PUSH.name());
 
         messageMap.setJMSCorrelationID("12345");
 

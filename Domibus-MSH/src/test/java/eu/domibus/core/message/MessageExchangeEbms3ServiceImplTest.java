@@ -1,14 +1,13 @@
 package eu.domibus.core.message;
 
-import com.fasterxml.uuid.NoArgGenerator;
-import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.model.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeConstants;
@@ -18,18 +17,19 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequestDao;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PojoInstaciatorUtil;
-import org.junit.Ignore;
 import org.apache.commons.lang3.Validate;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -39,7 +39,6 @@ import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -176,7 +175,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         processes.add(process);
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agreementName", "senderParty", "receiverParty", "service", "action", "leg");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
-        return messageExchangeService.getMessageStatus(messageExchangeConfiguration).getMessageStatus();
+        return messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH).getMessageStatus();
     }
 
     @Test(expected = PModeException.class)
@@ -189,7 +188,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         processes.add(process);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
         doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
-        messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+        messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PULL);
     }
 
     @Test
@@ -236,8 +235,10 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Test
     public void testInvalidRequest() throws Exception {
-        when(messageBuilder.buildSOAPMessage(any(Ebms3SignalMessage.class), any(LegConfiguration.class))).thenThrow(
-                new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", null, null));
+        when(messageBuilder.buildSOAPMessage(any(Ebms3SignalMessage.class), any(LegConfiguration.class))).thenThrow(EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                .message("An error occurred while processing your request. Please check the message header for more details.")
+                .build());
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qn1]];[name:leg2,defaultMpc[name:test2,qualifiedName:qn2]]}", "initiatorParties{[name:initiator]}");
 
         List<Process> processes = Lists.newArrayList(process);
@@ -355,7 +356,7 @@ public class MessageExchangeEbms3ServiceImplTest {
                 "action1",
                 "leg1");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.<Process>newArrayList());
-        final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration).getMessageStatus();
+        final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH).getMessageStatus();
         assertEquals(MessageStatus.SEND_ENQUEUED, messageStatus);
 
     }

@@ -17,11 +17,10 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
-import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -40,6 +39,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.scheduler.ReprogrammableService;
+import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -115,9 +115,6 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessageAttemptDao messageAttemptDao;
 
     @Autowired
-    private ErrorLogDao errorLogDao;
-
-    @Autowired
     private MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Autowired
@@ -155,6 +152,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     protected DatabaseMessageHandler databaseMessageHandler;
+
+    @Autowired
+    private ErrorLogService errorLogService;
 
     @Autowired
     MessageConverterService messageConverterService;
@@ -255,6 +255,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
+    @Transactional
     @Override
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);
@@ -591,7 +592,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] attempts.", deleteResult);
 
 
-        deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
+        deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(userMessageIds);
         LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
         LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);

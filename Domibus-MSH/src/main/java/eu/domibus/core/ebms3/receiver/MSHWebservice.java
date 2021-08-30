@@ -1,18 +1,18 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.util.MessageUtil;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -62,9 +62,12 @@ public class MSHWebservice implements Provider<SOAPMessage> {
 
         final IncomingMessageHandler messageHandler = incomingMessageHandlerFactory.getMessageHandler(request, ebms3Messaging);
         if (messageHandler == null) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Unrecognized message", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), null);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw new WebServiceException(ex);
+            throw new WebServiceException( EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Unrecognized message")
+                    .refToMessageId(ebms3Messaging.getUserMessage().getMessageInfo().getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build());
         }
         SOAPMessage soapMessage;
         try {

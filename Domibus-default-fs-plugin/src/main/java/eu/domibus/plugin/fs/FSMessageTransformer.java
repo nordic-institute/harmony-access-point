@@ -4,6 +4,7 @@ import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPayloadException;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.activation.DataHandler;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,6 +88,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         UserMessage metadata = messageIn.getMetadata();
         Submission submission = new Submission();
         submission.setMpc(metadata.getMpc());
+        submission.setProcessingType(getProcessingType(messageIn));
         setPartyInfoToSubmission(submission, metadata.getPartyInfo());
         setCollaborationInfoToSubmission(submission, metadata.getCollaborationInfo());
         setMessagePropertiesToSubmission(submission, metadata.getMessageProperties());
@@ -94,6 +98,19 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             throw new FSPluginException("Could not set payload to Submission", ex);
         }
         return submission;
+    }
+
+    private ProcessingType getProcessingType(final FSMessage messageIn) {
+        eu.domibus.plugin.fs.ebms3.ProcessingType processingType = messageIn.getMetadata().getProcessingType();
+        if(processingType==null){
+            LOG.debug("Processing type is empty, setting processing type to default PUSH");
+            return ProcessingType.PUSH;
+        }
+        try {
+            return ProcessingType.valueOf(processingType.value());
+        }catch (IllegalArgumentException e){
+            throw new FSPluginException("Value for processingType property:["+ processingType.value() +"] is incorrect. Should be PUSH or PULL.",e);
+        }
     }
 
     protected void setPayloadToSubmission(Submission submission, final Map<String, FSPayload> dataHandlers, UserMessage metadata) {

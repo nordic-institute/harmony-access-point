@@ -7,8 +7,8 @@ import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class TestService {
     private SignalMessageDao signalMessageDao;
 
     @Autowired
-    private ErrorLogDao errorLogDao;
+    private ErrorLogService errorLogService;
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
@@ -231,7 +230,7 @@ public class TestService {
         if (StringUtils.isNotBlank(userMessageId)) {
             // if userMessageId is provided, try to find its signal message
             signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
-            if (signalMessageDao == null) {
+            if (signalMessage == null) {
                 LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
                 return null;
             }
@@ -265,11 +264,10 @@ public class TestService {
     }
 
     protected String getErrorsForMessage(String userMessageId) {
-        List<ErrorLogEntry> errorLogEntries = errorLogDao.getErrorsForMessage(userMessageId);
-        String errors = errorLogEntries.stream()
+        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
+        return errorLogEntries.stream()
                 .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
                 .collect(Collectors.joining(", "));
-        return errors;
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {

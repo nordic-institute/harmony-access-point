@@ -136,7 +136,7 @@ public class SourceMessageSenderTest {
             }
         };
 
-        sourceMessageSender.doSendMessage(userMessage, userMessageLog);
+        sourceMessageSender.doSendMessage(userMessage);
         new Verifications() {{
             messageAttemptService.create(withAny(attempt));
             times = 1;

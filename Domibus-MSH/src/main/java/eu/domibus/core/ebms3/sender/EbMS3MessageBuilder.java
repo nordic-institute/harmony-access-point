@@ -15,6 +15,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.exception.SendMessageException;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -123,9 +124,13 @@ public class EbMS3MessageBuilder {
             //TODO: locale is static
             soapMessage.getSOAPBody().addFault(SOAPConstants.SOAP_RECEIVER_FAULT, "An error occurred while processing your request. Please check the message header for more details.", Locale.ENGLISH);
         } catch (final SOAPException e) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "An error occurred while processing your request. Please check the message header for more details.", signalMessage.getMessageInfo().getMessageId(), e);
-            ex.setMshRole(MSHRole.RECEIVING);
-            throw ex;
+            throw  EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .message("An error occurred while processing your request. Please check the message header for more details.")
+                    .refToMessageId(signalMessage.getMessageInfo().getMessageId())
+                    .cause(e)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
 
         return soapMessage;
@@ -145,7 +150,7 @@ public class EbMS3MessageBuilder {
                 userMessage.setTimestamp(new Date());
             }
 
-            if(CollectionUtils.isNotEmpty(partInfoList)) {
+            if (CollectionUtils.isNotEmpty(partInfoList)) {
                 LOG.debug("Building SOAP User Message by attaching PartInfo and message to the Payload..");
                 for (final PartInfo partInfo : partInfoList) {
                     this.attachPayload(partInfo, message);
@@ -177,7 +182,12 @@ public class EbMS3MessageBuilder {
 
             message.saveChanges();
         } catch (final SAXParseException e) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Payload in body must be valid XML", userMessage.getMessageId(), e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .message("Payload in body must be valid XML")
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(e)
+                    .build();
         } catch (final JAXBException | SOAPException | ParserConfigurationException | IOException | SAXException ex) {
             throw new SendMessageException(ex);
         }
@@ -187,7 +197,7 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPMessage(final Ebms3SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
-           message = xmlUtil.getMessageFactorySoap12().createMessage();
+            message = xmlUtil.getMessageFactorySoap12().createMessage();
             final Ebms3Messaging ebms3Messaging = this.ebMS3Of.createMessaging();
 
             if (signalMessage != null) {

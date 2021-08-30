@@ -11,7 +11,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider;
-import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
@@ -145,9 +145,12 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);
 
         if (!checkCertificateValidity(certificateChain, senderPartyName, isPullMessage)) {
-            EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0101, "Sender [" + senderPartyName + "] certificate is not valid or has been revoked", messageId, null);
-            ebMS3Ex.setMshRole(MSHRole.RECEIVING);
-            throw new Fault(ebMS3Ex);
+            throw new Fault(EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
+                    .message("Sender [" + senderPartyName + "] certificate is not valid or has been revoked")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build());
         }
     }
 

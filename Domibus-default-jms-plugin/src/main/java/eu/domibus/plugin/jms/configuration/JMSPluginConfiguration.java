@@ -58,10 +58,11 @@ public class JMSPluginConfiguration {
                                               JMSPluginQueueService JMSPluginQueueService,
                                               @Qualifier(value = "mshToBackendTemplate") JmsOperations mshToBackendTemplate,
                                               JMSMessageTransformer jmsMessageTransformer,
-                                              DomibusPropertyExtService domibusPropertyExtService) {
+                                              DomibusPropertyExtService domibusPropertyExtService,
+                                              Optional<JndiDestinationResolver> jndiDestinationResolver) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(JMSMessageConstants.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        JMSPluginImpl jmsPlugin = new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate, jmsMessageTransformer);
+        JMSPluginImpl jmsPlugin = new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate, jmsMessageTransformer, jndiDestinationResolver.orElse(null));
         jmsPlugin.setRequiredNotifications(messageNotifications);
         return jmsPlugin;
     }

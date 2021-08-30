@@ -23,11 +23,13 @@ public class SendJMSMessageOnWeblogic {
     private static final String PASSWORD = "weblogic1";
     private static final String CONNECTION_FACTORY_JNDI = "jms/ConnectionFactory";
     //private static final String FOREIGN_CONNECTION_FACTORY_JNDI = "jms/ForeignConnectionFactory";
-    private static final String QUEUE = "jms/domibus.backend.jms.replyQueue";
+    private static final String QUEUE = "jms/domibus.backend.jms.inQueue";
 
     public static void main(String[] args) throws Exception {
+        new SendJMSMessageOnWeblogic().run();
         try {
             Security.runAs(new Subject(), (PrivilegedExceptionAction<Object>) () -> {
+
                 new SendJMSMessageOnWeblogic().run();
                 return null;
             });
@@ -61,17 +63,18 @@ public class SendJMSMessageOnWeblogic {
 
         messageMap.setStringProperty("messageType", "submitMessage");
         messageMap.setStringProperty("service", "bdx:noprocess");
-        messageMap.setStringProperty("serviceType", "tc1");
-        messageMap.setStringProperty("action", "TC1Leg1");
+        messageMap.setStringProperty("serviceType", "tc13");
+        messageMap.setStringProperty("action", "TC13Leg1");
         messageMap.setStringProperty("fromPartyId", "domibus-blue");
         messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-        messageMap.setStringProperty("toPartyId", "domibus-blue");
+        messageMap.setStringProperty("toPartyId", "domibus-red");
         messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
         messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator");
         messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder");
         messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
         messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
         messageMap.setStringProperty("protocol", "AS4");
+        messageMap.setStringProperty("processingType","PULL");
 
         // Optional
         // messageMap.setStringProperty("conversationId", "123");

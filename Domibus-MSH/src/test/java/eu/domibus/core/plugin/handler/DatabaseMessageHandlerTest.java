@@ -12,7 +12,8 @@ import eu.domibus.common.ErrorResult;
 import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
@@ -34,6 +35,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.*;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -134,6 +136,9 @@ public class DatabaseMessageHandlerTest {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Injectable
+    private ErrorLogService errorLogService;
+
+    @Injectable
     private PModeProvider pModeProvider;
 
     @Injectable
@@ -171,9 +176,6 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     private MshRoleDao mshRoleDao;
-
-    @Injectable
-    private ErrorService errorService;
 
     @Injectable
     private PartInfoService partInfoService;
@@ -272,7 +274,7 @@ public class DatabaseMessageHandlerTest {
             messageExchangeConfiguration.getPmodeKey();
             result = pModeKey;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = MessageStatus.SEND_ENQUEUED;
 
             pModeProvider.getSenderParty(pModeKey);
@@ -321,7 +323,7 @@ public class DatabaseMessageHandlerTest {
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = MessageStatus.READY_TO_PULL;
 
             Party sender = new Party();
@@ -384,7 +386,10 @@ public class DatabaseMessageHandlerTest {
             result = messageId;
 
             backendMessageValidator.validateSubmissionSending(submission);
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", null, null);
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0008)
+                    .message("MessageId value is too long (over 255 characters)")
+                    .build();
         }};
 
         try {
@@ -405,7 +410,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.hasUserOrAdminRole();
             times = 1;
 
-            errorService.createErrorLog((EbMS3Exception) any);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
         }};
 
@@ -421,7 +426,11 @@ public class DatabaseMessageHandlerTest {
             result = "messageId";
 
             backendMessageValidator.validateSubmissionSending(submission);
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "RefToMessageId value is too long (over 255 characters)", refToMessageId, null);
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0008)
+                    .message("RefToMessageId value is too long (over 255 characters)")
+                    .refToMessageId(refToMessageId)
+                    .build();
         }};
 
         try {
@@ -439,7 +448,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             authUtils.hasUserOrAdminRole();
             times = 1;
-            errorService.createErrorLog((EbMS3Exception) any);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
         }};
 
@@ -450,11 +459,15 @@ public class DatabaseMessageHandlerTest {
                                               @Injectable final Party gatewayParty,
                                               @Injectable final Party from,
                                               @Injectable final Party to) throws Exception {
+        UserMessage userMessage = createUserMessage();
         new Expectations() {{
             submission.getMessageId();
             result = "messageId";
 
-            UserMessage userMessage = createUserMessage();
+            submission.getProcessingType();
+            result = ProcessingType.PUSH;
+
+
             transformer.transformFromSubmission(submission);
             result = userMessage;
 
@@ -474,9 +487,6 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            messageExchangeService.forcePullOnMpc(userMessage);
-            result = false;
-
             pModeProvider.getSenderParty(pModeKey);
             result = from;
             pModeProvider.getReceiverParty(pModeKey);
@@ -488,7 +498,11 @@ public class DatabaseMessageHandlerTest {
 
             backendMessageValidator.validateInitiatorParty(gatewayParty, from);
 //            backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name [" + GREEN + "] does not correspond to the access point's name [" + BLUE + "]", null, null);
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("The initiator party's name [" + GREEN + "] does not correspond to the access point's name [" + BLUE + "]")
+                    .build();
+            ;
 
         }};
 
@@ -519,7 +533,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            errorService.createErrorLog((EbMS3Exception) any);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
         }};
 
@@ -531,11 +545,15 @@ public class DatabaseMessageHandlerTest {
                                               @Injectable final MessageExchangeConfiguration userMessageExchangeConfiguration,
                                               @Injectable final Party from,
                                               @Injectable final Party to) throws Exception {
+        UserMessage userMessage = createUserMessage();
         new Expectations() {{
             submission.getMessageId();
             result = "messageId";
 
-            UserMessage userMessage = createUserMessage();
+            submission.getProcessingType();
+            result = ProcessingType.PUSH;
+
+
             transformer.transformFromSubmission(submission);
             result = userMessage;
 
@@ -545,9 +563,6 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            messageExchangeService.forcePullOnMpc(userMessage);
-            result = false;
-
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             result = userMessageExchangeConfiguration;
             times = 1;
@@ -556,14 +571,17 @@ public class DatabaseMessageHandlerTest {
             result = "pmodeKey";
 
             pModeProvider.getSenderParty("pmodeKey");
-            result =from;
+            result = from;
 
             pModeProvider.getReceiverParty("pmodeKey");
-            result =to;
+            result = to;
 
             backendMessageValidator.validateParties(from, to);
 //            backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name is the same as the responder party's one", null, null);
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("The initiator party's name is the same as the responder party's one")
+                    .build();
         }};
 
         try {
@@ -586,7 +604,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            errorService.createErrorLog((EbMS3Exception) any);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
         }};
     }
@@ -594,11 +612,15 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void testSubmitMessagePModeNOk(@Injectable final Submission submission) throws Exception {
+        UserMessage userMessage = createUserMessage();
+
         new Expectations() {{
             submission.getMessageId();
             result = "messageId";
 
-            UserMessage userMessage = createUserMessage();
+            submission.getProcessingType();
+            result = ProcessingType.PUSH;
+
             transformer.transformFromSubmission(submission);
             result = userMessage;
 
@@ -608,11 +630,13 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            messageExchangeService.forcePullOnMpc(userMessage);
-            result = false;
-
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode could not be found. Are PModes configured in the database?", MESS_ID, null);
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message("PMode could not be found. Are PModes configured in the database?")
+                    .refToMessageId(MESS_ID)
+                    .build();
+            ;
         }};
 
         try {
@@ -637,7 +661,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            errorService.createErrorLog((EbMS3Exception) any);
+            errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
 
         }};
@@ -646,6 +670,9 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{
+
+            messageData.getProcessingType();
+            result = ProcessingType.PULL;
             UserMessage userMessage = createUserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
@@ -657,7 +684,7 @@ public class DatabaseMessageHandlerTest {
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PULL);
             result = new PModeException(DomibusCoreErrorCode.DOM_003, "invalid pullprocess configuration");
         }};
 
@@ -840,7 +867,7 @@ public class DatabaseMessageHandlerTest {
             compressionService.handleCompression(MESS_ID, partInfo, legConfiguration);
             result = true;
 
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
             result = MessageStatus.READY_TO_PULL;
 
         }};
@@ -1000,7 +1027,12 @@ public class DatabaseMessageHandlerTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", MESS_ID, null);
+            EbMS3Exception ex = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0008)
+                    .message("MessageId value is too long (over 255 characters)")
+                    .refToMessageId(MESS_ID)
+                    .build();
+            ;
             List<ErrorResult> list = new ArrayList<>();
             ErrorResultImpl errorLogEntry = new ErrorResultImpl();
 
@@ -1011,7 +1043,7 @@ public class DatabaseMessageHandlerTest {
 
             list.add(errorLogEntry);
 
-            errorService.getErrors(MESS_ID);
+            errorLogService.getErrors(MESS_ID);
             result = list;
 
         }};
@@ -1021,7 +1053,7 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            errorService.getErrors(MESS_ID);
+            errorLogService.getErrors(MESS_ID);
             Assert.assertNotNull(results);
             ErrorResult errRes = results.iterator().next();
             Assert.assertEquals(ErrorCode.EBMS_0008, errRes.getErrorCode());
@@ -1144,7 +1176,7 @@ public class DatabaseMessageHandlerTest {
             result = to;
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
-            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
             result = messageStatus;
         }};
 

@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.1 to 5.0 data migration package
+-- Domibus 4.2.1 to 5.0 data migration subprograms
 --
 -- Main entry point is the procedure 'MIGRATE_42_TO_50_migrate'.
 --
@@ -1934,10 +1934,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw()
     END
 //
 
-/**-- main entry point for all migration --*/
+/**-- main entry point for running the migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
     BEGIN
-
         -- keep it in this order
         CALL MIGRATE_42_TO_50_migrate_user_message;
         CALL MIGRATE_42_TO_50_migrate_message_fragment;

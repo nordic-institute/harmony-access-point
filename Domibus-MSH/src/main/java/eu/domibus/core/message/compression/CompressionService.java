@@ -4,6 +4,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.logging.DomibusLogger;
@@ -73,9 +74,12 @@ public class CompressionService {
 
         if (partInfo.getPartProperties() == null) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), messageId);
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "No mime type found for payload with cid:" + partInfo.getHref(), messageId, null);
-            ex.setMshRole(MSHRole.SENDING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("No mime type found for payload with cid:" + partInfo.getHref())
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         String mimeType = null;
@@ -88,9 +92,12 @@ public class CompressionService {
 
         if (mimeType == null || mimeType.isEmpty()) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), messageId);
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "No mime type found for payload with cid:" + partInfo.getHref(), messageId, null);
-            ex.setMshRole(MSHRole.SENDING);
-            throw ex;
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("No mime type found for payload with cid:" + partInfo.getHref())
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
 
         //if mimetype of payload is not considered to be compressed, skip
@@ -143,7 +150,6 @@ public class CompressionService {
                 }
             }
 
-
             if (!payloadCompressed) {
                 LOG.debug("Decompression is not needed: payload is not compressed");
                 continue;
@@ -156,9 +162,12 @@ public class CompressionService {
 
             if (mimeType == null) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), userMessage.getMessageId());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, "No mime type found for payload with cid:" + partInfo.getHref(), userMessage.getMessageId(), null);
-                ex.setMshRole(MSHRole.RECEIVING);
-                throw ex;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                        .message("No mime type found for payload with cid:" + partInfo.getHref())
+                        .refToMessageId(userMessage.getMessageId())
+                        .mshRole(MSHRole.RECEIVING)
+                        .build();
             }
             partInfo.setPayloadDatahandler(new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType)));
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());

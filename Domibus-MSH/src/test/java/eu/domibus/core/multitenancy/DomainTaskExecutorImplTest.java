@@ -15,6 +15,7 @@ import org.springframework.scheduling.SchedulingTaskExecutor;
 import java.io.File;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static eu.domibus.core.multitenancy.DomainTaskExecutorImpl.DEFAULT_WAIT_TIMEOUT_IN_SECONDS;
 
@@ -61,6 +62,29 @@ public class DomainTaskExecutorImplTest {
 
         new Verifications() {{
             taskExecutor.submit(submitRunnable);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testSubmitRunnableThreadWithTimeoutExceeded(@Injectable Runnable submitRunnable,
+                                                            @Injectable Runnable errorHandler,
+                                                            @Injectable Future<?> utrFuture) throws Exception {
+        new Expectations() {{
+            taskExecutor.submit(submitRunnable);
+            result = utrFuture;
+
+            utrFuture.get(anyLong, withAny(TimeUnit.SECONDS));
+            result = new TimeoutException();
+        }};
+
+        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, errorHandler, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+
+        new Verifications() {{
+            taskExecutor.submit(submitRunnable);
+            times = 1;
+
+            errorHandler.run();
             times = 1;
         }};
     }
