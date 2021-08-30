@@ -118,6 +118,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_error_log
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_message_acknw
 //
 
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_send_attempt
+//
+
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate
 //
 
@@ -1934,6 +1937,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw()
     END
 //
 
+/**- TB_SEND_ATTEMPT data migration --*/
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_send_attempt()
+BEGIN
+    -- TODO missing
+END
+//
+
 /**-- main entry point for running the migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
     BEGIN
@@ -1954,5 +1964,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
 
         CALL MIGRATE_42_TO_50_migrate_error_log;
         CALL MIGRATE_42_TO_50_migrate_message_acknw;
+        CALL MIGRATE_42_TO_50_migrate_send_attempt;
     END
 //

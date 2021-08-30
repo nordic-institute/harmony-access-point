@@ -1469,36 +1469,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END;
     END migrate_user_message_post;
 
-    /**-- main entry point for preparing the migration --*/
-    PROCEDURE prepare_for_migration IS
+    /**- TB_SEND_ATTEMPT data migration --*/
+    PROCEDURE migrate_send_attempt IS
     BEGIN
-        drop_table_if_exists('MIGR_TB_USER_MESSAGE');
-        drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE');
-        drop_table_if_exists('MIGR_TB_SJ_MESSAGE_FRAGMENT');
-        drop_table_if_exists('MIGR_TB_SJ_MESSAGE_GROUP');
-        drop_table_if_exists('MIGR_TB_SJ_MESSAGE_HEADER');
-        drop_table_if_exists('MIGR_TB_USER_MESSAGE_LOG');
-        drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_LOG');
-        drop_table_if_exists('MIGR_TB_USER_MESSAGE_RAW');
-        drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_RAW');
-        drop_table_if_exists('MIGR_TB_RECEIPT');
-        drop_table_if_exists('MIGR_TB_MESSAGE_PROPERTIES');
-        drop_table_if_exists('MIGR_TB_PART_INFO');
-        drop_table_if_exists('MIGR_TB_PART_PROPERTIES');
-        drop_table_if_exists('MIGR_TB_ERROR_LOG');
-        drop_table_if_exists('MIGR_TB_MESSAGE_ACKNW');
-        drop_table_if_exists('TB_D_MPC');
-        drop_table_if_exists('TB_D_ROLE');
-        drop_table_if_exists('TB_D_SERVICE');
-        drop_table_if_exists('TB_D_AGREEMENT');
-        drop_table_if_exists('TB_D_ACTION');
-        drop_table_if_exists('TB_D_PARTY');
-        drop_table_if_exists('TB_D_MESSAGE_STATUS');
-        drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
-        drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
-        drop_table_if_exists('TB_D_PART_PROPERTY');
-        drop_table_if_exists('TB_D_MSH_ROLE');
-    END prepare_for_migration;
+        /** TODO missing */
+        DBMS_OUTPUT.PUT_LINE('');
+    END migrate_send_attempt;
 
     /**-- main entry point for running the migration --*/
     PROCEDURE migrate IS
@@ -1520,6 +1496,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         migrate_error_log;
         migrate_message_acknw;
+        migrate_send_attempt;
     END migrate;
 
 END MIGRATE_42_TO_50;

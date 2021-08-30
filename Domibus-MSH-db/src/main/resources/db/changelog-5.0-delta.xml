@@ -85,7 +85,12 @@
 
     </changeSet>
 
-    <changeSet author="Ion Perpegel" id="EDELIVERY-7677">
+    <!-- Start UI Replication Tables -->
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-temporary-drop-ui-replication-table">
+        <dropTable tableName="TB_MESSAGE_UI" cascadeConstraints="true" />
+    </changeSet>
+
+    <!--<changeSet author="Ion Perpegel" id="EDELIVERY-7677">
         <comment>adding columns for action and service</comment>
         <addColumn tableName="TB_MESSAGE_UI">
             <column name="ACTION" type="VARCHAR(255)" remarks="The action of the collaboration of the message"/>
@@ -106,8 +111,7 @@
         </createIndex>
     </changeSet>
 
-    <!-- Start UI Replication Tables -->
-    <!--<changeSet id="EDELIVERY-7677-1" author="Ion Perpegel" dbms="oracle">
+    <changeSet id="EDELIVERY-7677-1" author="Ion Perpegel" dbms="oracle">
         <comment>re-create UI Replication view cause of the added columns: action,service</comment>
         <createView
                 replaceIfExists="true"
@@ -411,7 +415,32 @@
         </createTable>
     </changeSet>
 
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-longblob-data-type" dbms="mysql">
+        <modifyDataType tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" newDataType="LONGBLOB" />
+        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" columnDataType="LONGBLOB" />
 
+        <modifyDataType tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" newDataType="LONGBLOB" />
+        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" columnDataType="LONGBLOB" />
+
+        <modifyDataType tableName="TB_PM_CONFIGURATION_RAW" columnName="XML" newDataType="LONGBLOB" />
+
+        <modifyDataType tableName="TB_PM_CONFIGURATION_RAW_AUD" columnName="XML" newDataType="LONGBLOB" />
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-drop-delete-expired-messages-procedures" dbms="oracle">
+        <!-- drop existing delete procedures for oracle since they are no longer needed in 5.0 -->
+        <sql dbms="oracle">
+            DROP PROCEDURE del_expired_downloaded_msgs;
+            DROP PROCEDURE del_expired_sent_msgs;
+        </sql>
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-indices" dbms="oracle">
+        <!-- add missing index -->
+        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
+            <column name="FK_COMMAND"/>
+        </createIndex>
+    </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>

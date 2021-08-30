@@ -63,6 +63,9 @@ DROP TABLE MIGR_TB_ERROR_LOG
 DROP TABLE MIGR_TB_MESSAGE_ACKNW
 /
 
+DROP TABLE MIGR_TB_SEND_ATTEMPT
+/
+
 DROP TABLE TB_D_MPC
 /
 
@@ -143,6 +146,9 @@ DROP TABLE IF EXISTS MIGR_TB_ERROR_LOG
 //
 
 DROP TABLE IF EXISTS MIGR_TB_MESSAGE_ACKNW
+//
+
+DROP TABLE IF EXISTS MIGR_TB_SEND_ATTEMPT
 //
 
 DROP TABLE IF EXISTS TB_D_MPC
@@ -658,7 +664,7 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addPrimaryKey columnNames="USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK" tableName="MIGR_TB_MESSAGE_PROPERTIES"/>
+        <addPrimaryKey columnNames="USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK" tableName="MIGR_TB_MESSAGE_PROPERTIES" constraintName="PK_MESSAGE_PROPERTIES"/>
 
         <!-- TB_PART_INFO -->
         <createTable tableName="MIGR_TB_PART_INFO">
@@ -706,7 +712,7 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addPrimaryKey columnNames="PART_INFO_ID_FK, PART_INFO_PROPERTY_FK" tableName="MIGR_TB_PART_PROPERTIES"/>
+        <addPrimaryKey columnNames="PART_INFO_ID_FK, PART_INFO_PROPERTY_FK" tableName="MIGR_TB_PART_PROPERTIES" constraintName="PK_PART_PROPERTIES"/>
 
         <!-- TB_ERROR_LOG -->
         <createTable tableName="MIGR_TB_ERROR_LOG">
@@ -720,7 +726,9 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
             <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
             <column name="NOTIFIED" type="TIMESTAMP"/>
             <column name="TIME_STAMP" type="TIMESTAMP"/>
-            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -739,7 +747,37 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
             <column name="FROM_VALUE" type="VARCHAR(255)"/>
             <column name="TO_VALUE" type="VARCHAR(255)"/>
             <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
-            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="MIGR_TB_SEND_ATTEMPT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_SEND_ATTEMPT"/>
+            </column>
+            <column name="START_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ERROR" type="VARCHAR(255)"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
