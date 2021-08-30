@@ -227,20 +227,29 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_checkIfOperationIsAllowed(final @Mocked LogEvent logEvent) {
+    public void test_checkIfOperationIsAllowed_Submit(final @Mocked LogEvent logEvent) {
         new Expectations() {{
-            logEvent.getType();
-            result = EventType.REQ_IN;
-            result = EventType.RESP_OUT;
-
             logEvent.getOperationName();
             result = WebServiceOperation.SUBMIT_MESSAGE;
-            result = WebServiceOperation.RETRIEVE_MESSAGE;
+
+            logEvent.getType();
+            result = EventType.REQ_IN;
         }};
 
-
         Assert.assertEquals(WSPluginLoggingEventHelperImpl.SUBMIT_REQUEST,
-                wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
+                wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));;
+    }
+
+    @Test
+    public void test_checkIfOperationIsAllowed_Retrieve(final @Mocked LogEvent logEvent) {
+        new Expectations() {{
+            logEvent.getOperationName();
+            result = WebServiceOperation.RETRIEVE_MESSAGE;
+
+            logEvent.getType();
+            result = EventType.RESP_OUT;
+        }};
+
         Assert.assertEquals(WSPluginLoggingEventHelperImpl.RETRIEVE_MESSAGE_RESPONSE,
                 wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
     }
