@@ -21,7 +21,7 @@
         </dependencies>
 
         <resources>
-            <resource-root path="WEB-INF/lib/bcprov-jdk15on-${bouncycastle.version}.jar" use-physical-code-source="true"/>
+            <resource-root path="WEB-INF/lib/bcprov-jdk15to18-${bouncycastle.version}.jar" use-physical-code-source="true"/>
         </resources>
 
         <exclusions>
