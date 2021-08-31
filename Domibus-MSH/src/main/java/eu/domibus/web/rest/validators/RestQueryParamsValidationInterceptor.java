@@ -90,7 +90,7 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;
         } catch (ValidationException ex) {
-             LOG.debug("Query params:[{}] are invalid: [{}]", queryParams, ex);
+            LOG.debug("Query params:[{}] are invalid: [{}]", queryParams, ex);
             throw ex;
         } catch (Exception ex) {
             LOG.debug("Unexpected exception caught [{}] when validating query params [{}]. Request will be processed downhill.", ex, queryParams);
