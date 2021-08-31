@@ -5,6 +5,8 @@ package eu.domibus.api.exceptions;
  * <p>
  * <p>It provides two constructors using the enum DomibusCoreErrorCode, one accepts the throwable cause.
  *
+ * If you extend this class, don't forgot to add an exception handler in {@class GlobalExceptionHandlerAdvice}
+ *
  * @author Federico Martini
  * @see DomibusCoreErrorCode
  * <p>
