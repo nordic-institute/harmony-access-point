@@ -13,11 +13,13 @@ import java.util.Map;
 @Component
 public class QueryParamLengthValidator {
 
+    public static final int MAX_LENGTH_STRING_DATABASE = 255;
+
     public void isValid(String key, String value) {
         if (StringUtils.isBlank(value)) {
             return;
         }
-        if (value.length() > 255) {
+        if (value.length() > MAX_LENGTH_STRING_DATABASE) {
             throw new ValidationException("The param [" + key + "] with value [" + value + "] has more than 255 char.");
         }
     }
