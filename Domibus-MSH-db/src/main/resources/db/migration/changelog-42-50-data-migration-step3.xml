@@ -21,6 +21,7 @@
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
     <changeSet id="EDELIVERY-7970-drop-indexes-uq" author="Catalin Enache">
         <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_MESSAGE_IN_ERROR_ID" />
+        <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_SIGNAL_MESSAGE_ID" />
     </changeSet>
 
     <!-- rename former tables to OLD_* -->
@@ -301,6 +302,9 @@
         </createIndex>
         <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
             <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_ID" tableName="TB_ERROR_LOG">
+            <column name="ERROR_SIGNAL_MESSAGE_ID"/>
         </createIndex>
 
         <!-- TB_MESSAGE_ACKNW -->
