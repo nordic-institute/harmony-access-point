@@ -68,6 +68,8 @@ public class MessageLogInfo {
 
     private String serviceValue;
 
+    private String pluginType;
+
     public MessageLogInfo() {
     }
 
@@ -125,7 +127,8 @@ public class MessageLogInfo {
                           final Boolean sourceMessage,
                           final String action,
                           final String serviceType,
-                          final String serviceValue
+                          final String serviceValue,
+                          final String pluginType
     ) {
         this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, testMessage);
@@ -144,6 +147,7 @@ public class MessageLogInfo {
         this.serviceValue = serviceValue;
         this.failed = failed;
         this.restored = restored;
+        this.pluginType = pluginType;
     }
 
     public void setMessageId(String messageId) {
@@ -342,6 +346,15 @@ public class MessageLogInfo {
         this.serviceValue = serviceValue;
     }
 
+    public String getPluginType() {
+        return pluginType;
+    }
+
+    public void setPluginType(String pluginType) {
+        this.pluginType = pluginType;
+    }
+
+
     public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
         this.nextAttemptTimezoneId = nextAttemptTimezoneId;
     }
@@ -386,6 +399,7 @@ public class MessageLogInfo {
                 .append(action, this.action)
                 .append(serviceType, this.serviceType)
                 .append(serviceValue, this.serviceValue)
+                .append(pluginType, this.pluginType)
                 .isEquals();
     }
 
@@ -415,6 +429,7 @@ public class MessageLogInfo {
                 .append(action)
                 .append(serviceType)
                 .append(serviceValue)
+                .append(pluginType)
                 .toHashCode();
     }
 }
