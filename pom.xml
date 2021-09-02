@@ -1501,6 +1501,7 @@
                                 </goals>
                                 <configuration>
                                     <rules>
+                                        <!-- more rules to be added here -->
                                         <requireMavenVersion>
                                             <version>[3.1,)</version>
                                             <level>WARN</level>
