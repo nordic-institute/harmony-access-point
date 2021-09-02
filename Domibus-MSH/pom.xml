@@ -523,7 +523,10 @@
             <artifactId>commons-collections</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.roda-project</groupId>
+            <artifactId>commons-ip2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

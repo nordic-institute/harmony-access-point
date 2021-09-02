@@ -33,17 +33,26 @@ public class FileSystemEArchivePersistenceTest {
     public void setUp() throws Exception {
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
-        temp.deleteOnExit();
     }
 
     @After
     public void tearDown() {
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
-        temp.delete();
+        deleteDirectory(temp);
+    }
+
+    boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
     }
 
     @Test
-    public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
+    public void createEArkSipStructure2(@Injectable EArchiveFileStorage eArchiveFileStorage) {
         new Expectations() {{
             storageProvider.getCurrentStorage();
             result = eArchiveFileStorage;
