@@ -7,7 +7,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -24,16 +23,21 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorageProviderImpl.class);
 
-    @Autowired
-    protected EArchiveFileStorageFactory storageFactory;
+    protected final EArchiveFileStorageFactory storageFactory;
 
-    @Autowired
-    protected DomainService domainService;
+    protected final DomainService domainService;
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
     protected Map<Domain, EArchiveFileStorage> instances = new HashMap<>();
+
+    public EArchiveFileStorageProviderImpl(EArchiveFileStorageFactory storageFactory,
+                                           DomainService domainService,
+                                           DomainContextProvider domainContextProvider) {
+        this.storageFactory = storageFactory;
+        this.domainService = domainService;
+        this.domainContextProvider = domainContextProvider;
+    }
 
     @PostConstruct
     public void init() {

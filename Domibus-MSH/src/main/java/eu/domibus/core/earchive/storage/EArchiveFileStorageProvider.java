@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
  * @since 5.0
  */
 public interface EArchiveFileStorageProvider {
+
     EArchiveFileStorage forDomain(Domain domain);
 
     EArchiveFileStorage getCurrentStorage();

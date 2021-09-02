@@ -4,9 +4,11 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -30,8 +32,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class EArchiveFileStorage {
 
-    public static final String E_ARCHIVE_STORAGE_LOCATION = DOMIBUS_EARCHIVE_STORAGE_LOCATION;
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorage.class);
 
     private File storageDirectory = null;
@@ -48,16 +48,18 @@ public class EArchiveFileStorage {
     @PostConstruct
     public void init() {
 
-        final String location = domibusPropertyProvider.getProperty(this.domain, E_ARCHIVE_STORAGE_LOCATION);
-        if (StringUtils.isBlank(location)) {
-            LOG.warn("No file system storage defined. This is fine for small attachments but might lead to database issues when processing large eArchivings");
+        final String eArchiveActive = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_ACTIVE);
+        if(BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))){
             return;
+        }
+        final String location = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
+        if (StringUtils.isBlank(location)) {
+            throw new ConfigurationException("No file system storage defined for earchiving but the earchiving is activated.");
         }
 
         Path path = createLocation(location);
         if (path == null) {
-            LOG.warn("There was an error initializing the eArchiving folder, so Domibus will be using the database");
-            return;
+            throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.");
         }
 
         storageDirectory = path.toFile();

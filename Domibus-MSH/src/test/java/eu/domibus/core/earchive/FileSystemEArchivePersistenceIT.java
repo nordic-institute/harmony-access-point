@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.UUID;
 
@@ -19,8 +20,8 @@ import java.util.UUID;
  * @author François Gautier
  * @since 5.0
  */
-public class FileSystemEArchivePersistenceTest {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceTest.class);
+public class FileSystemEArchivePersistenceIT {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceIT.class);
 
     @Injectable
     protected EArchiveFileStorageProvider storageProvider;
@@ -37,8 +38,8 @@ public class FileSystemEArchivePersistenceTest {
 
     @After
     public void tearDown() {
-        LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
         deleteDirectory(temp);
+        LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
 
     boolean deleteDirectory(File directoryToBeDeleted) {
@@ -52,7 +53,7 @@ public class FileSystemEArchivePersistenceTest {
     }
 
     @Test
-    public void createEArkSipStructure2(@Injectable EArchiveFileStorage eArchiveFileStorage) {
+    public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
         new Expectations() {{
             storageProvider.getCurrentStorage();
             result = eArchiveFileStorage;

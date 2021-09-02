@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 /**
- * @author Ion Perpegel
- * @since 4.0
+ * @author François Gautier
+ * @since 5.0
  */
 @Configuration
 public class EArchiveFileStorageConfiguration {

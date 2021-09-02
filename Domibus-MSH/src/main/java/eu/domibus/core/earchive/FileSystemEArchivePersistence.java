@@ -12,8 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -51,73 +52,89 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             SIP sip = new EARKSIP("SIP_1", IPContentType.getMIXED(), IPContentInformationType.getMIXED());
             sip.addCreatorSoftwareAgent("RODA Commons IP", "2.0.0");
 
-// 1.1) set optional human-readable description
+            // 1.1) set optional human-readable description
             sip.setDescription("A full E-ARK SIP");
 
-// 1.2) add descriptive metadata (SIP level)
+            // 1.2) add descriptive metadata (SIP level)
             IPDescriptiveMetadata metadataDescriptiveDC = new IPDescriptiveMetadata(
-                    new IPFile(Paths.get("src/test/resources/eark/metadata_descriptive_dc.xml")),
+                    new IPFile(getDummyFile("metadataDescriptiveDC", ".xml")),
                     new MetadataType(MetadataType.MetadataTypeEnum.DC), null);
 
             sip.addDescriptiveMetadata(metadataDescriptiveDC);
 
 
-// 1.3) add preservation metadata (SIP level)
+            // 1.3) add preservation metadata (SIP level)
             IPMetadata metadataPreservation = new IPMetadata(
-                    new IPFile(Paths.get("src/test/resources/eark/metadata_preservation_premis.xml")));
+                    new IPFile(getDummyFile("metadataPreservation", ".xml")));
             sip.addPreservationMetadata(metadataPreservation);
 
-// 1.4) add other metadata (SIP level)
-            IPFile metadataOtherFile = new IPFile(Paths.get("src/test/resources/eark/metadata_other.txt"));
-// 1.4.1) optionally one may rename file final name
-            metadataOtherFile.setRenameTo("metadata_other_renamed.txt");
+            // 1.4) add other metadata (SIP level)
+            IPFile metadataOtherFile = new IPFile(getDummyFile("metadataOtherFile", ".txt"));
+            // 1.4.1) optionally one may rename file final name
+            metadataOtherFile.setRenameTo("");
             IPMetadata metadataOther = new IPMetadata(metadataOtherFile);
             sip.addOtherMetadata(metadataOther);
 
-// 1.5) add xml schema (SIP level)
-            sip.addSchema(new IPFile(Paths.get("src/test/resources/eark/schema.xsd")));
+            // 1.5) add xml schema (SIP level)
+            sip.addSchema(new IPFile((getDummyFile("schema", ".xsd"))));
 
-// 1.6) add documentation (SIP level)
-            sip.addDocumentation(new IPFile(Paths.get("src/test/resources/eark/documentation.pdf")));
+            // 1.6) add documentation (SIP level)
+            sip.addDocumentation(new IPFile(getDummyFile("Documentation", ".pdf")));
 
-// 1.7) set optional RODA related information about ancestors
+            // 1.7) set optional RODA related information about ancestors
             sip.setAncestors(Arrays.asList("b6f24059-8973-4582-932d-eb0b2cb48f28"));
 
-// 1.8) add an agent (SIP level)
+            // 1.8) add an agent (SIP level)
             IPAgent agent = new IPAgent("Agent Name", "OTHER", "OTHER ROLE", METSEnums.CreatorType.INDIVIDUAL, "OTHER TYPE", "",
                     IPAgentNoteTypeEnum.SOFTWARE_VERSION);
             sip.addAgent(agent);
 
-// 1.9) add a representation (status will be set to the default value, i.e.,
-// ORIGINAL)
+            // 1.9) add a representation (status will be set to the default value, i.e.,
+            // ORIGINAL)
             IPRepresentation representation1 = new IPRepresentation("representation 1");
             sip.addRepresentation(representation1);
 
-// 1.9.1) add a file to the representation
-            IPFile representationFile = new IPFile(Paths.get("src/test/resources/eark/documentation.pdf"));
+            // 1.9.1) add a file to the representation
+            IPFile representationFile = new IPFile(getDummyFile("representationFile", ".pdf"));
             representationFile.setRenameTo("data.pdf");
             representation1.addFile(representationFile);
 
-// 1.9.2) add a file to the representation and put it inside a folder
-// called 'def' which is inside a folder called 'abc'
-            IPFile representationFile2 = new IPFile(Paths.get("src/test/resources/eark/documentation.pdf"));
+            // 1.9.2) add a file to the representation and put it inside a folder
+            // called 'def' which is inside a folder called 'abc'
+            IPFile representationFile2 = new IPFile(getDummyFile("representationFile2", ".pdf"));
             representationFile2.setRelativeFolders(Arrays.asList("abc", "def"));
             representation1.addFile(representationFile2);
 
-// 1.10) add a representation & define its status
+            // 1.10) add a representation & define its status
             IPRepresentation representation2 = new IPRepresentation("representation 2");
             representation2.setStatus(new RepresentationStatus(RepresentationStatus.RepresentationStatusEnum.ORIGINAL));//REPRESENTATION_STATUS_NORMALIZED
             sip.addRepresentation(representation2);
 
-// 1.10.1) add a file to the representation
-            IPFile representationFile3 = new IPFile(Paths.get("src/test/resources/eark/documentation.pdf"));
+            // 1.10.1) add a file to the representation
+            IPFile representationFile3 = new IPFile(getDummyFile("representationFile3", ".pdf"));
             representationFile3.setRenameTo("data3.pdf");
             representation2.addFile(representationFile3);
 
-// 2) build SIP, providing an output directory
+            // 2) build SIP, providing an output directory
             Path zipSIP = sip.build(batchDirectory.toPath());
         } catch (IPException | InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("createEArkSipStructure could not execute", e);
+        }
+    }
+
+    /**
+     * @author François Gautier
+     * @since 5.0
+     * @deprecated since 5.0 replace by a real file later
+     */
+    @Deprecated
+    private Path getDummyFile(String prefix, String suffix) {
+        try {
+            Path tempFile = Files.createTempFile(prefix, suffix);
+            tempFile.toFile().deleteOnExit();
+            return tempFile;
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not create temp file", e);
         }
     }
 }

@@ -7,4 +7,5 @@ package eu.domibus.core.earchive;
 public interface EArchivePersistence {
 
     void createEArkSipStructure(String batchId);
+
 }
