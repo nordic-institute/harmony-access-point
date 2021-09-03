@@ -54,11 +54,11 @@ public class CommandServiceImpl implements CommandService {
     public List<Command> findCommandsByServerName(String serverName) {
         LOG.debug("Find commands by serverName [{}]", serverName);
         final List<CommandEntity> commands = commandDao.findCommandsByServerName(serverName);
-        LOG.debug("There are [{}] commands", commands.size());
+        LOG.debug("There are [{}] commands for server [{}]", commands.size(), serverName);
         return domainConverter.convert(commands, Command.class);
     }
 
-    public void deleteCommand(Integer commandId) {
+    public void deleteCommand(Long commandId) {
         final CommandEntity commandEntity = commandDao.read(commandId);
         if (commandEntity == null) {
             return;

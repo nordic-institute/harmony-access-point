@@ -23,7 +23,7 @@ public class Command {
     public static final String MESSAGE_FILTER_UPDATE = "MESSAGE_FILTER_UPDATE";
     public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
 
-    private int entityId;
+    private long entityId;
     protected String commandName;
     protected String serverName;
     protected Date creationTime;
@@ -54,11 +54,11 @@ public class Command {
         this.creationTime = creationTime;
     }
 
-    public int getEntityId() {
+    public long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(long entityId) {
         this.entityId = entityId;
     }
 

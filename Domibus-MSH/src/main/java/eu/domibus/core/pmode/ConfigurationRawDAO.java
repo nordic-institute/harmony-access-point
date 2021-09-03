@@ -57,7 +57,7 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
         }).collect(Collectors.toList());
     }
 
-    public void deleteById(int id) {
+    public void deleteById(long id) {
         final ConfigurationRaw configurationRaw = read(id);
         this.delete(configurationRaw);
     }

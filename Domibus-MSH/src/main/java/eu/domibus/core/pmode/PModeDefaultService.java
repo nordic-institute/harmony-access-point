@@ -57,7 +57,7 @@ public class PModeDefaultService implements PModeService {
     }
 
     @Override
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         return pModeProvider.getPModeFile(id);
     }
 

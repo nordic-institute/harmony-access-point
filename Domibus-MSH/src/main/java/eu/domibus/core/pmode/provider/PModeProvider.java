@@ -93,7 +93,7 @@ public abstract class PModeProvider {
 
     public abstract boolean isConfigurationLoaded();
 
-    public byte[] getPModeFile(int id) {
+    public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         return getRawConfigurationBytes(rawConfiguration);
     }
@@ -122,7 +122,7 @@ public abstract class PModeProvider {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void removePMode(int id) {
+    public void removePMode(long id) {
         LOG.debug("Removing PMode with id: [{}]", id);
         configurationRawDAO.deleteById(id);
     }
