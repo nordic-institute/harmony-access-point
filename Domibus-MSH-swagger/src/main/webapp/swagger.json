@@ -708,12 +708,12 @@
         "readable" : {
           "type" : "boolean"
         },
-        "filename" : {
-          "type" : "string"
-        },
         "uri" : {
           "type" : "string",
           "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
         }
       }
     },

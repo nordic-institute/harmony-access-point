@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Ion Perpegel
- * @since 4.0
+ * @author François Gautier
+ * @since 5.0
  */
 @Service
 public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvider {

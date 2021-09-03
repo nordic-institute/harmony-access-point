@@ -3,8 +3,8 @@ package eu.domibus.core.earchive.storage;
 import eu.domibus.api.multitenancy.Domain;
 
 /**
- * @author Ion Perpegel
- * @since 4.0
+ * @author François Gautier
+ * @since 5.0
  */
 public interface EArchiveFileStorageFactory {
 

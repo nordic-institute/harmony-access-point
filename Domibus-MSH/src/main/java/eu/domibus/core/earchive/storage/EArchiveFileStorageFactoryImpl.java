@@ -8,8 +8,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 /**
- * @author Ion Perpegel
- * @since 4.0
+ * @author François Gautier
+ * @since 5.0
  */
 @Service
 public class EArchiveFileStorageFactoryImpl implements EArchiveFileStorageFactory {
