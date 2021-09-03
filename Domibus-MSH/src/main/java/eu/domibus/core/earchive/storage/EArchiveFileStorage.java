@@ -10,6 +10,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.VFS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,9 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 
 /**
  * @author François Gautier
@@ -49,7 +53,7 @@ public class EArchiveFileStorage {
     public void init() {
 
         final String eArchiveActive = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_ACTIVE);
-        if(BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))){
+        if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             return;
         }
         final String location = domibusPropertyProvider.getProperty(this.domain, DOMIBUS_EARCHIVE_STORAGE_LOCATION);
@@ -80,33 +84,48 @@ public class EArchiveFileStorage {
      * It works also when the location is a symbolic link.
      */
     protected Path createLocation(String path) {
-        Path eArchivePath;
+        FileSystemManager fileSystemManager = getVFSManager();
+
+        FileObject fileObject;
         try {
-            eArchivePath = Paths.get(path).normalize();
-            if (!eArchivePath.isAbsolute()) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Relative path [" + eArchivePath + "] is forbidden. Please provide absolute path for eArchiving storage");
+            try {
+                fileObject = fileSystemManager.resolveFile(path);
+            } catch (FileSystemException e) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, e.getMessage(), e);
             }
             // Checks if the path exists, if not it creates it
-            if (Files.notExists(eArchivePath)) {
-                Files.createDirectories(eArchivePath);
-                LOG.info("The eArchiving folder [{}] has been created!", eArchivePath.toAbsolutePath());
+            if (!fileObject.exists()) {
+                fileObject.createFolder();
+                LOG.info("The eArchiving folder [{}] has been created!", fileObject.getPath().toAbsolutePath());
             } else {
-                if (Files.isSymbolicLink(eArchivePath)) {
-                    eArchivePath = Files.readSymbolicLink(eArchivePath);
+                if (fileObject.isSymbolicLink()) {
+                    fileObject = fileSystemManager.resolveFile(Files.readSymbolicLink(fileObject.getPath()).toAbsolutePath().toString());
                 }
 
-                if (!Files.isWritable(eArchivePath)) {
-                    throw new IOException("Write permission for eArchiving folder " + eArchivePath.toAbsolutePath() + " is not granted.");
+                if (!fileObject.isWriteable()) {
+                    throw new IOException("Write permission for eArchiving folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
                 }
             }
         } catch (IOException ioEx) {
             LOG.error("Error creating/accessing the eArchiving folder [{}]", path, ioEx);
 
             // Takes temporary folder by default if it faces any issue while creating defined path.
-            eArchivePath = Paths.get(System.getProperty("java.io.tmpdir"));
-            LOG.warn(WarningUtil.warnOutput("The temporary eArchiving folder " + eArchivePath.toAbsolutePath() + " has been selected!"));
+            try {
+                fileObject = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"));
+            } catch (FileSystemException e) {
+                throw new IllegalStateException("Could not create the eArchiving location [" + path + "]");
+            }
+            LOG.warn(WarningUtil.warnOutput("The temporary eArchiving folder " + fileObject.getPath().toAbsolutePath() + " has been selected!"));
         }
-        return eArchivePath;
+        return fileObject.getPath();
+    }
+
+    private FileSystemManager getVFSManager() {
+        try {
+            return VFS.getManager();
+        } catch (FileSystemException e) {
+            throw new IllegalStateException("VFS Manager could not be created");
+        }
     }
 
 }
