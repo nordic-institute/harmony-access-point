@@ -1513,6 +1513,32 @@
                                         <banDuplicatePomDependencyVersions>
                                             <level>ERROR</level>
                                         </banDuplicatePomDependencyVersions>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- this will check only dependency convergence from maven-enforcer-plugin -->
+        <profile>
+            <id>enforceDependency</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-versions</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
                                         <DependencyConvergence/>
                                     </rules>
                                 </configuration>
@@ -1522,5 +1548,6 @@
                 </plugins>
             </build>
         </profile>
+
     </profiles>
 </project>
