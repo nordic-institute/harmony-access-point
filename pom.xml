@@ -1511,7 +1511,7 @@
                                             <level>WARN</level>
                                         </requireJavaVersion>
                                         <banDuplicatePomDependencyVersions>
-                                            <level>WARN</level>
+                                            <level>ERROR</level>
                                         </banDuplicatePomDependencyVersions>
                                         <DependencyConvergence/>
                                     </rules>
