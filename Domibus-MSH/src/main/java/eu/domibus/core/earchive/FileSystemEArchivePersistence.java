@@ -46,14 +46,14 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     @Override
     public Path createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO) {
-        LOG.info("Create dummy structure for batchId [{}]", batchEArchiveDTO.getBatch_id());
+        LOG.info("Create dummy structure for batchId [{}]", batchEArchiveDTO.getBatchId());
 
-        File batchDirectory = new File(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatch_id());
+        File batchDirectory = new File(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatchId());
         FileUtils.mkDir(batchDirectory);
 
         try {
-            DomibusEARKSIP sip = new DomibusEARKSIP();//"SIP_1", IPContentType.getMIXED(), IPContentInformationType.getMIXED());
-            sip.setBatchId(batchEArchiveDTO.getBatch_id());
+            DomibusEARKSIP sip = new DomibusEARKSIP();
+            sip.setBatchId(batchEArchiveDTO.getBatchId());
             sip.addCreatorSoftwareAgent(domibusVersionService.getArtifactName(), domibusVersionService.getDisplayVersion());
             sip.setDescription(domibusVersionService.getDisplayVersion());
 

@@ -53,7 +53,7 @@ public class FileSystemEArchivePersistenceIT {
     @Before
     public void setUp() throws Exception {
         batchEArchiveDTO = new BatchEArchiveDTO();
-        batchEArchiveDTO.setBatch_id(UUID.randomUUID().toString());
+        batchEArchiveDTO.setBatchId(UUID.randomUUID().toString());
         batchEArchiveDTO.setMessages(Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
@@ -61,19 +61,9 @@ public class FileSystemEArchivePersistenceIT {
 
     @After
     public void tearDown() throws IOException {
-//        deleteDirectory(temp);
+//        FileUtils.deleteDirectory(temp);
         Desktop.getDesktop().open(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
-    }
-
-    boolean deleteDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                deleteDirectory(file);
-            }
-        }
-        return directoryToBeDeleted.delete();
     }
 
     @Test
