@@ -1,6 +1,6 @@
 package eu.domibus.core.message.testservice;
 
-import com.thoughtworks.xstream.XStream;
+import com.google.gson.Gson;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.Ebms3Constants;
@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataSource;
-import java.io.InputStream;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -66,7 +65,7 @@ public class TestServiceTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Mocked
-    private XStream xStream;
+    private Gson gson;
 
     @Mocked
     SignalMessage signalMessage;
@@ -103,10 +102,10 @@ public class TestServiceTest {
     @Before
     public void setUp() {
         new Expectations() {{
-            new XStream();
-            result = xStream;
+            new Gson();
+            result = gson;
 
-            xStream.fromXML((InputStream) any);
+            gson.fromJson(anyString, Submission.class);
             result = submission;
         }};
     }
@@ -380,9 +379,9 @@ public class TestServiceTest {
     @Test
     public void testGetLastTestSent() {
         new Expectations() {{
-            new XStream();
+            new Gson();
             times = 0;
-            xStream.fromXML((InputStream) any);
+            gson.fromJson(anyString, Submission.class);
             times = 0;
             userMessageLogDao.findLastTestMessageId(partyId);
             result = userMessageId;
@@ -397,9 +396,9 @@ public class TestServiceTest {
     public void testGetLastTestSent_NotFound() throws TestServiceException {
         // Given
         new Expectations() {{
-            new XStream();
+            new Gson();
             times = 0;
-            xStream.fromXML((InputStream) any);
+            gson.fromJson(anyString, Submission.class);
             times = 0;
             userMessageLogDao.findLastTestMessageId(anyString);
             result = userMessageId;
@@ -417,9 +416,9 @@ public class TestServiceTest {
         new Expectations() {{
             party.getEndpoint();
             result = "testEndpoint";
-            new XStream();
+            new Gson();
             times = 0;
-            xStream.fromXML((InputStream) any);
+            gson.fromJson(anyString, Submission.class);
             times = 0;
             messagingDao.findMessageByMessageId(anyString);
             result = messaging;
@@ -444,9 +443,9 @@ public class TestServiceTest {
     public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
         // Given
         new Expectations() {{
-            new XStream();
+            new Gson();
             times = 0;
-            xStream.fromXML((InputStream) any);
+            gson.fromJson(anyString, Submission.class);
             times = 0;
             messagingDao.findMessageByMessageId(anyString);
             result = messaging;
@@ -463,9 +462,9 @@ public class TestServiceTest {
         new Expectations() {{
             party.getEndpoint();
             result = "testEndpoint";
-            new XStream();
+            new Gson();
             times = 0;
-            xStream.fromXML((InputStream) any);
+            gson.fromJson(anyString, Submission.class);
             times = 0;
             signalMessageLogDao.findLastTestMessageId(partyId);
             result = "signalMessageId";
