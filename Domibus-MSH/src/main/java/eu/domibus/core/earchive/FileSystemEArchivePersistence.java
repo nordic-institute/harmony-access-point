@@ -1,21 +1,24 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.core.earchive.eark.DomibusEARKSIP;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.helpers.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
-import org.roda_project.commons_ip.utils.METSEnums;
 import org.roda_project.commons_ip2.model.*;
-import org.roda_project.commons_ip2.model.impl.eark.EARKSIP;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 
 /**
  * @author François Gautier
@@ -25,116 +28,82 @@ import java.util.Arrays;
 public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistence.class);
+    public static final String BATCH_JSON = "batch.json";
 
-    @Autowired
-    protected EArchiveFileStorageProvider storageProvider;
+    protected final EArchiveFileStorageProvider storageProvider;
 
-// TODO: François Gautier 01-09-21 will be needed later
-//    @Autowired
-//    protected BackendNotificationService backendNotificationService;
-//
-//    @Autowired
-//    protected CompressionService compressionService;
-//
-//    @Autowired
-//    protected EArchivePersistenceHelper eArchivePersistenceHelper;
-//
-//    @Autowired
-//    protected PayloadEncryptionService encryptionService;
+    protected final DomibusVersionService domibusVersionService;
+
+    private final EArchivingService eArchivingService;
+
+    public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
+                                         DomibusVersionService domibusVersionService,
+                                         EArchivingService eArchivingService) {
+        this.storageProvider = storageProvider;
+        this.domibusVersionService = domibusVersionService;
+        this.eArchivingService = eArchivingService;
+    }
 
     @Override
-    public void createEArkSipStructure(String batchId) {
-        LOG.info("Create dummy structure for batchId [{}]", batchId);
-        File batchDirectory = new File(storageProvider.getCurrentStorage().getStorageDirectory(), batchId);
+    public Path createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO) {
+        LOG.info("Create dummy structure for batchId [{}]", batchEArchiveDTO.getBatch_id());
+
+        File batchDirectory = new File(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatch_id());
         FileUtils.mkDir(batchDirectory);
 
         try {
-            SIP sip = new EARKSIP("SIP_1", IPContentType.getMIXED(), IPContentInformationType.getMIXED());
-            sip.addCreatorSoftwareAgent("RODA Commons IP", "2.0.0");
+            DomibusEARKSIP sip = new DomibusEARKSIP();//"SIP_1", IPContentType.getMIXED(), IPContentInformationType.getMIXED());
+            sip.setBatchId(batchEArchiveDTO.getBatch_id());
+            sip.addCreatorSoftwareAgent(domibusVersionService.getArtifactName(), domibusVersionService.getDisplayVersion());
+            sip.setDescription(domibusVersionService.getDisplayVersion());
 
-            // 1.1) set optional human-readable description
-            sip.setDescription("A full E-ARK SIP");
+            representation1(sip, batchEArchiveDTO);
 
-            // 1.2) add descriptive metadata (SIP level)
-            IPDescriptiveMetadata metadataDescriptiveDC = new IPDescriptiveMetadata(
-                    new IPFile(getDummyFile("metadataDescriptiveDC", ".xml")),
-                    new MetadataType(MetadataType.MetadataTypeEnum.DC), null);
-
-            sip.addDescriptiveMetadata(metadataDescriptiveDC);
-
-
-            // 1.3) add preservation metadata (SIP level)
-            IPMetadata metadataPreservation = new IPMetadata(
-                    new IPFile(getDummyFile("metadataPreservation", ".xml")));
-            sip.addPreservationMetadata(metadataPreservation);
-
-            // 1.4) add other metadata (SIP level)
-            IPFile metadataOtherFile = new IPFile(getDummyFile("metadataOtherFile", ".txt"));
-            // 1.4.1) optionally one may rename file final name
-            metadataOtherFile.setRenameTo("");
-            IPMetadata metadataOther = new IPMetadata(metadataOtherFile);
-            sip.addOtherMetadata(metadataOther);
-
-            // 1.5) add xml schema (SIP level)
-            sip.addSchema(new IPFile((getDummyFile("schema", ".xsd"))));
-
-            // 1.6) add documentation (SIP level)
-            sip.addDocumentation(new IPFile(getDummyFile("Documentation", ".pdf")));
-
-            // 1.7) set optional RODA related information about ancestors
-            sip.setAncestors(Arrays.asList("b6f24059-8973-4582-932d-eb0b2cb48f28"));
-
-            // 1.8) add an agent (SIP level)
-            IPAgent agent = new IPAgent("Agent Name", "OTHER", "OTHER ROLE", METSEnums.CreatorType.INDIVIDUAL, "OTHER TYPE", "",
-                    IPAgentNoteTypeEnum.SOFTWARE_VERSION);
-            sip.addAgent(agent);
-
-            // 1.9) add a representation (status will be set to the default value, i.e.,
-            // ORIGINAL)
-            IPRepresentation representation1 = new IPRepresentation("representation 1");
-            sip.addRepresentation(representation1);
-
-            // 1.9.1) add a file to the representation
-            IPFile representationFile = new IPFile(getDummyFile("representationFile", ".pdf"));
-            representationFile.setRenameTo("data.pdf");
-            representation1.addFile(representationFile);
-
-            // 1.9.2) add a file to the representation and put it inside a folder
-            // called 'def' which is inside a folder called 'abc'
-            IPFile representationFile2 = new IPFile(getDummyFile("representationFile2", ".pdf"));
-            representationFile2.setRelativeFolders(Arrays.asList("abc", "def"));
-            representation1.addFile(representationFile2);
-
-            // 1.10) add a representation & define its status
-            IPRepresentation representation2 = new IPRepresentation("representation 2");
-            representation2.setStatus(new RepresentationStatus(RepresentationStatus.RepresentationStatusEnum.ORIGINAL));//REPRESENTATION_STATUS_NORMALIZED
-            sip.addRepresentation(representation2);
-
-            // 1.10.1) add a file to the representation
-            IPFile representationFile3 = new IPFile(getDummyFile("representationFile3", ".pdf"));
-            representationFile3.setRenameTo("data3.pdf");
-            representation2.addFile(representationFile3);
-
-            // 2) build SIP, providing an output directory
-            Path zipSIP = sip.build(batchDirectory.toPath());
+            return sip.build(batchDirectory.toPath());
         } catch (IPException | InterruptedException e) {
-            LOG.error("createEArkSipStructure could not execute", e);
+            throw new DomibusEArchiveException("createEArkSipStructure could not execute", e);
         }
     }
 
-    /**
-     * @author François Gautier
-     * @since 5.0
-     * @deprecated since 5.0 replace by a real file later
-     */
-    @Deprecated
-    private Path getDummyFile(String prefix, String suffix) {
+    private void representation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO) throws IPException {
+        IPRepresentation representation1 = new IPRepresentation("representation1");
+        sip.addRepresentation(representation1);
+
+        InputStream batchFileJson = eArchivingService.getBatchFileJson(batchEArchiveDTO);
         try {
-            Path tempFile = Files.createTempFile(prefix, suffix);
-            tempFile.toFile().deleteOnExit();
-            return tempFile;
+            // TODO: François Gautier 07-09-21 allow inputStream for better efficiency
+            Path tempFile = Files.createTempFile("temp_batch", ".json");
+            copyInputStreamToFile(batchFileJson, tempFile.toFile());
+            IPFile ipFile = new IPFile(tempFile);
+            ipFile.setRenameTo(BATCH_JSON);
+            representation1.addFile(ipFile);
         } catch (IOException e) {
-            throw new IllegalStateException("Could not create temp file", e);
+            throw new DomibusEArchiveException("Could not process the file batch.json [" + batchEArchiveDTO + "]", e);
+        }
+        for (String messageId : batchEArchiveDTO.getMessages()) {
+            addUserMessage(representation1, messageId);
+        }
+    }
+
+    private void addUserMessage(IPRepresentation representation1, String messageId) {
+        Map<String, InputStream> archivingFile = eArchivingService.getArchivingFiles(messageId);
+
+        for (Map.Entry<String, InputStream> stringInputStreamEntry : archivingFile.entrySet()) {
+            processFile(representation1, messageId, stringInputStreamEntry);
+        }
+    }
+
+    private void processFile(IPRepresentation representation1, String messageId, Map.Entry<String, InputStream> aFile) {
+        try {
+            Path tempFile = Files.createTempFile("temp" + messageId + aFile.getKey(), "");
+            copyInputStreamToFile(aFile.getValue(), tempFile.toFile());
+            // TODO: François Gautier 07-09-21 allow inputStream for better efficiency
+            IPFile soapEnvelope = new IPFile(tempFile);
+            soapEnvelope.setRelativeFolders(singletonList(messageId));
+            soapEnvelope.setRenameTo(aFile.getKey());
+            representation1.addFile(soapEnvelope);
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Could not process the file [" + aFile.getKey() + "] for messageId [" + messageId + "]", e);
         }
     }
 }
