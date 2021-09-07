@@ -52,7 +52,6 @@
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.17</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
@@ -766,13 +765,6 @@
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
-            </dependency>
-
-            <!-- XStream -->
-            <dependency>
-                <groupId>com.thoughtworks.xstream</groupId>
-                <artifactId>xstream</artifactId>
-                <version>${xstream.version}</version>
             </dependency>
 
             <!-- FreeMarker-->
