@@ -19,8 +19,8 @@ public class PModeCurrentRestTest extends RestTest {
 		
 		for (String domain : domains) {
 			rest.pmode().uploadPMode(uploadPath, domain);
-			int pmodeId = rest.pmode().getLatestPModeID(domain);
-			String dPmodePath = rest.pmode().downloadPmode(domain, pmodeId);
+			String pmodeId = rest.pmode().getLatestPModeID(domain);
+			String dPmodePath = rest.pmode().downloadPmodeFile(domain, pmodeId);
 			
 			String downloadedContent = new String(Files.readAllBytes(Paths.get(dPmodePath)));
 			

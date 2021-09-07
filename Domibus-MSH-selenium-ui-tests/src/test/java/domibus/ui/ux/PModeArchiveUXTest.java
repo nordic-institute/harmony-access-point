@@ -147,7 +147,7 @@ public class PModeArchiveUXTest extends SeleniumTest {
 
 		Allure.step("downloading current pmode");
 		log.info("downloading current pmode");
-		String downloadedPMode = new String(Files.readAllBytes(Paths.get(rest.pmode().downloadPmode(null, rest.pmode().getLatestPModeID(null)))));
+		String downloadedPMode = new String(Files.readAllBytes(Paths.get(rest.pmode().downloadPmodeFile(null, rest.pmode().getLatestPModeID(null)))));
 
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
