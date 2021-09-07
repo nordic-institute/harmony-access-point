@@ -564,10 +564,10 @@ public class AuditPgTest extends SeleniumTest {
 
 		Allure.step("getting pmode id");
 		log.info("getting pmode id");
-		Integer pmodeID = rest.pmode().getLatestPModeID(null);
+		String pmodeID = rest.pmode().getLatestPModeID(null);
 		Allure.step("downloading PMODE with id " + pmodeID);
 		log.info("downloading PMODE with id " + pmodeID);
-		String filename = rest.pmode().downloadPmode(null, pmodeID);
+		String filename = rest.pmode().downloadPmodeFile(null, pmodeID);
 		Allure.step("downloaded file with name " + filename);
 		log.info("downloaded file with name " + filename);
 
@@ -1166,7 +1166,7 @@ public class AuditPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		String domain = selectRandomDomain();
 
-		int pmodeID = rest.pmode().getLatestPModeID(domain);
+		String pmodeID = rest.pmode().getLatestPModeID(domain);
 		rest.pmode().downloadPmode(domain, pmodeID);
 
 		AuditPage page = new AuditPage(driver);

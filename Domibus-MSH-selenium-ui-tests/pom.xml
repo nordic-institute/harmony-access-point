@@ -68,7 +68,7 @@
                             </systemPropertyVariables>
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
-                                <suiteXmlFile>testng_ftests.xml</suiteXmlFile>
+                                <suiteXmlFile>testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
                             <properties>
                                 <property>
