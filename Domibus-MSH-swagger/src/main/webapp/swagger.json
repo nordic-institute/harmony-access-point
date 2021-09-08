@@ -13,6 +13,8 @@
   "tags" : [ {
     "name" : "acknowledgement"
   }, {
+    "name" : "archive"
+  }, {
     "name" : "cache"
   }, {
     "name" : "envelope"
@@ -49,10 +51,33 @@
     },
     "/ext/archive/batches/exported" : {
       "get" : {
-        "tags" : [ "status" ],
+        "tags" : [ "archive" ],
         "summary" : "History of the exported batches",
         "description" : "This REST endpoint provides a history of exported batches with status success, failed or expired. It\n allows the archiving client to validate if it has archived all exported batches.",
         "operationId" : "historyOfTheExportedBatches",
+        "parameters" : [ {
+          "name" : "startDate",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        }, {
+          "name" : "endDate",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "reExport",
+          "in" : "query",
+          "required" : true,
+          "type" : "boolean"
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -71,7 +96,7 @@
     },
     "/ext/archive/batches/exported/{batchId}/confirm-archived" : {
       "put" : {
-        "tags" : [ "status" ],
+        "tags" : [ "archive" ],
         "summary" : "Sets batch as successfully archived",
         "description" : "This REST endpoint will be used by the archiving client to confirm that a batch was archived successfully or that it failed to archive it. The request contains the batch identifier which allows Domibus to identify all messages in the batch to mark them as archived and eligible for purging. Note that, for performance reasons, Domibus will asynchronously mark the batch messages as archived.",
         "operationId" : "setBatchAsArchived",
@@ -96,8 +121,8 @@
     },
     "/ext/archive/batches/exported/{batchId}/export" : {
       "put" : {
-        "tags" : [ "status" ],
-        "summary" : "export a batch based on batch id",
+        "tags" : [ "archive" ],
+        "summary" : "Export a batch based on batch id",
         "description" : "This REST endpoint will export a new batch with a new batch id containing the same messages that were already exported in a batch identified by the batch id provided as a parameter.",
         "operationId" : "exportBatch",
         "parameters" : [ {
@@ -121,7 +146,7 @@
     },
     "/ext/archive/batches/exported/{batchId}/messages" : {
       "get" : {
-        "tags" : [ "status" ],
+        "tags" : [ "archive" ],
         "summary" : "Get the message IDs exported in a batch",
         "description" : "Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the\nlimit and start parameters are not provided.",
         "operationId" : "getBatchMessageIds",
@@ -130,6 +155,18 @@
           "in" : "path",
           "required" : true,
           "type" : "string"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
         } ],
         "responses" : {
           "200" : {
@@ -146,10 +183,41 @@
     },
     "/ext/archive/batches/queued" : {
       "get" : {
-        "tags" : [ "status" ],
+        "tags" : [ "archive" ],
         "summary" : "List batch export requests that are queued",
         "description" : " Method returns the list of batches that are queued to be processed asynchronously by Domibus.",
         "operationId" : "getQueuedBatchRequests",
+        "parameters" : [ {
+          "name" : "lastCountRequests",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "maxCountResults",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "requestType",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "enum" : [ "CONTINUOUS", "ONE_TIME", "ALL" ]
+        }, {
+          "name" : "startDate",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        }, {
+          "name" : "endDate",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -168,7 +236,7 @@
     },
     "/ext/archive/batches/queued/current-start-date" : {
       "get" : {
-        "tags" : [ "status" ],
+        "tags" : [ "archive" ],
         "summary" : "Get the current start date of the continuous export",
         "description" : "This REST endpoint will expose the continuous export mechanism current start date.",
         "operationId" : "getCurrentExportDate",
@@ -187,10 +255,35 @@
     },
     "/ext/archive/messages/not-archived" : {
       "get" : {
-        "tags" : [ "status" ],
+        "tags" : [ "archive" ],
         "summary" : " Messages which were not archived within a specific period",
         "description" : "This REST endpoint can be used to check if all AS4 messages received or sent within a specific period were archived.",
         "operationId" : "notArchivedMessages",
+        "parameters" : [ {
+          "name" : "startDate",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        }, {
+          "name" : "endDate",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -873,6 +966,13 @@
         "readable" : {
           "type" : "boolean"
         },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
+        },
         "url" : {
           "type" : "string",
           "format" : "url"
@@ -882,13 +982,6 @@
         },
         "open" : {
           "type" : "boolean"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
-        },
-        "filename" : {
-          "type" : "string"
         }
       }
     },

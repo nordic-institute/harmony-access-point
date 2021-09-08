@@ -10,6 +10,8 @@ import io.swagger.annotations.Authorization;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.QueryParam;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +29,7 @@ public class DomibusEArchiveExtResource {
 
     /**
      * Handling EArchive exceptions
-     * @param e
+     * @param e: Domibus Archive Exception
      * @return ErrorDTO object.
      */
     @ExceptionHandler(DomibusEArchiveExtException.class)
@@ -42,15 +44,23 @@ public class DomibusEArchiveExtResource {
      * Method returns the list of batches that are queued to be processed asynchronously by
      * Domibus. It can be used for monitoring purposes.
      *
-     * @param filterRequestDTO: object contains filtering parameters as: last N enqueued, maximum N results, only one-time or continuous requests, batches enqueued in
-     * a specific day or time period.
-     * @return MonitoringInfoDTO with the status of monitoring services specific to the filter
+     * @param lastCountRequests return last N enqueued bath export requests
+     * @param maxCountResults return max number of enqueued bath export requests
+     * @param requestType return bath types  (values  ALL, CONTINUOUS, ONE_TIME)
+     * @param startDate  start day-time  of batches enqueued
+     * @param endDate  end day-time  of batches enqueued
+
+     * @return the list of queued batches
      */
     @ApiOperation(value = "List batch export requests that are queued",
             notes = " Method returns the list of batches that are queued to be processed asynchronously by Domibus.",
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
     @GetMapping(path = "batches/queued")
-    public List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterRequestDTO filterRequestDTO ) {
+    public List<QueuedBatchDTO> getQueuedBatchRequests(@RequestParam("lastCountRequests") Integer lastCountRequests,
+            @RequestParam("maxCountResults") Integer maxCountResults,
+            @RequestParam("requestType") BatchRequestType requestType,
+            @RequestParam("startDate") Date startDate,
+            @RequestParam("endDate") Date endDate) {
         // TODO implement search method
         return null;
     }
@@ -61,8 +71,10 @@ public class DomibusEArchiveExtResource {
      * Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the
      * limit and start parameters are not provided.
      *
-     * @param filterRequestDTO: the message filter with parameters:  batch id, limit: the total number of message IDs exported and  start: the offset from which the message IDs export will start
-     * @return List of message ids for the batch
+     * @param batchId: batch id of the message ids,
+     * @param limit: the total number of message IDs exported
+     * @param start: the offset from which the message IDs export will start
+     * @return List of message ids in the batch
      */
 
     @ApiOperation(value = "Get the message IDs exported in a batch",
@@ -71,7 +83,9 @@ public class DomibusEArchiveExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
     @GetMapping(path = "batches/exported/{batchId:.+}/messages")
     public ExportedBatchMessagesDTO getBatchMessageIds(@PathVariable(name = "batchId") String batchId,
-                                                       ExportedBatchMessagesFilterRequestDTO filterRequestDTO) {
+                                                       @RequestParam("limit") Integer limit,
+                                                       @RequestParam("start") Integer start
+                                                       ) {
 
         // TODO implement search method
         return null;
@@ -84,11 +98,12 @@ public class DomibusEArchiveExtResource {
      * This REST endpoint provides a history of exported batches with status success, failed or expired. It
      * allows the archiving client to validate if it has archived all exported batches.
      *
+     * @param startDate: start date of the exported messages in the batch
+     * @param endDate: end date  of the exported messages included in the batch,
+     * @param endDate: batch status,
+     * @param endDate: batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
      *
-     * @param filterRequestDTO: filters for start date and end date of the exported messages included in the batch, batch status,
-     * batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
-     *
-     * @return MonitoringInfoDTO with the status of monitoring services specific to the filter
+     * @return list of the exported batches
      */
     @ApiOperation(value = "History of the exported batches",
             notes = "This REST endpoint provides a history of exported batches with status success, failed or expired. It\n" +
@@ -96,8 +111,10 @@ public class DomibusEArchiveExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
     @GetMapping(path = "batches/exported")
     public List<ExportedBatchDTO> historyOfTheExportedBatches(
-            ExportedBatchFilterRequestDTO filterRequestDTO
-
+            @RequestParam("startDate") Date startDate,
+            @RequestParam("endDate") Date endDate,
+            @RequestParam("status") String status,
+            @RequestParam("reExport") Boolean reExport
     ) {
         // TODO implement search method
         return null;
@@ -117,6 +134,7 @@ public class DomibusEArchiveExtResource {
      *
      * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
      *
+     * @return status of the queued export request
      */
     @ApiOperation(value = "Export a batch based on batch id",
             notes = "This REST endpoint will export a new batch with a new batch id containing the same messages that" +
@@ -144,6 +162,7 @@ public class DomibusEArchiveExtResource {
      *
      * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
      *
+     *  @return status of the queued export request
      */
     @ApiOperation(value = "Sets batch as successfully archived",
             notes = "This REST endpoint will be used by the archiving client to confirm that a batch was archived " +
@@ -168,16 +187,22 @@ public class DomibusEArchiveExtResource {
      * The response will contain the list of the message IDs which were not archived during the specified
      * period.
      *
-     * @param filterRequestDTO:  filter object contains start date and end date of the period to be checked, limit: the total number of message IDs exported
-     * start: the offset for the message IDs listed
+     * @param startDate: start date of the period to be checked
+     * @param startDate: end date of the period to be checked,
+     * @param limit: the total number of message IDs exported
+     * @param start: the offset for the message IDs listed
      *
+     *  @return message list
      */
     @ApiOperation(value = " Messages which were not archived within a specific period",
             notes = "This REST endpoint can be used to check if all AS4 messages received or sent within a specific period " +
                     "were archived.",
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
     @GetMapping(path = "messages/not-archived")
-    public MessagesDTO notArchivedMessages(MessagesFilterRequestDTO filterRequestDTO
+    public MessagesDTO notArchivedMessages(  @RequestParam("startDate")Date startDate,
+                                             @RequestParam("endDate") Date endDate,
+                                             @RequestParam("limit") Integer limit,
+                                             @RequestParam("start") Integer start
     ) {
         // TODO implement method
         return null;
@@ -187,6 +212,8 @@ public class DomibusEArchiveExtResource {
      *  Get the current start date of the continuous export
      *
      * This REST endpoint will expose the continuous export mechanism current start date
+     *
+     * @return current "continuous export" batch start date
      */
     @ApiOperation(value = "Get the current start date of the continuous export",
             notes = "This REST endpoint will expose the continuous export mechanism current start date.",

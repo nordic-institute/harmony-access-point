@@ -3,10 +3,14 @@ package eu.domibus.ext.domain.archive;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author Joze Rihtarsic
+ * @since 5.0
+ */
 public class ExportedBatchDTO {
 
     String batchId;
-    String requestType;
+    BatchRequestType requestType;
     String errorCode;
     String errorDescription;
     Date enqueuedTimestamp;
@@ -24,11 +28,11 @@ public class ExportedBatchDTO {
         this.batchId = batchId;
     }
 
-    public String getRequestType() {
+    public BatchRequestType getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(String requestType) {
+    public void setRequestType(BatchRequestType requestType) {
         this.requestType = requestType;
     }
 

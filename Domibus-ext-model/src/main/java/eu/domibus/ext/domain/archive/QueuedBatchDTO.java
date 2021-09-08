@@ -3,6 +3,10 @@ package eu.domibus.ext.domain.archive;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author Joze Rihtarsic
+ * @since 5.0
+ */
 public class QueuedBatchDTO {
 
     String batchId;
