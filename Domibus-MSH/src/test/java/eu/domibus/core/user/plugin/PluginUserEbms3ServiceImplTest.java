@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -256,9 +257,9 @@ public class PluginUserEbms3ServiceImplTest {
 
         PluginUserRO userRO = new PluginUserRO();
         userRO.setUserName("user1");
-        userRO.setExpirationDate(LocalDateTime.now().plusDays(30));
+        userRO.setExpirationDate(LocalDateTime.now(ZoneOffset.UTC).plusDays(30));
 
-        LocalDateTime expDate = LocalDateTime.now().plusDays(30);
+        LocalDateTime expDate = LocalDateTime.now(ZoneOffset.UTC).plusDays(30);
 
         new Expectations(pluginUserService) {{
             pluginUserService.convertAndPrepareUser(user);
@@ -278,9 +279,9 @@ public class PluginUserEbms3ServiceImplTest {
 
         PluginUserRO userRO = new PluginUserRO();
         userRO.setUserName("user1");
-        userRO.setExpirationDate(LocalDateTime.now().plusDays(30));
+        userRO.setExpirationDate(LocalDateTime.now(ZoneOffset.UTC).plusDays(30));
 
-        LocalDateTime expDate = LocalDateTime.now().plusDays(30);
+        LocalDateTime expDate = LocalDateTime.now(ZoneOffset.UTC).plusDays(30);
 
         new Expectations() {{
             authCoreMapper.authenticationEntityToPluginUserRO(user);

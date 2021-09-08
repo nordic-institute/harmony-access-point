@@ -96,12 +96,12 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Rollback
     public void findWithPasswordChangedBetween()  {
         User user1 = createUser("userPassChanged1");
-        user1.setPasswordChangeDate(LocalDateTime.now().minusDays(5));
+        user1.setPasswordChangeDate(LocalDateTime.now(ZoneOffset.UTC).minusDays(5));
 
         User user2 = createUser("userPassChanged2");
-        user2.setPasswordChangeDate(LocalDateTime.now().minusDays(2));
+        user2.setPasswordChangeDate(LocalDateTime.now(ZoneOffset.UTC).minusDays(2));
 
-        List<User> users = userDao.findWithPasswordChangedBetween(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1), false);
+        List<User> users = userDao.findWithPasswordChangedBetween(LocalDate.now(ZoneOffset.UTC).minusDays(3), LocalDate.now(ZoneOffset.UTC).minusDays(1), false);
 
         assertEquals(1, users.size());
         assertEquals("userPassChanged2", users.get(0).getUserName());
