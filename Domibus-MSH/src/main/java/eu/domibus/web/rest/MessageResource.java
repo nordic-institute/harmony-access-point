@@ -76,11 +76,6 @@ public class MessageResource {
 
         byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
 
-        BatchEArchiveDTO batchEArchiveDTO = new BatchEArchiveDTO();
-        batchEArchiveDTO.setBatchId(UUID.randomUUID().toString());
-        batchEArchiveDTO.setMessages(Arrays.asList(messageId));
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO);
-
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/zip"))
                 .header("content-disposition", "attachment; filename=" + messageId + ".zip")

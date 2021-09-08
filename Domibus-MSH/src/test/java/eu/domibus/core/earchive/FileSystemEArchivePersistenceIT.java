@@ -9,11 +9,11 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +61,8 @@ public class FileSystemEArchivePersistenceIT {
 
     @After
     public void tearDown() throws IOException {
-//        FileUtils.deleteDirectory(temp);
-        Desktop.getDesktop().open(temp);
+        FileUtils.deleteDirectory(temp);
+//        Desktop.getDesktop().open(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
 
