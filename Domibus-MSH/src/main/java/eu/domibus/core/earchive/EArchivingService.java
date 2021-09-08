@@ -47,7 +47,9 @@ public class EArchivingService {
     public Map<String, InputStream> getArchivingFiles(String messageId) {
         HashMap<String, InputStream> files = new HashMap<>();
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByMessageId(messageId);
-        files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
+        if(rawXmlByMessageId != null) {
+            files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
+        }
 
         UserMessage userMessage = userMessageService.getByMessageId(messageId);
 

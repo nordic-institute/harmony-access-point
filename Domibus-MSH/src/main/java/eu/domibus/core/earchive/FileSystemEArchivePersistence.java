@@ -1,24 +1,23 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.core.earchive.eark.DomibusEARKSIP;
+import eu.domibus.core.earchive.eark.DomibusIPFile;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.helpers.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
-import org.roda_project.commons_ip2.model.*;
+import org.roda_project.commons_ip2.model.IPRepresentation;
+import org.roda_project.commons_ip2.model.SIP;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
 import static java.util.Collections.singletonList;
-import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 
 /**
  * @author François Gautier
@@ -70,16 +69,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         sip.addRepresentation(representation1);
 
         InputStream batchFileJson = eArchivingService.getBatchFileJson(batchEArchiveDTO);
-        try {
-            // TODO: François Gautier 07-09-21 allow inputStream for better efficiency
-            Path tempFile = Files.createTempFile("temp_batch", ".json");
-            copyInputStreamToFile(batchFileJson, tempFile.toFile());
-            IPFile ipFile = new IPFile(tempFile);
-            ipFile.setRenameTo(BATCH_JSON);
-            representation1.addFile(ipFile);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not process the file batch.json [" + batchEArchiveDTO + "]", e);
-        }
+        representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON));
         for (String messageId : batchEArchiveDTO.getMessages()) {
             addUserMessage(representation1, messageId);
         }
@@ -94,16 +84,8 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     private void processFile(IPRepresentation representation1, String messageId, Map.Entry<String, InputStream> aFile) {
-        try {
-            Path tempFile = Files.createTempFile("temp" + messageId + aFile.getKey(), "");
-            copyInputStreamToFile(aFile.getValue(), tempFile.toFile());
-            // TODO: François Gautier 07-09-21 allow inputStream for better efficiency
-            IPFile soapEnvelope = new IPFile(tempFile);
-            soapEnvelope.setRelativeFolders(singletonList(messageId));
-            soapEnvelope.setRenameTo(aFile.getKey());
-            representation1.addFile(soapEnvelope);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not process the file [" + aFile.getKey() + "] for messageId [" + messageId + "]", e);
-        }
+        DomibusIPFile soapEnvelope = new DomibusIPFile(aFile.getValue(), aFile.getKey());
+        soapEnvelope.setRelativeFolders(singletonList(messageId));
+        representation1.addFile(soapEnvelope);
     }
 }

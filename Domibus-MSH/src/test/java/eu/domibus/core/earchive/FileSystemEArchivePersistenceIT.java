@@ -59,6 +59,14 @@ public class FileSystemEArchivePersistenceIT {
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
     }
 
+    /**
+     *         String filename = "SOAPMessage2.xml";
+     *         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+     *
+     *         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+     *         mshWebserviceTest.invoke(soapMessage);
+     * @throws IOException
+     */
     @After
     public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
@@ -106,6 +114,8 @@ public class FileSystemEArchivePersistenceIT {
 
         new FullVerifications() {
         };
+        // TODO: François Gautier 08-09-21 add assertions
+
     }
 
     private void putRaw(Map<String, InputStream> messageId1, String test1) {
