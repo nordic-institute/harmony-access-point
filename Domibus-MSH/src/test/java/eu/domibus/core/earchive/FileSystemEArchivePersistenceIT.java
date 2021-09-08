@@ -9,11 +9,13 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.roda_project.commons_ip2.model.IPConstants;
 
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
+import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -33,6 +40,8 @@ import java.util.UUID;
 public class FileSystemEArchivePersistenceIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceIT.class);
+    public static final String MESSAGE_ATTACHMENT_MSG1 = "message.attachment.txt";
+    public static final String MESSAGE_ATTACHMENT_MSG2 = "message.attachment.xml";
 
     @Injectable
     protected EArchiveFileStorageProvider storageProvider;
@@ -49,22 +58,29 @@ public class FileSystemEArchivePersistenceIT {
     private File temp;
 
     private BatchEArchiveDTO batchEArchiveDTO;
+    private String batchId;
+    private String msg1;
+    private String msg2;
 
     @Before
     public void setUp() throws Exception {
         batchEArchiveDTO = new BatchEArchiveDTO();
-        batchEArchiveDTO.setBatchId(UUID.randomUUID().toString());
-        batchEArchiveDTO.setMessages(Arrays.asList(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
+        batchId = UUID.randomUUID().toString();
+        batchEArchiveDTO.setBatchId(batchId);
+        msg1 = UUID.randomUUID().toString();
+        msg2 = UUID.randomUUID().toString();
+        batchEArchiveDTO.setMessages(Arrays.asList(msg1, msg2));
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
     }
 
     /**
-     *         String filename = "SOAPMessage2.xml";
-     *         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+     * String filename = "SOAPMessage2.xml";
+     * String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+     * <p>
+     * SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+     * mshWebserviceTest.invoke(soapMessage);
      *
-     *         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-     *         mshWebserviceTest.invoke(soapMessage);
      * @throws IOException
      */
     @After
@@ -74,14 +90,15 @@ public class FileSystemEArchivePersistenceIT {
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
         Map<String, InputStream> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");
-        putFile(messageId1, "message.attachment.txt", "attachmentTXT");
+        putFile(messageId1, MESSAGE_ATTACHMENT_MSG1, "attachmentTXT");
         Map<String, InputStream> messageId2 = new HashMap<>();
         putRaw(messageId2, "test2");
-        putFile(messageId2, "message.attachment.xml", "attachmentXML");
+        putFile(messageId2, MESSAGE_ATTACHMENT_MSG2, "attachmentXML");
 
         new Expectations() {{
             domibusVersionService.getArtifactName();
@@ -109,17 +126,40 @@ public class FileSystemEArchivePersistenceIT {
             result = temp;
         }};
 
-
         fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO);
 
         new FullVerifications() {
         };
-        // TODO: François Gautier 08-09-21 add assertions
+        File[] files = temp.listFiles();
+        File batchFolder = files[0];
+        File representation = batchFolder.listFiles()[1];
+        File representation1 = representation.listFiles()[0];
+        File data = representation1.listFiles()[0];
 
+        assertEquals(batchId, batchFolder.getName());
+        assertEquals(IPConstants.METS_FILE, batchFolder.listFiles()[0].getName());
+        assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
+        assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
+        assertEquals(IPConstants.DATA, data.getName());
+
+        File[] files1 = data.listFiles();
+        for (File file : files1) {
+            if (contains(file.getName(), ".json")) {
+                assertEquals("batch.json", file.getName());
+            }
+            if (equalsIgnoreCase(file.getName(), msg1)) {
+                assertEquals(MESSAGE_ATTACHMENT_MSG1, file.listFiles()[0].getName());
+                assertEquals(SOAP_ENVELOPE_XML, file.listFiles()[1].getName());
+            }
+            if (equalsIgnoreCase(file.getName(), msg2)) {
+                assertEquals(MESSAGE_ATTACHMENT_MSG2, file.listFiles()[0].getName());
+                assertEquals(SOAP_ENVELOPE_XML, file.listFiles()[1].getName());
+            }
+        }
     }
 
     private void putRaw(Map<String, InputStream> messageId1, String test1) {
-        putFile(messageId1, "soap.envelope.xml", test1);
+        putFile(messageId1, SOAP_ENVELOPE_XML, test1);
     }
 
     private void putFile(Map<String, InputStream> messageId1, String s, String test1) {
