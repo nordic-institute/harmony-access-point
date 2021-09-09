@@ -117,4 +117,21 @@ public class BatchEArchiveDTO {
     public void setMessages(List<String> messages) {
         this.messages = messages;
     }
+
+    @Override
+    public String toString() {
+        return "BatchEArchiveDTO{" +
+                "version='" + version + '\'' +
+                ", batchId='" + batchId + '\'' +
+                ", requestType='" + requestType + '\'' +
+                ", status='" + status + '\'' +
+                ", errorCode='" + errorCode + '\'' +
+                ", errorDescription='" + errorDescription + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", messageStartDate='" + messageStartDate + '\'' +
+                ", messageEndDate='" + messageEndDate + '\'' +
+                ", manifestChecksum='" + manifestChecksum + '\'' +
+                ", messages=" + messages +
+                '}';
+    }
 }

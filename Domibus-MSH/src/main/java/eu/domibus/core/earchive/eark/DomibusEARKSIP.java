@@ -19,4 +19,11 @@ public class DomibusEARKSIP extends EARKSIP {
     public void setBatchId(String batchId) {
         this.batchId = batchId;
     }
+
+    @Override
+    public String toString() {
+        return "DomibusEARKSIP{" +
+                "batchId='" + batchId + '\'' +
+                "} " + super.toString();
+    }
 }

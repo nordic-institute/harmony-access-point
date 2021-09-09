@@ -95,7 +95,6 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @After
     public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
-//        Desktop.getDesktop().open(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
 

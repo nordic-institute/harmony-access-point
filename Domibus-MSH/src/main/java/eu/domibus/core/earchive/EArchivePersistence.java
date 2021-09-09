@@ -1,6 +1,6 @@
 package eu.domibus.core.earchive;
 
-import java.nio.file.Path;
+import org.apache.commons.vfs2.FileObject;
 
 /**
  * @author François Gautier
@@ -8,6 +8,6 @@ import java.nio.file.Path;
  */
 public interface EArchivePersistence {
 
-    Path createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO);
+    FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO);
 
 }

@@ -18,7 +18,7 @@ public class DomibusIPFile extends IPFile {
         this.file = file;
     }
 
-    public InputStream getFile() {
+    public InputStream getInputStream() {
         return file;
     }
 
