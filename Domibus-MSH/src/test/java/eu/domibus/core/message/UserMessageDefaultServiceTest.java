@@ -498,19 +498,13 @@ public class UserMessageDefaultServiceTest {
             result = userMessageLog;
 
             signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
-            result = signalMessage;
+            result = null;
 
-            signalMessage.getUserMessage();
+            userMessageLog.getUserMessage();
             result = userMessage;
 
             userMessageLog.getMessageStatus();
             result = MessageStatus.DOWNLOADED;
-
-            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-            times =1;
-
-            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
-            times =1;
 
         }};
 
@@ -525,6 +519,13 @@ public class UserMessageDefaultServiceTest {
 
             backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
             times = 1;
+
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+            times = 1;
+
+            userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
+            times = 1;
+
         }};
     }
 
