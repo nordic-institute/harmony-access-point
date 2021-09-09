@@ -51,6 +51,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
@@ -270,8 +271,8 @@ public class CertificateServiceImplTest {
                                          @Mocked final Enumeration<String> aliasEnum,
                                          @Mocked final X509Certificate blueCertificate,
                                          @Mocked final X509Certificate redCertificate) throws KeyStoreException {
-        final Date validFrom = Date.from(LocalDateTime.now(ZoneOffset.UTC).toInstant(ZoneOffset.UTC));
-        final Date validUntil = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant(ZoneOffset.UTC));
+        final Date validFrom = Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant());
+        final Date validUntil = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant());
         new Expectations() {{
             aliasEnum.hasMoreElements();
             returns(true, true, false);
@@ -508,9 +509,9 @@ public class CertificateServiceImplTest {
         final int imminentExpirationFrequency = 14;
         final String accesPoint = "red_gw";
         final String alias = "blue_gw";
-        final Date today = Date.from(LocalDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant(ZoneOffset.UTC));
-        final Date maxDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant(ZoneOffset.UTC));
-        final Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant(ZoneOffset.UTC));
+        final Date today = Date.from(ZonedDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant());
+        final Date maxDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(imminentExpirationDelay).toInstant());
+        final Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(imminentExpirationFrequency).toInstant());
         List<Certificate> certificates = new ArrayList<>();
         certificates.add(certificate);
         new Expectations() {{
@@ -565,8 +566,8 @@ public class CertificateServiceImplTest {
         final int revokedFrequency = 14;
         final String accesPoint = "red_gw";
         final String alias = "blue_gw";
-        Date endNotification = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant(ZoneOffset.UTC));
-        Date notificationDate = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant(ZoneOffset.UTC));
+        Date endNotification = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedDuration).toInstant());
+        Date notificationDate = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(revokedFrequency).toInstant());
         List<Certificate> certificates = new ArrayList<>();
         certificates.add(certificate);
 
