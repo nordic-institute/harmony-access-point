@@ -442,6 +442,12 @@
         </createIndex>
     </changeSet>
 
+    <changeSet author="dussath" id="EDELIVERY-8462">
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
