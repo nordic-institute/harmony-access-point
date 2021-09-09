@@ -8,6 +8,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
+import org.apache.commons.vfs2.FileSystemException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class EArchiveFileStorageTest {
     EArchiveFileStorage eArchiveFileStorage;
 
     @Test
-    public void init(@Injectable Domain domain, @Injectable Path path) {
+    public void init(@Injectable Domain domain, @Injectable Path path) throws FileSystemException {
 
         new Expectations(eArchiveFileStorage) {{
             domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
@@ -73,7 +74,7 @@ public class EArchiveFileStorageTest {
     }
 
     @Test
-    public void init_error2(@Injectable Domain domain) {
+    public void init_error2(@Injectable Domain domain) throws FileSystemException {
 
 
         new Expectations(eArchiveFileStorage) {{
@@ -97,7 +98,7 @@ public class EArchiveFileStorageTest {
     }
 
     @Test
-    public void createLocationWithRelativePath(@Injectable Domain domain) {
+    public void createLocationWithRelativePath(@Injectable Domain domain) throws FileSystemException {
 
         final String location = "..\\domibus_blue\\domibus\\earchiving_storage";
         try {
@@ -110,7 +111,7 @@ public class EArchiveFileStorageTest {
     }
 
     @Test
-    public void createLocationWithAbsolutePath(@Injectable Domain domain) {
+    public void createLocationWithAbsolutePath(@Injectable Domain domain) throws FileSystemException {
         final String location = System.getProperty("java.io.tmpdir");
         Path path = eArchiveFileStorage.createLocation(location);
         Assert.assertNotNull(path);

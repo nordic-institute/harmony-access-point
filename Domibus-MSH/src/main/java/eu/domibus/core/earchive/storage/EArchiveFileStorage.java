@@ -61,7 +61,12 @@ public class EArchiveFileStorage {
             throw new ConfigurationException("No file system storage defined for earchiving but the earchiving is activated.");
         }
 
-        Path path = createLocation(location);
+        Path path;
+        try {
+            path = createLocation(location);
+        } catch (FileSystemException e) {
+            throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.", e);
+        }
         if (path == null) {
             throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.");
         }
@@ -83,41 +88,44 @@ public class EArchiveFileStorage {
      * It attempts to create the directory whenever is not present.
      * It works also when the location is a symbolic link.
      */
-    protected Path createLocation(String path) {
+    protected Path createLocation(String path) throws FileSystemException {
         FileSystemManager fileSystemManager = getVFSManager();
 
-        FileObject fileObject;
+        FileObject fileObject = null;
         try {
             try {
                 fileObject = fileSystemManager.resolveFile(path);
             } catch (FileSystemException e) {
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, e.getMessage(), e);
             }
-            // Checks if the path exists, if not it creates it
             if (!fileObject.exists()) {
                 fileObject.createFolder();
                 LOG.info("The eArchiving folder [{}] has been created!", fileObject.getPath().toAbsolutePath());
             } else {
                 if (fileObject.isSymbolicLink()) {
+                    fileObject.close();
                     fileObject = fileSystemManager.resolveFile(Files.readSymbolicLink(fileObject.getPath()).toAbsolutePath().toString());
                 }
-
-                if (!fileObject.isWriteable()) {
-                    throw new IOException("Write permission for eArchiving folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
-                }
             }
+            if (!fileObject.isWriteable()) {
+                throw new IOException("Write permission for eArchiving folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
+            }
+            return fileObject.getPath();
         } catch (IOException ioEx) {
             LOG.error("Error creating/accessing the eArchiving folder [{}]", path, ioEx);
-
-            // Takes temporary folder by default if it faces any issue while creating defined path.
-            try {
-                fileObject = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"));
-            } catch (FileSystemException e) {
-                throw new IllegalStateException("Could not create the eArchiving location [" + path + "]");
-            }
+            close(fileObject);
+            fileObject = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"));
             LOG.warn(WarningUtil.warnOutput("The temporary eArchiving folder " + fileObject.getPath().toAbsolutePath() + " has been selected!"));
+            return fileObject.getPath();
+        } finally {
+            close(fileObject);
         }
-        return fileObject.getPath();
+    }
+
+    private void close(FileObject fileObject) throws FileSystemException {
+        if (fileObject != null) {
+            fileObject.close();
+        }
     }
 
     private FileSystemManager getVFSManager() {
