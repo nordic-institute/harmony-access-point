@@ -11,7 +11,7 @@ import java.nio.file.Paths;
  */
 public class DomibusIPFile extends IPFile {
 
-    private InputStream file;
+    private transient InputStream file;
 
     public DomibusIPFile(InputStream file, String renameTo) {
         super(Paths.get(""), renameTo);

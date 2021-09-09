@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.core.earchive.eark.EARKSIPBuilderService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
@@ -9,13 +10,13 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +53,9 @@ public class FileSystemEArchivePersistenceIT {
     @Injectable
     protected EArchivingService eArchivingService;
 
+    @Injectable
+    protected EARKSIPBuilderService eArkSipBuilderService;
+
     @Tested
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
@@ -86,13 +90,14 @@ public class FileSystemEArchivePersistenceIT {
     @After
     public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
-//        Desktop.getDesktop().open(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
 
     @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
+        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPBuilderService());
+
         Map<String, InputStream> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");
         putFile(messageId1, MESSAGE_ATTACHMENT_MSG1, "attachmentTXT");

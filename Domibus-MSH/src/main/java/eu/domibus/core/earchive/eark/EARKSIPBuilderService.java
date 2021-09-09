@@ -1,23 +1,19 @@
-/**
- * The contents of this file are subject to the license and copyright
- * detailed in the LICENSE file at the root of the source
- * tree and available online at
- * <p>
- * https://github.com/keeps/commons-ip
- */
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.roda_project.commons_ip.utils.IPException;
-import org.roda_project.commons_ip2.mets_v1_12.beans.DivType.Fptr;
+import org.roda_project.commons_ip2.mets_v1_12.beans.DivType;
 import org.roda_project.commons_ip2.mets_v1_12.beans.FileType;
-import org.roda_project.commons_ip2.mets_v1_12.beans.FileType.FLocat;
+import org.roda_project.commons_ip2.mets_v1_12.beans.MetsType;
 import org.roda_project.commons_ip2.model.*;
 import org.roda_project.commons_ip2.model.impl.ModelUtils;
+import org.roda_project.commons_ip2.model.impl.eark.EARKMETSUtils;
 import org.roda_project.commons_ip2.utils.METSUtils;
 import org.roda_project.commons_ip2.utils.Utils;
+import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -26,19 +22,54 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Copied from org.roda_project.commons_ip2.model.impl.eark.EARKUtils
+ * @author François Gautier
+ * @since 5.0
  */
-public final class DomibusEARKUtils {
+@Service
+public class EARKSIPBuilderService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEARKUtils.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EARKSIPBuilderService.class);
 
-    private DomibusEARKUtils() {
-        // do nothing
+    public Path build(DomibusEARKSIP domibusEARKSIP,
+                      final Path destinationDirectory)
+            throws IPException, InterruptedException {
+
+        try {
+            MetsWrapper mainMETSWrapper = EARKMETSUtils.generateMETS(StringUtils.join(
+                    domibusEARKSIP.getIds(), " "),
+                    domibusEARKSIP.getDescription(),
+                    domibusEARKSIP.getProfile(),
+                    true,
+                    Optional.ofNullable(domibusEARKSIP.getAncestors()),
+                    null,
+                    domibusEARKSIP.getHeader(),
+                    domibusEARKSIP.getType(),
+                    domibusEARKSIP.getContentType(),
+                    null);
+
+            setMetsDocumentID(domibusEARKSIP, mainMETSWrapper);
+
+            addRepresentationsToFolderAndMETS(domibusEARKSIP, domibusEARKSIP.getRepresentations(), mainMETSWrapper, destinationDirectory);
+
+            addMetsFileToFolder(destinationDirectory, mainMETSWrapper);
+
+            return destinationDirectory;
+        } catch (InterruptedException e) {
+            ModelUtils.cleanUpUponInterrupt(LOG, destinationDirectory);
+            throw e;
+        }
     }
 
-    protected static void addMetsFileToFolder(Path destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
+    private void setMetsDocumentID(DomibusEARKSIP domibusEARKSIP, MetsWrapper mainMETSWrapper) {
+        MetsType.MetsHdr.MetsDocumentID value = new MetsType.MetsHdr.MetsDocumentID();
+        value.setValue(domibusEARKSIP.getBatchId());
+        mainMETSWrapper.getMets().getMetsHdr().setMetsDocumentID(value);
+    }
+
+    protected void addMetsFileToFolder(Path destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
         try {
             METSUtils.marshallMETS(mainMETSWrapper.getMets(), Paths.get(destinationDirectory.toFile().getAbsolutePath(), IPConstants.METS_FILE), true);
         } catch (JAXBException | IOException e) {
@@ -46,21 +77,21 @@ public final class DomibusEARKUtils {
         }
     }
 
-    private static void addFileToFolder(DomibusIPFile file, Path path) {
+    protected void addFileToFolder(DomibusIPFile file, Path path) {
         try {
             path.toFile().getParentFile().mkdirs();
 
             Files.copy(file.getFile(), path, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not create file [" + file.getFileName() + "] to [" + path.toAbsolutePath() + "]", e);
-
         }
     }
 
-    protected static void addRepresentationsToFolderAndMETS(IPInterface ip, List<IPRepresentation> representations,
-                                                            MetsWrapper mainMETSWrapper, Path destinationDirectory)
-            throws IPException, InterruptedException {
-        // representations
+    protected void addRepresentationsToFolderAndMETS(
+            IPInterface ip,
+            List<IPRepresentation> representations,
+            MetsWrapper mainMETSWrapper,
+            Path destinationDirectory) throws IPException, InterruptedException {
         if (representations != null && !representations.isEmpty()) {
             if (ip instanceof SIP) {
                 ((SIP) ip).notifySipBuildRepresentationsProcessingStarted(representations.size());
@@ -78,12 +109,12 @@ public final class DomibusEARKUtils {
         }
     }
 
-    protected static void addRepresentationDataFilesToFolderAndMETS(IPInterface ip,
-                                                                    MetsWrapper representationMETSWrapper,
-                                                                    IPRepresentation representation,
-                                                                    String representationId,
-                                                                    Path destinationDirectory)
-            throws IPException, InterruptedException {
+    protected void addRepresentationDataFilesToFolderAndMETS(
+            IPInterface ip,
+            MetsWrapper representationMETSWrapper,
+            IPRepresentation representation,
+            String representationId,
+            Path destinationDirectory) throws IPException, InterruptedException {
         if (representation.getData() != null && !representation.getData().isEmpty()) {
             if (ip instanceof SIP) {
                 ((SIP) ip).notifySipBuildRepresentationProcessingStarted(representation.getData().size());
@@ -113,7 +144,7 @@ public final class DomibusEARKUtils {
         }
     }
 
-    public static void addDataFileToMETS(MetsWrapper representationMETS, String dataFilePath, Path dataFile)
+    protected void addDataFileToMETS(MetsWrapper representationMETS, String dataFilePath, Path dataFile)
             throws IPException, InterruptedException {
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());
@@ -122,16 +153,15 @@ public final class DomibusEARKUtils {
         METSUtils.setFileBasicInformation(LOG, dataFile, file);
 
         // add to file section
-        FLocat fileLocation = METSUtils.createFileLocation(dataFilePath);
+        FileType.FLocat fileLocation = METSUtils.createFileLocation(dataFilePath);
         file.getFLocat().add(fileLocation);
         representationMETS.getDataFileGroup().getFile().add(file);
 
         // add to struct map
         if (representationMETS.getDataDiv().getFptr().isEmpty()) {
-            Fptr fptr = new Fptr();
+            DivType.Fptr fptr = new DivType.Fptr();
             fptr.setFILEID(representationMETS.getDataFileGroup());
             representationMETS.getDataDiv().getFptr().add(fptr);
         }
     }
-
 }

@@ -2,6 +2,7 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.core.earchive.eark.DomibusEARKSIP;
 import eu.domibus.core.earchive.eark.DomibusIPFile;
+import eu.domibus.core.earchive.eark.EARKSIPBuilderService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
@@ -10,6 +11,7 @@ import org.apache.cxf.helpers.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.model.IPRepresentation;
 import org.roda_project.commons_ip2.model.SIP;
+import org.roda_project.commons_ip2.model.impl.ModelUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -35,12 +37,17 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     private final EArchivingService eArchivingService;
 
+    private /*final*/ EARKSIPBuilderService eArkSipBuilderService;
+
+
     public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
                                          DomibusVersionService domibusVersionService,
-                                         EArchivingService eArchivingService) {
+                                         EArchivingService eArchivingService,
+                                         EARKSIPBuilderService eArkSipBuilderService) {
         this.storageProvider = storageProvider;
         this.domibusVersionService = domibusVersionService;
         this.eArchivingService = eArchivingService;
+        this.eArkSipBuilderService = eArkSipBuilderService;
     }
 
     @Override
@@ -58,13 +65,14 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
             representation1(sip, batchEArchiveDTO);
 
-            return sip.build(batchDirectory.toPath());
+            return eArkSipBuilderService.build(sip, batchDirectory.toPath());
         } catch (IPException | InterruptedException e) {
+            ModelUtils.cleanUpUponInterrupt(LOG, batchDirectory.toPath());
             throw new DomibusEArchiveException("createEArkSipStructure could not execute", e);
         }
     }
 
-    private void representation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO) throws IPException {
+    protected void representation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO) throws IPException {
         IPRepresentation representation1 = new IPRepresentation("representation1");
         sip.addRepresentation(representation1);
 
