@@ -24,7 +24,11 @@
             </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
-            <class name="domibus.ui.ux.LoggingPgUXTest"/>
+            <class name="domibus.ui.ux.LoggingPgUXTest">
+                <methods>
+                    <exclude name="gridNotSortable"/>
+                </methods>
+            </class>
             <class name="domibus.ui.ux.MessagesPgUXTest">
                 <methods>
                     <exclude name="csvFileDownloadHeaders"/>
@@ -58,7 +62,7 @@
             </class>
             <class name="domibus.ui.ux.UsersPgUXTest">
                 <methods>
-<!--            disabled due to bug EDELIVERY-8340        -->
+                    <!--            disabled due to bug EDELIVERY-8340        -->
                     <exclude name="csvFileDownload"/>
                 </methods>
             </class>
@@ -155,7 +159,8 @@
 
                     <!--depends on a cron running and it is unreliable -->
                     <exclude name="updateSuspensionTime"/>
-                </methods></class>
+                </methods>
+            </class>
             <class name="domibus.ui.functional.Properties2PgTest">
                 <methods>
                     <!--                    need fixes -->

@@ -196,7 +196,7 @@ public class AuditPgTest extends SeleniumTest {
 		Allure.step("Create one message filter " + rndStr);
 		log.info("Create one message filter " + rndStr);
 
-		int messageFilterID = rest.messFilters().createMessageFilter("backendWebservice", null, null, "action" + rndStr, "service:" + rndStr, null);
+		Long messageFilterID = rest.messFilters().createMessageFilter("backendWebservice", null, null, "action" + rndStr, "service:" + rndStr, null);
 
 		Allure.step("messageFilterID = " + messageFilterID);
 		log.debug("messageFilterID = " + messageFilterID);
@@ -919,7 +919,7 @@ public class AuditPgTest extends SeleniumTest {
 		Allure.step("Create one message filter");
 		log.info("Create one message filter");
 
-		int messageFilterID = rest.messFilters().createMessageFilter("backendWebservice", null, null, "action" + rndStr, "service:" + rndStr, domain);
+		Long messageFilterID = rest.messFilters().createMessageFilter("backendWebservice", null, null, "action" + rndStr, "service:" + rndStr, domain);
 		Allure.step("Created filter with id " + messageFilterID);
 		log.info("Created filter with id " + messageFilterID);
 		rest.messFilters().deleteMessageFilter("action" + rndStr, domain);
