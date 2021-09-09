@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -36,11 +37,11 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
 @RunWith(JMockit.class)
 public class WSPluginBackendReliabilityServiceTest {
 
-    public static final Date ONE_MINUTE_AGO = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1)
-            .toInstant(ZoneOffset.UTC));
+    public static final Date ONE_MINUTE_AGO = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1)
+            .toInstant());
 
-    public static final Date YESTERDAY = Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1)
-            .toInstant(ZoneOffset.UTC));
+    public static final Date YESTERDAY = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1)
+            .toInstant());
 
     public static final Date A_DATE = Date.from(LocalDateTime.of(2020, 12, 31, 23, 59)
             .toInstant(ZoneOffset.UTC));

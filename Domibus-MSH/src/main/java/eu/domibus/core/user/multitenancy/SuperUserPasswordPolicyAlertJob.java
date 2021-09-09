@@ -1,16 +1,17 @@
 package eu.domibus.core.user.multitenancy;
 
+import eu.domibus.core.scheduler.GeneralQuartzJobBean;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.GeneralQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * @author Ion Perpegel
@@ -30,7 +31,7 @@ public class SuperUserPasswordPolicyAlertJob extends GeneralQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context) {
 
-        LOG.debug("Executing job 'check password expiration' for super-users at " + LocalDateTime.now());
+        LOG.debug("Executing job 'check password expiration' for super-users at " + LocalDateTime.now(ZoneOffset.UTC));
 
         userService.triggerPasswordAlerts();
     }

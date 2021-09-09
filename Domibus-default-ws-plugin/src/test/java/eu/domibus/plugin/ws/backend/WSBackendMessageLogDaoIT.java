@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceContext;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -90,6 +90,6 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
     }
 
     private Date yesterday() {
-        return Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC));
+        return Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant());
     }
 }
