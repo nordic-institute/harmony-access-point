@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import io.qameta.allure.*;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -12,25 +11,13 @@ import utils.DFileUtils;
 import java.util.HashMap;
 import java.util.List;
 
-/**
-* @author Rupam
-* @version 5.0
-*/
-
-@Epic("TLS Truststore")
-@Feature("Functional")
 public class TlsTrustStorePgTest extends SeleniumTest {
 
-/* This method will verify upload certificate functionality when no tls config is done */
-/*  TLS-3-Check upload certificate feature with no tls configuration  */
-@Description("TLS-3-Check upload certificate feature with no tls configuration")
-@Link(name = "EDELIVERY-8185", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8185")
-@AllureId("TLS-3")
+    /* EDELIVERY-8185 - TLS-3-Check upload certificate feature with no tls configuration */
 @Test(description = "TLS-3", groups = {"multiTenancy", "singleTenancy", "NoTlsConfig"})
 public void uploadCertificate() throws Exception {
 SoftAssert soft = new SoftAssert();
 
-Allure.step("Login into application and navigate to TlsTruststore page");
 log.info("Login into application and navigate to TlsTruststore page");
 selectRandomDomain();
 
@@ -53,16 +40,11 @@ soft.assertAll();
 
 }
 
-/* This method will verify upload certificate functionality when tls config is done */
-/*  TLS-4-Check upload certificate when tls configuration is already done  */
-@Description("TLS-4-Check upload certificate when tls configuration is already done")
-@Link(name = "EDELIVERY-8187", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8187")
-@AllureId("TLS-4")
+    /* EDELIVERY-8187 - TLS-4-Check upload certificate when tls configuration is already done */
 @Test(description = "TLS-4", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void uploadCert() throws Exception {
 SoftAssert soft = new SoftAssert();
 
-Allure.step("Login into application and navigate to TlsTruststore page");
 log.info("Login into application and navigate to TlsTruststore page");
 selectRandomDomain();
 
@@ -77,16 +59,11 @@ soft.assertAll();
 
 }
 
-/* This method will verify remove certificate functionality when tls config is done */
-/*  TLS-5-Check remove certificate feature from Tls Truststore  */
-@Description("TLS-5-Check remove certificate feature from Tls Truststore")
-@Link(name = "EDELIVERY-8188", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8188")
-@AllureId("TLS-5")
+    /* EDELIVERY-8188 - TLS-5-Check remove certificate feature from Tls Truststore */
 @Test(description = "TLS-5", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void removeCert() throws Exception {
 SoftAssert soft = new SoftAssert();
 
-Allure.step("Login into application and navigate to TlsTruststore page");
 log.info("Login into application and navigate to TlsTruststore page");
 selectRandomDomain();
 
@@ -113,16 +90,11 @@ soft.assertAll();
 
 }
 
-/* This method will verify remove all certificate functionality when tls config is done */
-/*  TLS-6-Remove all certificates  */
-@Description("TLS-6-Remove all certificates")
-@Link(name = "EDELIVERY-8189", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8189")
-@AllureId("TLS-6")
+    /* EDELIVERY-8189 - TLS-6-Remove all certificates */
 @Test(description = "TLS-6", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void removeAllCert() throws Exception {
 SoftAssert soft = new SoftAssert();
 
-Allure.step("Login into application and navigate to TlsTruststore page");
 log.info("Login into application and navigate to TlsTruststore page");
 selectRandomDomain();
 
@@ -153,16 +125,11 @@ soft.assertTrue(page.getRemoveCertButton().isDisabled(), "Remove certificate but
 soft.assertAll();
 }
 
-/* This method will verify upload certificate functionality after all certificate removal */
-/*  TLS-7-Upload certificate when all existing certificates are removed earlier  */
-@Description("TLS-7-Upload certificate when all existing certificates are removed earlier")
-@Link(name = "EDELIVERY-8190", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8190")
-@AllureId("TLS-7")
+    /* EDELIVERY-8190 - TLS-7-Upload certificate when all existing certificates are removed earlier */
 @Test(description = "TLS-7", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void uploadCertfterRemove() throws Exception {
 SoftAssert soft = new SoftAssert();
 
-Allure.step("Login into application and navigate to TlsTruststore page");
 log.info("Login into application and navigate to TlsTruststore page");
 selectRandomDomain();
 TlsTrustStorePage page = new TlsTrustStorePage(driver);
@@ -186,11 +153,7 @@ soft.assertAll();
 
 }
 
-/*This test case will verify wrong file upload feature */
-/*  TLS-21-Upload wrong format file using upload button  */
-@Description("TLS-21-Upload wrong format file using upload button")
-@Link(name = "EDELIVERY-8257", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8257")
-@AllureId("TLS-21")
+    /* EDELIVERY-8257 - TLS-21-Upload wrong format file using upload button */
 @Test(description = "TLS-21", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void wrongFileUpload() throws Exception {
 SoftAssert soft = new SoftAssert();
@@ -208,11 +171,7 @@ String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_WRONGFILE_UPLOAD, certFileN
 soft.assertAll();
 }
 
-/* This will verify wrong file add feature */
-/*  TLS-22-Try to Add file with wrong format using Add certificate button  */
-@Description("TLS-22-Try to Add file with wrong format using Add certificate button")
-@Link(name = "EDELIVERY-8258", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8258")
-@AllureId("TLS-22")
+    /* EDELIVERY-8258 - TLS-22-Try to Add file with wrong format using Add certificate button */
 @Test(description = "TLS-22", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void wrongFileAdd() throws Exception {
 SoftAssert soft = new SoftAssert();
@@ -228,11 +187,7 @@ soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMess
 soft.assertAll();
 }
 
-/* This test method will verify upload of expired certificate*/
-/*  TLS-20- Check expired Jks file upload  */
-@Description("TLS-20- Check expired Jks file upload")
-@Link(name = "EDELIVERY-8214", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8214")
-@AllureId("TLS-20")
+    /* EDELIVERY-8214 - TLS-20- Check expired Jks file upload */
 @Test(description = "TLS-20", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void uploadExpired() throws Exception {
 SoftAssert soft = new SoftAssert();
@@ -248,11 +203,7 @@ soft.assertAll();
 
 }
 
-/* This test method will verify upload new certificate through upload button when old certificate exist*/
-/*  TLS-10-Upload certificate when page has already some certificate present  */
-@Description("TLS-10-Upload certificate when page has already some certificate present")
-@Link(name = "EDELIVERY-8194", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8194")
-@AllureId("TLS-10")
+    /* EDELIVERY-8194 - TLS-10-Upload certificate when page has already some certificate present */
 @Test(description = "TLS-10", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 public void uploadNewCert() throws Exception {
 SoftAssert soft = new SoftAssert();

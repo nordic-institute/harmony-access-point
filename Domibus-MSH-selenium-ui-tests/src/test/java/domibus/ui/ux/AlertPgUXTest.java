@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import io.qameta.allure.*;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -10,18 +9,13 @@ import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertPage;
 import utils.TestUtils;
 
-@Epic("Alerts")
-@Feature("UX")
 public class AlertPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);
 
 
 	// EDELIVERY-7154 - ALRT-42 - Modify no of visible rows
-	/*  ALRT-42 - Modify no of visible rows  */
-	@Description("ALRT-42 - Modify no of visible rows")
-	@Link(name = "EDELIVERY-7154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7154")
-	@AllureId("ALRT-42")
+    /* EDELIVERY-7154 - ALRT-42 - Modify no of visible rows */
 	@Test(description = "ALRT-42", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleColumns() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -38,10 +32,7 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 	// EDELIVERY-7154 - ALRT-42 - Modify no of visible rows
-	/*  ALRT-42 - Modify no of visible rows  */
-	@Description("ALRT-42 - Modify no of visible rows")
-	@Link(name = "EDELIVERY-7154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7154")
-	@AllureId("ALRT-42")
+    /* EDELIVERY-7154 - ALRT-42 - Modify no of visible rows */
 	@Test(description = "ALRT-42", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleRows() throws Exception {
 		SoftAssert soft = new SoftAssert();

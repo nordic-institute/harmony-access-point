@@ -1,6 +1,5 @@
 package ddsl.dcomponents;
 
-import com.codahale.metrics.Timer;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
 import ddsl.enums.PAGES;
@@ -159,7 +158,7 @@ public class SideNavigation extends DComponent {
 
 
 	public void goToPage(PAGES page) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 		DomibusPage pg = new DomibusPage(driver);
 
 		log.info("Navigating to " + page.name());
@@ -182,7 +181,7 @@ public class SideNavigation extends DComponent {
 		}
 		wait.forElementToContainText(pg.pageTitle, text);
 		log.debug("Navigated to " + page.name());
-		context.stop();
+		
 	}
 
 	public boolean isUserState() throws Exception {
