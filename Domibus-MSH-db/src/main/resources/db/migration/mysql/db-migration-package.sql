@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.1 to 5.0 data migration subprograms
+-- Domibus 4.2.3 to 5.0 data migration subprograms
 --
 -- Main entry point is the procedure 'MIGRATE_42_TO_50_migrate'.
 --
@@ -10,7 +10,7 @@
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
 -- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO,
--- TB_ERROR_LOG, TB_MESSAGE_ACKNW
+-- TB_ERROR_LOG, TB_MESSAGE_ACKNW, TB_SEND_ATTEMPT
 -- ********************************************************************************************************
 DELIMITER //
 
