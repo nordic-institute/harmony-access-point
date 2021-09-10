@@ -848,6 +848,10 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
+
         <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_LOG"/>
@@ -3200,12 +3204,6 @@
             <column name="ID_PK" value="2" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
-    </changeSet>
-
-    <changeSet author="dussath" id="EDELIVERY-8462">
-        <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
-            <column name="REF_TO_MESSAGE_ID"/>
-        </createIndex>
     </changeSet>
 
     <!-- End User Tables -->
