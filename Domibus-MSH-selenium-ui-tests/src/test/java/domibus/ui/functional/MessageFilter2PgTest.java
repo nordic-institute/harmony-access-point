@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import io.qameta.allure.*;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
@@ -27,14 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
-@Epic("Message Filter")
-@Feature("Functional")
 public class MessageFilter2PgTest extends SeleniumTest {
 
 	private MessageFilterPage navigateToPage() throws Exception {
@@ -48,14 +41,9 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		return page;
 	}
 
-	/* Double click on one message filter */
-	/*  MSGF-24 - Double click on one message filter  */
-	@Description("MSGF-24 - Double click on one message filter")
-	@Link(name = "EDELIVERY-5097", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5097")
-	@AllureId("MSGF-24")
+    /* EDELIVERY-5097 - MSGF-24 - Double click on one message filter */
 	@Test(description = "MSGF-24", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickRow() throws Exception {
-		Allure.step("Create a filter to edit");
 		log.info("Create a filter to edit");
 		SoftAssert soft = new SoftAssert();
 
@@ -67,14 +55,12 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 		int index = page.grid().scrollTo("Action", actionName);
 		HashMap<String, String> rowInfo = page.grid().getRowInfo(index);
-		Allure.step("double click the row");
 		log.info("double click the row");
 		page.grid().doubleClickRow(index);
 
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		soft.assertTrue(modal.isLoaded(), "Double-clicking a row opens the edit message filter modal");
 
-		Allure.step("checking listed info");
 		log.info("checking listed info");
 		soft.assertEquals(rowInfo.get("Plugin"), modal.getPluginSelect().getSelectedValue(), "Value for PLUGIN is the same in grid and modal");
 		soft.assertEquals(rowInfo.get("From"), modal.getFromInput().getText(), "Value for FROM is the same in grid and modal");
@@ -83,22 +69,16 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertEquals(rowInfo.get("Service"), modal.getServiceInput().getText(), "Value for SERVICE is the same in grid and modal");
 
 //		Delete created filter
-		Allure.step("deleting the created filter");
 		log.info("deleting the created filter");
 		rest.messFilters().deleteMessageFilter(actionName, null);
 
 		soft.assertAll();
 	}
 
-	/* Perform two action and press cancel */
-	/*  MSGF-25 - Perform two action and press cancel  */
-	@Description("MSGF-25 - Perform two action and press cancel")
-	@Link(name = "EDELIVERY-5098", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5098")
-	@AllureId("MSGF-25")
+    /* EDELIVERY-5098 - MSGF-25 - Perform two action and press cancel */
 	@Test(description = "MSGF-25", groups = {"multiTenancy", "singleTenancy"})
 	public void twoActionsAndCancel() throws Exception {
 		List<String> actionNames = new ArrayList<>();
-		Allure.step("create 5 filters for the shuffle");
 		log.info("create 5 filters for the shuffle");
 		for (int i = 0; i < 5; i++) {
 			String actionName = Gen.randomAlphaNumeric(5);
@@ -112,29 +92,24 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 		List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
 
-		Allure.step("Switch row 0 and row 1");
 		log.info("Switch row 0 and row 1");
 		page.grid().selectRow(1);
 		page.getMoveUpBtn().click();
 
-		Allure.step("Edit filter with action " + actionNames.get(0));
 		log.info("Edit filter with action " + actionNames.get(0));
 		page.grid().scrollToAndDoubleClick("Action", actionNames.get(0));
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		modal.getActionInput().fill("newActionValue1");
 		modal.getOkBtn().click();
 
-		Allure.step("Cancel changes");
 		log.info("Cancel changes");
 		page.cancelChangesAndConfirm();
 
-		Allure.step("Comparing the new data in the grid with data before the changes");
 		log.info("Comparing the new data in the grid with data before the changes");
 		List<HashMap<String, String>> newRowInfo = page.grid().getAllRowInfo();
 		boolean eq = ListUtils.isEqualList(allRowInfo, newRowInfo);
 		soft.assertTrue(eq, "Info before and after the changes is the same");
 
-		Allure.step("Delete the created filters");
 		log.info("Delete the created filters");
 		for (int i = 0; i < actionNames.size(); i++) {
 			rest.messFilters().deleteMessageFilter(actionNames.get(i), null);
@@ -142,16 +117,11 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Add duplicate Message Filter with blank From,To,Action & Service */
-	/*  MSGF-26 - Add duplicate Message Filter with blank From,To,Action  Service  */
-	@Description("MSGF-26 - Add duplicate Message Filter with blank From,To,Action  Service")
-	@Link(name = "EDELIVERY-5099", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5099")
-	@AllureId("MSGF-26")
+    /* EDELIVERY-5099 - MSGF-26 - Add duplicate Message Filter with blank From,To,Action  Service */
 	@Test(description = "MSGF-26", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicateEmptyFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		Allure.step("checking if there are any empty message filters");
 		log.info("checking if there are any empty message filters");
 		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		String pluginName = "";
@@ -166,7 +136,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		MessageFilterPage page = navigateToPage();
 
 		if (StringUtils.isEmpty(pluginName)) {
-			Allure.step("Try to create empty filter");
 			log.info("Try to create empty filter");
 			page.getNewBtn().click();
 			MessageFilterModal modal = new MessageFilterModal(driver);
@@ -176,19 +145,16 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		}
 
 
-		Allure.step("Try to create empty filter");
 		log.info("Try to create empty filter");
 		page.getNewBtn().click();
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		modal.getPluginSelect().selectOptionByText(pluginName);
 		modal.clickOK();
 
-		Allure.step("checking listed error");
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
 
-		Allure.step("checking button state");
 		log.info("checking button state");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
@@ -196,11 +162,7 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Add duplicate message filter with data in all fields */
-	/*  MSGF-27 - Add duplicate message filter with data in all fields  */
-	@Description("MSGF-27 - Add duplicate message filter with data in all fields")
-	@Link(name = "EDELIVERY-5100", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5100")
-	@AllureId("MSGF-27")
+    /* EDELIVERY-5100 - MSGF-27 - Add duplicate message filter with data in all fields */
 	@Test(description = "MSGF-27", groups = {"multiTenancy", "singleTenancy"})
 	public void duplicateFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -209,7 +171,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		page.getNewBtn().click();
 
 		MessageFilterModal modal = new MessageFilterModal(driver);
-		Allure.step("creating filter");
 		log.info("creating filter");
 		String generatedStr = Gen.randomAlphaNumeric(5) + ":" + Gen.randomAlphaNumeric(5);
 		modal.getPluginSelect().selectOptionByIndex(0);
@@ -227,7 +188,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 
 		page.getNewBtn().click();
-		Allure.step("creating the same filter");
 		log.info("creating the same filter");
 		modal = new MessageFilterModal(driver);
 		soft.assertTrue(modal.isLoaded(), "New button opens the new/edit message filter modal");
@@ -239,19 +199,16 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 		modal.clickOK();
 
-		Allure.step("checking listed error");
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
 
-		Allure.step("checking buttons state");
 		log.info("checking buttons state");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
 
 
 //		Delete created filter
-		Allure.step("deleting created filter");
 		log.info("deleting created filter");
 		rest.messFilters().deleteMessageFilter(generatedStr, null);
 
@@ -259,16 +216,11 @@ public class MessageFilter2PgTest extends SeleniumTest {
 	}
 
 
-	/* Create a duplicate by editing another filter */
-	/*  MSGF-28 - Create a duplicate by editing another filter  */
-	@Description("MSGF-28 - Create a duplicate by editing another filter")
-	@Link(name = "EDELIVERY-5101", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5101")
-	@AllureId("MSGF-28")
+    /* EDELIVERY-5101 - MSGF-28 - Create a duplicate by editing another filter */
 	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"})
 	public void editToDuplicate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		Allure.step("Create 2 filters to edit");
 		log.info("Create 2 filters to edit");
 
 		String actionName = Gen.randomAlphaNumeric(5);
@@ -282,19 +234,16 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		page.grid().selectRow(index);
 		page.getEditBtn().click();
 
-		Allure.step("editing first filter to match the second");
 		log.info("editing first filter to match the second");
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		modal.getActionInput().fill(anotherActionName);
 
 		modal.clickOK();
 
-		Allure.step("checking listed error");
 		log.info("checking listed error");
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_DUPLICATE_FILTER, "Page shows error");
 
-		Allure.step("checking buttons state");
 		log.info("checking buttons state");
 		soft.assertTrue(!page.getSaveBtn().isEnabled(), "Save button is disabled");
 		soft.assertTrue(!page.getCancelBtn().isEnabled(), "Cancel button is disabled");
@@ -303,7 +252,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 
 //		Delete created filter
-		Allure.step("deleting created filters");
 		log.info("deleting created filters");
 		rest.messFilters().deleteMessageFilter(actionName, null);
 		rest.messFilters().deleteMessageFilter(anotherActionName, null);
@@ -311,11 +259,7 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Try to uncheck Persisted Field check box for one Message filter */
-	/*  MSGF-29 - Try to uncheck Persisted Field check box for one Message filter  */
-	@Description("MSGF-29 - Try to uncheck Persisted Field check box for one Message filter")
-	@Link(name = "EDELIVERY-5102", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5102")
-	@AllureId("MSGF-29")
+    /* EDELIVERY-5102 - MSGF-29 - Try to uncheck Persisted Field check box for one Message filter */
 	@Test(description = "MSGF-29", groups = {"multiTenancy"})
 	public void persistedCheckbox() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -323,7 +267,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		MessageFilterPage page = navigateToPage();
 
 		MessageFilterGrid grid = page.grid();
-		Allure.step("check persisted checkbox cannot be edited by the user");
 		log.info("check persisted checkbox cannot be edited by the user");
 		for (int i = 0; i < grid.getRowsNo(); i++) {
 			soft.assertTrue(!grid.getPersistedChckElem(i).isEnabled(), "Persisted checkbox is disabled for all rows " + i);
@@ -332,18 +275,13 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Verify headers in downloaded CSV sheet  */
-	/*  MSGF-31 - Verify headers in downloaded CSV sheet   */
-	@Description("MSGF-31 - Verify headers in downloaded CSV sheet ")
-	@Link(name = "EDELIVERY-5104", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5104")
-	@AllureId("MSGF-31")
+    /* EDELIVERY-5104 - MSGF-31 - Verify headers in downloaded CSV sheet  */
 	@Test(description = "MSGF-31", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		MessageFilterPage page = navigateToPage();
 		String fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file " + fileName);
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
@@ -351,25 +289,19 @@ public class MessageFilter2PgTest extends SeleniumTest {
 	}
 
 	//	Delete a message filter and don’t press Save or Cancel,click on Export as CSV
-	/*  MSGF-21 - Delete a message filter and dont press Save or Cancel,click on Export as CSV  */
-	@Description("MSGF-21 - Delete a message filter and dont press Save or Cancel,click on Export as CSV")
-	@Link(name = "EDELIVERY-5094", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5094")
-	@AllureId("MSGF-21")
+    /* EDELIVERY-5094 - MSGF-21 - Delete a message filter and dont press Save or Cancel,click on Export as CSV */
 	@Test(description = "MSGF-21", groups = {"multiTenancy", "singleTenancy"})
 	public void exportCsvOnUnsavedFilterDelAction() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		Allure.step("Customized location for download");
 		log.info("Customized location for download");
 		String filePath = data.downloadFolderPath();
 
-		Allure.step("Clean given directory");
 		log.info("Clean given directory");
 		FileUtils.cleanDirectory(new File(filePath));
 
 		String domain = selectRandomDomain();
 
-		Allure.step("Create a filter to delete");
 		log.info("Create a filter to delete");
 		String actionName = Gen.randomAlphaNumeric(5);
 		rest.messFilters().createMessageFilter(actionName, domain);
@@ -381,22 +313,17 @@ public class MessageFilter2PgTest extends SeleniumTest {
 			throw new RuntimeException("Could not find created filter");
 		}
 
-		Allure.step("deleting filter");
 		log.info("deleting filter");
 		page.grid().selectRow(index);
 		page.getDeleteBtn().click();
 
-		Allure.step("Click on download csv button");
 		log.info("Click on download csv button");
 		page.getSaveCSVButton().click();
 
-		Allure.step("Confirm cancel all changes");
 		log.info("Confirm cancel all changes");
 		new Dialog(driver).cancel();
 
-		Allure.step("Wait for download to complete");
 		log.info("Wait for download to complete");
-		Allure.step("Check if file is downloaded at given location");
 		log.info("Check if file is downloaded at given location");
 		for (int i = 0; i < 10; i++) {
 			if (!DFileUtils.isFileDownloaded(filePath)) {
@@ -427,55 +354,43 @@ public class MessageFilter2PgTest extends SeleniumTest {
 	}
 
 	//
-	/*  MSGF-22 - Click on Edit icon for row when selection is done for another row  */
-	@Description("MSGF-22 - Click on Edit icon for row when selection is done for another row")
-	@Link(name = "EDELIVERY-5095", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5095")
-	@AllureId("MSGF-22")
+    /* EDELIVERY-5095 - MSGF-22 - Click on Edit icon for row when selection is done for another row */
 	@Test(description = "MSGF-22", groups = {"multiTenancy", "singleTenancy"})
 	public void editWithDiffRowSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		String domain = selectRandomDomain();
 
-		Allure.step("Generate value for action field");
 		log.info("Generate value for action field");
 		String actionName = Gen.randomAlphaNumeric(5);
 		String actionName1 = Gen.randomAlphaNumeric(5);
 		String actionName2 = Gen.randomAlphaNumeric(5);
 
-		Allure.step("create new message filter using rest call");
 		log.info("create new message filter using rest call");
 		rest.messFilters().createMessageFilter(actionName, domain);
 		rest.messFilters().createMessageFilter(actionName1, domain);
 
 		MessageFilterPage page = navigateToPage();
 
-		Allure.step("Identify row number for created filters");
 		log.info("Identify row number for created filters");
 		int index1 = page.grid().scrollTo("Action", actionName1);
 
-		Allure.step("Select row for first filter");
 		log.info("Select row for first filter");
 		int index = page.grid().scrollToAndSelect("Action", actionName);
 
-		Allure.step("Click on edit icon for second filter");
 		log.info("Click on edit icon for second filter");
 		page.grid().rowEdit(index1);
 		MessageFilterModal modal = new MessageFilterModal(driver);
 
-		Allure.step("Verify edit pop up field values as per second filter values");
 		log.info("Verify edit pop up field values as per second filter values");
 		soft.assertTrue(modal.getActionInput().getText().equalsIgnoreCase(actionName1));
-		Allure.step("editing action value");
 		log.info("editing action value");
 		modal.getActionInput().fill(actionName2);
 		modal.clickOK();
-		Allure.step("Check status for save button");
 		log.info("Check status for save button");
 		soft.assertTrue(page.getSaveBtn().isEnabled());
 		soft.assertTrue(page.getCancelBtn().isEnabled());
 
-		Allure.step("Click on save button then ok for confirmation");
 		log.info("Click on save button then ok for confirmation");
 		page.saveAndConfirmChanges();
 		soft.assertTrue(page.grid().scrollTo("Action", actionName2) == index1);
@@ -483,22 +398,17 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 	}
 
-	/*  MSGF-23 - Click on Move upmove down for row when selection is done for another row  */
-	@Description("MSGF-23 - Click on Move upmove down for row when selection is done for another row")
-	@Link(name = "EDELIVERY-5096", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5096")
-	@AllureId("MSGF-23")
+    /* EDELIVERY-5096 - MSGF-23 - Click on Move upmove down for row when selection is done for another row */
 	@Test(description = "MSGF-23", groups = {"multiTenancy", "singleTenancy"})
 	public void moveUpWithDiffRowSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		String domain = selectRandomDomain();
 
-		Allure.step("Generate random values for action field");
 		log.info("Generate random values for action field");
 		String actionName = Gen.randomAlphaNumeric(5);
 		String actionName1 = Gen.randomAlphaNumeric(5);
 
-		Allure.step("Create two filters using rest call");
 		log.info("Create two filters using rest call");
 		rest.messFilters().createMessageFilter(actionName, domain);
 		rest.messFilters().createMessageFilter(actionName1, domain);
@@ -506,30 +416,24 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		MessageFilterPage page = navigateToPage();
 
 
-		Allure.step("Identify row number for added filters");
 		log.info("Identify row number for added filters");
 		int index = page.grid().scrollTo("Action", actionName);
 		int index1 = page.grid().scrollTo("Action", actionName1);
 
-		Allure.step("Select first filter row");
 		log.info("Select first filter row");
 		page.grid().selectRow(index);
 
-		Allure.step("Click on move up icon for second row");
 		log.info("Click on move up icon for second row");
 		page.grid().rowMoveUp(index1);
 
-		Allure.step("Check status for move up and move down button for selected row");
 		log.info("Check status for move up and move down button for selected row");
 		soft.assertTrue(page.getMoveUpBtn().isEnabled());
 		soft.assertTrue(page.getMoveDownBtn().isEnabled());
 
-		Allure.step("Click on save then ok ");
 		log.info("Click on save then ok ");
 		page.saveAndConfirmChanges();
 		page.grid().waitForRowsToLoad();
 
-		Allure.step("Verify row number for both filters after move operation");
 		log.info("Verify row number for both filters after move operation");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) == index + 1);
 		soft.assertTrue(page.grid().scrollTo("Action", actionName1) == index1 - 1);
@@ -537,17 +441,13 @@ public class MessageFilter2PgTest extends SeleniumTest {
 	}
 
 
-	/*  MSGF-32 - Click on Delete icon for row when selection is done for another row  */
-	@Description("MSGF-32 - Click on Delete icon for row when selection is done for another row")
-	@Link(name = "EDELIVERY-6122", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6122")
-	@AllureId("MSGF-32")
+    /* EDELIVERY-6122 - MSGF-32 - Click on Delete icon for row when selection is done for another row */
 	@Test(description = "MSGF-32", groups = {"multiTenancy", "singleTenancy"})
 	public void delWithDiffRowSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		String domain = selectRandomDomain();
 
-		Allure.step("Generate random values for action name");
 		log.info("Generate random values for action name");
 		String actionName = Gen.randomAlphaNumeric(5);
 		String actionName1 = Gen.randomAlphaNumeric(5);
@@ -557,37 +457,29 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 		MessageFilterPage page = navigateToPage();
 
-		Allure.step("Identify row number for added filters");
 		log.info("Identify row number for added filters");
 		int index = page.grid().scrollTo("Action", actionName);
 		int index1 = page.grid().scrollTo("Action", actionName1);
 
-		Allure.step("select row for first filter");
 		log.info("select row for first filter");
 		page.grid().selectRow(index);
-		Allure.step("Click on delete icon of second filter");
 		log.info("Click on delete icon of second filter");
 		page.grid().rowDelete(index1);
 
-		Allure.step("Check status for save button");
 		log.info("Check status for save button");
 		soft.assertTrue(page.getSaveBtn().isEnabled(), "Save button is active after pressing delete");
 
-		Allure.step("Check status for cancel button");
 		log.info("Check status for cancel button");
 		soft.assertTrue(page.getCancelBtn().isEnabled(), "Delete button is active after pressing delete");
 
-		Allure.step("save changes ");
 		log.info("save changes ");
 		page.saveAndConfirmChanges();
 
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_SUCCESS, "Success messsage is displayed");
 
-		Allure.step("Check non presence of second filter in grid");
 		log.info("Check non presence of second filter in grid");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName1) < 0);
 
-		Allure.step("Check presence of first filter in grid");
 		log.info("Check presence of first filter in grid");
 		soft.assertTrue(page.grid().scrollTo("Action", actionName) > 0);
 		soft.assertAll();
@@ -595,22 +487,17 @@ public class MessageFilter2PgTest extends SeleniumTest {
 	}
 
 
-	/*  MSGF-33 - Click on Move down for row when selection is done for another row  */
-	@Description("MSGF-33 - Click on Move down for row when selection is done for another row")
-	@Link(name = "EDELIVERY-6123", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6123")
-	@AllureId("MSGF-33")
+    /* EDELIVERY-6123 - MSGF-33 - Click on Move down for row when selection is done for another row */
 	@Test(description = "MSGF-33", groups = {"multiTenancy", "singleTenancy"})
 	public void moveDownWithDiffRowSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		String domain = selectRandomDomain();
 
-		Allure.step("Generate random values for action field");
 		log.info("Generate random values for action field");
 		String actionName = Gen.randomAlphaNumeric(5);
 		String actionName1 = Gen.randomAlphaNumeric(5);
 
-		Allure.step("Create two filters using rest call");
 		log.info("Create two filters using rest call");
 		rest.messFilters().createMessageFilter(actionName, domain);
 		rest.messFilters().createMessageFilter(actionName1, domain);
@@ -618,7 +505,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		MessageFilterPage page = navigateToPage();
 
 
-		Allure.step("Identify row number for added filters");
 		log.info("Identify row number for added filters");
 		int index = page.grid().scrollTo("Action", actionName);
 		int index1 = page.grid().scrollTo("Action", actionName1);
@@ -630,19 +516,15 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		HashMap<String, String> last = page.grid().getRowInfo(rowCount - 1);
 
 
-		Allure.step("Select first filter row");
 		log.info("Select first filter row");
 		page.grid().selectRow(rowCount - 1);
 
-		Allure.step("Click on move up icon for second row");
 		log.info("Click on move up icon for second row");
 		page.grid().rowMoveDown(rowCount - 2);
 
-		Allure.step("Click on save then ok ");
 		log.info("Click on save then ok ");
 		page.saveAndConfirmChanges();
 
-		Allure.step("Verify row number for both filters after move operation");
 		log.info("Verify row number for both filters after move operation");
 		soft.assertEquals(nextToLast, page.grid().getRowInfo(rowCount - 1), "Next to last row is now last");
 		soft.assertEquals(last, page.grid().getRowInfo(rowCount - 2), "Last row is now next to last");
@@ -651,12 +533,7 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This method will verify plugin change through edit pop up from Message filter page
-	in case of availability of multiple plugins  */
-	/*  MSGF-30 - Change Plugin on Message Filter Edit  */
-	@Description("MSGF-30 - Change Plugin on Message Filter Edit")
-	@Link(name = "EDELIVERY-5103", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5103")
-	@AllureId("MSGF-30")
+    /* EDELIVERY-5103 - MSGF-30 - Change Plugin on Message Filter Edit */
 	@Test(description = "MSGF-30", groups = {"multiTenancy", "singleTenancy"})
 	public void changeMsgFilterOnUpdate() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -671,23 +548,19 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		int index = page.grid().scrollTo("Action", actionName);
 		HashMap<String, String> info = page.grid().getRowInfo(index);
 
-		Allure.step("Extract row number plugin having action name :" + actionName);
 		log.info("Extract row number plugin having action name :" + actionName);
 		page.grid().selectRow(index);
 
 		soft.assertTrue(page.getEditBtn().isEnabled(), "On row selection, button gets enabled");
-		Allure.step("Click on Edit button");
 		log.info("Click on Edit button");
 		page.getEditBtn().click();
 
-		Allure.step("Check number of plugins available on edit pop in plugin drop down");
 		log.info("Check number of plugins available on edit pop in plugin drop down");
 		MessageFilterModal popup = new MessageFilterModal(driver);
 
 		List<String> plugins = popup.getPluginSelect().getOptionsTexts();
 		if (plugins.size() > 1) {
 
-			Allure.step("Select another plugin");
 			log.info("Select another plugin");
 			for (String plugin : plugins) {
 				if (!plugin.equalsIgnoreCase(info.get("Plugin"))) {
@@ -696,16 +569,13 @@ public class MessageFilter2PgTest extends SeleniumTest {
 				}
 			}
 
-			Allure.step("Enter action field data");
 			log.info("Enter action field data");
 			popup.getActionInput().fill(Gen.randomAlphaNumeric(3));
 
-			Allure.step("Click on Ok button");
 			log.info("Click on Ok button");
 			popup.clickOK();
 //			page.wait.forXMillis(300);
 
-			Allure.step("Click on Save button");
 			log.info("Click on Save button");
 			page.saveAndConfirmChanges();
 
@@ -721,11 +591,7 @@ public class MessageFilter2PgTest extends SeleniumTest {
 	}
 
 
-	/* MSGF-34 - Verify downloaded CSV file against data in the grid  */
-	/*  MSGF-34 - Verify downloaded CSV file against data in the grid   */
-	@Description("MSGF-34 - Verify downloaded CSV file against data in the grid ")
-	@Link(name = "EDELIVERY-7184", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7184")
-	@AllureId("MSGF-34")
+    /* EDELIVERY-7184 - MSGF-34 - Verify downloaded CSV file against data in the grid  */
 	@Test(description = "MSGF-34", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadAsCSV() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -737,11 +603,9 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 		String filePath = page.pressSaveCsvAndSaveFile();
 
-		Allure.step("Check if file is downloaded at given location");
 		log.info("Check if file is downloaded at given location");
 		soft.assertTrue(new File(filePath).exists(), "File is downloaded successfully");
 
-		Allure.step("Compare headers from downloaded csv and grid");
 		log.info("Compare headers from downloaded csv and grid");
 		page.grid().checkCSVvsGridHeaders(filePath, soft);
 
@@ -749,11 +613,7 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* MSGF-35 - Sort the grid  */
-	/*  MSGF-35 - Sort the grid  */
-	@Description("MSGF-35 - Sort the grid")
-	@Link(name = "EDELIVERY-7185", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7185")
-	@AllureId("MSGF-35")
+    /* EDELIVERY-7185 - MSGF-35 - Sort the grid */
 	@Test(description = "MSGF-35", groups = {"multiTenancy", "singleTenancy"})
 	public void checkSorting() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -763,13 +623,11 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
 
-		Allure.step("Check default sorted column");
 		log.info("Check default sorted column");
 		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted by default");
 
 		grid.sortBy("Plugin");
 
-		Allure.step("Check sorted column name after sorting attempt");
 		log.info("Check sorted column name after sorting attempt");
 		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted ");
 
