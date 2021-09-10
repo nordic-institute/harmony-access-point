@@ -1939,8 +1939,99 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw()
 
 /**- TB_SEND_ATTEMPT data migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_send_attempt()
+
 BEGIN
-    -- TODO missing
+    DECLARE status VARCHAR(255);
+    DECLARE error VARCHAR(255);
+    DECLARE created_by VARCHAR(255);
+    DECLARE creation_time TIMESTAMP;
+    DECLARE start_date TIMESTAMP;
+    DECLARE id_pk BIGINT;
+    DECLARE modification_time TIMESTAMP;
+    DECLARE modified_by VARCHAR(255);
+    DECLARE end_date TIMESTAMP;
+    DECLARE user_message_id_fk BIGINT;
+
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE migration_status BOOLEAN;
+
+    DECLARE c_send_attempt CURSOR FOR
+        SELECT SA.ID_PK,
+               SA.START_DATE,
+               SA.END_DATE,
+               SA.STATUS,
+               SA.ERROR,
+               SA.CREATION_TIME,
+               SA.CREATED_BY,
+               SA.MODIFICATION_TIME,
+               SA.MODIFIED_BY,
+               UM.ID_PK USER_MESSAGE_ID_FK
+        FROM TB_SEND_ATTEMPT SA,
+             TB_MESSAGE_INFO MI,
+             TB_USER_MESSAGE UM
+        WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK
+          AND MI.MESSAGE_ID = SA.MESSAGE_ID;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
+
+    SET @i := 0;
+    SET @v_batch_no := 1;
+    SET @v_tab := 'TB_SEND_ATTEMPT';
+    SET @v_tab_new := 'MIGR_TB_SEND_ATTEMPT';
+
+    CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
+
+    OPEN c_send_attempt;
+    read_loop:
+    LOOP
+        BEGIN
+            DECLARE EXIT HANDLER FOR SQLEXCEPTION
+                BEGIN
+                    GET DIAGNOSTICS CONDITION 1
+                        @p2 = MESSAGE_TEXT;
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_send_attempt -> execute immediate error: ', @p2));
+                END;
+
+            FETCH c_send_attempt INTO id_pk, start_date, end_date, status, error, creation_time, created_by,
+                modification_time, modified_by, user_message_id_fk;
+
+            IF done THEN
+                LEAVE read_loop;
+            END IF;
+
+            INSERT INTO MIGR_TB_SEND_ATTEMPT (ID_PK, START_DATE, END_DATE, STATUS, ERROR, USER_MESSAGE_ID_FK,
+                                              CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+            VALUES (id_pk,
+                    start_date,
+                    end_date,
+                    status,
+                    error,
+                    user_message_id_fk,
+                    creation_time,
+                    created_by,
+                    modification_time,
+                    modified_by);
+
+            SET @i = @i + 1;
+            IF @i MOD @BATCH_SIZE = 0 THEN
+                COMMIT;
+                CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_new, ': Commit after ', @BATCH_SIZE * @v_batch_no,
+                                                   ' records'));
+                SET @v_batch_no := @v_batch_no + 1;
+            END IF;
+        END;
+    END LOOP read_loop;
+    COMMIT;
+
+    CALL MIGRATE_42_TO_50_trace(CONCAT('Migrated ', @i, ' records in total into ', @v_tab_new));
+    CLOSE c_send_attempt;
+
+    -- check counts
+    CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
+    IF migration_status THEN
+        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
+    END IF;
+
 END
 //
 
