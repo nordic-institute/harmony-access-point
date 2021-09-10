@@ -1,6 +1,5 @@
 package ddsl.dcomponents.grid;
 
-import com.codahale.metrics.Timer;
 import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.DObject;
 import metricss.MyMetrics;
@@ -56,11 +55,11 @@ public class DGrid extends DComponent {
 	public DGrid(WebDriver driver, WebElement container) {
 
 		super(driver);
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
-		context.stop();
+		
 		this.container = container;
 	}
 
@@ -86,7 +85,7 @@ public class DGrid extends DComponent {
 
 
 	public ArrayList<String> getColumnNames() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=arguments[0]\n" +
@@ -96,7 +95,7 @@ public class DGrid extends DComponent {
 
 		result.removeIf(str -> (StringUtils.isEmpty(str)));
 
-		context.stop();
+		
 		return result;
 	}
 
@@ -108,18 +107,18 @@ public class DGrid extends DComponent {
 	}
 
 	public void selectRow(int rowNumber) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.debug("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
 			new DObject(driver, gridRows.get(rowNumber)).click();
 			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
 		}
-		context.stop();
+		
 	}
 
 	public void doubleClickRow(int rowNumber) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
@@ -134,7 +133,7 @@ public class DGrid extends DComponent {
 		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
 		weToDobject(element).scrollIntoView();
 		action.doubleClick(element).perform();
-		context.stop();
+		
 	}
 
 	public int getRowsNo() {
@@ -142,7 +141,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void waitForRowsToLoad() {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.info("waiting for rows to load");
 		try {
@@ -159,11 +158,11 @@ public class DGrid extends DComponent {
 			wait.forXMillis(200);
 		} catch (Exception e) {
 		}
-		context.stop();
+		
 	}
 
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		ArrayList<HashMap<String, String>> info = getListedRowInfo();
 
@@ -174,13 +173,13 @@ public class DGrid extends DComponent {
 				return i;
 			}
 		}
-		context.stop();
+		
 		return -1;
 
 	}
 
 	public int getIndexOf(String columnName, String value) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		if(!getColumnNames().contains(columnName)){
 			return -1;
@@ -193,13 +192,13 @@ public class DGrid extends DComponent {
 			}
 		}
 
-		context.stop();
+		
 		return -1;
 
 	}
 
 	public int scrollTo(String columnName, String value) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		ArrayList<String> columnNames = getColumnNames();
 		if (!columnNames.contains(columnName)) {
@@ -220,24 +219,24 @@ public class DGrid extends DComponent {
 			index = getIndexOf(columnName, value);
 		}
 
-		context.stop();
+		
 		return index;
 	}
 
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		int index = scrollTo(columnName, value);
 		if (index < 0) {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");
 		}
 		selectRow(index);
-		context.stop();
+		
 		return index;
 	}
 
 	public HashMap<String, String> getRowInfo(int rowNumber) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
@@ -253,7 +252,7 @@ public class DGrid extends DComponent {
 		for (int i = 0; i < columns.size(); i++) {
 			info.put(columns.get(i), new DObject(driver, cells.get(i)).getText());
 		}
-		context.stop();
+		
 		return info;
 	}
 
@@ -263,7 +262,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
@@ -280,7 +279,7 @@ public class DGrid extends DComponent {
 				return;
 			}
 		}
-		context.stop();
+		
 		throw new Exception("Column name not present in the grid " + columnName);
 	}
 
@@ -295,7 +294,7 @@ public class DGrid extends DComponent {
 	}
 
 	public List<HashMap<String, String>> getAllRowInfo() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		List<HashMap<String, String>> allRowInfo = new ArrayList<>();
 
@@ -313,13 +312,13 @@ public class DGrid extends DComponent {
 			}
 		} while (true);
 
-		context.stop();
+		
 		return allRowInfo;
 	}
 
 
 	public ArrayList<HashMap<String, String>> getListedRowInfo() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		ArrayList<HashMap<String, String>> listedRowInfo = new ArrayList<>();
 
@@ -350,7 +349,7 @@ public class DGrid extends DComponent {
 			listedRowInfo.add(rowInfo);
 		}
 
-		context.stop();
+		
 		return listedRowInfo;
 	}
 
@@ -368,7 +367,7 @@ public class DGrid extends DComponent {
 	}
 
 	public boolean columnsVsCheckboxes() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		HashMap<String, Boolean> columnStatus = getGridCtrl().getAllCheckboxStatuses();
 		ArrayList<String> visibleColumns = getColumnNames();
@@ -392,7 +391,7 @@ public class DGrid extends DComponent {
 				return false;
 			}
 		}
-		context.stop();
+		
 		return true;
 	}
 
@@ -440,7 +439,7 @@ public class DGrid extends DComponent {
 
 
 	public void resetGridScroll() {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.info("reseting grid scroll");
 
@@ -477,7 +476,7 @@ public class DGrid extends DComponent {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div.panel > div:nth-child(2)').scrollTop=0");
 		} catch (Exception e) {
 		}
-		context.stop();
+		
 	}
 
 //-------------------------------------------------------------------------------------------------

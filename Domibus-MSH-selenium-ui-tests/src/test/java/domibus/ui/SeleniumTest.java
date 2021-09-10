@@ -1,7 +1,6 @@
 package domibus.ui;
 
 import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.Timer;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dcomponents.SideNavigation;
@@ -43,13 +42,10 @@ public class SeleniumTest extends BaseTest {
 	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	public String logFilename;
 
-	Timer.Context context = MyMetrics.getMetricsRegistry().timer(this.getClass().getCanonicalName()).time();
 
 
 	@BeforeSuite(alwaysRun = true)
 	public void beforeSuite() throws Exception {
-
-		MyMetrics.startReport();
 
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
@@ -58,7 +54,6 @@ public class SeleniumTest extends BaseTest {
 
 	@AfterSuite(alwaysRun = true)
 	public void afterSuite() throws Exception {
-		MyMetrics.report();
 	}
 
 	@BeforeClass(alwaysRun = true)
@@ -84,7 +79,7 @@ public class SeleniumTest extends BaseTest {
 
 	@AfterClass(alwaysRun = true)
 	protected void afterClass() throws Exception {
-		context.stop();
+		
 		log.info("-------- Quitting driver after test class-------");
 		try {
 			driver.quit();

@@ -122,4 +122,32 @@ public class PluginUsersClient extends BaseRestClient {
 		switchDomain(domain);
 		return jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), array.toString());
 	}
+
+	public void deactivateBasicUser(String username, String domainCode) throws Exception {
+		JSONArray array = getPluginUsers(domainCode, "BASIC");
+
+		JSONObject plu =null;
+
+		for (int i = 0; i < array.length() ; i++) {
+			JSONObject obj = array.getJSONObject(i);
+			if(StringUtils.equalsIgnoreCase(obj.getString("userName"), username)){
+				plu = obj;
+			}
+		}
+
+		if(null == plu){
+			throw new Exception("Plugin user not found");
+		}
+
+		plu.put("status", "UPDATED");
+		plu.put("active", "false");
+		JSONArray toUpdate = new JSONArray();
+		toUpdate.put(plu);
+
+		ClientResponse response = updatePluginUserList(toUpdate, domainCode);
+		if(response.getStatus() >250){
+			throw new DomibusRestException("Could not deactivate plugin user", response);
+		}
+
+	}
 }

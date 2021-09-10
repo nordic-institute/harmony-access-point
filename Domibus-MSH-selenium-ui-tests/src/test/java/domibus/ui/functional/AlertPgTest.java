@@ -362,7 +362,6 @@ public class AlertPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	//This method will verify alert for user account disable after 5 attempts of login with wrong credentials
     /* EDELIVERY-5300 - ALRT-18 - Check data for USERACCOUNTDISABLED */
 	@Test(description = "ALRT-18", groups = {"multiTenancy", "singleTenancy"})
 	public void userDisableAlert() throws Exception {

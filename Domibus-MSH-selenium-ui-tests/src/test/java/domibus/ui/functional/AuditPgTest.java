@@ -231,7 +231,7 @@ public class AuditPgTest extends SeleniumTest {
 	public void msgFilterMoveAction() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<Integer> ids = new ArrayList<>();
+		List<Long> ids = new ArrayList<>();
 
 		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		JSONArray new_msgfs = new JSONArray();
@@ -243,7 +243,7 @@ public class AuditPgTest extends SeleniumTest {
 			int newIndex = msgfs.length() - currentIndex - 1;
 			msgf.put("index", newIndex);
 
-			ids.add(msgf.getInt("entityId"));
+			ids.add(msgf.getLong("entityId"));
 
 			msgf.put("index", newIndex);
 			new_msgfs.put(msgf);
