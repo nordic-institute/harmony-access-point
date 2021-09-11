@@ -92,7 +92,7 @@ public class AuditPgUXTest extends SeleniumTest {
 		HashMap<String, String> info = page.grid().getRowInfo(0);
 
 		page.filters().simpleFilter(info.get("Table")
-				, null
+				, info.get("User")
 				, info.get("Action")
 				, null, null);
 		page.grid().waitForRowsToLoad();
