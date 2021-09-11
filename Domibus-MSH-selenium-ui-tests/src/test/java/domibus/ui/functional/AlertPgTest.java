@@ -826,7 +826,6 @@ public class AlertPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	//This method will verfiy feature for Processed for Super alerts
     /* EDELIVERY-6371 - ALRT-32 - Super admin marks super alert as processed  */
 	@Test(description = "ALRT-32", groups = {"multiTenancy"})
 	public void checkProcessed() throws Exception {

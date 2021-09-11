@@ -385,15 +385,17 @@ public class UsersPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.USERS);
 		page.getDomainSelector().selectOptionByText(domainName);
 
-		String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, domainCode);
+		page.includeDeletedUsers();
+		page.grid().waitForRowsToLoad();
+
+		String fileName = page.pressSaveCsvAndSaveFile();
 		log.info("downloaded file with name " + fileName);
 
-		page.includeDeletedUsers();
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
 		log.info("checking info in grid against the file");
-//		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+
 		page.getUsersGrid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
 		soft.assertAll();
 	}
