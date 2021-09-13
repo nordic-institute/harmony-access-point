@@ -77,6 +77,18 @@
           "in" : "query",
           "required" : true,
           "type" : "boolean"
+        }, {
+          "name" : "pageStart",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
         } ],
         "responses" : {
           "200" : {
@@ -156,13 +168,13 @@
           "required" : true,
           "type" : "string"
         }, {
-          "name" : "limit",
+          "name" : "pageStart",
           "in" : "query",
           "required" : true,
           "type" : "integer",
           "format" : "int32"
         }, {
-          "name" : "start",
+          "name" : "pageSize",
           "in" : "query",
           "required" : true,
           "type" : "integer",
@@ -272,13 +284,13 @@
           "type" : "string",
           "format" : "date-time"
         }, {
-          "name" : "limit",
+          "name" : "pageStart",
           "in" : "query",
           "required" : true,
           "type" : "integer",
           "format" : "int32"
         }, {
-          "name" : "start",
+          "name" : "pageSize",
           "in" : "query",
           "required" : true,
           "type" : "integer",
@@ -963,15 +975,15 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
-        "readable" : {
-          "type" : "boolean"
+        "filename" : {
+          "type" : "string"
         },
         "uri" : {
           "type" : "string",
           "format" : "uri"
         },
-        "filename" : {
-          "type" : "string"
+        "readable" : {
+          "type" : "boolean"
         },
         "url" : {
           "type" : "string",

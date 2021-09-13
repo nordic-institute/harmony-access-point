@@ -71,8 +71,8 @@ public class DomibusEArchiveExtResource {
      * limit and start parameters are not provided.
      *
      * @param batchId: batch id of the message ids,
-     * @param limit:   the total number of message IDs exported
-     * @param start:   the offset from which the message IDs export will start
+     * @param pageStart: the offset from which the message IDs export will start
+     * @param pageSize: maximum number of records in the page
      * @return List of message ids in the batch
      */
 
@@ -82,8 +82,8 @@ public class DomibusEArchiveExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
     @GetMapping(path = "batches/exported/{batchId:.+}/messages")
     public ExportedBatchMessagesDTO getBatchMessageIds(@PathVariable(name = "batchId") String batchId,
-                                                       @RequestParam("limit") Integer limit,
-                                                       @RequestParam("start") Integer start
+                                                       @RequestParam("pageStart") Integer pageStart,
+                                                       @RequestParam("pageSize") Integer pageSize
     ) {
 
         // TODO implement search method
@@ -99,8 +99,10 @@ public class DomibusEArchiveExtResource {
      *
      * @param startDate: start date of the exported messages in the batch
      * @param endDate:   end date  of the exported messages included in the batch,
-     * @param endDate:   batch status,
-     * @param endDate:   batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
+     * @param status:   batch status,
+     * @param reExport:   batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
+     * @param pageStart: the offset/page from which the message IDs export will start. List is sorted by batch request date
+     * @param pageSize: maximum number of records in the page
      * @return list of the exported batches
      */
     @ApiOperation(value = "History of the exported batches",
@@ -112,7 +114,9 @@ public class DomibusEArchiveExtResource {
             @RequestParam("startDate") Date startDate,
             @RequestParam("endDate") Date endDate,
             @RequestParam("status") String status,
-            @RequestParam("reExport") Boolean reExport
+            @RequestParam("reExport") Boolean reExport,
+            @RequestParam("pageStart") Integer pageStart,
+            @RequestParam("pageSize") Integer pageSize
     ) {
         // TODO implement search method
         return null;
@@ -185,8 +189,8 @@ public class DomibusEArchiveExtResource {
      *
      * @param startDate: start date of the period to be checked
      * @param startDate: end date of the period to be checked,
-     * @param limit:     the total number of message IDs exported
-     * @param start:     the offset for the message IDs listed
+     * @param pageStart: the offset/page from which the message IDs export will start. List is sorted by batch request date
+     * @param pageSize: maximum number of records in the page
      * @return message list
      */
     @ApiOperation(value = " Messages which were not archived within a specific period",
@@ -196,8 +200,8 @@ public class DomibusEArchiveExtResource {
     @GetMapping(path = "messages/not-archived")
     public MessagesDTO notArchivedMessages(@RequestParam("startDate") Date startDate,
                                            @RequestParam("endDate") Date endDate,
-                                           @RequestParam("limit") Integer limit,
-                                           @RequestParam("start") Integer start
+                                           @RequestParam("pageStart") Integer pageStart,
+                                           @RequestParam("pageSize") Integer pageSize
     ) {
         // TODO implement method
         return null;
