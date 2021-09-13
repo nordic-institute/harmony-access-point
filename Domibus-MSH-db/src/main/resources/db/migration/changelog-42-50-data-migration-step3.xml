@@ -172,6 +172,9 @@
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
 
         <!-- TB_RECEIPT -->
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
