@@ -106,17 +106,23 @@
         } ]
       }
     },
-    "/ext/archive/batches/exported/{batchId}/confirm-archived" : {
+    "/ext/archive/batches/exported/{batchId}/close" : {
       "put" : {
         "tags" : [ "archive" ],
         "summary" : "Sets batch as successfully archived",
-        "description" : "This REST endpoint will be used by the archiving client to confirm that a batch was archived successfully or that it failed to archive it. The request contains the batch identifier which allows Domibus to identify all messages in the batch to mark them as archived and eligible for purging. Note that, for performance reasons, Domibus will asynchronously mark the batch messages as archived.",
+        "description" : "This REST endpoint will be used by the archiving client to confirm that a batch was archived successfully or that it failed to archive it. The request contains the batch identifier which allows Domibus to identify all messages in the batch to mark them as archived or failed and eligible for purging. Note that, for performance reasons, Domibus will asynchronously mark the batch messages as archived.",
         "operationId" : "setBatchAsArchived",
         "parameters" : [ {
           "name" : "",
           "in" : "path",
           "required" : true,
           "type" : "string"
+        }, {
+          "name" : "batchFinalStatus",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "enum" : [ "ARCHIVED", "FAILED" ]
         } ],
         "responses" : {
           "200" : {
@@ -246,7 +252,7 @@
         } ]
       }
     },
-    "/ext/archive/batches/queued/current-start-date" : {
+    "/ext/archive/continous-export/current-start-date" : {
       "get" : {
         "tags" : [ "archive" ],
         "summary" : "Get the current start date of the continuous export",

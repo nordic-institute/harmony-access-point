@@ -10,6 +10,7 @@ import io.swagger.annotations.Authorization;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.QueryParam;
 import java.util.Date;
 import java.util.List;
 
@@ -162,18 +163,21 @@ public class DomibusEArchiveExtResource {
      * and it does not mean that the batch messages are already marked as archived.
      *
      * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
+     * @param batchFinalStatus: Status of the batch ARCHIVED if successfully archived or  FAILED if archival system fail to archive it
      * @return status of the queued export request
      */
     @ApiOperation(value = "Sets batch as successfully archived",
             notes = "This REST endpoint will be used by the archiving client to confirm that a batch was archived " +
                     "successfully or that it failed to archive it. The request contains the batch identifier which allows " +
-                    "Domibus to identify all messages in the batch to mark them as archived and eligible for purging. " +
+                    "Domibus to identify all messages in the batch to mark them as archived or failed and eligible for purging. " +
                     "Note that, for performance reasons, Domibus will asynchronously mark the batch messages as " +
                     "archived.",
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
-    @PutMapping(path = "batches/exported/{batchId:.+}/confirm-archived")
+    @PutMapping(path = "batches/exported/{batchId:.+}/close")
     public BatchStatusDTO setBatchAsArchived(
-            @PathVariable(name = "batchId") String batchId
+            @PathVariable(name = "batchId") String batchId,
+            @RequestParam("batchFinalStatus") BatchStatusType batchFinalStatus
+
     ) {
         // TODO implement method
         return null;
@@ -217,7 +221,7 @@ public class DomibusEArchiveExtResource {
     @ApiOperation(value = "Get the current start date of the continuous export",
             notes = "This REST endpoint will expose the continuous export mechanism current start date.",
             authorizations = @Authorization(value = "basicAuth"), tags = "archive")
-    @GetMapping(path = "batches/queued/current-start-date")
+    @GetMapping(path = "/continous-export/current-start-date")
     public CurrentBatchStartDateDTO getCurrentExportDate() {
         // TODO implement method
         return null;
