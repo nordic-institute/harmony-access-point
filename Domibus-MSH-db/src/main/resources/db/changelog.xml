@@ -848,7 +848,7 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
-        <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+        <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
 
