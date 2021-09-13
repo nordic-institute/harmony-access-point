@@ -12,6 +12,7 @@ public class RestServicePaths {
 	public static final String LOGIN = "/rest/security/authentication";
 	public static final String CONNECTED = "/rest/security/user/connected";
 	public static final String PMODE = "/rest/pmode";
+	public static final String PMODE_CURRENT = "/rest/pmode/current";
 	public static final String TRUSTSTORE = "/rest/truststore/save";
 	public static final String PMODE_LIST = "/rest/pmode/list";
 	public static final String PMODE_PROCESS_LIST = "/rest/party/processes";

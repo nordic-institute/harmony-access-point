@@ -3,6 +3,7 @@ package eu.domibus.web.rest.validators;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.rest.validators.ObjectPropertiesMapBlacklistValidator;
+import eu.domibus.core.rest.validators.QueryParamLengthValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -39,6 +40,8 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
 
     @Autowired
     ObjectPropertiesMapBlacklistValidator blacklistValidator;
+    @Autowired
+    QueryParamLengthValidator queryParamLengthValidator;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -81,6 +84,8 @@ public class RestQueryParamsValidationInterceptor extends HandlerInterceptorAdap
         }
         try {
             ParameterInfo paramInfo = extractMethodParameterInfo(method);
+            //François Gautier 31-08-21 If you add another validator, think to refactor use the autowire of an interface as list (warning: the order matters)
+            queryParamLengthValidator.validate(queryParams);
             blacklistValidator.validate(new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, paramInfo.getParameterType(), paramInfo.getParameterAnnotation()));
             LOG.debug("Query params:[{}] validated successfully", queryParams);
             return true;

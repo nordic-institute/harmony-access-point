@@ -1,6 +1,5 @@
 package ddsl.dcomponents;
 
-import com.codahale.metrics.Timer;
 import ddsl.dobjects.*;
 import ddsl.dobjects.multi_select.MultiSelect;
 import metricss.MyMetrics;
@@ -32,12 +31,12 @@ public class DComponent {
 	}
 
 	public void clickVoidSpace() {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 		try {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
 			wait.forXMillis(200);
 		} catch (Exception e) {}
-		context.stop();
+		
 	}
 
 	protected DButton weToDButton(WebElement element) {

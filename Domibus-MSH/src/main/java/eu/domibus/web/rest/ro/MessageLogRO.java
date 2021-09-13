@@ -2,8 +2,8 @@ package eu.domibus.web.rest.ro;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -65,6 +65,8 @@ public class MessageLogRO implements Serializable {
     private String serviceType;
 
     private String serviceValue;
+
+    private String pluginType;
 
     public String getMessageId() {
         return messageId;
@@ -273,5 +275,14 @@ public class MessageLogRO implements Serializable {
     public void setServiceValue(String serviceValue) {
         this.serviceValue = serviceValue;
     }
+
+    public String getPluginType() {
+        return pluginType;
+    }
+
+    public void setPluginType(String pluginType) {
+        this.pluginType = pluginType;
+    }
+
 
 }

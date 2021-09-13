@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import io.qameta.allure.*;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -20,28 +19,17 @@ import java.util.List;
 
 import static java.lang.Boolean.*;
 
-/**
- * @author Rupam
- * @version 5.0
- */
 
-@Epic("TLS Truststore")
-@Feature("UX")
 public class TlsTruststoreUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORES_TLS);
 
 	// Need to handle messages separately for ST & MT after resolution of  EDELIVERY-8270
-	/* This method will verify page navigation and components when tls config is not done */
-	/*  TLS-1-Open Truststores-TLS page with no configuration  */
-	@Description("TLS-1-Open Truststores-TLS page with no configuration")
-	@Link(name = "EDELIVERY-8183", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8183")
-	@AllureId("TLS-1")
+    /* EDELIVERY-8183 - TLS-1-Open Truststores-TLS page with no configuration */
 	@Test(description = "TLS-1", groups = {"singleTenancy", "NoTlsConfig"})
 	public void openTlsTrustorePg() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		Allure.step("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 
 		selectRandomDomain();
@@ -61,16 +49,11 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This method will verfiy page navigation with components when tls configuration is done */
-	/*  TLS-2-Open Truststores-TLS page with proper configuration  */
-	@Description("TLS-2-Open Truststores-TLS page with proper configuration")
-	@Link(name = "EDELIVERY-8184", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8184")
-	@AllureId("TLS-2")
+    /* EDELIVERY-8184 - TLS-2-Open Truststores-TLS page with proper configuration */
 	@Test(description = "TLS-2", groups = {"singleTenancy", "TlsConfig"})
 	public void openPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		Allure.step("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 
@@ -82,32 +65,22 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This method will verify download csv feature */
-	/*  TLS-11-Verify Download CSV  */
-	@Description("TLS-11-Verify Download CSV")
-	@Link(name = "EDELIVERY-8197", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8197")
-	@AllureId("TLS-11")
+    /* EDELIVERY-8197 - TLS-11-Verify Download CSV */
 	@Test(description = "TLS-11", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void downloadCSV() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
-		Allure.step("Click on download csv button");
 		log.info("Click on download csv button");
 		String fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded rows to file " + fileName);
 		log.info("downloaded rows to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}
 
-	/* This method will verify grid data by changing rows */
-	/*  TLS-12-Change visible number of rows  */
-	@Description("TLS-12-Change visible number of rows")
-	@Link(name = "EDELIVERY-8198", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8198")
-	@AllureId("TLS-12")
+    /* EDELIVERY-8198 - TLS-12-Change visible number of rows */
 	@Test(description = "TLS-12", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void changeRowCount() throws Exception {
 
@@ -120,11 +93,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Check/Uncheck of fields on Show links */
-	/*  TLS-15-Check uncheck fields on Show Column links  */
-	@Description("TLS-15-Check uncheck fields on Show Column links")
-	@Link(name = "EDELIVERY-8201", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8201")
-	@AllureId("TLS-15")
+    /* EDELIVERY-8201 - TLS-15-Check uncheck fields on Show Column links */
 	@Test(description = "TLS-15", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void changeVisibleColumns() throws Exception {
 
@@ -139,11 +108,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This method will verify hide show link functionality */
-	/*  TLS-17-Hide link after uncheckingchecking checkbox  */
-	@Description("TLS-17-Hide link after uncheckingchecking checkbox")
-	@Link(name = "EDELIVERY-8203", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8203")
-	@AllureId("TLS-17")
+    /* EDELIVERY-8203 - TLS-17-Hide link after uncheckingchecking checkbox */
 	@Test(description = "TLS-17", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void hideWithoutSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -167,11 +132,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This test case will verify sorting on the basis of all sortable columns */
-	/*  TLS-13-Check Sorting  */
-	@Description("TLS-13-Check Sorting")
-	@Link(name = "EDELIVERY-8199", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8199")
-	@AllureId("TLS-13")
+    /* EDELIVERY-8199 - TLS-13-Check Sorting */
 	@Test(description = "TLS-13", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void verifySorting() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -191,11 +152,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This method will verify show column link presence along with all column checkboxes*/
-	/*  TLS-16-Check ALL None link feature  */
-	@Description("TLS-16-Check ALL None link feature")
-	@Link(name = "EDELIVERY-8202", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8202")
-	@AllureId("TLS-16")
+    /* EDELIVERY-8202 - TLS-16-Check ALL None link feature */
 	@Test(description = "TLS-16", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void verifyAllNoneLinkFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -209,11 +166,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-	/* This method will verify Page navigation and default element present on both domains when tls config is done*/
-	/*  TLS-18-Open Tls TrustStore page with Super Admin  */
-	@Description("TLS-18-Open Tls TrustStore page with Super Admin")
-	@Link(name = "EDELIVERY-8204", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8204")
-	@AllureId("TLS-18")
+    /* EDELIVERY-8204 - TLS-18-Open Tls TrustStore page with Super Admin */
 	@Test(description = "TLS-18", groups = {"multiTenancy", "TlsConfig"})
 	public void openPageForSuperAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -229,11 +182,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This test case will verify Page navigation and element on both domains when no tls config is done*/
-	/*  TLS-19-Open Tls Truststore page with Super Admin when no ssl configuration is done  */
-	@Description("TLS-19-Open Tls Truststore page with Super Admin when no ssl configuration is done")
-	@Link(name = "EDELIVERY-8205", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8205")
-	@AllureId("TLS-19")
+    /* EDELIVERY-8205 - TLS-19-Open Tls Truststore page with Super Admin when no ssl configuration is done */
 	@Test(description = "TLS-19", groups = {"multiTenancy", "NoTlsConfig"})
 	public void openPageSuperAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -251,11 +200,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This test case will verify Single click on grid row functionality */
-	/*  TLS-23- Verify Single click on grid row  */
-	@Description("TLS-23- Verify Single click on grid row")
-	@Link(name = "EDELIVERY-8267", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8267")
-	@AllureId("TLS-23")
+    /* EDELIVERY-8267 - TLS-23- Verify Single click on grid row */
 	@Test(description = "TLS-23", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void singleClick() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -268,11 +213,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This test case will verify Double click on grid row functionality */
-	/*  TLS-24-Verify Double click on grid row  */
-	@Description("TLS-24-Verify Double click on grid row")
-	@Link(name = "EDELIVERY-8268", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8268")
-	@AllureId("TLS-24")
+    /* EDELIVERY-8268 - TLS-24-Verify Double click on grid row */
 	@Test(description = "TLS-24", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void doubleClick() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -290,18 +231,13 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This test method will verify download feature*/
-	/*  TLS-8-Download Certificate  */
-	@Description("TLS-8-Download Certificate")
-	@Link(name = "EDELIVERY-8191", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8191")
-	@AllureId("TLS-8")
+    /* EDELIVERY-8191 - TLS-8-Download Certificate */
 	@Test(description = "TLS-8", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void downloadCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
-		Allure.step("Customized location for download");
 		log.info("Customized location for download");
 		String filePath = data.downloadFolderPath();
 
@@ -311,11 +247,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*This test method will verify presence of Show Link along additional section and checkboxes on click event*/
-	/*  TLS-14-Check Show Column link  */
-	@Description("TLS-14-Check Show Column link")
-	@Link(name = "EDELIVERY-8200", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8200")
-	@AllureId("TLS-14")
+    /* EDELIVERY-8200 - TLS-14-Check Show Column link */
 	@Test(description = "TLS-14", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void checkShowLink() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -328,11 +260,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* This test method will verify certificate grid data on tls truststore page for both domain on upload event */
-	/*  TLS-25-Check Reflection of Upload Certificate feature on other domain  */
-	@Description("TLS-25-Check Reflection of Upload Certificate feature on other domain")
-	@Link(name = "EDELIVERY-8306", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8306")
-	@AllureId("TLS-25")
+    /* EDELIVERY-8306 - TLS-25-Check Reflection of Upload Certificate feature on other domain */
 	@Test(description = "TLS-25", groups = {"multiTenancy", "TlsConfig"})
 	public void compareDomainDataAfterUpload() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -353,11 +281,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-	/* This test method will verify Tls truststore certificate data on both domain after remove oeration */
-	/*  TLS-27-Check reflection of remove certificate on other domain  */
-	@Description("TLS-27-Check reflection of remove certificate on other domain")
-	@Link(name = "EDELIVERY-8308", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8308")
-	@AllureId("TLS-27")
+    /* EDELIVERY-8308 - TLS-27-Check reflection of remove certificate on other domain */
 	@Test(description = "TLS-27", groups = {"multiTenancy", "TlsConfig"})
 	public void compareDomainDataAfterRemove() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -380,11 +304,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-	/* This test method will verify blank tlstruststore page grid on both domain after remove all operation*/
-	/*  TLS-28-Check reflection on other domain data after removal of all certificate from tls truststore page  */
-	@Description("TLS-28-Check reflection on other domain data after removal of all certificate from tls truststore page")
-	@Link(name = "EDELIVERY-8309", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8309")
-	@AllureId("TLS-28")
+    /* EDELIVERY-8309 - TLS-28-Check reflection on other domain data after removal of all certificate from tls truststore page */
 	@Test(description = "TLS-28", groups = {"multiTenancy", "TlsConfig"})
 	public void compareDomainDataAfterRemoveAll() throws Exception {
 		SoftAssert soft = new SoftAssert();

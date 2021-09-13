@@ -1,6 +1,5 @@
 package ddsl.dcomponents;
 
-import com.codahale.metrics.Timer;
 import metricss.MyMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
@@ -34,15 +33,15 @@ public class SandwichMenu extends DComponent {
 	public SandwichMenu(WebDriver driver) {
 
 		super(driver);
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		log.debug("sandwich menu init");
-		context.stop();
+		
 	}
 
 	private void expandMenu() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		clickVoidSpace();
 
@@ -50,7 +49,7 @@ public class SandwichMenu extends DComponent {
 		wait.forElementToBeVisible(menuContainer);
 
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-		context.stop();
+		
 
 	}
 
@@ -59,11 +58,11 @@ public class SandwichMenu extends DComponent {
 	}
 
 	public boolean isLoggedIn() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		boolean toReturn = (null != new DomibusPage(driver).getCurrentLoggedInUser());
 
-		context.stop();
+		
 
 		return toReturn;
 	}

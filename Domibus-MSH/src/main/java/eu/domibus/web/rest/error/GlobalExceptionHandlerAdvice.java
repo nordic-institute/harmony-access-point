@@ -5,10 +5,10 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +38,11 @@ import java.util.stream.Collectors;
 @RequestMapping(produces = "application/vnd.error+json")
 public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
+    private final ErrorHandlerService errorHandlerService;
+
+    public GlobalExceptionHandlerAdvice(ErrorHandlerService errorHandlerService) {
+        this.errorHandlerService = errorHandlerService;
+    }
 
     @ExceptionHandler({DomainTaskException.class})
     public ResponseEntity<ErrorRO> handleDomainException(DomainTaskException ex) {
@@ -63,6 +66,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
 
     @ExceptionHandler({ValidationException.class})
     public ResponseEntity<ErrorRO> handleValidationException(ValidationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({TestServiceException.class})
+    public ResponseEntity<ErrorRO> handleTestServiceException(TestServiceException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

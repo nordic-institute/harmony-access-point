@@ -39,7 +39,7 @@ public class ObjectPropertiesMapFieldBlacklistValidatorTest {
         ObjectPropertiesMapBlacklistValidator.Parameter payload = new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, null, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
-        Assert.assertEquals(true, actualValid);
+        Assert.assertTrue(actualValid);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ObjectPropertiesMapFieldBlacklistValidatorTest {
                 new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, JmsFilterRequestRO.class, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
-        Assert.assertEquals(true, actualValid);
+        Assert.assertTrue(actualValid);
     }
 
     @Test
@@ -81,6 +81,6 @@ public class ObjectPropertiesMapFieldBlacklistValidatorTest {
                 new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, JmsFilterRequestRO.class, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
-        Assert.assertEquals(false, actualValid);
+        Assert.assertFalse(actualValid);
     }
 }

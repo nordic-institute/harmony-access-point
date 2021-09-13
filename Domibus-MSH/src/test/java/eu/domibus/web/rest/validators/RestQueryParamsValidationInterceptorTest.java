@@ -1,6 +1,7 @@
 package eu.domibus.web.rest.validators;
 
 import eu.domibus.core.rest.validators.ObjectPropertiesMapBlacklistValidator;
+import eu.domibus.core.rest.validators.QueryParamLengthValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -17,6 +18,8 @@ public class RestQueryParamsValidationInterceptorTest {
 
     @Injectable
     ObjectPropertiesMapBlacklistValidator blacklistValidator;
+    @Injectable
+    QueryParamLengthValidator queryParamLengthValidator;
 
     @Test
     public void handleQueryParamsTestValid() {
@@ -29,7 +32,7 @@ public class RestQueryParamsValidationInterceptorTest {
 
         boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
 
-        Assert.assertEquals(true, actualValid);
+        Assert.assertTrue(actualValid);
     }
 
     @Test(expected = ValidationException.class)

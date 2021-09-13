@@ -1,6 +1,5 @@
 package ddsl.dcomponents;
 
-import com.codahale.metrics.Timer;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import metricss.MyMetrics;
@@ -55,7 +54,7 @@ public class DomibusPage extends DComponent {
 	}
 	
 	public void refreshPage() {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 		driver.navigate().refresh();
 		try {
 			wait.forXMillis(100);
@@ -64,7 +63,7 @@ public class DomibusPage extends DComponent {
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
-		context.stop();
+		
 	}
 	
 	public String getTitle() throws Exception {
@@ -131,7 +130,7 @@ public class DomibusPage extends DComponent {
 	}
 	
 	public String pressSaveCsvAndSaveFile() throws Exception {
-		Timer.Context context = MyMetrics.getMetricsRegistry().timer(MyMetrics.getName4Timer()).time();
+		
 
 		log.info("Customized location for download");
 		String filePath = data.downloadFolderPath();
@@ -151,7 +150,7 @@ public class DomibusPage extends DComponent {
 			throw new Exception("Could not find file");
 		}
 
-		context.stop();
+		
 		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
 	}
 	

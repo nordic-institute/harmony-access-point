@@ -565,7 +565,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId()));
 
         LOG.debug("Creating error entry for message [{}]", groupId);
-        errorLogService.createErrorLogSending(groupId, ErrorCode.EBMS_0004, "[SPLIT] " + errorDetail, groupUserMessages.stream().findAny().orElse(null));
+        errorLogService.createErrorLog(groupId, ErrorCode.EBMS_0004, "[SPLIT] " + errorDetail, MSHRole.SENDING, groupUserMessages.stream().findAny().orElse(null));
     }
 
 

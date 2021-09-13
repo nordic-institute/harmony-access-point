@@ -285,7 +285,7 @@ public class AbstractEbms3UserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
-            errorLogService.createErrorLogSending(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), userMessage);
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), MSHRole.SENDING, userMessage);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
         }};

@@ -21,6 +21,7 @@
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
     <changeSet id="EDELIVERY-7970-drop-indexes-uq" author="Catalin Enache">
         <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_MESSAGE_IN_ERROR_ID" />
+        <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_SIGNAL_MESSAGE_ID" />
     </changeSet>
 
     <!-- rename former tables to OLD_* -->
@@ -45,6 +46,7 @@
 
         <renameTable oldTableName="TB_MESSAGE_ACKNW" newTableName="OLD_TB_MESSAGE_ACKNW"/>
         <renameTable oldTableName="TB_ERROR_LOG" newTableName="OLD_TB_ERROR_LOG"/>
+        <renameTable oldTableName="TB_SEND_ATTEMPT" newTableName="OLD_TB_SEND_ATTEMPT"/>
     </changeSet>
 
     <!-- remove MIGR_ prefix from new tables -->
@@ -64,6 +66,7 @@
         <renameTable oldTableName="MIGR_TB_PART_PROPERTIES" newTableName="TB_PART_PROPERTIES"/>
         <renameTable oldTableName="MIGR_TB_ERROR_LOG" newTableName="TB_ERROR_LOG"/>
         <renameTable oldTableName="MIGR_TB_MESSAGE_ACKNW" newTableName="TB_MESSAGE_ACKNW"/>
+        <renameTable oldTableName="MIGR_TB_SEND_ATTEMPT" newTableName="TB_SEND_ATTEMPT"/>
     </changeSet>
 
     <!-- add constraints and indexes -->
@@ -300,6 +303,9 @@
         <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_ID" tableName="TB_ERROR_LOG">
+            <column name="ERROR_SIGNAL_MESSAGE_ID"/>
+        </createIndex>
 
         <!-- TB_MESSAGE_ACKNW -->
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_ACKNW"
@@ -307,6 +313,16 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_MESSAGE"/>
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID_FK" tableName="TB_MESSAGE_ACKNW">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <!-- TB_SEND_ATTEMPT -->
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_SEND_ATTEMPT"
+                                 constraintName="FK_SEND_ATTEMPT_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+
+        <createIndex indexName="IDX_MESSAGE_ID_FK" tableName="TB_SEND_ATTEMPT">
             <column name="USER_MESSAGE_ID_FK"/>
         </createIndex>
     </changeSet>
@@ -338,9 +354,10 @@
             <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
         </addColumn>
 
-        <addColumn tableName="TB_MESSAGE_UI">
-            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
-        </addColumn>
+        <!-- FIXME when the UI replication works -->
+<!--        <addColumn tableName="TB_MESSAGE_UI">-->
+<!--            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>-->
+<!--        </addColumn>-->
 
         <addColumn tableName="TB_MESSAGING_LOCK">
             <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
@@ -354,9 +371,10 @@
             <column name="FK_TIMEZONE_OFFSET" />
         </createIndex>
 
-        <createIndex indexName="IDX_MESSAGE_UI_TZ_OFFSET" tableName="TB_MESSAGE_UI">
-            <column name="FK_TIMEZONE_OFFSET" />
-        </createIndex>
+        <!-- FIXME when the UI replication works -->
+<!--        <createIndex indexName="IDX_MESSAGE_UI_TZ_OFFSET" tableName="TB_MESSAGE_UI">-->
+<!--            <column name="FK_TIMEZONE_OFFSET" />-->
+<!--        </createIndex>-->
 
         <createIndex indexName="IDX_MESSAGING_LOCK_TZ_OFFSET" tableName="TB_MESSAGING_LOCK">
             <column name="FK_TIMEZONE_OFFSET" />
@@ -397,12 +415,14 @@
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_MESSAGE_ACKNW"/>
+                                 referencedTableName="TB_MESSAGE_ACKNW" />
+        <addNotNullConstraint tableName="TB_MESSAGE_ACKNW_PROP" columnName="FK_MSG_ACKNOWLEDGE" columnDataType="BIGINT" />
 
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
                                  constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
                                  onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_MESSAGE"/>
+        <addNotNullConstraint tableName="TB_PART_INFO" columnName="USER_MESSAGE_ID_FK" columnDataType="BIGINT" />
 
         <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"

@@ -300,7 +300,7 @@ public class MessageLogResourceTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date, "Europe/Brussels",
                 0, "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue");
+                "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue", "pluginType");
         result.add(messageLog);
         return result;
     }

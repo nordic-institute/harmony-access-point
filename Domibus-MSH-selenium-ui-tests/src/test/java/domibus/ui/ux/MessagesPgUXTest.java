@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import io.qameta.allure.*;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DatePicker;
 import ddsl.enums.DRoles;
@@ -27,33 +26,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
-@Epic("Messages")
-@Feature("UX")
 public class MessagesPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
 
 
-	/*Login as system admin and open Messages page*/
-	/*  MSG-1 - Login as super admin and open Messages page  */
-	@Description("MSG-1 - Login as super admin and open Messages page")
-	@Link(name = "EDELIVERY-5053", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5053")
-	@AllureId("MSG-1")
+    /* EDELIVERY-5053 - MSG-1 - Login as super admin and open Messages page */
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		Allure.step("Checking page title");
 		log.info("Checking page title");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
 
-		Allure.step("checking basic filter presence");
 		log.info("checking basic filter presence");
 		basicFilterPresence(soft, page.getFilters(), descriptorObj.getJSONArray("filters"));
 
@@ -71,11 +58,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 	}
 
 
-	/*User clicks grid row*/
-	/*  MSG-2 - User clicks grid row  */
-	@Description("MSG-2 - User clicks grid row")
-	@Link(name = "EDELIVERY-5054", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5054")
-	@AllureId("MSG-2")
+    /* EDELIVERY-5054 - MSG-2 - User clicks grid row */
 	@Test(description = "MSG-2", groups = {"multiTenancy", "singleTenancy"})
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -83,22 +66,16 @@ public class MessagesPgUXTest extends SeleniumTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		Allure.step("selecting message with status SEND_FAILURE ");
 		log.info("selecting message with status SEND_FAILURE ");
 		page.grid().scrollToAndSelect("Message Status", "SEND_FAILURE");
 
-		Allure.step("checking download button is enabled");
 		log.info("checking download button is enabled");
 		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
 
 		soft.assertAll();
 	}
 
-	/*User clicks another grid row*/
-	/*  MSG-3 - User clicks another grid row  */
-	@Description("MSG-3 - User clicks another grid row")
-	@Link(name = "EDELIVERY-5055", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5055")
-	@AllureId("MSG-3")
+    /* EDELIVERY-5055 - MSG-3 - User clicks another grid row */
 	@Test(description = "MSG-3", groups = {"multiTenancy", "singleTenancy"})
 	public void selectAnotherRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -112,15 +89,12 @@ public class MessagesPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		DGrid grid = page.grid();
 
-		Allure.step("selecting mess with id " + messID1);
 		log.info("selecting mess with id " + messID1);
 		grid.scrollToAndSelect("Message Id", messID1);
 
-		Allure.step("selecting mess with id " + messID2);
 		log.info("selecting mess with id " + messID2);
 		int index2 = grid.scrollToAndSelect("Message Id", messID2);
 
-		Allure.step("checking selected message");
 		log.info("checking selected message");
 		int selectedRow = grid.getSelectedRowIndex();
 		soft.assertEquals(index2, selectedRow, "Selected row index is correct");
@@ -128,11 +102,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*Open advanced filters*/
-	/*  MSG-6 - Open advanced filters  */
-	@Description("MSG-6 - Open advanced filters")
-	@Link(name = "EDELIVERY-5058", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5058")
-	@AllureId("MSG-6")
+    /* EDELIVERY-5058 - MSG-6 - Open advanced filters */
 	@Test(description = "MSG-6", groups = {"multiTenancy", "singleTenancy"})
 	public void openAdvancedFilters() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -143,11 +113,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Download list of messages */
-	/*  MSG-10 - Download list of messages  */
-	@Description("MSG-10 - Download list of messages")
-	@Link(name = "EDELIVERY-5062", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5062")
-	@AllureId("MSG-10")
+    /* EDELIVERY-5062 - MSG-10 - Download list of messages */
 	@Test(description = "MSG-10", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -155,30 +121,23 @@ public class MessagesPgUXTest extends SeleniumTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
-		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
-		Allure.step("downloaded file with name " + fileName);
+		String fileName = page.pressSaveCsvAndSaveFile();
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
 
-		Allure.step("set page size to 100");
 		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "datetime");
 
 		soft.assertAll();
 	}
 
-	/*Click Show columns link*/
-	/*  MSG-17 - Click Show columns link  */
-	@Description("MSG-17 - Click Show columns link")
-	@Link(name = "EDELIVERY-5069", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5069")
-	@AllureId("MSG-17")
+    /* EDELIVERY-5069 - MSG-17 - Click Show columns link */
 	@Test(description = "MSG-17", groups = {"multiTenancy", "singleTenancy"})
 	public void showColumnsLink() throws Exception {
 
@@ -197,11 +156,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*Check/Uncheck of fields on Show links*/
-	/*  MSG-18 - CheckUncheck of fields on Show links  */
-	@Description("MSG-18 - CheckUncheck of fields on Show links")
-	@Link(name = "EDELIVERY-5070", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5070")
-	@AllureId("MSG-18")
+    /* EDELIVERY-5070 - MSG-18 - CheckUncheck of fields on Show links */
 	@Test(description = "MSG-18", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleColumns() throws Exception {
 
@@ -216,11 +171,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*Click Hide link without any new selection*/
-	/*  MSG-19 - Click Hide link without any new selection  */
-	@Description("MSG-19 - Click Hide link without any new selection")
-	@Link(name = "EDELIVERY-5071", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5071")
-	@AllureId("MSG-19")
+    /* EDELIVERY-5071 - MSG-19 - Click Hide link without any new selection */
 	@Test(description = "MSG-19", groups = {"multiTenancy", "singleTenancy"})
 	public void checkHideLinkNoNewSelection() throws Exception {
 
@@ -231,12 +182,10 @@ public class MessagesPgUXTest extends SeleniumTest {
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
-		Allure.step("getting available columns before modification " + columnsPre);
 		log.info("getting available columns before modification " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
 
-		Allure.step("expand column controls");
 		log.info("expand column controls");
 		grid.getGridCtrl().showCtrls();
 		soft.assertTrue(grid.getGridCtrl().areCheckboxesVisible(), "After Show link is clicked the checkboxes are visible");
@@ -245,18 +194,13 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "After Hide link is clicked the checkboxes are not visible");
 
 		List<String> columnsPost = grid.getColumnNames();
-		Allure.step("getting available columns after expanding " + columnsPost);
 		log.info("getting available columns after expanding " + columnsPost);
 		soft.assertTrue(ListUtils.isEqualList(columnsPre, columnsPost), "List of columns before and after hiding the controls is the same");
 
 		soft.assertAll();
 	}
 
-	/*Click Hide link after selecting some new fields*/
-	/*  MSG-20 - Click Hide link after selecting some new fields  */
-	@Description("MSG-20 - Click Hide link after selecting some new fields")
-	@Link(name = "EDELIVERY-5072", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5072")
-	@AllureId("MSG-20")
+    /* EDELIVERY-5072 - MSG-20 - Click Hide link after selecting some new fields */
 	@Test(description = "MSG-20", groups = {"multiTenancy", "singleTenancy"})
 	public void checkHideLinkWithNewSelection() throws Exception {
 		String colName = TestUtils.getNonDefaultColumn(descriptorObj.getJSONObject("grid").getJSONArray("columns"));
@@ -269,7 +213,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 		grid.waitForRowsToLoad();
 
 		List<String> columnsPre = grid.getColumnNames();
-		Allure.step("getting column list before new column is added: " + columnsPre);
 		log.info("getting column list before new column is added: " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
@@ -277,7 +220,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 		grid.getGridCtrl().showCtrls();
 		soft.assertTrue(grid.getGridCtrl().areCheckboxesVisible(), "After Show link is clicked the checkboxes are visible");
 
-		Allure.step("enabling column with name " + colName);
 		log.info("enabling column with name " + colName);
 		grid.getGridCtrl().checkBoxWithLabel(colName);
 
@@ -285,7 +227,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "After Hide link is clicked the checkboxes are not visible");
 
 		List<String> columnsPost = grid.getColumnNames();
-		Allure.step("getting column list after new column is added: " + columnsPost);
 		log.info("getting column list after new column is added: " + columnsPost);
 		soft.assertTrue(!ListUtils.isEqualList(columnsPre, columnsPost), "List of columns before and after hiding the controls is the same");
 		soft.assertTrue(columnsPre.size() + 1 == columnsPost.size(), "One more column is shown");
@@ -294,11 +235,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*Click All None link*/
-	/*  MSG-21 - Click All None link  */
-	@Description("MSG-21 - Click All None link")
-	@Link(name = "EDELIVERY-5073", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5073")
-	@AllureId("MSG-21")
+    /* EDELIVERY-5073 - MSG-21 - Click All None link */
 	@Test(description = "MSG-21", groups = {"multiTenancy", "singleTenancy"})
 	public void clickAllNoneLink() throws Exception {
 
@@ -314,11 +251,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*Change Rows field data*/
-	/*  MSG-22 - Change Rows field data  */
-	@Description("MSG-22 - Change Rows field data")
-	@Link(name = "EDELIVERY-5074", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5074")
-	@AllureId("MSG-22")
+    /* EDELIVERY-5074 - MSG-22 - Change Rows field data */
 	@Test(description = "MSG-22", groups = {"multiTenancy", "singleTenancy"})
 	public void changeNumberOfRows() throws Exception {
 
@@ -332,11 +265,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*Check sorting on the basis of Headers of Grid */
-	/*  MSG-24 - Check sorting on the basis of Headers of Grid   */
-	@Description("MSG-24 - Check sorting on the basis of Headers of Grid ")
-	@Link(name = "EDELIVERY-5076", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5076")
-	@AllureId("MSG-24")
+    /* EDELIVERY-5076 - MSG-24 - Check sorting on the basis of Headers of Grid  */
 	@Test(description = "MSG-24", groups = {"multiTenancy", "singleTenancy"})
 	public void gridSorting() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
@@ -360,7 +289,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 			}
 
 			JSONObject colDesc = colDescs.getJSONObject(index);
-			Allure.step("checking sorting for column - " + colDesc.getString("name"));
 			log.info("checking sorting for column - " + colDesc.getString("name"));
 			if (grid.getColumnNames().contains(colDesc.getString("name"))) {
 				TestUtils.testSortingForColumn(soft, grid, colDesc);
@@ -369,38 +297,27 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* Verify headers in downloaded CSV sheet */
-	/*  MSG-25 - Verify headers in downloaded CSV sheet   */
-	@Description("MSG-25 - Verify headers in downloaded CSV sheet ")
-	@Link(name = "EDELIVERY-5077", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5077")
-	@AllureId("MSG-25")
+    /* EDELIVERY-5077 - MSG-25 - Verify headers in downloaded CSV sheet  */
 	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownloadHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		Allure.step("logged in");
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		String fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
-		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
 		soft.assertAll();
 	}
 
-	/* verify the two headers, Message Fragments and Source Message are NOT present in csv if not available as grid column */
-	/*  MSG-26 - Verify absence of Message fragment and Source message header in downaloded csv  */
-	@Description("MSG-26 - Verify absence of Message fragment and Source message header in downaloded csv")
-	@Link(name = "EDELIVERY-6363", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6363")
-	@AllureId("MSG-26")
+    /* EDELIVERY-6363 - MSG-26 - Verify absence of Message fragment and Source message header in downaloded csv */
 	@Test(description = "MSG-26", groups = {"multiTenancy", "singleTenancy"})
 	public void verifySplitAndJoinSpecificHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -408,13 +325,11 @@ public class MessagesPgUXTest extends SeleniumTest {
 		String sourceMessageHeader = "Source Message";
 		String fragmentMessageHeader = "Message Fragment";
 
-		Allure.step("logged in");
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 
 		String filename = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file with name " + filename);
 		log.info("downloaded file with name " + filename);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -422,7 +337,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 
 		List<String> gridHeaders = page.grid().getColumnNames();
 
-		Allure.step("Getting headers in file");
 		log.info("Getting headers in file");
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
@@ -435,29 +349,20 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* MSG-23 - Verify max value for Received up to field */
-	/*  MSG-23 - Verify max value for Received up to field   */
-	@Description("MSG-23 - Verify max value for Received up to field ")
-	@Link(name = "EDELIVERY-5075", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5075")
-	@AllureId("MSG-23")
+    /* EDELIVERY-5075 - MSG-23 - Verify max value for Received up to field  */
 	@Test(description = "MSG-23", groups = {"multiTenancy", "singleTenancy"})
 	public void receivedToMaxValue() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		Allure.step("logged in");
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 		Calendar cal = Calendar.getInstance();
 
-		Allure.step("Current date is : " + cal.get(Calendar.DAY_OF_MONTH));
 		log.info("Current date is : " + cal.get(Calendar.DAY_OF_MONTH));
-		Allure.step("Current hour is : " + cal.get(Calendar.HOUR_OF_DAY));
 		log.info("Current hour is : " + cal.get(Calendar.HOUR_OF_DAY));
-		Allure.step("Current Minute is : " + cal.get(Calendar.MINUTE));
 		log.info("Current Minute is : " + cal.get(Calendar.MINUTE));
 
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		page.getFilters().expandArea();
-		Allure.step("Click on ReceivedTo field clock");
 		log.info("Click on ReceivedTo field clock");
 		page.receivedToClock.click();
 		DatePicker datePicker = new DatePicker(driver, page.receivedTo);
@@ -466,10 +371,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*  MSG-28 - Resend message as USER  */
-	@Description("MSG-28 - Resend message as USER")
-	@Link(name = "EDELIVERY-7183", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7183")
-	@AllureId("MSG-28")
+    /* EDELIVERY-7183 - MSG-28 - Resend message as USER */
 	@Test(description = "MSG-28", groups = {"multiTenancy", "singleTenancy"})
 	public void resendMsg() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -488,10 +390,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* MSG-31 - Verify Message Envelop presence for all admin console users */
-	@Description("MSG-31 - Verify Message Envelop presence for all admin console users")
-	@Link(name = "EDELIVERY-8180", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-8180")
-	@AllureId("MSG-31")
 	@Test(description = "MSG-31", groups = {"multiTenancy", "singleTenancy"})
 	public void checkMsgEnvPresence() throws Exception {
 		SoftAssert soft = new SoftAssert();

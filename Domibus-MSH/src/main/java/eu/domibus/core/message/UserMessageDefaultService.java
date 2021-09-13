@@ -538,8 +538,13 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
-        final UserMessage userMessage = signalMessage.getUserMessage();
-
+        final UserMessage userMessage;
+        if (signalMessage == null) {
+            LOG.debug("No signalMessage is present for [{}]", messageId);
+            userMessage = userMessageLog.getUserMessage();
+        } else {
+            userMessage = signalMessage.getUserMessage();
+        }
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
         partInfoService.clearPayloadData(userMessage.getEntityId());

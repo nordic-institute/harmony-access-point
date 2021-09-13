@@ -42,7 +42,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "message.sourceMessage," +
                 MESSAGE_COLLABORATION_INFO_ACTION + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
-                MESSAGE_COLLABORATION_INFO_SERVICE_VALUE +
+                MESSAGE_COLLABORATION_INFO_SERVICE_VALUE + "," +
+                "log.backend" +
                 ")" + getQueryBody(filters);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
