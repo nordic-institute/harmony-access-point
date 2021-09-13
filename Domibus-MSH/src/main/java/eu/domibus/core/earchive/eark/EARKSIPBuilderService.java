@@ -146,27 +146,27 @@ public class EARKSIPBuilderService {
     public void setFileBasicInformation(FileObject file, FileType fileType) {
         // mimetype info.
         try {
-            LOG.debug("Setting mimetype {}", file);
+            LOG.debug("Setting mimetype [{}]", file);
             fileType.setMIMETYPE(getFileMimetype(file));
             LOG.debug("Done setting mimetype");
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Error probing content-type (" + file.getName() + ")", e);
+            throw new DomibusEArchiveException("Error probing content-type [" + file.getName() + "]", e);
         }
 
         // date creation info.
         try {
             fileType.setCREATED(getDatatypeFactory().newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
         } catch (DatatypeConfigurationException e) {
-            throw new DomibusEArchiveException("Error getting curent calendar (" + file.getName() + ")", e);
+            throw new DomibusEArchiveException("Error getting curent calendar [" + file.getName() + "]", e);
         }
 
         // size info.
         try {
-            LOG.debug("Setting file size {}", file);
+            LOG.debug("Setting file size [{}]", file);
             fileType.setSIZE(file.getContent().getSize());
             LOG.debug("Done setting file size");
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Error getting file size (" + file.getName() + ")", e);
+            throw new DomibusEArchiveException("Error getting file size [" + file.getName() + "]", e);
         }
     }
 

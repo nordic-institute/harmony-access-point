@@ -118,14 +118,18 @@ public class EArchivingServiceTest {
                                             @Injectable InputStream inputStream) throws IOException {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
-            userMessageRawEnvelopeDao.findRawXmlByMessageId(messageId);
-            result = rawEnvelopeDto;
 
             rawEnvelopeDto.getRawMessage();
             result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
             userMessageService.getByMessageId(messageId);
             result = userMessage;
+
+            userMessage.getEntityId();
+            result = 1L;
+
+            userMessageRawEnvelopeDao.findUserMessageEnvelopeById(1L);
+            result = rawEnvelopeDto;
 
             partInfoService.findPartInfo(userMessage);
             result = partInfos;
@@ -160,14 +164,18 @@ public class EArchivingServiceTest {
                                                              @Injectable InputStream inputStream) {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
-            userMessageRawEnvelopeDao.findRawXmlByMessageId(messageId);
-            result = rawEnvelopeDto;
 
             rawEnvelopeDto.getRawMessage();
             result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
             userMessageService.getByMessageId(messageId);
             result = userMessage;
+
+            userMessage.getEntityId();
+            result = 1L;
+
+            userMessageRawEnvelopeDao.findUserMessageEnvelopeById(1L);
+            result = rawEnvelopeDto;
 
             partInfoService.findPartInfo(userMessage);
             result = partInfos;
@@ -198,14 +206,18 @@ public class EArchivingServiceTest {
                                                       @Injectable InputStream inputStream) throws IOException {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
-            userMessageRawEnvelopeDao.findRawXmlByMessageId(messageId);
-            result = rawEnvelopeDto;
 
             rawEnvelopeDto.getRawMessage();
             result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
             userMessageService.getByMessageId(messageId);
             result = userMessage;
+
+            userMessage.getEntityId();
+            result = 1L;
+
+            userMessageRawEnvelopeDao.findUserMessageEnvelopeById(1L);
+            result = rawEnvelopeDto;
 
             partInfoService.findPartInfo(userMessage);
             result = partInfos;

@@ -1,7 +1,5 @@
 package eu.domibus.core.earchive.storage;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
@@ -91,35 +89,35 @@ public class EArchiveFileStorage {
     protected Path createLocation(String path) throws FileSystemException {
         FileSystemManager fileSystemManager = getVFSManager();
 
-        FileObject fileObject = null;
-        try {
-            try {
-                fileObject = fileSystemManager.resolveFile(path);
-            } catch (FileSystemException e) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, e.getMessage(), e);
-            }
+        try (FileObject fileObject = fileSystemManager.resolveFile(path)) {
             if (!fileObject.exists()) {
                 fileObject.createFolder();
                 LOG.info("The eArchiving folder [{}] has been created!", fileObject.getPath().toAbsolutePath());
-            } else {
-                if (fileObject.isSymbolicLink()) {
-                    fileObject.close();
-                    fileObject = fileSystemManager.resolveFile(Files.readSymbolicLink(fileObject.getPath()).toAbsolutePath().toString());
+            }
+            if (fileObject.isSymbolicLink()) {
+                try (FileObject f1 = fileSystemManager.resolveFile(Files.readSymbolicLink(fileObject.getPath()).toAbsolutePath().toString())) {
+                    return returnWritablePath(f1);
                 }
             }
-            if (!fileObject.isWriteable()) {
-                throw new IOException("Write permission for eArchiving folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
-            }
-            return fileObject.getPath();
+            return returnWritablePath(fileObject);
         } catch (IOException ioEx) {
-            LOG.error("Error creating/accessing the eArchiving folder [{}]", path, ioEx);
-            close(fileObject);
-            fileObject = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"));
-            LOG.warn(WarningUtil.warnOutput("The temporary eArchiving folder " + fileObject.getPath().toAbsolutePath() + " has been selected!"));
-            return fileObject.getPath();
-        } finally {
-            close(fileObject);
+            return getTemporaryPath(path, fileSystemManager, ioEx);
         }
+    }
+
+    private Path getTemporaryPath(String path, FileSystemManager fileSystemManager, IOException ioEx) throws FileSystemException {
+        LOG.error("Error creating/accessing the eArchiving folder [{}]", path, ioEx);
+        try (FileObject fo = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"))) {
+            LOG.warn(WarningUtil.warnOutput("The temporary eArchiving folder " + fo.getPath().toAbsolutePath() + " has been selected!"));
+            return fo.getPath();
+        }
+    }
+
+    private Path returnWritablePath(FileObject fileObject) throws IOException {
+        if (!fileObject.isWriteable()) {
+            throw new IOException("Write permission for eArchiving folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
+        }
+        return fileObject.getPath();
     }
 
     private void close(FileObject fileObject) throws FileSystemException {

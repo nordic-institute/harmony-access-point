@@ -1,13 +1,12 @@
 package eu.domibus.core.earchive.storage;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +16,7 @@ import java.nio.file.Path;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author François Gautier
@@ -53,6 +52,7 @@ public class EArchiveFileStorageTest {
             times = 1;
         }};
     }
+
     @Test
     public void init_error(@Injectable Domain domain) {
 
@@ -98,16 +98,12 @@ public class EArchiveFileStorageTest {
     }
 
     @Test
-    public void createLocationWithRelativePath(@Injectable Domain domain) throws FileSystemException {
+    public void createLocationWithRelativePath_returnTempFile(@Injectable Domain domain) throws FileSystemException {
 
         final String location = "..\\domibus_blue\\domibus\\earchiving_storage";
-        try {
-            eArchiveFileStorage.createLocation(location);
-            fail();
-        } catch (DomibusCoreException ex) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
-            Assert.assertEquals("[DOM_001]:Could not find file with URI \"..\\domibus_blue\\domibus\\earchiving_storage\" because it is a relative path, and no base URI was provided.", ex.getMessage());
-        }
+        Path result = eArchiveFileStorage.createLocation(location);
+        String property = System.getProperty("java.io.tmpdir");
+        assertTrue(StringUtils.containsAny(property, result.getFileName().toString()));
     }
 
     @Test
@@ -115,7 +111,7 @@ public class EArchiveFileStorageTest {
         final String location = System.getProperty("java.io.tmpdir");
         Path path = eArchiveFileStorage.createLocation(location);
         Assert.assertNotNull(path);
-        Assert.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
     }
 
     @Test

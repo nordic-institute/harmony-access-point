@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,14 +45,15 @@ public class EArchivingService {
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
     }
 
+    @Transactional(readOnly = true)
     public Map<String, InputStream> getArchivingFiles(String messageId) {
         HashMap<String, InputStream> files = new HashMap<>();
-        RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByMessageId(messageId);
+        UserMessage userMessage = userMessageService.getByMessageId(messageId);
+
+        RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findUserMessageEnvelopeById(userMessage.getEntityId());
         if(rawXmlByMessageId != null) {
             files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
         }
-
-        UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
         final List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
 
