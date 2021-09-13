@@ -1,21 +1,37 @@
 package domibus.ui.ux;
 
+import ddsl.dcomponents.popups.Dialog;
+import io.qameta.allure.*;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
+import utils.Gen;
 import utils.TestUtils;
 
+import java.util.HashMap;
+import java.util.List;
+
+@Epic("Alerts")
+@Feature("UX")
 public class AlertPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);
 
 
 	// EDELIVERY-7154 - ALRT-42 - Modify no of visible rows
-    /* EDELIVERY-7154 - ALRT-42 - Modify no of visible rows */
+	/*  ALRT-42 - Modify no of visible rows  */
+	@Description("ALRT-42 - Modify no of visible rows")
+	@Link(name = "EDELIVERY-7154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7154")
+	@AllureId("ALRT-42")
 	@Test(description = "ALRT-42", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleColumns() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -32,7 +48,10 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 	// EDELIVERY-7154 - ALRT-42 - Modify no of visible rows
-    /* EDELIVERY-7154 - ALRT-42 - Modify no of visible rows */
+	/*  ALRT-42 - Modify no of visible rows  */
+	@Description("ALRT-42 - Modify no of visible rows")
+	@Link(name = "EDELIVERY-7154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7154")
+	@AllureId("ALRT-42")
 	@Test(description = "ALRT-42", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleRows() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -48,5 +67,261 @@ public class AlertPgUXTest extends SeleniumTest {
 
 	}
 
+	// EDELIVERY-6959 - ALRT-35 - Delete domain alert as super
+	// EDELIVERY-8455- jira issue reported for delete operation
+
+	/*  ALRT-35 - Delete domain alert as super  */
+	@Description("ALRT-35 - Delete domain alert as super")
+	@Link(name = "EDELIVERY-6959", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6959")
+	@AllureId("ALRT-35")
+	@Test(description = "ALRT-35", groups = {"multiTenancy"},enabled=false)
+	public void delDomainAlertbySuperAdmin() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.getShowDomainChk().click();
+		page.getFilters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
+
+		int beforeCount = page.grid().getPagination().getTotalItems();
+		if (beforeCount > 1) {
+
+			page.verifyDel(0, Boolean.FALSE, soft);
+			Allure.step("Mark One unprocessed alert as processed");
+			log.info("Mark One unprocessed alert as processed");
+			page.alertsGrid().markAsProcessed(1);
+			page.getSaveButton().click();
+			new Dialog(driver).confirm();
+			page.verifyDel(0, Boolean.TRUE, soft);
+
+
+		} else {
+			new SkipException("no grid data available");
+		}
+
+		soft.assertAll();
+
+	}
+
+	// EDELIVERY-6960 - ALRT-36 - Delete SUPER alert as super
+	// EDELIVERY-8455- jira issue reported for delete operation
+	/*  ALRT-36 - Delete SUPER alert as super  */
+	@Description("ALRT-36 - Delete SUPER alert as super")
+	@Link(name = "EDELIVERY-6960", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6960")
+	@AllureId("ALRT-36")
+	@Test(description = "ALRT-36", groups = {"multiTenancy"},enabled=false)
+	public void delSuperAlert() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.grid().waitForRowsToLoad();
+
+		int beforeCount = page.grid().getPagination().getTotalItems();
+		if (beforeCount > 1) {
+
+			page.verifyDel(0, Boolean.FALSE, soft);
+
+			Allure.step("Mark one unprocessed alert as processed");
+			log.info("Mark one unprocessed alert as processed");
+			page.alertsGrid().markAsProcessed(1);
+			page.getSaveButton().click();
+			new Dialog(driver).confirm();
+			page.verifyDel(0, Boolean.TRUE, soft);
+
+
+		} else {
+			new SkipException("no grid data available");
+		}
+
+		soft.assertAll();
+
+	}
+
+	// EDELIVERY-6958 - ALRT-34 - Delete domain alert as admin
+	// EDELIVERY-8455- jira issue reported for delete operation
+	/*  ALRT-34 - Delete domain alert as admin  */
+	@Description("ALRT-34 - Delete domain alert as admin")
+	@Link(name = "EDELIVERY-6958", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6958")
+	@AllureId("ALRT-34")
+	@Test(description = "ALRT-34", groups = {"multiTenancy", "singleTenancy"},enabled=false)
+	public void delDomainAlertByAdmin() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		if (data.isMultiDomain()) {
+			logout();
+			String username = Gen.randomAlphaNumeric(10);
+			rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
+			login(username, data.defaultPass());
+			Allure.step(String.format("Created user %s with role %s and login", username, DRoles.ADMIN));
+			log.info(String.format("Created user %s with role %s", username, DRoles.ADMIN));
+		}
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.grid().waitForRowsToLoad();
+
+		int beforeCount = page.grid().getPagination().getTotalItems();
+		if (beforeCount > 1) {
+
+			Allure.step("Delete unprocessed super alerts");
+			log.info("Delete unprocessed super alerts");
+			page.verifyDel(0, Boolean.FALSE, soft);
+
+			Allure.step("Mark one unprocessed alert as processed");
+			log.info("Mark one unprocessed alert as processed");
+			page.alertsGrid().markAsProcessed(1);
+			page.getSaveButton().click();
+			new Dialog(driver).confirm();
+
+			page.verifyDel(0, Boolean.TRUE, soft);
+			soft.assertAll();
+		}
+	}
+
+	// EDELIVERY-7148 - ALRT-33 - Super admin marks domain alert as processed
+	/*  ALRT-33 - Super admin marks domain alert as processed  */
+	@Description("ALRT-33 - Super admin marks domain alert as processed")
+	@Link(name = "EDELIVERY-7148", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7148")
+	@AllureId("ALRT-33")
+	@Test(description = "ALRT-33", groups = {"multiTenancy", "singleTenancy"})
+	public void MarkDomainAlrtProcessed() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		if(data.isMultiDomain()) {
+			page.getShowDomainChk().click();
+			page.getFilters().getSearchButton().click();
+		}
+		page.grid().waitForRowsToLoad();
+
+		Allure.step("Mark one unprocessed alert as processed and save");
+		log.info("Mark one unprocessed alert as processed and save");
+
+		page.verifyProcessed(soft, Boolean.TRUE);
+		log.info("index" + page.grid().getSelectedRowIndex());
+		soft.assertTrue(page.grid().getSelectedRowIndex() < 0, "Row is still not present");
+		soft.assertFalse(page.getSaveButton().isEnabled(), "Save button is not enabled");
+		soft.assertFalse(page.getCancelButton().isEnabled(), "Cancel button is not enabled");
+
+		Allure.step("Mark one unprocessed alert as processed and cancel");
+		log.info("Mark one unprocessed alert as processed and cancel");
+		page.verifyProcessed(soft, Boolean.FALSE);
+		soft.assertTrue(page.grid().getSelectedRowIndex() > 0, "Row is still present");
+
+		soft.assertTrue(page.getSaveButton().isEnabled(), "Save button is enabled");
+		soft.assertTrue(page.getCancelButton().isEnabled(), "Cancel button is enabled");
+		soft.assertAll();
+
+	}
+
+	// EDELIVERY-7150 - ALRT-38 - Super admin views domain alerts and changes domain
+	/*  ALRT-38 - Super admin views domain alerts and changes domain  */
+	@Description("ALRT-38 - Super admin views domain alerts and changes domain")
+	@Link(name = "EDELIVERY-7150", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7150")
+	@AllureId("ALRT-38")
+	@Test(description = "ALRT-38", groups = {"multiTenancy"})
+	public void changeDomain() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.getShowDomainChk().click();
+		page.getFilters().getSearchButton().click();
+		page.getDomainSelector().selectAnotherDomain();
+		soft.assertFalse(page.getShowDomainChk().isChecked(), "Show domain checkbox is not checked");
+		soft.assertAll();
+
+	}
+	// EDELIVERY-7149 - ALRT-37 - Super admin filters super alerts
+	/*  ALRT-37 - Super admin filters super alerts  */
+	@Description("ALRT-37 - Super admin filters super alerts")
+	@Link(name = "EDELIVERY-7149", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7149")
+	@AllureId("ALRT-37")
+	@Test(description = "ALRT-37", groups = {"multiTenancy"})
+	public void filterSuperAlert() throws Exception {
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+
+		SoftAssert soft = new SoftAssert();
+		page.grid().waitForRowsToLoad();
+
+		Allure.step("Total number of records : " + page.grid().getPagination().getTotalItems());
+		log.info("Total number of records : " + page.grid().getPagination().getTotalItems());
+		Allure.step("Getting alert info for first row");
+		log.info("Getting alert info for first row");
+
+		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
+
+		Allure.step("Search on the basis of first row data" + firstRowAlert);
+		log.info("Search on the basis of first row data " + firstRowAlert);
+		page.filters().basicFilterBy(null, firstRowAlert.get("Alert Type"), firstRowAlert.get("Alert Status"),
+				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
+
+		page.grid().waitForRowsToLoad();
+		soft.assertFalse(page.getShowDomainChk().isChecked(),"Show domain checkbox is unchecked after search");
+
+		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
+
+		soft.assertTrue(allResultInfo.size() >= 1, "Grid has search result present");
+
+		for (HashMap<String, String> currentAlert : allResultInfo) {
+			soft.assertEquals(currentAlert.get("Alert Type"), firstRowAlert.get("Alert Type"), "Both have same value for Alert Type");
+			soft.assertEquals(currentAlert.get("Alert Status"), firstRowAlert.get("Alert Status"), "Both have same value for Alert Status");
+			soft.assertEquals(currentAlert.get("Alert level"), firstRowAlert.get("Alert level"), "Both have same value for Alert Level");
+		}
+
+		soft.assertAll();
+	}
+
+	// EDELIVERY-7151 - ALRT-39 - Super admin filters domain alerts
+	/*  ALRT-39 - Super admin filters domain alerts  */
+	@Description("ALRT-39 - Super admin filters domain alerts")
+	@Link(name = "EDELIVERY-7151", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7151")
+	@AllureId("ALRT-39")
+	@Test(description = "ALRT-39", groups = {"multiTenancy"})
+	public void filterDomainAlert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.getShowDomainChk().click();
+		page.getFilters().getSearchButton().click();
+
+		page.grid().waitForRowsToLoad();
+
+		Allure.step("Total number of records : " + page.grid().getPagination().getTotalItems());
+		log.info("Total number of records : " + page.grid().getPagination().getTotalItems());
+		Allure.step("Getting alert info for first row");
+		log.info("Getting alert info for first row");
+
+		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
+
+		Allure.step("Search on the basis of first row data" + firstRowAlert);
+		log.info("Search on the basis of first row data " + firstRowAlert);
+		page.filters().basicFilterBy(null, firstRowAlert.get("Alert Type"), firstRowAlert.get("Alert Status"),
+				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
+
+		page.grid().waitForRowsToLoad();
+		soft.assertTrue(page.getShowDomainChk().isChecked(),"Show domain checkbox is checked after search");
+
+		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
+
+		soft.assertTrue(allResultInfo.size() >= 1, "Grid has search result present");
+
+		for (HashMap<String, String> currentAlert : allResultInfo) {
+			soft.assertEquals(currentAlert.get("Alert Type"), firstRowAlert.get("Alert Type"), "Both have same value for Alert Type");
+			soft.assertEquals(currentAlert.get("Alert Status"), firstRowAlert.get("Alert Status"), "Both have same value for Alert Status");
+			soft.assertEquals(currentAlert.get("Alert level"), firstRowAlert.get("Alert level"), "Both have same value for Alert Level");
+		}
+
+		soft.assertAll();
+	}
+
 
 }
+
