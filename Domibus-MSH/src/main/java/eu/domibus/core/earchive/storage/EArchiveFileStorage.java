@@ -59,6 +59,13 @@ public class EArchiveFileStorage {
             throw new ConfigurationException("No file system storage defined for earchiving but the earchiving is activated.");
         }
 
+        Path path = getPath(location);
+
+        storageDirectory = path.toFile();
+        LOG.info("Initialized eArchiving folder on path [{}] for domain [{}]", path, this.domain);
+    }
+
+    private Path getPath(String location) {
         Path path;
         try {
             path = createLocation(location);
@@ -68,9 +75,7 @@ public class EArchiveFileStorage {
         if (path == null) {
             throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.");
         }
-
-        storageDirectory = path.toFile();
-        LOG.info("Initialized eArchiving folder on path [{}] for domain [{}]", path, this.domain);
+        return path;
     }
 
     public File getStorageDirectory() {
