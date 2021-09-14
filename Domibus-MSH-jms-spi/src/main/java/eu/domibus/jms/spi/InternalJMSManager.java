@@ -58,4 +58,10 @@ public interface InternalJMSManager {
      */
     long getDestinationCount(InternalJMSDestination internalJMSDestination);
 
+    /**
+     * Checks if the JMS broker is up and running
+     * @throws RuntimeException in case the broker is not available
+     */
+    void isJMSBrokerAlive();
+
 }
