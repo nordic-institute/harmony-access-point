@@ -24,7 +24,7 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH-tomcat/src/main/conf/domibus/plugins/config/domain_name-fs-plugin.properties</source>
+            <source>${project.basedir}/../Domibus-MSH-tomcat/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
             <outputDirectory>conf/domibus/plugins/config/tomcat</outputDirectory>
             <filtered>false</filtered>
         </file>
@@ -40,7 +40,7 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH-weblogic-common/src/main/conf/domibus/plugins/config/domain_name-fs-plugin.properties</source>
+            <source>${project.basedir}/../Domibus-MSH-weblogic-common/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
             <outputDirectory>conf/domibus/plugins/config/weblogic</outputDirectory>
             <filtered>false</filtered>
         </file>
@@ -56,7 +56,7 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/domain_name-fs-plugin.properties</source>
+            <source>${project.basedir}/../Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
             <outputDirectory>conf/domibus/plugins/config/wildfly</outputDirectory>
             <filtered>false</filtered>
         </file>
