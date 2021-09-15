@@ -88,7 +88,7 @@ public class DomainDaoImpl implements DomainDao {
             LOG.warn("Invalid domains path: [{}]", confDirectory);
             return null;
         }
-        return Arrays.stream(domainHomes).map(File::getName).collect(Collectors.toList());
+        return Arrays.stream(domainHomes).map(File::getName).sorted().collect(Collectors.toList());
     }
 
     protected boolean isValidDomain(List<Domain> domains, String domainCode) {
