@@ -2026,7 +2026,6 @@ BEGIN
     CALL MIGRATE_42_TO_50_trace(CONCAT('Migrated ', @i, ' records in total into ', @v_tab_new));
     CLOSE c_send_attempt;
 
-    -- check counts
     CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
     IF migration_status THEN
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));

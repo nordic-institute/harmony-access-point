@@ -1516,7 +1516,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         COMMIT;
         CLOSE c_send_attempt;
 
-        -- check counts
         IF check_counts(v_tab, v_tab_new) THEN
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
         END IF;
