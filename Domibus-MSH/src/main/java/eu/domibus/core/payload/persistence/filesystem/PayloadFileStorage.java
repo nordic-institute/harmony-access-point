@@ -79,12 +79,9 @@ public class PayloadFileStorage {
     /**
      * It attempts to create the directory whenever is not present.
      * It works also when the location is a symbolic link.
-     *
-     * @param path
-     * @return Path
      */
     protected Path createLocation(String path) {
-        Path payloadPath = null;
+        Path payloadPath;
         try {
             payloadPath = Paths.get(path).normalize();
             if (!payloadPath.isAbsolute()) {
@@ -93,7 +90,7 @@ public class PayloadFileStorage {
             // Checks if the path exists, if not it creates it
             if (Files.notExists(payloadPath)) {
                 Files.createDirectories(payloadPath);
-                LOG.info("The payload folder " + payloadPath.toAbsolutePath() + " has been created!");
+                LOG.info("The payload folder [{}] has been created!", payloadPath.toAbsolutePath());
             } else {
                 if (Files.isSymbolicLink(payloadPath)) {
                     payloadPath = Files.readSymbolicLink(payloadPath);
