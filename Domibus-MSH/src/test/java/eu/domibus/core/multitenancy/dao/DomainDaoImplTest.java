@@ -62,8 +62,9 @@ public class DomainDaoImplTest {
 
         List<String> domainCodes = domainDao.findAllDomainCodes();
 
-        assertEquals(1, domainCodes.size());
+        assertEquals(2, domainCodes.size());
         assertEquals("default", domainCodes.get(0));
+        assertEquals("domain_name", domainCodes.get(1));
     }
 
     @Test

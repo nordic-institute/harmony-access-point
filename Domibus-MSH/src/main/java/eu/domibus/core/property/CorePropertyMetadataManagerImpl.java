@@ -25,7 +25,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             //read-only properties
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_NAME, Type.STRING),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CONFIG_LOCATION, Type.URI),
-            new DomibusPropertyMetadata(DOMIBUS_DOMAIN_LOCATION, Type.URI, false, Usage.DOMAIN, false, false),
+            new DomibusPropertyMetadata(DOMIBUS_DOMAIN_CODE, Type.STRING, false, Usage.DOMAIN, false, false),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),

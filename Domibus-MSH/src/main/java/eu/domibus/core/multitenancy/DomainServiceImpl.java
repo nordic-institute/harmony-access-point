@@ -93,7 +93,8 @@ public class DomainServiceImpl implements DomainService {
         String domainSchema = domainSchemas.get(domain);
         if (domainSchema == null) {
             synchronized (domainSchemas) {
-                if (domainSchemas.get(domain) == null) {
+                domainSchema = domainSchemas.get(domain);
+                if (domainSchema == null) {
                     String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
                     LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
                     domainSchemas.put(domain, value);

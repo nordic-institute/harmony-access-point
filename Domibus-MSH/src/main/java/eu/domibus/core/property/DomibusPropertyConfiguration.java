@@ -62,7 +62,7 @@ public class DomibusPropertyConfiguration {
             resources.add(superProperties);
         }
 
-        Resource[] domainProperties = resolver.getResources("file:///" + domibusConfigLocation + "/domains/*/domibus.properties");
+        Resource[] domainProperties = resolver.getResources("file:///" + domibusConfigLocation + "/domains/*/*-domibus.properties");
         LOG.debug("Adding the following domain properties files [{}]", domainProperties);
         resources.addAll(Arrays.asList(domainProperties));
 
@@ -74,9 +74,17 @@ public class DomibusPropertyConfiguration {
         LOG.debug("Adding the following plugin properties files [{}]", pluginResourceList);
         resources.addAll(Arrays.asList(pluginResourceList));
 
+        Resource[] domainPluginResourceList = resolver.getResources("file:///" + domibusConfigLocation + "/plugins/config/domains/*/*-plugin.properties");
+        LOG.debug("Adding the following domain plugin properties files [{}]", domainPluginResourceList);
+        resources.addAll(Arrays.asList(domainPluginResourceList));
+
         Resource[] extensionResourceList = resolver.getResources("file:///" + domibusConfigLocation + "/extensions/config/*-extension.properties");
         LOG.debug("Adding the following extension properties files [{}]", extensionResourceList);
         resources.addAll(Arrays.asList(extensionResourceList));
+
+        Resource[] domainExtensionResourceList = resolver.getResources("file:///" + domibusConfigLocation + "/extensions/config/domains/*/*-extension.properties");
+        LOG.debug("Adding the following domain extension properties files [{}]", domainExtensionResourceList);
+        resources.addAll(Arrays.asList(domainExtensionResourceList));
 
         result.setLocations(resources.toArray(new Resource[0]));
         return result;
