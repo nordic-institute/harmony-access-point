@@ -25,7 +25,7 @@
         </file>
         <file>
             <source>${project.basedir}/../Domibus-MSH-tomcat/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
-            <outputDirectory>conf/domibus/plugins/config/tomcat</outputDirectory>
+            <outputDirectory>conf/domibus/plugins/config/tomcat/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
         </file>
         <!-- WebLogic -->
@@ -41,7 +41,7 @@
         </file>
         <file>
             <source>${project.basedir}/../Domibus-MSH-weblogic-common/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
-            <outputDirectory>conf/domibus/plugins/config/weblogic</outputDirectory>
+            <outputDirectory>conf/domibus/plugins/config/weblogic/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
         </file>
         <!-- WildFly -->
@@ -57,7 +57,7 @@
         </file>
         <file>
             <source>${project.basedir}/../Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
-            <outputDirectory>conf/domibus/plugins/config/wildfly</outputDirectory>
+            <outputDirectory>conf/domibus/plugins/config/wildfly/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
         </file>
         <!-- Plugin jar -->

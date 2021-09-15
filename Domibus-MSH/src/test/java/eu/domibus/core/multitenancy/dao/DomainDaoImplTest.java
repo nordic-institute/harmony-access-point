@@ -57,7 +57,7 @@ public class DomainDaoImplTest {
     public void findAllDomainCodes() {
         new Expectations() {{
             domibusConfigurationService.getConfigLocation();
-            result = "src/main/conf/domibus";
+            result = "src/test/resources/config";
         }};
 
         List<String> domainCodes = domainDao.findAllDomainCodes();
