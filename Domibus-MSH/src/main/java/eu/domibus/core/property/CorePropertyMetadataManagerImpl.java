@@ -122,8 +122,6 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ATTACHMENT_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
 
             new DomibusPropertyMetadata(DOMIBUS_MSH_MESSAGEID_SUFFIX, Type.URI, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY, Type.NUMERIC),
@@ -228,6 +226,13 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
+
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_EARCHIVE_CONCURRENCY, Type.CONCURRENCY),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_EARCHIVE, Type.JNDI),
 
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
 

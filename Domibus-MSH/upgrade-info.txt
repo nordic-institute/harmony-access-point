@@ -1,4 +1,68 @@
 Domibus 5.0 (from 4.2.3)
+                - [WebLogic only]
+                     o  Modify file "/conf/domibus/domibus.properties":
+                         - add the following properties:
+                             domibus.jms.queue.alert=jms/domibus.internal.alert.queue
+                - [Tomcat only]
+                     Modify file "/conf/domibus/domibus.properties":
+                          o add the following properties:
+                              domibus.jms.queue.alert=domibus.internal.alert.queue
+                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
+                             - in the destinations section add the following queues:
+                                        .............................
+                                        <destinations>
+                                            .............................
+                                             <queue id="alertMessageQueue"
+                                                                physicalName="domibus.internal.alert.queue"/>
+                              -  in the redeliveryPolicyEntries section add the following entries:
+                                             .............................
+                                             <redeliveryPolicyEntries>
+                                                 .............................
+                                                 <redeliveryPolicy queue="domibus.internal.alert.queue" maximumRedeliveries="0"/>
+                              -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
+                                            - original:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue" reportInterval="10000"/>
+                                            -new configuration:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
+                 - [Wildfly only]
+                     Modify file "/conf/domibus/domibus.properties":
+                          o add the following property:
+                              domibus.jms.queue.alert=jms/domibus.internal.alert.queue
+                          o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
+                           - add the following queues in the destination section
+                                       .............................
+                                       <jms-destinations>
+                                           .............................
+                                            <jms-queue name="DomibusAlertMessageQueue">
+                                                <entry name="java:/jms/domibus.internal.alert.queue"/>
+                                                <entry name="java:/jms/queue/DomibusAlertMessageQueue"/>
+                                                <durable>true</durable>
+                                            </jms-queue>
+                                            <jms-queue name="DomibusUIReplicationQueue">
+                                                <entry name="java:/jms/domibus.internal.ui.replication.queue"/>
+                                                <entry name="java:/jms/queue/DomibusUIReplicationQueue"/>
+                                                <durable>true</durable>
+                                            </jms-queue>
+                                           .............................
+                                       </jms-destinations>
+                                       .............................
+                            -  in the address-settings section
+                                    o add the following address-setting configurations:
+                                           .............................
+                                           <address-settings>
+                                               .............................
+                                               <address-setting match="jms.queue.DomibusAlertMessageQueue">
+                                                  <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+                                                  <max-delivery-attempts>1</max-delivery-attempts>
+                                               </address-setting>
+                                               <address-setting match="jms.queue.DomibusUIReplicationQueue">
+                                                   <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+                                                    <redelivery-delay>1000</redelivery-delay>
+                                                    <max-delivery-attempts>1</max-delivery-attempts>
+                                                 </address-setting>
+                                               .............................
+                                           </address-settings>
+                                           .............................
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war

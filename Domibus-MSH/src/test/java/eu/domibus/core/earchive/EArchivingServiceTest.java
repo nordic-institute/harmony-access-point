@@ -2,7 +2,6 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -20,7 +19,10 @@ import javax.activation.DataHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
 import static org.hamcrest.core.Is.is;
@@ -47,11 +49,11 @@ public class EArchivingServiceTest {
 
     @Injectable
     private UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
-    private String messageId;
+    private long entityId;
 
     @Before
     public void setUp() throws Exception {
-        messageId = UUID.randomUUID().toString();
+        entityId = new Random().nextLong();
     }
 
     @Test
@@ -112,7 +114,6 @@ public class EArchivingServiceTest {
 
     @Test
     public void getArchivingFiles_happyFlow(@Injectable RawEnvelopeDto rawEnvelopeDto,
-                                            @Injectable UserMessage userMessage,
                                             @Injectable PartInfo partInfo1,
                                             @Injectable DataHandler dataHandler,
                                             @Injectable InputStream inputStream) throws IOException {
@@ -122,16 +123,10 @@ public class EArchivingServiceTest {
             rawEnvelopeDto.getRawMessage();
             result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
-            userMessageService.getByMessageId(messageId);
-            result = userMessage;
-
-            userMessage.getEntityId();
-            result = 1L;
-
-            userMessageRawEnvelopeDao.findUserMessageEnvelopeById(1L);
+            userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
 
-            partInfoService.findPartInfo(userMessage);
+            partInfoService.findPartInfo(entityId);
             result = partInfos;
 
             partInfo1.getPayloadDatahandler();
@@ -147,7 +142,7 @@ public class EArchivingServiceTest {
             result = CID + MESSAGE;
         }};
 
-        Map<String, InputStream> archivingFiles = eArchivingService.getArchivingFiles(messageId);
+        Map<String, InputStream> archivingFiles = eArchivingService.getArchivingFiles(entityId);
 
         new FullVerifications() {
         };
@@ -158,7 +153,6 @@ public class EArchivingServiceTest {
 
     @Test
     public void getArchivingFiles_partInfoWithoutDataHandler(@Injectable RawEnvelopeDto rawEnvelopeDto,
-                                                             @Injectable UserMessage userMessage,
                                                              @Injectable PartInfo partInfo1,
                                                              @Injectable DataHandler dataHandler,
                                                              @Injectable InputStream inputStream) {
@@ -168,16 +162,10 @@ public class EArchivingServiceTest {
             rawEnvelopeDto.getRawMessage();
             result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
-            userMessageService.getByMessageId(messageId);
-            result = userMessage;
-
-            userMessage.getEntityId();
-            result = 1L;
-
-            userMessageRawEnvelopeDao.findUserMessageEnvelopeById(1L);
+            userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
 
-            partInfoService.findPartInfo(userMessage);
+            partInfoService.findPartInfo(entityId);
             result = partInfos;
 
             partInfo1.getPayloadDatahandler();
@@ -188,7 +176,7 @@ public class EArchivingServiceTest {
         }};
 
         try {
-            eArchivingService.getArchivingFiles(messageId);
+            eArchivingService.getArchivingFiles(entityId);
             Assert.fail();
         } catch (DomibusEArchiveException e) {
             //ok
@@ -200,7 +188,6 @@ public class EArchivingServiceTest {
 
     @Test
     public void getArchivingFiles_partInfoIOException(@Injectable RawEnvelopeDto rawEnvelopeDto,
-                                                      @Injectable UserMessage userMessage,
                                                       @Injectable PartInfo partInfo1,
                                                       @Injectable DataHandler dataHandler,
                                                       @Injectable InputStream inputStream) throws IOException {
@@ -210,16 +197,10 @@ public class EArchivingServiceTest {
             rawEnvelopeDto.getRawMessage();
             result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
-            userMessageService.getByMessageId(messageId);
-            result = userMessage;
-
-            userMessage.getEntityId();
-            result = 1L;
-
-            userMessageRawEnvelopeDao.findUserMessageEnvelopeById(1L);
+            userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
 
-            partInfoService.findPartInfo(userMessage);
+            partInfoService.findPartInfo(entityId);
             result = partInfos;
 
             partInfo1.getPayloadDatahandler();
@@ -236,7 +217,7 @@ public class EArchivingServiceTest {
         }};
 
         try {
-            eArchivingService.getArchivingFiles(messageId);
+            eArchivingService.getArchivingFiles(entityId);
             Assert.fail();
         } catch (DomibusEArchiveException e) {
             //ok

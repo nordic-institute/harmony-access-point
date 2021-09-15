@@ -12,6 +12,7 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.earchive.job.EArchivingJob;
 import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.error.ErrorLogCleanerJob;
 import eu.domibus.core.message.pull.MessagePullerJob;
@@ -467,6 +468,28 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(errorLogCleanerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ERRORLOG_CLEANER_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean eArchiveJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(EArchivingJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean eArchiveTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(eArchiveJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }

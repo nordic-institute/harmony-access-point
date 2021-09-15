@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.earchive.eark.DomibusEARKSIP;
 import eu.domibus.core.earchive.eark.DomibusIPFile;
 import eu.domibus.core.earchive.eark.EARKSIPBuilderService;
@@ -16,6 +17,7 @@ import org.roda_project.commons_ip2.model.SIP;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.singletonList;
@@ -50,7 +52,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     @Override
-    public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO) {
+    public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) {
         LOG.info("Create earchive structure for batchId [{}]", batchEArchiveDTO.getBatchId());
 
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatchId())) {
@@ -62,7 +64,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             sip.setDescription(domibusVersionService.getDisplayVersion());
 
             LOG.debug("DomibusEARKSIP initialized [{}]", sip);
-            addRepresentation1(sip, batchEArchiveDTO);
+            addRepresentation1(sip, batchEArchiveDTO, userMessageEntityIds);
             LOG.debug("DomibusEARKSIP created [{}]", sip);
 
             return eArkSipBuilderService.build(sip, batchDirectory);
@@ -71,25 +73,25 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
-    protected void addRepresentation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO) throws IPException {
+    protected void addRepresentation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) throws IPException {
         IPRepresentation representation1 = new IPRepresentation("representation1");
         sip.addRepresentation(representation1);
 
         LOG.debug("Add batch.json");
         InputStream batchFileJson = eArchivingService.getBatchFileJson(batchEArchiveDTO);
         representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON));
-        for (String messageId : batchEArchiveDTO.getMessages()) {
+        for (UserMessageDTO messageId : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", messageId);
             addUserMessage(representation1, messageId);
         }
     }
 
-    private void addUserMessage(IPRepresentation representation1, String messageId) {
-        Map<String, InputStream> archivingFile = eArchivingService.getArchivingFiles(messageId);
+    private void addUserMessage(IPRepresentation representation1, UserMessageDTO messageId) {
+        Map<String, InputStream> archivingFile = eArchivingService.getArchivingFiles(messageId.getEntityId());
 
         for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
             LOG.debug("Process file [{}]", file.getKey());
-            processFile(representation1, messageId, file);
+            processFile(representation1, messageId.getMessageId(), file);
         }
     }
 

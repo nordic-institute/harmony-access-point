@@ -91,6 +91,12 @@ import java.util.Date;
                         "and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE                          "),
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
+        @NamedQuery(name = "UserMessageLog.findMessagesForArchivingDesc",
+                query = "select new eu.domibus.api.model.UserMessageDTO(uml.entityId, uml.userMessage.messageId) " +
+                        "from UserMessageLog uml " +
+                        "where uml.entityId > :LAST_ENTITY_ID " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {

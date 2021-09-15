@@ -4,7 +4,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.*;
@@ -27,7 +26,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
  */
 //TODO extends AbstractIT
 @Transactional
-@Ignore("EDELIVERY-8052 Failing tests must be ignored")
 public class UserMessageLogDaoIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);

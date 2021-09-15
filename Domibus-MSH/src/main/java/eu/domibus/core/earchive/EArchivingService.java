@@ -2,7 +2,6 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -33,41 +32,44 @@ public class EArchivingService {
 
     public static final String SOAP_ENVELOPE_XML = "soap.envelope.xml";
 
-    private final UserMessageService userMessageService;
-
     private final PartInfoService partInfoService;
 
     private final UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
 
-    public EArchivingService(UserMessageService userMessageService, PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao) {
-        this.userMessageService = userMessageService;
+    public EArchivingService(PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao) {
         this.partInfoService = partInfoService;
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
     }
 
     @Transactional(readOnly = true)
-    public Map<String, InputStream> getArchivingFiles(String messageId) {
+    public Map<String, InputStream> getArchivingFiles(Long entityId) {
         HashMap<String, InputStream> files = new HashMap<>();
-        UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
-        RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findUserMessageEnvelopeById(userMessage.getEntityId());
+        RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
         if(rawXmlByMessageId != null) {
             files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
         }
+        if(rawXmlByMessageId == null){
+            LOG.debug("No userMessageRaw found for entityId [{}]", entityId);
+        }
 
-        final List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
+        final List<PartInfo> partInfos = partInfoService.findPartInfo(entityId);
 
         for (PartInfo partInfo : partInfos) {
-            if (partInfo.getPayloadDatahandler() == null) {
-                throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and messageId [" + messageId + "]");
-            }
-            try {
-                files.put(getFileName(partInfo), partInfo.getPayloadDatahandler().getInputStream());
-            } catch (IOException e) {
-                throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "] and messageId [" + messageId + "]", e);
-            }
+           files.put(getFileName(partInfo), getInputStream(entityId, partInfo));
         }
         return files;
+    }
+
+    private InputStream getInputStream(Long entityId, PartInfo partInfo) {
+        if (partInfo.getPayloadDatahandler() == null) {
+            throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and messageId [" + entityId + "]");
+        }
+        try {
+            return partInfo.getPayloadDatahandler().getInputStream();
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "] and messageId [" + entityId + "]", e);
+        }
     }
 
     protected String getFileName(PartInfo info) {

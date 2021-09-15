@@ -49,6 +49,8 @@
                    physicalName="domibus.internal.pull.receipt.queue"/>
             <queue id="alertMessageQueue"
                    physicalName="domibus.internal.alert.queue"/>
+            <queue id="eArchiveQueue"
+                   physicalName="domibus.internal.earchive.queue"/>
 
             <!--queue id="notifyBackendQueue"
                    physicalName="domibus.internal.notification.queue"/-->
@@ -146,6 +148,7 @@
                             <redeliveryPolicy queue="domibus.internal.pull.queue" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="domibus.internal.pull.receipt.queue" maximumRedeliveries="3"/>
                             <redeliveryPolicy queue="domibus.internal.alert.queue" maximumRedeliveries="0"/>
+                            <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="domibus.internal.ui.replication.queue" maximumRedeliveries="1" redeliveryDelay="10000"/>
                             <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="${wsplugin.send.queue:domibus.wsplugin.send.queue}" maximumRedeliveries="0"/>
@@ -154,7 +157,7 @@
                 </redeliveryPolicyMap>
             </redeliveryPlugin>
 
-            <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.largeMessage.queue domibus.internal.retentionMessage.queue ${fsplugin.send.queue:domibus.fsplugin.send.queue} ${wsplugin.send.queue:domibus.wsplugin.send.queue}" reportInterval="10000"/>
+            <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue domibus.internal.largeMessage.queue domibus.internal.retentionMessage.queue ${fsplugin.send.queue:domibus.fsplugin.send.queue} ${wsplugin.send.queue:domibus.wsplugin.send.queue}" reportInterval="10000"/>
         </plugins>
     </broker>
 

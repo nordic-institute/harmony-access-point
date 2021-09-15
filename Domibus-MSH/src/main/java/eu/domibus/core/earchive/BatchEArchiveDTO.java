@@ -30,6 +30,29 @@ public class BatchEArchiveDTO {
 
     List<String> messages;
 
+    public BatchEArchiveDTO(String version,
+                            String batchId,
+                            String requestType,
+                            String status,
+                            String errorCode,
+                            String errorDescription,
+                            String timestamp,
+                            String messageStartDate,
+                            String messageEndDate,
+                            String manifestChecksum,
+                            List<String> messages) {
+        this.version = version;
+        this.batchId = batchId;
+        this.requestType = requestType;
+        this.status = status;
+        this.errorCode = errorCode;
+        this.errorDescription = errorDescription;
+        this.timestamp = timestamp;
+        this.messageStartDate = messageStartDate;
+        this.messageEndDate = messageEndDate;
+        this.manifestChecksum = manifestChecksum;
+        this.messages = messages;
+    }
     public String getVersion() {
         return version;
     }

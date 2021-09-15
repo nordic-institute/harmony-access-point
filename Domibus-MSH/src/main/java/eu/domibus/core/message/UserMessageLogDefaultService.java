@@ -48,6 +48,9 @@ public class UserMessageLogDefaultService {
     @Autowired
     protected NotificationStatusDao notificationStatusDao;
 
+    public UserMessageLog findById(Long entityId) {
+        return userMessageLogDao.findById(entityId);
+    }
 
     private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String backendName) {
         UserMessageLog userMessageLog = new UserMessageLog();
@@ -103,7 +106,6 @@ public class UserMessageLogDefaultService {
     /**
      * Find the {@link SignalMessageLog} and set to {@link MessageStatus#DELETED}
      * Propagate the change to the UiReplication
-     *
      */
     public boolean setSignalMessageAsDeleted(final SignalMessage signalMessage) {
 
@@ -114,7 +116,7 @@ public class UserMessageLogDefaultService {
         if (isBlank(signalMessage.getSignalMessageId())) {
             LOG.debug("Could not delete SignalMessage: received messageId is empty [{}",
                     signalMessage
-                    );
+            );
             return false;
         }
 

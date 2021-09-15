@@ -1,5 +1,8 @@
 package eu.domibus.api.model;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum MessageStatus {
         /**
          * The message is ready to be put in the send queue .
@@ -78,5 +81,14 @@ public enum MessageStatus {
         /**
          * The message has been downloaded by the receiving access point.
          */
-        DOWNLOADED
+        DOWNLOADED;
+
+        public static List<MessageStatus> getFinalStates(){
+                return Arrays.asList(
+                        MessageStatus.ACKNOWLEDGED,
+                        MessageStatus.ACKNOWLEDGED_WITH_WARNING,
+                        MessageStatus.RECEIVED,
+                        MessageStatus.RECEIVED_WITH_WARNINGS,
+                        MessageStatus.DOWNLOADED);
+        }
     }
