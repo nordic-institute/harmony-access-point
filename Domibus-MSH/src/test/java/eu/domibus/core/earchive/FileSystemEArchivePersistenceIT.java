@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
 import static org.apache.commons.lang3.StringUtils.contains;
@@ -153,12 +151,14 @@ public class FileSystemEArchivePersistenceIT {
                 assertEquals("batch.json", file.getName());
             }
             if (equalsIgnoreCase(file.getName(), msg1)) {
-                assertEquals(MESSAGE_ATTACHMENT_MSG1, file.listFiles()[0].getName());
-                assertEquals(SOAP_ENVELOPE_XML, file.listFiles()[1].getName());
+                List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
+                assertEquals(MESSAGE_ATTACHMENT_MSG1, collect.get(0).getName());
+                assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
             }
             if (equalsIgnoreCase(file.getName(), msg2)) {
-                assertEquals(MESSAGE_ATTACHMENT_MSG2, file.listFiles()[0].getName());
-                assertEquals(SOAP_ENVELOPE_XML, file.listFiles()[1].getName());
+                List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
+                assertEquals(MESSAGE_ATTACHMENT_MSG2, collect.get(0).getName());
+                assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
             }
         }
     }
