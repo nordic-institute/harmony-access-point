@@ -72,8 +72,8 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/super-domibus.properties</source>
-            <outputDirectory>domibus/conf/domibus/</outputDirectory>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/domains/super-domibus.properties</source>
+            <outputDirectory>domibus/conf/domibus/domains</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>

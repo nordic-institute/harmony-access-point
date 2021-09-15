@@ -54,9 +54,9 @@
         </file>
         <file>
             <source>
-                ${project.basedir}/../Domibus-MSH/src/main/conf/domibus/super-domibus.properties
+                ${project.basedir}/../Domibus-MSH/src/main/conf/domibus/domains/super-domibus.properties
             </source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/domains</outputDirectory>
             <destName>super-domibus.properties</destName>
             <filtered>false</filtered>
         </file>
