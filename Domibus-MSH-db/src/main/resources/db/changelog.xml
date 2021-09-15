@@ -2801,7 +2801,7 @@
     </changeSet>
     <!-- End Alert Tables -->
 
-    <!-- Start EArchvive Tables -->
+    <!-- Start EArchive Tables -->
     <changeSet author="Francois Gautier" id="EDELIVERY-8450">
         <createTable tableName="TB_EARCHIVE_BATCH">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -2849,7 +2849,7 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
 
     </changeSet>
-    <!-- End EArchvive Tables -->
+    <!-- End EArchive Tables -->
 
     <!-- Start Backend Filter Tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Backend Filter Tables">

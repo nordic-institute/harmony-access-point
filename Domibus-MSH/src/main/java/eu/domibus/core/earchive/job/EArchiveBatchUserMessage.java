@@ -51,7 +51,7 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
         return userMessageEntityId;
     }
 
-    public void setUserMessageEntityId(Long ownerId) {
-        this.userMessageEntityId = ownerId;
+    public void setUserMessageEntityId(Long userMessageEntityId) {
+        this.userMessageEntityId = userMessageEntityId;
     }
 }

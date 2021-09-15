@@ -35,7 +35,7 @@ public class EArchiveBatchDispatcherService {
                                           EArchiveBatchDao eArchiveBatchDao,
                                           UserMessageLogDao userMessageLogDao,
                                           JMSManager jmsManager,
-                                          @Qualifier(InternalJMSConstants.ALERT_MESSAGE_QUEUE) Queue eArchiveQueue) {
+                                          @Qualifier(InternalJMSConstants.EARCHIVE_QUEUE) Queue eArchiveQueue) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.userMessageLogDao = userMessageLogDao;
