@@ -10,6 +10,7 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
@@ -85,6 +86,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     protected ServerInfoService serverInfoService;
 
+    protected JMSBrokerHelper jmsBrokerHelper;
+
     public InternalJMSManagerWildFlyArtemis(MBeanServer mBeanServer,
                                             @Qualifier("activeMQServerControl") ActiveMQServerControl activeMQServerControl,
                                             @Qualifier("jmsSender") JmsOperations jmsSender,
@@ -93,7 +96,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                                             DomibusPropertyProvider domibusPropertyProvider,
                                             AuthUtils authUtils,
                                             DomibusConfigurationService domibusConfigurationService,
-                                            ServerInfoService serverInfoService) {
+                                            ServerInfoService serverInfoService,
+                                            JMSBrokerHelper jmsBrokerHelper) {
         this.mBeanServer = mBeanServer;
         this.activeMQServerControl = activeMQServerControl;
         this.jmsSender = jmsSender;
@@ -103,6 +107,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         this.authUtils = authUtils;
         this.domibusConfigurationService = domibusConfigurationService;
         this.serverInfoService = serverInfoService;
+        this.jmsBrokerHelper = jmsBrokerHelper;
     }
 
     /**
@@ -499,6 +504,11 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         final ObjectName objectName = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
         final QueueControl queueControl = getQueueControl(objectName);
         return getMessagesTotalCount(queueControl);
+    }
+
+    @Override
+    public void isJMSBrokerAlive() {
+        jmsBrokerHelper.isJMSBrokerAlive(jmsSender);
     }
 
 }

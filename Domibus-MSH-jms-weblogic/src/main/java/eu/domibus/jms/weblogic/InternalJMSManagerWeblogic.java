@@ -12,6 +12,7 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
@@ -125,6 +126,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private JmsDestinationCache jmsDestinationCache;
+
+    @Autowired
+    protected JMSBrokerHelper jmsBrokerHelper;
 
     /**
      * {@inheritDoc}
@@ -244,6 +248,11 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
                     }
                 }
         );
+    }
+
+    @Override
+    public void isJMSBrokerAlive() {
+        jmsBrokerHelper.isJMSBrokerAlive(jmsSender);
     }
 
     protected Long getDestinationCount(MBeanServerConnection mbsc, InternalJMSDestination internalJMSDestination) {

@@ -164,4 +164,10 @@ public interface JMSManager {
      * @throws MessageNotFoundException if the message is not pending
      */
     void removeFromPending(String queueName, String messageId) throws MessageNotFoundException;
+
+    /**
+     * Checks if the JMS broker is up and running
+     * @throws RuntimeException in case the broker is not available
+     */
+    void isJMSBrokerAlive();
 }

@@ -9,6 +9,7 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
@@ -72,6 +73,9 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     @Autowired
     private ServerInfoService serverInfoService;
+
+    @Autowired
+    protected JMSBrokerHelper jmsBrokerHelper;
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
@@ -345,6 +349,11 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         QueueViewMBean queueMbean = getQueueViewMBean(objectName);
 
         return getMessagesTotalCount(queueMbean);
+    }
+
+    @Override
+    public void isJMSBrokerAlive() {
+        jmsBrokerHelper.isJMSBrokerAlive(jmsSender);
     }
 
     protected List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws JMSActiveMQException {
