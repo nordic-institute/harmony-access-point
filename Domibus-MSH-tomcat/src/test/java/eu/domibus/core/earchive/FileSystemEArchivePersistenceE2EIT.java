@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
@@ -122,8 +124,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 assertEquals("batch.json", file.getName());
             }
             if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
-                assertEquals("message.attachment", file.listFiles()[0].getName());
-                assertEquals(SOAP_ENVELOPE_XML, file.listFiles()[1].getName());
+                List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
+                assertEquals("message.attachment", collect.get(0).getName());
+                assertEquals(SOAP_ENVELOPE_XML,  collect.get(1).getName());
             }
         }
     }
