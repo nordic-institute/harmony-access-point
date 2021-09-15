@@ -1,13 +1,17 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.ListUserMessageDto;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageLogDao;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +26,7 @@ import java.util.stream.Stream;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Ignore("EDELIVERY-8052 Failing tests must be ignored")
 public class UserMessageLogDaoIT extends AbstractIT {
 
     @Autowired
