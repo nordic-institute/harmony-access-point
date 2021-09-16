@@ -44,6 +44,8 @@ public class EARKSIPBuilderService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EARKSIPBuilderService.class);
 
+    private static final String SHA256_CHECKSUMTYPE = "SHA-256";
+
     public FileObject build(DomibusEARKSIP domibusEARKSIP, final FileObject destinationDirectory) throws IPException {
         MetsWrapper mainMETSWrapper = EARKMETSUtils.generateMETS(StringUtils.join(
                         domibusEARKSIP.getIds(), " "),
@@ -177,9 +179,9 @@ public class EARKSIPBuilderService {
             checksumSHA256 = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file.getPath().toFile()));
             LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.getName());
             fileType.setCHECKSUM(checksumSHA256);
-            fileType.setCHECKSUMTYPE("SHA-256");
+            fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
         } catch (IOException e) {
-            LOG.error("Exception while calculating SHA-256 hash", e);
+            LOG.error("Exception while calculating {} hash", SHA256_CHECKSUMTYPE, e);
         }
     }
 
