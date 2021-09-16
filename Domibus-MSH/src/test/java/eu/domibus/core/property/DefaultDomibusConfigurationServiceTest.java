@@ -109,6 +109,6 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String domainConfigurationFileName = defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
-        Assert.assertEquals("domains" + File.separator + "myDomain" + File.separator + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
+        Assert.assertEquals("domains" + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
     }
 }

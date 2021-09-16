@@ -120,7 +120,8 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     public String getDomainConfigurationFileName(Domain domain) {
-        return DomainService.DOMAINS_HOME + File.separator + domain.getCode() + File.separator + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+        return DomainService.DOMAINS_HOME + File.separator + domain.getCode() +
+                File.separator + domain.getCode() + '-' + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
 
     protected Boolean getBooleanProperty(Domain domain, String propertyName) {
