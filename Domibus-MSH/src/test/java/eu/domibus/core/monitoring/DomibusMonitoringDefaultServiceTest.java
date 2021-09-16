@@ -68,8 +68,7 @@ public class DomibusMonitoringDefaultServiceTest {
         List<String> filter = new ArrayList<>();
         filter.add(JMS_STATUS_FILTER);
         new Expectations() {{
-            jmsManager.getDestinationSize("pull");
-            result = 5;
+            jmsManager.isJMSBrokerAlive();
         }};
 
         MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
@@ -113,8 +112,8 @@ public class DomibusMonitoringDefaultServiceTest {
         new Expectations() {{
             userManagementService.findUsers();
             times =1;
-            jmsManager.getDestinationSize("pull");
-            result = 5;
+            jmsManager.isJMSBrokerAlive();
+
             domibusQuartzScheduler.getTriggerInfo();
             result = quartzInfo;
         }};
@@ -139,8 +138,7 @@ public class DomibusMonitoringDefaultServiceTest {
     public void getJMSBrokerDetailsTest() {
 
         new Expectations() {{
-            jmsManager.getDestinationSize("pull");
-            result = 5;
+            jmsManager.isJMSBrokerAlive();
         }};
 
         JmsBrokerInfo jmsBrokerInfo = domibusMonitoringDefaultService.getJMSBrokerDetails();
