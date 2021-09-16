@@ -181,7 +181,7 @@ public class EARKSIPBuilderService {
             fileType.setCHECKSUM(checksumSHA256);
             fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
         } catch (IOException e) {
-            LOG.error("Exception while calculating {} hash", SHA256_CHECKSUMTYPE, e);
+            LOG.error("Exception while calculating [{}] hash", SHA256_CHECKSUMTYPE, e);
         }
     }
 
