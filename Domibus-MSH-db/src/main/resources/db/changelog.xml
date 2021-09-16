@@ -599,6 +599,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_LOG"/>
             </column>
             <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="ARCHIVING_STATUS" type="VARCHAR(255)"/>
             <column name="RECEIVED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -2807,12 +2808,11 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_BATCH"/>
             </column>
-            <column name="BACTH_ID" type="VARCHAR(255)"/>
+            <column name="BATCH_ID" type="VARCHAR(255)"/>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
             <column name="STATUS" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="CRON_EXPRESSION" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="SIZE" type="INT"/>

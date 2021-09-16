@@ -284,7 +284,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
 
     String DOMIBUS_JMS_QUEUE_EARCHIVE = "domibus.jms.queue.earchive";
-    String DOMIBUS_JMS_QUEUE_EARCHIVE_CONCURRENCY = "domibus.jms.queue.earchive.concurency";
+    String DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY = "domibus.earchive.queue.concurrency";
 
     String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
     String DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT = "domibus.mshTaskExecutor.threadCount";

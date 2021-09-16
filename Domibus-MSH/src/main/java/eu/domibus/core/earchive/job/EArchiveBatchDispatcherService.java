@@ -63,7 +63,7 @@ public class EArchiveBatchDispatcherService {
                 eArchiveBatchUserMessageDao.create(eArchiveBatch, s.getEntityId());
             }
 
-            enqueueEArchive(eArchiveBatch.getBatchId());
+            enqueueEArchive(eArchiveBatch);
         }
         LOG.info("Dispatch finished with last entityId [{}]", lastEntityId);
     }
@@ -81,10 +81,11 @@ public class EArchiveBatchDispatcherService {
         return entity;
     }
 
-    public void enqueueEArchive(String batchId) {
+    public void enqueueEArchive(EArchiveBatch eArchiveBatch) {
         jmsManager.sendMessageToQueue(JMSMessageBuilder
                 .create()
-                .property(MessageConstants.BATCH_ID, batchId)
+                .property(MessageConstants.BATCH_ID, eArchiveBatch.getBatchId())
+                .property(MessageConstants.BATCH_ENTITY_ID, "" + eArchiveBatch.getEntityId())
                 // TODO: François Gautier 15-09-21 handle domain correctly
                 .property(MessageConstants.DOMAIN, "default")
                 .build(), eArchiveQueue);

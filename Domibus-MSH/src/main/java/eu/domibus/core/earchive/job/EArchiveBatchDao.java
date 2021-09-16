@@ -18,9 +18,9 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatch> {
         super(EArchiveBatch.class);
     }
 
-    public EArchiveBatch findEArchiveBatchByBatchId(String batchId){
+    public EArchiveBatch findEArchiveBatchByBatchId(long entityId){
         TypedQuery<EArchiveBatch> query = this.em.createNamedQuery("EArchiveBatch.findByBatchId", EArchiveBatch.class);
-        query.setParameter("BATCH_ID", batchId);
+        query.setParameter("BATCH_ENTITY_ID", entityId);
 
         List<EArchiveBatch> resultList = query.getResultList();
         if(CollectionUtils.isEmpty(resultList)){

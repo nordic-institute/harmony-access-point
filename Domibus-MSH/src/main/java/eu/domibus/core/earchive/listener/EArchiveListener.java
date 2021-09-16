@@ -6,51 +6,61 @@ import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
+import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.FileSystemEArchivePersistence;
 import eu.domibus.core.earchive.job.EArchiveBatch;
 import eu.domibus.core.earchive.job.EArchiveBatchDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.MessageListener;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Thomas Dussart
- * @since 4.0
+ * @author François Gautier
+ * @since 5.0
  */
 @Component
-public class EArchiveListener {
+public class EArchiveListener implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveListener.class);
+
     private final FileSystemEArchivePersistence fileSystemEArchivePersistence;
+
     private final DomainContextProvider domainContextProvider;
 
     private final DatabaseUtil databaseUtil;
+
     private EArchiveBatchDao eArchiveBatchDao;
+
+    private UserMessageLogDefaultService userMessageLogDefaultService;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DomainContextProvider domainContextProvider,
             DatabaseUtil databaseUtil,
-            EArchiveBatchDao eArchiveBatchDao) {
+            EArchiveBatchDao eArchiveBatchDao,
+            UserMessageLogDefaultService userMessageLogDefaultService) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.domainContextProvider = domainContextProvider;
         this.databaseUtil = databaseUtil;
         this.eArchiveBatchDao = eArchiveBatchDao;
+        this.userMessageLogDefaultService = userMessageLogDefaultService;
     }
 
-    @JmsListener(containerFactory = "eArchiveJmsListenerContainerFactory", destination = "${domibus.jms.queue.earchive}")
-    public void foo(final MapMessage message) {
+    @Override
+    public void onMessage(Message message) {
 
-        String batchId = getString(message, MessageConstants.BATCH_ID);
+        String batchId = getStringProperty(message, MessageConstants.BATCH_ID);
+        long entityId = getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
         if (StringUtils.isBlank(batchId)) {
             LOG.error("Could not get the batchId");
             return;
@@ -59,9 +69,9 @@ public class EArchiveListener {
 
         LOG.info("eArchiving starting for batchId [{}]", batchId);
 
-        EArchiveBatch eArchiveBatchByBatchId = geteArchiveBatch(batchId);
+        EArchiveBatch eArchiveBatchByBatchId = geteArchiveBatch(entityId);
 
-        List<UserMessageDTO> userMessageDtos = parse(eArchiveBatchByBatchId).getUserMessageDtos();
+        List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
         setDomain(message);
 
@@ -75,13 +85,15 @@ public class EArchiveListener {
                         .messages(getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
                 userMessageDtos);
+
+        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
     }
 
-    private EArchiveBatch geteArchiveBatch(String batchId) {
+    private EArchiveBatch geteArchiveBatch(long batchId) {
         EArchiveBatch eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
 
         if (eArchiveBatchByBatchId == null) {
-            throw new IllegalStateException("EArchive batch not found for batchId: [" + batchId + "]");
+            throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + batchId + "]");
         }
         return eArchiveBatchByBatchId;
     }
@@ -89,9 +101,12 @@ public class EArchiveListener {
     private List<String> getMessageIds(List<UserMessageDTO> userMessageDtos) {
         return userMessageDtos.stream().map(UserMessageDTO::getMessageId).collect(Collectors.toList());
     }
+    private List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
+        return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
+    }
 
-    private void setDomain(MapMessage message) {
-        String domainCode = getString(message, MessageConstants.DOMAIN);
+    private void setDomain(Message message) {
+        String domainCode = getStringProperty(message, MessageConstants.DOMAIN);
         if (StringUtils.isNotEmpty(domainCode)) {
             domainContextProvider.setCurrentDomain(domainCode);
         } else {
@@ -99,19 +114,30 @@ public class EArchiveListener {
         }
     }
 
-    private ListUserMessageDto parse(EArchiveBatch eArchiveBatchByBatchId) {
+    private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatch eArchiveBatchByBatchId) {
         return new Gson().fromJson(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
     }
 
-    private String getString(MapMessage message, String variable) {
-        String domainCode;
+    private String getStringProperty(Message message, String variable) {
+        String property;
         try {
-            domainCode = message.getStringProperty(variable);
+            property = message.getStringProperty(variable);
         } catch (JMSException e) {
             LOG.debug("Could not get the [{}]", variable, e);
-            domainCode = null;
+            property = null;
         }
-        return domainCode;
+        return property;
+    }
+
+    private Long getLongProperty(Message message, String variable) {
+        Long property;
+        try {
+            property = Long.parseLong(message.getStringProperty(variable));
+        } catch (NumberFormatException | JMSException e) {
+            LOG.debug("Could not get the [{}]", variable, e);
+            property = null;
+        }
+        return property;
     }
 
 

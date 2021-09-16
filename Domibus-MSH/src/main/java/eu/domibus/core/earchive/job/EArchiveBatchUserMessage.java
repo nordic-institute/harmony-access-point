@@ -5,7 +5,6 @@ import eu.domibus.common.JPAConstants;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author François Gautier
@@ -15,7 +14,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name = "TB_EARCHIVEBATCH_UM")
 public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
-    @XmlTransient
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(

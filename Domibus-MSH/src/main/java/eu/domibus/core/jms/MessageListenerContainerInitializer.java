@@ -68,6 +68,7 @@ public class MessageListenerContainerInitializer {
             createSplitAndJoinListenerContainer(domain);
             createPullReceiptListenerContainer(domain);
             createPullMessageListenerContainer(domain);
+            createEArchiveMessageListenerContainer(domain);
             createRetentionListenerContainer(domain);
 
             createMessageListenersForPlugins(domain);
@@ -226,6 +227,13 @@ public class MessageListenerContainerInitializer {
         instance.start();
         instances.add(instance);
         LOG.info("PullListenerContainer initialized for domain [{}]", domain);
+    }
+
+    protected void createEArchiveMessageListenerContainer(Domain domain) {
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createEArchiveMessageListenerContainer(domain);
+        instance.start();
+        instances.add(instance);
+        LOG.info("EArchiveListenerContainer initialized for domain [{}]", domain);
     }
 
     public void setConcurrency(Domain domain, String beanName, String concurrency) {

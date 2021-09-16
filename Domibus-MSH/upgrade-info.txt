@@ -1,59 +1,58 @@
 Domibus 5.0 (from 4.2.3)
-                - EArchiving
-                    - [WebLogic only]
-                         o  Modify file "/conf/domibus/domibus.properties":
-                             - add the following properties:
-                                 domibus.jms.earchive.alert=jms/domibus.internal.earchive.queue
-                    - [Tomcat only]
-                         Modify file "/conf/domibus/domibus.properties":
-                              o add the following properties:
-                                  domibus.jms.queue.earchive=domibus.internal.earchive.queue
-                             o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
-                                 - in the destinations section add the following queues:
+                - [WebLogic only]
+                     o  Modify file "/conf/domibus/domibus.properties":
+                         - add the following properties:
+                             domibus.jms.earchive.alert=jms/domibus.internal.earchive.queue
+                - [Tomcat only]
+                     Modify file "/conf/domibus/domibus.properties":
+                          o add the following properties:
+                              domibus.jms.queue.earchive=domibus.internal.earchive.queue
+                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
+                             - in the destinations section add the following queues:
+                                        .............................
+                                        <destinations>
                                             .............................
-                                            <destinations>
-                                                .............................
-                                                 <queue id="alertMessageQueue"
-                                                                    physicalName="domibus.internal.earchive.queue"/>
-                                  -  in the redeliveryPolicyEntries section add the following entries:
+                                             <queue id="alertMessageQueue"
+                                                                physicalName="domibus.internal.earchive.queue"/>
+                              -  in the redeliveryPolicyEntries section add the following entries:
+                                             .............................
+                                             <redeliveryPolicyEntries>
                                                  .............................
-                                                 <redeliveryPolicyEntries>
-                                                     .............................
-                                                     <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
-                                  -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
-                                                - original:
-                                                    <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
-                                                -new configuration:
-                                                    <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue" reportInterval="10000"/>
-                     - [Wildfly only]
-                         Modify file "/conf/domibus/domibus.properties":
-                              o add the following property:
-                                  domibus.jms.queue.earchive=jms/domibus.internal.earchive.queue
-                              o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
-                               - add the following queues in the destination section
-                                           .............................
-                                           <jms-destinations>
-                                               .............................
-                                                <jms-queue name="DomibusEArchiveQueue">
-                                                    <entry name="java:/jms/domibus.internal.earchive.queue"/>
-                                                    <entry name="java:/jms/queue/DomibusEArchiveQueue"/>
-                                                    <durable>true</durable>
-                                                </jms-queue>
-                                               .............................
-                                           </jms-destinations>
-                                           .............................
-                                -  in the address-settings section
-                                        o add the following address-setting configurations:
-                                               .............................
-                                               <address-settings>
-                                                   .............................
-                                                   <address-setting match="jms.queue.DomibusEArchiveQueue">
-                                                      <expiry-address>jms.queue.ExpiryQueue</expiry-address>
-                                                      <max-delivery-attempts>1</max-delivery-attempts>
-                                                   </address-setting>
-                                                   .............................
-                                               </address-settings>
-                                               .............................
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
+                              -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
+                                            - original:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
+                                            -new configuration:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue" reportInterval="10000"/>
+                - [Wildfly only]
+                    Modify file "/conf/domibus/domibus.properties":
+                         o add the following property:
+                             domibus.jms.queue.earchive=jms/domibus.internal.earchive.queue
+                         o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
+                          - add the following queues in the destination section
+                                      .............................
+                                      <jms-destinations>
+                                          .............................
+                                           <jms-queue name="DomibusEArchiveQueue">
+                                               <entry name="java:/jms/domibus.internal.earchive.queue"/>
+                                               <entry name="java:/jms/queue/DomibusEArchiveQueue"/>
+                                               <durable>true</durable>
+                                           </jms-queue>
+                                          .............................
+                                      </jms-destinations>
+                                      .............................
+                           -  in the address-settings section
+                                   o add the following address-setting configurations:
+                                          .............................
+                                          <address-settings>
+                                              .............................
+                                              <address-setting match="jms.queue.DomibusEArchiveQueue">
+                                                 <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+                                                 <max-delivery-attempts>1</max-delivery-attempts>
+                                              </address-setting>
+                                              .............................
+                                          </address-settings>
+                                          .............................
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war

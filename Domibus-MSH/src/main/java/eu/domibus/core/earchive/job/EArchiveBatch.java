@@ -13,12 +13,10 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
-@NamedQuery(name = "EArchiveBatch.findByBatchId", query = "FROM EArchiveBatch batch where batch.batchId = :BATCH_ID")
+@NamedQuery(name = "EArchiveBatch.findByBatchId", query = "FROM EArchiveBatch batch where batch.entityId = :BATCH_ENTITY_ID")
 public class EArchiveBatch  extends AbstractBaseEntity {
-//PROCESSING -> EXPORTED -> ARCHIVED
-//corner cases Waiting for retry / SEND FAILURE
 
-    @Column(name = "BACTH_ID")
+    @Column(name = "BATCH_ID")
     private String batchId;
 
     @Column(name = "STATUS")
@@ -45,7 +43,7 @@ public class EArchiveBatch  extends AbstractBaseEntity {
     private String storageLocation;
 
     @Lob
-    @Column(name = "MESSAGEID_JSON")
+    @Column(name = "MESSAGEIDS_JSON")
     protected byte[] messageIdsJson;
 
     public void setMessageIdsJson(String rawJson) {

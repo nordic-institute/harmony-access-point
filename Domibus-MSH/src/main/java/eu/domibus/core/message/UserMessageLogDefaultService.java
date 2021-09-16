@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -161,5 +162,9 @@ public class UserMessageLogDefaultService {
     public eu.domibus.common.MessageStatus getMessageStatus(String messageId) {
         MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    }
+
+    public void updateStatusToArchived(List<Long> entityIds) {
+        userMessageLogDao.updateStatusToArchived(entityIds);
     }
 }

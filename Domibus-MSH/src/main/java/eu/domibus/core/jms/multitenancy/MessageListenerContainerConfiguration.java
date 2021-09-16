@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
+import eu.domibus.core.earchive.listener.EArchiveListener;
 import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
@@ -53,6 +54,7 @@ public class MessageListenerContainerConfiguration {
     public static final String PULL_RECEIPT_CONTAINER = "pullReceiptContainer";
     public static final String RETENTION_CONTAINER = "retentionContainer";
     public static final String PULL_MESSAGE_CONTAINER = "pullMessageContainer";
+    public static final String EARCHIVE_MESSAGE_CONTAINER = "eArchiveMessageContainer";
 
     @Autowired
     @Qualifier(SEND_MESSAGE_QUEUE)
@@ -61,6 +63,10 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     @Qualifier(SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
+
+    @Autowired
+    @Qualifier(EARCHIVE_QUEUE)
+    private Queue eArchiveQueue;
 
     @Autowired
     @Qualifier(PULL_MESSAGE_QUEUE)
@@ -89,6 +95,9 @@ public class MessageListenerContainerConfiguration {
 
     @Autowired
     private PullReceiptListener pullReceiptListener;
+
+    @Autowired
+    private EArchiveListener eArchiveListener;
 
     @Autowired
     private RetentionListener retentionListener;
@@ -161,6 +170,16 @@ public class MessageListenerContainerConfiguration {
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, sendPullReceiptQueue,
                 pullReceiptListener, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY
+        );
+    }
+
+    @Bean(name = EARCHIVE_MESSAGE_CONTAINER)
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultMessageListenerContainer createEArchiveListener(Domain domain) {
+        LOG.debug("Instantiating the createPullReceiptListener for domain [{}]", domain);
+
+        return createDefaultMessageListenerContainer(domain, connectionFactory, eArchiveQueue,
+                eArchiveListener, DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY
         );
     }
 

@@ -98,6 +98,7 @@ import java.util.Date;
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
+        @NamedQuery(name = "UserMessageLog.updateStatusToArchived", query = " UPDATE UserMessageLog uml SET uml.eArchivingStatus = 'ARCHIVED' WHERE uml.entityId IN :ENTITY_IDS "),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 
@@ -173,11 +174,21 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @MapsId
     private UserMessage userMessage;
 
+    @JoinColumn(name = "ARCHIVING_STATUS")
+    private String eArchivingStatus;
+
     public UserMessageLog() {
         setReceived(new Date());
         setSendAttempts(0);
     }
 
+    public String geteArchivingStatus() {
+        return eArchivingStatus;
+    }
+
+    public void seteArchivingStatus(String eArchivingStatus) {
+        this.eArchivingStatus = eArchivingStatus;
+    }
 
     public String getBackend() {
         return backend;
