@@ -8,6 +8,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -38,6 +39,9 @@ public class JMSManagerWeblogicTest {
 
     @Tested
     InternalJMSManagerWeblogic jmsManagerWeblogic;
+
+    @Injectable
+    JMSBrokerHelper jmsBrokerHelper;
 
     @Injectable
     JMXHelper jmxHelper;
