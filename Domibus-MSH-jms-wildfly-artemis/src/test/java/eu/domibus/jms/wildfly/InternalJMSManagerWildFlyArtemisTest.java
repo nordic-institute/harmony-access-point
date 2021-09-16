@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -37,6 +38,9 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
     @Tested
     InternalJMSManagerWildFlyArtemis jmsManager;
+
+    @Injectable
+    JMSBrokerHelper jmsBrokerHelper;
 
     @Injectable
     MBeanServer mBeanServer;
