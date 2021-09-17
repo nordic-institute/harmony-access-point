@@ -69,10 +69,7 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
 
     @Override
     public void delete(final Collection<User> users) {
-        for (final User u : users) {
-            u.setDeleted(true);
-            super.update(u);
-        }
+        users.forEach(user -> delete(user));
     }
 
     @Override
