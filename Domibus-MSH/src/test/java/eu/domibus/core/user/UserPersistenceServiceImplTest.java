@@ -1,5 +1,6 @@
 package eu.domibus.core.user;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
@@ -70,6 +71,9 @@ public class UserPersistenceServiceImplTest {
 
     @Injectable
     AuthenticationService authenticationService;
+
+    @Injectable
+    DomainContextProvider domainContextProvider; //NOSONAR: not necessary to be transient or serializable
 
     @Tested
     private UserPersistenceServiceImpl userPersistenceService;

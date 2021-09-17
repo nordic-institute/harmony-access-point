@@ -76,6 +76,12 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
     }
 
     @Override
+    public void delete(final User user) {
+            user.setDeleted(true);
+            super.update(user);
+    }
+
+    @Override
     public User findByUserName(String userName) {
         return loadUserByUsername(userName);
     }
