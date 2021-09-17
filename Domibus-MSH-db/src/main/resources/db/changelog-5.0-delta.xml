@@ -442,11 +442,6 @@
         </createIndex>
     </changeSet>
 
-    <changeSet author="dussath" id="EDELIVERY-8462">
-        <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
-            <column name="REF_TO_MESSAGE_ID"/>
-        </createIndex>
-    </changeSet>
 
     <!-- Start EArchive Tables -->
     <changeSet author="Francois Gautier" id="EDELIVERY-8450">

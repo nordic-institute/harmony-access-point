@@ -3,7 +3,9 @@ package eu.domibus.core.earchive.eark;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -41,6 +43,8 @@ import java.util.Optional;
 public class EARKSIPBuilderService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EARKSIPBuilderService.class);
+
+    private static final String SHA256_CHECKSUMTYPE = "SHA-256";
 
     public FileObject build(DomibusEARKSIP domibusEARKSIP, final FileObject destinationDirectory) throws IPException {
         MetsWrapper mainMETSWrapper = EARKMETSUtils.generateMETS(StringUtils.join(
@@ -167,6 +171,17 @@ public class EARKSIPBuilderService {
             LOG.debug("Done setting file size");
         } catch (IOException e) {
             throw new DomibusEArchiveException("Error getting file size [" + file.getName() + "]", e);
+        }
+
+        // checksum
+        String checksumSHA256;
+        try {
+            checksumSHA256 = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file.getPath().toFile()));
+            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.getName());
+            fileType.setCHECKSUM(checksumSHA256);
+            fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
+        } catch (IOException e) {
+            LOG.error("Exception while calculating [{}] hash", SHA256_CHECKSUMTYPE, e);
         }
     }
 
