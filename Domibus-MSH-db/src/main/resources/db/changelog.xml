@@ -19,13 +19,11 @@
                         incrementBy="20" startValue="100" cacheSize="1000" cycle="false" ordered="false"/>
     </changeSet>
     <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
-        <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
-
     <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
             <column name="sequence_name" type="VARCHAR(255)">
                 <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
@@ -2510,8 +2508,6 @@
             <column name="SET_FK"/>
         </createIndex>
 
-
-
         <createTable tableName="TB_PM_LEG_MPC">
             <column name="LEGCONFIGURATION_ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
@@ -3197,11 +3193,11 @@
 
     <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
         <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="1" type="INT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_ADMIN"/>
         </insert>
         <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="2" type="INT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
