@@ -19,6 +19,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -28,6 +29,8 @@ import java.util.*;
  */
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
+
+    private static final String MESSAGESTATUS_DELIMITER = "','";
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
@@ -151,6 +154,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    public int getDownloadedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
+        return getMessagesNewerThan(date, mpc, MessageStatus.DOWNLOADED, pName);
+    }
+
+    public int getUndownloadedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
+        return getMessagesNewerThan(date, mpc, MessageStatus.RECEIVED, pName);
+    }
+
+    public int getAcknowledgedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
+        return getMessagesNewerThan(date, mpc, MessageStatus.ACKNOWLEDGED, pName);
+    }
+
+    public int getFailedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
+        return getMessagesNewerThan(date, mpc, MessageStatus.SEND_FAILURE, pName);
+    }
+
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
@@ -229,10 +248,42 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         try {
             return query.getResultList();
         } catch (NoResultException nrEx) {
-            LOG.debug("Query [{}] did not find any result for startDate [{}] startDate and MPC [{}]", queryName, startDate, mpc);
+            LOG.debug("Query [{}] did not find any result for startDate [{}] and MPC [{}]", queryName, startDate, mpc);
             return Collections.emptyList();
         }
     }
+
+    @Transactional
+    public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String pName) {
+        String sqlString = "select count(*) from " +
+                "            TB_USER_MESSAGE_LOG PARTITION ($PARTITION_PARAM) " +
+                "           inner join " +
+                "            TB_USER_MESSAGE usermessag1_ " +
+                "            ID_PK=usermessag1_.ID_PK " +
+                "           cross join " +
+                "            TB_D_MESSAGE_STATUS messagesta4_ " +
+                "           cross join " +
+                "            TB_D_MPC mpcentity6_ " +
+                "           where " +
+                "            MESSAGE_STATUS_ID_FK=messagesta4_.ID_PK " +
+                "            and usermessag1_.MPC_ID_FK=mpcentity6_.ID_PK " +
+                "            and messagesta4_.STATUS='$MESSAGESTATUS_PARAM'" +
+                "            and DELETED is null" +
+                "            and mpcentity6_.VALUE='$MPC_PARAM'" +
+                "            and MODIFICATION_TIME is not null" +
+                "            and MODIFICATION_TIME > '$DATE_PARAM'";
+        sqlString = sqlString.replace("$MPC_PARAM", mpc);
+        sqlString = sqlString.replace("$DATE_PARAM", startDate.toString());
+        sqlString = sqlString.replace("$PARTITION_PARAM", pName);
+        sqlString = sqlString.replace("$MESSAGESTATUS_PARAM", messageStatus.name());
+
+        LOG.info("sqlString to find non expired messages: " + sqlString);
+        final Query countQuery = em.createNativeQuery(sqlString);
+        int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+        LOG.debug("count by message status result [{}]", result);
+        return result;
+    }
+
 
     public String findBackendForMessageId(String messageId) {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
@@ -282,6 +333,33 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return result;
     }
 
+    @Transactional
+    public int countUnarchivedMessagesOnPartition(String pName) {
+        final Query countQuery = em.createNativeQuery("SELECT COUNT(*) FROM tb_user_message_log PARTITION (" + pName + ") WHERE archived IS NULL");
+        try {
+            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            LOG.debug("count unarchived messages result [{}]", result);
+            return result;
+        } catch (NoResultException nre) {
+            LOG.warn("Could not count unarchived messages for partition [{}], result [{}]", pName, nre);
+            return -1;
+        }
+    }
+
+    @Transactional
+    public int countByMessageStatusOnPartition(List<MessageStatus> messageStatuses, String pName) {
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + pName +") CROSS JOIN TB_D_MESSAGE_STATUS dms WHERE MESSAGE_STATUS_ID_FK=dms.ID_PK AND dms.STATUS IN ('" + StringUtils.join(messageStatuses.toArray(), MESSAGESTATUS_DELIMITER) +"')";
+        try {
+            final Query countQuery = em.createNativeQuery(sqlString);
+            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            LOG.debug("count by message status result [{}]", result);
+            return result;
+        } catch (NoResultException nre) {
+            LOG.warn("Could not count in progress messages for partition [{}], result [{}]", pName, nre);
+            return -1;
+        }
+    }
+
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return userMessageLogInfoFilter;
     }
@@ -320,6 +398,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
                 break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
+                messageLog.setAcknowledged(new Date());
                 reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case DOWNLOADED:

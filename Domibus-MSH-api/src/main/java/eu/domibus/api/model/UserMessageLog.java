@@ -106,6 +106,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Temporal(TemporalType.TIMESTAMP)
     private Date downloaded;
 
+    @Column(name = "ACKNOWLEDGED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date acknowledged;
+
     @Column(name = "FAILED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date failed;
@@ -203,6 +207,14 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
 
     public void setFailed(Date failed) {
         this.failed = failed;
+    }
+
+    public Date getAcknowledged() {
+        return acknowledged;
+    }
+
+    public void setAcknowledged(Date acknowledged) {
+        this.acknowledged = acknowledged;
     }
 
     public Date getRestored() {

@@ -1,13 +1,16 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
@@ -73,6 +76,26 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findUserMessageByGroupId", UserMessage.class);
         query.setParameter(GROUP_ID, groupId);
         return query.getResultList();
+    }
+
+    @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
+    @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
+    public List<String> findPotentialExpiredPartitions(String pName) {
+        Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
+        q.setParameter("PNAME", pName);
+        final List<String> partitionNames = q.getResultList();
+        LOG.debug("Partitions [{}]", partitionNames);
+        return partitionNames;
+    }
+
+    @Timer(clazz = UserMessageDao.class, value = "deletePartition")
+    @Counter(clazz = UserMessageDao.class, value = "deletePartition")
+    @Transactional
+    public int deletePartition(String pName) {
+        final Query deleteQuery = em.createNativeQuery("ALTER TABLE TB_USER_MESSAGE DROP PARTITION " + pName + " update indexes");
+        int result = deleteQuery.executeUpdate();
+        LOG.debug("deletePartition result [{}]", result);
+        return result;
     }
 
     @Timer(clazz = UserMessageDao.class, value = "deleteMessages")

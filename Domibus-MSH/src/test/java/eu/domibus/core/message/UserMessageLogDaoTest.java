@@ -1,15 +1,13 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -18,12 +16,10 @@ import org.junit.runner.RunWith;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -896,6 +892,35 @@ public class UserMessageLogDaoTest {
         // THEN
         new Verifications() {{
             Assert.assertNull("Should have returned null for the message identifier when the last user test message is not found", result);
+        }};
+    }
+
+    @Test
+    public void testSqlStringGetNewerThan(@Injectable TypedQuery<MessageLogInfo> query) {
+
+        // WHEN
+        userMessageLogDao.getDownloadedUserMessagesNewerThanOnPartition(DateUtils.addMinutes(new Date(), 20 * -1), "my_mpc", "PPP123");
+
+        // THEN
+        new Verifications() {{
+            em.createNativeQuery(anyString);
+        }};
+    }
+
+    @Test
+    public void testSqlString(@Injectable TypedQuery<MessageLogInfo> query) {
+        List<MessageStatus> messageStatuses = new ArrayList<>(
+                Arrays.asList(MessageStatus.SEND_ENQUEUED,
+                        MessageStatus.SEND_IN_PROGRESS)
+        );
+        String expectedSqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (PART123) CROSS JOIN TB_D_MESSAGE_STATUS dms WHERE MESSAGE_STATUS_ID_FK=dms.ID_PK AND dms.STATUS IN ('SEND_ENQUEUED','SEND_IN_PROGRESS');";
+
+        // WHEN
+        userMessageLogDao.countByMessageStatusOnPartition(messageStatuses, "PART123");
+
+        // THEN
+        new Verifications() {{
+           em.createNativeQuery(expectedSqlString);
         }};
     }
 }
