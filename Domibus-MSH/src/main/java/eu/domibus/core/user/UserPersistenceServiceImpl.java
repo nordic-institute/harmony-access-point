@@ -107,10 +107,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void updateUser(boolean withPasswordChange, eu.domibus.api.user.User user) {
-        if(StringUtils.isNotEmpty(user.getDomain()) && domibusConfigurationService.isMultiTenantAware()){
-            LOG.debug("Setting current domain:[{}]", user.getDomain());
-            domainContextProvider.setCurrentDomain(user.getDomain());
-        }
+        setUserDomainForMultiTenancy(user);
         User existing = userDao.loadUserByUsername(user.getUserName());
 
         checkCanUpdateIfCurrentUser(user, existing);
@@ -130,6 +127,13 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
         if (user.getAuthorities() != null && user.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name())) {
             userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
+        }
+    }
+
+    private void setUserDomainForMultiTenancy(eu.domibus.api.user.User user) {
+        if (StringUtils.isNotEmpty(user.getDomain()) && domibusConfigurationService.isMultiTenantAware()) {
+            LOG.debug("Setting current domain:[{}]", user.getDomain());
+            domainContextProvider.setCurrentDomain(user.getDomain());
         }
     }
 
@@ -190,10 +194,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         }
 
         for (eu.domibus.api.user.User user : newUsers) {
-            if(StringUtils.isNotEmpty(user.getDomain()) && domibusConfigurationService.isMultiTenantAware()){
-                LOG.debug("Setting current domain:[{}]", user.getDomain());
-                domainContextProvider.setCurrentDomain(user.getDomain());
-            }
+            setUserDomainForMultiTenancy(user);
             securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
 
             User userEntity = authCoreMapper.userApiToUserSecurity(user);
@@ -212,10 +213,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected void deleteUsers(List<eu.domibus.api.user.User> usersToDelete) {
         for (eu.domibus.api.user.User userToDelete :usersToDelete) {
-            if(StringUtils.isNotEmpty(userToDelete.getDomain()) && domibusConfigurationService.isMultiTenantAware()){
-                LOG.debug("Setting current domain:[{}]", userToDelete.getDomain());
-                domainContextProvider.setCurrentDomain(userToDelete.getDomain());
-            }
+            setUserDomainForMultiTenancy(userToDelete);
             User user = userDao.loadUserByUsername(userToDelete.getUserName());
             if(user != null){
                 userDao.delete(user);
