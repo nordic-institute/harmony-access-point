@@ -340,5 +340,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";
+    String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";
 
 }

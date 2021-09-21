@@ -18,12 +18,21 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatch> {
         super(EArchiveBatch.class);
     }
 
-    public EArchiveBatch findEArchiveBatchByBatchId(long entityId){
+    public EArchiveBatch findEArchiveBatchByBatchId(long entityId) {
         TypedQuery<EArchiveBatch> query = this.em.createNamedQuery("EArchiveBatch.findByBatchId", EArchiveBatch.class);
         query.setParameter("BATCH_ENTITY_ID", entityId);
 
         List<EArchiveBatch> resultList = query.getResultList();
-        if(CollectionUtils.isEmpty(resultList)){
+        if (CollectionUtils.isEmpty(resultList)) {
+            return null;
+        }
+        return resultList.get(0);
+    }
+
+    public Long findLastEntityIdArchived() {
+        TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatch.findLastEntityIdArchived", Long.class);
+        List<Long> resultList = query.getResultList();
+        if (CollectionUtils.isEmpty(resultList)) {
             return null;
         }
         return resultList.get(0);
