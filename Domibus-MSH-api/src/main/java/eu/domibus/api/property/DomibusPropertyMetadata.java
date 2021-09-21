@@ -132,6 +132,10 @@ public class DomibusPropertyMetadata {
         return new DomibusPropertyMetadata(name, type, module, false, Usage.GLOBAL, false, false, false, false);
     }
 
+    public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, Type type, String module,  boolean encrypted) {
+        return new DomibusPropertyMetadata(name, type, module, false, Usage.GLOBAL, false, false, encrypted, false);
+    }
+
     public DomibusPropertyMetadata() {
     }
 
