@@ -3,21 +3,20 @@ package eu.domibus.core.earchive.listener;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.FileSystemEArchivePersistence;
-import eu.domibus.core.earchive.job.EArchiveBatch;
-import eu.domibus.core.earchive.job.EArchiveBatchDao;
+import eu.domibus.core.earchive.EArchiveBatch;
+import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.nio.charset.StandardCharsets;
@@ -35,32 +34,31 @@ public class EArchiveListener implements MessageListener {
 
     private final FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
-    private final DomainContextProvider domainContextProvider;
-
     private final DatabaseUtil databaseUtil;
 
     private EArchiveBatchDao eArchiveBatchDao;
 
     private UserMessageLogDefaultService userMessageLogDefaultService;
+    private JmsUtil jmsUtil;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
-            DomainContextProvider domainContextProvider,
             DatabaseUtil databaseUtil,
             EArchiveBatchDao eArchiveBatchDao,
-            UserMessageLogDefaultService userMessageLogDefaultService) {
+            UserMessageLogDefaultService userMessageLogDefaultService,
+            JmsUtil jmsUtil) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
-        this.domainContextProvider = domainContextProvider;
         this.databaseUtil = databaseUtil;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.userMessageLogDefaultService = userMessageLogDefaultService;
+        this.jmsUtil = jmsUtil;
     }
 
     @Override
     public void onMessage(Message message) {
 
-        String batchId = getStringProperty(message, MessageConstants.BATCH_ID);
-        long entityId = getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+        String batchId = jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
+        long entityId = jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
         if (StringUtils.isBlank(batchId)) {
             LOG.error("Could not get the batchId");
             return;
@@ -73,7 +71,7 @@ public class EArchiveListener implements MessageListener {
 
         List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
-        setDomain(message);
+        jmsUtil.setDomain(message);
 
         LOG.info("eArchiving starting userMessageLog from [{}] to [{}]",
                 userMessageDtos.get(userMessageDtos.size() - 1),
@@ -105,40 +103,7 @@ public class EArchiveListener implements MessageListener {
         return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }
 
-    private void setDomain(Message message) {
-        String domainCode = getStringProperty(message, MessageConstants.DOMAIN);
-        if (StringUtils.isNotEmpty(domainCode)) {
-            domainContextProvider.setCurrentDomain(domainCode);
-        } else {
-            domainContextProvider.clearCurrentDomain();
-        }
-    }
-
     private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatch eArchiveBatchByBatchId) {
         return new Gson().fromJson(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
     }
-
-    private String getStringProperty(Message message, String variable) {
-        String property;
-        try {
-            property = message.getStringProperty(variable);
-        } catch (JMSException e) {
-            LOG.debug("Could not get the [{}]", variable, e);
-            property = null;
-        }
-        return property;
-    }
-
-    private Long getLongProperty(Message message, String variable) {
-        Long property;
-        try {
-            property = Long.parseLong(message.getStringProperty(variable));
-        } catch (NumberFormatException | JMSException e) {
-            LOG.debug("Could not get the [{}]", variable, e);
-            property = null;
-        }
-        return property;
-    }
-
-
 }

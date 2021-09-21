@@ -1,4 +1,4 @@
-package eu.domibus.core.earchive.job;
+package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.DomibusBaseEntity;
 import eu.domibus.common.JPAConstants;

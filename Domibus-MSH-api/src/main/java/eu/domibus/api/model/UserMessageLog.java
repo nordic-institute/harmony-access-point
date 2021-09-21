@@ -96,6 +96,7 @@ import java.util.Date;
                         "from UserMessageLog uml " +
                         "where uml.entityId > :LAST_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.deleted IS NULL " +
                         "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateStatusToArchived", query = " UPDATE UserMessageLog uml SET uml.eArchivingStatus = 'ARCHIVED' WHERE uml.entityId IN :ENTITY_IDS "),
@@ -174,7 +175,7 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @MapsId
     private UserMessage userMessage;
 
-    @JoinColumn(name = "ARCHIVING_STATUS")
+    @Column(name = "ARCHIVING_STATUS")
     private String eArchivingStatus;
 
     public UserMessageLog() {

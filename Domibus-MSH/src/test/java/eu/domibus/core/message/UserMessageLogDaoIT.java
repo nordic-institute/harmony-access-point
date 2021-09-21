@@ -4,10 +4,16 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.scheduler.ReprogrammableService;
+import eu.domibus.core.scheduler.SchedulerConfig;
+import eu.domibus.core.util.UtilConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -25,6 +31,8 @@ import static org.hamcrest.CoreMatchers.hasItems;
  * @since 5.0
  */
 //TODO extends AbstractIT
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {DomibusTestDatasourceConfiguration.class, MessageConfig.class,/* PropertyConfig.class,*/ UtilConfig.class, SchedulerConfig.class/*, TimeConfig.class*/})
 @Transactional
 public class UserMessageLogDaoIT {
 

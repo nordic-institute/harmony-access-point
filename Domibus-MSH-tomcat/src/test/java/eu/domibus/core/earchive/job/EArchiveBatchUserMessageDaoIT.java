@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.earchive.*;
 import eu.domibus.core.message.UserMessageLogDao;
 import org.junit.Assert;
 import org.junit.Before;

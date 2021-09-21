@@ -1,4 +1,4 @@
-package eu.domibus.core.earchive.job;
+package eu.domibus.core.earchive;
 
 import eu.domibus.core.dao.BasicDao;
 import org.apache.commons.collections4.CollectionUtils;

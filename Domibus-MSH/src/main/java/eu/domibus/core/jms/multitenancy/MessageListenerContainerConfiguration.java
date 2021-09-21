@@ -15,6 +15,7 @@ import eu.domibus.core.message.splitandjoin.SplitAndJoinListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,7 +178,6 @@ public class MessageListenerContainerConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultMessageListenerContainer createEArchiveListener(Domain domain) {
         LOG.debug("Instantiating the createPullReceiptListener for domain [{}]", domain);
-
         return createDefaultMessageListenerContainer(domain, connectionFactory, eArchiveQueue,
                 eArchiveListener, DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY
         );

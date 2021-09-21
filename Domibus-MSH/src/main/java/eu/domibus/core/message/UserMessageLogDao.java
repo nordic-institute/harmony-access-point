@@ -385,6 +385,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return this.em.find(UserMessageLog.class, entityId);
     }
 
+    @Transactional
     public void updateStatusToArchived(List<Long> entityIds) {
         Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateStatusToArchived");
         namedQuery.setParameter("ENTITY_IDS", entityIds);

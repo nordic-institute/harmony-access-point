@@ -1,4 +1,4 @@
-package eu.domibus.core.earchive.job;
+package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.AbstractBaseEntity;
 
@@ -26,7 +26,6 @@ public class EArchiveBatch  extends AbstractBaseEntity {
 
     @Column(name = "REQUEST_TYPE")
     @Enumerated(EnumType.STRING)
-    @NotNull
     private RequestType requestType;
 
     @Column(name = "DATE_REQUESTED")

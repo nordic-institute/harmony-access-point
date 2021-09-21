@@ -1,7 +1,8 @@
-package eu.domibus.core.earchive.job;
+package eu.domibus.core.earchive;
 
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
         super(EArchiveBatchUserMessage.class);
     }
 
+    @Transactional
     public void create(EArchiveBatch entity, Long userMessageLogEntityId) {
         EArchiveBatchUserMessage eArchiveBatchUserMessage = new EArchiveBatchUserMessage();
         eArchiveBatchUserMessage.seteArchiveBatch(entity);
