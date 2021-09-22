@@ -899,7 +899,7 @@ public class UserMessageLogDaoTest {
     public void testSqlStringGetNewerThan(@Injectable TypedQuery<MessageLogInfo> query) {
 
         // WHEN
-        userMessageLogDao.getDownloadedUserMessagesNewerThanOnPartition(DateUtils.addMinutes(new Date(), 20 * -1), "my_mpc", "PPP123");
+        userMessageLogDao.getMessagesNewerThan(DateUtils.addMinutes(new Date(), 20 * -1), "my_mpc", MessageStatus.DOWNLOADED, "PPP123");
 
         // THEN
         new Verifications() {{

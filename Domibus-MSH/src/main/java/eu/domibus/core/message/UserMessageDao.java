@@ -92,9 +92,10 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     @Counter(clazz = UserMessageDao.class, value = "deletePartition")
     @Transactional
     public int deletePartition(String pName) {
+        LOG.debug("Deleting partition [{}]", pName);
         final Query deleteQuery = em.createNativeQuery("ALTER TABLE TB_USER_MESSAGE DROP PARTITION " + pName + " update indexes");
         int result = deleteQuery.executeUpdate();
-        LOG.debug("deletePartition result [{}]", result);
+        LOG.debug("Delete partition [{}] result [{}]", pName, result);
         return result;
     }
 

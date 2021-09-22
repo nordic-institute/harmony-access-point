@@ -154,22 +154,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public int getDownloadedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
-        return getMessagesNewerThan(date, mpc, MessageStatus.DOWNLOADED, pName);
-    }
-
-    public int getUndownloadedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
-        return getMessagesNewerThan(date, mpc, MessageStatus.RECEIVED, pName);
-    }
-
-    public int getAcknowledgedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
-        return getMessagesNewerThan(date, mpc, MessageStatus.ACKNOWLEDGED, pName);
-    }
-
-    public int getFailedUserMessagesNewerThanOnPartition(Date date, String mpc, String pName) {
-        return getMessagesNewerThan(date, mpc, MessageStatus.SEND_FAILURE, pName);
-    }
-
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
@@ -257,33 +241,42 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String pName) {
         String sqlString = "select count(*) from " +
                 "            TB_USER_MESSAGE_LOG PARTITION ($PARTITION_PARAM) " +
-                "           inner join " +
-                "            TB_USER_MESSAGE usermessag1_ " +
-                "            ID_PK=usermessag1_.ID_PK " +
-                "           cross join " +
-                "            TB_D_MESSAGE_STATUS messagesta4_ " +
-                "           cross join " +
-                "            TB_D_MPC mpcentity6_ " +
-                "           where " +
-                "            MESSAGE_STATUS_ID_FK=messagesta4_.ID_PK " +
-                "            and usermessag1_.MPC_ID_FK=mpcentity6_.ID_PK " +
-                "            and messagesta4_.STATUS='$MESSAGESTATUS_PARAM'" +
-                "            and DELETED is null" +
-                "            and mpcentity6_.VALUE='$MPC_PARAM'" +
-                "            and MODIFICATION_TIME is not null" +
-                "            and MODIFICATION_TIME > '$DATE_PARAM'";
+                "           cross join TB_USER_MESSAGE" +
+                "           cross join TB_D_MESSAGE_STATUS" +
+                "           cross join TB_D_MPC" +
+                "           where TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK " +
+                "             and TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK " +
+                "             and TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK " +
+                "             and TB_D_MESSAGE_STATUS.STATUS='$MESSAGESTATUS_PARAM'" +
+                "             and TB_D_MPC.VALUE='$MPC_PARAM'" +
+                "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
+                "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > '$DATE_PARAM'";
         sqlString = sqlString.replace("$MPC_PARAM", mpc);
         sqlString = sqlString.replace("$DATE_PARAM", startDate.toString());
         sqlString = sqlString.replace("$PARTITION_PARAM", pName);
+        sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
         sqlString = sqlString.replace("$MESSAGESTATUS_PARAM", messageStatus.name());
 
-        LOG.info("sqlString to find non expired messages: " + sqlString);
+        LOG.trace("sqlString to find non expired messages: " + sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
-        LOG.debug("count by message status result [{}]", result);
+        LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, pName);
         return result;
     }
 
+    protected String getDateColumn(MessageStatus messageStatus) {
+        switch (messageStatus) {
+            case ACKNOWLEDGED:
+            case RECEIVED:
+            case DOWNLOADED:
+                return messageStatus.name();
+            case SEND_FAILURE:
+                return "FAILED";
+            default:
+                LOG.warn("Messages with status [{}] are not defined on the retention mechanism", messageStatus);
+                return "INVALID_STATUS_FOR_RETENTION";
+        }
+    }
 
     public String findBackendForMessageId(String messageId) {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);

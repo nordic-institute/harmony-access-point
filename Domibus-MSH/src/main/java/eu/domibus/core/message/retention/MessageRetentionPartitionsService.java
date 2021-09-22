@@ -65,26 +65,27 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     @Timer(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
     @Counter(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
     public void deleteExpiredMessages() {
-        LOG.trace("Using MessageRetentionPartitionsService to deleteExpiredMessages");
+        LOG.debug("Using MessageRetentionPartitionsService to deleteExpiredMessages");
         int maxRetention = getMaxRetention();
         Date newestPartitionToCheckDate = DateUtils.addMinutes(new Date(), maxRetention * -1);
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
+        LOG.debug("Find partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = userMessageDao.findPotentialExpiredPartitions(newestPartitionName);
 
+        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size(), partitionNames);
         partitionNames.remove(DEFAULT_PARTITION_NAME);
-        LOG.debug("Expired partitions are [{}]", partitionNames);
 
         for (String pName : partitionNames) {
-            boolean toDelete = true;
-            toDelete = verifyIfAllMessagesAreArchived(pName);
+            LOG.info("Verify partition [{}]", pName);
+            boolean toDelete = verifyIfAllMessagesAreArchived(pName);
             if (toDelete == false) {
-                LOG.info("Partition [{}] has messages that are not archived", pName);
+                LOG.info("Partition [{}] will not be deleted", pName);
                 continue;
             }
 
             toDelete = verifyIfAllMessagesAreExpired(pName);
             if (toDelete == false) {
-                LOG.info("Partition [{}] has messages that are not expired", pName);
+                LOG.info("Partition [{}] will not be deleted", pName);
                 continue;
             }
 
@@ -97,9 +98,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             LOG.debug("Archiving messages is disabled.");
             return true;
         }
+        LOG.info("Verifying if all messages are archived on partition [{}]", pName);
         int count = userMessageLogDao.countUnarchivedMessagesOnPartition(pName);
         if (count != 0) {
-            LOG.debug("[{}] messages not archived on partition [{}]", count, pName);
+            LOG.debug("There are [{}] messages not archived on partition [{}]", count, pName);
             return false;
         }
         LOG.debug("All messages are archived on partition [{}]", pName);
@@ -108,6 +110,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected boolean verifyIfAllMessagesAreExpired(String pName) {
 
+        LOG.info("Verifying if all messages expired on partition [{}]", pName);
         List<MessageStatus> messageStatuses = new ArrayList<>(
                 Arrays.asList(MessageStatus.SEND_ENQUEUED,
                         MessageStatus.SEND_IN_PROGRESS,
@@ -118,29 +121,35 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 )
         );
 
+        LOG.debug("Counting messages in progress for partition [{}]", pName);
         // check for messages that are not in final status
         int count = userMessageLogDao.countByMessageStatusOnPartition(messageStatuses, pName);
         if (count != 0) {
-            LOG.info("[{}] in progress messages on partition [{}]", count, pName);
+            LOG.info("There are [{}] in progress messages on partition [{}]", count, pName);
             return false;
         }
+        LOG.info("There is none in progress message on partition [{}]", pName);
 
         // check (not)expired messages based on retention values for each MPC
         final List<String> mpcs = pModeProvider.getMpcURIList();
         for (final String mpc : mpcs) {
+            LOG.debug("Verify expired messages for mpc [{}] on partition [{}]", mpc, pName);
             boolean allMessagesExpired = checkByMessageStatusAndMpcOnPartition(mpc, MessageStatus.DOWNLOADED, pName) &&
                     checkByMessageStatusAndMpcOnPartition(mpc, MessageStatus.ACKNOWLEDGED, pName) &&
                     checkByMessageStatusAndMpcOnPartition(mpc, MessageStatus.SEND_FAILURE, pName) &&
                     checkByMessageStatusAndMpcOnPartition(mpc, MessageStatus.RECEIVED, pName);
 
             if(!allMessagesExpired) {
-                LOG.info("Cannot delete partition [{}]", pName);
+                LOG.info("There are messages that did not yet expired for mpc [{}] on partition [{}]", mpc, pName);
                 return false;
             }
+            LOG.info("All messages expired for mpc [{}] on partition [{}].", mpc, pName);
         }
 
+        LOG.info("All messages expired on partition [{}]", pName);
         return true;
     }
+
     protected boolean checkByMessageStatusAndMpcOnPartition(String mpc, MessageStatus messageStatus, String pName) {
         int retention = getRetention(mpc, messageStatus);
         int count = userMessageLogDao.getMessagesNewerThan(
@@ -149,13 +158,13 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             LOG.info("[{}] [{}] messages newer than retention [{}] on partition [{}]", messageStatus, count, retention, pName);
             return false;
         }
-
+        LOG.info("All [{}] messages are older than retention [{}] on partition [{}]", messageStatus, retention, pName);
         return true;
     }
 
     protected String getPartitionNameFromDate(Date partitionDate) {
         String pName = 'P' + sdf.format(partitionDate).substring(0, 8);
-        LOG.debug("Partition name is [{}]", pName);
+        LOG.debug("Partition name [{}] created for partitionDate [{}]", pName, partitionDate);
         return pName;
     }
 
