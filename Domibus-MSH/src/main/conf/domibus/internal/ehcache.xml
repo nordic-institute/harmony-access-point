@@ -41,7 +41,7 @@
         <expiry>
             <ttl>600</ttl>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache>
 
     <cache alias="encryptionKey" uses-template="ttl-3600-heap-5000"/>
@@ -54,7 +54,7 @@
         <expiry>
             <ttl>300</ttl>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache>
 
     <cache alias="domibusProperties" uses-template="ttl-3600-heap-5000"/>
@@ -63,7 +63,7 @@
         <expiry>
             <ttl>3600</ttl>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache-template>
     -->
 </config>
