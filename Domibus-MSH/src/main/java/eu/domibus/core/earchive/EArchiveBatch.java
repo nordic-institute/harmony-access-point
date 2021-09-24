@@ -5,6 +5,7 @@ import eu.domibus.api.model.AbstractBaseEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
 @NamedQuery(name = "EArchiveBatch.findByBatchId", query = "FROM EArchiveBatch batch where batch.entityId = :BATCH_ENTITY_ID")
-@NamedQuery(name = "EArchiveBatch.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatch batch where batch.entityId = (SELECT max(b.entityId) FROM EArchiveBatch b)")
+@NamedQuery(name = "EArchiveBatch.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatch batch where batch.entityId = (SELECT max(b.entityId) FROM EArchiveBatch b WHERE b.requestType =  eu.domibus.core.earchive.RequestType.CONTINUOUS)")
 public class EArchiveBatch  extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")
@@ -110,4 +111,19 @@ public class EArchiveBatch  extends AbstractBaseEntity {
     public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
     }
+
+    @Override
+    public String toString() {
+        return "EArchiveBatch{" +
+                "batchId='" + batchId + '\'' +
+                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
+                ", requestType=" + requestType +
+                ", dateRequested=" + dateRequested +
+                ", lastPkUserMessage=" + lastPkUserMessage +
+                ", size=" + size +
+                ", storageLocation='" + storageLocation + '\'' +
+                ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
+                "} " + super.toString();
+    }
+
 }

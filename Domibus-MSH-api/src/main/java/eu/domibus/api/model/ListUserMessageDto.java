@@ -5,6 +5,8 @@ import java.util.List;
 /**
  * @author François Gautier
  * @since 5.0
+ *
+ * We use this wrapper class to create a JSON in {@link EArchiveBatch}
  */
 public class ListUserMessageDto {
 

@@ -63,9 +63,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId, int size) {
+    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId,long maxEntityIdToArchived, int size) {
         TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
         query.setMaxResults(size);
 

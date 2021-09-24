@@ -284,6 +284,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public Map<String, List<LegConfiguration>> getAllLegConfigurations() {
+        return getCurrentPModeProvider().getAllLegConfigurations();
+    }
+
+    @Override
     public byte[] getPModeFile(long id) {
         return getCurrentPModeProvider().getPModeFile(id);
     }

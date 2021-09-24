@@ -95,6 +95,7 @@ import java.util.Date;
                 query = "select new eu.domibus.api.model.UserMessageDTO(uml.entityId, uml.userMessage.messageId) " +
                         "from UserMessageLog uml " +
                         "where uml.entityId > :LAST_ENTITY_ID " +
+                        "  and uml.entityId < :MAX_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.deleted IS NULL " +
                         "order by uml.entityId desc"),

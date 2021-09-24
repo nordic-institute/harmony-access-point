@@ -47,6 +47,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -524,4 +525,6 @@ public abstract class PModeProvider {
     public abstract String getRole(String roleType, String serviceValue);
 
     public abstract Agreement getAgreementRef(String serviceValue);
+
+    public abstract Map<String, List<LegConfiguration>> getAllLegConfigurations();
 }

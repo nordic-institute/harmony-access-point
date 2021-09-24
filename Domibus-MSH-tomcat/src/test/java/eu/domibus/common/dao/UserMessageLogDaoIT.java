@@ -23,6 +23,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.NUMBER_FORMAT_DEFAULT;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -68,6 +71,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final String sendFailureNoProperties = randomUUID().toString();
     private final String sendFailureWithProperties = randomUUID().toString();
     private final String testDate = randomUUID().toString();
+    private long maxEntityId;
 
     @Before
     @Transactional
@@ -95,6 +99,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
         messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC);
         messageDaoTestUtil.createUserMessageLog(sendFailureWithProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MPC);
 
+        maxEntityId = Long.parseLong(ZonedDateTime
+                .now(ZoneOffset.UTC)
+                .plusDays(1)
+                .format(ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH)) + String.format(NUMBER_FORMAT_DEFAULT, 0));
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
@@ -284,7 +292,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_oldest() {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(0L, 100);
+        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(0L, maxEntityId, 100);
         Assert.assertEquals(7, messagesForArchiving.getUserMessageDtos().size());
         Assert.assertEquals(msg.getEntityId(), messagesForArchiving.getUserMessageDtos().get(0).getEntityId());
     }
@@ -294,7 +302,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_rest() {
         UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(msg1.getEntityId(), 20);
+        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(msg1.getEntityId(), maxEntityId, 20);
         Assert.assertEquals(6, messagesForArchiving.getUserMessageDtos().size());
     }
 }
