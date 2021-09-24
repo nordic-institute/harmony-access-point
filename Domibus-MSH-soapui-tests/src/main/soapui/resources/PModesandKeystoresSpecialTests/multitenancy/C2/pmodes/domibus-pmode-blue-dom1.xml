@@ -37,6 +37,12 @@
 			<party name="domibus_c2dom2_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_c2dom2" allowChunking="false">
 				<identifier partyId="domibus-blue-dom2" partyIdType="partyTypeUrn"/>
 			</party>
+			<party name="domibus_c2dom1_white_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_c2dom1" allowChunking="false">
+				<identifier partyId="domibus-white-dom1" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="domibus_c3dom2_black_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=domibus_c3dom2" allowChunking="false">
+				<identifier partyId="domibus-black-dom2" partyIdType="partyTypeUrn"/>
+			</party>
 		</parties>
 		<meps>
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
@@ -143,10 +149,12 @@
 			<initiatorParties>
 				<initiatorParty name="domibus_c2dom1_gw"/>
 				<initiatorParty name="domibus_c3dom2_gw"/>
+				<responderParty name="domibus_c3dom2_black_gw"/>
 			</initiatorParties>
 			<responderParties>
 				<responderParty name="domibus_c2dom1_gw"/>
 				<responderParty name="domibus_c3dom2_gw"/>
+				<responderParty name="domibus_c2dom1_white_gw"/>				
 			</responderParties>
 			<legs>
 				<leg name="pushDomain1Domain2"/>
