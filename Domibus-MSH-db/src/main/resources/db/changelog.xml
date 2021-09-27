@@ -3234,6 +3234,12 @@
         </insert>
     </changeSet>
 
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
+        <insert tableName="TB_LOCK">
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock" type="BIGINT"/>
+        </insert>
+    </changeSet>
+
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

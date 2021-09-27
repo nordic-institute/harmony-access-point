@@ -30,9 +30,24 @@ public class SynchronizedRunnable implements Runnable {
     @Autowired
     protected LockDao lockDao;
 
-    public String lockKey;
-    public Runnable runnable;
-//    LockDao lockDao;
+    private String lockKey;
+    private Runnable runnable;
+
+    public String getLockKey() {
+        return lockKey;
+    }
+
+    public void setLockKey(String lockKey) {
+        this.lockKey = lockKey;
+    }
+
+    public Runnable getRunnable() {
+        return runnable;
+    }
+
+    public void setRunnable(Runnable runnable) {
+        this.runnable = runnable;
+    }
 
 //    public SynchronizedRunnable(Runnable runnable, String lockKey, LockDao lockDao) {
 //        this.runnable = runnable;
@@ -43,7 +58,7 @@ public class SynchronizedRunnable implements Runnable {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void run() {
-        LOG.trace("Trying to lock  [{}]", lockKey);
+        LOG.trace("Trying to lock [{}]", lockKey);
 
         // if this fails, it means that another process has an explicit lock on the file
         try {
@@ -56,9 +71,9 @@ public class SynchronizedRunnable implements Runnable {
         } catch (NoResultException nre) {
             throw new DomainTaskException(String.format("Lock key [%s] not found!", lockKey), nre);
         } catch (LockTimeoutException lte) {
-            LOG.warn("[{}] lock could not be acquire. It is probably handled by another process.", lockKey, lte);
+            LOG.warn("[{}] lock could not be acquired. It is probably handled by another process.", lockKey, lte);
         } catch (Exception ex) {
-
+            LOG.error("Error while running synchronized task", ex);
         }
     }
 }

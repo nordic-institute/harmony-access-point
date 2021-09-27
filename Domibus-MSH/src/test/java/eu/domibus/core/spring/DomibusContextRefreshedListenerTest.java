@@ -125,18 +125,4 @@ public class DomibusContextRefreshedListenerTest {
 //        }};
 //    }
 
-    @Test
-    public void getLockFile() {
-        String configLocation = "home";
-
-        new Expectations() {{
-            domibusConfigurationService.getConfigLocation();
-            result = configLocation;
-        }};
-
-        final File lockFile = domibusContextRefreshedListener.getLockFileLocation();
-
-        assertEquals(configLocation, lockFile.getParent());
-        assertEquals(DomibusContextRefreshedListener.SYNC_LOCK_FILE, lockFile.getName());
-    }
 }

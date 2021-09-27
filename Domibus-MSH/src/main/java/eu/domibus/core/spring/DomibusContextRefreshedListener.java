@@ -28,7 +28,7 @@ public class DomibusContextRefreshedListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
-    public static final String SYNC_LOCK_FILE = "synchronization.lock";
+    static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
     @Autowired
     protected EncryptionService encryptionService;
@@ -74,8 +74,6 @@ public class DomibusContextRefreshedListener {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         messageDictionaryService.createStaticDictionaryEntries();
-//        multiDomainCryptoService.persistTruststoresIfNecessarry();
-//        tlsCertificateManager.persistTruststoresIfNecessarry();
     }
 
     /**
@@ -89,14 +87,13 @@ public class DomibusContextRefreshedListener {
     protected void executeWithLockIfNeeded(Runnable task) {
         LOG.debug("Executing in serial mode");
         if (useLockForExecution()) {
-            LOG.debug("Handling execution using lock file.");
-//            final File fileLock = getLockFileLocation();
-            final String lockKey = SYNC_LOCK_FILE;
+            LOG.debug("Handling execution using lock.");
+            final String lockKey = SYNC_LOCK_KEY;
             Runnable errorHandler = () -> {
                 LOG.warn("An error has occurred while initializing Domibus. This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.");
             };
             domainTaskExecutor.submit(task, errorHandler, lockKey, true, 3L, TimeUnit.MINUTES);
-            LOG.debug("Finished handling execution using lock file.");
+            LOG.debug("Finished handling execution using lock.");
         } else {
             LOG.debug("Handling execution without lock.");
             task.run();
@@ -110,7 +107,4 @@ public class DomibusContextRefreshedListener {
         return clusterDeployment;
     }
 
-    protected File getLockFileLocation() {
-        return new File(domibusConfigurationService.getConfigLocation(), SYNC_LOCK_FILE);
-    }
 }

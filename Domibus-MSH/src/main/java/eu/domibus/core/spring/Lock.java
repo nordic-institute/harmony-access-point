@@ -23,8 +23,9 @@ import javax.validation.constraints.NotNull;
 @NamedQueries({
         @NamedQuery(name = "Lock.findByLockName",
                 query = "select l from Lock l where l.lockKey=:LOCK_KEY",
-                lockMode = LockModeType.PESSIMISTIC_WRITE,
-                hints = @QueryHint(name = "javax.persistence.lock.timeout", value = "3000")),
+                lockMode = LockModeType.PESSIMISTIC_WRITE
+              //  hints = @QueryHint(name = "javax.persistence.lock.timeout", value = "30000")
+        ),
 })
 public class Lock extends AbstractBaseEntity {
 

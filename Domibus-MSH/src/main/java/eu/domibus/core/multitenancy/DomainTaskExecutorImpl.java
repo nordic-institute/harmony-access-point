@@ -77,8 +77,8 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
         // fac eu apoi bean cu parametrii cum trebuie
         SynchronizedRunnable synchronizedRunnable = synchronizedRunnableProvider.get(); // new SynchronizedRunnable(task, lockKey, lockDao);
-        synchronizedRunnable.lockKey = lockKey;
-        synchronizedRunnable.runnable = task;
+        synchronizedRunnable.setLockKey(lockKey);
+        synchronizedRunnable.setRunnable(task);
 
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
