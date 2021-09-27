@@ -36,6 +36,11 @@ public abstract class FSAbstractPurgeService {
     }
 
     protected void purgeMessages(String domain) {
+        if (!fsPluginProperties.getDomainEnabled(domain)) {
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            return;
+        }
+
         FileObject[] contentFiles = null;
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
                 FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, getTargetFolderName())) {

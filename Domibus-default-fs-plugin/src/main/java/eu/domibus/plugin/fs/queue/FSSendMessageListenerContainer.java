@@ -35,7 +35,7 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
     @Override
     public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
         if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
             return null;
         }
 
