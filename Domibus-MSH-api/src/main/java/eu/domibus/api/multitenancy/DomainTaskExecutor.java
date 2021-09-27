@@ -24,7 +24,7 @@ public interface DomainTaskExecutor {
      *
      * @param task The Runnable task to execute
      * @param errorHandler The Runnable task that will be executed in case an error occurs while running the main task
-     * @param lockFile The file that will be locked before running the task
+     * @param lockKey The key that will be used as lock before running the task
      */
     void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit);
 

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,15 +86,14 @@ public class DomibusContextRefreshedListener {
     protected void executeWithLockIfNeeded(Runnable task) {
         LOG.debug("Executing in serial mode");
         if (useLockForExecution()) {
-            LOG.debug("Handling execution using lock.");
-            final String lockKey = SYNC_LOCK_KEY;
+            LOG.debug("Handling execution using db lock.");
             Runnable errorHandler = () -> {
                 LOG.warn("An error has occurred while initializing Domibus. This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.");
             };
-            domainTaskExecutor.submit(task, errorHandler, lockKey, true, 3L, TimeUnit.MINUTES);
-            LOG.debug("Finished handling execution using lock.");
+            domainTaskExecutor.submit(task, errorHandler, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
+            LOG.debug("Finished handling execution using db lock.");
         } else {
-            LOG.debug("Handling execution without lock.");
+            LOG.debug("Handling execution without db lock.");
             task.run();
         }
     }
@@ -103,8 +101,8 @@ public class DomibusContextRefreshedListener {
     protected boolean useLockForExecution() {
         final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
         LOG.debug("Cluster deployment? [{}]", clusterDeployment);
-
-        return clusterDeployment;
+        return true;
+//        return clusterDeployment;
     }
 
 }
