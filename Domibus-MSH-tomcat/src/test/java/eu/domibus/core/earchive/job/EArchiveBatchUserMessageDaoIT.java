@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
 
     @Autowired
     EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
+
     @Autowired
     EArchiveBatchDao eArchiveBatchDao;
 
@@ -42,6 +44,8 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
     MessageDaoTestUtil messageDaoTestUtil;
 
     private UserMessageLog msg1;
+    private UserMessageLog msg2;
+    private UserMessageLog msg3;
     private EArchiveBatch eArchiveBatch;
 
     @Before
@@ -54,16 +58,22 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
         eArchiveBatch.setCreatedBy("test");
         eArchiveBatchDao.create(eArchiveBatch);
         msg1 = messageDaoTestUtil.createTestMessage("msg1");
+        msg2 = messageDaoTestUtil.createTestMessage("msg2");
+        msg3 = messageDaoTestUtil.createTestMessage("msg3");
         userMessageLogDao.create(msg1);
+        userMessageLogDao.create(msg2);
+        userMessageLogDao.create(msg3);
     }
 
     @Test
     @Transactional
     public void create() {
-        eArchiveBatchUserMessageDao.create(eArchiveBatch, msg1.getEntityId());
+        eArchiveBatchUserMessageDao.create(eArchiveBatch, Arrays.asList(msg1.getEntityId(),
+                msg2.getEntityId(),
+                msg3.getEntityId()));
 
         List<EArchiveBatchUserMessage> all = em.createQuery("SELECT eaum FROM EArchiveBatchUserMessage eaum", EArchiveBatchUserMessage.class)
                 .getResultList();
-        Assert.assertEquals(1, all.size());
+        Assert.assertEquals(3, all.size());
     }
 }
