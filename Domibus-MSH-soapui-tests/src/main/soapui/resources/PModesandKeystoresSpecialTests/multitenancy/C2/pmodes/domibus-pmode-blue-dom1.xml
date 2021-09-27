@@ -149,7 +149,7 @@
 			<initiatorParties>
 				<initiatorParty name="domibus_c2dom1_gw"/>
 				<initiatorParty name="domibus_c3dom2_gw"/>
-				<responderParty name="domibus_c3dom2_black_gw"/>
+				<initiatorParty name="domibus_c3dom2_black_gw"/>
 			</initiatorParties>
 			<responderParties>
 				<responderParty name="domibus_c2dom1_gw"/>
