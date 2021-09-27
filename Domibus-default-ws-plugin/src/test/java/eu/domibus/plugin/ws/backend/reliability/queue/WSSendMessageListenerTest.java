@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.messaging.MessageConstants;
@@ -36,6 +37,8 @@ public class WSSendMessageListenerTest {
     private WSBackendMessageLogDao wsBackendMessageLogDao;
     @Injectable
     private DomainContextExtService domainContextExtService;
+    @Injectable
+    private AuthUtils authUtils;
     @Mocked
     private Message message;
 
@@ -48,7 +51,7 @@ public class WSSendMessageListenerTest {
             message.getStringProperty(MessageConstants.DOMAIN);
             result = new JMSException("ERROR");
         }};
-        wsSendMessageListener.onMessage(message);
+        wsSendMessageListener.doOnMessage(message);
 
         new FullVerifications() {
         };
@@ -74,9 +77,15 @@ public class WSSendMessageListenerTest {
 
         }};
 
-        wsSendMessageListener.onMessage(message);
+        wsSendMessageListener.doOnMessage(message);
 
-        new FullVerifications() {};
+        new FullVerifications() {{
+            DomainDTO domain;
+            domainContextExtService.setCurrentDomain(domain = withCapture());
+
+            Assert.assertEquals(MessageConstants.DOMAIN, domain.getCode());
+            Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
+        }};
     }
 
     @Test
@@ -103,7 +112,7 @@ public class WSSendMessageListenerTest {
             backendMessage.getType();
             result = WSBackendMessageType.DELETED_BATCH;
         }};
-        wsSendMessageListener.onMessage(message);
+        wsSendMessageListener.doOnMessage(message);
 
         new FullVerifications() {{
             DomainDTO domain;
@@ -138,7 +147,7 @@ public class WSSendMessageListenerTest {
             backendMessage.getType();
             result = RECEIVE_SUCCESS;
         }};
-        wsSendMessageListener.onMessage(message);
+        wsSendMessageListener.doOnMessage(message);
 
         new FullVerifications() {{
             DomainDTO domain;
@@ -173,7 +182,7 @@ public class WSSendMessageListenerTest {
             backendMessage.getType();
             result = SUBMIT_MESSAGE;
         }};
-        wsSendMessageListener.onMessage(message);
+        wsSendMessageListener.doOnMessage(message);
 
         new FullVerifications() {{
             DomainDTO domain;
