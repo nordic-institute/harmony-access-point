@@ -89,14 +89,14 @@ public class DomainTaskExecutorImplTest {
         }};
     }
 
-    @Test
-    public void submit(@Injectable Runnable task,
-                       @Injectable Runnable errorHandler,
-                       @Injectable File file) {
-        domainTaskExecutor.submit(task, errorHandler, file);
-
-        new Verifications() {{
-            domainTaskExecutor.submitRunnable(taskExecutor, (ClearDomainRunnable) any, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-        }};
-    }
+//    @Test
+//    public void submit(@Injectable Runnable task,
+//                       @Injectable Runnable errorHandler,
+//                       @Injectable File file) {
+//        domainTaskExecutor.submit(task, errorHandler, file);
+//
+//        new Verifications() {{
+//            domainTaskExecutor.submitRunnable(taskExecutor, (ClearDomainRunnable) any, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+//        }};
+//    }
 }

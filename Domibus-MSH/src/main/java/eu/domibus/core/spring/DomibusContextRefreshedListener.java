@@ -74,6 +74,8 @@ public class DomibusContextRefreshedListener {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         messageDictionaryService.createStaticDictionaryEntries();
+//        multiDomainCryptoService.persistTruststoresIfNecessarry();
+//        tlsCertificateManager.persistTruststoresIfNecessarry();
     }
 
     /**
@@ -88,11 +90,12 @@ public class DomibusContextRefreshedListener {
         LOG.debug("Executing in serial mode");
         if (useLockForExecution()) {
             LOG.debug("Handling execution using lock file.");
-            final File fileLock = getLockFileLocation();
+//            final File fileLock = getLockFileLocation();
+            final String lockKey = SYNC_LOCK_FILE;
             Runnable errorHandler = () -> {
                 LOG.warn("An error has occurred while initializing Domibus. This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.");
             };
-            domainTaskExecutor.submit(task, errorHandler, fileLock, true, 3L, TimeUnit.MINUTES);
+            domainTaskExecutor.submit(task, errorHandler, lockKey, true, 3L, TimeUnit.MINUTES);
             LOG.debug("Finished handling execution using lock file.");
         } else {
             LOG.debug("Handling execution without lock.");
