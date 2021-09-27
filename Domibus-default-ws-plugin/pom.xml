@@ -84,6 +84,7 @@
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-api</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
