@@ -3094,14 +3094,24 @@ class Domibus{
         def i = 0
         def found = false
         def jsonSlurper = new JsonSlurper()
+		def returnedMessage=null
+		def queueTypeList=["replyQueue","outQueue","errorNotifyConsumer","errorNotifyProducer","inQueue","DLQ"]
+		def queueType="";
 
         def jmsMessagesMap = jsonSlurper.parseText(browseJmsQueue(side,context,log,queueName,domainValue,authUser,authPwd))
         debugLog("  SearchMessageJmsQueue  [][]  jmsMessagesMap:" + jmsMessagesMap, log)
         assert(jmsMessagesMap != null),"Error:SearchMessageJmsQueue: Not able to get the jms queue details."
         log.info ("jmsMessagesMap size = " + jmsMessagesMap.size())
 
-        switch(queueName.toLowerCase()){
-            case "domibus.backend.jms.replyqueue":
+		for(item in queueTypeList){
+			if(queueName.toLowerCase().contains(item.toLowerCase())){
+				queueType=item
+				break
+			}
+		}
+		
+        switch(queueType){
+            case "replyQueue":
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3123,7 +3133,7 @@ class Domibus{
                     i++
                 }
                 break
-            case "domibus.backend.jms.errornotifyconsumer":
+            case "errorNotifyConsumer":
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3146,6 +3156,21 @@ class Domibus{
                 }
                 break
 
+			case "outQueue":
+                while ((i < jmsMessagesMap.messages.size())&&(!found)) {
+                    assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
+                    if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
+                        if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
+                            debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId + "\".", log)
+							found=true
+                        }
+                    }
+                    else{
+                        log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null message ID: not possible to use this entry ..."
+                    }
+                    i++
+                }
+                break
         // Put here other cases (queues ...)
         // ...
 
@@ -3153,12 +3178,19 @@ class Domibus{
                 log.error "Unknown queue \"$queueName\""
         }
 
+		
+		if(pattern==null){
+			returnedMessage="Message with key \"$searchKey\""
+		}else{
+			returnedMessage="Message with key \"$searchKey\" and pattern \"$pattern\""
+		}
+		
         if(outcome){
-            assert(found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" not found in queue \"$queueName\"."
-            log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was found in queue \"$queueName\".")
+            assert(found),"Error:SearchMessageJmsQueue: $returnedMessage not found in queue \"$queueName\"."
+            log.info("  SearchMessageJmsQueue  [][]  Success: $returnedMessage was found in queue \"$queueName\".")
         }else{
-            assert(!found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" found in queue \"$queueName\"."
-            log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was not found in queue \"$queueName\".")
+            assert(!found),"Error:SearchMessageJmsQueue: $returnedMessage found in queue \"$queueName\"."
+            log.info("  SearchMessageJmsQueue  [][]  Success: $returnedMessage was not found in queue \"$queueName\".")
         }
     }
 
