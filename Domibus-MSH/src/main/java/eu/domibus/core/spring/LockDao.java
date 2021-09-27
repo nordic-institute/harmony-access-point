@@ -17,7 +17,7 @@ public class LockDao extends BasicDao<Lock> {
         super(Lock.class);
     }
 
-    public Lock acquireLock(String lockKey) {
+    public Lock findByLockKey(String lockKey) {
         Query q = em.createNamedQuery("Lock.findByLockName", Lock.class);
         q.setParameter("LOCK_KEY", lockKey);
         q.setLockMode(LockModeType.PESSIMISTIC_WRITE);

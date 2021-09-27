@@ -1,6 +1,7 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.core.spring.LockDao;
+import eu.domibus.api.multitenancy.SynchronizationService;
+import eu.domibus.api.multitenancy.SynchronizedRunnable2;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,11 @@ public class SynchronizedRunnableFactory {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableFactory.class);
 
     @Autowired
-    LockDao lockDao;
+    SynchronizationService synchronizationService;
 
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public SynchronizedRunnable createBean(Runnable runnable, String lockKey) {
-        return new SynchronizedRunnable(runnable, lockKey, lockDao);
+    public SynchronizedRunnable2 createBean(Runnable runnable, String lockKey) {
+        return new SynchronizedRunnable2(runnable, lockKey, synchronizationService);
     }
 }

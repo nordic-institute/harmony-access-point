@@ -1,7 +1,6 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
-import eu.domibus.core.spring.LockDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Provider;
-import java.io.File;
 import java.util.concurrent.*;
 
 /**
@@ -71,7 +68,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
 
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.createBean(task, lockKey);
+        SynchronizedRunnable2 synchronizedRunnable = synchronizedRunnableFactory.createBean(task, lockKey);
 
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
