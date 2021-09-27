@@ -80,9 +80,9 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
-    public List<String> findPotentialExpiredPartitions(String pName) {
+    public List<String> findPotentialExpiredPartitions(String partitionName) {
         Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
-        q.setParameter("PNAME", pName);
+        q.setParameter("PNAME", partitionName);
         final List<String> partitionNames = q.getResultList();
         LOG.debug("Partitions [{}]", partitionNames);
         return partitionNames;
@@ -91,11 +91,11 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     @Timer(clazz = UserMessageDao.class, value = "deletePartition")
     @Counter(clazz = UserMessageDao.class, value = "deletePartition")
     @Transactional
-    public int deletePartition(String pName) {
-        LOG.debug("Deleting partition [{}]", pName);
-        final Query deleteQuery = em.createNativeQuery("ALTER TABLE TB_USER_MESSAGE DROP PARTITION " + pName + " update indexes");
+    public int deletePartition(String partitionName) {
+        LOG.debug("Deleting partition [{}]", partitionName);
+        final Query deleteQuery = em.createNativeQuery("ALTER TABLE TB_USER_MESSAGE DROP PARTITION " + partitionName + " update indexes");
         int result = deleteQuery.executeUpdate();
-        LOG.debug("Delete partition [{}] result [{}]", pName, result);
+        LOG.debug("Delete partition [{}] result [{}]", partitionName, result);
         return result;
     }
 
