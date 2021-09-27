@@ -14,15 +14,15 @@ import javax.persistence.NoResultException;
  * @author Ion Perpegel
  * @since 5.0
  */
-public class SynchronizedRunnable2 implements Runnable {
+public class SynchronizedRunnable implements Runnable {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnable2.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnable.class);
 
     private SynchronizationService synchronizationService;
     private String lockKey;
     private Runnable runnable;
 
-    public SynchronizedRunnable2(Runnable runnable, String lockKey, SynchronizationService synchronizationService) {
+    public SynchronizedRunnable(Runnable runnable, String lockKey, SynchronizationService synchronizationService) {
         this.runnable = runnable;
         this.lockKey = lockKey;
         this.synchronizationService = synchronizationService;

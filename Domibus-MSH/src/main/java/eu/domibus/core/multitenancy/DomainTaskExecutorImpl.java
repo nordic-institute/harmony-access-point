@@ -68,7 +68,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
 
-        SynchronizedRunnable2 synchronizedRunnable = synchronizedRunnableFactory.createBean(task, lockKey);
+        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.createBean(task, lockKey);
 
         SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);

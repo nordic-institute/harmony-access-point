@@ -101,8 +101,7 @@ public class DomibusContextRefreshedListener {
     protected boolean useLockForExecution() {
         final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
         LOG.debug("Cluster deployment? [{}]", clusterDeployment);
-        return true;
-//        return clusterDeployment;
+        return clusterDeployment;
     }
 
 }
