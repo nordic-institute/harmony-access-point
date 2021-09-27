@@ -59,4 +59,13 @@ public class DomibusPropertyMetadataTest {
         assertEquals("UNKNOWN", res.getModule());
         assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), res.getUsage());
     }
+
+    @Test
+    public void getReadOnlyGlobalProperty() {
+        DomibusPropertyMetadata res = DomibusPropertyMetadata.getReadOnlyGlobalProperty("propName", DomibusPropertyMetadata.Type.PASSWORD, "module", true);
+
+        assertEquals("module", res.getModule());
+        assertTrue(res.isEncrypted());
+    }
+
 }
