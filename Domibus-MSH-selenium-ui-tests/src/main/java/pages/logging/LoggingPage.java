@@ -81,6 +81,8 @@ public class LoggingPage extends DomibusPage {
 
 	public void search(String term) throws Exception {
 		log.info("Searching for: " + term);
+
+		wait.forAttributeNotEmpty(searchInputField, "value");
 		getSearchInputField().fill(term);
 
 		log.info("Click on search button");
