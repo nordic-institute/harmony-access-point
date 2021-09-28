@@ -71,4 +71,6 @@ public interface DomainCryptoService {
     void reset();
 
     byte[] getTruststoreContent();
+
+    byte[] getTruststoreContentFromFile();
 }

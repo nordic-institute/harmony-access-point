@@ -13,6 +13,8 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.crypto.Truststore;
+import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.backup.BackupService;
@@ -27,6 +29,7 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -359,7 +362,8 @@ public class CertificateServiceImpl implements CertificateService {
     public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
         LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
 
-        KeyStore truststore = loadTrustStore(fileContent, filePassword);
+//        KeyStore truststore = loadTrustStore(fileContent, filePassword);
+        KeyStore truststore = this.getTrustStore(trustLocation, trustPassword);
         try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
             truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
             try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
@@ -367,6 +371,35 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.load(newTrustStoreBytes, filePassword.toCharArray());
                 LOG.debug("Truststore successfully loaded");
                 persistTrustStore(truststore, trustPassword, trustLocation, trustStoreBackupLocation);
+                LOG.debug("Truststore successfully persisted");
+            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+                LOG.error("Could not replace truststore", e);
+                try {
+                    truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
+                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+                }
+                throw new CryptoException(e);
+            }
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+            throw new CryptoException("Could not replace truststore", exc);
+        }
+    }
+
+    @Override
+    public void replaceTrustStore2(byte[] fileContent, String filePassword, String trustType, String trustName, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
+        LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
+
+        byte[] content = getTruststoreContentFromDB(trustName);
+        KeyStore truststore = loadTrustStore(content, trustPassword);
+        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
+            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
+            try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+                validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
+                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
+                LOG.debug("Truststore successfully loaded");
+
+                persistTrustStore2(truststore, trustPassword, trustName, trustStoreBackupLocation);
                 LOG.debug("Truststore successfully persisted");
             } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
                 LOG.error("Could not replace truststore", e);
@@ -500,12 +533,22 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected KeyStore loadTrustStore(byte[] content, String password) {
+    @Override
+    public KeyStore loadTrustStore(byte[] content, String password) {
         try (InputStream contentStream = new ByteArrayInputStream(content)) {
             return loadTrustStore(contentStream, password);
         } catch (Exception ex) {
             throw new ConfigurationException("Exception loading truststore.", ex);
         }
+    }
+
+    @Autowired
+    TruststoreDao truststoreDao;
+
+    @Override
+    public byte[] getTruststoreContentFromDB(String type) {
+        Truststore res = truststoreDao.findByType(type);
+        return res.getContent();
     }
 
     protected KeyStore loadTrustStore(InputStream contentStream, String password) {
@@ -546,6 +589,32 @@ public class CertificateServiceImpl implements CertificateService {
             //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
             throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
         } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
+            throw new CryptoException("Could not persist truststore:", e);
+        }
+    }
+
+    protected void persistTrustStore2(KeyStore truststore, String password, String trustStoreName, String trustStoreBackupLocation) throws CryptoException {
+//        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
+//        File trustStoreFile = createFileWithLocation(trustStoreLocation);
+//        if (!trustStoreFile.getParentFile().exists()) {
+//            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
+//            try {
+//                FileUtils.forceMkdir(trustStoreFile.getParentFile());
+//            } catch (IOException e) {
+//                throw new CryptoException("Could not create parent directory for truststore", e);
+//            }
+//        }
+        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
+//        backupTrustStore(trustStoreFile, trustStoreBackupLocation);
+
+//        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            truststore.store(byteStream, password.toCharArray());
+            byte[] content = byteStream.toByteArray();
+            Truststore entity = truststoreDao.findByType(trustStoreName);
+            entity.setContent(content);
+            truststoreDao.update(entity);
+        } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
         }
     }
@@ -654,7 +723,7 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Property [{}], value [{}]", REVOCATION_TRIGGER_OFFSET_PROPERTY, revocationOffsetInDays);
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         LocalDateTime offsetDate = now.plusDays(revocationOffsetInDays);
-        LocalDateTime certificateEnd = LocalDateTime.ofInstant(notAfter.toInstant(),ZoneOffset.UTC);
+        LocalDateTime certificateEnd = LocalDateTime.ofInstant(notAfter.toInstant(), ZoneOffset.UTC);
 
         LOG.debug("Current date[{}], offset date[{}], certificate end date:[{}]", now, offsetDate, certificateEnd);
         if (now.isAfter(certificateEnd)) {

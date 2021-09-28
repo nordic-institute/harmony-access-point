@@ -152,6 +152,9 @@ public interface CertificateService {
     void replaceTrustStore(byte[] fileContent, String filePassword,
                            String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
 
+    void replaceTrustStore2(byte[] fileContent, String filePassword,
+                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
+
     /**
      * Returns the truststore pointed by the location/password parameters
      *
@@ -219,4 +222,7 @@ public interface CertificateService {
      */
     boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation);
 
+    KeyStore loadTrustStore(byte[] content, String password);
+
+    byte[] getTruststoreContentFromDB(String type);
 }

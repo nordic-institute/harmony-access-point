@@ -66,4 +66,8 @@ public interface MultiDomainCryptoService {
     void reset(Domain domain);
 
     byte[] getTruststoreContent(Domain domain);
+
+    byte[] getTruststoreContentFromFile(Domain domain);
+
+    void persistTruststoresIfApplicable();
 }

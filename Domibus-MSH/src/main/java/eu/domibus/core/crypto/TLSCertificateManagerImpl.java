@@ -5,6 +5,8 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
@@ -12,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,7 +62,14 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
+    // todo schimbat sa ia din BD
     public byte[] getTruststoreContent() {
+        KeyStoreType trustStore = getTruststoreParams();
+        return certificateService.getTruststoreContent(trustStore.getFile());
+    }
+
+    @Override
+    public byte[] getTruststoreContentFromFile() {
         KeyStoreType trustStore = getTruststoreParams();
         return certificateService.getTruststoreContent(trustStore.getFile());
     }
@@ -84,6 +94,45 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             resetTLSTruststore();
         }
         return deleted;
+    }
+
+    @Autowired
+    protected DomainService domainService;
+
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
+
+    @Autowired
+    TruststoreDao truststoreDao;
+
+    @Override
+    public void persistTruststoresIfNecessarry() {
+        LOG.debug("Creating encryption key for all domains if not yet exists");
+
+        final List<Domain> domains = domainService.getDomains();
+        for (Domain domain : domains) {
+            persistTruststoreIfNecessarry(domain);
+        }
+
+        LOG.debug("Finished creating encryption key for all domains if not yet exists");
+    }
+
+    private void persistTruststoreIfNecessarry(Domain domain) {
+        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfNecessarry(), domain);
+    }
+
+    final static String trustType = "TLS";
+
+    private void persistCurrentDomainTruststoreIfNecessarry() {
+        if (truststoreDao.existsWithType(trustType)) {
+            return;
+        }
+        // todo check if this method also loads the cert, in which case, find another approach
+        byte[] content = getTruststoreContentFromFile();
+        Truststore entity = new Truststore();
+        entity.setType(trustType);
+        entity.setContent(content);
+        truststoreDao.create(entity);
     }
 
     protected KeyStoreType getTruststoreParams() {
