@@ -9,12 +9,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,20 +34,16 @@ public class DomainDaoImplTest {
 
     @Test
     public void findAll() {
-        File f1 = new File("zdomain-domibus.properties");
-        File f2 = new File("adomain-domibus.properties");
-
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
-            domibusConfigurationService.getConfigLocation();
-            result = ".";
             domibusPropertyProvider.getProperty((Domain) any, anyString);
             returns("zzzdomain", "aaadomain");
         }};
-        new Expectations(FileUtils.class) {{
-            FileUtils.listFiles((File) any, (String[]) any, false);
-            result = Arrays.asList(f1, f2);
+
+        new Expectations(domainDao) {{
+            domainDao.findAllDomainCodes();
+            result = Arrays.asList("zdomain", "adomain");
         }};
 
         List<Domain> domains = domainDao.findAll();
@@ -57,6 +51,20 @@ public class DomainDaoImplTest {
         assertEquals(2, domains.size());
         assertEquals("adomain", domains.get(0).getCode());
         assertEquals("zdomain", domains.get(1).getCode());
+    }
+
+    @Test
+    public void findAllDomainCodes() {
+        new Expectations() {{
+            domibusConfigurationService.getConfigLocation();
+            result = "src/test/resources/config";
+        }};
+
+        List<String> domainCodes = domainDao.findAllDomainCodes();
+
+        assertEquals(2, domainCodes.size());
+        assertEquals("default", domainCodes.get(0));
+        assertEquals("domain_name", domainCodes.get(1));
     }
 
     @Test
@@ -96,7 +104,7 @@ public class DomainDaoImplTest {
 
         final String domainCode = "domain1";
         List<Domain> domains = new ArrayList<>();
-       assertTrue(domainDao.isValidDomain(domains, domainCode));
+        assertTrue(domainDao.isValidDomain(domains, domainCode));
     }
 
 

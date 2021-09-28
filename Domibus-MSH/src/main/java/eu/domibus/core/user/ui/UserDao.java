@@ -20,6 +20,8 @@ public interface UserDao extends UserDaoBase<User> {
 
     void update(final User entity);
 
+    void delete(final User deleteUser);
+
     void delete(final Collection<User> delete);
 
     void flush();
