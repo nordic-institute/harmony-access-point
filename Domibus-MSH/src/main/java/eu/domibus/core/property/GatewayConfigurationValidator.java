@@ -38,7 +38,7 @@ public class GatewayConfigurationValidator {
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
 
-    @PostConstruct
+//    @PostConstruct
     public void validateConfiguration() {
         LOG.info("Checking gateway configuration ...");
         validateCertificates();
@@ -63,7 +63,6 @@ public class GatewayConfigurationValidator {
         for (Domain domain : domains) {
             validateCerts(domain);
         }
-
     }
 
     private void validateCerts(Domain domain) {

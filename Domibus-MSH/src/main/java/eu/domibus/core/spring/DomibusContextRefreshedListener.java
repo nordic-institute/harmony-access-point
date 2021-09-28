@@ -2,9 +2,11 @@ package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,16 @@ public class DomibusContextRefreshedListener {
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
+    // todo move from here??
+    @Autowired
+    GatewayConfigurationValidator gatewayConfigurationValidator;
+
+    @Autowired
+    MultiDomainCryptoService multiDomainCryptoService;
+
+//    @Autowired
+//    TLSCertificateManager tlsCertificateManager;
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -73,6 +85,8 @@ public class DomibusContextRefreshedListener {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         messageDictionaryService.createStaticDictionaryEntries();
+
+        multiDomainCryptoService.persistTruststoresIfApplicable();
     }
 
     /**
@@ -80,6 +94,7 @@ public class DomibusContextRefreshedListener {
      * Add code that does not need to be executed with regard to other nodes in the cluster
      */
     protected void executeNonSynchronized() {
+        gatewayConfigurationValidator.validateConfiguration();
     }
 
     // TODO: below code to be moved to a separate service EDELIVERY-7462.

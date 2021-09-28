@@ -26,8 +26,8 @@ public class CryptoChangeListener implements DomibusPropertyChangeListener {
     @Autowired
     protected MultiDomainCryptoService cryptoService;
 
-    @Autowired
-    protected GatewayConfigurationValidator gatewayConfigurationValidator;
+//    @Autowired
+//    protected GatewayConfigurationValidator gatewayConfigurationValidator;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -41,6 +41,6 @@ public class CryptoChangeListener implements DomibusPropertyChangeListener {
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         cryptoService.reset();
 
-        gatewayConfigurationValidator.validateConfiguration();
+//        gatewayConfigurationValidator.validateConfiguration();
     }
 }
