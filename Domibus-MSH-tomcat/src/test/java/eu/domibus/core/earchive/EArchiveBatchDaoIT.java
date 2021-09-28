@@ -43,11 +43,31 @@ public class EArchiveBatchDaoIT extends AbstractIT {
         create(firstManual, 30L, RequestType.MANUAL);
     }
 
+    @Test
+    @Transactional
+    public void findEArchiveBatchByBatchId() {
+        EArchiveBatch first = eArchiveBatchDao.findEArchiveBatchByBatchId(firstContinuous.getEntityId());
+        EArchiveBatch second = eArchiveBatchDao.findEArchiveBatchByBatchId(secondContinuous.getEntityId());
+        EArchiveBatch third = eArchiveBatchDao.findEArchiveBatchByBatchId(firstManual.getEntityId());
+
+        Assert.assertNotNull(first);
+        Assert.assertNotNull(second);
+        Assert.assertNotNull(third);
+    }
+
+    @Test
+    @Transactional
+    public void findLastEntityIdArchived() {
+        Long result = eArchiveBatchDao.findLastEntityIdArchived();
+        Assert.assertEquals(20L, (long) result);
+    }
+
+
     private void create(EArchiveBatch eArchiveBatch, Long lastPkUserMessage, RequestType continuous) {
         eArchiveBatch.setLastPkUserMessage(lastPkUserMessage);
         eArchiveBatch.setEArchiveBatchStatus(EArchiveBatchStatus.COMPLETED);
         eArchiveBatch.setRequestType(continuous);
-        eArchiveBatchDao.merge(eArchiveBatch);
+        eArchiveBatchDao.create(eArchiveBatch);
     }
 
     @Test
@@ -59,12 +79,5 @@ public class EArchiveBatchDaoIT extends AbstractIT {
         Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();
 
         Assert.assertNull(lastEntityIdArchived);
-    }
-
-    @Test
-    public void findLastEntityIdArchived_found() {
-        Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();
-
-        Assert.assertEquals((Long) 20L, lastEntityIdArchived);
     }
 }

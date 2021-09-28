@@ -92,10 +92,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
-        Domain aDefault = domainService.getDomain("default");
-        domibusPropertyProvider.setProperty(aDefault, DOMIBUS_EARCHIVE_ACTIVE, "true");
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
-        domibusPropertyProvider.setProperty(aDefault, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
 
         storageProvider.getCurrentStorage().reset();

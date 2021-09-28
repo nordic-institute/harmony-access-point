@@ -106,7 +106,7 @@ public class EArchiveBatchDispatcherService {
         return integerProperty;
     }
 
-    public void enqueueEArchive(EArchiveBatch eArchiveBatch, Domain domain) {
+    protected void enqueueEArchive(EArchiveBatch eArchiveBatch, Domain domain) {
         jmsManager.sendMessageToQueue(JMSMessageBuilder
                 .create()
                 .property(MessageConstants.BATCH_ID, eArchiveBatch.getBatchId())

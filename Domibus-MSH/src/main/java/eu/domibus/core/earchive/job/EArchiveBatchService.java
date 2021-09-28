@@ -25,9 +25,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.NUMBER_FORMAT_DEFAULT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -40,6 +38,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 public class EArchiveBatchService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchService.class);
+    public static final String MAX = "9999999999";
 
     private final EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
@@ -113,13 +112,13 @@ public class EArchiveBatchService {
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(getRetryTimeOut())
-                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + format(NUMBER_FORMAT_DEFAULT, 0));
+                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
     }
 
     protected long getRetryTimeOut() {
         // Check override with property Batch retry timeout of this Access point
         long retryTimeOut = domibusPropertyProvider.getLongProperty(DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT);
-        if (retryTimeOut > 0) {
+        if (retryTimeOut >= 0) {
             return retryTimeOut;
         }
 

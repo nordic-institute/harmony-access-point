@@ -89,6 +89,7 @@ public enum MessageStatus {
                         MessageStatus.ACKNOWLEDGED_WITH_WARNING,
                         MessageStatus.RECEIVED,
                         MessageStatus.RECEIVED_WITH_WARNINGS,
-                        MessageStatus.DOWNLOADED);
+                        MessageStatus.DOWNLOADED,
+                        MessageStatus.DELETED);
         }
     }
