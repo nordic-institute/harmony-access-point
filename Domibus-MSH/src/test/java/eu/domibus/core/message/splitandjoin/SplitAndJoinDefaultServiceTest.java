@@ -53,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -704,7 +705,7 @@ public class SplitAndJoinDefaultServiceTest {
         final LocalDateTime messageTime = LocalDateTime.of(2019, 1, 1, 12, 5);
 
         new Expectations(LocalDateTime.class) {{
-            LocalDateTime.now();
+            LocalDateTime.now(ZoneOffset.UTC);
             result = now;
 
             userMessage.getMessageId();

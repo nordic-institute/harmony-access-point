@@ -99,6 +99,9 @@ public class LoggingPage extends DomibusPage {
 		}
 
 		grid.setLoggLevel(index, level);
+
+		getAlertArea().waitForAlert();
+
 	}
 	
 }

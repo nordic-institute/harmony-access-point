@@ -1,9 +1,6 @@
 package domibus;
 
 import domibus.ui.SeleniumTest;
-import io.qameta.allure.Allure;
-import io.qameta.allure.Attachment;
-import io.qameta.allure.model.Status;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -50,8 +47,6 @@ public class FailListener implements ITestListener {
 	@Override
 	public void onTestFailure(ITestResult result) {
 		takeScreenshot(result);
-//		Allure.addAttachment("screenshot_name", "image/png", allureReportScreenshot(result), ".png");
-		allureReportScreenshot(result);
 		test_count++;
 		failed_count++;
 		logTestCounts();
@@ -60,8 +55,6 @@ public class FailListener implements ITestListener {
 	@Override
 	public void onTestSkipped(ITestResult result) {
 		takeScreenshot(result);
-		//		Allure.addAttachment("screenshot_name", allureReportScreenshot(result));
-		allureReportScreenshot(result);
 		test_count++;
 		skipped_count++;
 		logTestCounts();
@@ -85,23 +78,6 @@ public class FailListener implements ITestListener {
 		}
 	}
 
-	@Attachment(value = "screenshot", type = "image/png", fileExtension = ".png")
-	private byte[] allureReportScreenshot(ITestResult result) {
-		log.info("taking screenshot");
-		String testMeth = result.getName();
-		String className = result.getTestClass().getRealClass().getSimpleName();
-		String filename = String.format("%s_%s.png", className, testMeth);
-
-		try {
-			WebDriver driver = ((SeleniumTest) result.getInstance()).driver;
-			TakesScreenshot scrShot = ((TakesScreenshot) driver);
-			byte[] srcFile = scrShot.getScreenshotAs(OutputType.BYTES);
-			return srcFile;
-		} catch (Exception e) {
-			log.error("EXCEPTION: ", e);
-		}
-		return null;
-	}
 
 	private void logTestCounts() {
 		log.info(String.format("-------- Passed - %s --------", passed_count));

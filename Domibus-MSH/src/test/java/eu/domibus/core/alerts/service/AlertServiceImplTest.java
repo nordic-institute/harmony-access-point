@@ -30,8 +30,8 @@ import org.mockito.internal.matchers.GreaterThan;
 
 import javax.jms.Queue;
 import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
@@ -327,8 +327,8 @@ public class AlertServiceImplTest {
         final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
-        LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes);
-        Date nextAttempt = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+        ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC).plusMinutes(nextAttemptInMinutes);
+        Date nextAttempt = Date.from(dateTime.toInstant());
 
 
         new Expectations() {{
@@ -388,8 +388,8 @@ public class AlertServiceImplTest {
         final long entityId = 1;
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
-        LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
-        Date failureTime = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+        ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC);
+        Date failureTime = Date.from(dateTime.toInstant());
 
 
         new Expectations() {{
@@ -483,8 +483,8 @@ public class AlertServiceImplTest {
     @Test
     public void cleanAlerts(@Injectable eu.domibus.core.alerts.model.persist.Alert alert) {
         Integer alertLifeTimeInDays = 10;
-        LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).withHour(0).withMinute(0).withSecond(0).withNano(0);
-        Date alertLimitDate = Date.from(dateTime.toInstant(ZoneOffset.UTC));
+        ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        Date alertLimitDate = Date.from(dateTime.toInstant());
 
         final List<eu.domibus.core.alerts.model.persist.Alert> alerts = new ArrayList<>();
         alerts.add(alert);

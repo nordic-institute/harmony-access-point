@@ -31,7 +31,6 @@
         <jackson_version>2.11.0</jackson_version>
         <javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
         <domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
-        <aspectj.version>1.9.4</aspectj.version>
     </properties>
 
 
@@ -59,9 +58,6 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
-<!--                            <argLine>-->
-<!--                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"-->
-<!--                            </argLine>-->
                             <systemPropertyVariables>
                                 <propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
                                 <runBrowser>firefox</runBrowser>
@@ -85,13 +81,7 @@
                             <compilerVersion>1.8</compilerVersion>
                             <target>1.8</target>
                         </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.aspectj</groupId>
-                                <artifactId>aspectjweaver</artifactId>
-                                <version>1.9.4</version>
-                            </dependency>
-                        </dependencies>
+
                     </plugin>
                 </plugins>
             </build>
@@ -108,9 +98,6 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
-<!--                            <argLine>-->
-<!--                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"-->
-<!--                            </argLine>-->
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>
@@ -134,13 +121,6 @@
                         <configuration>
                             <compilerVersion>1.8</compilerVersion>
                         </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.aspectj</groupId>
-                                <artifactId>aspectjweaver</artifactId>
-                                <version>1.9.4</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -187,11 +167,6 @@
     <dependencies>
         <!-- USED FOR ENHANCED REPORTS-->
         <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-testng</artifactId>
-            <version>2.14.0</version>
-        </dependency>
-		 <dependency>
             <groupId>com.aventstack</groupId>
             <artifactId>extentreports</artifactId>
             <version>5.0.8</version>

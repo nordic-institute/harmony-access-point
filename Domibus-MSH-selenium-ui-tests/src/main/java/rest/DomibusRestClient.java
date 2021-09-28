@@ -224,7 +224,7 @@ public class DomibusRestClient extends BaseRestClient {
 		log.info("created user " + username);
 		
 		if (!active) {
-			users().deactivate(username, domainCode);
+			pluginUsers().deactivateBasicUser(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 		

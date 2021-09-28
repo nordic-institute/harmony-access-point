@@ -5,7 +5,6 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
@@ -25,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -305,7 +305,7 @@ public class UserSecurityPolicyManagerTest {
             setPassword(testPassword);
         }};
         user.setDefaultPassword(true);
-        List<UserPasswordHistory<User>> oldPasswords = Collections.singletonList(new UserPasswordHistory<>(user, testPassword, LocalDateTime.now()));
+        List<UserPasswordHistory<User>> oldPasswords = Collections.singletonList(new UserPasswordHistory<>(user, testPassword, LocalDateTime.now(ZoneOffset.UTC)));
 
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
@@ -337,7 +337,7 @@ public class UserSecurityPolicyManagerTest {
             setPassword(testPassword);
         }};
         user.setDefaultPassword(true);
-        List<UserPasswordHistory<User>> oldPasswords = Collections.singletonList(new UserPasswordHistory<>(user, testPassword, LocalDateTime.now()));
+        List<UserPasswordHistory<User>> oldPasswords = Collections.singletonList(new UserPasswordHistory<>(user, testPassword, LocalDateTime.now(ZoneOffset.UTC)));
 
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
@@ -579,7 +579,7 @@ public class UserSecurityPolicyManagerTest {
             result = null;
         }};
 
-        Integer result = securityPolicyManager.getDaysTillExpiration(username, true, LocalDateTime.now());
+        Integer result = securityPolicyManager.getDaysTillExpiration(username, true, LocalDateTime.now(ZoneOffset.UTC));
         assertNull(result);
         new FullVerifications() {
         };
@@ -595,7 +595,7 @@ public class UserSecurityPolicyManagerTest {
             result = defaultAge;
         }};
 
-        securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now().minusDays(defaultAge - 1));
+        securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now(ZoneOffset.UTC).minusDays(defaultAge - 1));
 
         new FullVerifications() {
         };
@@ -612,7 +612,7 @@ public class UserSecurityPolicyManagerTest {
             result = defaultAge;
         }};
 
-        securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now().minusDays(defaultAge + 1));
+        securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now(ZoneOffset.UTC).minusDays(defaultAge + 1));
 
         new FullVerifications() {
         };
@@ -629,7 +629,7 @@ public class UserSecurityPolicyManagerTest {
             result = defaultAge;
         }};
 
-        securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now().minusDays(defaultAge + 1));
+        securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now(ZoneOffset.UTC).minusDays(defaultAge + 1));
 
         new FullVerifications() {
         };
@@ -1039,7 +1039,7 @@ public class UserSecurityPolicyManagerTest {
 
     @Test
     public void getExpirationDate(@Mocked User userEntity) {
-        LocalDateTime passChangeDate = LocalDateTime.now();
+        LocalDateTime passChangeDate = LocalDateTime.now(ZoneOffset.UTC);
 
         new Expectations(securityPolicyManager) {{
             userEntity.hasDefaultPassword();
@@ -1144,12 +1144,12 @@ public class UserSecurityPolicyManagerTest {
             result = "pwd";
 
             user.getPasswordChangeDate();
-            result = LocalDateTime.now();
+            result = LocalDateTime.now(ZoneOffset.UTC);
         }};
         securityPolicyManager.savePasswordHistory(user);
 
         new FullVerifications() {{
-            dao.savePassword(user, "pwd", withAny(LocalDateTime.now()));
+            dao.savePassword(user, "pwd", withAny(LocalDateTime.now(ZoneOffset.UTC)));
             times = 1;
             dao.removePasswords(user, 10);
             times = 1;

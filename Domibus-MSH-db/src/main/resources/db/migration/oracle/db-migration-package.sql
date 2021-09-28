@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.1 to 5.0 data migration package
+-- Domibus 4.2.3 to 5.0 data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
@@ -10,7 +10,7 @@
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
 -- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO,
--- TB_ERROR_LOG, TB_MESSAGE_ACKNW
+-- TB_ERROR_LOG, TB_MESSAGE_ACKNW, TB_SEND_ATTEMPT
 -- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
@@ -1430,7 +1430,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_acknw -> execute immediate error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
@@ -1448,32 +1448,77 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END IF;
     END migrate_message_acknw;
 
-    /**-- TB_USER_MESSAGE migration post actions --*/
-    PROCEDURE migrate_user_message_post IS
-    BEGIN
-        BEGIN
-            -- TODO check if we can run this from Liquibase?
-            -- put back the FKs
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_ACTION_ID FOREIGN KEY (ACTION_ID_FK) REFERENCES TB_D_ACTION (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_AGREEMENT_ID FOREIGN KEY (AGREEMENT_ID_FK) REFERENCES TB_D_AGREEMENT (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_SERVICE_ID FOREIGN KEY (SERVICE_ID_FK) REFERENCES TB_D_SERVICE (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_MPC_ID FOREIGN KEY (MPC_ID_FK) REFERENCES TB_D_MPC (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_FROM_PARTY_ID FOREIGN KEY (FROM_PARTY_ID_FK) REFERENCES TB_D_PARTY (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_FROM_ROLE_ID FOREIGN KEY (FROM_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_TO_PARTY_ID FOREIGN KEY (TO_PARTY_ID_FK) REFERENCES TB_D_PARTY (ID_PK)';
-            EXECUTE IMMEDIATE 'ALTER TABLE MIGR_TB_USER_MESSAGE ADD CONSTRAINT FK_USER_MSG_TO_ROLE_ID FOREIGN KEY (TO_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
-            DBMS_OUTPUT.PUT_LINE('Added FK back on MIGR_TB_USER_MESSAGE table');
-        EXCEPTION
-            WHEN OTHERS THEN
-                DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
-        END;
-    END migrate_user_message_post;
 
     /**- TB_SEND_ATTEMPT data migration --*/
     PROCEDURE migrate_send_attempt IS
+        v_tab        VARCHAR2(30) := 'TB_SEND_ATTEMPT';
+        v_tab_new    VARCHAR2(30) := 'MIGR_TB_SEND_ATTEMPT';
+        CURSOR c_send_attempt IS
+            SELECT SA.ID_PK,
+                   SA.START_DATE,
+                   SA.END_DATE,
+                   SA.STATUS,
+                   SA.ERROR,
+                   SA.CREATION_TIME,
+                   SA.CREATED_BY,
+                   SA.MODIFICATION_TIME,
+                   SA.MODIFIED_BY,
+                   UM.ID_PK USER_MESSAGE_ID_FK
+            FROM TB_SEND_ATTEMPT SA,
+                 TB_MESSAGE_INFO MI,
+                 TB_USER_MESSAGE UM
+            WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK
+              AND MI.MESSAGE_ID = SA.MESSAGE_ID;
+        TYPE T_SEND_ATTEMPT IS TABLE OF c_send_attempt%ROWTYPE;
+        send_attempt T_SEND_ATTEMPT;
+        v_batch_no   INT          := 1;
     BEGIN
-        /** TODO missing */
-        DBMS_OUTPUT.PUT_LINE('');
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_send_attempt;
+        LOOP
+            FETCH c_send_attempt BULK COLLECT INTO send_attempt;
+            EXIT WHEN send_attempt.COUNT = 0;
+
+            FOR i IN send_attempt.FIRST .. send_attempt.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, START_DATE, END_DATE, STATUS, ERROR, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10)'
+                            USING
+                            send_attempt(i).ID_PK,
+                            send_attempt(i).START_DATE,
+                            send_attempt(i).END_DATE,
+                            send_attempt(i).STATUS,
+                            send_attempt(i).ERROR,
+                            send_attempt(i).USER_MESSAGE_ID_FK,
+                            send_attempt(i).CREATION_TIME,
+                            send_attempt(i).CREATED_BY,
+                            send_attempt(i).MODIFICATION_TIME,
+                            send_attempt(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                    v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_send_attempt -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || send_attempt.COUNT || ' records in total into ' ||
+                        v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_send_attempt;
+
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
     END migrate_send_attempt;
 
     /**-- main entry point for running the migration --*/

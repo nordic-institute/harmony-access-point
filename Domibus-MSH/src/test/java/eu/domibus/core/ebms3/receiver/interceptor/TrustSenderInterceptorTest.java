@@ -37,8 +37,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -200,7 +200,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     @Test
     public void testCheckCertificateValidityEnabled() throws Exception {
         final X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null);
-        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant(ZoneOffset.UTC)), Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC)), null);
+        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant()), Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant()), null);
         List<Certificate> certificateChain = new ArrayList<>();
         certificateChain.add(certificate);
         List<Certificate> expiredCertificateChain = new ArrayList<>();
@@ -222,7 +222,7 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Test
     public void testCheckCertificateValidityDisabled() throws Exception {
-        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant(ZoneOffset.UTC)), Date.from(LocalDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant(ZoneOffset.UTC)), null);
+        final X509Certificate expiredCertificate = pkiUtil.createCertificate(BigInteger.ONE, Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(2).toInstant()), Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant()), null);
         List<Certificate> expiredCertificateChain = new ArrayList<>();
         expiredCertificateChain.add(expiredCertificate);
 

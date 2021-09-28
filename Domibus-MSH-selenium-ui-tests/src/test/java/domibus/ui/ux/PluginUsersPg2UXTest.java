@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import io.qameta.allure.*;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
@@ -25,21 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
-@Epic("Plugin Users")
-@Feature("UX")
 public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PLUGIN_USERS);
 
-	/*  PU-29 - Check sorting on the basis of Headers of Grid   */
-	@Description("PU-29 - Check sorting on the basis of Headers of Grid ")
-	@Link(name = "EDELIVERY-5239", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5239")
-	@AllureId("PU-29")
+    /* EDELIVERY-5239 - PU-29 - Check sorting on the basis of Headers of Grid  */
 	@Test(description = "PU-29", groups = {"multiTenancy", "singleTenancy"})
 	public void checkSorting() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
@@ -59,7 +49,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 		colDescs = descriptorObj.getJSONObject("grid").getJSONArray("cert_columns");
 
-		Allure.step("switching to CERT users");
 		log.info("switching to CERT users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		grid.waitForRowsToLoad();
@@ -75,10 +64,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/* EDELIVERY-5237 - PU-27 - Download all lists of users  */
-	@Description("PU-27 - Download all lists of users")
-	@Link(name = "EDELIVERY-5237", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5237")
-	@AllureId("PU-27")
+    /* EDELIVERY-5237 - PU-27 - Download all lists of users */
 	@Test(description = "PU-27", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadAsCSV() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
@@ -89,18 +75,15 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		String fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 		page.grid().sortBy("User Name");
 
-		Allure.step("set page size to 100");
 		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
 
@@ -108,18 +91,15 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 		page.grid().sortBy("Certificate Id");
 
-		Allure.step("set page size to 100");
 		log.info("set page size to 100");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
 
-		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
 
@@ -128,10 +108,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/*  PU-30 - Verify headers in downloaded CSV sheet   */
-	@Description("PU-30 - Verify headers in downloaded CSV sheet ")
-	@Link(name = "EDELIVERY-5240", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-5240")
-	@AllureId("PU-30")
+    /* EDELIVERY-5240 - PU-30 - Verify headers in downloaded CSV sheet  */
 	@Test(description = "PU-30", groups = {"multiTenancy", "singleTenancy"})
 	public void verifyCSVHeaders() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
@@ -142,14 +119,12 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		String fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
 
-		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
@@ -157,13 +132,11 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		fileName = page.pressSaveCsvAndSaveFile();
-		Allure.step("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
-		Allure.step("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
@@ -172,10 +145,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/*  PU-35 - Verify presence of confirmation pop up while saving plugin user  */
-	@Description("PU-35 - Verify presence of confirmation pop up while saving plugin user")
-	@Link(name = "EDELIVERY-6373", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6373")
-	@AllureId("PU-35")
+    /* EDELIVERY-6373 - PU-35 - Verify presence of confirmation pop up while saving plugin user */
 	@Test(description = "PU-35", groups = {"multiTenancy", "singleTenancy"})
 	public void verifyConfPopUp() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -191,26 +161,22 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 			page.filters.getAuthTypeSelect().selectOptionByText(auth);
 			page.grid().waitForRowsToLoad();
 
-			Allure.step("checking Cancel button state");
 			log.info("checking Cancel button state");
 			soft.assertFalse(page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
 
 			if (page.filters.getAuthTypeSelect().getSelectedValue().equals("BASIC")) {
 
-				Allure.step("filling form for new user  for BASIC auth type" + username);
 				log.info("filling form for new user  for BASIC auth type" + username);
 				page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 			} else {
 				String certUserName = "CN=" + Gen.randomAlphaNumeric(1) + "," + "O=" + Gen.randomAlphaNumeric(2) +
 						"," + "C=" + RandomStringUtils.random(2, true, false) + ":" + Gen.randomNumber(2);
 
-				Allure.step("filling form for new cert user for CERTIFICATION auth type :" + certUserName);
 				log.info("filling form for new cert user for CERTIFICATION auth type :" + certUserName);
 				page.newCertUser(certUserName, DRoles.ADMIN);
 			}
 
 			page.grid().waitForRowsToLoad();
-			Allure.step("checking Cancel button state");
 			log.info("checking Cancel button state");
 			soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
 
@@ -226,10 +192,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/*  PU-34 - Verify error while addition of Pluginuser with username super  SUPER in multitenant  */
-	@Description("PU-34 - Verify error while addition of Pluginuser with username super  SUPER in multitenant")
-	@Link(name = "EDELIVERY-6358", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6358")
-	@AllureId("PU-34")
+    /* EDELIVERY-6358 - PU-34 - Verify error while addition of Pluginuser with username super  SUPER in multitenant */
 	@Test(description = "PU-34", groups = {"multiTenancy"})
 	public void addSUPERPluginUsr() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -239,7 +202,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		for (String userToAdd : usernames) {
-			Allure.step("Username to be added" + userToAdd);
 			log.info("Username to be added" + userToAdd);
 			page.newUser(userToAdd, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
 			page.getSaveBtn().click();
@@ -252,7 +214,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 			} else {
 				soft.assertTrue(page.getAlertArea().getAlertMessage().contains("success"), "Success message is shown");
 
-				Allure.step("Logout and login again to confirm super user details remain same after addition of SUPER plugin user");
 				log.info("Logout and login again to confirm super user details remain same after addition of SUPER plugin user");
 				logout();
 				login(data.getAdminUser());
@@ -263,23 +224,18 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		}
 	}
 
-	/*  PU-37 - Edit certificate user and Cancel  */
-	@Description("PU-37 - Edit certificate user and Cancel")
-	@Link(name = "EDELIVERY-7195", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7195")
-	@AllureId("PU-37")
+    /* EDELIVERY-7195 - PU-37 - Edit certificate user and Cancel */
 	@Test(description = "PU-37", groups = {"multiTenancy", "singleTenancy"})
 	public void certificateUsrEditCancel() throws Exception {
 		String certName = Gen.randomAlphaNumeric(5);
 		String role = DRoles.USER;
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
 		rest.pluginUsers().createCertPluginUser(username, role, null);
-		Allure.step("new Certificate User " + username);
 		log.info("new Certificate User " + username);
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
-		Allure.step("Search CERTIFICATE type plugin users");
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -287,7 +243,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		Allure.step("Change Role of selected plugin user");
 		log.info("Change Role of selected plugin user");
 		pum.getRolesSelect().selectOptionByText(DRoles.ADMIN);
 		pum.getOkBtn().click();
@@ -299,23 +254,18 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*  PU-38 - Edit certificate user and Save  */
-	@Description("PU-38 - Edit certificate user and Save")
-	@Link(name = "EDELIVERY-7196", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7196")
-	@AllureId("PU-38")
+    /* EDELIVERY-7196 - PU-38 - Edit certificate user and Save */
 	@Test(description = "PU-38", groups = {"multiTenancy", "singleTenancy"})
 	public void editCertificateUsr() throws Exception {
 		String certName = Gen.randomAlphaNumeric(5);
 		String role = DRoles.USER;
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
 		rest.pluginUsers().createCertPluginUser(username, role, null);
-		Allure.step("new Certificate User " + username);
 		log.info("new Certificate User " + username);
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
-		Allure.step("Search CERTIFICATE type plugin users");
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -323,7 +273,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		Allure.step("Change Role of selected plugin user");
 		log.info("Change Role of selected plugin user");
 		pum.getRolesSelect().selectOptionByText(DRoles.ADMIN);
 		pum.getOkBtn().click();
@@ -335,10 +284,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*  PU-40 - Delete certificate user and Save  */
-	@Description("PU-40 - Delete certificate user and Save")
-	@Link(name = "EDELIVERY-7198", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7198")
-	@AllureId("PU-40")
+    /* EDELIVERY-7198 - PU-40 - Delete certificate user and Save */
 	@Test(description = "PU-40", groups = {"multiTenancy", "singleTenancy"})
 	public void delCertificateUsr() throws Exception {
 
@@ -346,17 +292,14 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		String role = DRoles.USER;
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
 		rest.pluginUsers().createCertPluginUser(username, role, null);
-		Allure.step("new Certificate User " + username);
 		log.info("new Certificate User " + username);
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
-		Allure.step("Search CERTIFICATE type plugin users");
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
-		Allure.step("index" + page.grid().getIndexOf(0, username));
 		log.info("index" + page.grid().getIndexOf(0, username));
 		page.grid().scrollToAndSelect("Certificate Id", username);
 
@@ -370,23 +313,18 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*  PU-39 - Delete certificate user and Cancel  */
-	@Description("PU-39 - Delete certificate user and Cancel")
-	@Link(name = "EDELIVERY-7197", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7197")
-	@AllureId("PU-39")
+    /* EDELIVERY-7197 - PU-39 - Delete certificate user and Cancel */
 	@Test(description = "PU-39", groups = {"multiTenancy", "singleTenancy"})
 	public void certificateUsrDelCancel() throws Exception {
 
 		String certName = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
 		rest.pluginUsers().createCertPluginUser(username, DRoles.USER, null);
-		Allure.step("new Certificate User " + username);
 		log.info("new Certificate User " + username);
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
-		Allure.step("Search CERTIFICATE type plugin users");
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -401,10 +339,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*  PU-44 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user  */
-	@Description("PU-44 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user")
-	@Link(name = "EDELIVERY-7202", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7202")
-	@AllureId("PU-44")
+    /* EDELIVERY-7202 - PU-44 - Original user field is mandatory when adding or editing CERTIFICATE plugin user with role user */
 	@Test(description = "PU-44", groups = {"multiTenancy", "singleTenancy"})
 	public void originalUserOnAddEdit() throws Exception {
 
@@ -414,7 +349,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
-		Allure.step("Search CERTIFICATE type plugin users");
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -423,7 +357,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		PluginUserModal pum = new PluginUserModal(driver);
 		pum.fillCertUserData(username, DRoles.USER);
 
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on add pop up ");
 		soft.assertTrue(pum.getOkBtn().isEnabled(), "Ok button is enabled after original user data entrance");
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
@@ -431,7 +364,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 		page.grid().scrollToAndSelect("Certificate Id", username);
 		page.getEditBtn().click();
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up ");
 		pum.getCancelBtn().click();
 
 		soft.assertAll();
@@ -439,10 +371,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 
-	/*  PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user  */
-	@Description("PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user")
-	@Link(name = "EDELIVERY-7201", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7201")
-	@AllureId("PU-43")
+    /* EDELIVERY-7201 - PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user */
 	@Test(description = "PU-43", groups = {"multiTenancy", "singleTenancy"})
 	public void originalUserOnRoleChange() throws Exception {
 
@@ -455,17 +384,14 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
-		Allure.step("Search CERTIFICATE type plugin users");
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
 		page.grid().scrollToAndSelect("Certificate Id", username);
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is not shown with * for Role_Admin ");
 
 		pum.getRolesSelect().selectOptionByText(DRoles.USER);
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * for Role_User ");
 		pum.getOriginalUserInput().fill(originalUser);
 
 		pum.getOkBtn().click();
@@ -475,10 +401,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*  PU-41 - Original user field is mandatory when adding or editing a BASIC plugin user with role user  */
-	@Description("PU-41 - Original user field is mandatory when adding or editing a BASIC plugin user with role user")
-	@Link(name = "EDELIVERY-7199", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7199")
-	@AllureId("PU-41")
+    /* EDELIVERY-7199 - PU-41 - Original user field is mandatory when adding or editing a BASIC plugin user with role user */
 	@Test(description = "PU-41", groups = {"multiTenancy", "singleTenancy"})
 	public void originalUserOnAddEditBasic() throws Exception {
 
@@ -492,7 +415,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.getNewBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
 		pum.fillData(username, DRoles.USER, data.defaultPass(), data.defaultPass());
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on add pop up ");
 
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
@@ -501,7 +423,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 		page.grid().scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on add pop up ");
 		pum.getOriginalUserInput().clear();
 		soft.assertTrue(pum.getOkBtn().isDisabled(), "Ok button is disabled");
 		pum.getOriginalUserInput().fill(originalUser);
@@ -515,10 +436,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*  PU-42 - Original user field is mandatory when editing BASIC plugin user to role user  */
-	@Description("PU-42 - Original user field is mandatory when editing BASIC plugin user to role user")
-	@Link(name = "EDELIVERY-7200", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7200")
-	@AllureId("PU-42")
+    /* EDELIVERY-7200 - PU-42 - Original user field is mandatory when editing BASIC plugin user to role user */
 	@Test(description = "PU-42", groups = {"multiTenancy", "singleTenancy"})
 	public void originalUserOnRoleChangeBasic() throws Exception {
 
@@ -533,11 +451,9 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		page.grid().scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is not shown with * on edit pop up for Role_Admin ");
 
 		pum.getRolesSelect().selectOptionByText(DRoles.USER);
 		pum.getOriginalUserInput().fill(originalUser);
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_User ");
 
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
@@ -548,10 +464,7 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 
 	}
 
-	/*  PU-45 - Create CERTIFICATE plugin user with duplicated certificate ID on different domain  */
-	@Description("PU-45 - Create CERTIFICATE plugin user with duplicated certificate ID on different domain")
-	@Link(name = "EDELIVERY-7206", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7206")
-	@AllureId("PU-45")
+    /* EDELIVERY-7206 - PU-45 - Create CERTIFICATE plugin user with duplicated certificate ID on different domain */
 	@Test(description = "PU-45", groups = {"multiTenancy"})
 	public void duplicatCertUserDiffDomain() throws Exception {
 
@@ -563,7 +476,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 		String certName = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
 		rest.pluginUsers().createCertPluginUser(username, DRoles.USER, domainName);
-		Allure.step("new Certificate User " + username);
 		log.info("new Certificate User " + username);
 
 		page.getDomainSelector().selectAnotherDomain();
@@ -585,7 +497,6 @@ public class PluginUsersPg2UXTest extends SeleniumTest {
 	}
 
 	private PluginUsersPage navigateToPluginUserPage() throws Exception {
-		Allure.step("logged in");
 		log.info("logged in");
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);

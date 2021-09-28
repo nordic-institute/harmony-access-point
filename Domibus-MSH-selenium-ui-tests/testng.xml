@@ -24,7 +24,12 @@
             </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
-            <class name="domibus.ui.ux.LoggingPgUXTest"/>
+            <class name="domibus.ui.ux.LoggingPgUXTest">
+                <methods>
+                    <!--                 EDELIVERY-8463   -->
+                    <exclude name="gridNotSortable"/>
+                </methods>
+            </class>
             <class name="domibus.ui.ux.MessagesPgUXTest">
                 <methods>
                     <exclude name="csvFileDownloadHeaders"/>
@@ -58,7 +63,7 @@
             </class>
             <class name="domibus.ui.ux.UsersPgUXTest">
                 <methods>
-<!--            disabled due to bug EDELIVERY-8340        -->
+                    <!--            disabled due to bug EDELIVERY-8340        -->
                     <exclude name="csvFileDownload"/>
                 </methods>
             </class>
@@ -80,12 +85,17 @@
     <test name="LowDataReq">
         <classes>
             <class name="domibus.ui.functional.AuditPgTest">
+                <methods>
+                    <exclude name="jmsMoveEvent"></exclude>
+                </methods>
             </class>
             <class name="domibus.ui.functional.AlertPgTest">
                 <methods>
                     <!--                    CSV header inconsistency -->
                     <exclude name="downloadCsv"></exclude>
                     <exclude name="verifyHeaders"></exclude>
+                    <!--                    bug EDELIVERY-8466    -->
+                    <exclude name="checkProcessed"></exclude>
 
                 </methods>
             </class>
@@ -104,10 +114,7 @@
             </class>
             <class name="domibus.ui.functional.AccessRightsTest"/>
             <class name="domibus.ui.functional.LoggingPgTest">
-                <methods>
-                    <!--                    grid is not sortable but columns are marked when clicked-->
-                    <exclude name="gridNotSortable"></exclude>
-                </methods>
+
             </class>
 
             <class name="domibus.ui.functional.PluginUsersPgTest"></class>
@@ -155,7 +162,8 @@
 
                     <!--depends on a cron running and it is unreliable -->
                     <exclude name="updateSuspensionTime"/>
-                </methods></class>
+                </methods>
+            </class>
             <class name="domibus.ui.functional.Properties2PgTest">
                 <methods>
                     <!--                    need fixes -->

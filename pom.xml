@@ -156,6 +156,7 @@
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <commons-text.version>1.8</commons-text.version>
+        <commons-ip2.version>2.0.0-alpha1</commons-ip2.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -216,6 +217,11 @@
         <repository>
             <id>SmartBearDependencyRepository</id>
             <url>https://www.soapui.org/repository/maven2</url>
+        </repository>
+        <repository>
+            <id>KEEPS-Artifacts</id>
+            <name>KEEP Artifacts-releases</name>
+            <url>https://artifactory.keep.pt/artifactory/keep</url>
         </repository>
     </repositories>
 
@@ -668,6 +674,17 @@
                 <groupId>org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
                 <version>${neethi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.roda-project</groupId>
+                <artifactId>commons-ip2</artifactId>
+                <version>${commons-ip2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>

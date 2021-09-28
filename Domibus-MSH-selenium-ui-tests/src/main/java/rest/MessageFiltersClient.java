@@ -39,7 +39,7 @@ public class MessageFiltersClient extends BaseRestClient {
 		}
 	}
 	
-	public int createMessageFilter(String plugin, String from, String to, String action, String service, String domain) throws Exception {
+	public Long createMessageFilter(String plugin, String from, String to, String action, String service, String domain) throws Exception {
 		
 		switchDomain(domain);
 		
@@ -97,9 +97,9 @@ public class MessageFiltersClient extends BaseRestClient {
 					continue;
 				}
 			}
-			return newFilters.getJSONObject(i).getInt("entityId");
+			return newFilters.getJSONObject(i).getLong("entityId");
 		}
-		return -1;
+		return -1L;
 	}
 	
 	public void saveMessageFilters(JSONArray filters, String domain) throws Exception {
