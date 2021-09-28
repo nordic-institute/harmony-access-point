@@ -238,12 +238,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public byte[] getTruststoreContentFromFile(Domain domain) {
         String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        return certificateService.getTruststoreContent(location);
+        return certificateService.getTruststoreContentFromFile(location);
     }
 
     public byte[] getKeystoreContentFromFile(Domain domain) {
         String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
-        return certificateService.getTruststoreContent(location);
+        return certificateService.getTruststoreContentFromFile(location);
     }
 
     public void persistTruststoresIfApplicable() {
@@ -264,11 +264,11 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         }, domain);
     }
 
-    public final static String DomibusTruststoreType = "domibus.truststore";
-    public final static String DomibusKeystoreType = "domibus.keystore";
+    public final static String DomibusTruststore = "domibus.truststore";
+    public final static String DomibusKeystore = "domibus.keystore";
 
     private void persistCurrentDomainTruststoreIfApplicable() {
-        if (truststoreDao.existsWithType(DomibusTruststoreType)) {
+        if (truststoreDao.existsWithName(DomibusTruststore)) {
             return;
         }
 
@@ -281,13 +281,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         }
 
         Truststore entity = new Truststore();
-        entity.setType(DomibusTruststoreType);
+        entity.setType(DomibusTruststore);
         entity.setContent(content);
         truststoreDao.create(entity);
     }
 
     private void persistCurrentDomainKeystoreIfApplicable() {
-        if (truststoreDao.existsWithType(DomibusKeystoreType)) {
+        if (truststoreDao.existsWithName(DomibusKeystore)) {
             return;
         }
 
@@ -300,7 +300,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         }
 
         Truststore entity = new Truststore();
-        entity.setType(DomibusKeystoreType);
+        entity.setType(DomibusKeystore);
         entity.setContent(content);
         truststoreDao.create(entity);
     }

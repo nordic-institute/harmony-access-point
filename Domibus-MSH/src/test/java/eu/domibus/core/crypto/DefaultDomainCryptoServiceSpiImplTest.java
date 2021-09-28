@@ -164,32 +164,32 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         Assert.assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
     }
 
-    @Test
-    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
-        // Given
-        new Expectations(domainCryptoService) {{
-            domainCryptoService.getTrustStoreType();
-            result = type;
-            domainCryptoService.getTrustStoreLocation();
-            result = location;
-            domainCryptoService.getTrustStorePassword();
-            result = password;
-            domainCryptoService.getTrustStoreBackUpLocation();
-            result = backupLocation;
-            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
-            domainCryptoService.refreshTrustStore();
-            signalService.signalTrustStoreUpdate(domain);
-        }};
-
-        // When
-        domainCryptoService.replaceTrustStore(store, password);
-
-        // Then
-        new Verifications() {{
-            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
-            domainCryptoService.refreshTrustStore();
-            signalService.signalTrustStoreUpdate(domain);
-        }};
-    }
+//    @Test
+//    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
+//        // Given
+//        new Expectations(domainCryptoService) {{
+//            domainCryptoService.getTrustStoreType();
+//            result = type;
+//            domainCryptoService.getTrustStoreLocation();
+//            result = location;
+//            domainCryptoService.getTrustStorePassword();
+//            result = password;
+//            domainCryptoService.getTrustStoreBackUpLocation();
+//            result = backupLocation;
+//            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
+//            domainCryptoService.refreshTrustStore();
+//            signalService.signalTrustStoreUpdate(domain);
+//        }};
+//
+//        // When
+//        domainCryptoService.replaceTrustStore(store, password);
+//
+//        // Then
+//        new Verifications() {{
+//            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
+//            domainCryptoService.refreshTrustStore();
+//            signalService.signalTrustStoreUpdate(domain);
+//        }};
+//    }
 
 }

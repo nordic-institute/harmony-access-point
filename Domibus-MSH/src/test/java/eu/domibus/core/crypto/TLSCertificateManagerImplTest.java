@@ -59,7 +59,7 @@ public class TLSCertificateManagerImplTest {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+            certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword(), trustStore.getType());
             result = entries;
         }};
 
@@ -67,7 +67,7 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertEquals(entries, result);
         new Verifications() {{
-            certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+            certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword(), trustStore.getType());
         }};
     }
 
@@ -76,7 +76,7 @@ public class TLSCertificateManagerImplTest {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.getTruststoreContent(trustStore.getFile());
+            certificateService.getTruststoreContentFromFile(trustStore.getFile());
             result = content;
         }};
 
@@ -84,7 +84,7 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertEquals(content, result);
         new Verifications() {{
-            certificateService.getTruststoreContent(trustStore.getFile());
+            certificateService.getTruststoreContentFromFile(trustStore.getFile());
         }};
     }
 
@@ -93,7 +93,7 @@ public class TLSCertificateManagerImplTest {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, backupLocation);
+            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), certificateData, alias, true, backupLocation);
             result = true;
         }};
 
@@ -101,7 +101,7 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, backupLocation);
+            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), certificateData, alias, true, backupLocation);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
@@ -111,7 +111,7 @@ public class TLSCertificateManagerImplTest {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, backupLocation);
+            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), alias, backupLocation);
             result = true;
         }};
 
@@ -119,7 +119,7 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, backupLocation);
+            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), alias, backupLocation);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }

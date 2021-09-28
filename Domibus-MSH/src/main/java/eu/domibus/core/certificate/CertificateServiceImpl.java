@@ -329,7 +329,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public byte[] getTruststoreContent(String location) {
+    public byte[] getTruststoreContentFromFile(String location) {
         File file = createFileWithLocation(location);
         Path path = Paths.get(file.getAbsolutePath());
         try {
@@ -355,43 +355,43 @@ public class CertificateServiceImpl implements CertificateService {
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
                                   String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) {
         certificateHelper.validateStoreType(trustType, fileName);
-        replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword, trustStoreBackupLocation);
+        replaceTrustStore2(fileContent, filePassword, trustType, trustLocation, trustPassword, trustStoreBackupLocation);
     }
 
-    @Override
-    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
-        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
-
-//        KeyStore truststore = loadTrustStore(fileContent, filePassword);
-        KeyStore truststore = this.getTrustStore(trustLocation, trustPassword);
-        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
-            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
-            try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
-                validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
-                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-                LOG.debug("Truststore successfully loaded");
-                persistTrustStore(truststore, trustPassword, trustLocation, trustStoreBackupLocation);
-                LOG.debug("Truststore successfully persisted");
-            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-                LOG.error("Could not replace truststore", e);
-                try {
-                    truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
-                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
-                }
-                throw new CryptoException(e);
-            }
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
-            throw new CryptoException("Could not replace truststore", exc);
-        }
-    }
+//    @Override
+//    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
+//        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
+//
+////        KeyStore truststore = loadTrustStore(fileContent, filePassword);
+//        KeyStore truststore = this.getTrustStore(trustLocation, trustPassword, trustType);
+//        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
+//            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
+//            try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+//                validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
+//                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
+//                LOG.debug("Truststore successfully loaded");
+//                persistTrustStore(truststore, trustPassword, trustLocation, trustStoreBackupLocation);
+//                LOG.debug("Truststore successfully persisted");
+//            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+//                LOG.error("Could not replace truststore", e);
+//                try {
+//                    truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
+//                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+//                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+//                }
+//                throw new CryptoException(e);
+//            }
+//        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+//            throw new CryptoException("Could not replace truststore", exc);
+//        }
+//    }
 
     @Override
     public void replaceTrustStore2(byte[] fileContent, String filePassword, String trustType, String trustName, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
         LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
 
-        byte[] content = getTruststoreContentFromDB(trustName);
-        KeyStore truststore = loadTrustStore(content, trustPassword);
+//        byte[] content = getTruststoreContentFromDB(trustName);
+        KeyStore truststore = getTrustStore(trustName, trustPassword, trustType);
         try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
             truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
             try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
@@ -416,28 +416,31 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword) {
-        try (InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation))) {
-            return loadTrustStore(contentStream, trustStorePassword);
-        } catch (Exception ex) {
-            throw new CryptoException("Exception loading truststore.", ex);
-        }
+    public KeyStore getTrustStore(String name, String password, String type) {
+        byte[] content = getTruststoreContent(name);
+        return loadTrustStore(content, password, type);
+
+//        try (InputStream contentStream = Files.newInputStream(Paths.get(location))) {
+//            return loadTrustStore(contentStream, password, type);
+//        } catch (Exception ex) {
+//            throw new CryptoException("Exception loading truststore.", ex);
+//        }
     }
 
     @Override
-    public List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword) {
-        final KeyStore store = getTrustStore(trustStoreLocation, trustStorePassword);
+    public List<TrustStoreEntry> getTrustStoreEntries(String name, String password, String type) {
+        final KeyStore store = getTrustStore(name, password, type);
         return getTrustStoreEntries(store);
     }
 
     @Override
-    public boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite, String trustStoreBackupLocation) {
+    public boolean addCertificate(String password, String location, String type, byte[] certificateContent, String alias, boolean overwrite, String backupLocation) {
         X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
 
-        KeyStore trustStore = getTrustStore(trustStoreLocation, trustStorePassword);
+        KeyStore trustStore = getTrustStore(location, password, type);
 
-        return doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, trustStoreBackupLocation);
+        return doAddCertificates(trustStore, password, location, certificates, overwrite, backupLocation);
     }
 
     @Override
@@ -446,10 +449,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean removeCertificate(String trustStorePassword, String trustStoreLocation, String alias, String trustStoreBackupLocation) {
-        KeyStore trustStore = getTrustStore(trustStoreLocation, trustStorePassword);
+    public boolean removeCertificate(String password, String location, String type, String alias, String backupLocation) {
+        KeyStore trustStore = getTrustStore(location, password,type);
         List<String> aliases = Arrays.asList(alias);
-        return doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, aliases, trustStoreBackupLocation);
+        return doRemoveCertificates(trustStore, password, location, aliases, backupLocation);
     }
 
     @Override
@@ -533,10 +536,9 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    @Override
-    public KeyStore loadTrustStore(byte[] content, String password) {
+    private KeyStore loadTrustStore(byte[] content, String password, String type) {
         try (InputStream contentStream = new ByteArrayInputStream(content)) {
-            return loadTrustStore(contentStream, password);
+            return loadTrustStore(contentStream, password, type);
         } catch (Exception ex) {
             throw new ConfigurationException("Exception loading truststore.", ex);
         }
@@ -546,15 +548,15 @@ public class CertificateServiceImpl implements CertificateService {
     TruststoreDao truststoreDao;
 
     @Override
-    public byte[] getTruststoreContentFromDB(String type) {
-        Truststore res = truststoreDao.findByType(type);
+    public byte[] getTruststoreContent(String name) {
+        Truststore res = truststoreDao.findByName(name);
         return res.getContent();
     }
 
-    protected KeyStore loadTrustStore(InputStream contentStream, String password) {
-        KeyStore truststore = null;
+    protected KeyStore loadTrustStore(InputStream contentStream, String password, String type) {
+        KeyStore truststore;
         try {
-            truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+            truststore = KeyStore.getInstance(type); //KeyStore.getDefaultType()
             truststore.load(contentStream, password.toCharArray());
         } catch (Exception ex) {
             throw new ConfigurationException("Exception loading truststore.", ex);
@@ -611,7 +613,7 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             truststore.store(byteStream, password.toCharArray());
             byte[] content = byteStream.toByteArray();
-            Truststore entity = truststoreDao.findByType(trustStoreName);
+            Truststore entity = truststoreDao.findByName(trustStoreName);
             entity.setContent(content);
             truststoreDao.update(entity);
         } catch (Exception e) {

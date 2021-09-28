@@ -58,26 +58,26 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     public List<TrustStoreEntry> getTrustStoreEntries() {
         KeyStoreType trustStore = getTruststoreParams();
 
-        return certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+        return certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword(), trustStore.getType());
     }
 
     @Override
     // todo schimbat sa ia din BD
     public byte[] getTruststoreContent() {
         KeyStoreType trustStore = getTruststoreParams();
-        return certificateService.getTruststoreContent(trustStore.getFile());
+        return certificateService.getTruststoreContentFromFile(trustStore.getFile());
     }
 
     @Override
     public byte[] getTruststoreContentFromFile() {
         KeyStoreType trustStore = getTruststoreParams();
-        return certificateService.getTruststoreContent(trustStore.getFile());
+        return certificateService.getTruststoreContentFromFile(trustStore.getFile());
     }
 
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias, String trustStoreBackupLocation) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, trustStoreBackupLocation);
+        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), certificateData, alias, true, trustStoreBackupLocation);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -88,7 +88,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     @Override
     public synchronized boolean removeCertificate(String alias, String trustStoreBackupLocation) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, trustStoreBackupLocation);
+        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), alias, trustStoreBackupLocation);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -124,7 +124,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     final static String trustType = "TLS";
 
     private void persistCurrentDomainTruststoreIfNecessarry() {
-        if (truststoreDao.existsWithType(trustType)) {
+        if (truststoreDao.existsWithName(trustType)) {
             return;
         }
         // todo check if this method also loads the cert, in which case, find another approach

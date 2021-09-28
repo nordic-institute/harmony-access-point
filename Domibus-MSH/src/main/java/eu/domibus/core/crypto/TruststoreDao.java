@@ -16,15 +16,15 @@ public class TruststoreDao extends BasicDao<Truststore> {
         super(Truststore.class);
     }
 
-    public Truststore findByType(String type) {
+    public Truststore findByName(String name) {
         Query q = em.createNamedQuery("Truststore.findByType", Truststore.class);
-        q.setParameter("TYPE", type);
+        q.setParameter("TYPE", name);
         return (Truststore) q.getSingleResult();
     }
 
-    public boolean existsWithType(String type) {
+    public boolean existsWithName(String name) {
         Query q = em.createNamedQuery("Truststore.countByType", Long.class);
-        q.setParameter("TYPE", type);
+        q.setParameter("TYPE", name);
         return (Long) q.getSingleResult() > 0;
     }
 
