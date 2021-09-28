@@ -129,7 +129,7 @@ public class MessagingServiceImpl implements MessagingService {
 
         final String messageId = userMessage.getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");
-        userMessageService.scheduleSourceMessageSending(messageId);
+        userMessageService.scheduleSourceMessageSending(messageId, userMessage.getEntityId());
     }
 
     protected void setPayloadsContentType(List<PartInfo> partInfoList) {

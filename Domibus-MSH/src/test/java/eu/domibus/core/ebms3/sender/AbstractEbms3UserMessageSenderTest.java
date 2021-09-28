@@ -182,7 +182,7 @@ public class AbstractEbms3UserMessageSenderTest {
 
             ReliabilityChecker.CheckResult checkResultActual;
 
-            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), response, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, response, responseResult, legConfiguration, null);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
         }};
@@ -284,7 +284,7 @@ public class AbstractEbms3UserMessageSenderTest {
 
         new FullVerifications(abstractUserMessageSender) {{
             ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
+            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, null, legConfiguration, null);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), MSHRole.SENDING, userMessage);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
@@ -386,6 +386,7 @@ public class AbstractEbms3UserMessageSenderTest {
                     userMessage,
                     userMessageLog,
                     checkResultActual = withCapture(),
+                    null,
                     response,
                     null,
                     legConfiguration,
@@ -459,7 +460,7 @@ public class AbstractEbms3UserMessageSenderTest {
 
         new Verifications() {{
             ReliabilityChecker.CheckResult checkResultActual;
-            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, legConfiguration, null);
+            reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, null, legConfiguration, null);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
         }};
     }
