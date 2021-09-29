@@ -4,6 +4,7 @@ import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
@@ -53,8 +54,8 @@ public class DomibusContextRefreshedListener {
     @Autowired
     MultiDomainCryptoService multiDomainCryptoService;
 
-//    @Autowired
-//    TLSCertificateManager tlsCertificateManager;
+    @Autowired
+    TLSCertificateManager tlsCertificateManager;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
@@ -87,6 +88,7 @@ public class DomibusContextRefreshedListener {
         messageDictionaryService.createStaticDictionaryEntries();
 
         multiDomainCryptoService.persistTruststoresIfApplicable();
+        tlsCertificateManager.persistTruststoresIfApplicable();
     }
 
     /**

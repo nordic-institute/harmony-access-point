@@ -399,7 +399,7 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.load(newTrustStoreBytes, filePassword.toCharArray());
                 LOG.debug("Truststore successfully loaded");
 
-                persistTrustStore2(truststore, trustPassword, trustName, trustStoreBackupLocation);
+                persistTrustStore(truststore, trustPassword, trustName, trustStoreBackupLocation);
                 LOG.debug("Truststore successfully persisted");
             } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
                 LOG.error("Could not replace truststore", e);
@@ -568,34 +568,34 @@ public class CertificateServiceImpl implements CertificateService {
         return truststore;
     }
 
-    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) throws CryptoException {
-        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
-        File trustStoreFile = createFileWithLocation(trustStoreLocation);
-        if (!trustStoreFile.getParentFile().exists()) {
-            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
-            try {
-                FileUtils.forceMkdir(trustStoreFile.getParentFile());
-            } catch (IOException e) {
-                throw new CryptoException("Could not create parent directory for truststore", e);
-            }
-        }
-        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
-        backupTrustStore(trustStoreFile, trustStoreBackupLocation);
+//    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) throws CryptoException {
+//        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
+//        File trustStoreFile = createFileWithLocation(trustStoreLocation);
+//        if (!trustStoreFile.getParentFile().exists()) {
+//            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
+//            try {
+//                FileUtils.forceMkdir(trustStoreFile.getParentFile());
+//            } catch (IOException e) {
+//                throw new CryptoException("Could not create parent directory for truststore", e);
+//            }
+//        }
+//        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
+//        backupTrustStore(trustStoreFile, trustStoreBackupLocation);
+//
+//        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
+//        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
+//            truststore.store(fileOutputStream, password.toCharArray());
+//        } catch (FileNotFoundException ex) {
+//            LOG.error("Could not persist truststore:", ex);
+//            //we address this exception separately
+//            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
+//            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
+//        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
+//            throw new CryptoException("Could not persist truststore:", e);
+//        }
+//    }
 
-        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
-            truststore.store(fileOutputStream, password.toCharArray());
-        } catch (FileNotFoundException ex) {
-            LOG.error("Could not persist truststore:", ex);
-            //we address this exception separately
-            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
-            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
-        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
-            throw new CryptoException("Could not persist truststore:", e);
-        }
-    }
-
-    protected void persistTrustStore2(KeyStore truststore, String password, String trustStoreName, String trustStoreBackupLocation) throws CryptoException {
+    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreName, String trustStoreBackupLocation) throws CryptoException {
 //        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
 //        File trustStoreFile = createFileWithLocation(trustStoreLocation);
 //        if (!trustStoreFile.getParentFile().exists()) {

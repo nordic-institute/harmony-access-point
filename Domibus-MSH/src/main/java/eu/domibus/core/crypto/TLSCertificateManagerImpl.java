@@ -45,39 +45,36 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustStoreBackupLocation) throws CryptoException {
-        KeyStoreType trustStore = getTruststoreParams();
+    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String backupLocation) throws CryptoException {
+        KeyStoreType params = getTruststoreParams();
 
-        certificateService.replaceTrustStore(fileName, fileContent, filePassword,
-                trustStore.getType(), trustStore.getFile(), trustStore.getPassword(), trustStoreBackupLocation);
+        certificateService.replaceTrustStore(fileName, fileContent, filePassword, params.getType(), TLS_TRUSTSTORE_NAME, params.getPassword(), backupLocation);
 
         resetTLSTruststore();
     }
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        KeyStoreType trustStore = getTruststoreParams();
-
-        return certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword(), trustStore.getType());
+        KeyStoreType params = getTruststoreParams();
+        return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME, params.getPassword(), params.getType());
     }
 
     @Override
-    // todo schimbat sa ia din BD
     public byte[] getTruststoreContent() {
-        KeyStoreType trustStore = getTruststoreParams();
-        return certificateService.getTruststoreContentFromFile(trustStore.getFile());
+        KeyStoreType params = getTruststoreParams();
+        return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
     public byte[] getTruststoreContentFromFile() {
-        KeyStoreType trustStore = getTruststoreParams();
-        return certificateService.getTruststoreContentFromFile(trustStore.getFile());
+        KeyStoreType params = getTruststoreParams();
+        return certificateService.getTruststoreContentFromFile(params.getFile());
     }
 
     @Override
-    public synchronized boolean addCertificate(byte[] certificateData, String alias, String trustStoreBackupLocation) {
-        KeyStoreType trustStore = getTruststoreParams();
-        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), certificateData, alias, true, trustStoreBackupLocation);
+    public synchronized boolean addCertificate(byte[] certificateData, String alias, String backupLocation) {
+        KeyStoreType params = getTruststoreParams();
+        boolean added = certificateService.addCertificate(params.getPassword(), TLS_TRUSTSTORE_NAME, params.getType(), certificateData, alias, true, backupLocation);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -86,9 +83,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public synchronized boolean removeCertificate(String alias, String trustStoreBackupLocation) {
-        KeyStoreType trustStore = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), trustStore.getType(), alias, trustStoreBackupLocation);
+    public synchronized boolean removeCertificate(String alias, String backupLocation) {
+        KeyStoreType params = getTruststoreParams();
+        boolean deleted = certificateService.removeCertificate(params.getPassword(), TLS_TRUSTSTORE_NAME, params.getType(), alias, backupLocation);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -106,31 +103,32 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     TruststoreDao truststoreDao;
 
     @Override
-    public void persistTruststoresIfNecessarry() {
+    public void persistTruststoresIfApplicable() {
         LOG.debug("Creating encryption key for all domains if not yet exists");
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            persistTruststoreIfNecessarry(domain);
+            persistTruststoreIfApplicable(domain);
         }
 
         LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
-    private void persistTruststoreIfNecessarry(Domain domain) {
-        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfNecessarry(), domain);
+    private void persistTruststoreIfApplicable(Domain domain) {
+        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(), domain);
     }
 
-    final static String trustType = "TLS";
+    final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
-    private void persistCurrentDomainTruststoreIfNecessarry() {
-        if (truststoreDao.existsWithName(trustType)) {
+    private void persistCurrentDomainTruststoreIfApplicable() {
+        if (truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME)) {
             return;
         }
         // todo check if this method also loads the cert, in which case, find another approach
         byte[] content = getTruststoreContentFromFile();
+        
         Truststore entity = new Truststore();
-        entity.setType(trustType);
+        entity.setType(TLS_TRUSTSTORE_NAME);
         entity.setContent(content);
         truststoreDao.create(entity);
     }

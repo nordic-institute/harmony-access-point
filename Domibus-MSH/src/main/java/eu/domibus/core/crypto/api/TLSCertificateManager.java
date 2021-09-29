@@ -57,5 +57,5 @@ public interface TLSCertificateManager {
      */
     boolean removeCertificate(String alias, String trustStoreBackupLocation);
 
-    void persistTruststoresIfNecessarry();
+    void persistTruststoresIfApplicable();
 }
