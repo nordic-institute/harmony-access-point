@@ -3231,7 +3231,7 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TRUSTSTORE"/>
             </column>
-            <column name="TYPE" type="VARCHAR(50)">
+            <column name="NAME" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
             <column name="CONTENT" type="LONGBLOB">
@@ -3246,7 +3246,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="TYPE" constraintName="UK_TYPE" tableName="TB_TRUSTSTORE"/>
+        <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
     </changeSet>
 
     <!-- End User Tables -->

@@ -92,47 +92,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         return deleted;
     }
 
-//    @Autowired
-//    protected DomainService domainService;
-//
-//    @Autowired
-//    protected DomainTaskExecutor domainTaskExecutor;
-//
-//    @Autowired
-//    TruststoreDao truststoreDao;
-
     final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
     @Override
     public void persistTruststoresIfApplicable() {
         certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, () -> getTruststoreParams().getFile());
-
-//        LOG.debug("Creating encryption key for all domains if not yet exists");
-//
-//        final List<Domain> domains = domainService.getDomains();
-//        for (Domain domain : domains) {
-//            persistTruststoreIfApplicable(domain);
-//        }
-//
-//        LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
-
-//    private void persistTruststoreIfApplicable(Domain domain) {
-//        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(), domain);
-//    }
-
-//    private void persistCurrentDomainTruststoreIfApplicable() {
-//        if (truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME)) {
-//            return;
-//        }
-//
-//        byte[] content = getTruststoreContentFromFile();
-//
-//        Truststore entity = new Truststore();
-//        entity.setType(TLS_TRUSTSTORE_NAME);
-//        entity.setContent(content);
-//        truststoreDao.create(entity);
-//    }
 
     protected KeyStoreType getTruststoreParams() {
         Domain domain = domainProvider.getCurrentDomain();

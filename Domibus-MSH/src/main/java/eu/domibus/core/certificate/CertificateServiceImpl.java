@@ -56,6 +56,7 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -356,16 +357,15 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                                  String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) {
+                                  String trustType, String trustLocation, String trustPassword, String backupLocation) {
         certificateHelper.validateStoreType(trustType, fileName);
-        replaceTrustStore2(fileContent, filePassword, trustType, trustLocation, trustPassword, trustStoreBackupLocation);
+        replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword, backupLocation);
     }
 
 //    @Override
-//    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
+//    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword, String backupLocation) throws CryptoException {
 //        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
 //
-////        KeyStore truststore = loadTrustStore(fileContent, filePassword);
 //        KeyStore truststore = this.getTrustStore(trustLocation, trustPassword, trustType);
 //        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
 //            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
@@ -373,7 +373,7 @@ public class CertificateServiceImpl implements CertificateService {
 //                validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
 //                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
 //                LOG.debug("Truststore successfully loaded");
-//                persistTrustStore(truststore, trustPassword, trustLocation, trustStoreBackupLocation);
+//                persistTrustStore(truststore, trustPassword, trustLocation, backupLocation);
 //                LOG.debug("Truststore successfully persisted");
 //            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
 //                LOG.error("Could not replace truststore", e);
@@ -390,10 +390,9 @@ public class CertificateServiceImpl implements CertificateService {
 //    }
 
     @Override
-    public void replaceTrustStore2(byte[] fileContent, String filePassword, String trustType, String trustName, String trustPassword, String trustStoreBackupLocation) throws CryptoException {
+    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustName, String trustPassword, String backupLocation) throws CryptoException {
         LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
 
-//        byte[] content = getTruststoreContentFromDB(trustName);
         KeyStore truststore = getTrustStore(trustName, trustPassword, trustType);
         try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
             truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
@@ -402,7 +401,7 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.load(newTrustStoreBytes, filePassword.toCharArray());
                 LOG.debug("Truststore successfully loaded");
 
-                persistTrustStore(truststore, trustPassword, trustName, trustStoreBackupLocation);
+                persistTrustStore(truststore, trustPassword, trustName, backupLocation);
                 LOG.debug("Truststore successfully persisted");
             } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
                 LOG.error("Could not replace truststore", e);
@@ -447,8 +446,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite, String trustStoreBackupLocation) {
-        return doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, trustStoreBackupLocation);
+    public boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite, String backupLocation) {
+        return doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, backupLocation);
     }
 
     @Override
@@ -459,12 +458,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation) {
-        return doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, aliases, trustStoreBackupLocation);
+    public boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String backupLocation) {
+        return doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, aliases, backupLocation);
     }
 
     protected boolean doAddCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation,
-                                        List<CertificateEntry> certificates, boolean overwrite, String trustStoreBackupLocation) {
+                                        List<CertificateEntry> certificates, boolean overwrite, String backupLocation) {
         int addedNr = 0;
         for (CertificateEntry certificateEntry : certificates) {
             boolean added = doAddCertificate(trustStore, certificateEntry.getCertificate(), certificateEntry.getAlias(), overwrite);
@@ -474,14 +473,14 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (addedNr > 0) {
             LOG.trace("Added [{}] certificates so persisting the truststore.");
-            persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, trustStoreBackupLocation);
+            persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, backupLocation);
             return true;
         }
         LOG.trace("Added 0 certificates so exiting without persisting the truststore.");
         return false;
     }
 
-    protected boolean doRemoveCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation) {
+    protected boolean doRemoveCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String backupLocation) {
         int removedNr = 0;
         for (String alias : aliases) {
             boolean removed = doRemoveCertificate(trustStore, alias);
@@ -491,7 +490,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (removedNr > 0) {
             LOG.trace("Removed [{}] certificates so persisting the truststore.");
-            persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, trustStoreBackupLocation);
+            persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, backupLocation);
             return true;
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the truststore.");
@@ -571,7 +570,7 @@ public class CertificateServiceImpl implements CertificateService {
         return truststore;
     }
 
-//    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) throws CryptoException {
+//    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String backupLocation) throws CryptoException {
 //        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
 //        File trustStoreFile = createFileWithLocation(trustStoreLocation);
 //        if (!trustStoreFile.getParentFile().exists()) {
@@ -583,7 +582,7 @@ public class CertificateServiceImpl implements CertificateService {
 //            }
 //        }
 //        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
-//        backupTrustStore(trustStoreFile, trustStoreBackupLocation);
+//        backupTrustStore(trustStoreFile, backupLocation);
 //
 //        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
 //        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
@@ -599,16 +598,29 @@ public class CertificateServiceImpl implements CertificateService {
 //    }
 
 
-    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreName, String trustStoreBackupLocation) throws CryptoException {
+    protected void persistTrustStore(KeyStore truststore, String password, String name, String backupLocation) throws CryptoException {
+        backupTrustStore(name);
+
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             truststore.store(byteStream, password.toCharArray());
             byte[] content = byteStream.toByteArray();
-            Truststore entity = truststoreDao.findByName(trustStoreName);
+
+            Truststore entity = truststoreDao.findByName(name);
             entity.setContent(content);
             truststoreDao.update(entity);
         } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
         }
+    }
+
+    private void backupTrustStore(String name) {
+        Truststore entity = truststoreDao.findByName(name);
+
+        Truststore backup = new Truststore();
+        backup.setContent(entity.getContent());
+        backup.setName(entity.getName() + ".backup." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) );
+
+        truststoreDao.create(backup);
     }
 
     @Autowired
@@ -641,27 +653,27 @@ public class CertificateServiceImpl implements CertificateService {
         byte[] content = getTruststoreContentFromFile(filePath);
 
         Truststore entity = new Truststore();
-        entity.setType(name);
+        entity.setName(name);
         entity.setContent(content);
         truststoreDao.create(entity);
     }
 
-    protected void backupTrustStore(File trustStoreFile, String trustStoreBackupLocation) throws CryptoException {
-        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
-            LOG.warn("Truststore file was null, nothing to backup!");
-            return;
-        }
-        if (!trustStoreFile.exists()) {
-            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
-            return;
-        }
-
-        try {
-            backupService.backupFileInLocation(trustStoreFile, trustStoreBackupLocation);
-        } catch (IOException e) {
-            throw new CryptoException("Could not create backup file for truststore", e);
-        }
-    }
+//    protected void backupTrustStore(File trustStoreFile, String backupLocation) throws CryptoException {
+//        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
+//            LOG.warn("Truststore file was null, nothing to backup!");
+//            return;
+//        }
+//        if (!trustStoreFile.exists()) {
+//            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
+//            return;
+//        }
+//
+//        try {
+//            backupService.backupFileInLocation(trustStoreFile, backupLocation);
+//        } catch (IOException e) {
+//            throw new CryptoException("Could not create backup file for truststore", e);
+//        }
+//    }
 
     protected void closeStream(Closeable stream) {
         try {

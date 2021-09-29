@@ -150,10 +150,7 @@ public interface CertificateService {
      * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @throws CryptoException
      */
-//    void replaceTrustStore(byte[] fileContent, String filePassword,
-//                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
-
-    void replaceTrustStore2(byte[] fileContent, String filePassword,
+    void replaceTrustStore(byte[] fileContent, String filePassword,
                            String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
 
     /**

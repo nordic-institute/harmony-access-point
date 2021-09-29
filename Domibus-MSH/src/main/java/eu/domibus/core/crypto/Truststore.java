@@ -15,34 +15,34 @@ import javax.validation.constraints.NotNull;
 @Table(name = "TB_TRUSTSTORE",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        columnNames = {"TYPE"},
-                        name = "UK_TYPE"
+                        columnNames = {"NAME"},
+                        name = "UK_NAME"
                 )
         }
 )
 @NamedQueries({
-        @NamedQuery(name = "Truststore.findByType",
-                query = "select t from Truststore t where t.type=:TYPE"),
-        @NamedQuery(name = "Truststore.countByType",
-                query = "select count(t) from Truststore t where t.type=:TYPE"),
+        @NamedQuery(name = "Truststore.findByName",
+                query = "select t from Truststore t where t.name=:NAME"),
+        @NamedQuery(name = "Truststore.countByName",
+                query = "select count(t) from Truststore t where t.name=:NAME"),
 })
 public class Truststore extends AbstractBaseEntity {
 
     @NotNull
-    @Column(name = "TYPE")
-    private String type;
+    @Column(name = "NAME")
+    private String name;
 
     @Lob
     @NotNull
     @Column(name = "CONTENT")
     protected byte[] content;
 
-    public String getType() {
-        return type;
+    public String getName() {
+        return name;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setName(String type) {
+        this.name = type;
     }
 
     public byte[] getContent() {
@@ -63,7 +63,7 @@ public class Truststore extends AbstractBaseEntity {
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(type, truststore.type)
+                .append(name, truststore.name)
                 .append(content, truststore.content)
                 .isEquals();
     }
@@ -72,7 +72,7 @@ public class Truststore extends AbstractBaseEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(type)
+                .append(name)
                 .append(content)
                 .toHashCode();
     }
