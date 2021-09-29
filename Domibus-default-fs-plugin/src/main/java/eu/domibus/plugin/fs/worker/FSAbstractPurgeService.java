@@ -37,7 +37,7 @@ public abstract class FSAbstractPurgeService {
 
     protected void purgeMessages(String domain) {
         if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
 
