@@ -79,11 +79,4 @@ public class MessageRetentionPartitionsServiceTest {
         messageRetentionPartitionsService.deleteExpiredMessages();
 
     }
-
-    @Test
-    public void sanityCheckPartitionNameTest() {
-        String partitionName = "P211212040000000025";
-        Assert.assertTrue(messageRetentionPartitionsService.sanityCheckPartitionName(partitionName));
-    }
-
 }
