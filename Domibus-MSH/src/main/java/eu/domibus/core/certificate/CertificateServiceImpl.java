@@ -2,6 +2,9 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -20,7 +23,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +57,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
@@ -450,7 +453,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean removeCertificate(String password, String location, String type, String alias, String backupLocation) {
-        KeyStore trustStore = getTrustStore(location, password,type);
+        KeyStore trustStore = getTrustStore(location, password, type);
         List<String> aliases = Arrays.asList(alias);
         return doRemoveCertificates(trustStore, password, location, aliases, backupLocation);
     }
@@ -595,21 +598,8 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //    }
 
-    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreName, String trustStoreBackupLocation) throws CryptoException {
-//        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
-//        File trustStoreFile = createFileWithLocation(trustStoreLocation);
-//        if (!trustStoreFile.getParentFile().exists()) {
-//            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
-//            try {
-//                FileUtils.forceMkdir(trustStoreFile.getParentFile());
-//            } catch (IOException e) {
-//                throw new CryptoException("Could not create parent directory for truststore", e);
-//            }
-//        }
-        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
-//        backupTrustStore(trustStoreFile, trustStoreBackupLocation);
 
-//        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
+    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreName, String trustStoreBackupLocation) throws CryptoException {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             truststore.store(byteStream, password.toCharArray());
             byte[] content = byteStream.toByteArray();
@@ -619,6 +609,41 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
         }
+    }
+
+    @Autowired
+    protected DomainService domainService;
+
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
+
+    @Override
+    public void persistTruststoresIfApplicable(final String name, final Supplier<String> filePathSupplier) {
+        LOG.debug("Creating encryption key for all domains if not yet exists");
+
+        final List<Domain> domains = domainService.getDomains();
+        for (Domain domain : domains) {
+            persistTruststoreIfApplicable(domain, name, filePathSupplier);
+        }
+
+        LOG.debug("Finished creating encryption key for all domains if not yet exists");
+    }
+
+    private void persistTruststoreIfApplicable(final Domain domain, final String name, final Supplier<String> filePathSupplier) {
+        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, filePathSupplier.get()), domain);
+    }
+
+    private void persistCurrentDomainTruststoreIfApplicable(String name, String filePath) {
+        if (truststoreDao.existsWithName(name)) {
+            return;
+        }
+
+        byte[] content = getTruststoreContentFromFile(filePath);
+
+        Truststore entity = new Truststore();
+        entity.setType(name);
+        entity.setContent(content);
+        truststoreDao.create(entity);
     }
 
     protected void backupTrustStore(File trustStoreFile, String trustStoreBackupLocation) throws CryptoException {

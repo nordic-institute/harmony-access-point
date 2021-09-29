@@ -11,6 +11,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * @author Cosmin Baciu
@@ -222,7 +223,7 @@ public interface CertificateService {
      */
     boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation);
 
-//    KeyStore loadTrustStore(byte[] content, String password, String type);
-
     byte[] getTruststoreContent(String name);
+
+    void persistTruststoresIfApplicable(final String name, final Supplier<String> filePathSupplier);
 }

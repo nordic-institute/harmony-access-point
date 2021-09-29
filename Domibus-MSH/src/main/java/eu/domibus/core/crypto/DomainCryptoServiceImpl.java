@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DomibusTruststore;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -240,9 +240,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @Override
     public byte[] getTruststoreContent() {
-        return certificateService.getTruststoreContent(DomibusTruststore);
-//        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-//        return certificateService.getTruststoreContent(location);
+        return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Override

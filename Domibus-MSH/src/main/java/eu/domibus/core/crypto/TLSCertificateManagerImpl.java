@@ -61,7 +61,6 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public byte[] getTruststoreContent() {
-        KeyStoreType params = getTruststoreParams();
         return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
     }
 
@@ -93,45 +92,47 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         return deleted;
     }
 
-    @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
-
-    @Autowired
-    TruststoreDao truststoreDao;
-
-    @Override
-    public void persistTruststoresIfApplicable() {
-        LOG.debug("Creating encryption key for all domains if not yet exists");
-
-        final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            persistTruststoreIfApplicable(domain);
-        }
-
-        LOG.debug("Finished creating encryption key for all domains if not yet exists");
-    }
-
-    private void persistTruststoreIfApplicable(Domain domain) {
-        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(), domain);
-    }
+//    @Autowired
+//    protected DomainService domainService;
+//
+//    @Autowired
+//    protected DomainTaskExecutor domainTaskExecutor;
+//
+//    @Autowired
+//    TruststoreDao truststoreDao;
 
     final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
-    private void persistCurrentDomainTruststoreIfApplicable() {
-        if (truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME)) {
-            return;
-        }
-        // todo check if this method also loads the cert, in which case, find another approach
-        byte[] content = getTruststoreContentFromFile();
-        
-        Truststore entity = new Truststore();
-        entity.setType(TLS_TRUSTSTORE_NAME);
-        entity.setContent(content);
-        truststoreDao.create(entity);
+    @Override
+    public void persistTruststoresIfApplicable() {
+        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, () -> getTruststoreParams().getFile());
+
+//        LOG.debug("Creating encryption key for all domains if not yet exists");
+//
+//        final List<Domain> domains = domainService.getDomains();
+//        for (Domain domain : domains) {
+//            persistTruststoreIfApplicable(domain);
+//        }
+//
+//        LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
+
+//    private void persistTruststoreIfApplicable(Domain domain) {
+//        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(), domain);
+//    }
+
+//    private void persistCurrentDomainTruststoreIfApplicable() {
+//        if (truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME)) {
+//            return;
+//        }
+//
+//        byte[] content = getTruststoreContentFromFile();
+//
+//        Truststore entity = new Truststore();
+//        entity.setType(TLS_TRUSTSTORE_NAME);
+//        entity.setContent(content);
+//        truststoreDao.create(entity);
+//    }
 
     protected KeyStoreType getTruststoreParams() {
         Domain domain = domainProvider.getCurrentDomain();

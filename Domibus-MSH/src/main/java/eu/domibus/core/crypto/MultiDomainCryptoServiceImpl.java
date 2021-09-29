@@ -3,8 +3,6 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -223,85 +221,91 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Autowired
     protected CertificateService certificateService;
 
-    @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
-
+//    @Autowired
+//    protected DomainService domainService;
+//
+//    @Autowired
+//    protected DomainTaskExecutor domainTaskExecutor;
+//
     @Autowired
     protected DomainContextProvider domainContextProvider;
+//
+//    @Autowired
+//    TruststoreDao truststoreDao;
 
-    @Autowired
-    TruststoreDao truststoreDao;
+    //    @Override
+//    protected byte[] getTruststoreContentFromFile(Domain domain) {
+//        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+//        return certificateService.getTruststoreContentFromFile(location);
+//    }
+//
+//    protected byte[] getKeystoreContentFromFile(Domain domain) {
+//        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+//        return certificateService.getTruststoreContentFromFile(location);
+//    }
 
-    @Override
-    public byte[] getTruststoreContentFromFile(Domain domain) {
-        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        return certificateService.getTruststoreContentFromFile(location);
-    }
-
-    public byte[] getKeystoreContentFromFile(Domain domain) {
-        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
-        return certificateService.getTruststoreContentFromFile(location);
-    }
+    public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
+    public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
 
     public void persistTruststoresIfApplicable() {
-        LOG.debug("Creating encryption key for all domains if not yet exists");
+        certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME,
+                () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_LOCATION));
 
-        final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            persistTruststoreIfApplicable(domain);
-        }
+        certificateService.persistTruststoresIfApplicable(DOMIBUS_KEYSTORE_NAME,
+                () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_LOCATION));
 
-        LOG.debug("Finished creating encryption key for all domains if not yet exists");
+//        LOG.debug("Creating encryption key for all domains if not yet exists");
+//
+//        final List<Domain> domains = domainService.getDomains();
+//        for (Domain domain : domains) {
+//            persistTruststoreIfApplicable(domain);
+//        }
+//
+//        LOG.debug("Finished creating encryption key for all domains if not yet exists");
     }
 
-    private void persistTruststoreIfApplicable(Domain domain) {
-        domainTaskExecutor.submit(() -> {
-            persistCurrentDomainTruststoreIfApplicable();
-            persistCurrentDomainKeystoreIfApplicable();
-        }, domain);
-    }
+//    private void persistTruststoreIfApplicable(Domain domain) {
+//        domainTaskExecutor.submit(() -> {
+//            persistCurrentDomainTruststoreIfApplicable();
+//            persistCurrentDomainKeystoreIfApplicable();
+//        }, domain);
+//    }
 
-    public final static String DomibusTruststore = "domibus.truststore";
-    public final static String DomibusKeystore = "domibus.keystore";
-
-    private void persistCurrentDomainTruststoreIfApplicable() {
-        if (truststoreDao.existsWithName(DomibusTruststore)) {
-            return;
-        }
-
-        byte[] content = null;
-        try {
-            content = getTruststoreContentFromFile(domainContextProvider.getCurrentDomainSafely());
-        } catch (DomibusCertificateException ex) {
-            LOG.warn("Could not get trustsore content from file.", ex);
-            return;
-        }
-
-        Truststore entity = new Truststore();
-        entity.setType(DomibusTruststore);
-        entity.setContent(content);
-        truststoreDao.create(entity);
-    }
-
-    private void persistCurrentDomainKeystoreIfApplicable() {
-        if (truststoreDao.existsWithName(DomibusKeystore)) {
-            return;
-        }
-
-        byte[] content = null;
-        try {
-            content = getKeystoreContentFromFile(domainContextProvider.getCurrentDomainSafely());
-        } catch (DomibusCertificateException ex) {
-            LOG.warn("Could not get keysore content from file.", ex);
-            return;
-        }
-
-        Truststore entity = new Truststore();
-        entity.setType(DomibusKeystore);
-        entity.setContent(content);
-        truststoreDao.create(entity);
-    }
+//    private void persistCurrentDomainTruststoreIfApplicable() {
+//        if (truststoreDao.existsWithName(DomibusTruststore)) {
+//            return;
+//        }
+//
+//        byte[] content = null;
+//        try {
+//            content = getTruststoreContentFromFile(domainContextProvider.getCurrentDomainSafely());
+//        } catch (DomibusCertificateException ex) {
+//            LOG.warn("Could not get trustsore content from file.", ex);
+//            return;
+//        }
+//
+//        Truststore entity = new Truststore();
+//        entity.setType(DomibusTruststore);
+//        entity.setContent(content);
+//        truststoreDao.create(entity);
+//    }
+//
+//    private void persistCurrentDomainKeystoreIfApplicable() {
+//        if (truststoreDao.existsWithName(DomibusKeystore)) {
+//            return;
+//        }
+//
+//        byte[] content = null;
+//        try {
+//            content = getKeystoreContentFromFile(domainContextProvider.getCurrentDomainSafely());
+//        } catch (DomibusCertificateException ex) {
+//            LOG.warn("Could not get keysore content from file.", ex);
+//            return;
+//        }
+//
+//        Truststore entity = new Truststore();
+//        entity.setType(DomibusKeystore);
+//        entity.setContent(content);
+//        truststoreDao.create(entity);
+//    }
 }
