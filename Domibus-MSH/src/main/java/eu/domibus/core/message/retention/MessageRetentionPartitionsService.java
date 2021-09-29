@@ -2,6 +2,7 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
@@ -9,8 +10,10 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,6 +30,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageRetentionPartitionsService implements MessageRetentionService {
 
+    public static String PARTITION_NAME_REGEXP = "P[0-9]{18}";
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
     protected PModeProvider pModeProvider;
@@ -37,19 +42,23 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    protected EventService eventService;
 
-    public static final String DEFAULT_PARTITION_NAME = "P21000000";
+
+    public static final String DEFAULT_PARTITION_NAME = "P21000000"; // default partition that we never delete
     public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
     final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
                                              UserMessageDao userMessageDao,
                                              UserMessageLogDao userMessageLogDao,
-                                             DomibusPropertyProvider domibusPropertyProvider) {
+                                             DomibusPropertyProvider domibusPropertyProvider,
+                                             EventService eventService) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.eventService = eventService;
     }
 
     @Override
@@ -63,28 +72,43 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     @Override
     @Timer(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
     @Counter(clazz = MessageRetentionPartitionsService.class, value = "retention_deleteExpiredMessages")
+    @Transactional(readOnly = true)
     public void deleteExpiredMessages() {
         LOG.debug("Using MessageRetentionPartitionsService to deleteExpiredMessages");
+        // A partition may have messages with all statuses, received/sent on any MPC
+        // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         Date newestPartitionToCheckDate = DateUtils.addMinutes(new Date(), maxRetention * -1);
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Find partitions older than [{}]", newestPartitionName);
-        List<String> partitionNames = userMessageDao.findPotentialExpiredPartitions(newestPartitionName);
-
+        List<String> partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
         LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size(), partitionNames);
+
+        // remove default partition (the oldest partition) as we don't delete it
         partitionNames.remove(DEFAULT_PARTITION_NAME);
 
         for (String partitionName : partitionNames) {
             LOG.info("Verify partition [{}]", partitionName);
-            boolean toDelete = verifyIfAllMessagesAreArchived(partitionName);
-            if (toDelete == false) {
-                LOG.info("Partition [{}] will not be deleted", partitionName);
+            // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
+            if(!partitionName.matches(PARTITION_NAME_REGEXP)) {
+                LOG.error("Partition [{}] has invalid name", partitionName);
                 continue;
             }
 
+            // Verify if all messages were archived
+            boolean toDelete = verifyIfAllMessagesAreArchived(partitionName);
+            if (toDelete == false) {
+                LOG.info("Partition [{}] will not be deleted", partitionName);
+                eventService.enqueuePartitionExpirationEvent(partitionName);
+                continue;
+            }
+
+            // TODO We might consider that, if a message was archived it is already expired (in final status and older than the specified retention for its MPC) and skip the next verifications
+            // Verify if all messages expired
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {
                 LOG.info("Partition [{}] will not be deleted", partitionName);
+                eventService.enqueuePartitionExpirationEvent(partitionName);
                 continue;
             }
 
@@ -110,15 +134,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected boolean verifyIfAllMessagesAreExpired(String partitionName) {
 
         LOG.info("Verifying if all messages expired on partition [{}]", partitionName);
-        List<MessageStatus> messageStatuses = new ArrayList<>(
-                Arrays.asList(MessageStatus.SEND_ENQUEUED,
-                        MessageStatus.SEND_IN_PROGRESS,
-                        MessageStatus.BEING_PULLED,
-                        MessageStatus.READY_TO_PULL,
-                        MessageStatus.WAITING_FOR_RECEIPT,
-                        MessageStatus.WAITING_FOR_RETRY
-                )
-        );
+        List<MessageStatus> messageStatuses = MessageStatus.getFinalStates();
 
         LOG.debug("Counting messages in progress for partition [{}]", partitionName);
         // check for messages that are not in final status

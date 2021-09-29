@@ -568,6 +568,8 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="DELETED" type="TIMESTAMP"/>
+            <column name="ARCHIVED" type="TIMESTAMP"/>
+            <column name="ACKNOWLEDGED" type="TIMESTAMP"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
             <column name="SEND_ATTEMPTS" type="INT"/>
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>

@@ -240,14 +240,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
         String sqlString = "select count(*) from " +
-                "            TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
-                "           cross join TB_USER_MESSAGE" +
-                "           cross join TB_D_MESSAGE_STATUS" +
-                "           cross join TB_D_MPC" +
-                "           where TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK " +
-                "             and TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK " +
-                "             and TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK " +
-                "             and TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
+                "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
+                "             inner join  TB_USER_MESSAGE   on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
+                "             inner join  TB_D_MESSAGE_STATUS on TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK" +
+                "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
+                "           where TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
                 "             and TB_D_MPC.VALUE=:MPC" +
                 "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
                 "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
@@ -342,9 +339,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countByMessageStatusOnPartition(List<MessageStatus> messageStatuses, String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName +") CROSS JOIN TB_D_MESSAGE_STATUS dms WHERE MESSAGE_STATUS_ID_FK=dms.ID_PK AND dms.STATUS IN ('" + StringUtils.join(messageStatuses.toArray(), MESSAGESTATUS_DELIMITER) +"')";
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName +") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
         try {
             final Query countQuery = em.createNativeQuery(sqlString);
+            countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);
             int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
             LOG.debug("count by message status result [{}]", result);
             return result;

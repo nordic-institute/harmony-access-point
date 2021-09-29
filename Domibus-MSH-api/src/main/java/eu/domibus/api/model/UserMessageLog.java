@@ -118,6 +118,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Temporal(TemporalType.TIMESTAMP)
     private Date restored;
 
+    @Column(name = "ARCHIVED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date archived;
+
     /**
      * The Date when this message was deleted, A message shall be deleted when one of the following conditions apply:
      * <p>
@@ -231,6 +235,14 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
 
     public void setDeleted(Date deleted) {
         this.deleted = deleted;
+    }
+
+    public Date getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Date archived) {
+        this.archived = archived;
     }
 
     @Override

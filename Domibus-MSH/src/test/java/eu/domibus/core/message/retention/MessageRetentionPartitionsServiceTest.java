@@ -7,7 +7,9 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
@@ -15,12 +17,14 @@ import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +46,12 @@ public class MessageRetentionPartitionsServiceTest {
 
     @Injectable
     UserMessageDao userMessageDao;
+
+    @Injectable
+    UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    EventService eventService;
 
     @Test
     public void deleteExpiredMessagesTest() {
@@ -69,4 +79,11 @@ public class MessageRetentionPartitionsServiceTest {
         messageRetentionPartitionsService.deleteExpiredMessages();
 
     }
+
+    @Test
+    public void sanityCheckPartitionNameTest() {
+        String partitionName = "P211212040000000025";
+        Assert.assertTrue(messageRetentionPartitionsService.sanityCheckPartitionName(partitionName));
+    }
+
 }
