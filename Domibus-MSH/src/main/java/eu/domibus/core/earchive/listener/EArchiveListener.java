@@ -15,7 +15,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -39,6 +42,7 @@ public class EArchiveListener implements MessageListener {
     private EArchiveBatchDao eArchiveBatchDao;
 
     private UserMessageLogDefaultService userMessageLogDefaultService;
+
     private JmsUtil jmsUtil;
 
     public EArchiveListener(
@@ -56,14 +60,15 @@ public class EArchiveListener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
-        long entityId = jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
-        if (StringUtils.isBlank(batchId)) {
-            LOG.error("Could not get the batchId");
+        Long entityId = jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+        if (StringUtils.isBlank(batchId) || entityId == null) {
+            LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
         }
-        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        jmsUtil.setDomain(message);
 
         LOG.info("eArchiving starting for batchId [{}]", batchId);
 
@@ -71,27 +76,33 @@ public class EArchiveListener implements MessageListener {
 
         List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
-        jmsUtil.setDomain(message);
-
+        if (CollectionUtils.isEmpty(userMessageDtos)) {
+            LOG.error("no messages present in the earchive batch [{}]", batchId);
+            return;
+        }
         LOG.info("eArchiving starting userMessageLog from [{}] to [{}]",
                 userMessageDtos.get(userMessageDtos.size() - 1),
                 userMessageDtos.get(0));
 
-        fileSystemEArchivePersistence.createEArkSipStructure(
+        try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .messages(getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
-                userMessageDtos);
+                userMessageDtos)) {
 
+            LOG.info("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
+        } catch (FileSystemException e) {
+            throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
+        }
         userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
     }
 
-    private EArchiveBatch geteArchiveBatch(long batchId) {
-        EArchiveBatch eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+    private EArchiveBatch geteArchiveBatch(long entityId) {
+        EArchiveBatch eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
 
         if (eArchiveBatchByBatchId == null) {
-            throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + batchId + "]");
+            throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
         }
         return eArchiveBatchByBatchId;
     }
@@ -99,6 +110,7 @@ public class EArchiveListener implements MessageListener {
     private List<String> getMessageIds(List<UserMessageDTO> userMessageDtos) {
         return userMessageDtos.stream().map(UserMessageDTO::getMessageId).collect(Collectors.toList());
     }
+
     private List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
         return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }

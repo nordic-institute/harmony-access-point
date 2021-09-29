@@ -100,7 +100,9 @@ import java.util.Date;
                         "  and uml.deleted IS NULL " +
                         "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
-        @NamedQuery(name = "UserMessageLog.updateStatusToArchived", query = " UPDATE UserMessageLog uml SET uml.eArchivingStatus = 'ARCHIVED' WHERE uml.entityId IN :ENTITY_IDS "),
+        @NamedQuery(name = "UserMessageLog.updateStatusToArchived", query = " UPDATE UserMessageLog uml " +
+                "SET uml.eArchivingStatus = 'ARCHIVED' " +
+                "WHERE uml.entityId IN :ENTITY_IDS "),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 

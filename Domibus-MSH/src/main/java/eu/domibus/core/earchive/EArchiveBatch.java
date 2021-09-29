@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -44,6 +45,7 @@ public class EArchiveBatch  extends AbstractBaseEntity {
     private String storageLocation;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "MESSAGEIDS_JSON")
     protected byte[] messageIdsJson;
 
