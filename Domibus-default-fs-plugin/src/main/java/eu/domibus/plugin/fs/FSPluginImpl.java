@@ -349,7 +349,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected void handleSendFailedMessage(String domain, String messageId) {
         if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
 
@@ -394,7 +394,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         LOG.debug("Preparing to handle sent message using domain [{}] and messageId [{}]", domain, messageId);
 
         if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
 
@@ -480,7 +480,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected void renameMessageFile(String domain, String messageId, MessageStatus status) {
         if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
 
