@@ -12,9 +12,9 @@ import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -49,17 +49,21 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected Domain domain;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    final protected DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected CertificateService certificateService;
+    final protected CertificateService certificateService;
 
-    @Autowired
-    protected SignalService signalService;
+    final protected SignalService signalService;
 
-    @Autowired
-    private DomibusCoreMapper coreMapper;
+    final protected DomibusCoreMapper coreMapper;
+
+    public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider, CertificateService certificateService, SignalService signalService, DomibusCoreMapper coreMapper) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+
+        this.certificateService = certificateService;
+        this.signalService = signalService;
+        this.coreMapper = coreMapper;
+    }
 
     public void init() {
         LOG.debug("Initializing the certificate provider");
@@ -169,54 +173,25 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected KeyStore loadTrustStore() {
-//        String trustStoreLocation = getTrustStoreLocation();
-//        if (trustStoreLocation != null) {
-//            trustStoreLocation = trustStoreLocation.trim();
-
-//            try (InputStream is = loadInputStream(this.getClass().getClassLoader(), trustStoreLocation)) {
-
         return certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME, getTrustStorePassword(), getTrustStoreType());
-
-//        try (InputStream is = new ByteArrayInputStream(content)) {
-//            String passwd = getTrustStorePassword();
-//            if (passwd != null) {
-//                passwd = passwd.trim();
-//                passwd = decryptPassword(passwd, passwordEncryptor);
-//            }
-//            String type = getTrustStoreType();
-//            if (type != null) {
-//                type = type.trim();
-//            }
-//            final KeyStore trustStore = load(is, passwd, null, type);
-//            LOG.debug("The TrustStore {} of type {} has been loaded", DomibusTruststore, type);
-//            return trustStore;
-//        } catch (WSSecurityException | IOException e) {
-//            throw new CryptoException("Error loading truststore", e);
-//        }
-
-
-//        }
-//        throw new CryptoException("Could not load truststore, truststore location is empty");
     }
 
     protected Properties getKeystoreProperties() {
         final String keystoreType = getKeystoreType();
         final String keystorePassword = getKeystorePassword();
         final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
-//        final String keystoreLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
 
-//        if (StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias, keystoreLocation)) {
-//            LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword, privateKeyAlias=[{}], keystoreLocation=[{}]",
-//                    domain, keystoreType, privateKeyAlias, keystoreLocation);
-//            throw new ConfigurationException("Error while trying to load the keystore properties for domain " + domain);
-//        }
+        if (StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias)) {
+            LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword, privateKeyAlias=[{}]",
+                    domain, keystoreType, privateKeyAlias);
+            throw new ConfigurationException("Error while trying to load the keystore properties for domain " + domain);
+        }
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_TYPE, keystoreType);
         final String keyStorePasswordProperty = Merlin.PREFIX + Merlin.KEYSTORE_PASSWORD; //NOSONAR
         result.setProperty(keyStorePasswordProperty, keystorePassword);
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS, privateKeyAlias);
-//        result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_FILE, keystoreLocation);
 
         Properties logProperties = new Properties();
         logProperties.putAll(result);
@@ -238,20 +213,18 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     protected Properties getTrustStoreProperties() {
         final String trustStoreType = getTrustStoreType();
         final String trustStorePassword = getTrustStorePassword();
-//        final String trustStoreLocation = getTrustStoreLocation();
 
-//        if (StringUtils.isAnyEmpty(trustStoreType, trustStorePassword, trustStoreLocation)) {
-//            LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword, trustStoreLocation=[{}]",
-//                    domain, trustStoreType, trustStoreLocation);
-//            throw new ConfigurationException("Error while trying to load the truststore properties for domain " + domain);
-//        }
+        if (StringUtils.isAnyEmpty(trustStoreType, trustStorePassword)) {
+            LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword",
+                    domain, trustStoreType);
+            throw new ConfigurationException("Error while trying to load the truststore properties for domain " + domain);
+        }
 
         Properties result = new Properties();
         result.setProperty(Merlin.PREFIX + Merlin.TRUSTSTORE_TYPE, trustStoreType);
         final String trustStorePasswordProperty = Merlin.PREFIX + Merlin.TRUSTSTORE_PASSWORD; //NOSONAR
         result.setProperty(trustStorePasswordProperty, trustStorePassword);
         result.setProperty(Merlin.PREFIX + Merlin.LOAD_CA_CERTS, "false");
-//        result.setProperty(Merlin.PREFIX + Merlin.TRUSTSTORE_FILE, trustStoreLocation);
 
         Properties logProperties = new Properties();
         logProperties.putAll(result);

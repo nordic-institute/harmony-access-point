@@ -19,9 +19,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import javax.security.auth.callback.CallbackHandler;
 import javax.xml.ws.WebServiceException;
 import java.security.KeyStore;
@@ -52,20 +50,22 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     private Domain domain;
 
-    @Autowired
-    private List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
+    protected List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
     protected CertificateService certificateService;
 
-    public DomainCryptoServiceImpl(Domain domain) {
+    public DomainCryptoServiceImpl(Domain domain,
+                                   List<DomainCryptoServiceSpi> domainCryptoServiceSpiList,
+                                   DomibusPropertyProvider domibusPropertyProvider,
+                                   CertificateService certificateService) {
         this.domain = domain;
+        this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.certificateService = certificateService;
     }
 
-    @PostConstruct
     public void init() {
         String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {

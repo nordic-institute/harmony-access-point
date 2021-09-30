@@ -11,12 +11,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -41,16 +39,36 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImpl.class);
 
+    public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
+    public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
+
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
-    @Autowired
-    DomainCryptoServiceFactory domainCertificateProviderFactory;
+    protected final DomainCryptoServiceFactory domainCryptoServiceFactory;
 
-    @Autowired
-    private DomibusCacheService domibusCacheService;
+    protected DomibusCacheService domibusCacheService;
 
-    @Autowired
-    private CertificateHelper certificateHelper;
+    protected CertificateHelper certificateHelper;
+
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    protected CertificateService certificateService;
+
+    protected DomainContextProvider domainContextProvider;
+
+    public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
+                                        DomibusCacheService domibusCacheService,
+                                        CertificateHelper certificateHelper,
+                                        DomibusPropertyProvider domibusPropertyProvider,
+                                        CertificateService certificateService,
+                                        DomainContextProvider domainContextProvider) {
+        this.domainCryptoServiceFactory = domainCryptoServiceFactory;
+        this.domibusCacheService = domibusCacheService;
+        this.certificateHelper = certificateHelper;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.certificateService = certificateService;
+        this.domainContextProvider = domainContextProvider;
+    }
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
@@ -182,7 +200,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
             synchronized (domainCertificateProviderMap) {
                 if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
                     LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCertificateProviderFactory.createDomainCryptoService(domain);
+                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.createDomainCryptoService(domain);
                     domainCertificateProviderMap.put(domain, domainCertificateProvider);
                 }
             }
@@ -214,19 +232,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getTruststoreContent();
     }
-
-    // de mutat
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected CertificateService certificateService;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
-
-    public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
-    public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
 
     @Override
     public void persistTruststoresIfApplicable() {

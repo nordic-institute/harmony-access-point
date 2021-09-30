@@ -45,7 +45,7 @@ public class TLSCertificateManagerImplTest {
             result = trustStore;
         }};
 
-        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword, backupLocation);
+        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword);
 
         new Verifications() {{
             certificateService.replaceTrustStore(fileName, fileContent, filePassword,
@@ -97,7 +97,7 @@ public class TLSCertificateManagerImplTest {
             result = true;
         }};
 
-        boolean result = tlsCertificateManager.addCertificate(certificateData, alias, backupLocation);
+        boolean result = tlsCertificateManager.addCertificate(certificateData, alias);
 
         Assert.assertTrue(result);
         new Verifications() {{
@@ -115,7 +115,7 @@ public class TLSCertificateManagerImplTest {
             result = true;
         }};
 
-        boolean result = tlsCertificateManager.removeCertificate(alias, backupLocation);
+        boolean result = tlsCertificateManager.removeCertificate(alias);
 
         Assert.assertTrue(result);
         new Verifications() {{
