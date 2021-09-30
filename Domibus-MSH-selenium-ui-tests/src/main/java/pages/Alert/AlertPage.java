@@ -65,7 +65,7 @@ public class AlertPage extends DomibusPage {
 		return weToDButton(deleteButton);
 	}
 
-	public void verifyDel(int rowNumber, Boolean isProcessed, SoftAssert soft) throws Exception {
+	public void deleteAlertAndVerify(int rowNumber, Boolean isProcessed, SoftAssert soft) throws Exception {
 		String alertId = grid().getRowSpecificColumnVal(rowNumber, "Alert Id");
 
 		if(isProcessed){

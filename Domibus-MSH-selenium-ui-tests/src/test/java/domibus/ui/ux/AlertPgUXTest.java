@@ -88,12 +88,12 @@ public class AlertPgUXTest extends SeleniumTest {
 			new SkipException("no grid data available");
 		}
 		else {
-			page.verifyDel(0, Boolean.FALSE, soft);
+			page.deleteAlertAndVerify(0, Boolean.FALSE, soft);
 			log.info("Mark One unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
 			new Dialog(driver).confirm();
-			page.verifyDel(0, Boolean.TRUE, soft);
+			page.deleteAlertAndVerify(0, Boolean.TRUE, soft);
 		}
 
 		soft.assertAll();
@@ -118,12 +118,12 @@ public class AlertPgUXTest extends SeleniumTest {
 			new SkipException("no grid data available");
 		}
 		else{
-			page.verifyDel(0, Boolean.FALSE, soft);
+			page.deleteAlertAndVerify(0, Boolean.FALSE, soft);
 			log.info("Mark one unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
 			new Dialog(driver).confirm();
-			page.verifyDel(0, Boolean.TRUE, soft);
+			page.deleteAlertAndVerify(0, Boolean.TRUE, soft);
 		}
 		soft.assertAll();
 
@@ -156,13 +156,13 @@ public class AlertPgUXTest extends SeleniumTest {
 		else {
 
 			log.info("Delete unprocessed super alerts");
-			page.verifyDel(0, Boolean.FALSE, soft);
+			page.deleteAlertAndVerify(0, Boolean.FALSE, soft);
 			log.info("Mark one unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
 			new Dialog(driver).confirm();
 
-			page.verifyDel(0, Boolean.TRUE, soft);
+			page.deleteAlertAndVerify(0, Boolean.TRUE, soft);
 			soft.assertAll();
 		}
 	}
