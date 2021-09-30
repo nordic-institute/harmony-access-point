@@ -421,12 +421,6 @@ public class CertificateServiceImpl implements CertificateService {
     public KeyStore getTrustStore(String name, String password, String type) {
         byte[] content = getTruststoreContent(name);
         return loadTrustStore(content, password, type);
-
-//        try (InputStream contentStream = Files.newInputStream(Paths.get(location))) {
-//            return loadTrustStore(contentStream, password, type);
-//        } catch (Exception ex) {
-//            throw new CryptoException("Exception loading truststore.", ex);
-//        }
     }
 
     @Override
@@ -618,7 +612,7 @@ public class CertificateServiceImpl implements CertificateService {
 
         Truststore backup = new Truststore();
         backup.setContent(entity.getContent());
-        backup.setName(entity.getName() + ".backup." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) );
+        backup.setName(entity.getName() + ".backup." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) );
 
         truststoreDao.create(backup);
     }

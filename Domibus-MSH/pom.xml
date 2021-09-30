@@ -425,6 +425,12 @@
             <artifactId>opencsv</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.security</groupId>
