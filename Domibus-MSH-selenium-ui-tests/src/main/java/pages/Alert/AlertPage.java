@@ -85,7 +85,7 @@ public class AlertPage extends DomibusPage {
 
 
 	}
-	public void verifyProcessed(SoftAssert soft, Boolean isProcessed) throws Exception {
+	public void processAlertAndVerify(SoftAssert soft, Boolean isProcessed) throws Exception {
 		alertsGrid().markAsProcessed(1);
 		soft.assertTrue(getSaveButton().isEnabled(),"Save button is enabled");
 		soft.assertTrue(getCancelButton().isEnabled(),"Cancel button is enabled");

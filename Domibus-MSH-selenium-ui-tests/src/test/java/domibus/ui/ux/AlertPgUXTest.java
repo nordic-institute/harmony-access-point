@@ -183,14 +183,14 @@ public class AlertPgUXTest extends SeleniumTest {
 
 		log.info("Mark one unprocessed alert as processed and save");
 
-		page.verifyProcessed(soft, Boolean.TRUE);
+		page.processAlertAndVerify(soft, Boolean.TRUE);
 		log.info("index" + page.grid().getSelectedRowIndex());
 		soft.assertTrue(page.grid().getSelectedRowIndex() < 0, "Row is still not present");
 		soft.assertFalse(page.getSaveButton().isEnabled(), "Save button is not enabled");
 		soft.assertFalse(page.getCancelButton().isEnabled(), "Cancel button is not enabled");
 
 		log.info("Mark one unprocessed alert as processed and cancel");
-		page.verifyProcessed(soft, Boolean.FALSE);
+		page.processAlertAndVerify(soft, Boolean.FALSE);
 		soft.assertTrue(page.grid().getSelectedRowIndex() > 0, "Row is still present");
 
 		soft.assertTrue(page.getSaveButton().isEnabled(), "Save button is enabled");
