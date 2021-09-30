@@ -209,8 +209,17 @@ public class AlertPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.ALERTS);
 		page.filters().getShowDomainCheckbox().click();
 		page.filters().getSearchButton().click();
+		log.info("Getting all listed message info");
+		List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
+		HashMap<String, String> alertFirstRowData = allRowInfo.get(0);
+
+
 		page.getDomainSelector().selectAnotherDomain();
+		List<HashMap<String, String>> allRowInfos = page.grid().getAllRowInfo();
+		HashMap<String, String> domainAlertFirstRowData = allRowInfos.get(0);
+
 		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(), "Show domain checkbox is not checked");
+		soft.assertFalse(alertFirstRowData.equals(domainAlertFirstRowData),"Grid Data are different");
 		soft.assertAll();
 
 	}
