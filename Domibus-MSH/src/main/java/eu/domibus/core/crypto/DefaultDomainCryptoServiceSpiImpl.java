@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -57,12 +58,18 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     final protected DomibusCoreMapper coreMapper;
 
-    public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider, CertificateService certificateService, SignalService signalService, DomibusCoreMapper coreMapper) {
-        this.domibusPropertyProvider = domibusPropertyProvider;
+    protected final DomainTaskExecutor domainTaskExecutor;
 
+    public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
+                                             CertificateService certificateService,
+                                             SignalService signalService,
+                                             DomibusCoreMapper coreMapper,
+                                             DomainTaskExecutor domainTaskExecutor) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
+        this.domainTaskExecutor = domainTaskExecutor;
     }
 
     public void init() {
@@ -77,21 +84,16 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
             throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore/KeyStore: " + e.getMessage(), e);
         }
 
-        try {
-            KeyStore store = loadTrustStore();
-            super.setTrustStore(store);
-        } catch (ConfigurationException cex) {
-            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the TrustStore: " + cex.getMessage(), cex);
-        }
+        domainTaskExecutor.submit(() -> {
+            KeyStore trustStore = loadTrustStore();
+            super.setTrustStore(trustStore);
 
-        try {
             final String keystoreType = getKeystoreType();
             final String keystorePassword = getKeystorePassword();
-            KeyStore store = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME, keystorePassword, keystoreType);
-            super.setKeyStore(store);
-        } catch (ConfigurationException cex) {
-            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the KeyStore: " + cex.getMessage(), cex);
-        }
+            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME, keystorePassword, keystoreType);
+            super.setKeyStore(keyStore);
+        }, domain);
+
     }
 
     @Override

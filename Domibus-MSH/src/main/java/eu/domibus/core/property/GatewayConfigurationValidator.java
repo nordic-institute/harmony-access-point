@@ -1,18 +1,17 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -38,14 +37,13 @@ public class GatewayConfigurationValidator {
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
 
-//    @PostConstruct
     public void validateConfiguration() {
         LOG.info("Checking gateway configuration ...");
         validateCertificates();
 
         try {
             final InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(DOMIBUS_PROPERTIES_SHA256);
-            if(resourceAsStream == null) {
+            if (resourceAsStream == null) {
                 WarningUtil.warnOutput("Could not verify the configuration file hash [" + DOMIBUS_PROPERTIES_SHA256 + "]");
                 return;
             }
@@ -73,14 +71,14 @@ public class GatewayConfigurationValidator {
             LOG.warn("Failed to load certificates for domain [{}]! : [{}]", domain.getCode(), e.getMessage(), e);
             warnOutput(domain, "CERTIFICATES ARE NOT CONFIGURED PROPERLY - NOT FOR PRODUCTION USAGE");
         }
-        if(trustStore == null) {
+        if (trustStore == null) {
             LOG.warn("Failed to load certificates for domain [{}]", domain.getCode());
             return;
         }
 
         try {
             if (trustStore.containsAlias(BLUE_GW_ALIAS)) {
-                warnOutput(domain,"SAMPLE CERTIFICATES ARE BEING USED - NOT FOR PRODUCTION USAGE");
+                warnOutput(domain, "SAMPLE CERTIFICATES ARE BEING USED - NOT FOR PRODUCTION USAGE");
             }
         } catch (KeyStoreException e) {
             LOG.warn("Failed to load certificates! " + e.getMessage(), e);

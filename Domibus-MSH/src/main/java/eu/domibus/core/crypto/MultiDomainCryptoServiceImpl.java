@@ -194,20 +194,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.removeCertificate(aliases);
     }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
-        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
-        if (domainCertificateProviderMap.get(domain) == null) {
-            synchronized (domainCertificateProviderMap) {
-                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
-                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain);
-                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
-                }
-            }
-        }
-        return domainCertificateProviderMap.get(domain);
-    }
-
     @Override
     public void reset() {
         domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
@@ -242,4 +228,17 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_LOCATION));
     }
 
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
+        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
+        if (domainCertificateProviderMap.get(domain) == null) {
+            synchronized (domainCertificateProviderMap) {
+                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
+                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
+                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain);
+                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
+                }
+            }
+        }
+        return domainCertificateProviderMap.get(domain);
+    }
 }

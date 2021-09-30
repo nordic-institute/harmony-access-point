@@ -31,7 +31,6 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,15 +88,28 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
-    private final BackupService backupService;
+//    private final BackupService backupService;
 
-    private CertificateHelper certificateHelper;
+    private final CertificateHelper certificateHelper;
 
-    public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
-                                  CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
+    protected final DomainService domainService;
+
+    protected final DomainTaskExecutor domainTaskExecutor;
+
+    protected final TruststoreDao truststoreDao;
+
+    public CertificateServiceImpl(CRLService crlService,
+                                  DomibusPropertyProvider domibusPropertyProvider,
+                                  CertificateDao certificateDao,
+                                  EventService eventService,
+                                  PModeProvider pModeProvider,
                                   ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
-                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager, BackupService backupService,
-                                  CertificateHelper certificateHelper) {
+                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager,
+//                                  BackupService backupService,
+                                  CertificateHelper certificateHelper,
+                                  DomainService domainService,
+                                  DomainTaskExecutor domainTaskExecutor,
+                                  TruststoreDao truststoreDao) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -105,8 +117,11 @@ public class CertificateServiceImpl implements CertificateService {
         this.pModeProvider = pModeProvider;
         this.imminentExpirationCertificateConfigurationManager = imminentExpirationCertificateConfigurationManager;
         this.expiredCertificateConfigurationManager = expiredCertificateConfigurationManager;
-        this.backupService = backupService;
+//        this.backupService = backupService;
         this.certificateHelper = certificateHelper;
+        this.domainService = domainService;
+        this.domainTaskExecutor = domainTaskExecutor;
+        this.truststoreDao = truststoreDao;
     }
 
     @Override
@@ -540,9 +555,6 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    @Autowired
-    TruststoreDao truststoreDao;
-
     @Override
     public byte[] getTruststoreContent(String name) {
         Truststore res = truststoreDao.findByName(name);
@@ -591,7 +603,6 @@ public class CertificateServiceImpl implements CertificateService {
 //        }
 //    }
 
-
     protected void persistTrustStore(KeyStore truststore, String password, String name, String backupLocation) throws CryptoException {
         backupTrustStore(name);
 
@@ -616,12 +627,6 @@ public class CertificateServiceImpl implements CertificateService {
 
         truststoreDao.create(backup);
     }
-
-    @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
 
     @Override
     public void persistTruststoresIfApplicable(final String name, final Supplier<String> filePathSupplier) {
