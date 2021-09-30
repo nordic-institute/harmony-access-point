@@ -24,6 +24,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -87,6 +88,9 @@ public class AbstractEbms3UserMessageSenderTest {
 
     @Injectable
     NonRepudiationService nonRepudiationService;
+
+    @Injectable
+    SoapUtil soapUtil;
 
     private final String messageId = UUID.randomUUID().toString();
 
@@ -345,8 +349,6 @@ public class AbstractEbms3UserMessageSenderTest {
             mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             result = response;
 
-            nonRepudiationService.saveRequest(soapMessage, userMessage);
-
             responseHandler.verifyResponse(response, messageId);
             result = EbMS3ExceptionBuilder
                     .getInstance()
@@ -367,13 +369,12 @@ public class AbstractEbms3UserMessageSenderTest {
             Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
             Assert.assertEquals(receiverName, receiverPartyNameActual);
 
-
             String senderPartyNameActual;
             messageExchangeService.verifySenderCertificate(legConfigurationActual = withCapture(), senderPartyNameActual = withCapture());
             Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
             Assert.assertEquals(senderName, senderPartyNameActual);
 
-            nonRepudiationService.saveRequest(soapMessage, userMessage);
+            soapUtil.getRawXMLMessage(soapMessage);
 
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
