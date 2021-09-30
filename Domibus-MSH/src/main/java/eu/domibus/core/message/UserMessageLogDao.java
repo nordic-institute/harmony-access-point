@@ -338,7 +338,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     @Transactional
-    public int countByMessageStatusOnPartition(List<MessageStatus> messageStatuses, String partitionName) {
+    public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
         String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName +") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
         try {
             final Query countQuery = em.createNativeQuery(sqlString);

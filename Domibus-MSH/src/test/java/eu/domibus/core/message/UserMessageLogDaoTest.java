@@ -909,11 +909,11 @@ public class UserMessageLogDaoTest {
 
     @Test
     public void testSqlString(@Injectable TypedQuery<MessageLogInfo> query) {
-        List<MessageStatus> messageStatuses = new ArrayList<>(
-                Arrays.asList(MessageStatus.SEND_ENQUEUED,
-                        MessageStatus.SEND_IN_PROGRESS)
+        List<String> messageStatuses = new ArrayList<>(
+                Arrays.asList(MessageStatus.SEND_ENQUEUED.name(),
+                        MessageStatus.SEND_IN_PROGRESS.name())
         );
-        String expectedSqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (PART123) CROSS JOIN TB_D_MESSAGE_STATUS dms WHERE MESSAGE_STATUS_ID_FK=dms.ID_PK AND dms.STATUS IN ('SEND_ENQUEUED','SEND_IN_PROGRESS');";
+        String expectedSqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (PART123) CROSS JOIN TB_D_MESSAGE_STATUS dms WHERE MESSAGE_STATUS_ID_FK=dms.ID_PK AND dms.STATUS NOT IN ('SEND_ENQUEUED','SEND_IN_PROGRESS');";
 
         // WHEN
         userMessageLogDao.countByMessageStatusOnPartition(messageStatuses, "PART123");

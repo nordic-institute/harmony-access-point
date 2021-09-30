@@ -30,7 +30,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageRetentionPartitionsService implements MessageRetentionService {
 
-    public static String PARTITION_NAME_REGEXP = "P[0-9]{18}";
+    public static String PARTITION_NAME_REGEXP = "P[0-9]{8}";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
@@ -134,7 +134,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected boolean verifyIfAllMessagesAreExpired(String partitionName) {
 
         LOG.info("Verifying if all messages expired on partition [{}]", partitionName);
-        List<MessageStatus> messageStatuses = MessageStatus.getFinalStates();
+        List<String> messageStatuses = MessageStatus.getFinalStatesAsString();
 
         LOG.debug("Counting messages in progress for partition [{}]", partitionName);
         // check for messages that are not in final status
