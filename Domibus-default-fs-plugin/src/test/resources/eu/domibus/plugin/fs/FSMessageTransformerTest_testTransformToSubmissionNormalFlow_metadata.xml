@@ -25,4 +25,6 @@
         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>
         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>
     </MessageProperties>
+    <!--Optional: PUSH per default-->
+    <ProcessingType>PUSH</ProcessingType>
 </UserMessage>

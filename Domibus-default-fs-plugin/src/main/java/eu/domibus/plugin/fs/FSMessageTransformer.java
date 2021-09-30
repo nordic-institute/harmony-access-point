@@ -61,6 +61,12 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         UserMessage metadata = objectFactory.createUserMessage();
         metadata.setMessageInfo(getMessageInfo(submission));
         metadata.setMpc(submission.getMpc());
+        ProcessingType processingType = submission.getProcessingType();
+        if(processingType==null){
+            processingType=ProcessingType.PUSH;
+            LOG.debug("Submission processing type is null, setting default processing type:[{}]",processingType);
+        }
+        metadata.setProcessingType(eu.domibus.plugin.fs.ebms3.ProcessingType.valueOf(processingType.name()));
         metadata.setPartyInfo(getPartyInfoFromSubmission(submission));
         metadata.setCollaborationInfo(getCollaborationInfoFromSubmission(submission));
         metadata.setMessageProperties(getMessagePropertiesFromSubmission(submission));
