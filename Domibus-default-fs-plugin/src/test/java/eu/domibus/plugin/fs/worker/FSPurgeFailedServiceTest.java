@@ -74,6 +74,9 @@ public class FSPurgeFailedServiceTest {
         final String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
         new Expectations(1, instance) {{
+            fsPluginProperties.getDomainEnabled(domain);
+            result = true;
+
             fsMultiTenancyService.getFSPluginDomain();
             result = domain;
 
@@ -106,6 +109,9 @@ public class FSPurgeFailedServiceTest {
     @Test
     public void testPurgeMessages_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
         new Expectations(1, instance) {{
+            fsPluginProperties.getDomainEnabled("DOMAIN1");
+            result = true;
+
             fsMultiTenancyService.getFSPluginDomain();
             result = "DOMAIN1";
 

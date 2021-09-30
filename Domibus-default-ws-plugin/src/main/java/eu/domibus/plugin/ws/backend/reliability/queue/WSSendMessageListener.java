@@ -1,5 +1,7 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -41,20 +43,28 @@ public class WSSendMessageListener implements MessageListener {
     private final WSPluginMessageSender wsPluginMessageSender;
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
     private final DomainContextExtService domainContextExtService;
+    private final AuthUtils authUtils;
 
 
     public WSSendMessageListener(WSPluginMessageSender wsPluginMessageSender,
                                  WSBackendMessageLogDao wsBackendMessageLogDao,
-                                 DomainContextExtService domainContextExtService) {
+                                 DomainContextExtService domainContextExtService,
+                                 AuthUtils authUtils) {
         this.wsPluginMessageSender = wsPluginMessageSender;
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.domainContextExtService = domainContextExtService;
+        this.authUtils = authUtils;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     public void onMessage(Message message) {
+        authUtils.runWithSecurityContext(()-> doOnMessage(message),
+                "wsplugin_backend_notif", "wsplugin_backend_notif", AuthRole.ROLE_ADMIN);
+    }
+
+    protected void doOnMessage(Message message) {
         String domain;
         String messageId;
         long id;
@@ -69,6 +79,9 @@ public class WSSendMessageListener implements MessageListener {
             return;
         }
 
+        domainContextExtService.setCurrentDomain(new DomainDTO(domain, domain));
+        LOG.debug("received message on wsPluginSendQueue for domain: [{}], backend message id [{}] and type [{}]", domain, id, type);
+
         WSBackendMessageLogEntity backendMessage = wsBackendMessageLogDao.getById(id);
 
         if (backendMessage == null) {
@@ -77,10 +90,6 @@ public class WSSendMessageListener implements MessageListener {
         }
 
         putMDCDomibusId(backendMessage, messageId);
-
-        domainContextExtService.setCurrentDomain(new DomainDTO(domain, domain));
-        LOG.debug("received message on wsPluginSendQueue for domain: [{}], backend message id [{}] and type [{}]", domain, id, type);
-
 
         if (!StringUtils.equalsAnyIgnoreCase(messageId, backendMessage.getMessageId())) {
             LOG.error("Error while consuming JMS message: domibus message id incoherent [{}] =/= [{}]", messageId, backendMessage.getMessageId());
