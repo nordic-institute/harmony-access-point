@@ -56,7 +56,7 @@ public class FSProcessFileService {
                 if(processingType==null){
                     processingType=ProcessingType.PUSH;
                     metadata.setProcessingType(processingType);
-                    LOG.debug("No processing type defined in UserMessage, setting default to [{}]]",processingType);
+                    LOG.debug("No processing type defined in UserMessage, setting default to [{}]",processingType);
                 }
 
                 DataHandler dataHandler = fsFilesManager.getDataHandler(processableFile);
