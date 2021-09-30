@@ -49,7 +49,7 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         if (!fsPluginProperties.getDomainEnabled(domainCode)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin exiting...", domainCode);
+            LOG.debug("Domain [{}] is disabled for FSPlugin exiting...", domainCode);
             return;
         }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_JMS" resourceRoot="" soapui-version="5.6.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/domibus/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_JMS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/domibus/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
   <wsdl:types>
     <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:tns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
       <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
@@ -4283,9 +4283,19 @@ test.cleanDBMessageID("-DomJMS054-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>90414ed1-d501-45a8-86b6-466a1352735c</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="1f5f29d9-fc8a-4d9c-a684-ab9eb27fef1e" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS061-EDELIVERY-4238-Push-Payload inside body" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set Message Filter to Jms for Blue and Red" id="b3d9b07b-988b-4490-86b7-33d65698daa6"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log)
-Domibus.setMessageFilters("receiver","Jms",context,log)
-</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms" id="7e1fc7df-d1bd-47af-9c1d-c8beae0de8e4"><con:settings/><con:config><script>import javax.jms.*
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>90414ed1-d501-45a8-86b6-466a1352735c</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>cd8b9098-8fbd-42a9-8eb7-67404b5f59dd</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>906220c2-8277-4fcb-a3bd-f15306888b25</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>53c0a958-b619-493b-b45b-7b9d7ecf4e43</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e138bc36-5999-4555-b848-c445b16888f9</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="3c91349b-ff1d-4f71-b9ec-81b30751c6e9" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS061-EDELIVERY-4238-Push-Payload inside body" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Save Current CXF log level" id="5dfabb31-ae36-4976-b98e-207165b329b1"><con:settings/><con:config><script>def custPropName="org.apache.cxf";
+
+// Get Domibus package log level
+def propValue=Domibus.getLogLevel("C2",context,log,custPropName);
+// Set test case custom property
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set CXF log Level to info" id="430a308c-7a6b-4f69-8ef3-0e9ce00b5781"><con:settings/><con:config><script>Domibus.setLogLevel("C2",context,log,"org.apache.cxf","INFO");
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number C2 - Bodyload" id="5ee74efc-37a2-4df8-82e8-0c0929208052"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms" id="0d85e53c-59c4-4a3a-9e36-c6ce6233ebb3"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 def MapMessage messageMap = null
@@ -4308,6 +4318,7 @@ domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 	messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
 	messageMap.setStringProperty("protocol", "AS4")
 	messageMap.setJMSCorrelationID("12345")
+	messageMap.setStringProperty("messageId", "-DomJMS061-")
 
 	//Set up the payload properties
      messageMap.setStringProperty("totalNumberOfPayloads", "1")
@@ -4321,71 +4332,28 @@ domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 	byte[] payload = pay1.getBytes()
 	messageMap.setBytes("payload_1", payload)
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms - two messages" id="87129b55-ca5a-4a0b-9249-8b39eb9f9d57"><con:settings/><con:config><script>import javax.jms.*
-import eu.domibus.test.jms.DomibusJMSPlugin
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Messaged exchange success" id="61c5f526-51f4-4b9a-a6d7-7253553df0d5"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS061-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Verify Logs - Bodyload" id="69599006-b51f-4846-8fe2-5e72c4e6ef1f"><con:settings/><con:config><script>
+// Check the log file of C2
+def logValueList =  ["Content-Type: multipart/related"];
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner, false);</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Current log level" id="d6d73708-d9fb-4c66-87eb-02eb9e14f772" disabled="true"><con:settings/><con:config><script>def custPropName="org.apache.cxf";
 
-def MapMessage messageMap = null
-def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
-messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
-domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+// C2
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+// Reset log level value
+Domibus.setLogLevel("C2",context,log,custPropName,propValue);
+sleep(2000);
 
-	messageMap.setStringProperty("messageType", "submitMessage")
-	messageMap.setStringProperty("service", "bdx:noprocess")
-     messageMap.setStringProperty("serviceType", "tc24")
-	messageMap.setStringProperty("action", "TC24Leg1")
-     messageMap.setStringProperty("conversationId", "123")
-     messageMap.setStringProperty("fromPartyId", "domibus-blue")
-     messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-     messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
-     messageMap.setStringProperty("toPartyId", "domibus-red")
-     messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered");
-	messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
-	messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
-	messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
-	messageMap.setStringProperty("protocol", "AS4")
-	messageMap.setJMSCorrelationID("12345")
 
-	//Set up the payload properties
-     messageMap.setStringProperty("totalNumberOfPayloads", "3")
-	messageMap.setStringProperty("payload_1_mimeType", "text/xml")
-	messageMap.setStringProperty("payload_1_description", "message")
-	messageMap.setStringProperty("p1InBody", "true");
 
-	//send the payload in the JMS message as byte array
-	//String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
-	String pay1 = "&lt;test>test&lt;/test>";
-	byte[] payload = pay1.getBytes()
-	messageMap.setBytes("payload_1", payload)
 
-messageMap.setStringProperty("payload_2_mimeContentId", "cid:attachment")
-messageMap.setStringProperty("payload_2_mimeType", "application/pdf")
-messageMap.setStringProperty("payload_2_description", "message")
-String pay2 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4="
-byte[] payload2 = pay2.getBytes()
-messageMap.setBytes("payload_2", payload2)
+</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith("-DomJMS061-")
+test.finalize();
 
-domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check 1" id="e41fb710-c2ce-479e-bb15-39d167a86510"><con:settings/><con:config><script>def result=javax.swing.JOptionPane.showConfirmDialog(null, """ Check in the logs that the xml payload is sent in the message body and not as a seperate mime part.
-Check also that payloads in receiver side arrived in correct order.""");
-
-if(result == javax.swing.JOptionPane.YES_OPTION)
-	{
-		log.info "PASS: Result as expected, continuing the test";
-	}
-else if(result == javax.swing.JOptionPane.NO_OPTION)
-	{
-		log.info "FAIL: Manual check unsuccessful";
-		testRunner.fail("Manual check indicated as unsuccessful by user")
-	}
-else if (result == javax.swing.JOptionPane.CANCEL_OPTION)
-	{
-		log.info "SKIP: Check skipped bu user";
-	}
-
-</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to WS for Blue and Red" id="18ddb29d-855b-4ac0-9d51-fd9a8bf72ad0" disabled="true"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log)
-Domibus.setMessageFilters("receiver","backendWebservice",context,log)
-</script></con:config></con:testStep><con:tearDownScript>
-Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="bd38a08d-6ff0-4b00-8677-4ee3e68c0453" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS062-Payload size" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Update PMode Blue lt payload size" id="ff192e69-83f9-4881-9937-21ee1300c6e7"><con:settings/><con:config><script>import java.nio.file.Paths
+testRunner.testCase.testSteps['Reset Current log level'].run(testRunner, context);
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>org.apache.cxf</con:name><con:value>WARN</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>1363</con:value></con:property></con:properties><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="bd38a08d-6ff0-4b00-8677-4ee3e68c0453" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS062-Payload size" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Update PMode Blue lt payload size" id="ff192e69-83f9-4881-9937-21ee1300c6e7"><con:settings/><con:config><script>import java.nio.file.Paths
 
 def currentValue=['2147483647'];
 def newValue=['79'];
