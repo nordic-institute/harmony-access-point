@@ -71,9 +71,6 @@ public class AlertPgUXTest extends SeleniumTest {
 	// EDELIVERY-8455- jira issue reported for delete operation
 
 	/*  ALRT-35 - Delete domain alert as super  */
-	@Description("ALRT-35 - Delete domain alert as super")
-	@Link(name = "EDELIVERY-6959", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6959")
-	@AllureId("ALRT-35")
 	@Test(description = "ALRT-35", groups = {"multiTenancy"},enabled=false)
 	public void delDomainAlertbySuperAdmin() throws Exception {
 
@@ -86,19 +83,17 @@ public class AlertPgUXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		int beforeCount = page.grid().getPagination().getTotalItems();
-		if (beforeCount > 1) {
+		if (beforeCount <= 1) {
 
+			new SkipException("no grid data available");
+		}
+		else {
 			page.verifyDel(0, Boolean.FALSE, soft);
-			Allure.step("Mark One unprocessed alert as processed");
 			log.info("Mark One unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
 			new Dialog(driver).confirm();
 			page.verifyDel(0, Boolean.TRUE, soft);
-
-
-		} else {
-			new SkipException("no grid data available");
 		}
 
 		soft.assertAll();
@@ -108,9 +103,6 @@ public class AlertPgUXTest extends SeleniumTest {
 	// EDELIVERY-6960 - ALRT-36 - Delete SUPER alert as super
 	// EDELIVERY-8455- jira issue reported for delete operation
 	/*  ALRT-36 - Delete SUPER alert as super  */
-	@Description("ALRT-36 - Delete SUPER alert as super")
-	@Link(name = "EDELIVERY-6960", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6960")
-	@AllureId("ALRT-36")
 	@Test(description = "ALRT-36", groups = {"multiTenancy"},enabled=false)
 	public void delSuperAlert() throws Exception {
 
@@ -121,22 +113,18 @@ public class AlertPgUXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		int beforeCount = page.grid().getPagination().getTotalItems();
-		if (beforeCount > 1) {
+		if (beforeCount <= 1) {
 
+			new SkipException("no grid data available");
+		}
+		else{
 			page.verifyDel(0, Boolean.FALSE, soft);
-
-			Allure.step("Mark one unprocessed alert as processed");
 			log.info("Mark one unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
 			new Dialog(driver).confirm();
 			page.verifyDel(0, Boolean.TRUE, soft);
-
-
-		} else {
-			new SkipException("no grid data available");
 		}
-
 		soft.assertAll();
 
 	}
@@ -144,9 +132,6 @@ public class AlertPgUXTest extends SeleniumTest {
 	// EDELIVERY-6958 - ALRT-34 - Delete domain alert as admin
 	// EDELIVERY-8455- jira issue reported for delete operation
 	/*  ALRT-34 - Delete domain alert as admin  */
-	@Description("ALRT-34 - Delete domain alert as admin")
-	@Link(name = "EDELIVERY-6958", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-6958")
-	@AllureId("ALRT-34")
 	@Test(description = "ALRT-34", groups = {"multiTenancy", "singleTenancy"},enabled=false)
 	public void delDomainAlertByAdmin() throws Exception {
 
@@ -157,7 +142,6 @@ public class AlertPgUXTest extends SeleniumTest {
 			String username = Gen.randomAlphaNumeric(10);
 			rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 			login(username, data.defaultPass());
-			Allure.step(String.format("Created user %s with role %s and login", username, DRoles.ADMIN));
 			log.info(String.format("Created user %s with role %s", username, DRoles.ADMIN));
 		}
 		AlertPage page = new AlertPage(driver);
@@ -165,13 +149,14 @@ public class AlertPgUXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		int beforeCount = page.grid().getPagination().getTotalItems();
-		if (beforeCount > 1) {
+		if (beforeCount <= 1) {
 
-			Allure.step("Delete unprocessed super alerts");
+			new SkipException("no grid data available"); }
+
+		else {
+
 			log.info("Delete unprocessed super alerts");
 			page.verifyDel(0, Boolean.FALSE, soft);
-
-			Allure.step("Mark one unprocessed alert as processed");
 			log.info("Mark one unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
@@ -184,11 +169,8 @@ public class AlertPgUXTest extends SeleniumTest {
 
 	// EDELIVERY-7148 - ALRT-33 - Super admin marks domain alert as processed
 	/*  ALRT-33 - Super admin marks domain alert as processed  */
-	@Description("ALRT-33 - Super admin marks domain alert as processed")
-	@Link(name = "EDELIVERY-7148", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7148")
-	@AllureId("ALRT-33")
 	@Test(description = "ALRT-33", groups = {"multiTenancy", "singleTenancy"})
-	public void MarkDomainAlrtProcessed() throws Exception {
+	public void markDomainAlrtProcessed() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);
@@ -199,7 +181,6 @@ public class AlertPgUXTest extends SeleniumTest {
 		}
 		page.grid().waitForRowsToLoad();
 
-		Allure.step("Mark one unprocessed alert as processed and save");
 		log.info("Mark one unprocessed alert as processed and save");
 
 		page.verifyProcessed(soft, Boolean.TRUE);
@@ -208,7 +189,6 @@ public class AlertPgUXTest extends SeleniumTest {
 		soft.assertFalse(page.getSaveButton().isEnabled(), "Save button is not enabled");
 		soft.assertFalse(page.getCancelButton().isEnabled(), "Cancel button is not enabled");
 
-		Allure.step("Mark one unprocessed alert as processed and cancel");
 		log.info("Mark one unprocessed alert as processed and cancel");
 		page.verifyProcessed(soft, Boolean.FALSE);
 		soft.assertTrue(page.grid().getSelectedRowIndex() > 0, "Row is still present");
@@ -221,9 +201,6 @@ public class AlertPgUXTest extends SeleniumTest {
 
 	// EDELIVERY-7150 - ALRT-38 - Super admin views domain alerts and changes domain
 	/*  ALRT-38 - Super admin views domain alerts and changes domain  */
-	@Description("ALRT-38 - Super admin views domain alerts and changes domain")
-	@Link(name = "EDELIVERY-7150", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7150")
-	@AllureId("ALRT-38")
 	@Test(description = "ALRT-38", groups = {"multiTenancy"})
 	public void changeDomain() throws Exception {
 
@@ -239,9 +216,6 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 	// EDELIVERY-7149 - ALRT-37 - Super admin filters super alerts
 	/*  ALRT-37 - Super admin filters super alerts  */
-	@Description("ALRT-37 - Super admin filters super alerts")
-	@Link(name = "EDELIVERY-7149", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7149")
-	@AllureId("ALRT-37")
 	@Test(description = "ALRT-37", groups = {"multiTenancy"})
 	public void filterSuperAlert() throws Exception {
 		AlertPage page = new AlertPage(driver);
@@ -250,14 +224,11 @@ public class AlertPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		page.grid().waitForRowsToLoad();
 
-		Allure.step("Total number of records : " + page.grid().getPagination().getTotalItems());
 		log.info("Total number of records : " + page.grid().getPagination().getTotalItems());
-		Allure.step("Getting alert info for first row");
 		log.info("Getting alert info for first row");
 
 		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
 
-		Allure.step("Search on the basis of first row data" + firstRowAlert);
 		log.info("Search on the basis of first row data " + firstRowAlert);
 		page.filters().basicFilterBy(null, firstRowAlert.get("Alert Type"), firstRowAlert.get("Alert Status"),
 				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
@@ -280,9 +251,6 @@ public class AlertPgUXTest extends SeleniumTest {
 
 	// EDELIVERY-7151 - ALRT-39 - Super admin filters domain alerts
 	/*  ALRT-39 - Super admin filters domain alerts  */
-	@Description("ALRT-39 - Super admin filters domain alerts")
-	@Link(name = "EDELIVERY-7151", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7151")
-	@AllureId("ALRT-39")
 	@Test(description = "ALRT-39", groups = {"multiTenancy"})
 	public void filterDomainAlert() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -294,14 +262,11 @@ public class AlertPgUXTest extends SeleniumTest {
 
 		page.grid().waitForRowsToLoad();
 
-		Allure.step("Total number of records : " + page.grid().getPagination().getTotalItems());
 		log.info("Total number of records : " + page.grid().getPagination().getTotalItems());
-		Allure.step("Getting alert info for first row");
 		log.info("Getting alert info for first row");
 
 		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
 
-		Allure.step("Search on the basis of first row data" + firstRowAlert);
 		log.info("Search on the basis of first row data " + firstRowAlert);
 		page.filters().basicFilterBy(null, firstRowAlert.get("Alert Type"), firstRowAlert.get("Alert Status"),
 				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
