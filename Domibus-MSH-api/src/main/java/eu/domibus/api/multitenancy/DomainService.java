@@ -12,6 +12,8 @@ public interface DomainService {
 
     Domain DEFAULT_DOMAIN = new Domain("default", "Default");
 
+    String DOMAINS_HOME = "domains";
+
     String GENERAL_SCHEMA_PROPERTY = DOMIBUS_DATABASE_GENERAL_SCHEMA;
 
     List<Domain> getDomains();
