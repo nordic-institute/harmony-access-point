@@ -78,8 +78,8 @@ public class AlertPgUXTest extends SeleniumTest {
 
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
-		page.getShowDomainChk().click();
-		page.getFilters().getSearchButton().click();
+		page.filters().getShowDomainCheckbox().click();
+		page.filters().getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 
 		int beforeCount = page.grid().getPagination().getTotalItems();
@@ -176,8 +176,8 @@ public class AlertPgUXTest extends SeleniumTest {
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
 		if(data.isMultiDomain()) {
-			page.getShowDomainChk().click();
-			page.getFilters().getSearchButton().click();
+			page.filters().getShowDomainCheckbox().click();
+			page.filters().getSearchButton().click();
 		}
 		page.grid().waitForRowsToLoad();
 
@@ -207,10 +207,10 @@ public class AlertPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
-		page.getShowDomainChk().click();
-		page.getFilters().getSearchButton().click();
+		page.filters().getShowDomainCheckbox().click();
+		page.filters().getSearchButton().click();
 		page.getDomainSelector().selectAnotherDomain();
-		soft.assertFalse(page.getShowDomainChk().isChecked(), "Show domain checkbox is not checked");
+		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(), "Show domain checkbox is not checked");
 		soft.assertAll();
 
 	}
@@ -234,7 +234,7 @@ public class AlertPgUXTest extends SeleniumTest {
 				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
 
 		page.grid().waitForRowsToLoad();
-		soft.assertFalse(page.getShowDomainChk().isChecked(),"Show domain checkbox is unchecked after search");
+		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(),"Show domain checkbox is unchecked after search");
 
 		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
 
@@ -257,8 +257,8 @@ public class AlertPgUXTest extends SeleniumTest {
 
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
-		page.getShowDomainChk().click();
-		page.getFilters().getSearchButton().click();
+		page.filters().getShowDomainCheckbox().click();
+		page.filters().getSearchButton().click();
 
 		page.grid().waitForRowsToLoad();
 
@@ -272,7 +272,7 @@ public class AlertPgUXTest extends SeleniumTest {
 				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
 
 		page.grid().waitForRowsToLoad();
-		soft.assertTrue(page.getShowDomainChk().isChecked(),"Show domain checkbox is checked after search");
+		soft.assertTrue(page.filters().getShowDomainCheckbox().isChecked(),"Show domain checkbox is checked after search");
 
 		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
 

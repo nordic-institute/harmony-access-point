@@ -65,25 +65,15 @@ public class AlertPage extends DomibusPage {
 		return weToDButton(deleteButton);
 	}
 
-	public Checkbox getShowDomainChk() {
-		return weToCheckbox(showDomainChkLct);
-	}
-	public 	AlertFilters getFilters(){ return new AlertFilters(driver);}
-
-	public AlertsGrid getAlertGrid(){ return new AlertsGrid(driver,gridContainer);}
-
-
 	public void verifyDel(int rowNumber, Boolean isProcessed, SoftAssert soft) throws Exception {
 		String alertId = grid().getRowSpecificColumnVal(rowNumber, "Alert Id");
 
 		if(isProcessed){
-			getFilters().getProcessedSelect().selectOptionByText("PROCESSED");
-			Allure.step("Click on search button");
+			filters().getProcessedSelect().selectOptionByText("PROCESSED");
 			log.info("Click on search button");
-			getFilters().getSearchButton().click();
+			filters().getSearchButton().click();
 
 		}
-		Allure.step("Delete selected alert");
 		log.info("Delete selected alert");
 		grid().selectRow(rowNumber);
 		getDeleteButton().click();
