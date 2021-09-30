@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.*;
+import eu.domibus.plugin.fs.ebms3.ProcessingType;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -51,6 +52,12 @@ public class FSProcessFileService {
             if (metadataFile.exists()) {
                 UserMessage metadata = parseMetadata(metadataFile);
                 LOG.debug("Metadata found and valid: [{}]", processableFile.getName());
+                ProcessingType processingType = metadata.getProcessingType();
+                if(processingType==null){
+                    processingType=ProcessingType.PUSH;
+                    metadata.setProcessingType(processingType);
+                    LOG.debug("No processing type defined in UserMessage, setting default to [{}]]",processingType);
+                }
 
                 DataHandler dataHandler = fsFilesManager.getDataHandler(processableFile);
                 Map<String, FSPayload> fsPayloads = new HashMap<>(1);

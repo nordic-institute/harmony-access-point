@@ -33,4 +33,5 @@
             </PartProperties>
         </PartInfo>
     </PayloadInfo>
+    <ProcessingType>PUSH</ProcessingType>
 </UserMessage>

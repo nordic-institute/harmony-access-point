@@ -88,7 +88,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         UserMessage metadata = messageIn.getMetadata();
         Submission submission = new Submission();
         submission.setMpc(metadata.getMpc());
-        submission.setProcessingType(getProcessingType(messageIn));
+        submission.setProcessingType(ProcessingType.valueOf(metadata.getProcessingType().value()));
         setPartyInfoToSubmission(submission, metadata.getPartyInfo());
         setCollaborationInfoToSubmission(submission, metadata.getCollaborationInfo());
         setMessagePropertiesToSubmission(submission, metadata.getMessageProperties());
@@ -98,19 +98,6 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             throw new FSPluginException("Could not set payload to Submission", ex);
         }
         return submission;
-    }
-
-    private ProcessingType getProcessingType(final FSMessage messageIn) {
-        eu.domibus.plugin.fs.ebms3.ProcessingType processingType = messageIn.getMetadata().getProcessingType();
-        if(processingType==null){
-            LOG.debug("Processing type is empty, setting processing type to default PUSH");
-            return ProcessingType.PUSH;
-        }
-        try {
-            return ProcessingType.valueOf(processingType.value());
-        }catch (IllegalArgumentException e){
-            throw new FSPluginException("Value for processingType property:["+ processingType.value() +"] is incorrect. Should be PUSH or PULL.",e);
-        }
     }
 
     protected void setPayloadToSubmission(Submission submission, final Map<String, FSPayload> dataHandlers, UserMessage metadata) {
