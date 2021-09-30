@@ -64,6 +64,8 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
+
+        init();
     }
 
     public void init() {

@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,18 +23,16 @@ public class DomainCryptoServiceFactory {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceFactory.class);
 
-    @Autowired
-    protected Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiList;
+    protected Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider;
 
     final protected DomibusPropertyProvider domibusPropertyProvider;
 
     final protected CertificateService certificateService;
 
-    public DomainCryptoServiceFactory(
-//            List<DomainCryptoServiceSpi> domainCryptoServiceSpiList,
+    public DomainCryptoServiceFactory(Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider,
                                       DomibusPropertyProvider domibusPropertyProvider,
                                       CertificateService certificateService) {
-//        this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
+        this.domainCryptoServiceSpiListProvider = domainCryptoServiceSpiListProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
     }
@@ -46,8 +43,7 @@ public class DomainCryptoServiceFactory {
     public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 
-        final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiList.get(), domibusPropertyProvider, certificateService);
-        bean.init();
+        final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);
         return bean;
     }
 

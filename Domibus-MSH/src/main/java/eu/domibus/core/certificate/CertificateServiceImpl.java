@@ -65,6 +65,7 @@ import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 3.2
  */
 @Service
