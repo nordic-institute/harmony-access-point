@@ -2,6 +2,8 @@ package eu.domibus.plugin.ws.backend.reliability.retry;
 
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +21,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DISPATCHER_C
 @Configuration
 public class WSPluginWorkersConfiguration {
 
-    @Autowired
-    private DomainContextExtService domainContextExtService;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginWorkersConfiguration.class);
 
     @Bean
     public JobDetailFactoryBean wsPluginBackendSendRetryWorker() {
@@ -32,9 +33,11 @@ public class WSPluginWorkersConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean wsPluginBackendSendRetryWorkerTrigger(DomibusPropertyExtService propertyExtService) {
-        if (domainContextExtService.getCurrentDomainSafely() == null)
+    public CronTriggerFactoryBean wsPluginBackendSendRetryWorkerTrigger(DomibusPropertyExtService propertyExtService, DomainContextExtService domainContextExtService) {
+        if (domainContextExtService.getCurrentDomainSafely() == null) {
+            LOG.debug("Skip creating wsPluginBackendSendRetryWorkerTrigger on the general schema");
             return null;
+        }
 
         CronTriggerFactoryBean trigger = new CronTriggerFactoryBean();
         trigger.setJobDetail(wsPluginBackendSendRetryWorker().getObject());
