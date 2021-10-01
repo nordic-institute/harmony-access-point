@@ -490,7 +490,7 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
 
         <addColumn tableName="TB_USER_MESSAGE_LOG">
-            <column name="ARCHIVING_STATUS" type="VARCHAR(255)"/>
+            <column name="ARCHIVED" type="TIMESTAMP"/>
         </addColumn>
     </changeSet>
     <!-- End EArchive Tables -->

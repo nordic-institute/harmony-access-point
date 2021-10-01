@@ -100,9 +100,10 @@ import java.util.Date;
                         "  and uml.deleted IS NULL " +
                         "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
-        @NamedQuery(name = "UserMessageLog.updateStatusToArchived", query = " UPDATE UserMessageLog uml " +
-                "SET uml.eArchivingStatus = 'ARCHIVED' " +
-                "WHERE uml.entityId IN :ENTITY_IDS "),
+        @NamedQuery(name = "UserMessageLog.updateArchived", query =
+                "UPDATE UserMessageLog uml " +
+                "SET uml.archived = current_time " +
+                "WHERE uml.entityId = :ENTITY_ID "),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 
@@ -116,6 +117,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Column(name = "DOWNLOADED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date downloaded;
+
+    @Column(name = "ARCHIVED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date archived;
 
     @Column(name = "FAILED")
     @Temporal(TemporalType.TIMESTAMP)
@@ -178,20 +183,17 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @MapsId
     private UserMessage userMessage;
 
-    @Column(name = "ARCHIVING_STATUS")
-    private String eArchivingStatus;
-
     public UserMessageLog() {
         setReceived(new Date());
         setSendAttempts(0);
     }
 
-    public String geteArchivingStatus() {
-        return eArchivingStatus;
+    public Date getArchived() {
+        return archived;
     }
 
-    public void seteArchivingStatus(String eArchivingStatus) {
-        this.eArchivingStatus = eArchivingStatus;
+    public void setArchived(Date archived) {
+        this.archived = archived;
     }
 
     public String getBackend() {

@@ -305,4 +305,21 @@ public class UserMessageLogDaoIT extends AbstractIT {
         ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(msg1.getEntityId(), maxEntityId, 20);
         Assert.assertEquals(6, messagesForArchiving.getUserMessageDtos().size());
     }
+
+    @Test
+    @Transactional
+    public void updateStatusToArchived() {
+        List<UserMessageLog> allUserMessageLogs = messageDaoTestUtil.getAllUserMessageLogs();
+        List<Long> resultList = allUserMessageLogs.stream().map(AbstractNoGeneratedPkEntity::getEntityId).collect(Collectors.toList());
+
+        userMessageLogDao.updateStatusToArchived(resultList,5);
+
+        List<UserMessageLog> result = messageDaoTestUtil.getAllUserMessageLogs();
+
+        for (UserMessageLog uml : result) {
+            em.refresh(uml);
+            Assert.assertNotNull(uml.getArchived());
+        }
+    }
+
 }

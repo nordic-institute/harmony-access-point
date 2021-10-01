@@ -3,12 +3,9 @@ package eu.domibus.core.earchive.listener;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
-import eu.domibus.core.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.FileSystemEArchivePersistence;
-import eu.domibus.core.earchive.EArchiveBatch;
-import eu.domibus.core.earchive.EArchiveBatchDao;
+import eu.domibus.core.earchive.*;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -26,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -41,6 +40,8 @@ public class EArchiveListener implements MessageListener {
 
     private EArchiveBatchDao eArchiveBatchDao;
 
+    private DomibusPropertyProvider domibusPropertyProvider;
+
     private UserMessageLogDefaultService userMessageLogDefaultService;
 
     private JmsUtil jmsUtil;
@@ -50,12 +51,14 @@ public class EArchiveListener implements MessageListener {
             DatabaseUtil databaseUtil,
             EArchiveBatchDao eArchiveBatchDao,
             UserMessageLogDefaultService userMessageLogDefaultService,
-            JmsUtil jmsUtil) {
+            JmsUtil jmsUtil,
+            DomibusPropertyProvider domibusPropertyProvider) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsUtil = jmsUtil;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -95,7 +98,9 @@ public class EArchiveListener implements MessageListener {
         } catch (FileSystemException e) {
             throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
         }
-        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
+        Integer insertBatchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
+
+        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos), insertBatchSize);
     }
 
     private EArchiveBatch geteArchiveBatch(long entityId) {

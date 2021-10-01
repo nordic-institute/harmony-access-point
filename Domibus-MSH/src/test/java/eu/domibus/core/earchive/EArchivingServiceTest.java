@@ -10,6 +10,7 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import org.apache.commons.io.IOUtils;
+import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypes;
 import org.junit.Assert;
 import org.junit.Before;
@@ -173,6 +174,9 @@ public class EArchivingServiceTest {
 
             partInfo1.getHref();
             result = CID + MESSAGE;
+
+            partInfo1.getMime();
+            result = MediaType.OCTET_STREAM.getType();
         }};
 
         try {

@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -11,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
@@ -164,7 +164,8 @@ public class UserMessageLogDefaultService {
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
-    public void updateStatusToArchived(List<Long> entityIds) {
-        userMessageLogDao.updateStatusToArchived(entityIds);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateStatusToArchived(List<Long> entityIds, Integer insertBatchSize) {
+        userMessageLogDao.updateStatusToArchived(entityIds, insertBatchSize);
     }
 }

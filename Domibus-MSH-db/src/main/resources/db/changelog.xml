@@ -599,11 +599,11 @@
                 <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_LOG"/>
             </column>
             <column name="BACKEND" type="VARCHAR(255)"/>
-            <column name="ARCHIVING_STATUS" type="VARCHAR(255)"/>
             <column name="RECEIVED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
             <column name="DOWNLOADED" type="TIMESTAMP"/>
+            <column name="ARCHIVED" type="TIMESTAMP"/>
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="DELETED" type="TIMESTAMP"/>

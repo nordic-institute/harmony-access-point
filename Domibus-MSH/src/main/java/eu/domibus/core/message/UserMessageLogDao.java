@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
@@ -63,7 +64,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId,long maxEntityIdToArchived, int size) {
+    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
         TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
@@ -386,10 +387,26 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return this.em.find(UserMessageLog.class, entityId);
     }
 
-    @Transactional
-    public void updateStatusToArchived(List<Long> entityIds) {
-        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateStatusToArchived");
-        namedQuery.setParameter("ENTITY_IDS", entityIds);
-        namedQuery.executeUpdate();
+    public void updateStatusToArchived(List<Long> entityIds, Integer insertBatchSize) {
+        if (CollectionUtils.isEmpty(entityIds)) {
+            return;
+        }
+
+        for (int i = 0; i < entityIds.size(); i++) {
+            if (insertBatchSize != null && i != 0 && i % insertBatchSize == 0) {
+                LOG.trace("Flush and clear at index: [{}]", i);
+                em.flush();
+                em.clear();
+            }
+            updateStatusToArchived(entityIds.get(i));
+        }
+    }
+
+    public void updateStatusToArchived(Long entityId) {
+        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateArchived");
+
+        namedQuery.setParameter("ENTITY_ID", entityId);
+        int i = namedQuery.executeUpdate();
+        LOG.trace("UserMessageLog [{}] updated(0:no, 1: yes) with current_time: [{}]", entityId, i);
     }
 }

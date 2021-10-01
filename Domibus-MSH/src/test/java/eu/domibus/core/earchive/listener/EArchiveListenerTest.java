@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.listener;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -28,6 +29,8 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -46,6 +49,9 @@ public class EArchiveListenerTest {
 
     @Injectable
     private EArchiveBatchDao eArchiveBatchDao;
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     private UserMessageLogDefaultService userMessageLogDefaultService;
@@ -162,6 +168,9 @@ public class EArchiveListenerTest {
 
             eArchiveBatch.getBatchId();
             result = batchId;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
+            result = 5;
         }};
 
         eArchiveListener.onMessage(message);
@@ -170,7 +179,7 @@ public class EArchiveListenerTest {
             jmsUtil.setDomain(message);
             times = 1;
 
-            userMessageLogDefaultService.updateStatusToArchived(userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList()));
+            userMessageLogDefaultService.updateStatusToArchived(userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList()), 5);
             times = 1;
 
             fileObject.close();

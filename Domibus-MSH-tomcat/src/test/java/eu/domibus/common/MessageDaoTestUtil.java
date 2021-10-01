@@ -13,9 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -63,6 +66,8 @@ public class MessageDaoTestUtil {
     @Autowired
     PartyIdDao partyIdDao;
 
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    protected EntityManager em;
 
     final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
@@ -206,5 +211,10 @@ public class MessageDaoTestUtil {
     @Transactional
     public MessageProperty createMessageProperty(String originalSender, String originalSender1, String type) {
         return propertyDao.findOrCreateProperty(originalSender, originalSender1, type);
+    }
+
+    @Transactional
+    public List<UserMessageLog> getAllUserMessageLogs() {
+        return em.createQuery("select uml from UserMessageLog uml", UserMessageLog.class).getResultList();
     }
 }
