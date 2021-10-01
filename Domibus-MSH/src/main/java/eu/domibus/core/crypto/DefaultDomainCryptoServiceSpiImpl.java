@@ -73,7 +73,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     public void init() {
-        LOG.debug("Initializing the certificate provider");
+        LOG.debug("Initializing the certificate provider for domain [{}]", domain);
 
         final Properties allProperties = new Properties();
         allProperties.putAll(getKeystoreProperties());
@@ -92,6 +92,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
             super.setKeyStore(keyStore);
         }, domain);
 
+        LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
     @Override
@@ -137,7 +138,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
-        boolean added = certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates, overwrite, getTrustStoreBackUpLocation());
+        boolean added = certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
         signalService.signalTrustStoreUpdate(domain);
         return added;
     }
@@ -145,20 +146,20 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate())).collect(Collectors.toList());
-        certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates2, overwrite, getTrustStoreBackUpLocation());
+        certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates2, overwrite);
         signalService.signalTrustStoreUpdate(domain);
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        boolean removed = certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), Arrays.asList(alias), getTrustStoreBackUpLocation());
+        boolean removed = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, Arrays.asList(alias));
         signalService.signalTrustStoreUpdate(domain);
         return removed;
     }
 
     @Override
     public synchronized void removeCertificate(List<String> aliases) {
-        certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), aliases, getTrustStoreBackUpLocation());
+        certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, aliases);
         signalService.signalTrustStoreUpdate(domain);
     }
 

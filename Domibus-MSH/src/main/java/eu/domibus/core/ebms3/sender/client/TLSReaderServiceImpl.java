@@ -113,7 +113,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
      */
     private Optional<Path> getClientAuthenticationPath(String domainCode) {
         String domainSpecificFileName = StringUtils.stripToEmpty(domainCode) + "_" + CLIENT_AUTHENTICATION_XML;
-        Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), "domains", domainCode, domainSpecificFileName);
+        Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), "domains", domainCode, "keystores", domainSpecificFileName);
         boolean domainSpecificPathExists = Files.exists(domainSpecificPath);
         LOG.debug("Client authentication file [{}] at the domain specific path [{}] exists [{}]", domainSpecificFileName, domainSpecificPath, domainSpecificPathExists);
         if (domainSpecificPathExists) {

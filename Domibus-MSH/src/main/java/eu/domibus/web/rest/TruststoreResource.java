@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.KeyStore;
 import java.util.List;
 
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -95,8 +96,9 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected List<TrustStoreEntry> doGetTrustStoreEntries() {
-        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-        return certificateService.getTrustStoreEntries(store);
+        return certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
+//        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+//        return certificateService.getTrustStoreEntries(store);
     }
 
 }
