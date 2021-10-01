@@ -16,13 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -71,9 +67,9 @@ public class EArchiveBatchService {
         EArchiveBatch eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed);
 
         Integer longProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
-        batches(userMessageToBeArchived.getUserMessageDtos(), longProperty)
+        batches(userMessageToBeArchived, longProperty)
                 .forEach(userMessageDTOS ->
-                        eArchiveBatchUserMessageDao.create(eArchiveBatch, getEntityIds(userMessageDTOS)));
+                        eArchiveBatchUserMessageDao.create(eArchiveBatch, getEntityIds(userMessageDTOS.getUserMessageDtos())));
         return eArchiveBatch;
     }
 
@@ -81,17 +77,20 @@ public class EArchiveBatchService {
         return userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }
 
-    public static <T> Stream<List<T>> batches(List<T> source, int length) {
+    protected List<ListUserMessageDto> batches(ListUserMessageDto source, int length) {
         if (length <= 0) {
             throw new DomibusEArchiveException(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE + " invalid");
         }
-        int size = source.size();
-        if (size <= 0) {
-            return Stream.empty();
+        if (source == null || CollectionUtils.isEmpty(source.getUserMessageDtos())) {
+            return Collections.singletonList(new ListUserMessageDto(new ArrayList<>()));
         }
+        int size = source.getUserMessageDtos().size();
+
         int fullChunks = (size - 1) / length;
         return IntStream.range(0, fullChunks + 1).mapToObj(
-                n -> source.subList(n * length, n == fullChunks ? size : (n + 1) * length));
+                        n -> source.getUserMessageDtos().subList(n * length, n == fullChunks ? size : (n + 1) * length))
+                .map(ListUserMessageDto::new)
+                .collect(Collectors.toList());
     }
 
     private EArchiveBatch createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {

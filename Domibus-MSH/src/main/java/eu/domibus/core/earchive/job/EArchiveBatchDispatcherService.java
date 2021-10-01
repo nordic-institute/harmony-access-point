@@ -68,7 +68,7 @@ public class EArchiveBatchDispatcherService {
             if (lastEntityIdProcessed == null) {
                 break;
             }
-            LOG.info("EArchive created with last entity [{}]", lastEntityIdProcessed);
+            LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
         LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
     }
@@ -77,15 +77,16 @@ public class EArchiveBatchDispatcherService {
     /**
      * @return null if no messages found
      */
-    private Long createBatchAndEnqueue(Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
+    private Long createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
+        long lastEntityIdTreated;
         ListUserMessageDto userMessageToBeArchived = userMessageLogDao.findMessagesForArchivingDesc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
         if (CollectionUtils.isEmpty(userMessageToBeArchived.getUserMessageDtos())) {
-            LOG.debug("no message to archive");
+            LOG.debug("No message to archive");
             return null;
         }
-        lastEntityIdProcessed = userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId();
+        lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId();
 
-        EArchiveBatch eArchiveBatch = eArchiveBatchService.createEArchiveBatch(lastEntityIdProcessed, batchSize, userMessageToBeArchived);
+        EArchiveBatch eArchiveBatch = eArchiveBatchService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
 
         enqueueEArchive(eArchiveBatch, domain);
 
@@ -93,7 +94,7 @@ public class EArchiveBatchDispatcherService {
             LOG.debug("Last batch created");
             return null;
         }
-        return lastEntityIdProcessed;
+        return lastEntityIdTreated;
     }
 
 

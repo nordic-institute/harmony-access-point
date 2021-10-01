@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
+import static eu.domibus.core.earchive.RequestType.CONTINUOUS;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
@@ -32,6 +33,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatch> {
 
     public Long findLastEntityIdArchived() {
         TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatch.findLastEntityIdArchived", Long.class);
+        query.setParameter("REQUEST_TYPE", CONTINUOUS);
         List<Long> resultList = query.getResultList();
         if (isEmpty(resultList)) {
             return null;
