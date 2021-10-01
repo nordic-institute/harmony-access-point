@@ -109,7 +109,4 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         signalService.signalTLSTrustStoreUpdate(domain);
     }
 
-//    protected String getTrustStoreBackUpLocation() {
-//        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
-//    }
 }
