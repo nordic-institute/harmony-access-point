@@ -31,6 +31,8 @@ public class DomibusMetricsServlet extends MetricsServlet {
     @SuppressWarnings("squid:S2226") // Following the pattern of MetricsServlet
     private transient MetricsHelper metricsHelper;
 
+    private transient volatile MetricRegistry metricRegistry;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -42,12 +44,18 @@ public class DomibusMetricsServlet extends MetricsServlet {
         boolean showJMSCount = metricsHelper.showJMSCounts();
 
         //create a copy of existing metric registry - for output
-        MetricRegistry metricRegistry = new MetricRegistry();
-        for (Map.Entry<String, Metric> entry : registry.getMetrics().entrySet()) {
-            if (!showJMSCount && entry.getKey().startsWith(MetricsConfiguration.JMS_QUEUES)) {
-                continue;
+        if (metricRegistry == null) {
+            synchronized (MetricRegistry.class) {
+                if (metricRegistry == null) {
+                    metricRegistry = new MetricRegistry();
+                    for (Map.Entry<String, Metric> entry : registry.getMetrics().entrySet()) {
+                        if (!showJMSCount && entry.getKey().startsWith(MetricsConfiguration.JMS_QUEUES)) {
+                            continue;
+                        }
+                        register(metricRegistry, entry);
+                    }
+                }
             }
-            register(metricRegistry, entry);
         }
 
         resp.setContentType("application/json");
