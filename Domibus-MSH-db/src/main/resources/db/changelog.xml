@@ -602,6 +602,8 @@
             <column name="RECEIVED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column name="ARCHIVED" type="TIMESTAMP"/>
+            <column name="ACKNOWLEDGED" type="TIMESTAMP"/>
             <column name="DOWNLOADED" type="TIMESTAMP"/>
             <column name="ARCHIVED" type="TIMESTAMP"/>
             <column name="FAILED" type="TIMESTAMP"/>
@@ -665,6 +667,13 @@
         <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_USER_MESSAGE_LOG">
             <column name="FK_TIMEZONE_OFFSET" />
         </createIndex>
+        <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="ARCHIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="ACKNOWLEDGED"/>
+        </createIndex>
+
 
         <createTable tableName="TB_MESSAGING_LOCK">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">

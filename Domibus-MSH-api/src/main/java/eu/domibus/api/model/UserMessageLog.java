@@ -118,9 +118,9 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Temporal(TemporalType.TIMESTAMP)
     private Date downloaded;
 
-    @Column(name = "ARCHIVED")
+    @Column(name = "ACKNOWLEDGED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date archived;
+    private Date acknowledged;
 
     @Column(name = "FAILED")
     @Temporal(TemporalType.TIMESTAMP)
@@ -129,6 +129,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Column(name = "RESTORED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date restored;
+
+    @Column(name = "ARCHIVED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date archived;
 
     /**
      * The Date when this message was deleted, A message shall be deleted when one of the following conditions apply:
@@ -188,13 +192,6 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
         setSendAttempts(0);
     }
 
-    public Date getArchived() {
-        return archived;
-    }
-
-    public void setArchived(Date archived) {
-        this.archived = archived;
-    }
 
     public String getBackend() {
         return backend;
@@ -228,6 +225,14 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
         this.failed = failed;
     }
 
+    public Date getAcknowledged() {
+        return acknowledged;
+    }
+
+    public void setAcknowledged(Date acknowledged) {
+        this.acknowledged = acknowledged;
+    }
+
     public Date getRestored() {
         return restored;
     }
@@ -242,6 +247,14 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
 
     public void setDeleted(Date deleted) {
         this.deleted = deleted;
+    }
+
+    public Date getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Date archived) {
+        this.archived = archived;
     }
 
     @Override

@@ -20,6 +20,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -29,6 +30,8 @@ import java.util.*;
  */
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
+
+    private static final String MESSAGESTATUS_DELIMITER = "','";
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
@@ -240,8 +243,47 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         try {
             return query.getResultList();
         } catch (NoResultException nrEx) {
-            LOG.debug("Query [{}] did not find any result for startDate [{}] startDate and MPC [{}]", queryName, startDate, mpc);
+            LOG.debug("Query [{}] did not find any result for startDate [{}] and MPC [{}]", queryName, startDate, mpc);
             return Collections.emptyList();
+        }
+    }
+
+    @Transactional
+    public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
+        String sqlString = "select count(*) from " +
+                "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +
+                "             inner join  TB_USER_MESSAGE   on TB_USER_MESSAGE_LOG.ID_PK=TB_USER_MESSAGE.ID_PK" +
+                "             inner join  TB_D_MESSAGE_STATUS on TB_USER_MESSAGE_LOG.MESSAGE_STATUS_ID_FK=TB_D_MESSAGE_STATUS.ID_PK" +
+                "             inner join  TB_D_MPC on TB_USER_MESSAGE.MPC_ID_FK=TB_D_MPC.ID_PK" +
+                "           where TB_D_MESSAGE_STATUS.STATUS=:MESSAGESTATUS" +
+                "             and TB_D_MPC.VALUE=:MPC" +
+                "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN is not null" +
+                "             and TB_USER_MESSAGE_LOG.$DATE_COLUMN > :STARTDATE";
+
+        sqlString = sqlString.replace("$PARTITION", partitionName);
+        sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
+
+        LOG.trace("sqlString to find non expired messages: " + sqlString);
+        final Query countQuery = em.createNativeQuery(sqlString);
+        countQuery.setParameter("MPC", mpc );
+        countQuery.setParameter("STARTDATE", startDate);
+        countQuery.setParameter("MESSAGESTATUS", messageStatus);
+        int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+        LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
+        return result;
+    }
+
+    protected String getDateColumn(MessageStatus messageStatus) {
+        switch (messageStatus) {
+            case ACKNOWLEDGED:
+            case RECEIVED:
+            case DOWNLOADED:
+                return messageStatus.name();
+            case SEND_FAILURE:
+                return "FAILED";
+            default:
+                LOG.warn("Messages with status [{}] are not defined on the retention mechanism", messageStatus);
+                return "INVALID_STATUS_FOR_RETENTION";
         }
     }
 
@@ -293,6 +335,34 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return result;
     }
 
+    @Transactional
+    public int countUnarchivedMessagesOnPartition(String partitionName) {
+        final Query countQuery = em.createNativeQuery("SELECT COUNT(*) FROM tb_user_message_log PARTITION (" + partitionName + ") WHERE archived IS NULL");
+        try {
+            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            LOG.debug("count unarchived messages result [{}]", result);
+            return result;
+        } catch (NoResultException nre) {
+            LOG.warn("Could not count unarchived messages for partition [{}], result [{}]", partitionName, nre);
+            return -1;
+        }
+    }
+
+    @Transactional
+    public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName +") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+        try {
+            final Query countQuery = em.createNativeQuery(sqlString);
+            countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);
+            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            LOG.debug("count by message status result [{}]", result);
+            return result;
+        } catch (NoResultException nre) {
+            LOG.warn("Could not count in progress messages for partition [{}], result [{}]", partitionName, nre);
+            return -1;
+        }
+    }
+
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return userMessageLogInfoFilter;
     }
@@ -331,6 +401,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
                 break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
+                messageLog.setAcknowledged(new Date());
                 reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case DOWNLOADED:

@@ -31,6 +31,8 @@ public class DomibusMetricsServlet extends MetricsServlet {
     @SuppressWarnings("squid:S2226") // Following the pattern of MetricsServlet
     private transient MetricsHelper metricsHelper;
 
+    private transient volatile MetricRegistry metricRegistry;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -41,14 +43,8 @@ public class DomibusMetricsServlet extends MetricsServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         boolean showJMSCount = metricsHelper.showJMSCounts();
 
-        //create a copy of existing metric registry - for output
-        MetricRegistry metricRegistry = new MetricRegistry();
-        for (Map.Entry<String, Metric> entry : registry.getMetrics().entrySet()) {
-            if (!showJMSCount && entry.getKey().startsWith(MetricsConfiguration.JMS_QUEUES)) {
-                continue;
-            }
-            register(metricRegistry, entry);
-        }
+        //Initiate a copy of existing metric registry - for output
+        initMetricRegistry(showJMSCount);
 
         resp.setContentType("application/json");
         if (allowedOrigin != null) {
@@ -65,6 +61,27 @@ public class DomibusMetricsServlet extends MetricsServlet {
             }
         } catch (IOException e) {
             LOG.error("Error in write to HttpServletResponse output", e);
+        }
+    }
+
+    /**
+     * Return a copy of metric registry without JMS queue information.
+     * @param showJMSCount should jms statistics be included or not.
+     * @return the copy of metric registry.
+     */
+    private void initMetricRegistry(boolean showJMSCount) {
+        if (metricRegistry == null) {
+            synchronized (MetricRegistry.class) {
+                if (metricRegistry == null) {
+                    metricRegistry = new MetricRegistry();
+                    for (Map.Entry<String, Metric> entry : registry.getMetrics().entrySet()) {
+                        if (!showJMSCount && entry.getKey().startsWith(MetricsConfiguration.JMS_QUEUES)) {
+                            continue;
+                        }
+                        register(metricRegistry, entry);
+                    }
+                }
+            }
         }
     }
 
