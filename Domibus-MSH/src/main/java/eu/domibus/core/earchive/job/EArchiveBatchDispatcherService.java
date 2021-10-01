@@ -52,7 +52,6 @@ public class EArchiveBatchDispatcherService {
         this.eArchiveBatchService = eArchiveBatchService;
     }
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Timer(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     @Counter(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     public void startBatch(Domain domain) {
@@ -61,9 +60,9 @@ public class EArchiveBatchDispatcherService {
 
         long maxEntityIdToArchived = eArchiveBatchService.getMaxEntityIdToArchived();
         int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
-        int nbrBatchMax = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
+        int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
 
-        for (int i = 0; i < nbrBatchMax; i++) {
+        for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
             LOG.debug("Start creation batch number [{}]", i);
             lastEntityIdProcessed = createBatchAndEnqueue(lastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain);
             if (lastEntityIdProcessed == null) {
