@@ -21,6 +21,12 @@ import java.util.Set;
         @NamedQuery(name = "UserMessage.find",
                 query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
 })
+@NamedNativeQueries({
+        @NamedNativeQuery(
+                name    =   "UserMessage.findPartitions_ORACLE",
+                query   =   "SELECT partition_name FROM user_tab_partitions WHERE table_name = 'TB_USER_MESSAGE' and partition_name <= :PNAME"
+        )
+})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
 public class UserMessage extends AbstractBaseEntity {
