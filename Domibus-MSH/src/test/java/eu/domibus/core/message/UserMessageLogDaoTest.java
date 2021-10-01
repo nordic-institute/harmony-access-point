@@ -894,33 +894,4 @@ public class UserMessageLogDaoTest {
             Assert.assertNull("Should have returned null for the message identifier when the last user test message is not found", result);
         }};
     }
-
-    @Test
-    public void testSqlStringGetNewerThan(@Injectable TypedQuery<MessageLogInfo> query) {
-
-        // WHEN
-        userMessageLogDao.getMessagesNewerThan(DateUtils.addMinutes(new Date(), 20 * -1), "my_mpc", MessageStatus.DOWNLOADED, "PPP123");
-
-        // THEN
-        new Verifications() {{
-            em.createNativeQuery(anyString);
-        }};
-    }
-
-    @Test
-    public void testSqlString(@Injectable TypedQuery<MessageLogInfo> query) {
-        List<String> messageStatuses = new ArrayList<>(
-                Arrays.asList(MessageStatus.SEND_ENQUEUED.name(),
-                        MessageStatus.SEND_IN_PROGRESS.name())
-        );
-        String expectedSqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (PART123) CROSS JOIN TB_D_MESSAGE_STATUS dms WHERE MESSAGE_STATUS_ID_FK=dms.ID_PK AND dms.STATUS NOT IN ('SEND_ENQUEUED','SEND_IN_PROGRESS');";
-
-        // WHEN
-        userMessageLogDao.countByMessageStatusOnPartition(messageStatuses, "PART123");
-
-        // THEN
-        new Verifications() {{
-           em.createNativeQuery(expectedSqlString);
-        }};
-    }
 }

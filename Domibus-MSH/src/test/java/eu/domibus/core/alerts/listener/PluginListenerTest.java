@@ -46,7 +46,6 @@ public class PluginListenerTest {
             domainContextProvider.clearCurrentDomain();
             eventService.persistEvent(event);
             alertService.createAndEnqueueAlertOnPluginEvent(event);
-            event.toString();
         }};
     }
 
@@ -64,7 +63,6 @@ public class PluginListenerTest {
             domainContextProvider.setCurrentDomain(domain);times=1;
             eventService.persistEvent(event);
             alertService.createAndEnqueueAlertOnPluginEvent(event);
-            event.toString();
         }};
     }
 }

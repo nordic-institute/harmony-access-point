@@ -55,7 +55,6 @@ public class UserAccountListenerTest {
             times = 1;
             alertService.enqueueAlert(alert);
             times = 1;
-            event.toString();
         }};
     }
 
@@ -80,7 +79,6 @@ public class UserAccountListenerTest {
             times = 1;
             alertService.enqueueAlert(alert);
             times = 1;
-            event.toString();
         }};
     }
 }
