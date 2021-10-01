@@ -133,7 +133,7 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_TIMEZONE_OFFSET")
     private TimezoneOffset timezoneOffset;
 
