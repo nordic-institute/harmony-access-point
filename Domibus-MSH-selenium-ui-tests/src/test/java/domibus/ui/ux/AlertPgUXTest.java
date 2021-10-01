@@ -1,7 +1,6 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.popups.Dialog;
-import io.qameta.allure.*;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -20,18 +19,12 @@ import utils.TestUtils;
 import java.util.HashMap;
 import java.util.List;
 
-@Epic("Alerts")
-@Feature("UX")
 public class AlertPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);
 
 
 	// EDELIVERY-7154 - ALRT-42 - Modify no of visible rows
-	/*  ALRT-42 - Modify no of visible rows  */
-	@Description("ALRT-42 - Modify no of visible rows")
-	@Link(name = "EDELIVERY-7154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7154")
-	@AllureId("ALRT-42")
 	@Test(description = "ALRT-42", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleColumns() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -48,10 +41,6 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 	// EDELIVERY-7154 - ALRT-42 - Modify no of visible rows
-	/*  ALRT-42 - Modify no of visible rows  */
-	@Description("ALRT-42 - Modify no of visible rows")
-	@Link(name = "EDELIVERY-7154", url = "https://ec.europa.eu/cefdigital/tracker/browse/EDELIVERY-7154")
-	@AllureId("ALRT-42")
 	@Test(description = "ALRT-42", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleRows() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -66,6 +55,7 @@ public class AlertPgUXTest extends SeleniumTest {
 		soft.assertAll();
 
 	}
+
 
 	// EDELIVERY-6959 - ALRT-35 - Delete domain alert as super
 	// EDELIVERY-8455- jira issue reported for delete operation
