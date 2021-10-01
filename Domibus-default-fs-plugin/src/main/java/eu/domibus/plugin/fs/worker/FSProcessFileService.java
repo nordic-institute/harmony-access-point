@@ -53,10 +53,10 @@ public class FSProcessFileService {
                 UserMessage metadata = parseMetadata(metadataFile);
                 LOG.debug("Metadata found and valid: [{}]", processableFile.getName());
                 ProcessingType processingType = metadata.getProcessingType();
-                if(processingType==null){
-                    processingType=ProcessingType.PUSH;
+                if (processingType == null) {
+                    processingType = ProcessingType.PUSH;
                     metadata.setProcessingType(processingType);
-                    LOG.debug("No processing type defined in UserMessage, setting default to [{}]",processingType);
+                    LOG.debug("No processing type defined in UserMessage, setting default to [{}]", processingType);
                 }
 
                 DataHandler dataHandler = fsFilesManager.getDataHandler(processableFile);
