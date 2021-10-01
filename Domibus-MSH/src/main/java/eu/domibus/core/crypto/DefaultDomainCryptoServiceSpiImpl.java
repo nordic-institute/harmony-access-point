@@ -88,9 +88,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
             KeyStore trustStore = loadTrustStore();
             super.setTrustStore(trustStore);
 
-            final String keystoreType = getKeystoreType();
-            final String keystorePassword = getKeystorePassword();
-            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME, keystorePassword, keystoreType);
+            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
             super.setKeyStore(keyStore);
         }, domain);
 
@@ -121,7 +119,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public synchronized void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
         try {
-            certificateService.replaceTrustStore(store, password, getTrustStoreType(), DOMIBUS_TRUSTSTORE_NAME, getTrustStorePassword(), getTrustStoreBackUpLocation());
+            certificateService.replaceTrustStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(ex);
         }
@@ -175,7 +173,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     protected KeyStore loadTrustStore() {
-        return certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME, getTrustStorePassword(), getTrustStoreType());
+        return certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
     }
 
     protected Properties getKeystoreProperties() {

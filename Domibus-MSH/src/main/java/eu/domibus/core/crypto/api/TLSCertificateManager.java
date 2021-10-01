@@ -37,8 +37,6 @@ public interface TLSCertificateManager {
      */
     byte[] getTruststoreContent();
 
-    byte[] getTruststoreContentFromFile();
-
     /**
      * Adds the specified certificate to the tls truststore content pointed by the clientauthentication.xml file
      * @param certificateData

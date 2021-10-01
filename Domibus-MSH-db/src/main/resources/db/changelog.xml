@@ -3234,6 +3234,12 @@
             <column name="NAME" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
+            <column name="TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
             <column name="CONTENT" type="LONGBLOB">
                 <constraints nullable="false"/>
             </column>

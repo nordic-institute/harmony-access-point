@@ -72,5 +72,4 @@ public interface DomainCryptoService {
 
     byte[] getTruststoreContent();
 
-    byte[] getTruststoreContentFromFile();
 }

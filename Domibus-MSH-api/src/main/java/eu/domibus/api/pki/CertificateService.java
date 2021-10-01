@@ -130,37 +130,27 @@ public interface CertificateService {
      * @param fileName the file name representing the trust
      * @param fileContent the trust content
      * @param filePassword the password of the trust
-     * @param trustType the type of the trust
-     * @param trustLocation the location of the trust on disc
-     * @param trustPassword the password of the trust file
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
+     * @param trustName the location of the trust on disc
      * @throws CryptoException
      */
-    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
+    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
      *
      * @param fileContent the trust content
      * @param filePassword the password of the trust
-     * @param trustType the type of the trust
-     * @param trustLocation the location of the trust on disc
-     * @param trustPassword the password of the trust file
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @throws CryptoException
      */
-    void replaceTrustStore(byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
+    void replaceTrustStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
     /**
      * Returns the truststore pointed by the location/password parameters
      *
-     * @param password the password of the trust file
-     * @param location the location of the trust on disc
+     * @param name the location of the trust on disc
      * @return the truststore object
      */
-    KeyStore getTrustStore(String location, String password, String type);
+    KeyStore getTrustStore(String name);
 
     /**
      * Returns the truststore pointed by the location/password parameters as a list of certificate entries
@@ -169,20 +159,18 @@ public interface CertificateService {
      * @param location the location of the trust on disc
      * @return the list of cewrtificates and their names
      */
-    List<TrustStoreEntry> getTrustStoreEntries(String location, String password, String type);
+    List<TrustStoreEntry> getTrustStoreEntries(String name);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *
-     * @param password the password of the trust file
-     * @param location the location of the trust on disc
+     * @param name the location of the trust on disc
      * @param certificateContent the content of the certificate
      * @param alias the name of the certificate
      * @param overwrite if overwrite an existing certificate
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @return
      */
-    boolean addCertificate(String password, String location, String type, byte[] certificateContent, String alias, boolean overwrite, String trustStoreBackupLocation);
+    boolean addCertificate(String name, byte[] certificateContent, String alias, boolean overwrite);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
@@ -200,13 +188,11 @@ public interface CertificateService {
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
      *
-     * @param password the password of the trust file
-     * @param location the location of the trust on disc
+     * @param trustName the location of the trust on disc
      * @param alias the certificate name
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @return true is at least one was deleted
      */
-    boolean removeCertificate(String password, String location, String type,String alias, String trustStoreBackupLocation);
+    boolean removeCertificate(String trustName, String alias);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
@@ -222,5 +208,5 @@ public interface CertificateService {
 
     byte[] getTruststoreContent(String name);
 
-    void persistTruststoresIfApplicable(final String name, final Supplier<String> filePathSupplier);
+    void persistTruststoresIfApplicable(final String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier);
 }

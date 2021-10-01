@@ -32,6 +32,14 @@ public class Truststore extends AbstractBaseEntity {
     @Column(name = "NAME")
     private String name;
 
+    @NotNull
+    @Column(name = "TYPE")
+    private String type;
+
+    @NotNull
+    @Column(name = "PASSWORD")
+    private String password;
+
     @Lob
     @NotNull
     @Column(name = "CONTENT")
@@ -43,6 +51,22 @@ public class Truststore extends AbstractBaseEntity {
 
     public void setName(String type) {
         this.name = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public byte[] getContent() {
@@ -64,6 +88,8 @@ public class Truststore extends AbstractBaseEntity {
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
                 .append(name, truststore.name)
+                .append(type, truststore.type)
+                .append(password, truststore.password)
                 .append(content, truststore.content)
                 .isEquals();
     }
@@ -73,6 +99,8 @@ public class Truststore extends AbstractBaseEntity {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
                 .append(name)
+                .append(type)
+                .append(password)
                 .append(content)
                 .toHashCode();
     }

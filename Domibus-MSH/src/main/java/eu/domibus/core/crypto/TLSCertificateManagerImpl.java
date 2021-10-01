@@ -41,7 +41,6 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService, CertificateService certificateService,
                                      DomainContextProvider domainProvider, SignalService signalService, DomibusPropertyProvider domibusPropertyProvider) {
-
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
@@ -51,17 +50,13 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
-        KeyStoreType params = getTruststoreParams();
-
-        certificateService.replaceTrustStore(fileName, fileContent, filePassword, params.getType(), TLS_TRUSTSTORE_NAME, params.getPassword(), getTrustStoreBackUpLocation());
-
+        certificateService.replaceTrustStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
         resetTLSTruststore();
     }
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        KeyStoreType params = getTruststoreParams();
-        return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME, params.getPassword(), params.getType());
+        return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
@@ -70,15 +65,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public byte[] getTruststoreContentFromFile() {
-        KeyStoreType params = getTruststoreParams();
-        return certificateService.getTruststoreContentFromFile(params.getFile());
-    }
-
-    @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
-        KeyStoreType params = getTruststoreParams();
-        boolean added = certificateService.addCertificate(params.getPassword(), TLS_TRUSTSTORE_NAME, params.getType(), certificateData, alias, true, getTrustStoreBackUpLocation());
+        boolean added = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -88,8 +76,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        KeyStoreType params = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(params.getPassword(), TLS_TRUSTSTORE_NAME, params.getType(), alias, getTrustStoreBackUpLocation());
+        boolean deleted = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -99,7 +86,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void persistTruststoresIfApplicable() {
-        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, () -> getTruststoreParams().getFile());
+        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME,
+                () -> getTruststoreParams().getFile(),
+                () -> getTruststoreParams().getType(),
+                () -> getTruststoreParams().getPassword()
+        );
     }
 
     protected KeyStoreType getTruststoreParams() {
@@ -118,7 +109,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         signalService.signalTLSTrustStoreUpdate(domain);
     }
 
-    protected String getTrustStoreBackUpLocation() {
-        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
-    }
+//    protected String getTrustStoreBackUpLocation() {
+//        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+//    }
 }

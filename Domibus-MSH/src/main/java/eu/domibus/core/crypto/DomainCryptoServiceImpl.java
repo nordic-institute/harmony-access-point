@@ -245,9 +245,4 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
     }
 
-    @Override
-    public byte[] getTruststoreContentFromFile() {
-        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        return certificateService.getTruststoreContentFromFile(location);
-    }
 }
