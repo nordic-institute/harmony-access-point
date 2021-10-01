@@ -16,8 +16,7 @@
         <!--Optional:-->
         <!-- <AgreementRef type="">A1</AgreementRef> -->
         <Service type="tc1">bdx:noprocess</Service>
-        <Action>TC1Leg1</Action>
-        <ConversationId>conv1</ConversationId>
+        <Action>TC1Leg1</Action>        
     </CollaborationInfo>
     <MessageProperties>
         <!--1 or more repetitions:-->
@@ -26,5 +25,5 @@
         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>
     </MessageProperties>
     <!--Optional: PUSH per default-->
-    <ProcessingType>PUSH</ProcessingType>
+    <ProcessingType>PULL</ProcessingType>
 </UserMessage>
