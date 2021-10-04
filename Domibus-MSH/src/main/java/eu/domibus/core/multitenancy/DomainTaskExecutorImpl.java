@@ -1,6 +1,8 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Autowired
     protected SchedulingTaskExecutor schedulingLongTaskExecutor;
 
+    @Autowired
+    SynchronizedRunnableFactory synchronizedRunnableFactory;
+
     @Override
     public <T extends Object> T submit(Callable<T> task) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task);
@@ -60,9 +65,6 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submit(Runnable task, Runnable errorHandler, String lockKey) {
         submit(task, errorHandler, lockKey, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
-
-    @Autowired
-    SynchronizedRunnableFactory synchronizedRunnableFactory;
 
     @Override
     public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {

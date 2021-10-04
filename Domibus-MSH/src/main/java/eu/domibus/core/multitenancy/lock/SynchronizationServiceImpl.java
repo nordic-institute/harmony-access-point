@@ -1,7 +1,7 @@
-package eu.domibus.core.multitenancy;
+package eu.domibus.core.multitenancy.lock;
 
-import eu.domibus.api.multitenancy.SynchronizationService;
-import eu.domibus.core.spring.LockDao;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.core.spring.lock.LockDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

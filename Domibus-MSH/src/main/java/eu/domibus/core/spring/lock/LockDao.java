@@ -1,4 +1,4 @@
-package eu.domibus.core.spring;
+package eu.domibus.core.spring.lock;
 
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;

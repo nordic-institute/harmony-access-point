@@ -1,4 +1,4 @@
-package eu.domibus.core.spring;
+package eu.domibus.core.spring.lock;
 
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;

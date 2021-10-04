@@ -1,4 +1,4 @@
-package eu.domibus.api.multitenancy;
+package eu.domibus.api.multitenancy.lock;
 
 /**
  * @author Cosmin Baciu
