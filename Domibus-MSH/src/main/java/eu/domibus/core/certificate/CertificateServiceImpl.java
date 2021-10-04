@@ -3,12 +3,14 @@ package eu.domibus.core.certificate;
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
@@ -96,6 +98,10 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected final TruststoreDao truststoreDao;
 
+    private final PasswordDecryptionService passwordDecryptionService;
+
+    private final DomainContextProvider domainContextProvider;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -106,7 +112,8 @@ public class CertificateServiceImpl implements CertificateService {
                                   CertificateHelper certificateHelper,
                                   DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
-                                  TruststoreDao truststoreDao) {
+                                  TruststoreDao truststoreDao,
+                                  PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -118,6 +125,8 @@ public class CertificateServiceImpl implements CertificateService {
         this.domainService = domainService;
         this.domainTaskExecutor = domainTaskExecutor;
         this.truststoreDao = truststoreDao;
+        this.passwordDecryptionService = passwordDecryptionService;
+        this.domainContextProvider = domainContextProvider;
     }
 
     @Override
@@ -343,7 +352,7 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.load(newTrustStoreBytes, filePassword.toCharArray());
                 LOG.debug("Truststore successfully loaded");
 
-                persistTrustStore(truststore, entity.getPassword(), trustName);
+                persistTrustStore(truststore, trustName);
                 LOG.debug("Truststore successfully persisted");
             } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
                 LOG.error("Could not replace truststore", e);
@@ -451,7 +460,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (addedNr > 0) {
             LOG.trace("Added [{}] certificates so persisting the truststore.");
-            persistTrustStore(trustStore, entity.getPassword(), trustName);
+            persistTrustStore(trustStore, trustName);
             return true;
         }
         LOG.trace("Added 0 certificates so exiting without persisting the truststore.");
@@ -471,7 +480,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (removedNr > 0) {
             LOG.trace("Removed [{}] certificates so persisting the truststore.");
-            persistTrustStore(trustStore, entity.getPassword(), trustName);
+            persistTrustStore(trustStore, trustName);
             return true;
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the truststore.");
@@ -508,7 +517,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
         }
         if (!containsAlias) {
-            LOG.trace("The truststore does not contai alias [{}] so returning false.", alias);
+            LOG.trace("The truststore does not contain alias [{}] so returning false.", alias);
             return false;
         }
         try {
@@ -519,8 +528,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected Truststore getTruststoreEntity(String name) {
-        return truststoreDao.findByName(name);
+    protected Truststore getTruststoreEntity(String trustName) {
+        Truststore entity = truststoreDao.findByName(trustName);
+        String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+        entity.setPassword(decrypted);
+        return entity;
     }
 
     protected KeyStore loadTrustStore(InputStream contentStream, String password, String type) {
@@ -546,14 +558,15 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
     
-    protected void persistTrustStore(KeyStore truststore, String password, String name) throws CryptoException {
-        backupTrustStore(name);
+    protected void persistTrustStore(KeyStore truststore, String trustName) throws CryptoException {
+        backupTrustStore(trustName);
 
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-            truststore.store(byteStream, password.toCharArray());
+            Truststore entity = truststoreDao.findByName(trustName);
+
+            truststore.store(byteStream, entity.getPassword().toCharArray());
             byte[] content = byteStream.toByteArray();
 
-            Truststore entity = truststoreDao.findByName(name);
             entity.setContent(content);
             truststoreDao.update(entity);
         } catch (Exception e) {
@@ -561,8 +574,8 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    private void backupTrustStore(String name) {
-        Truststore entity = truststoreDao.findByName(name);
+    private void backupTrustStore(String trustName) {
+        Truststore entity = truststoreDao.findByName(trustName);
 
         Truststore backup = new Truststore();
         backup.setName(entity.getName() + ".backup." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
