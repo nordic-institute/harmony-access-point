@@ -30,7 +30,7 @@ public class SynchronizedRunnable implements Runnable {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void run() {
         LOG.trace("Trying to lock [{}]", lockKey);
 
