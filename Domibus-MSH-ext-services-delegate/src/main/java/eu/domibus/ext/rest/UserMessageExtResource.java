@@ -7,8 +7,9 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping(value = "/ext/messages/usermessages")
+@Tag(name = "usermessage", description = "Domibus User Message management API")
+@Tag(name = "envelope", description = "Domibus Message envelope management API")
+@Tag(name = "signalEnvelope", description = "Domibus Signal Message envelope management API")
 public class UserMessageExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
@@ -43,16 +47,16 @@ public class UserMessageExtResource {
      * @return The User Message with the specified messageId
      * @throws UserMessageExtException Raised in case an exception occurs while trying to get a User Message
      */
-    @ApiOperation(value = "Get user message", notes = "Retrieve the user message with the specified message id",
-            authorizations = @Authorization(value = "basicAuth"), tags = "usermessage")
+    @Operation(summary="Get user message", description="Retrieve the user message with the specified message id",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"), tags = "usermessage")
     @GetMapping(path = "/{messageId:.+}")
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting User Message with id = '{}", messageId);
         return userMessageExtService.getMessage(messageId);
     }
 
-    @ApiOperation(value = "Get user message envelope", notes = "Retrieve the user message envelope with the specified message id",
-            authorizations = @Authorization(value = "basicAuth"), tags = "envelope")
+    @Operation(summary="Get user message envelope", description="Retrieve the user message envelope with the specified message id",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"), tags = "envelope")
     @GetMapping(path = "/{messageId:.+}/envelope")
     public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting User Message Envelope with id = [{}]", messageId);
@@ -62,8 +66,8 @@ public class UserMessageExtResource {
         return buildResponse(result, "user_message_envelope_" + messageId + ".xml");
     }
 
-    @ApiOperation(value = "Get signal message envelope", notes = "Retrieve the signal message envelope with the specified user message id",
-            authorizations = @Authorization(value = "basicAuth"), tags = "signalEnvelope")
+    @Operation(summary="Get signal message envelope", description="Retrieve the signal message envelope with the specified user message id",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"), tags = "signalEnvelope")
     @GetMapping(path = "/{messageId:.+}/signalEnvelope")
     public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting Signal Message Envelope with id = [{}]", messageId);
