@@ -33,7 +33,9 @@ public enum EventType {
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, "PASSWORD_EXPIRATION", PasswordExpirationEventProperties.class,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
     PLUGIN(AlertType.PLUGIN, "PLUGIN_EVENT", null,
-            DomibusMessageCode.PLUGIN_DEFAULT);
+            DomibusMessageCode.PLUGIN_DEFAULT),
+    PARTITION_EXPIRATION(AlertType.PARTITION_EXPIRATION, "PARTITION_EXPIRATION",  PartitionExpirationEvent.class);
+
 
 
     private AlertType defaultAlertType;

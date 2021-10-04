@@ -35,6 +35,13 @@ public interface EventService {
     void enqueueLoginFailureEvent(UserEntityBase.Type type, String userName, Date loginTime, boolean accountDisabled);
 
     /**
+     * Will create partition expiration event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param partitionName   the partition name that could not be deleted
+     */
+    void enqueuePartitionExpirationEvent(String partitionName);
+
+    /**
      * Will create a account disabled event and enqueue it to the alert/event monitoring queue.
      *
      * @param userName            the user name that had a failure login
