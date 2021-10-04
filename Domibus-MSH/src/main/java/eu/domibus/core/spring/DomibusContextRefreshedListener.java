@@ -27,7 +27,7 @@ public class DomibusContextRefreshedListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
-    static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
+    public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
     @Autowired
     protected EncryptionService encryptionService;
