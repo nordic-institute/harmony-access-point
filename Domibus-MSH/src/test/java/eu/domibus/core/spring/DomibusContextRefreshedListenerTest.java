@@ -16,6 +16,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
 import static org.junit.Assert.*;
 
 /**
@@ -107,22 +108,19 @@ public class DomibusContextRefreshedListenerTest {
         assertFalse(domibusContextRefreshedListener.useLockForExecution());
     }
 
-//    @Test
-//    public void handleEncryptionWithLockFile(@Injectable File fileLock, @Injectable Runnable task) {
-//        new Expectations(domibusContextRefreshedListener) {{
-//            domibusContextRefreshedListener.useLockForExecution();
-//            result = true;
-//
-//            domibusContextRefreshedListener.getLockFileLocation();
-//            result = fileLock;
-//        }};
-//
-//        domibusContextRefreshedListener.executeWithLockIfNeeded(task);
-//
-//        new Verifications() {{
-//            domainTaskExecutor.submit(task, (Runnable) any, fileLock, true, 3L, TimeUnit.MINUTES);
-//            times = 1;
-//        }};
-//    }
+    @Test
+    public void handleEncryptionWithLockFile(@Injectable File fileLock, @Injectable Runnable task) {
+        new Expectations(domibusContextRefreshedListener) {{
+            domibusContextRefreshedListener.useLockForExecution();
+            result = true;
+        }};
+
+        domibusContextRefreshedListener.executeWithLockIfNeeded(task);
+
+        new Verifications() {{
+            domainTaskExecutor.submit(task, (Runnable) any, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
+            times = 1;
+        }};
+    }
 
 }

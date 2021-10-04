@@ -93,5 +93,5 @@ public class DomainTaskExecutorImplTest {
             times = 1;
         }};
     }
-    
+
 }
