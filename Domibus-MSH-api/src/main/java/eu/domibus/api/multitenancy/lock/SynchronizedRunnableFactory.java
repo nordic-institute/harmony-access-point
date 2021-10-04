@@ -1,4 +1,4 @@
-package eu.domibus.api.multitenancy;
+package eu.domibus.api.multitenancy.lock;
 
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
