@@ -114,6 +114,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public synchronized void refreshTrustStore() {
         final KeyStore trustStore = loadTrustStore();
         setTrustStore(trustStore);
+        signalService.signalTrustStoreUpdate(domain);
     }
 
     @Override
@@ -125,7 +126,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
             throw new CryptoSpiException(ex);
         }
         refreshTrustStore();
-        signalService.signalTrustStoreUpdate(domain);
     }
 
     @Override
@@ -139,28 +139,36 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
         boolean added = certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
-        signalService.signalTrustStoreUpdate(domain);
+        if (added) {
+            refreshTrustStore();
+        }
         return added;
     }
 
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate())).collect(Collectors.toList());
-        certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates2, overwrite);
-        signalService.signalTrustStoreUpdate(domain);
+        boolean added = certificateService.addCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates2, overwrite);
+        if (added) {
+            refreshTrustStore();
+        }
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
         boolean removed = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, Arrays.asList(alias));
-        signalService.signalTrustStoreUpdate(domain);
+        if (removed) {
+            refreshTrustStore();
+        }
         return removed;
     }
 
     @Override
     public synchronized void removeCertificate(List<String> aliases) {
-        certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, aliases);
-        signalService.signalTrustStoreUpdate(domain);
+        boolean removed = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, aliases);
+        if (removed) {
+            refreshTrustStore();
+        }
     }
 
     @Override
