@@ -468,6 +468,27 @@
         </insert>
     </changeSet>
 
+    <changeSet author="dussath" id="EDELIVERY-8462">
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-8378" author="idragusa">
+        <addColumn tableName="TB_USER_MESSAGE_LOG">
+            <column name="ARCHIVED" type="TIMESTAMP"/>
+        </addColumn>
+        <addColumn tableName="TB_USER_MESSAGE_LOG">
+            <column name="ACKNOWLEDGED" type="TIMESTAMP"/>
+        </addColumn>
+        <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="ARCHIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="ACKNOWLEDGED"/>
+        </createIndex>
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

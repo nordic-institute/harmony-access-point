@@ -29,7 +29,7 @@ public class DomainPropertiesTest {
     @Test
     public void testDomainPropertiesStartWith_domain_name() throws IOException {
         Properties properties = new Properties();
-        ClassPathResource domainPropertiesResource = new ClassPathResource("domain_name-domibus.properties");
+        ClassPathResource domainPropertiesResource = new ClassPathResource("domains/domain_name/domain_name-domibus.properties");
         String domainNamePropertiesString = IOUtils.toString(domainPropertiesResource.getInputStream(), Charset.forName("UTF-8"));
         //uncomment properties in order to be loaded by Properties.load
         domainNamePropertiesString = StringUtils.replace(domainNamePropertiesString, "#domain_name.", "domain_name.");

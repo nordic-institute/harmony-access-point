@@ -7,10 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
-import eu.domibus.core.alerts.model.common.AccountEventKey;
-import eu.domibus.core.alerts.model.common.CertificateEvent;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.common.PasswordExpirationEventProperties;
+import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -65,6 +62,8 @@ public class EventServiceImpl implements EventService {
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
+
+    public static final String PARTITION_EXPIRATION = "PARTITION_EXPIRATION";
 
     @Autowired
     private EventDao eventDao;
@@ -122,6 +121,13 @@ public class EventServiceImpl implements EventService {
                 loginTime,
                 Boolean.toString(accountDisabled),
                 AccountEventKey.ACCOUNT_DISABLED));
+    }
+
+    @Override
+    public void enqueuePartitionExpirationEvent(String partitionName) {
+        Event event = new Event(EventType.PARTITION_EXPIRATION);
+        event.addStringKeyValue(PartitionExpirationEvent.PARTITION_NAME.name(), partitionName);
+        enqueueEvent(PARTITION_EXPIRATION, event);
     }
 
     /**
