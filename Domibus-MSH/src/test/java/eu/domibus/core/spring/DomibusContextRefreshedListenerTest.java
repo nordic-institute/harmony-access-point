@@ -2,9 +2,12 @@ package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.GatewayConfigurationValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -42,6 +45,15 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    GatewayConfigurationValidator gatewayConfigurationValidator;
+
+    @Injectable
+    MultiDomainCryptoService multiDomainCryptoService;
+
+    @Injectable
+    TLSCertificateManager tlsCertificateManager;
 
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,

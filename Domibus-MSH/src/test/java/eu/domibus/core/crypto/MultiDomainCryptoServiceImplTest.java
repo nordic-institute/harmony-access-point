@@ -9,6 +9,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.*;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
@@ -46,6 +47,9 @@ public class MultiDomainCryptoServiceImplTest {
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     @Test
     public void getX509Certificates(@Mocked DomainCryptoServiceImpl cryptoService) throws WSSecurityException {
