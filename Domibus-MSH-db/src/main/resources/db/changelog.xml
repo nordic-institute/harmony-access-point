@@ -3235,7 +3235,7 @@
         <addUniqueConstraint columnNames="LOCK_KEY" constraintName="UK_LOCK_KEY" tableName="TB_LOCK"/>
     </changeSet>
 
-    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
+    <changeSet author="ion perpegel" id="EDELIVERY-8532">
         <createTable tableName="TB_TRUSTSTORE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TRUSTSTORE"/>
@@ -3273,7 +3273,7 @@
         </insert>
     </changeSet>
 
-    <changeSet author="ion perpegel" id="EDELIVERY-8503_3">
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
         <insert tableName="TB_LOCK">
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock" type="BIGINT"/>
         </insert>
