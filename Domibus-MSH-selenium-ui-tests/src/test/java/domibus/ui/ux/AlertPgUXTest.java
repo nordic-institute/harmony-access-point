@@ -200,12 +200,17 @@ public class AlertPgUXTest extends SeleniumTest {
 		page.filters().getShowDomainCheckbox().click();
 		page.filters().getSearchButton().click();
 		log.info("Getting all listed message info");
-		List<HashMap<String, String>> allRowInfo = page.grid().getAllRowInfo();
+		List<HashMap<String, String>> allRowInfo = page.grid().getListedRowInfo();
+
+		if(allRowInfo.size() == 0){
+			throw new SkipException("not enough alerts to perform test");
+		}
+
 		HashMap<String, String> alertFirstRowData = allRowInfo.get(0);
 
 
 		page.getDomainSelector().selectAnotherDomain();
-		List<HashMap<String, String>> allRowInfos = page.grid().getAllRowInfo();
+		List<HashMap<String, String>> allRowInfos = page.grid().getListedRowInfo();
 		HashMap<String, String> domainAlertFirstRowData = allRowInfos.get(0);
 
 		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(), "Show domain checkbox is not checked");
@@ -223,7 +228,13 @@ public class AlertPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		page.grid().waitForRowsToLoad();
 
-		log.info("Total number of records : " + page.grid().getPagination().getTotalItems());
+		int noOfAlerts = page.grid().getPagination().getTotalItems();
+		log.info("Total number of records : " + noOfAlerts);
+
+		if(noOfAlerts <= 3){
+			throw new SkipException("not enough alerts to test");
+		}
+
 		log.info("Getting alert info for first row");
 
 		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
