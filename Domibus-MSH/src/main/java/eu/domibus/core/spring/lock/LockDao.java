@@ -11,17 +11,17 @@ import javax.persistence.Query;
  * @since 5.0
  */
 @Repository
-public class LockDao extends BasicDao<Lock> {
+public class LockDao extends BasicDao<LockEntity> {
 
     public LockDao() {
-        super(Lock.class);
+        super(LockEntity.class);
     }
 
-    public Lock findByLockKey(String lockKey) {
-        Query q = em.createNamedQuery("Lock.findByLockName", Lock.class);
+    public LockEntity findByLockKey(String lockKey) {
+        Query q = em.createNamedQuery("Lock.findByLockName", LockEntity.class);
         q.setParameter("LOCK_KEY", lockKey);
         q.setLockMode(LockModeType.PESSIMISTIC_WRITE);
-        return (Lock) q.getSingleResult();
+        return (LockEntity) q.getSingleResult();
     }
 
 }

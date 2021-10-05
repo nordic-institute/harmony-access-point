@@ -88,7 +88,8 @@ public class DomibusContextRefreshedListener {
         if (useLockForExecution()) {
             LOG.debug("Handling execution using db lock.");
             Runnable errorHandler = () -> {
-                LOG.warn("An error has occurred while initializing Domibus. This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.");
+                LOG.warn("An error has occurred while initializing Domibus (executing task [{}]). " +
+                        "This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.", task);
             };
             domainTaskExecutor.submit(task, errorHandler, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
             LOG.debug("Finished handling execution using db lock.");

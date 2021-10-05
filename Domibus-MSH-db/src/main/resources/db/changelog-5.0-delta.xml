@@ -467,7 +467,7 @@
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock" type="BIGINT"/>
         </insert>
     </changeSet>
-    
+
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
