@@ -1,7 +1,7 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.core.spring.lock.Lock;
+import eu.domibus.core.spring.lock.LockEntity;
 import eu.domibus.core.spring.lock.LockDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,14 +35,14 @@ public class LockDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findSyncLock() {
-        final Lock lock = lockDao.findByLockKey(SYNC_LOCK_KEY);
+        final LockEntity lock = lockDao.findByLockKey(SYNC_LOCK_KEY);
         assertNotNull(lock);
     }
 
     @Test(expected = NoResultException.class)
     @Transactional
     public void doNotFindOtherLock() {
-        final Lock lock = lockDao.findByLockKey("non-existent-lock");
+        final LockEntity lock = lockDao.findByLockKey("non-existent-lock");
         Assert.fail();
     }
 

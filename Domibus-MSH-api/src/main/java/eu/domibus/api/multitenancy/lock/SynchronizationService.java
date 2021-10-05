@@ -1,8 +1,8 @@
 package eu.domibus.api.multitenancy.lock;
 
 /**
- * @author Cosmin Baciu
- * @since 4.0
+ * @author Ion Perpegel
+ * @since 5.0
  */
 public interface SynchronizationService {
 
