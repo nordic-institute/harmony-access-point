@@ -22,11 +22,11 @@ import javax.validation.constraints.NotNull;
 )
 @NamedQueries({
         @NamedQuery(name = "Truststore.findByName",
-                query = "select t from Truststore t where t.name=:NAME"),
+                query = "select t from TruststoreEntity t where t.name=:NAME"),
         @NamedQuery(name = "Truststore.countByName",
-                query = "select count(t) from Truststore t where t.name=:NAME"),
+                query = "select count(t) from TruststoreEntity t where t.name=:NAME"),
 })
-public class Truststore extends AbstractBaseEntity {
+public class TruststoreEntity extends AbstractBaseEntity {
 
     @NotNull
     @Column(name = "NAME")
@@ -83,7 +83,7 @@ public class Truststore extends AbstractBaseEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        Truststore truststore = (Truststore) o;
+        TruststoreEntity truststore = (TruststoreEntity) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

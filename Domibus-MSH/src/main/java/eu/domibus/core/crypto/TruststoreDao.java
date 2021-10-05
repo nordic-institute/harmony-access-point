@@ -10,16 +10,16 @@ import javax.persistence.Query;
  * @since 5.0
  */
 @Repository
-public class TruststoreDao extends BasicDao<Truststore> {
+public class TruststoreDao extends BasicDao<TruststoreEntity> {
 
     public TruststoreDao() {
-        super(Truststore.class);
+        super(TruststoreEntity.class);
     }
 
-    public Truststore findByName(String name) {
-        Query q = em.createNamedQuery("Truststore.findByName", Truststore.class);
+    public TruststoreEntity findByName(String name) {
+        Query q = em.createNamedQuery("Truststore.findByName", TruststoreEntity.class);
         q.setParameter("NAME", name);
-        return (Truststore) q.getSingleResult();
+        return (TruststoreEntity) q.getSingleResult();
     }
 
     public boolean existsWithName(String name) {

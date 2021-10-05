@@ -18,7 +18,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.crypto.Truststore;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -334,7 +334,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
-        Truststore entity = getTruststoreEntity(trustName);
+        TruststoreEntity entity = getTruststoreEntity(trustName);
         certificateHelper.validateStoreType(entity.getType(), fileName);
         replaceTrustStore(fileContent, filePassword, trustName);
     }
@@ -344,7 +344,7 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
 
         KeyStore truststore = getTrustStore(trustName);
-        Truststore entity = getTruststoreEntity(trustName);
+        TruststoreEntity entity = getTruststoreEntity(trustName);
         try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
             truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
             try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
@@ -370,7 +370,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public KeyStore getTrustStore(String name) {
-        Truststore entity = getTruststoreEntity(name);
+        TruststoreEntity entity = getTruststoreEntity(name);
         return loadTrustStore(entity.getContent(), entity.getPassword(), entity.getType());
     }
 
@@ -406,7 +406,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public byte[] getTruststoreContent(String name) {
-        Truststore res = getTruststoreEntity(name);
+        TruststoreEntity res = getTruststoreEntity(name);
         return res.getContent();
     }
 
@@ -526,8 +526,8 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected Truststore getTruststoreEntity(String trustName) {
-        Truststore entity = truststoreDao.findByName(trustName);
+    protected TruststoreEntity getTruststoreEntity(String trustName) {
+        TruststoreEntity entity = truststoreDao.findByName(trustName);
         String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
         entity.setPassword(decrypted);
         return entity;
@@ -560,7 +560,7 @@ public class CertificateServiceImpl implements CertificateService {
         backupTrustStore(trustName);
 
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-            Truststore entity = truststoreDao.findByName(trustName);
+            TruststoreEntity entity = truststoreDao.findByName(trustName);
 
             truststore.store(byteStream, entity.getPassword().toCharArray());
             byte[] content = byteStream.toByteArray();
@@ -573,9 +573,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private void backupTrustStore(String trustName) {
-        Truststore entity = truststoreDao.findByName(trustName);
+        TruststoreEntity entity = truststoreDao.findByName(trustName);
 
-        Truststore backup = new Truststore();
+        TruststoreEntity backup = new TruststoreEntity();
         backup.setName(entity.getName() + ".backup." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         backup.setType(entity.getType());
         backup.setPassword(entity.getPassword());
@@ -609,7 +609,7 @@ public class CertificateServiceImpl implements CertificateService {
 
             byte[] content = getTruststoreContentFromFile(filePathSupplier.get());
 
-            Truststore entity = new Truststore();
+            TruststoreEntity entity = new TruststoreEntity();
             entity.setName(name);
             entity.setType(typeSupplier.get());
             entity.setPassword(passwordSupplier.get());
