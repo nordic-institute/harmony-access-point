@@ -10,6 +10,8 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 
 /**
+ * @deprecated since 5.0 Use instead {@link eu.domibus.api.multitenancy.lock.SynchronizedRunnable}
+ *
  * Wrapper for the Runnable class to be executed. Attempts to lock the file and in case it succeeds it runs the wrapped Runnable
  *
  * @author Cosmin Baciu
