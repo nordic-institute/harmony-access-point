@@ -11,6 +11,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
@@ -55,18 +56,21 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     protected DomainContextProvider domainContextProvider;
 
+    final protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
                                         DomibusCacheService domibusCacheService,
                                         CertificateHelper certificateHelper,
                                         DomibusPropertyProvider domibusPropertyProvider,
                                         CertificateService certificateService,
-                                        DomainContextProvider domainContextProvider) {
+                                        DomainContextProvider domainContextProvider, DomibusRawPropertyProvider domibusRawPropertyProvider) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
         this.domibusCacheService = domibusCacheService;
         this.certificateHelper = certificateHelper;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.domainContextProvider = domainContextProvider;
+        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
     }
 
     @Override
@@ -223,13 +227,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME,
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_LOCATION),
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_TYPE),
-                () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD)
+                () -> domibusRawPropertyProvider.getRawPropertyValue(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD)
         );
 
         certificateService.persistTruststoresIfApplicable(DOMIBUS_KEYSTORE_NAME,
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_LOCATION),
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_TYPE),
-                () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_PASSWORD)
+                () -> domibusRawPropertyProvider.getRawPropertyValue(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_PASSWORD)
         );
     }
 

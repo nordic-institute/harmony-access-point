@@ -449,7 +449,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected boolean doAddCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore trustStore = getTrustStore(trustName);
-        Truststore entity = getTruststoreEntity(trustName);
 
         int addedNr = 0;
         for (CertificateEntry certificateEntry : certificates) {
@@ -469,7 +468,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected boolean doRemoveCertificates(String trustName, List<String> aliases) {
         KeyStore trustStore = getTrustStore(trustName);
-        Truststore entity = getTruststoreEntity(trustName);
 
         int removedNr = 0;
         for (String alias : aliases) {
