@@ -30,14 +30,7 @@ public class DomainTaskExecutorImplIT extends AbstractIT {
     DomainTaskExecutorImpl domainTaskExecutor;
 
     @Autowired
-    private LockDao lockDao;
-
-    @Autowired
     SynchronizedRunnableFactory synchronizedRunnableFactory;
-
-    @Before
-    public void setUp() {
-    }
 
     @Test
     @Transactional
@@ -45,11 +38,11 @@ public class DomainTaskExecutorImplIT extends AbstractIT {
         Runnable task1 = () -> {
             LOG.info("Task 1 enter.");
             try {
-                Thread.sleep(5000);
+                Thread.sleep(7000);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            LOG.info("Executing task1.");
+            LOG.info("Task 1 exit");
         };
 
         SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.createBean(task1, SYNC_LOCK_KEY);
@@ -58,16 +51,27 @@ public class DomainTaskExecutorImplIT extends AbstractIT {
 
         Runnable task2 = () -> {
             LOG.info("Task 2 enter.");
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-            LOG.info("Executing task 2");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LOG.info("Task 2 exit");
         };
         SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.createBean(task2, SYNC_LOCK_KEY);
         Thread t2 = new Thread(synchronizedRunnable2);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         t2.start();
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
