@@ -58,7 +58,21 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Autowired
     private AuditService auditService;
 
-    @Transactional
+
+    @Override
+    public void saveRawEnvelope(String rawXMLMessage, UserMessage userMessage) {
+        if (isNonRepudiationAuditDisabled()) {
+            LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data.");
+            return;
+        }
+
+        LOG.debug("Persist raw XML envelope: [{}]", rawXMLMessage);
+        UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
+        rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
+        rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+        rawEnvelopeLogDao.create(rawEnvelopeLog);
+    }
+
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {

@@ -27,6 +27,7 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -37,6 +38,7 @@ import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
@@ -157,7 +159,7 @@ public class UserMessageHandlerServiceImplTest {
     protected MessageGroupDao messageGroupDao;
 
     @Injectable
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Injectable
     protected AS4ReceiptService as4ReceiptService;
@@ -194,6 +196,12 @@ public class UserMessageHandlerServiceImplTest {
 
     @Tested
     UserMessageHandlerServiceImpl userMessageHandlerService;
+
+    @Injectable
+    PModeDefaultService pModeDefaultService;
+
+    @Injectable
+    PullMessageService pullMessageService;
 
     private static final String STRING_TYPE = "string";
     private static final String DEF_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";

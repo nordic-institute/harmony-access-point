@@ -24,6 +24,7 @@ import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
@@ -45,6 +46,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected PModeProvider pModeProvider;
+
+    @Autowired
+    protected SoapUtil soapUtil;
 
     @Autowired
     protected MSHDispatcher mshDispatcher;
@@ -90,6 +94,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
         ResponseResult responseResult = null;
         SOAPMessage responseSoapMessage = null;
+        String requestRawXMLMessage = null;
 
         LegConfiguration legConfiguration = null;
         final String pModeKey;
@@ -101,7 +106,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 getLog().error("Validation exception: message [{}] will not be send", messageId, e);
                 attempt.setError(e.getMessage());
                 attempt.setStatus(MessageAttemptStatus.ABORT);
-                // this flag is used in the finally clause
+                // this flag is used in the final clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
                 return;
             }
@@ -147,8 +152,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
 
-            nonRepudiationService.saveRequest(requestSoapMessage, userMessage);
-
+            requestRawXMLMessage = soapUtil.getRawXMLMessage(requestSoapMessage);
             responseResult = responseHandler.verifyResponse(responseSoapMessage, messageId);
 
             reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
@@ -170,13 +174,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } finally {
-            try {
-                getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
-            } catch (Exception ex) {
-                getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
-            }
+            getLog().debug("Finally handle reliability");
+            reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckSuccessful, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
         }
     }
 
