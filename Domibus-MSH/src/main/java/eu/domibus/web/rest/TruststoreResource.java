@@ -97,8 +97,6 @@ public class TruststoreResource extends TruststoreResourceBase {
     @Override
     protected List<TrustStoreEntry> doGetTrustStoreEntries() {
         return certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-//        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-//        return certificateService.getTrustStoreEntries(store);
     }
 
 }

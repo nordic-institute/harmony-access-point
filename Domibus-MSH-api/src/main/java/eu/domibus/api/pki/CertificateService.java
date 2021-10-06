@@ -34,29 +34,12 @@ public interface CertificateService {
     String extractCommonName(final X509Certificate certificate) throws InvalidNameException;
 
     /**
-     * Return the detail of the truststore entries.
-     *
-     * @param trustStore the trust store from where to retrieve the certificates
-     * @return a list of certificate
-     */
-//    List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore);
-
-    /**
      * Save certificate data in the database, and use this data to display a revocation warning when needed.
      *
      * @param trustStore trustStore entries
      * @param keyStore   keyStore entries
      */
     void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore);
-
-    /**
-     * Validates that the bytes represent a valid truststore
-     *
-     * @param newTrustStoreBytes the content
-     * @param password           the password to open the truststore
-     * @param type               the type of the truststore: jks, PKCS12
-     */
-//    void validateLoadOperation(ByteArrayInputStream newTrustStoreBytes, String password, String type);
 
     /**
      * Check if alerts need to be send for expired or soon expired certificate. Send if true.
@@ -115,14 +98,6 @@ public interface CertificateService {
      * @throws CertificateException if the base64 string cannot be converted to a certificate entry
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
-
-    /**
-     * Get the truststore content from the location as byte array
-     *
-     * @param location the location of the trust file
-     * @return the trust content
-     */
-//    byte[] getTruststoreContentFromFile(String location);
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
