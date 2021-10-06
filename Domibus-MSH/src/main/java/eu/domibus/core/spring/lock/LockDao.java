@@ -3,7 +3,6 @@ package eu.domibus.core.spring.lock;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.LockModeType;
 import javax.persistence.Query;
 
 /**
@@ -20,7 +19,8 @@ public class LockDao extends BasicDao<LockEntity> {
     public LockEntity findByLockKeyWithLock(String lockKey) {
         Query q = em.createNamedQuery("Lock.findByLockName", LockEntity.class);
         q.setParameter("LOCK_KEY", lockKey);
-        return (LockEntity) q.getSingleResult();
+        LockEntity res = (LockEntity) q.getSingleResult();
+        return res;
     }
 
 }

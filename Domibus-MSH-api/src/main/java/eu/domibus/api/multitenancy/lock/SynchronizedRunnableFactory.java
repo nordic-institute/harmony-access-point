@@ -21,7 +21,7 @@ public class SynchronizedRunnableFactory {
 
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public SynchronizedRunnable createBean(Runnable runnable, String lockKey) {
+    public SynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
         return new SynchronizedRunnable(runnable, lockKey, synchronizationService);
     }
 }
