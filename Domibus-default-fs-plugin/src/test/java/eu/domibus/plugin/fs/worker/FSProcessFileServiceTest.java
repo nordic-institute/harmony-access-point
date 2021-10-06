@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.plugin.fs.*;
+import eu.domibus.plugin.fs.ebms3.ProcessingType;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -53,8 +54,10 @@ public class FSProcessFileServiceTest {
     private FileObject outgoingFolder;
     private FileObject contentFile;
     private FileObject metadataFile;
+    private FileObject pullMetadataFile;
 
     private UserMessage metadata;
+    private UserMessage pullMetaData;
 
     @Before
     public void setUp() throws IOException, JAXBException {
@@ -75,6 +78,16 @@ public class FSProcessFileServiceTest {
             FileContent metadataFileContent = metadataFile.getContent();
             IOUtils.copy(testMetadata, metadataFileContent.getOutputStream());
             metadataFile.close();
+        }
+
+        pullMetaData=FSTestHelper.getUserMessage(this.getClass(), "testSetMessageInReadyToPull_metadata.xml");
+
+        try (InputStream testMetadata = FSTestHelper.getTestResource(this.getClass(), "testSetMessageInReadyToPull_metadata.xml")) {
+            pullMetadataFile = outgoingFolder.resolveFile("metadata.xml");
+            pullMetadataFile.createFile();
+            FileContent metadataFileContent = metadataFile.getContent();
+            IOUtils.copy(testMetadata, metadataFileContent.getOutputStream());
+            pullMetadataFile.close();
         }
 
         try (InputStream testContent = FSTestHelper.getTestResource(this.getClass(), "testSendMessages_content.xml")) {
@@ -139,6 +152,58 @@ public class FSProcessFileServiceTest {
             FSMessage message = null;
             backendFSPlugin.submit(message = withCapture());
             Assert.assertEquals(message.getPayloads().size(), 1);
+            Assert.assertEquals(ProcessingType.PUSH,message.getMetadata().getProcessingType());
+        }};
+    }
+
+    @Test
+    public void test_processFileToPUll_FileExists_Success() throws Exception {
+        final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
+
+        new Expectations(1, fsProcessFileService) {{
+
+            fsPluginProperties.getPayloadId(null);
+            result = "cid:message";
+
+            fsFilesManager.resolveSibling(contentFile, "metadata.xml");
+            result = pullMetadataFile;
+
+            fsProcessFileService.parseMetadata((FileObject) any);
+            result = pullMetaData;
+
+            fsFilesManager.getDataHandler(contentFile);
+            result = new DataHandler(new FileObjectDataSource(contentFile));
+
+            backendFSPlugin.submit(with(new Delegate<FSMessage>() {
+                void delegate(FSMessage message) throws IOException {
+                    Assert.assertNotNull(message);
+                    Assert.assertNotNull(message.getPayloads());
+                    FSPayload fsPayload = message.getPayloads().get("cid:message");
+                    Assert.assertNotNull(fsPayload);
+                    Assert.assertNotNull(fsPayload.getDataHandler());
+                    Assert.assertNotNull(message.getMetadata());
+
+                    DataSource dataSource = fsPayload.getDataHandler().getDataSource();
+                    Assert.assertNotNull(dataSource);
+                    Assert.assertEquals("content.xml", dataSource.getName());
+                    Assert.assertTrue(
+                            IOUtils.contentEquals(dataSource.getInputStream(), contentFile.getContent().getInputStream())
+                    );
+
+                    Assert.assertEquals(pullMetaData, message.getMetadata());
+                }
+            }));
+            result = messageId;
+        }};
+
+        //tested method
+        fsProcessFileService.processFile(contentFile, domain);
+
+        new VerificationsInOrder(1) {{
+            FSMessage message = null;
+            backendFSPlugin.submit(message = withCapture());
+            Assert.assertEquals(message.getPayloads().size(), 1);
+            Assert.assertEquals(ProcessingType.PULL,message.getMetadata().getProcessingType());
         }};
     }
 
