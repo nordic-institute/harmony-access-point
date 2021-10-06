@@ -14,72 +14,152 @@
     <artifactId>domibus-swagger</artifactId>
     <packaging>war</packaging>
     <name>Domibus MSH REST API documentation</name>
+    <properties>
+        <it.test>OpenApiGenerator</it.test>
+        <swagger-ui.version>3.52.3</swagger-ui.version>
+        <upstream.url>https://github.com/swagger-api/swagger-ui/archive/v${swagger-ui.version}.zip</upstream.url>
+    </properties>
 
     <dependencies>
+        <!-- import dependency with the REST API definitions-->
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-ext-services-delegate</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- springdoc and spring dependencies to run MockMVC with RESTAPI-->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-webmvc-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Jackson-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- End Jackson-->
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.github.kongchen</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
-                <version>3.1.5</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                        <version>${jaxb-api.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <apiSources>
-                        <apiSource>
-                            <springmvc>true</springmvc>
-                            <locations>eu.domibus.ext.rest</locations>
-                            <schemes>http,https</schemes>
-                            <basePath>/domibus</basePath>
-                            <info>
-                                <title>Domibus REST API documentation</title>
-                                <version>v1</version>
-                                <description>Domibus REST API documentation</description>
-
-                                <license>
-                                    <url>https://joinup.ec.europa.eu/page/eupl-text-11-12</url>
-                                    <name>EUPL 1.2</name>
-                                </license>
-                            </info>
-                            <securityDefinitions>
-                                <securityDefinition>
-                                    <json>/securityDefinitions.json</json>
-                                </securityDefinition>
-                            </securityDefinitions>
-                            <swaggerDirectory>${project.basedir}/src/main/webapp/</swaggerDirectory>
-                        </apiSource>
-                    </apiSources>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+            <!-- Purpose of the ANT plugin is to download and extract swagger-ui pages to folder ${project.basedir}/src/main/webapp-->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="download archive"/>
+                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip"/>
+                                <echo message="unzip archive"/>
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip"
+                                       dest="${project.build.directory}"/>
+                                <echo message="Clean old webapp"/>
+                                <delete dir="${project.basedir}/src/main/webapp/"/>
+                                <echo message="moving resources"/>
+                                <move todir="${project.basedir}/src/main/webapp">
+                                    <fileset dir="${project.build.directory}/swagger-ui-${swagger-ui.version}/dist"/>
+                                </move>
+                                <echo message="Set openapi.json as default file (openapi.json is generated in test OpenApiGenerator.java)"/>
+                                <replace file="${project.basedir}/src/main/webapp/index.html"
+                                         token="https://petstore.swagger.io/v2/swagger.json" value="openapi.json"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Purpose of the maven-failsafe-plugin plugin is to setup MockMVC and run IT test: OpenApiGenerator with purpose to generated the open API document from
+            REST endpoint -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-open-api</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Skip the default running of this plug-in (or everything is run twice) -->
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
