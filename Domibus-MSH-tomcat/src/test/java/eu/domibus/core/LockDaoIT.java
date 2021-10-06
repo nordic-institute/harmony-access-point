@@ -27,11 +27,6 @@ public class LockDaoIT extends AbstractIT {
     @Autowired
     private LockDao lockDao;
 
-    @Before
-    public void setUp() {
-
-    }
-
     @Test
     @Transactional
     public void findSyncLock() {
