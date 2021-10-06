@@ -81,7 +81,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         eArchiveBatchDispatcherService.startBatch(domain);
         Assert.assertTrue(jmsManagerTriggered);
 
-        Assert.assertEquals(1, em.createQuery("select batch from EArchiveBatch batch").getResultList().size());
+        Assert.assertEquals(1, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
         Assert.assertEquals(1, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
     }
 }

@@ -526,5 +526,5 @@ public abstract class PModeProvider {
 
     public abstract Agreement getAgreementRef(String serviceValue);
 
-    public abstract Map<String, List<LegConfiguration>> getAllLegConfigurations();
+    public abstract LegConfigurationPerMpc getAllLegConfigurations();
 }

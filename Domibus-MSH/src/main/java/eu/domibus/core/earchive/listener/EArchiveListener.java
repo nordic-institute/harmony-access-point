@@ -65,8 +65,8 @@ public class EArchiveListener implements MessageListener {
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
-        String batchId = jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
-        Long entityId = jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+        String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
+        Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
         if (StringUtils.isBlank(batchId) || entityId == null) {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
@@ -75,7 +75,7 @@ public class EArchiveListener implements MessageListener {
 
         LOG.info("eArchiving starting for batchId [{}]", batchId);
 
-        EArchiveBatch eArchiveBatchByBatchId = geteArchiveBatch(entityId);
+        EArchiveBatchEntity eArchiveBatchByBatchId = geteArchiveBatch(entityId);
 
         List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
@@ -103,8 +103,8 @@ public class EArchiveListener implements MessageListener {
         userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos), insertBatchSize);
     }
 
-    private EArchiveBatch geteArchiveBatch(long entityId) {
-        EArchiveBatch eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+    private EArchiveBatchEntity geteArchiveBatch(long entityId) {
+        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
 
         if (eArchiveBatchByBatchId == null) {
             throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
@@ -120,7 +120,7 @@ public class EArchiveListener implements MessageListener {
         return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }
 
-    private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatch eArchiveBatchByBatchId) {
+    private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatchEntity eArchiveBatchByBatchId) {
         return new Gson().fromJson(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
     }
 }

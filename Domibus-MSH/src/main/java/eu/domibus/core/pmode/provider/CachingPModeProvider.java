@@ -1078,13 +1078,13 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Map<String, List<LegConfiguration>> getAllLegConfigurations() {
+    public LegConfigurationPerMpc getAllLegConfigurations() {
         Map<String, List<LegConfiguration>> result = new HashMap<>();
         for (LegConfiguration legConfiguration : getConfiguration().getBusinessProcesses().getLegConfigurations()) {
             List<LegConfiguration> legs = result.computeIfAbsent(legConfiguration.getDefaultMpc().getName(), k -> new ArrayList<>());
             legs.add(legConfiguration);
         }
-        return result;
+        return new LegConfigurationPerMpc(result);
     }
 
     @Override

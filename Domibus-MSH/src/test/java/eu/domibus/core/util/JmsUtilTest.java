@@ -44,31 +44,31 @@ public class JmsUtilTest {
 
     @Test
     public void getStringProperty() {
-        String result = jmsUtil.getStringProperty(message, "String");
+        String result = jmsUtil.getStringPropertySafely(message, "String");
         Assert.assertEquals(valueString, result);
     }
 
     @Test
     public void getStringProperty_notFound() {
-        String result = jmsUtil.getStringProperty(message, "NotFound");
+        String result = jmsUtil.getStringPropertySafely(message, "NotFound");
         Assert.assertNull(result);
     }
 
     @Test
     public void getLongProperty() {
-        Long result = jmsUtil.getLongProperty(message, "Long");
+        Long result = jmsUtil.getLongPropertySafely(message, "Long");
         Assert.assertEquals(valueLong, result);
     }
 
     @Test
     public void getLongProperty_notFound() {
-        Long result = jmsUtil.getLongProperty(message, "NotFound");
+        Long result = jmsUtil.getLongPropertySafely(message, "NotFound");
         Assert.assertNull(result);
     }
 
     @Test
     public void getLongProperty_notALong() {
-        Long result = jmsUtil.getLongProperty(message, "NotALong");
+        Long result = jmsUtil.getLongPropertySafely(message, "NotALong");
         Assert.assertNull(result);
     }
 

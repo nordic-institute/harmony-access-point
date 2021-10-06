@@ -13,6 +13,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -284,7 +285,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Map<String, List<LegConfiguration>> getAllLegConfigurations() {
+    public LegConfigurationPerMpc getAllLegConfigurations() {
         return getCurrentPModeProvider().getAllLegConfigurations();
     }
 

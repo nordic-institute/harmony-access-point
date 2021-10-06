@@ -6,7 +6,7 @@ import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.EArchiveBatch;
+import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -78,15 +78,14 @@ public class EArchiveBatchDispatcherService {
      * @return null if no messages found
      */
     private Long createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
-        long lastEntityIdTreated;
         ListUserMessageDto userMessageToBeArchived = userMessageLogDao.findMessagesForArchivingDesc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
         if (CollectionUtils.isEmpty(userMessageToBeArchived.getUserMessageDtos())) {
             LOG.debug("No message to archive");
             return null;
         }
-        lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId();
+        long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId();
 
-        EArchiveBatch eArchiveBatch = eArchiveBatchService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
+        EArchiveBatchEntity eArchiveBatch = eArchiveBatchService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
 
         enqueueEArchive(eArchiveBatch, domain);
 
@@ -106,7 +105,7 @@ public class EArchiveBatchDispatcherService {
         return integerProperty;
     }
 
-    protected void enqueueEArchive(EArchiveBatch eArchiveBatch, Domain domain) {
+    protected void enqueueEArchive(EArchiveBatchEntity eArchiveBatch, Domain domain) {
         jmsManager.sendMessageToQueue(JMSMessageBuilder
                 .create()
                 .property(MessageConstants.BATCH_ID, eArchiveBatch.getBatchId())

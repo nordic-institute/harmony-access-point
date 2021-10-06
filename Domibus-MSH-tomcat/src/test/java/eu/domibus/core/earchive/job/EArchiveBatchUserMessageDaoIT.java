@@ -46,12 +46,11 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
     private UserMessageLog msg1;
     private UserMessageLog msg2;
     private UserMessageLog msg3;
-    private EArchiveBatch eArchiveBatch;
+    private EArchiveBatchEntity eArchiveBatch;
 
     @Before
     public void setup() {
-        eArchiveBatch = new EArchiveBatch();
-        eArchiveBatch.setEArchiveBatchStatus(EArchiveBatchStatus.STARTING);
+        eArchiveBatch = new EArchiveBatchEntity();
         eArchiveBatch.setBatchId(UUID.randomUUID().toString());
         eArchiveBatch.setRequestType(RequestType.CONTINUOUS);
         eArchiveBatch.setCreationTime(dateUtil.getUtcDate());

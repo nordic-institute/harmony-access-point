@@ -1,10 +1,8 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.AbstractBaseEntity;
-import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,17 +13,12 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
-@NamedQuery(name = "EArchiveBatch.findByBatchId", query = "FROM EArchiveBatch batch where batch.entityId = :BATCH_ENTITY_ID")
-@NamedQuery(name = "EArchiveBatch.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatch batch where batch.entityId = (SELECT max(b.entityId) FROM EArchiveBatch b WHERE b.requestType =  :REQUEST_TYPE)")
-public class EArchiveBatch  extends AbstractBaseEntity {
+@NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
+@NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatchEntity batch where batch.entityId = (SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE)")
+public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")
     private String batchId;
-
-    @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private EArchiveBatchStatus eArchiveBatchStatus;
 
     @Column(name = "REQUEST_TYPE")
     @Enumerated(EnumType.STRING)
@@ -64,14 +57,6 @@ public class EArchiveBatch  extends AbstractBaseEntity {
 
     public void setBatchId(String batchId) {
         this.batchId = batchId;
-    }
-
-    public EArchiveBatchStatus getEArchiveBatchStatus() {
-        return eArchiveBatchStatus;
-    }
-
-    public void setEArchiveBatchStatus(EArchiveBatchStatus status) {
-        this.eArchiveBatchStatus = status;
     }
 
     public RequestType getRequestType() {
@@ -116,9 +101,8 @@ public class EArchiveBatch  extends AbstractBaseEntity {
 
     @Override
     public String toString() {
-        return "EArchiveBatch{" +
+        return "EArchiveBatchEntity{" +
                 "batchId='" + batchId + '\'' +
-                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
                 ", requestType=" + requestType +
                 ", dateRequested=" + dateRequested +
                 ", lastPkUserMessage=" + lastPkUserMessage +
@@ -127,5 +111,4 @@ public class EArchiveBatch  extends AbstractBaseEntity {
                 ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
                 "} " + super.toString();
     }
-
 }

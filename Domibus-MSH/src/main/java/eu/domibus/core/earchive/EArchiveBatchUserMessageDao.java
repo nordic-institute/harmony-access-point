@@ -22,7 +22,7 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
     }
 
     @Transactional
-    public void create(EArchiveBatch entity, List<Long> userMessageLogEntityIds) {
+    public void create(EArchiveBatchEntity entity, List<Long> userMessageLogEntityIds) {
         LOG.debug("Create the EArchiveBatch [{}] of EArchiveBatchUserMessage with [{}] messages", entity.getEntityId(), userMessageLogEntityIds.size());
         for (Long userMessageLogEntityId : userMessageLogEntityIds) {
             EArchiveBatchUserMessage eArchiveBatchUserMessage = new EArchiveBatchUserMessage();

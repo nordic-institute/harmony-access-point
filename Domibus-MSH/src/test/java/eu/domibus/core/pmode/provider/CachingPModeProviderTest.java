@@ -1656,8 +1656,8 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getLegConfigurations();
             result = configuration.getBusinessProcesses().getLegConfigurations();
         }};
-        Map<String, List<LegConfiguration>> allLegConfigurations = cachingPModeProvider.getAllLegConfigurations();
-        assertEquals(1, allLegConfigurations.size());
+        LegConfigurationPerMpc allLegConfigurations = cachingPModeProvider.getAllLegConfigurations();
+        assertEquals(1, allLegConfigurations.entrySet().size());
 
         new FullVerifications(){};
     }

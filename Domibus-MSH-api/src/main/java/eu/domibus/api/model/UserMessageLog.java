@@ -98,6 +98,7 @@ import java.util.Date;
                         "  and uml.entityId < :MAX_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.deleted IS NULL " +
+                        "  and uml.archived IS NOT NULL " +
                         "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =

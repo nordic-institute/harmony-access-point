@@ -24,7 +24,7 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_EARCHIVE_BATCH_ID")
-    private EArchiveBatch eArchiveBatch;
+    private EArchiveBatchEntity eArchiveBatch;
 
     @Column(name = "FK_USER_MESSAGE_ID")
     private Long userMessageEntityId;
@@ -37,11 +37,11 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
         this.entityId = entityId;
     }
 
-    public EArchiveBatch geteArchiveBatch() {
+    public EArchiveBatchEntity geteArchiveBatch() {
         return eArchiveBatch;
     }
 
-    public void seteArchiveBatch(EArchiveBatch eArchiveBatch) {
+    public void seteArchiveBatch(EArchiveBatchEntity eArchiveBatch) {
         this.eArchiveBatch = eArchiveBatch;
     }
 

@@ -14,17 +14,17 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
  * @since 5.0
  */
 @Repository
-public class EArchiveBatchDao extends BasicDao<EArchiveBatch> {
+public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
 
     public EArchiveBatchDao() {
-        super(EArchiveBatch.class);
+        super(EArchiveBatchEntity.class);
     }
 
-    public EArchiveBatch findEArchiveBatchByBatchId(long entityId) {
-        TypedQuery<EArchiveBatch> query = this.em.createNamedQuery("EArchiveBatch.findByBatchId", EArchiveBatch.class);
+    public EArchiveBatchEntity findEArchiveBatchByBatchId(long entityId) {
+        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByBatchId", EArchiveBatchEntity.class);
         query.setParameter("BATCH_ENTITY_ID", entityId);
 
-        List<EArchiveBatch> resultList = query.getResultList();
+        List<EArchiveBatchEntity> resultList = query.getResultList();
         if (isEmpty(resultList)) {
             return null;
         }
@@ -32,7 +32,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatch> {
     }
 
     public Long findLastEntityIdArchived() {
-        TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatch.findLastEntityIdArchived", Long.class);
+        TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatchEntity.findLastEntityIdArchived", Long.class);
         query.setParameter("REQUEST_TYPE", CONTINUOUS);
         List<Long> resultList = query.getResultList();
         if (isEmpty(resultList)) {

@@ -27,16 +27,16 @@ public class EArchiveBatchDaoIT extends AbstractIT {
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
-    private EArchiveBatch firstContinuous;
-    private EArchiveBatch secondContinuous;
-    private EArchiveBatch firstManual;
+    private EArchiveBatchEntity firstContinuous;
+    private EArchiveBatchEntity secondContinuous;
+    private EArchiveBatchEntity firstManual;
 
     @Before
     @Transactional
     public void setup() {
-        firstContinuous = new EArchiveBatch();
-        secondContinuous = new EArchiveBatch();
-        firstManual = new EArchiveBatch();
+        firstContinuous = new EArchiveBatchEntity();
+        secondContinuous = new EArchiveBatchEntity();
+        firstManual = new EArchiveBatchEntity();
 
         create(firstContinuous, 10L, RequestType.CONTINUOUS);
         create(secondContinuous, 20L, RequestType.CONTINUOUS);
@@ -46,9 +46,9 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findEArchiveBatchByBatchId() {
-        EArchiveBatch first = eArchiveBatchDao.findEArchiveBatchByBatchId(firstContinuous.getEntityId());
-        EArchiveBatch second = eArchiveBatchDao.findEArchiveBatchByBatchId(secondContinuous.getEntityId());
-        EArchiveBatch third = eArchiveBatchDao.findEArchiveBatchByBatchId(firstManual.getEntityId());
+        EArchiveBatchEntity first = eArchiveBatchDao.findEArchiveBatchByBatchId(firstContinuous.getEntityId());
+        EArchiveBatchEntity second = eArchiveBatchDao.findEArchiveBatchByBatchId(secondContinuous.getEntityId());
+        EArchiveBatchEntity third = eArchiveBatchDao.findEArchiveBatchByBatchId(firstManual.getEntityId());
 
         Assert.assertNotNull(first);
         Assert.assertNotNull(second);
@@ -63,16 +63,15 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     }
 
 
-    private void create(EArchiveBatch eArchiveBatch, Long lastPkUserMessage, RequestType continuous) {
+    private void create(EArchiveBatchEntity eArchiveBatch, Long lastPkUserMessage, RequestType continuous) {
         eArchiveBatch.setLastPkUserMessage(lastPkUserMessage);
-        eArchiveBatch.setEArchiveBatchStatus(EArchiveBatchStatus.COMPLETED);
         eArchiveBatch.setRequestType(continuous);
         eArchiveBatchDao.create(eArchiveBatch);
     }
 
     @Test
     public void findLastEntityIdArchived_notFound() {
-        em.createQuery("delete from EArchiveBatch batch " +
+        em.createQuery("delete from EArchiveBatchEntity batch " +
                         "where batch.requestType = eu.domibus.core.earchive.RequestType.CONTINUOUS")
                 .executeUpdate();
 

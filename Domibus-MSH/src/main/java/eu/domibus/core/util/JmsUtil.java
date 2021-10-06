@@ -25,7 +25,7 @@ public class JmsUtil {
         this.domainContextProvider = domainContextProvider;
     }
 
-    public String getStringProperty(Message message, String variable) {
+    public String getStringPropertySafely(Message message, String variable) {
         String property;
         try {
             property = message.getStringProperty(variable);
@@ -36,7 +36,7 @@ public class JmsUtil {
         return property;
     }
 
-    public Long getLongProperty(Message message, String variable) {
+    public Long getLongPropertySafely(Message message, String variable) {
         Long property;
         try {
             property = Long.parseLong(message.getStringProperty(variable));
@@ -48,7 +48,7 @@ public class JmsUtil {
     }
 
     public void setDomain(Message message) {
-        String domainCode = getStringProperty(message, MessageConstants.DOMAIN);
+        String domainCode = getStringPropertySafely(message, MessageConstants.DOMAIN);
         if (StringUtils.isNotEmpty(domainCode)) {
             domainContextProvider.setCurrentDomain(domainCode);
         } else {

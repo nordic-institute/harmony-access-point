@@ -7,23 +7,26 @@ import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
+import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 /**
@@ -63,40 +66,57 @@ public class EArchiveBatchService {
         return lastEntityIdArchived;
     }
 
-    public EArchiveBatch createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, ListUserMessageDto userMessageToBeArchived) {
-        EArchiveBatch eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed);
+    @Transactional
+    public EArchiveBatchEntity createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, ListUserMessageDto userMessageToBeArchived) {
+        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed);
 
-        Integer longProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
-        batches(userMessageToBeArchived, longProperty)
+        Integer batchInsertSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
+        batches(userMessageToBeArchived, batchInsertSize)
                 .forEach(userMessageDTOS ->
                         eArchiveBatchUserMessageDao.create(eArchiveBatch, getEntityIds(userMessageDTOS.getUserMessageDtos())));
         return eArchiveBatch;
     }
 
     private List<Long> getEntityIds(List<UserMessageDTO> userMessageDTOS) {
-        return userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
+        return userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(toList());
     }
 
-    protected List<ListUserMessageDto> batches(ListUserMessageDto source, int length) {
-        if (length <= 0) {
+    protected List<ListUserMessageDto> batches(ListUserMessageDto source, int batchInsertSize) {
+        if (batchInsertSize <= 0) {
             throw new DomibusEArchiveException(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE + " invalid");
         }
         if (source == null || CollectionUtils.isEmpty(source.getUserMessageDtos())) {
             return Collections.singletonList(new ListUserMessageDto(new ArrayList<>()));
         }
-        int size = source.getUserMessageDtos().size();
+        int totalSize = source.getUserMessageDtos().size();
 
-        int fullChunks = (size - 1) / length;
-        return IntStream.range(0, fullChunks + 1).mapToObj(
-                        n -> source.getUserMessageDtos().subList(n * length, n == fullChunks ? size : (n + 1) * length))
-                .map(ListUserMessageDto::new)
-                .collect(Collectors.toList());
+        int maxBatchesToCreate = (totalSize - 1) / batchInsertSize;
+        return IntStream.range(0, maxBatchesToCreate + 1)
+                .mapToObj(createListUserMessageDtos(source.getUserMessageDtos(), batchInsertSize, totalSize, maxBatchesToCreate))
+                .collect(toList());
     }
 
-    private EArchiveBatch createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
-        EArchiveBatch entity = new EArchiveBatch();
+    private IntFunction<ListUserMessageDto> createListUserMessageDtos(List<UserMessageDTO> userMessageDtos, int batchInsertSize, int totalSize, int maxBatchesToCreate) {
+        return i -> new ListUserMessageDto(
+                userMessageDtos.subList(
+                        getFromIndex(batchInsertSize, i),
+                        getToIndex(batchInsertSize, totalSize, maxBatchesToCreate, i)));
+    }
+
+    private int getFromIndex(int batchInsertSize, int i) {
+        return i * batchInsertSize;
+    }
+
+    private int getToIndex(int batchInsertSize, int totalSize, int maxBatchesToCreate, int i) {
+        if (i == maxBatchesToCreate) {
+            return totalSize;
+        }
+        return (i + 1) * batchInsertSize;
+    }
+
+    private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
+        EArchiveBatchEntity entity = new EArchiveBatchEntity();
         entity.setSize(batchSize);
-        entity.setEArchiveBatchStatus(EArchiveBatchStatus.STARTING);
         entity.setRequestType(RequestType.CONTINUOUS);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
@@ -124,7 +144,7 @@ public class EArchiveBatchService {
         //If no override, check if there is a filter on the MPCs to use to find the retry time out in the Pmode
         List<String> mpcs = getMpcs();
 
-        Map<String, List<LegConfiguration>> allLegConfigurations = pModeProvider.getAllLegConfigurations();
+        LegConfigurationPerMpc allLegConfigurations = pModeProvider.getAllLegConfigurations();
         if (allLegConfigurations.isEmpty()) {
             throw new DomibusEArchiveException("No leg found in the PMode");
         }
@@ -132,9 +152,9 @@ public class EArchiveBatchService {
     }
 
 
-    private int getMaxRetryTimeOutFiltered(List<String> mpcs, Map<String, List<LegConfiguration>> allLegConfigurations) {
+    private int getMaxRetryTimeOutFiltered(List<String> mpcs, LegConfigurationPerMpc legConfigurationPerMpc) {
         int maxRetryTimeOut = 0;
-        for (Map.Entry<String, List<LegConfiguration>> legConfigPerMpcs : allLegConfigurations.entrySet()) {
+        for (Map.Entry<String, List<LegConfiguration>> legConfigPerMpcs : legConfigurationPerMpc.entrySet()) {
             LOG.debug("MPC: [{}]", legConfigPerMpcs.getKey());
             if (CollectionUtils.isEmpty(mpcs) || mpcs.stream().anyMatch(s -> equalsIgnoreCase(legConfigPerMpcs.getKey(), s))) {
                 for (LegConfiguration legConfiguration : legConfigPerMpcs.getValue()) {

@@ -79,10 +79,10 @@ public class EArchiveListenerTest {
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
-            jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
+            jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = null;
 
-            jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+            jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = null;
         }};
         eArchiveListener.onMessage(message);
@@ -97,10 +97,10 @@ public class EArchiveListenerTest {
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
-            jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
+            jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+            jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
             eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
@@ -114,15 +114,15 @@ public class EArchiveListenerTest {
 
     @Test
     public void onMessage_noMessages(@Injectable Message message,
-                                     @Injectable EArchiveBatch eArchiveBatch) {
+                                     @Injectable EArchiveBatchEntity eArchiveBatch) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
-            jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
+            jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+            jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
             eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
@@ -142,16 +142,16 @@ public class EArchiveListenerTest {
 
     @Test
     public void onMessage_ok(@Injectable Message message,
-                                     @Injectable EArchiveBatch eArchiveBatch,
+                                     @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable FileObject fileObject) throws FileSystemException {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
-            jmsUtil.getStringProperty(message, MessageConstants.BATCH_ID);
+            jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.getLongProperty(message, MessageConstants.BATCH_ENTITY_ID);
+            jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
             eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);

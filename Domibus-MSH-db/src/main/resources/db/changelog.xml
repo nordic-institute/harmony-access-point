@@ -2818,9 +2818,6 @@
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
-            <column name="STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="SIZE" type="INT"/>
