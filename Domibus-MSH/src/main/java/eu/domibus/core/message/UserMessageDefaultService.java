@@ -719,7 +719,12 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
             return info.getHref();
         }
-
+        for(PartProperty property : info.getPartProperties()) {
+            if (property.getName().equals("PayloadName")) {
+                LOG.warn("Payload Name exists [{}]", property.getName());
+                return property.getValue();
+            }
+        }
         return info.getHref().replace("cid:", "");
     }
 
