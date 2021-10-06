@@ -2,7 +2,6 @@ package eu.domibus.core.multitenancy.lock;
 
 import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.core.spring.lock.LockDao;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,11 +11,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SynchronizationServiceImpl implements SynchronizationService {
 
-    @Autowired
-    protected LockDao lockDao;
+    final protected LockDao lockDao;
+
+    public SynchronizationServiceImpl(LockDao lockDao) {
+        this.lockDao = lockDao;
+    }
 
     @Override
     public void acquireLock(String lockKey) {
-        lockDao.findByLockKey(lockKey);
+        lockDao.findByLockKeyWithLock(lockKey);
     }
 }

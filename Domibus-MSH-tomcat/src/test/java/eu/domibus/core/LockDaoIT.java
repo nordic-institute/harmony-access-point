@@ -35,14 +35,14 @@ public class LockDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findSyncLock() {
-        final LockEntity lock = lockDao.findByLockKey(SYNC_LOCK_KEY);
+        final LockEntity lock = lockDao.findByLockKeyWithLock(SYNC_LOCK_KEY);
         assertNotNull(lock);
     }
 
     @Test(expected = NoResultException.class)
     @Transactional
     public void doNotFindOtherLock() {
-        final LockEntity lock = lockDao.findByLockKey("non-existent-lock");
+        final LockEntity lock = lockDao.findByLockKeyWithLock("non-existent-lock");
         Assert.fail();
     }
 
