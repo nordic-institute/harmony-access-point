@@ -60,7 +60,7 @@ public class DomibusTestDatasourceConfiguration {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         final String databaseSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
-        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=2000;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
+        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=3000;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
         String databaseUrl = String.format(databaseUrlTemplate, databaseSchema);
 
         LOG.info("Using database URL [{}]", databaseUrl);
