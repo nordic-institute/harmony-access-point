@@ -66,11 +66,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             return;
         }
 
-        LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
+        LOG.debug("Persist raw XML envelope: [{}]", rawXMLMessage);
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
-        if (userMessage != null) {
-            rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
-        }
+        rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
         rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
         rawEnvelopeLogDao.create(rawEnvelopeLog);
     }
