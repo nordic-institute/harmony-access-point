@@ -47,7 +47,6 @@ public class DomibusContextRefreshedListener {
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
-    // todo move from here??
     @Autowired
     GatewayConfigurationValidator gatewayConfigurationValidator;
 
