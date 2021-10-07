@@ -12,9 +12,11 @@ import eu.domibus.messaging.MessageConstants;
 public class DispatchMessageCreator {
 
     private final String messageId;
+    private Long entityId;
 
-    public DispatchMessageCreator(final String messageId) {
+    public DispatchMessageCreator(final String messageId, final Long entityId) {
         this.messageId = messageId;
+        this.entityId = entityId;
     }
 
     public JmsMessage createMessage() {
@@ -22,6 +24,7 @@ public class DispatchMessageCreator {
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
+                .property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(entityId))
                 .build();
     }
 
@@ -30,6 +33,7 @@ public class DispatchMessageCreator {
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
+                .property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(entityId))
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .build();
     }

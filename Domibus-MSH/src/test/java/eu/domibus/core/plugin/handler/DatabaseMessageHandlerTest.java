@@ -180,6 +180,9 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     private PartInfoService partInfoService;
 
+    @Injectable
+    UserMessageHandlerServiceImpl userMessageHandlerService;
+
     @Tested
     private DatabaseMessageHandler databaseMessageHandler;
 
@@ -515,7 +518,7 @@ public class DatabaseMessageHandlerTest {
             assertTrue(mpEx.getMessage().contains("does not correspond to the access point's name"));
         }
 
-        new FullVerifications() {{
+        new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
@@ -593,7 +596,7 @@ public class DatabaseMessageHandlerTest {
             assertTrue(mpEx.getMessage().contains("The initiator party's name is the same as the responder party's one"));
         }
 
-        new FullVerifications() {{
+        new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
@@ -701,8 +704,6 @@ public class DatabaseMessageHandlerTest {
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            pModeProvider.getLegConfiguration(anyString);
-            messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
         }};
