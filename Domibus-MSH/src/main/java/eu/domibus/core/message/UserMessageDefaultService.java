@@ -21,7 +21,6 @@ import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.error.ErrorLogService;
-import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
@@ -312,19 +311,13 @@ public class UserMessageDefaultService implements UserMessageService {
 
 
     public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
-        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId()).createMessage());
+        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage());
     }
 
-    @Override
-    public void scheduleSending(String messageId, Long delay) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
-    }
-
+    @Transactional
     public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
         UserMessage userMessage = userMessageDao.read(userMessageLog.getEntityId());
-        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId()).createMessage(retryCount));
+        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage(retryCount));
     }
 
     /**
@@ -354,9 +347,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSourceMessageSending(String messageId) {
+    public void scheduleSourceMessageSending(String messageId, Long messageEntityId) {
         LOG.debug("Sending message to sendLargeMessageQueue");
-        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId, messageEntityId).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 

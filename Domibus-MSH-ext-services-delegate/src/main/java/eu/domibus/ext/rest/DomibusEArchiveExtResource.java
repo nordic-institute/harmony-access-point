@@ -5,12 +5,13 @@ import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.ws.rs.QueryParam;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +24,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/archive")
+@SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
+@Tag(name = "archive", description = "Domibus eArchive services API")
 public class DomibusEArchiveExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
 
@@ -52,9 +55,10 @@ public class DomibusEArchiveExtResource {
      * @param endDate           end day-time  of batches enqueued
      * @return the list of queued batches
      */
-    @ApiOperation(value = "List batch export requests that are queued",
-            notes = " Method returns the list of batches that are queued to be processed asynchronously by Domibus.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+    @Operation(summary = "List batch export requests that are queued",
+            description = "Method returns the list of batches that are queued to be processed asynchronously by Domibus.",
+            security = @SecurityRequirement(name ="DomibusBasicAuth")
+    )
     @GetMapping(path = "batches/queued")
     public List<QueuedBatchDTO> getQueuedBatchRequests(@RequestParam("lastCountRequests") Integer lastCountRequests,
                                                        @RequestParam("maxCountResults") Integer maxCountResults,
@@ -77,10 +81,10 @@ public class DomibusEArchiveExtResource {
      * @return List of message ids in the batch
      */
 
-    @ApiOperation(value = "Get the message IDs exported in a batch",
-            notes = "Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the\n" +
+    @Operation(summary = "Get the message IDs exported in a batch",
+            description = "Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the\n" +
                     "limit and start parameters are not provided.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "batches/exported/{batchId:.+}/messages")
     public ExportedBatchMessagesDTO getBatchMessageIds(@PathVariable(name = "batchId") String batchId,
                                                        @RequestParam("pageStart") Integer pageStart,
@@ -106,10 +110,10 @@ public class DomibusEArchiveExtResource {
      * @param pageSize: maximum number of records in the page
      * @return list of the exported batches
      */
-    @ApiOperation(value = "History of the exported batches",
-            notes = "This REST endpoint provides a history of exported batches with status success, failed or expired. It\n" +
+    @Operation(summary = "History of the exported batches",
+            description = "This REST endpoint provides a history of exported batches with status success, failed or expired. It\n" +
                     " allows the archiving client to validate if it has archived all exported batches.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "batches/exported")
     public List<ExportedBatchDTO> historyOfTheExportedBatches(
             @RequestParam("startDate") Date startDate,
@@ -138,10 +142,10 @@ public class DomibusEArchiveExtResource {
      * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
      * @return status of the queued export request
      */
-    @ApiOperation(value = "Export a batch based on batch id",
-            notes = "This REST endpoint will export a new batch with a new batch id containing the same messages that" +
+    @Operation(summary = "Export a batch based on batch id",
+            description = "This REST endpoint will export a new batch with a new batch id containing the same messages that" +
                     " were already exported in a batch identified by the batch id provided as a parameter.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PutMapping(path = "batches/exported/{batchId:.+}/export")
     public BatchStatusDTO exportBatch(
             @PathVariable(name = "batchId") String batchId
@@ -166,13 +170,13 @@ public class DomibusEArchiveExtResource {
      * @param batchFinalStatus: Status of the batch ARCHIVED if successfully archived or  FAILED if archival system fail to archive it
      * @return status of the queued export request
      */
-    @ApiOperation(value = "Sets batch as successfully archived",
-            notes = "This REST endpoint will be used by the archiving client to confirm that a batch was archived " +
+    @Operation(summary = "Sets batch as successfully archived",
+            description = "This REST endpoint will be used by the archiving client to confirm that a batch was archived " +
                     "successfully or that it failed to archive it. The request contains the batch identifier which allows " +
                     "Domibus to identify all messages in the batch to mark them as archived or failed and eligible for purging. " +
                     "Note that, for performance reasons, Domibus will asynchronously mark the batch messages as " +
                     "archived.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PutMapping(path = "batches/exported/{batchId:.+}/close")
     public BatchStatusDTO setBatchAsArchived(
             @PathVariable(name = "batchId") String batchId,
@@ -197,10 +201,10 @@ public class DomibusEArchiveExtResource {
      * @param pageSize: maximum number of records in the page
      * @return message list
      */
-    @ApiOperation(value = " Messages which were not archived within a specific period",
-            notes = "This REST endpoint can be used to check if all AS4 messages received or sent within a specific period " +
+    @Operation(summary = " Messages which were not archived within a specific period",
+            description = "This REST endpoint can be used to check if all AS4 messages received or sent within a specific period " +
                     "were archived.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "messages/not-archived")
     public MessagesDTO notArchivedMessages(@RequestParam("startDate") Date startDate,
                                            @RequestParam("endDate") Date endDate,
@@ -218,9 +222,9 @@ public class DomibusEArchiveExtResource {
      *
      * @return current "continuous export" batch start date
      */
-    @ApiOperation(value = "Get the current start date of the continuous export",
-            notes = "This REST endpoint will expose the continuous export mechanism current start date.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "archive")
+    @Operation(summary = "Get the current start date of the continuous export",
+            description = "This REST endpoint will expose the continuous export mechanism current start date.",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "/continous-export/current-start-date")
     public CurrentBatchStartDateDTO getCurrentExportDate() {
         // TODO implement method

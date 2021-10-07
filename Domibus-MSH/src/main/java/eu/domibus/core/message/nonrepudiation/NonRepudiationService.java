@@ -15,6 +15,8 @@ import java.util.Map;
 
 public interface NonRepudiationService {
 
+    void saveRawEnvelope(String rawXMLMessage, UserMessage userMessage);
+
     void saveRequest(SOAPMessage request, UserMessage userMessage);
 
     void saveResponse(SOAPMessage response, SignalMessage signalMessage);

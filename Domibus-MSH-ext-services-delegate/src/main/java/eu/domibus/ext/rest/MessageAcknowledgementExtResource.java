@@ -6,8 +6,9 @@ import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/messages/acknowledgments")
+@Tag(name = "acknowledgement", description = "Domibus Message Acknowledgement API")
 public class MessageAcknowledgementExtResource {
 
     @Autowired
@@ -39,8 +41,8 @@ public class MessageAcknowledgementExtResource {
      * @param acknowledgementRequestDTO the details of the message delivered acknowledgement to be created
      * @return The newly created message acknowledgement
      */
-    @ApiOperation(value = "Create a message delivered acknowledgement", notes = "Acknowledges that a message has been delivered to the backend",
-            authorizations = @Authorization(value = "basicAuth"), tags = "acknowledgement")
+    @Operation(summary = "Create a message delivered acknowledgement", description = "Acknowledges that a message has been delivered to the backend",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PostMapping(path = "/delivered")
     public MessageAcknowledgementDTO acknowledgeMessageDelivered(@RequestBody MessageAcknowledgementRequestDTO acknowledgementRequestDTO) {
         return messageAcknowledgeService.acknowledgeMessageDelivered(acknowledgementRequestDTO.getMessageId(), acknowledgementRequestDTO.getAcknowledgeDate(), acknowledgementRequestDTO.getProperties());
@@ -52,8 +54,8 @@ public class MessageAcknowledgementExtResource {
      * @param acknowledgementRequestDTO the details of the message delivered acknowledgement to be created
      * @return The newly created message acknowledgement
      */
-    @ApiOperation(value = "Create a message processed acknowledgement", notes = "Acknowledges that a message has been processed by the backend",
-            authorizations = @Authorization(value = "basicAuth"), tags = "acknowledgement")
+    @Operation(summary = "Create a message processed acknowledgement", description = "Acknowledges that a message has been processed by the backend",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PostMapping(path = "/processed")
     public MessageAcknowledgementDTO acknowledgeMessageProcessed(@RequestBody MessageAcknowledgementRequestDTO acknowledgementRequestDTO) {
         return messageAcknowledgeService.acknowledgeMessageProcessed(acknowledgementRequestDTO.getMessageId(), acknowledgementRequestDTO.getAcknowledgeDate(), acknowledgementRequestDTO.getProperties());
@@ -65,8 +67,8 @@ public class MessageAcknowledgementExtResource {
      * @param messageId The message id for which message acknowledgments are retrieved
      * @return All acknowledgments registered for a specific message
      */
-    @ApiOperation(value = "Get acknowledgements", notes = "Gets all acknowledgments associated to a message id",
-            authorizations = @Authorization(value = "basicAuth"), tags = "acknowledgement")
+    @Operation(summary = "Get acknowledgements", description = "Gets all acknowledgments associated to a message id",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "/{messageId:.+}")
     @ResponseBody
     public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@PathVariable(value = "messageId") String messageId) {

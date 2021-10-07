@@ -130,7 +130,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
         } finally {
-            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
         }
         return null;
     }
