@@ -521,6 +521,59 @@
         } ]
       }
     },
+    "/ext/monitoring/messages/delete" : {
+      "delete" : {
+        "tags" : [ "monitoring" ],
+        "summary" : "Delete messages payload",
+        "description" : "Delete the payload of messages within a certain time interval which are not in final statuses (ACKNOWLEDGED, ACKNOWLEDGED_WITH_WARNING, DOWNLOADED, RECEIVED, RECEIVED_WITH_WARNINGS)",
+        "operationId" : "deleteMessages",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/FailedMessagesCriteriaRO"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/monitoring/messages/delete/{messageId}" : {
+      "delete" : {
+        "tags" : [ "monitoring" ],
+        "summary" : "Delete message payload",
+        "description" : "Delete the payload of a message which is not in final statuses (ACKNOWLEDGED, ACKNOWLEDGED_WITH_WARNING, DOWNLOADED, RECEIVED, RECEIVED_WITH_WARNINGS)",
+        "operationId" : "deleteMessage",
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "pattern" : ".+"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "successful operation"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/monitoring/messages/enqueued/{messageId}/send" : {
       "put" : {
         "tags" : [ "monitoring" ],
@@ -981,16 +1034,6 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
-        "filename" : {
-          "type" : "string"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
-        },
-        "readable" : {
-          "type" : "boolean"
-        },
         "url" : {
           "type" : "string",
           "format" : "url"
@@ -999,6 +1042,16 @@
           "type" : "file"
         },
         "open" : {
+          "type" : "boolean"
+        },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "filename" : {
+          "type" : "string"
+        },
+        "readable" : {
           "type" : "boolean"
         }
       }

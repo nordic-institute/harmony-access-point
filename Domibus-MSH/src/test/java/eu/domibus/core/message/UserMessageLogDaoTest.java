@@ -1,13 +1,15 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -16,10 +18,12 @@ import org.junit.runner.RunWith;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -894,4 +898,26 @@ public class UserMessageLogDaoTest {
             Assert.assertNull("Should have returned null for the message identifier when the last user test message is not found", result);
         }};
     }
+
+    @Test
+    public void findMessagesToDelete(@Injectable TypedQuery<UserMessageLog> query) {
+        final Date startDate = new Date();
+        final Date endDate = new Date();
+        final String finalRecipient = "finalRecipient";
+
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findMessagesToDelete", String.class);
+            result = query;
+        }};
+
+        userMessageLogDao.findMessagesToDelete(finalRecipient, startDate, endDate);
+
+        new VerificationsInOrder() {{
+            query.setParameter("MESSAGE_STATUSES", userMessageLogDao.FINAL_STATUSES_FOR_MESSAGE);
+            query.setParameter("FINAL_RECIPIENT", finalRecipient);
+            query.setParameter("START_DATE", startDate);
+            query.setParameter("END_DATE", endDate);
+        }};
+    }
+
 }

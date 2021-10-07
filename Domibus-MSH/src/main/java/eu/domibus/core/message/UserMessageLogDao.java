@@ -34,6 +34,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
+    protected static final Set<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = EnumSet.of(MessageStatus.ACKNOWLEDGED, MessageStatus.ACKNOWLEDGED_WITH_WARNING,
+            MessageStatus.DOWNLOADED, MessageStatus.RECEIVED, MessageStatus.RECEIVED_WITH_WARNINGS);
+
     private final DateUtil dateUtil;
 
     private final UserMessageLogInfoFilter userMessageLogInfoFilter;
@@ -72,7 +75,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
         String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
-                "left join m.messageProperties p,  " +
+                "left join m.messageProperties p ," +
                 "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
@@ -93,6 +96,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         if (failedEndDate != null) {
             query.setParameter("END_DATE", failedEndDate);
         }
+        return query.getResultList();
+    }
+
+    public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDelete", String.class);
+        query.setParameter("MESSAGE_STATUSES", FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", startDate);
+        query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
 
@@ -155,6 +167,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
+    }
+
+    public List<UserMessageLogDto> getUserMessagesDuringPeriod(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
 
