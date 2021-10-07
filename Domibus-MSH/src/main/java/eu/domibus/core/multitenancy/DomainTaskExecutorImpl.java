@@ -1,6 +1,8 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.concurrent.*;
 
 /**
@@ -31,6 +32,9 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Qualifier("quartzTaskExecutor")
     @Autowired
     protected SchedulingTaskExecutor schedulingLongTaskExecutor;
+
+    @Autowired
+    SynchronizedRunnableFactory synchronizedRunnableFactory;
 
     @Override
     public <T extends Object> T submit(Callable<T> task) {
@@ -58,16 +62,17 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public void submit(Runnable task, Runnable errorHandler, File lockFile) {
-        submit(task, errorHandler, lockFile, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
+        submit(task, errorHandler, lockKey, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
-    public void submit(Runnable task, Runnable errorHandler, File lockFile, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
-        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockFile, timeout, timeUnit);
+    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
 
-        SetLockOnFileRunnable setLockOnFileRunnable = new SetLockOnFileRunnable(task, lockFile);
-        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(setLockOnFileRunnable, errorHandler);
+        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
+
+        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
 
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
@@ -127,7 +132,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     protected void handleRunnableError(Exception exception, Runnable errorHandler) {
-        if(errorHandler != null) {
+        if (errorHandler != null) {
             LOG.debug("Running the error handler");
             errorHandler.run();
             return;

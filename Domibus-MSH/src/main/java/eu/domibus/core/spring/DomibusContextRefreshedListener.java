@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,7 +27,7 @@ public class DomibusContextRefreshedListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
-    public static final String SYNC_LOCK_FILE = "synchronization.lock";
+    public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
     @Autowired
     protected EncryptionService encryptionService;
@@ -87,15 +86,15 @@ public class DomibusContextRefreshedListener {
     protected void executeWithLockIfNeeded(Runnable task) {
         LOG.debug("Executing in serial mode");
         if (useLockForExecution()) {
-            LOG.debug("Handling execution using lock file.");
-            final File fileLock = getLockFileLocation();
+            LOG.debug("Handling execution using db lock.");
             Runnable errorHandler = () -> {
-                LOG.warn("An error has occurred while initializing Domibus. This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.");
+                LOG.warn("An error has occurred while initializing Domibus (executing task [{}]). " +
+                        "This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.", task);
             };
-            domainTaskExecutor.submit(task, errorHandler, fileLock, true, 3L, TimeUnit.MINUTES);
-            LOG.debug("Finished handling execution using lock file.");
+            domainTaskExecutor.submit(task, errorHandler, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
+            LOG.debug("Finished handling execution using db lock.");
         } else {
-            LOG.debug("Handling execution without lock.");
+            LOG.debug("Handling execution without db lock.");
             task.run();
         }
     }
@@ -103,11 +102,7 @@ public class DomibusContextRefreshedListener {
     protected boolean useLockForExecution() {
         final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
         LOG.debug("Cluster deployment? [{}]", clusterDeployment);
-
         return clusterDeployment;
     }
 
-    protected File getLockFileLocation() {
-        return new File(domibusConfigurationService.getConfigLocation(), SYNC_LOCK_FILE);
-    }
 }
