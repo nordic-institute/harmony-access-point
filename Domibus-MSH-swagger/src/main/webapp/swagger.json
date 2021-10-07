@@ -13,11 +13,7 @@
   "tags" : [ {
     "name" : "acknowledgement"
   }, {
-    "name" : "archive"
-  }, {
     "name" : "cache"
-  }, {
-    "name" : "envelope"
   }, {
     "name" : "monitoring"
   }, {
@@ -25,305 +21,21 @@
   }, {
     "name" : "pmode"
   }, {
-    "name" : "signalEnvelope"
-  }, {
     "name" : "status"
   }, {
     "name" : "usermessage"
   } ],
   "schemes" : [ "http", "https" ],
   "paths" : {
-    "/ext/2LCache" : {
-      "delete" : {
-        "tags" : [ "cache" ],
-        "summary" : "[ADMIN] Evict Second Level Caches",
-        "description" : "[ADMIN] Clear second level caches including query caches (Admin rights needed)",
-        "operationId" : "evictTechnicalCaches",
-        "responses" : {
-          "403" : {
-            "description" : "Admin role needed"
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/batches/exported" : {
-      "get" : {
-        "tags" : [ "archive" ],
-        "summary" : "History of the exported batches",
-        "description" : "This REST endpoint provides a history of exported batches with status success, failed or expired. It\n allows the archiving client to validate if it has archived all exported batches.",
-        "operationId" : "historyOfTheExportedBatches",
-        "parameters" : [ {
-          "name" : "startDate",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "format" : "date-time"
-        }, {
-          "name" : "endDate",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "format" : "date-time"
-        }, {
-          "name" : "status",
-          "in" : "query",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "reExport",
-          "in" : "query",
-          "required" : true,
-          "type" : "boolean"
-        }, {
-          "name" : "pageStart",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "pageSize",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/definitions/ExportedBatchDTO"
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/batches/exported/{batchId}/close" : {
-      "put" : {
-        "tags" : [ "archive" ],
-        "summary" : "Sets batch as successfully archived",
-        "description" : "This REST endpoint will be used by the archiving client to confirm that a batch was archived successfully or that it failed to archive it. The request contains the batch identifier which allows Domibus to identify all messages in the batch to mark them as archived or failed and eligible for purging. Note that, for performance reasons, Domibus will asynchronously mark the batch messages as archived.",
-        "operationId" : "setBatchAsArchived",
-        "parameters" : [ {
-          "name" : "",
-          "in" : "path",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "batchFinalStatus",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "enum" : [ "ARCHIVED", "FAILED" ]
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/BatchStatusDTO"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/batches/exported/{batchId}/export" : {
-      "put" : {
-        "tags" : [ "archive" ],
-        "summary" : "Export a batch based on batch id",
-        "description" : "This REST endpoint will export a new batch with a new batch id containing the same messages that were already exported in a batch identified by the batch id provided as a parameter.",
-        "operationId" : "exportBatch",
-        "parameters" : [ {
-          "name" : "",
-          "in" : "path",
-          "required" : true,
-          "type" : "string"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/BatchStatusDTO"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/batches/exported/{batchId}/messages" : {
-      "get" : {
-        "tags" : [ "archive" ],
-        "summary" : "Get the message IDs exported in a batch",
-        "description" : "Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the\nlimit and start parameters are not provided.",
-        "operationId" : "getBatchMessageIds",
-        "parameters" : [ {
-          "name" : "",
-          "in" : "path",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "pageStart",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "pageSize",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/ExportedBatchMessagesDTO"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/batches/queued" : {
-      "get" : {
-        "tags" : [ "archive" ],
-        "summary" : "List batch export requests that are queued",
-        "description" : " Method returns the list of batches that are queued to be processed asynchronously by Domibus.",
-        "operationId" : "getQueuedBatchRequests",
-        "parameters" : [ {
-          "name" : "lastCountRequests",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "maxCountResults",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "requestType",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "enum" : [ "CONTINUOUS", "ONE_TIME", "ALL" ]
-        }, {
-          "name" : "startDate",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "format" : "date-time"
-        }, {
-          "name" : "endDate",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "format" : "date-time"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/definitions/QueuedBatchDTO"
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/continous-export/current-start-date" : {
-      "get" : {
-        "tags" : [ "archive" ],
-        "summary" : "Get the current start date of the continuous export",
-        "description" : "This REST endpoint will expose the continuous export mechanism current start date.",
-        "operationId" : "getCurrentExportDate",
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/CurrentBatchStartDateDTO"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/archive/messages/not-archived" : {
-      "get" : {
-        "tags" : [ "archive" ],
-        "summary" : " Messages which were not archived within a specific period",
-        "description" : "This REST endpoint can be used to check if all AS4 messages received or sent within a specific period were archived.",
-        "operationId" : "notArchivedMessages",
-        "parameters" : [ {
-          "name" : "startDate",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "format" : "date-time"
-        }, {
-          "name" : "endDate",
-          "in" : "query",
-          "required" : true,
-          "type" : "string",
-          "format" : "date-time"
-        }, {
-          "name" : "pageStart",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "pageSize",
-          "in" : "query",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/MessagesDTO"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
     "/ext/cache" : {
       "delete" : {
         "tags" : [ "cache" ],
-        "summary" : "[ADMIN] Evict all Caches",
-        "description" : "Clear all caches from the cacheManager (Admin rights needed)",
+        "summary" : "Delete all Caches",
+        "description" : "Clear all caches from the cacheManager",
         "operationId" : "evictCaches",
         "responses" : {
-          "403" : {
-            "description" : "Admin role needed"
+          "default" : {
+            "description" : "successful operation"
           }
         },
         "security" : [ {
@@ -440,58 +152,6 @@
         } ]
       }
     },
-    "/ext/messages/usermessages/{messageId}/envelope" : {
-      "get" : {
-        "tags" : [ "envelope" ],
-        "summary" : "Get user message envelope",
-        "description" : "Retrieve the user message envelope with the specified message id",
-        "operationId" : "downloadUserMessageEnvelope",
-        "parameters" : [ {
-          "name" : "messageId",
-          "in" : "path",
-          "required" : true,
-          "type" : "string",
-          "pattern" : ".+"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "string"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/messages/usermessages/{messageId}/signalEnvelope" : {
-      "get" : {
-        "tags" : [ "signalEnvelope" ],
-        "summary" : "Get signal message envelope",
-        "description" : "Retrieve the signal message envelope with the specified user message id",
-        "operationId" : "downloadSignalMessageEnvelope",
-        "parameters" : [ {
-          "name" : "messageId",
-          "in" : "path",
-          "required" : true,
-          "type" : "string",
-          "pattern" : ".+"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "string"
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
     "/ext/monitoring/application/status" : {
       "get" : {
         "tags" : [ "status" ],
@@ -514,59 +174,6 @@
             "schema" : {
               "$ref" : "#/definitions/MonitoringInfoDTO"
             }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/monitoring/messages/delete" : {
-      "delete" : {
-        "tags" : [ "monitoring" ],
-        "summary" : "Delete messages payload",
-        "description" : "Delete the payload of messages within a certain time interval which are not in final statuses (ACKNOWLEDGED, ACKNOWLEDGED_WITH_WARNING, DOWNLOADED, RECEIVED, RECEIVED_WITH_WARNINGS)",
-        "operationId" : "deleteMessages",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : false,
-          "schema" : {
-            "$ref" : "#/definitions/FailedMessagesCriteriaRO"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "type" : "string"
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "basicAuth" : [ ]
-        } ]
-      }
-    },
-    "/ext/monitoring/messages/delete/{messageId}" : {
-      "delete" : {
-        "tags" : [ "monitoring" ],
-        "summary" : "Delete message payload",
-        "description" : "Delete the payload of a message which is not in final statuses (ACKNOWLEDGED, ACKNOWLEDGED_WITH_WARNING, DOWNLOADED, RECEIVED, RECEIVED_WITH_WARNINGS)",
-        "operationId" : "deleteMessage",
-        "parameters" : [ {
-          "name" : "messageId",
-          "in" : "path",
-          "required" : true,
-          "type" : "string",
-          "pattern" : ".+"
-        } ],
-        "responses" : {
-          "default" : {
-            "description" : "successful operation"
           }
         },
         "security" : [ {
@@ -964,7 +571,7 @@
           "in" : "path",
           "required" : true,
           "type" : "integer",
-          "format" : "int64"
+          "format" : "int32"
         } ],
         "responses" : {
           "200" : {
@@ -1000,24 +607,6 @@
         }
       }
     },
-    "BatchStatusDTO" : {
-      "type" : "object",
-      "properties" : {
-        "batchId" : {
-          "type" : "string"
-        },
-        "timestamp" : {
-          "type" : "string",
-          "format" : "date-time"
-        },
-        "status" : {
-          "type" : "string"
-        },
-        "message" : {
-          "type" : "string"
-        }
-      }
-    },
     "ByteArrayResource" : {
       "type" : "object",
       "properties" : {
@@ -1034,14 +623,7 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
-        "url" : {
-          "type" : "string",
-          "format" : "url"
-        },
-        "file" : {
-          "type" : "file"
-        },
-        "open" : {
+        "readable" : {
           "type" : "boolean"
         },
         "uri" : {
@@ -1051,7 +633,14 @@
         "filename" : {
           "type" : "string"
         },
-        "readable" : {
+        "url" : {
+          "type" : "string",
+          "format" : "url"
+        },
+        "file" : {
+          "type" : "file"
+        },
+        "open" : {
           "type" : "boolean"
         }
       }
@@ -1073,15 +662,6 @@
         }
       }
     },
-    "CurrentBatchStartDateDTO" : {
-      "type" : "object",
-      "properties" : {
-        "startDate" : {
-          "type" : "string",
-          "format" : "date-time"
-        }
-      }
-    },
     "DescriptionDTO" : {
       "type" : "object",
       "properties" : {
@@ -1090,32 +670,6 @@
         },
         "lang" : {
           "type" : "string"
-        }
-      }
-    },
-    "ExportedBatchMessagesDTO" : {
-      "type" : "object",
-      "properties" : {
-        "batchId" : {
-          "type" : "string"
-        },
-        "limit" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
-        "start" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
-        "total" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
-        "messages" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
         }
       }
     },
@@ -1253,29 +807,6 @@
         }
       }
     },
-    "MessagesDTO" : {
-      "type" : "object",
-      "properties" : {
-        "limit" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
-        "start" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
-        "total" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
-        "messages" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        }
-      }
-    },
     "MonitoringInfoDTO" : {
       "type" : "object",
       "properties" : {
@@ -1292,7 +823,7 @@
       "properties" : {
         "id" : {
           "type" : "integer",
-          "format" : "int64"
+          "format" : "int32"
         },
         "configurationDate" : {
           "type" : "string",
@@ -1355,6 +886,7 @@
         },
         "identifiers" : {
           "type" : "array",
+          "uniqueItems" : true,
           "items" : {
             "$ref" : "#/definitions/PartyIdentifierDTO"
           }
