@@ -18,7 +18,6 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.error.ErrorLogService;
-import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
@@ -342,12 +341,16 @@ public class UserMessageDefaultServiceTest {
                                     @Injectable UserMessageLog userMessageLog,
                                     @Injectable UserMessage userMessage) {
         final String messageId = "1";
+        Long messageEntityId = 1L;
 
         new Expectations(userMessageDefaultService) {{
             userMessage.getMessageId();
             result = messageId;
 
-            new DispatchMessageCreator(messageId);
+            userMessage.getEntityId();
+            result = messageEntityId;
+
+            new DispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
@@ -656,34 +659,6 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    @Test
-    public void scheduleSendingWithDelayTest(@Injectable final JmsMessage jmsMessage,
-                                             @Mocked DelayedDispatchMessageCreator delayedDispatchMessageCreator,
-                                             @Injectable UserMessageLog userMessageLog,
-                                             @Injectable UserMessage userMessage) {
-        final String messageId = UUID.randomUUID().toString();
-        Long delay = 1L;
-        boolean isSplitAndJoin = false;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result = userMessageLog;
-
-            new DelayedDispatchMessageCreator(messageId, delay);
-            result = delayedDispatchMessageCreator;
-
-            delayedDispatchMessageCreator.createMessage();
-            result = jmsMessage;
-
-        }};
-
-        userMessageDefaultService.scheduleSending(messageId, delay);
-
-        new Verifications() {{
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
-            times = 1;
-        }};
-    }
 
     @Test
     public void scheduleSendingWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
@@ -691,6 +666,7 @@ public class UserMessageDefaultServiceTest {
                                                   @Mocked DispatchMessageCreator dispatchMessageCreator,
                                                   @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
+        Long messageEntityId = 1L;
 
         int retryCount = 3;
 
@@ -698,19 +674,22 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getEntityId();
             result = 10L;
 
+            userMessage.getEntityId();
+            result = messageEntityId;
+
             userMessageDao.read(10L);
             result = userMessage;
 
             userMessage.getMessageId();
             result = messageId;
 
-            new DispatchMessageCreator(messageId);
+            new DispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage(retryCount);
             result = jmsMessage;
 
-            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
+            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId, messageEntityId).createMessage(retryCount));
             times = 1;
         }};
 
@@ -833,16 +812,17 @@ public class UserMessageDefaultServiceTest {
     public void scheduleSourceMessageSendingTest(@Injectable final JmsMessage jmsMessage,
                                                  @Mocked DispatchMessageCreator dispatchMessageCreator) {
         final String messageId = UUID.randomUUID().toString();
+        Long messageEntityId = 1L;
 
         new Expectations() {{
-            new DispatchMessageCreator(messageId);
+            new DispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
             result = jmsMessage;
         }};
 
-        userMessageDefaultService.scheduleSourceMessageSending(messageId);
+        userMessageDefaultService.scheduleSourceMessageSending(messageId, messageEntityId);
 
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, sendLargeMessageQueue);

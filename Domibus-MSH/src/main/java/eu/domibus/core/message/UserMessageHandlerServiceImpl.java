@@ -26,6 +26,7 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -36,6 +37,7 @@ import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
@@ -97,6 +99,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private PModeProvider pModeProvider;
 
     @Autowired
+    protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
     private CompressionService compressionService;
 
     @Autowired
@@ -133,7 +138,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected MessageGroupDao messageGroupDao;
 
     @Autowired
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Autowired
     protected AS4ReceiptService as4ReceiptService;
@@ -167,6 +172,39 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected MessageFragmentDao messageFragmentDao;
+
+    @Autowired
+    private PullMessageService pullMessageService;
+
+    @Transactional
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
+    public void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
+        messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+
+        final boolean sourceMessage = userMessage.isSourceMessage();
+        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                backendName);
+        if (!sourceMessage) {
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
+        }
+        userMessageLogService.replicationUserMessageSubmitted(userMessage.getMessageId());
+    }
+
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
+        if (MessageStatus.READY_TO_PULL != messageStatus) {
+            // Sends message to the proper queue if not a message to be pulled.
+            userMessageService.scheduleSending(userMessage, userMessageLog);
+        } else {
+            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
+            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
+        }
+    }
+
+    private int getMaxAttempts(LegConfiguration legConfiguration) {
+        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)

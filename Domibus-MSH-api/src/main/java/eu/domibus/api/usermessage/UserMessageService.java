@@ -95,7 +95,7 @@ public interface UserMessageService {
      *
      * @param messageId
      */
-    void scheduleSourceMessageSending(String messageId);
+    void scheduleSourceMessageSending(String messageId, Long messageEntityId);
 
     /**
      * Schedules the rejoining of the SourceMessage file
@@ -133,8 +133,6 @@ public interface UserMessageService {
     void scheduleSendingSignalError(String messageId, String errorCode, String errorDetail, String pmodeKey);
 
     void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail);
-
-    void scheduleSending(String messageId, Long delay);
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt
