@@ -41,7 +41,15 @@ import java.util.List;
                         "left join um.messageProperties p                                                                         " +
                         "WHERE uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.DELETED                                              " +
                         "AND uml.deleted IS NOT NULL AND um.mpc.value = :MPC AND uml.deleted < :DATE"),
-        @NamedQuery(name = "UserMessageLog.findMessagesToDelete",
+        @NamedQuery(name = "UserMessageLog.findMessageToDeleteNotInFinalStatus",
+                query = "SELECT uml                                   " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN uml.userMessage um                                                                                           " +
+                        "left join um.messageProperties p                                                                         " +
+                        "WHERE uml.messageStatus.messageStatus NOT IN :MESSAGE_STATUSES                                               " +
+                        "AND uml.deleted IS NULL  " +
+                        "AND uml.userMessage.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod",
                 query = "SELECT DISTINCT um.messageId                                    " +
                         "FROM UserMessageLog uml                                                                                           " +
                         "JOIN uml.userMessage um                                                                                           " +

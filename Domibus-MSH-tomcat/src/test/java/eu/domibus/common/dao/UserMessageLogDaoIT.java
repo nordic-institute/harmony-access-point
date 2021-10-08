@@ -106,10 +106,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void getMessageInFinalStatus() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
 
-        UserMessageLog message = userMessageLogDao.findByMessageId("msg-test-1");
-        Assert.assertEquals("msg-test-1", message.getUserMessage().getMessageId());
+        UserMessageLog message = userMessageLogDao.findMessageToDeleteNotInFinalStatus("msg-test-2");
+        Assert.assertEquals("msg-test-2", message.getUserMessage().getMessageId());
     }
 
     @Test
@@ -117,12 +117,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findMessagesToDelete() {
 
         final Date currentDate = new Date();
-        final Date startDate = new Date(currentDate.getTime() - (1000 * 60));
-        final Date endDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24));
+        final Date startDate = new Date(currentDate.getTime() - (1000 * 60 * 60 * 24));
+        final Date endDate = new Date(currentDate.getTime() + (1000 * 60 * 60 * 24));
         final String finalRecipient = "finalRecipient2";
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-1");
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-3");
 
         List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, startDate, endDate);
-        Assert.assertEquals("msg-test-1", message.get(0));
+        Assert.assertEquals("msg-test-3", message.get(0));
     }
 }

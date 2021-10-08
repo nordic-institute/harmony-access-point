@@ -82,7 +82,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
-   
+
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
@@ -534,11 +534,11 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-        if (userMessageLog == null) {
+        final UserMessageLog messageToDelete = userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+        if (messageToDelete == null) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
         }
-        return userMessageLog;
+        return messageToDelete;
     }
 
 

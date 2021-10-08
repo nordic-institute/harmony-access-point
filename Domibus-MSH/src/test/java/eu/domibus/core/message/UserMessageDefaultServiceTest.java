@@ -896,17 +896,14 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.ACKNOWLEDGED;
+            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+            result = null;
         }};
         try {
             userMessageDefaultService.getMessageNotInFinalStatus(messageId);
             Assert.fail();
         } catch (UserMessageException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Message [1] is in final status."));
+            Assert.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
         }
 
     }
@@ -916,11 +913,8 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
             result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.SEND_FAILURE;
         }};
 
         final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId);

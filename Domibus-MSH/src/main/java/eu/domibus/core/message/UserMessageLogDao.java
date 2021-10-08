@@ -105,7 +105,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDelete", String.class);
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH))+ MAX));
@@ -157,6 +157,17 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter(STR_MESSAGE_ID, messageId);
         return query.getSingleResult();
 
+    }
+    public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
+        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
+        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [" + messageId + "]");
+            return null;
+        }
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
