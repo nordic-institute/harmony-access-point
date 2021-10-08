@@ -18,8 +18,8 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -555,7 +555,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new ConfigurationException("Exception loading truststore.", ex);
         }
     }
-    
+
     protected void persistTrustStore(KeyStore truststore, String trustName) throws CryptoException {
         backupTrustStore(trustName);
 
@@ -590,7 +590,11 @@ public class CertificateServiceImpl implements CertificateService {
 
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            persistTruststoreIfApplicable(domain, name, filePathSupplier, typeSupplier, passwordSupplier);
+            try {
+                persistTruststoreIfApplicable(domain, name, filePathSupplier, typeSupplier, passwordSupplier);
+            } catch (DomibusCertificateException dce) {
+                LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
+            }
         }
 
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
@@ -617,7 +621,8 @@ public class CertificateServiceImpl implements CertificateService {
 
             truststoreDao.create(entity);
         } catch (Exception ex) {
-            LOG.error("The truststore [{}] could not be persisted!", name, ex);
+            throw new DomibusCertificateException(String.format("The truststore [%s] could not be persisted! " +
+                    "Please check that the trustsore file is located and the location property is set accordingly.", name), ex);
         }
     }
 
