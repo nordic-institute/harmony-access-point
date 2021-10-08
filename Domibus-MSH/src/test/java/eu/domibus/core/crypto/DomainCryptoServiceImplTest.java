@@ -36,6 +36,7 @@ public class DomainCryptoServiceImplTest {
     public void setup(){
         MockitoAnnotations.initMocks(this);
     }
+
     @Test
     public void init() {
         final String dss = "DSS";

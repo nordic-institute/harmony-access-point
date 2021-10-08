@@ -77,21 +77,17 @@ public class TruststoreResourceTest {
         }};
     }
 
-//    @Test
-//    public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
-//
-//        new Expectations() {{
-//            domainProvider.getCurrentDomain();
-//            result = domain;
-//            multiDomainCertificateProvider.getTrustStore(domain);
-//            result = store;
-//            certificateService.getTrustStoreEntries(store);
-//            result = trustStoreEntries;
-//        }};
-//
-//        List<TrustStoreEntry> res = truststoreResource.doGetTrustStoreEntries();
-//
-//        Assert.assertEquals(trustStoreEntries, res);
-//    }
+    @Test
+    public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
+
+        new Expectations() {{
+            certificateService.getTrustStoreEntries(anyString);
+            result = trustStoreEntries;
+        }};
+
+        List<TrustStoreEntry> res = truststoreResource.doGetTrustStoreEntries();
+
+        Assert.assertEquals(trustStoreEntries, res);
+    }
 
 }
