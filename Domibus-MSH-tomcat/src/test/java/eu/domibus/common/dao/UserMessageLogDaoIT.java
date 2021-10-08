@@ -312,7 +312,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLog> allUserMessageLogs = messageDaoTestUtil.getAllUserMessageLogs();
         List<Long> resultList = allUserMessageLogs.stream().map(AbstractNoGeneratedPkEntity::getEntityId).collect(Collectors.toList());
 
-        userMessageLogDao.updateStatusToArchived(resultList,5);
+        userMessageLogDao.updateArchived(resultList);
 
         List<UserMessageLog> result = messageDaoTestUtil.getAllUserMessageLogs();
 

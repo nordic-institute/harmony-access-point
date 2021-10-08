@@ -23,8 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE;
-
 /**
  * @author François Gautier
  * @since 5.0
@@ -98,9 +96,7 @@ public class EArchiveListener implements MessageListener {
         } catch (FileSystemException e) {
             throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
         }
-        Integer insertBatchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
-
-        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos), insertBatchSize);
+        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
     }
 
     private EArchiveBatchEntity geteArchiveBatch(long entityId) {

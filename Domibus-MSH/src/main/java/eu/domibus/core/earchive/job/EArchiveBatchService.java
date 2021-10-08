@@ -116,7 +116,7 @@ public class EArchiveBatchService {
 
     private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
-        entity.setSize(batchSize);
+        entity.setBatchSize(batchSize);
         entity.setRequestType(RequestType.CONTINUOUS);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());

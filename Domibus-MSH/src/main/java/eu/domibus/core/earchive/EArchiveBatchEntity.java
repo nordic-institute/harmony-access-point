@@ -14,7 +14,7 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
 @NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
-@NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatchEntity batch where batch.entityId = (SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE)")
+@NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatchEntity batch where batch.lastPkUserMessage = (SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE)")
 public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")
@@ -31,8 +31,8 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     @Column(name = "LAST_PK_USER_MESSAGE")
     private Long lastPkUserMessage;
 
-    @Column(name = "SIZE")
-    private Integer size;
+    @Column(name = "BATCH_SIZE")
+    private Integer batchSize;
 
     @Column(name = "STORAGE_LOCATION")
     private String storageLocation;
@@ -83,12 +83,12 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.lastPkUserMessage = lastPkUserMessage;
     }
 
-    public Integer getSize() {
-        return size;
+    public Integer getBatchSize() {
+        return batchSize;
     }
 
-    public void setSize(Integer size) {
-        this.size = size;
+    public void setBatchSize(Integer size) {
+        this.batchSize = size;
     }
 
     public String getStorageLocation() {
@@ -106,7 +106,7 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 ", requestType=" + requestType +
                 ", dateRequested=" + dateRequested +
                 ", lastPkUserMessage=" + lastPkUserMessage +
-                ", size=" + size +
+                ", size=" + batchSize +
                 ", storageLocation='" + storageLocation + '\'' +
                 ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
                 "} " + super.toString();

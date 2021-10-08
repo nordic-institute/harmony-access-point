@@ -23,6 +23,8 @@ import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.IntFunction;
+import java.util.stream.IntStream;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -34,6 +36,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private static final String MESSAGESTATUS_DELIMITER = "','";
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+    public static final int IN_CLAUSE_MAX_SIZE = 1000;
 
     private final DateUtil dateUtil;
 
@@ -347,7 +350,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public int countUnarchivedMessagesOnPartition(String partitionName) {
         final Query countQuery = em.createNativeQuery("SELECT COUNT(*) FROM tb_user_message_log PARTITION (" + partitionName + ") WHERE archived IS NULL");
         try {
-            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
             return result;
         } catch (NoResultException nre) {
@@ -466,26 +469,45 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return this.em.find(UserMessageLog.class, entityId);
     }
 
-    public void updateStatusToArchived(List<Long> entityIds, Integer insertBatchSize) {
+    public void updateArchived(List<Long> entityIds) {
         if (CollectionUtils.isEmpty(entityIds)) {
             return;
         }
 
-        for (int i = 0; i < entityIds.size(); i++) {
-            if (insertBatchSize != null && i != 0 && i % insertBatchSize == 0) {
-                LOG.trace("Flush and clear at index: [{}]", i);
-                em.flush();
-                em.clear();
-            }
-            updateStatusToArchived(entityIds.get(i));
-        }
+        int totalSize = entityIds.size();
+
+        int maxBatchesToCreate = (totalSize - 1) / IN_CLAUSE_MAX_SIZE;
+
+        IntStream.range(0, maxBatchesToCreate + 1)
+                .mapToObj(createList(entityIds, totalSize, maxBatchesToCreate))
+                .forEach(this::updateArchivedBatched);
+
     }
 
-    public void updateStatusToArchived(Long entityId) {
+    private IntFunction<List<Long>> createList(List<Long> entityIds, int totalSize, int maxBatchesToCreate) {
+        return i -> entityIds.subList(
+                getFromIndex(i),
+                getToIndex(i, totalSize, maxBatchesToCreate));
+    }
+
+    private int getFromIndex(int i) {
+        return i * IN_CLAUSE_MAX_SIZE;
+    }
+
+    private int getToIndex(int i, int totalSize, int maxBatchesToCreate) {
+        if (i == maxBatchesToCreate) {
+            return totalSize;
+        }
+        return (i + 1) * IN_CLAUSE_MAX_SIZE;
+    }
+
+    public void updateArchivedBatched(List<Long> entityIds) {
         Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateArchived");
 
-        namedQuery.setParameter("ENTITY_ID", entityId);
+        namedQuery.setParameter("ENTITY_IDS", entityIds);
         int i = namedQuery.executeUpdate();
-        LOG.trace("UserMessageLog [{}] updated(0:no, 1: yes) with current_time: [{}]", entityId, i);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("UserMessageLogs [{}] updated(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+        }
     }
 }

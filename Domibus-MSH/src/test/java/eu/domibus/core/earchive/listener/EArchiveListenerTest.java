@@ -29,12 +29,11 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE;
-
 /**
  * @author François Gautier
  * @since 5.0
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class EArchiveListenerTest {
 
@@ -169,8 +168,6 @@ public class EArchiveListenerTest {
             eArchiveBatch.getBatchId();
             result = batchId;
 
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
-            result = 5;
         }};
 
         eArchiveListener.onMessage(message);
@@ -179,7 +176,7 @@ public class EArchiveListenerTest {
             jmsUtil.setDomain(message);
             times = 1;
 
-            userMessageLogDefaultService.updateStatusToArchived(userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList()), 5);
+            userMessageLogDefaultService.updateStatusToArchived(userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList()));
             times = 1;
 
             fileObject.close();

@@ -98,13 +98,13 @@ import java.util.Date;
                         "  and uml.entityId < :MAX_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.deleted IS NULL " +
-                        "  and uml.archived IS NOT NULL " +
+                        "  and uml.archived IS NULL " +
                         "order by uml.entityId desc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
                 "UPDATE UserMessageLog uml " +
-                "SET uml.archived = current_time " +
-                "WHERE uml.entityId = :ENTITY_ID "),
+                "SET uml.archived = CURRENT_TIMESTAMP " +
+                "WHERE uml.entityId IN( :ENTITY_IDS )"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 

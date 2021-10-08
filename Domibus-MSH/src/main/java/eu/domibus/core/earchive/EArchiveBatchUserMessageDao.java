@@ -28,12 +28,9 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
             EArchiveBatchUserMessage eArchiveBatchUserMessage = new EArchiveBatchUserMessage();
             eArchiveBatchUserMessage.seteArchiveBatch(entity);
             eArchiveBatchUserMessage.setUserMessageEntityId(userMessageLogEntityId);
-            em.persist(eArchiveBatchUserMessage);
+            create(eArchiveBatchUserMessage);
             LOG.trace("Create EArchiveBatchUserMessage [{}]", eArchiveBatchUserMessage.getEntityId());
-
         }
-        em.flush();
-        em.clear();
         LOG.debug("Finish the creation of the EArchiveBatch [{}]", entity.getEntityId());
     }
 }

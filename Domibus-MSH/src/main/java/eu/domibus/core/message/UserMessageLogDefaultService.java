@@ -164,8 +164,8 @@ public class UserMessageLogDefaultService {
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateStatusToArchived(List<Long> entityIds, Integer insertBatchSize) {
-        userMessageLogDao.updateStatusToArchived(entityIds, insertBatchSize);
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateStatusToArchived(List<Long> entityIds) {
+        userMessageLogDao.updateArchived(entityIds);
     }
 }
