@@ -21,7 +21,13 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
+
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -34,8 +40,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
-    protected static final Set<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = EnumSet.of(MessageStatus.ACKNOWLEDGED, MessageStatus.ACKNOWLEDGED_WITH_WARNING,
-            MessageStatus.DOWNLOADED, MessageStatus.RECEIVED, MessageStatus.RECEIVED_WITH_WARNINGS);
+    public static final String MAX = "9999999999";
 
     private final DateUtil dateUtil;
 
@@ -101,10 +106,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDelete", String.class);
-        query.setParameter("MESSAGE_STATUSES", FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", startDate);
-        query.setParameter("END_DATE", endDate);
+        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH))+ MAX));
+
+        query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         return query.getResultList();
     }
 
@@ -167,10 +173,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
-    }
-
-    public List<UserMessageLogDto> getUserMessagesDuringPeriod(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
 

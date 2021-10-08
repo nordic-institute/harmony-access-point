@@ -913,7 +913,7 @@ public class UserMessageLogDaoTest {
         userMessageLogDao.findMessagesToDelete(finalRecipient, startDate, endDate);
 
         new VerificationsInOrder() {{
-            query.setParameter("MESSAGE_STATUSES", userMessageLogDao.FINAL_STATUSES_FOR_MESSAGE);
+            query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
             query.setParameter("FINAL_RECIPIENT", finalRecipient);
             query.setParameter("START_DATE", startDate);
             query.setParameter("END_DATE", endDate);

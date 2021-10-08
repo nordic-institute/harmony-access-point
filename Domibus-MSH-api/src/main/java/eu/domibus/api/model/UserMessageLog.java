@@ -4,6 +4,7 @@ import eu.domibus.api.scheduler.Reprogrammable;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Federico Martini
@@ -48,8 +49,8 @@ import java.util.Date;
                         "WHERE uml.messageStatus.messageStatus NOT IN :MESSAGE_STATUSES                                               " +
                         "AND uml.deleted IS NULL  " +
                         "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
-                        "AND (:START_DATE is null or uml.received >= :START_DATE) " +
-                        "AND (:END_DATE is null or uml.received <= :END_DATE)"),
+                        "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE) " +
+                        "AND (:END_DATE is null or uml.userMessage.entityId <= :END_DATE)"),
 
        @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
                 query = "SELECT um.entityId   as " + UserMessageLogDto.ENTITY_ID + "           ,                            " +
@@ -105,6 +106,8 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
+
+    public static final List<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = MessageStatus.getFinalStates();
 
     @Column(name = "BACKEND")
     private String backend;

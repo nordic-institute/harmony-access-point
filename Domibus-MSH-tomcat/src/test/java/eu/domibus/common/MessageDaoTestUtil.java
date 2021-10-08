@@ -3,7 +3,9 @@ package eu.domibus.common;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -146,6 +148,25 @@ public class MessageDaoTestUtil {
         signalMessageLog.setReceived(new Date());
         signalMessageLog.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         signalMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.RECEIVED));
+
+        signalMessageLog.setSignalMessage(signal);
+        signalMessageLogDao.create(signalMessageLog);
+
+        return userMessageLog;
+    }
+
+    public UserMessageLog createTestMessageInSend_Failure(String msgId) {
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false);
+
+        SignalMessage signal = new SignalMessage();
+        signal.setUserMessage(userMessageLog.getUserMessage());
+        signal.setSignalMessageId("signal-" + msgId);
+        signalMessageDao.create(signal);
+
+        SignalMessageLog signalMessageLog = new SignalMessageLog();
+        signalMessageLog.setReceived(new Date());
+        signalMessageLog.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
+        signalMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.SEND_FAILURE));
 
         signalMessageLog.setSignalMessage(signal);
         signalMessageLogDao.create(signalMessageLog);

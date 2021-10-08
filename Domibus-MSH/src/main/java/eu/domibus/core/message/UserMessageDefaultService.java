@@ -540,9 +540,6 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog == null) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
         }
-        if (FINAL_STATUSES_FOR_MESSAGE.contains(userMessageLog.getMessageStatus())) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is in final status.");
-        }
         return userMessageLog;
     }
 

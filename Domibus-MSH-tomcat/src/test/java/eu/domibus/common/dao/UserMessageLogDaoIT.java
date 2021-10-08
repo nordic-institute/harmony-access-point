@@ -102,4 +102,27 @@ public class UserMessageLogDaoIT extends AbstractIT {
         String messageId = userMessageLogDao.findLastTestMessageId(testParty);
         Assert.assertEquals("msg-test-1", messageId);
     }
+
+    @Test
+    @Transactional
+    public void getMessageInFinalStatus() {
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+
+        UserMessageLog message = userMessageLogDao.findByMessageId("msg-test-1");
+        Assert.assertEquals("msg-test-1", message.getUserMessage().getMessageId());
+    }
+
+    @Test
+    @Transactional
+    public void findMessagesToDelete() {
+
+        final Date currentDate = new Date();
+        final Date startDate = new Date(currentDate.getTime() - (1000 * 60));
+        final Date endDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24));
+        final String finalRecipient = "finalRecipient2";
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-1");
+
+        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, startDate, endDate);
+        Assert.assertEquals("msg-test-1", message.get(0));
+    }
 }
