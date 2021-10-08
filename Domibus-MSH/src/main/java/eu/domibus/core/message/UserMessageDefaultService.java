@@ -82,9 +82,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
-    private static final Set<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = EnumSet.of(MessageStatus.ACKNOWLEDGED, MessageStatus.ACKNOWLEDGED_WITH_WARNING,
-            MessageStatus.DOWNLOADED, MessageStatus.RECEIVED, MessageStatus.RECEIVED_WITH_WARNINGS);
-
+   
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
