@@ -37,15 +37,14 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private final SignalService signalService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
-    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService, CertificateService certificateService,
-                                     DomainContextProvider domainProvider, SignalService signalService, DomibusPropertyProvider domibusPropertyProvider) {
+    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
+                                     CertificateService certificateService,
+                                     DomainContextProvider domainProvider,
+                                     SignalService signalService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override

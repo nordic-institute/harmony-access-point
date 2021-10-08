@@ -168,6 +168,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         Assert.assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
     }
 
+    // to do move to cert service test
 //    @Test
 //    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
 //        // Given
@@ -180,7 +181,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 //            result = password;
 //            domainCryptoService.getTrustStoreBackUpLocation();
 //            result = backupLocation;
-//            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
+//            certificateService.replaceTrustStore(store, password, password);
 //            domainCryptoService.refreshTrustStore();
 //            signalService.signalTrustStoreUpdate(domain);
 //        }};
@@ -190,7 +191,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 //
 //        // Then
 //        new Verifications() {{
-//            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
+//            certificateService.replaceTrustStore(store, password, password);
 //            domainCryptoService.refreshTrustStore();
 //            signalService.signalTrustStoreUpdate(domain);
 //        }};

@@ -54,7 +54,6 @@ public class MultiDomainCryptoServiceImplTest {
     @Test
     public void getX509Certificates(@Mocked DomainCryptoServiceImpl cryptoService) throws WSSecurityException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
-//        DomainCryptoServiceImpl cryptoService = new DomainCryptoServiceImpl(domain);
         X509Certificate[] certs = null;
 
         new Expectations() {{

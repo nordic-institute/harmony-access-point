@@ -405,8 +405,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public byte[] getTruststoreContent(String name) {
-        TruststoreEntity res = getTruststoreEntity(name);
+    public byte[] getTruststoreContent(String trustName) {
+        TruststoreEntity res = getTruststoreEntity(trustName);
         return res.getContent();
     }
 

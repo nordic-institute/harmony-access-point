@@ -174,7 +174,7 @@ public interface CertificateService {
      */
     boolean removeCertificates(String trustName, List<String> aliases);
 
-    byte[] getTruststoreContent(String name);
+    byte[] getTruststoreContent(String trustName);
 
     void persistTruststoresIfApplicable(final String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier);
 }
