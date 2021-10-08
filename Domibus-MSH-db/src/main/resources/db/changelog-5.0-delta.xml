@@ -485,7 +485,8 @@
 
     <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
         <insert tableName="TB_LOCK">
-            <column name="LOCK_KEY" value="bootstrap-synchronization.lock" type="BIGINT"/>
+            <column name="ID_PK" value="1" type="BIGINT"/>
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
         </insert>
     </changeSet>
 
