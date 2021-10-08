@@ -216,7 +216,10 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     private String getKeystorePassword() {
         String password = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
-        return decryptPassword(password, passwordEncryptor);
+        if (StringUtils.isNotBlank(password)) {
+            return decryptPassword(password, passwordEncryptor);
+        }
+        return password;
     }
 
     protected Properties getTrustStoreProperties() {
@@ -249,7 +252,10 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected String getTrustStorePassword() {
         String password = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-        return decryptPassword(password, passwordEncryptor);
+        if (StringUtils.isNotBlank(password)) {
+            return decryptPassword(password, passwordEncryptor);
+        }
+        return password;
     }
 
     protected String getTrustStoreType() {
