@@ -61,7 +61,7 @@ public class DomibusTestDatasourceConfiguration {
 
         final String databaseSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
         //Enable logs for H2 with ';TRACE_LEVEL_FILE=4' at the end of databaseUrlTemplate
-        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
+        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=3000;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
         String databaseUrl = String.format(databaseUrlTemplate, databaseSchema);
 
         LOG.info("Using database URL [{}]", databaseUrl);

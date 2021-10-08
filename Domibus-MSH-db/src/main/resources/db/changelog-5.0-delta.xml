@@ -442,6 +442,33 @@
         </createIndex>
     </changeSet>
 
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_1">
+        <createTable tableName="TB_LOCK">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_LOCK"/>
+            </column>
+            <column name="LOCK_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="LOCK_KEY" constraintName="UK_LOCK_KEY" tableName="TB_LOCK"/>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="1" type="BIGINT"/>
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
     <changeSet author="dussath" id="EDELIVERY-8462">
         <createIndex indexName="IDX_SIGNAL_MESSAGE_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
