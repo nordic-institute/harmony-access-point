@@ -369,8 +369,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public KeyStore getTrustStore(String name) {
-        TruststoreEntity entity = getTruststoreEntity(name);
+    public KeyStore getTrustStore(String trustName) {
+        TruststoreEntity entity = getTruststoreEntity(trustName);
         return loadTrustStore(entity.getContent(), entity.getPassword(), entity.getType());
     }
 
@@ -548,7 +548,7 @@ public class CertificateServiceImpl implements CertificateService {
         return truststore;
     }
 
-    private KeyStore loadTrustStore(byte[] content, String password, String type) {
+    protected KeyStore loadTrustStore(byte[] content, String password, String type) {
         try (InputStream contentStream = new ByteArrayInputStream(content)) {
             return loadTrustStore(contentStream, password, type);
         } catch (Exception ex) {
@@ -572,7 +572,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    private void backupTrustStore(String trustName) {
+    protected void backupTrustStore(String trustName) {
         TruststoreEntity entity = truststoreDao.findByName(trustName);
 
         TruststoreEntity backup = new TruststoreEntity();
