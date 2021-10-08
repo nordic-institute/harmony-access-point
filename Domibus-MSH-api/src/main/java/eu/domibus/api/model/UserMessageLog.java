@@ -103,7 +103,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
                 "UPDATE UserMessageLog uml " +
-                "SET uml.archived = CURRENT_TIMESTAMP " +
+                "SET uml.archived = :CURRENT_TIMESTAMP " +
                 "WHERE uml.entityId IN( :ENTITY_IDS )"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {

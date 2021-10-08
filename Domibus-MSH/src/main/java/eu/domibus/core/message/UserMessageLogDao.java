@@ -505,6 +505,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateArchived");
 
         namedQuery.setParameter("ENTITY_IDS", entityIds);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
         int i = namedQuery.executeUpdate();
         if (LOG.isTraceEnabled()) {
             LOG.trace("UserMessageLogs [{}] updated(0:no, 1: yes) with current_time: [{}]", entityIds, i);
