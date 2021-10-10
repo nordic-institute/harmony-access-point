@@ -621,7 +621,7 @@ public class CertificateServiceImpl implements CertificateService {
 
             truststoreDao.create(entity);
         } catch (Exception ex) {
-            throw new DomibusCertificateException(String.format("The truststore [%s] could not be persisted! " +
+            LOG.error(String.format("The truststore [%s] could not be persisted! " +
                     "Please check that the trustsore file is located and the location property is set accordingly.", name), ex);
         }
     }
