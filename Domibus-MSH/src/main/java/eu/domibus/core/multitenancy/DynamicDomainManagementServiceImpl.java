@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @since 5.0
  */
 @Service
-public class DynamicDomainManagementServiceImpl {
+public class DynamicDomainManagementServiceImpl implements DynamicDomainManagementService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDomainManagementServiceImpl.class);
 
@@ -38,6 +38,7 @@ public class DynamicDomainManagementServiceImpl {
         originalDomains = domainService.getDomains();
     }
 
+    @Override
     public void handleDomainsChaned() {
         resetDomains();
         List<Domain> currentList = domainService.getDomains();

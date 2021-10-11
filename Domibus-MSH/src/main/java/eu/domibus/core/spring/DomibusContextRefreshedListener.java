@@ -4,6 +4,7 @@ import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -65,6 +66,9 @@ public class DomibusContextRefreshedListener {
         executeNonSynchronized();
     }
 
+    @Autowired
+    DynamicDomainManagementService dynamicDomainManagementService;
+
     /**
      * Method executed in a serial/sync mode (if in a cluster environment)
      * Add code that needs to be executed with regard to other nodes in the cluster
@@ -73,6 +77,8 @@ public class DomibusContextRefreshedListener {
         backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         messageDictionaryService.createStaticDictionaryEntries();
+
+        dynamicDomainManagementService.handleDomainsChaned();
     }
 
     /**

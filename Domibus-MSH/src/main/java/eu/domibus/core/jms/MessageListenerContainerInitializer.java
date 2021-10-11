@@ -37,7 +37,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * The instances are kept so that they can be recreated on property changes at runtime and also stoped at shutdown
  */
 @Service
-public class MessageListenerContainerInitializer {
+public class MessageListenerContainerInitializer implements DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializer.class);
     public static final String JMS_PRIORITY = "JMSPriority";
@@ -65,6 +65,7 @@ public class MessageListenerContainerInitializer {
         createListenerContainers(domains);
     }
 
+    @Override
     public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
         createListenerContainers(added);
     }
