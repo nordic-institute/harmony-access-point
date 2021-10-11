@@ -44,7 +44,6 @@ public class DomainCryptoServiceFactory {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 
         final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);
-        // for tests sake
         bean.init();
         return bean;
     }
