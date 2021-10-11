@@ -33,7 +33,7 @@ public class MultiDomainCryptoServiceImplT extends AbstractIT {
 
     @Test
     @Transactional
-    public void findSyncLock() {
+    public void persistTruststoresIfApplicable() {
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertFalse(isPersisted);
         multiDomainCryptoService.persistTruststoresIfApplicable();

@@ -25,7 +25,7 @@ import java.util.List;
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
 
-    final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
+    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 
     private final TLSReaderService tlsReaderService;
 
