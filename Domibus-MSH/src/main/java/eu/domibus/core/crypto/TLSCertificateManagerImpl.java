@@ -6,7 +6,7 @@ import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.logging.DomibusLogger;
@@ -16,8 +16,6 @@ import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
 /**
  * @author Ion Perpegel
@@ -37,14 +35,17 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private final SignalService signalService;
 
+    private final DomibusConfigurationService domibusConfigurationService;
+
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
                                      CertificateService certificateService,
                                      DomainContextProvider domainProvider,
-                                     SignalService signalService) {
+                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
+        this.domibusConfigurationService = domibusConfigurationService;
     }
 
     @Override
@@ -93,8 +94,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     protected KeyStoreType getTruststoreParams() {
-        Domain domain = domainProvider.getCurrentDomain();
-        String domainCode = domain != null ? domain.getCode() : null;
+        String domainCode = null;
+        if(domibusConfigurationService.isMultiTenantAware()) {
+            Domain domain = domainProvider.getCurrentDomain();
+            domainCode = domain != null ? domain.getCode() : null;
+        }
         TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
         KeyStoreType result = params.getTrustManagers().getKeyStore();
         LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);

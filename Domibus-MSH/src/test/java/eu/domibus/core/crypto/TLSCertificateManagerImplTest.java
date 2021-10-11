@@ -5,6 +5,7 @@ import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -39,6 +40,9 @@ public class TLSCertificateManagerImplTest {
 
     @Injectable
     private SignalService signalService;
+
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Test
     public void replaceTrustStore(@Mocked KeyStoreType trustStore, @Mocked String fileName, @Mocked byte[] fileContent, @Mocked String filePassword, @Mocked String backupLocation) {
@@ -115,6 +119,8 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void getTruststoreParams(@Mocked TLSClientParametersType params, @Mocked KeyStoreType trustStore, @Mocked Domain domain) {
         new Expectations(tlsCertificateManager) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
             domainProvider.getCurrentDomain();
             result = domain;
             tlsReaderService.getTlsClientParametersType(domain.getCode());
