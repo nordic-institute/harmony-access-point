@@ -3702,7 +3702,7 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
     // Copy metadata + payload files to submit fs plugin messages
     // parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
-    def static submitFSmessage(String side, context, log, testRunner, String configuration = "standard", String domain = "default",parametersMap = [], boolean twoFiles = true, String subFolder = ""){
+    def static submitFSmessage(String side, context, log, testRunner, String configuration = "standard", String domain = "default",parametersMap = [], boolean twoFiles = true, String destSuffix="", String subFolder = ""){
         debugLog("  ====  Calling \"submitFSmessage\".", log)
         def messageMetadata = null
         def fspluginPath
@@ -3711,10 +3711,10 @@ class Domibus{
         def metadataFile
         def messageLocationPropertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPropertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
 
         // Extract the suitable template for metadata.xml file
         switch (configuration.toLowerCase()) {
@@ -3749,13 +3749,13 @@ class Domibus{
 
         // Copy the file
         source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml")
-        dest = fspluginPath + "Test_file.xml"
+        dest = fspluginPath + "Test_file"+destSuffix+".xml"
         copyFile(source,dest,log)
 
         // Copy a second file in case needed
         if(twoFiles){
             source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf")
-            dest = fspluginPath + "fileSmall.pdf"
+            dest = fspluginPath + "fileSmall"+destSuffix+".pdf"
             copyFile(source,dest,log)
         }
 
@@ -3776,10 +3776,11 @@ class Domibus{
         def testFile
         def messageLocationPrpertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPrpertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         fsPayloadPath = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain) + "/IN/" + finalRecipient + "/" + messageID + "/"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
@@ -3805,10 +3806,11 @@ class Domibus{
         def STEP_TIME = 1_000 // Time to wait before re-checking.
         def messageLocationPrpertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPrpertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         def fsPayloadPath = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain) + "/OUT"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
@@ -3833,10 +3835,11 @@ class Domibus{
         def STEP_TIME = 1_000 // Time to wait before re-checking.
         def messageLocationPropertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPropertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         def fsPayloadPath = getPropertyAtRuntime(side, messageLocationPropertyName, context, log, domain) + "/FAILED"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
@@ -3861,10 +3864,11 @@ class Domibus{
         debugLog("  ====  Calling \"cleanFSPluginFolders\".", log)
 
         def messageLocationPrpertyName = "fsplugin.messages.location"
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPrpertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         def fsPayloadPathBase = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)
 
