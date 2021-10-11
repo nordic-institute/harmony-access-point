@@ -47,7 +47,7 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
         }
         String pModeKey;
         if (messageExchangeService.forcePullOnMpc(userMessage)) {
-            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
+            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, null).getPmodeKey();
             LOG.debug("Exchange context (pull exchange), pModeKey [{}]", pModeKey);
         } else {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();

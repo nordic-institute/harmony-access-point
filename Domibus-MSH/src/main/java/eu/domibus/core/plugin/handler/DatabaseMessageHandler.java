@@ -375,17 +375,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;
-            if (ProcessingType.PULL.equals(submission.getProcessingType()) && messageExchangeService.forcePullOnMpc(userMessage)) {
+            if (messageExchangeService.forcePullOnMpc(userMessage)) {
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, submission.getProcessingType());
                 to = createNewParty(userMessage.getMpcValue());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
             }
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-
             if (to == null) {
                 //TODO validation should not return a business value
                 to = messageValidations(userMessage, partInfos, pModeKey, backendName);

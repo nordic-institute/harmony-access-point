@@ -547,6 +547,10 @@ public class DatabaseMessageHandlerTest {
                                               @Injectable final Party to) throws Exception {
         UserMessage userMessage = createUserMessage();
         new Expectations() {{
+
+            submission.getProcessingType();
+            result = ProcessingType.PUSH;
+
             submission.getMessageId();
             result = "messageId";
 
@@ -563,7 +567,7 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             result = userMessageExchangeConfiguration;
             times = 1;
 
@@ -680,7 +684,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PULL);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
@@ -700,7 +704,7 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PULL);
             pModeProvider.getLegConfiguration(anyString);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
@@ -761,6 +765,10 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitMessageStoreNOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
         new Expectations() {{
+
+            messageData.getProcessingType();
+            result = ProcessingType.PUSH;
+
             authUtils.getOriginalUserFromSecurityContext();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
@@ -771,7 +779,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
 
             Party sender = new Party();
@@ -808,7 +816,7 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             pModeProvider.getLegConfiguration(anyString);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
         }};
