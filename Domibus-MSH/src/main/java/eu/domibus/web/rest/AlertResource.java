@@ -7,7 +7,10 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.alerts.model.common.*;
+import eu.domibus.core.alerts.model.common.AlertCriteria;
+import eu.domibus.core.alerts.model.common.AlertStatus;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
@@ -202,7 +205,7 @@ public class AlertResource extends BaseResource {
     }
 
     protected Alert toAlert(AlertRo alertRo) {
-        final long entityId = alertRo.getEntityId();
+        final long entityId = Long.parseLong(alertRo.getEntityId());
         final boolean processed = alertRo.isProcessed();
         Alert alert = new Alert();
         alert.setEntityId(entityId);
@@ -289,7 +292,7 @@ public class AlertResource extends BaseResource {
     private AlertRo transform(Alert alert) {
         AlertRo alertRo = new AlertRo();
         alertRo.setProcessed(alert.isProcessed());
-        alertRo.setEntityId(alert.getEntityId());
+        alertRo.setEntityId(Long.toString(alert.getEntityId()));
         alertRo.setAlertType(alert.getAlertType().name());
         alertRo.setAlertLevel(alert.getAlertLevel().name());
         alertRo.setCreationTime(alert.getCreationTime());
