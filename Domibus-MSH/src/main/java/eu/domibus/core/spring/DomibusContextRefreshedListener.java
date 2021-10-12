@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -79,6 +80,7 @@ public class DomibusContextRefreshedListener {
     }
 
     @Autowired
+    @Lazy
     DynamicDomainManagementService dynamicDomainManagementService;
 
     /**
@@ -94,7 +96,7 @@ public class DomibusContextRefreshedListener {
         tlsCertificateManager.persistTruststoresIfApplicable();
 
         // todo to be removed; temporary, for testing
-        dynamicDomainManagementService.handleDomainsChaned();
+        dynamicDomainManagementService.handleDomainsChanged();
     }
 
     /**

@@ -2,17 +2,30 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.DomibusPropertiesPropertySource;
+import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +43,11 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     private DomainService domainService;
 
     @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+
+
+    @Autowired
     MessageListenerContainerInitializer messageListenerContainerInitializer;
 
     @Autowired
@@ -39,7 +57,31 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     StaticDictionaryService staticDictionaryService;
 
     @Autowired
+    PayloadEncryptionService payloadEncryptionService;
+
+    @Autowired
     PayloadFileStorageProvider payloadFileStorageProvider;
+
+    @Autowired
+    BackendFilterInitializerService backendFilterInitializerService;
+
+    @Autowired
+    GatewayConfigurationValidator gatewayConfigurationValidator;
+
+    @Autowired
+    PasswordEncryptionService passwordEncryptionService;
+
+    @Autowired
+    MultiDomainCryptoService multiDomainCryptoService;
+
+    @Autowired
+    TLSCertificateManager tlsCertificateManager;
+
+    @Autowired
+    DomibusScheduler domibusScheduler;
+
+    @Autowired
+    AnnotationConfigWebApplicationContext rootContext;
 
     @PostConstruct
     public void init() {
@@ -47,7 +89,11 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     @Override
-    public void handleDomainsChaned() {
+    public void handleDomainsChanged() {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            return;
+        }
+
         domainService.resetDomains();
         List<Domain> currentList = domainService.getDomains();
         List<Domain> addedDomains = currentList.stream()
@@ -58,10 +104,31 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
             return;
         }
 
+        // import the new properties files
+        // TODO move elsewhere
+        addedDomains.stream().forEach(domain -> {
+            ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
+            MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
+
+            Properties properties = new Properties();
+            // TODO fill properties
+            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain"+domain.getCode(), properties);
+            propertySources.addFirst(newPropertySource);
+        });
+
+
+        // let's see if order counts, otherwise we might inject a list of DomainAware instead
         messageListenerContainerInitializer.domainsChanged(addedDomains, null);
         eArchiveFileStorageProvider.domainsChanged(addedDomains, null);
         staticDictionaryService.domainsChanged(addedDomains, null);
+        multiDomainCryptoService.domainsChanged(addedDomains, null);
+        tlsCertificateManager.domainsChanged(addedDomains, null);
+        payloadEncryptionService.domainsChanged(addedDomains, null);
         payloadFileStorageProvider.domainsChanged(addedDomains, null);
+        backendFilterInitializerService.domainsChanged(addedDomains, null);
+        gatewayConfigurationValidator.domainsChanged(addedDomains, null);
+        passwordEncryptionService.domainsChanged(addedDomains, null);
+        domibusScheduler.domainsChanged(addedDomains, null);
     }
 
 }
