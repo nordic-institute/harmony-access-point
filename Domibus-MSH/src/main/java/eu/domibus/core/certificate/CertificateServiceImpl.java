@@ -585,10 +585,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void persistTruststoresIfApplicable(String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    public void persistTruststoresIfApplicable(String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains) {
         LOG.debug("Persisting the truststore [{}] for all domains if not yet exists", name);
-
-        final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             try {
                 persistTruststoreIfApplicable(domain, name, filePathSupplier, typeSupplier, passwordSupplier);
@@ -596,7 +594,6 @@ public class CertificateServiceImpl implements CertificateService {
                 LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }
         }
-
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
     }
 

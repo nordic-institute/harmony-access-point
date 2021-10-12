@@ -1,6 +1,6 @@
 package eu.domibus.core.message.dictionary;
 
-import eu.domibus.core.jms.DomainsAware;
+import eu.domibus.api.multitenancy.DomainsAware;
 
 /**
  * @author Ion Perpegel

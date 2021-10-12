@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.util.WarningUtil;
@@ -21,7 +22,7 @@ import java.util.List;
  * Created by idragusa on 4/14/16.
  */
 @Component
-public class GatewayConfigurationValidator {
+public class GatewayConfigurationValidator implements DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GatewayConfigurationValidator.class);
 
@@ -56,8 +57,17 @@ public class GatewayConfigurationValidator {
 
     }
 
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        validateCertificates(added);
+    }
+
     protected void validateCertificates() {
         final List<Domain> domains = domainService.getDomains();
+        validateCertificates(domains);
+    }
+
+    private void validateCertificates(List<Domain> domains) {
         for (Domain domain : domains) {
             validateCerts(domain);
         }

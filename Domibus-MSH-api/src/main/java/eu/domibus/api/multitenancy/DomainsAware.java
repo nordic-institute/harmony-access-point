@@ -1,6 +1,4 @@
-package eu.domibus.core.jms;
-
-import eu.domibus.api.multitenancy.Domain;
+package eu.domibus.api.multitenancy;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package eu.domibus.core.earchive.storage;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.core.jms.DomainsAware;
+import eu.domibus.api.multitenancy.DomainsAware;
 
 /**
  * @author François Gautier

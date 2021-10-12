@@ -5,6 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -37,15 +38,19 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
+    protected final DomainService domainService;
+
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
                                      CertificateService certificateService,
                                      DomainContextProvider domainProvider,
-                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService) {
+                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService,
+                                     DomainService domainService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.domainService = domainService;
     }
 
     @Override
@@ -86,16 +91,27 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void persistTruststoresIfApplicable() {
+        final List<Domain> domains = domainService.getDomains();
+        persistTruststoresIfApplicable(domains);
+    }
+
+    private void persistTruststoresIfApplicable(List<Domain> domains) {
         certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME,
                 () -> getTruststoreParams().getFile(),
                 () -> getTruststoreParams().getType(),
-                () -> getTruststoreParams().getPassword()
+                () -> getTruststoreParams().getPassword(),
+                domains
         );
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        persistTruststoresIfApplicable(added);
     }
 
     protected KeyStoreType getTruststoreParams() {
         String domainCode = null;
-        if(domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
             Domain domain = domainProvider.getCurrentDomain();
             domainCode = domain != null ? domain.getCode() : null;
         }
