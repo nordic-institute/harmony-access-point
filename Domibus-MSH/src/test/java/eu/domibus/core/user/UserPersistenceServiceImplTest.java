@@ -215,6 +215,42 @@ public class UserPersistenceServiceImplTest {
     }
 
     @Test
+    public void insertNewSuperUsersMultiTenantTest() {
+        eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
+            setUserName("super1");
+            setActive(true);
+            setStatus(UserState.NEW.name());
+            setDomain("default");
+            setAuthorities(Arrays.asList("ROLE_AP_ADMIN"));
+        }};
+        User addedUserEntity = new User() {{
+            setPassword("password1");
+        }};
+        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+
+        new Expectations(userPersistenceService) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            domainContextProvider.getCurrentDomainSafely();
+            result = null;
+            authCoreMapper.userApiToUserSecurity(addedUser);
+            result = addedUserEntity;
+            userPersistenceService.addRoleToUser(addedUser.getAuthorities(), addedUserEntity);
+        }};
+
+        userPersistenceService.insertNewUsers(addedUsers);
+
+        new Verifications() {{
+            userDao.create(addedUserEntity);
+            times = 1;
+            userDomainService.setDomainForUser(addedUser.getUserName(), addedUser.getDomain());
+            times = 0;
+            userDomainService.setPreferredDomainForUser(addedUser.getUserName(), addedUser.getDomain());
+            times = 1;
+        }};
+    }
+
+    @Test
     public void deleteUsersMultiTenantTest() {
         eu.domibus.api.user.User deletedUser = new eu.domibus.api.user.User() {{
             setUserName("deletedUserName");
