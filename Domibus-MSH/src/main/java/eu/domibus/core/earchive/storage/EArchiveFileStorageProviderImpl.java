@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.jms.DomainsAware;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @since 5.0
  */
 @Service
-public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvider {
+public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvider, DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorageProviderImpl.class);
 
@@ -42,6 +43,15 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     @PostConstruct
     public void init() {
         final List<Domain> domains = domainService.getDomains();
+        createStorage(domains);
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        createStorage(added);
+    }
+
+    private void createStorage(List<Domain> domains) {
         for (Domain domain : domains) {
             EArchiveFileStorage instance = storageFactory.create(domain);
             instances.put(domain, instance);

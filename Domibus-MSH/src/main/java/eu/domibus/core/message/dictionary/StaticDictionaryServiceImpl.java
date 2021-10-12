@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.jms.DomainsAware;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @since 5.0
  */
 @Service
-public class StaticDictionaryServiceImpl implements StaticDictionaryService {
+public class StaticDictionaryServiceImpl implements StaticDictionaryService, DomainsAware {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StaticDictionaryServiceImpl.class);
 
@@ -58,11 +59,7 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     public void createStaticDictionaryEntries() {
         LOG.debug("Start checking and creating static dictionary entries if missing");
 
-        Runnable createEntriesCall = () -> {
-            Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
-            Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
-            Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
-        };
+        Runnable createEntriesCall = createEntriesCall();
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Start checking and creating static dictionary entries in single tenancy mode");
@@ -70,7 +67,26 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
             return;
         }
 
-        Runnable transactionWrappedCall = () -> {
+        final List<Domain> domains = domainService.getDomains();
+        createEntries(domains);
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        createEntries(added);
+    }
+
+    private void createEntries(List<Domain> domains) {
+        Runnable createEntriesCall = createEntriesCall();
+        Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall);
+        for (Domain domain : domains) {
+            LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
+            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);
+        }
+    }
+
+    private Runnable transactionWrappedCall(Runnable createEntriesCall) {
+        return () -> {
             new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     try {
@@ -81,12 +97,14 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
                 }
             });
         };
+    }
 
-        final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
-            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);
-        }
+    private Runnable createEntriesCall() {
+        return () -> {
+            Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
+            Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
+            Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
+        };
     }
 
 }

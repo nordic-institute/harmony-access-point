@@ -78,6 +78,7 @@ public class DomibusContextRefreshedListener {
         encryptionService.handleEncryption();
         messageDictionaryService.createStaticDictionaryEntries();
 
+        // todo to be removed; temporary, for testing
         dynamicDomainManagementService.handleDomainsChaned();
     }
 

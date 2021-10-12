@@ -40,15 +40,13 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     @Override
     public void handleDomainsChaned() {
-        resetDomains();
+        domainService.resetDomains();
         List<Domain> currentList = domainService.getDomains();
         List<Domain> addedDomains = currentList.stream()
                 .filter(el -> !originalDomains.contains(el))
                 .collect(Collectors.toList());
+
+        messageListenerContainerInitializer.domainsChanged(addedDomains, null);
     }
 
-    synchronized void resetDomains() {
-        this.originalDomains = null;
-        this.domibusCacheService.clearCache(DomibusCacheService.ALL_DOMAINS_CACHE);
-    }
 }
