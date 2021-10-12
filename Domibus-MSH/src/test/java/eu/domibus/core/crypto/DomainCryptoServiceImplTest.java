@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
@@ -29,6 +30,9 @@ public class DomainCryptoServiceImplTest {
     @Mock
     private eu.domibus.api.multitenancy.Domain domain;
 
+    @Mock
+    private CertificateService certificateService;
+
     @InjectMocks
     private DomainCryptoServiceImpl domainCryptoService;
 
@@ -36,6 +40,7 @@ public class DomainCryptoServiceImplTest {
     public void setup(){
         MockitoAnnotations.initMocks(this);
     }
+
     @Test
     public void init() {
         final String dss = "DSS";

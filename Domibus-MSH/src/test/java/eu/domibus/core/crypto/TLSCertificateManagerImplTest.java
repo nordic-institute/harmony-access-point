@@ -5,6 +5,7 @@ import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -15,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+
+import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
 
 /**
  * @author Ion Perpegel
@@ -38,18 +41,15 @@ public class TLSCertificateManagerImplTest {
     @Injectable
     private SignalService signalService;
 
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
+
     @Test
     public void replaceTrustStore(@Mocked KeyStoreType trustStore, @Mocked String fileName, @Mocked byte[] fileContent, @Mocked String filePassword, @Mocked String backupLocation) {
-        new Expectations(tlsCertificateManager) {{
-            tlsCertificateManager.getTruststoreParams();
-            result = trustStore;
-        }};
-
-        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword, backupLocation);
+        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword);
 
         new Verifications() {{
-            certificateService.replaceTrustStore(fileName, fileContent, filePassword,
-                    trustStore.getType(), trustStore.getFile(), trustStore.getPassword(), backupLocation);
+            certificateService.replaceTrustStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
@@ -57,9 +57,7 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void getTrustStoreEntries(@Mocked KeyStoreType trustStore, @Mocked List<TrustStoreEntry> entries) {
         new Expectations(tlsCertificateManager) {{
-            tlsCertificateManager.getTruststoreParams();
-            result = trustStore;
-            certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+            certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
             result = entries;
         }};
 
@@ -67,16 +65,14 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertEquals(entries, result);
         new Verifications() {{
-            certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+            certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
         }};
     }
 
     @Test
     public void getTruststoreContent(@Mocked KeyStoreType trustStore, @Mocked byte[] content) {
         new Expectations(tlsCertificateManager) {{
-            tlsCertificateManager.getTruststoreParams();
-            result = trustStore;
-            certificateService.getTruststoreContent(trustStore.getFile());
+            certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
             result = content;
         }};
 
@@ -84,24 +80,22 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertEquals(content, result);
         new Verifications() {{
-            certificateService.getTruststoreContent(trustStore.getFile());
+            certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
         }};
     }
 
     @Test
     public void addCertificate(@Mocked KeyStoreType trustStore, @Mocked byte[] certificateData, @Mocked String alias, @Mocked String backupLocation) {
         new Expectations(tlsCertificateManager) {{
-            tlsCertificateManager.getTruststoreParams();
-            result = trustStore;
-            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, backupLocation);
+            certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
             result = true;
         }};
 
-        boolean result = tlsCertificateManager.addCertificate(certificateData, alias, backupLocation);
+        boolean result = tlsCertificateManager.addCertificate(certificateData, alias);
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, backupLocation);
+            certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
@@ -109,17 +103,15 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void removeCertificate(@Mocked KeyStoreType trustStore, @Mocked String alias, @Mocked String backupLocation) {
         new Expectations(tlsCertificateManager) {{
-            tlsCertificateManager.getTruststoreParams();
-            result = trustStore;
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, backupLocation);
+            certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
             result = true;
         }};
 
-        boolean result = tlsCertificateManager.removeCertificate(alias, backupLocation);
+        boolean result = tlsCertificateManager.removeCertificate(alias);
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, backupLocation);
+            certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
@@ -127,6 +119,8 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void getTruststoreParams(@Mocked TLSClientParametersType params, @Mocked KeyStoreType trustStore, @Mocked Domain domain) {
         new Expectations(tlsCertificateManager) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
             domainProvider.getCurrentDomain();
             result = domain;
             tlsReaderService.getTlsClientParametersType(domain.getCode());

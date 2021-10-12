@@ -81,11 +81,7 @@ public class TruststoreResourceTest {
     public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
 
         new Expectations() {{
-            domainProvider.getCurrentDomain();
-            result = domain;
-            multiDomainCertificateProvider.getTrustStore(domain);
-            result = store;
-            certificateService.getTrustStoreEntries(store);
+            certificateService.getTrustStoreEntries(anyString);
             result = trustStoreEntries;
         }};
 
