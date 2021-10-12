@@ -3234,6 +3234,36 @@
         </createTable>
         <addUniqueConstraint columnNames="LOCK_KEY" constraintName="UK_LOCK_KEY" tableName="TB_LOCK"/>
     </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-8532">
+        <createTable tableName="TB_TRUSTSTORE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TRUSTSTORE"/>
+            </column>
+            <column name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTENT" type="LONGBLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
+    </changeSet>
+
     <!-- End User Tables -->
 
     <!-- inserts -->

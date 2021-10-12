@@ -75,20 +75,20 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
-        tlsCertificateManager.addCertificate(fileContent, alias, getTrustStoreBackUpLocation());
+        tlsCertificateManager.addCertificate(fileContent, alias);
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        tlsCertificateManager.removeCertificate(alias, getTrustStoreBackUpLocation());
+        tlsCertificateManager.removeCertificate(alias);
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password, getTrustStoreBackUpLocation());
+        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
     }
 
     @Override

@@ -6,6 +6,7 @@ import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.logging.DomibusLogger;
@@ -24,6 +25,8 @@ import java.util.List;
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
 
+    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
+
     private final TLSReaderService tlsReaderService;
 
     private final CertificateService certificateService;
@@ -32,42 +35,38 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private final SignalService signalService;
 
-    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService, CertificateService certificateService,
-                                     DomainContextProvider domainProvider, SignalService signalService) {
+    private final DomibusConfigurationService domibusConfigurationService;
 
+    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
+                                     CertificateService certificateService,
+                                     DomainContextProvider domainProvider,
+                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
+        this.domibusConfigurationService = domibusConfigurationService;
     }
 
     @Override
-    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustStoreBackupLocation) throws CryptoException {
-        KeyStoreType trustStore = getTruststoreParams();
-
-        certificateService.replaceTrustStore(fileName, fileContent, filePassword,
-                trustStore.getType(), trustStore.getFile(), trustStore.getPassword(), trustStoreBackupLocation);
-
+    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
+        certificateService.replaceTrustStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
         resetTLSTruststore();
     }
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        KeyStoreType trustStore = getTruststoreParams();
-
-        return certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+        return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
     public byte[] getTruststoreContent() {
-        KeyStoreType trustStore = getTruststoreParams();
-        return certificateService.getTruststoreContent(trustStore.getFile());
+        return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
-    public synchronized boolean addCertificate(byte[] certificateData, String alias, String trustStoreBackupLocation) {
-        KeyStoreType trustStore = getTruststoreParams();
-        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, trustStoreBackupLocation);
+    public synchronized boolean addCertificate(byte[] certificateData, String alias) {
+        boolean added = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -76,9 +75,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public synchronized boolean removeCertificate(String alias, String trustStoreBackupLocation) {
-        KeyStoreType trustStore = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, trustStoreBackupLocation);
+    public synchronized boolean removeCertificate(String alias) {
+        boolean deleted = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -86,9 +84,21 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         return deleted;
     }
 
+    @Override
+    public void persistTruststoresIfApplicable() {
+        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME,
+                () -> getTruststoreParams().getFile(),
+                () -> getTruststoreParams().getType(),
+                () -> getTruststoreParams().getPassword()
+        );
+    }
+
     protected KeyStoreType getTruststoreParams() {
-        Domain domain = domainProvider.getCurrentDomain();
-        String domainCode = domain != null ? domain.getCode() : null;
+        String domainCode = null;
+        if(domibusConfigurationService.isMultiTenantAware()) {
+            Domain domain = domainProvider.getCurrentDomain();
+            domainCode = domain != null ? domain.getCode() : null;
+        }
         TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
         KeyStoreType result = params.getTrustManagers().getKeyStore();
         LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
@@ -101,4 +111,5 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         tlsReaderService.reset(domainCode);
         signalService.signalTLSTrustStoreUpdate(domain);
     }
+
 }

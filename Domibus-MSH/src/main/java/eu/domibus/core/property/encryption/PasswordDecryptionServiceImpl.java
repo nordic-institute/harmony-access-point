@@ -58,6 +58,16 @@ public class PasswordDecryptionServiceImpl implements PasswordDecryptionService 
         return decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
     }
 
+    @Override
+    public String decryptPropertyIfEncrypted(Domain domain, String propertyName, String propertyValue) {
+        if (!isValueEncrypted(propertyValue)) {
+            return propertyValue;
+        }
+
+        LOG.debug("Decrypting property [{}]", propertyName);
+        return decryptProperty(domain, propertyName, propertyValue);
+    }
+
     protected String decryptProperty(final File encryptedKeyFile, String propertyName, String encryptedFormatValue) {
         final boolean valueEncrypted = isValueEncrypted(encryptedFormatValue);
         if (!valueEncrypted) {

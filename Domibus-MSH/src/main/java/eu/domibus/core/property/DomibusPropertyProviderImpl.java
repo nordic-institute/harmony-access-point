@@ -138,21 +138,32 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         setProperty(domain, propertyName, propertyValue, true);
     }
 
-    protected String getPropertyValue(String propertyName, Domain domain) {
-        String result = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
-
-        DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (meta.isEncrypted() && passwordDecryptionService.isValueEncrypted(result)) {
-            LOG.debug("Decrypting property [{}]", propertyName);
-            result = passwordDecryptionService.decryptProperty(domain, propertyName, result);
-        }
-
-        return result;
-    }
-
     @Override
     public DomibusPropertyMetadata.Type getPropertyType(String propertyName) {
         DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         return meta.getTypeAsEnum();
     }
+
+    protected String getPropertyValue(String propertyName, Domain domain) {
+        String value = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+
+        String decryptedValue = decryptIfApplicable(propertyName, domain, value);
+
+        return decryptedValue;
+    }
+
+    protected String getRawPropertyValue(String propertyName, Domain domain) {
+        String result = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+        return result;
+    }
+
+    private String decryptIfApplicable(String propertyName, Domain domain, String result) {
+        DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (meta.isEncrypted() && passwordDecryptionService.isValueEncrypted(result)) {
+            LOG.debug("Decrypting property [{}]", propertyName);
+            result = passwordDecryptionService.decryptProperty(domain, propertyName, result);
+        }
+        return result;
+    }
+    
 }

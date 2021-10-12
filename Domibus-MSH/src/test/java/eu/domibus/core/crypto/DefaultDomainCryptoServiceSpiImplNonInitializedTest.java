@@ -3,6 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -68,6 +69,9 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
     @Injectable
     private BackupService backupService;
+
+    @Injectable
+    DomainTaskExecutor domainTaskExecutor;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -144,54 +148,40 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         Assert.assertEquals("Should have returned the correct trust store when loading it", trustStore, result);
     }
 
-    @Test
-    public void throwsExceptionWhenFailingToLoadTheTrustStore_WSSecurityException(@Injectable InputStream trustStoreInputStream) {
-        // Given
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error loading truststore");
+//    @Test
+//    public void throwsExceptionWhenFailingToLoadTheTrustStore_WSSecurityException(@Injectable InputStream trustStoreInputStream) {
+//        // Given
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Error loading truststore");
+//
+//        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
+//            @Mock
+//            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
+//                throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);
+//            }
+//        };
+//
+//        // When
+//        domainCryptoService.loadTrustStore();
+//    }
 
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
-                throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);
-            }
-        };
-
-        // When
-        domainCryptoService.loadTrustStore();
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToLoadTheTrustStore_IOException(@Injectable InputStream trustStoreInputStream) {
-        // Given
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error loading truststore");
-
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
-                throw new IOException();
-            }
-        };
-
-        // When
-        domainCryptoService.loadTrustStore();
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToLoadTheTrustStoreAndItsLocationIsNull(@Injectable InputStream trustStoreInputStream) {
-        // Given
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not load truststore, truststore location is empty");
-
-        new Expectations() {{
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-            result = null;
-        }};
-
-        // When
-        domainCryptoService.loadTrustStore();
-    }
+    // to be moved
+//    @Test
+//    public void throwsExceptionWhenFailingToLoadTheTrustStore_IOException() {
+//        // Given
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Error loading truststore");
+//
+//        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
+//            @Mock
+//            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
+//                throw new IOException();
+//            }
+//        };
+//
+//        // When
+//        domainCryptoService.loadTrustStore();
+//    }
 
     @Test
     public void refreshesTheTrustStoreWithTheLoadedTrustStore() {
@@ -258,7 +248,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
     public void getKeystoreProperties_missingKeystoreLocationPropertyConfigurationException() {
         // Given
         new Expectations() {{
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = null;
         }};
         thrown.expect(ConfigurationException.class);
@@ -300,7 +290,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
     public void getKeystoreProperties_missingTruststoreLocationPropertyConfigurationException() {
         // Given
         new Expectations() {{
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
             result = null;
         }};
         thrown.expect(ConfigurationException.class);
