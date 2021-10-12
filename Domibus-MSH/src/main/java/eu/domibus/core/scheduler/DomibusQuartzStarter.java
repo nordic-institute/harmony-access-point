@@ -86,6 +86,15 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         // Domain Schedulers
         final List<Domain> domains = domainService.getDomains();
+        initQuartzSchedulers(domains);
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        initQuartzSchedulers(added);
+    }
+
+    private void initQuartzSchedulers(List<Domain> domains) {
         for (Domain domain : domains) {
             try {
                 checkJobsAndStartScheduler(domain);

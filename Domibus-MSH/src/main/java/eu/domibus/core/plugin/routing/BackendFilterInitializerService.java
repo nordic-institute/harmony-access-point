@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.routing;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @since 4.2
  */
 @Service
-public class BackendFilterInitializerService {
+public class BackendFilterInitializerService implements DomainsAware {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFilterInitializerService.class);
 
@@ -64,6 +65,17 @@ public class BackendFilterInitializerService {
 
         // multitenancy
         final List<Domain> domains = domainService.getDomains();
+        createBackendFilters(domains);
+
+        LOG.info("Finished checking and updating the configured plugins");
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        createBackendFilters(added);
+    }
+
+    private void createBackendFilters(List<Domain> domains) {
         LOG.debug("Checking and updating the configured plugins for all the domains in MultiTenancy environment");
         for (Domain domain : domains) {
             LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
@@ -75,7 +87,5 @@ public class BackendFilterInitializerService {
 
             LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
         }
-
-        LOG.info("Finished checking and updating the configured plugins");
     }
 }

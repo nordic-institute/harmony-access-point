@@ -2,6 +2,7 @@ package eu.domibus.api.scheduler;
 
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainsAware;
 
 /**
  * @author Ion Perpegel , soumya chandran
@@ -9,7 +10,7 @@ import eu.domibus.api.multitenancy.Domain;
  *
  * Interface for access to the reschedule feature of the Quartz scheduler.
  */
-public interface DomibusScheduler {
+public interface DomibusScheduler extends DomainsAware {
 
     /**
      * Reschedules an existing job with a new cron expression

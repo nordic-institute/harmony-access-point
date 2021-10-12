@@ -49,9 +49,19 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
     @Override
     public void createPayloadEncryptionKeyForAllDomainsIfNotExists() {
+        final List<Domain> domains = domainService.getDomains();
+
+        createPayloadEncryptionKeyForAllDomainsIfNotExists(domains);
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        createPayloadEncryptionKeyForAllDomainsIfNotExists(added);
+    }
+
+    private void createPayloadEncryptionKeyForAllDomainsIfNotExists(List<Domain> domains) {
         LOG.debug("Creating encryption key for all domains if not yet exists");
 
-        final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             createPayloadEncryptionKeyIfNotExists(domain);
         }

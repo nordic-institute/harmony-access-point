@@ -100,17 +100,26 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
-            for (Domain domain : domains) {
-                domainContextProvider.setCurrentDomain(domain);
-                final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
-                encryptPasswords(passwordEncryptionContextDomain);
-                domainContextProvider.clearCurrentDomain();
-            }
+            encryptPasswords(domains);
         }
 
         domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
 
         LOG.debug("Finished encrypting passwords");
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        encryptPasswords(added);
+    }
+
+    private void encryptPasswords(List<Domain> domains) {
+        for (Domain domain : domains) {
+            domainContextProvider.setCurrentDomain(domain);
+            final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+            encryptPasswords(passwordEncryptionContextDomain);
+            domainContextProvider.clearCurrentDomain();
+        }
     }
 
     @Override
