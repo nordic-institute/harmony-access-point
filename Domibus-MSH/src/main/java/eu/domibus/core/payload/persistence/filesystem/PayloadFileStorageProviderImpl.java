@@ -38,6 +38,15 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
     @PostConstruct
     public void init() {
         final List<Domain> domains = domainService.getDomains();
+        createStorage(domains);
+    }
+
+    @Override
+    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
+        createStorage(added);
+    }
+
+    private void createStorage(List<Domain> domains) {
         for (Domain domain : domains) {
             PayloadFileStorage instance = storageFactory.create(domain);
             instances.put(domain, instance);

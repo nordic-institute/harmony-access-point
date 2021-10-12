@@ -2,8 +2,10 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
+import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +27,19 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     private List<Domain> originalDomains;
 
     @Autowired
-    private DomibusCacheService domibusCacheService;
-
-    @Autowired
     private DomainService domainService;
 
     @Autowired
     MessageListenerContainerInitializer messageListenerContainerInitializer;
+
+    @Autowired
+    EArchiveFileStorageProvider eArchiveFileStorageProvider;
+
+    @Autowired
+    StaticDictionaryService staticDictionaryService;
+
+    @Autowired
+    PayloadFileStorageProvider payloadFileStorageProvider;
 
     @PostConstruct
     public void init() {
@@ -46,7 +54,14 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
                 .filter(el -> !originalDomains.contains(el))
                 .collect(Collectors.toList());
 
+        if (addedDomains.isEmpty()) {
+            return;
+        }
+
         messageListenerContainerInitializer.domainsChanged(addedDomains, null);
+        eArchiveFileStorageProvider.domainsChanged(addedDomains, null);
+        staticDictionaryService.domainsChanged(addedDomains, null);
+        payloadFileStorageProvider.domainsChanged(addedDomains, null);
     }
 
 }

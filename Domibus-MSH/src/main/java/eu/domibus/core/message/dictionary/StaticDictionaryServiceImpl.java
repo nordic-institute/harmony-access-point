@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @since 5.0
  */
 @Service
-public class StaticDictionaryServiceImpl implements StaticDictionaryService, DomainsAware {
+public class StaticDictionaryServiceImpl implements StaticDictionaryService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StaticDictionaryServiceImpl.class);
 

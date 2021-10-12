@@ -20,7 +20,7 @@ import java.util.Map;
  * @since 5.0
  */
 @Service
-public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvider, DomainsAware {
+public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorageProviderImpl.class);
 
