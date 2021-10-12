@@ -10,8 +10,9 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PModeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/pmode")
+@Tag(name = "pmode", description = "Domibus PMode management API")
 public class PModeFileExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
@@ -48,8 +50,8 @@ public class PModeFileExtResource {
         return extExceptionHelper.handleExtException(e);
     }
 
-    @ApiOperation(value = "Get PMode file", notes = "Retrieve the PMode file of specified id",
-            authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
+    @Operation(summary="Get PMode file", description="Retrieve the PMode file of specified id",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") long id) {
         LOG.debug("downloadPMode -> start");
@@ -69,16 +71,16 @@ public class PModeFileExtResource {
                 .body(resource);
     }
 
-    @ApiOperation(value = "Get current PMode info", notes = "Retrieve the current PMode file information",
-            authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
+    @Operation(summary="Get current PMode info", description="Retrieve the current PMode file information",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "current")
     public PModeArchiveInfoDTO getCurrentPMode() {
         LOG.debug("getCurrentPMode -> start");
         return pModeExtService.getCurrentPmode();
     }
 
-    @ApiOperation(value = "Upload a PMode file", notes = "Upload the PMode file",
-            authorizations = @Authorization(value = "basicAuth"), tags = "pmode")
+    @Operation(summary="Upload a PMode file", description="Upload the PMode file",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PostMapping(consumes = {"multipart/form-data", "application/x-www-form-urlencoded"})
     public ValidationResponseDTO uploadPMode(
             @RequestPart("file") MultipartFile pmode,
@@ -90,7 +92,6 @@ public class PModeFileExtResource {
         if (!CollectionUtils.isEmpty(pmodeUpdateMessage)) {
             message += " but some issues were detected:";
         }
-
         return new ValidationResponseDTO(message, pmodeUpdateMessage);
     }
 

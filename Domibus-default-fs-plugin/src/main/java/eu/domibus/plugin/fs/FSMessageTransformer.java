@@ -61,6 +61,12 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         UserMessage metadata = objectFactory.createUserMessage();
         metadata.setMessageInfo(getMessageInfo(submission));
         metadata.setMpc(submission.getMpc());
+        ProcessingType processingType = submission.getProcessingType();
+        if (processingType == null) {
+            processingType = ProcessingType.PUSH;
+            LOG.debug("Submission processing type is null, setting default processing type:[{}]", processingType);
+        }
+        metadata.setProcessingType(eu.domibus.plugin.fs.ebms3.ProcessingType.valueOf(processingType.name()));
         metadata.setPartyInfo(getPartyInfoFromSubmission(submission));
         metadata.setCollaborationInfo(getCollaborationInfoFromSubmission(submission));
         metadata.setMessageProperties(getMessagePropertiesFromSubmission(submission));
@@ -88,7 +94,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         UserMessage metadata = messageIn.getMetadata();
         Submission submission = new Submission();
         submission.setMpc(metadata.getMpc());
-        submission.setProcessingType(getProcessingType(messageIn));
+        submission.setProcessingType(ProcessingType.valueOf(metadata.getProcessingType().value()));
         setPartyInfoToSubmission(submission, metadata.getPartyInfo());
         setCollaborationInfoToSubmission(submission, metadata.getCollaborationInfo());
         setMessagePropertiesToSubmission(submission, metadata.getMessageProperties());
@@ -98,19 +104,6 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             throw new FSPluginException("Could not set payload to Submission", ex);
         }
         return submission;
-    }
-
-    private ProcessingType getProcessingType(final FSMessage messageIn) {
-        eu.domibus.plugin.fs.ebms3.ProcessingType processingType = messageIn.getMetadata().getProcessingType();
-        if(processingType==null){
-            LOG.debug("Processing type is empty, setting processing type to default PUSH");
-            return ProcessingType.PUSH;
-        }
-        try {
-            return ProcessingType.valueOf(processingType.value());
-        }catch (IllegalArgumentException e){
-            throw new FSPluginException("Value for processingType property:["+ processingType.value() +"] is incorrect. Should be PUSH or PULL.",e);
-        }
     }
 
     protected void setPayloadToSubmission(Submission submission, final Map<String, FSPayload> dataHandlers, UserMessage metadata) {
@@ -319,7 +312,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             submission.setAgreementRef(agreementRef.getValue());
             submission.setAgreementRefType(agreementRef.getType());
         }
-        if(service != null) {
+        if (service != null) {
             submission.setService(service.getValue());
             submission.setServiceType(service.getType());
         }

@@ -19,10 +19,9 @@ public interface TLSCertificateManager {
      * @param trustFileName
      * @param trustContent
      * @param password
-     * @param trustStoreBackupLocation
      * @throws CryptoException
      */
-    void replaceTrustStore(String trustFileName, byte[] trustContent, String password, String trustStoreBackupLocation) throws CryptoException;
+    void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
 
     /**
      * Returns the certificate entries found in the tls truststore pointed by the clientauthentication.xml file
@@ -42,16 +41,16 @@ public interface TLSCertificateManager {
      * Adds the specified certificate to the tls truststore content pointed by the clientauthentication.xml file
      * @param certificateData
      * @param alias
-     * @param trustStoreBackupLocation
      * @return
      */
-    boolean addCertificate(byte[] certificateData, final String alias, String trustStoreBackupLocation);
+    boolean addCertificate(byte[] certificateData, final String alias);
 
     /**
      * Removes the specified certificate from the tls truststore content pointed by the clientauthentication.xml file
      * @param alias
-     * @param trustStoreBackupLocation
      * @return
      */
-    boolean removeCertificate(String alias, String trustStoreBackupLocation);
+    boolean removeCertificate(String alias);
+
+    void persistTruststoresIfApplicable();
 }

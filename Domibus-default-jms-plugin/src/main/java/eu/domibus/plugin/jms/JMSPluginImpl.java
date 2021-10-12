@@ -82,7 +82,6 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      * @param map The incoming JMS Message
      */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Transactional
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {

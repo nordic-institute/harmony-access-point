@@ -6,8 +6,9 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/party")
+@Tag(name = "party", description = "Domibus Party management API")
 public class PartyExtResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
@@ -40,9 +42,9 @@ public class PartyExtResource {
         return extExceptionHelper.handleExtException(e);
     }
 
-    @ApiOperation(value = "Get Parties", notes = "Get Parties using certain criteria like name, endpoint, partyId, process name. " +
+    @Operation(summary="Get Parties", description="Get Parties using certain criteria like name, endpoint, partyId, process name. " +
             "Use pageStart and pageSize for pagination purposes",
-            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping
     public List<PartyDTO> listParties(PartyFilterRequestDTO request) {
         LOG.debug("Searching parties with parameters:" +
@@ -54,9 +56,9 @@ public class PartyExtResource {
                 request.getProcess(), request.getPageStart(), request.getPageSize());
     }
 
-    @ApiOperation(value = "Creates a Party",
-            notes = "Creates a Party using name, party id, endpoint and identifiers which are mandatory fields",
-            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @Operation(summary="Creates a Party",
+             description="Creates a Party using name, party id, endpoint and identifiers which are mandatory fields",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public String createParty(@RequestBody PartyDTO request) {
@@ -64,9 +66,9 @@ public class PartyExtResource {
         return "Party having partyName=[" + request.getName() + "] created successfully!";
     }
 
-    @ApiOperation(value = "Delete a Party",
-            notes = "Delete a Party based on party name",
-            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @Operation(summary="Delete a Party",
+             description="Delete a Party based on party name",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @DeleteMapping
     public String deleteParty(@RequestParam(value = "partyName") @Valid @NotNull String partyName) {
         partyExtService.deleteParty(partyName);
@@ -74,9 +76,9 @@ public class PartyExtResource {
 
     }
 
-    @ApiOperation(value = "Get Certificate for a Party",
-            notes = "Get Certificate for a Party based on party name",
-            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @Operation(summary="Get Certificate for a Party",
+             description="Get Certificate for a Party based on party name",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(value = "/{partyName}/certificate")
     public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
         TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
@@ -86,17 +88,17 @@ public class PartyExtResource {
         return ResponseEntity.ok(cert);
     }
 
-    @ApiOperation(value = "List all Processes",
-            notes = "List all Processes",
-            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @Operation(summary="List all Processes",
+             description="List all Processes",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(value = {"/processes"})
     public List<ProcessDTO> listProcesses() {
         return partyExtService.getAllProcesses();
     }
 
-    @ApiOperation(value = "Update a Party",
-            notes = "Update a Party based on party name",
-            authorizations = @Authorization(value = "basicAuth"), tags = "party")
+    @Operation(summary="Update a Party",
+             description="Update a Party based on party name",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PutMapping
     public String updateParty(@RequestBody PartyDTO partyDTO) {
         LOG.debug("Updating party [{}]", partyDTO);

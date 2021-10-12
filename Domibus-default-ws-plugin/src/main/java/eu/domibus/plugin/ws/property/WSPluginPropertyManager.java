@@ -53,19 +53,19 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.WS_PLUGIN, Usage.GLOBAL),
 
-                new DomibusPropertyMetadataDTO(PUSH_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PUSH_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true),
 
-                new DomibusPropertyMetadataDTO(PUSH_ALERT_ACTIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(PUSH_ALERT_LEVEL, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(PUSH_ALERT_EMAIL_SUBJECT, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(PUSH_ALERT_EMAIL_BODY, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_ACTIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_LEVEL, Type.STRING, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_EMAIL_SUBJECT, Type.STRING, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(PUSH_ALERT_EMAIL_BODY, Type.STRING, Module.WS_PLUGIN, Usage.DOMAIN, true),
 
-                new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_RECEIVE_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_ALLOW_CHUNKING, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_CHUNKING_THRESHOLD, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_CRON_EXPRESSION, Type.CRON, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DISPATCHER_RECEIVE_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DISPATCHER_ALLOW_CHUNKING, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DISPATCHER_CHUNKING_THRESHOLD, Type.NUMERIC, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true),
+                new DomibusPropertyMetadataDTO(DISPATCHER_CRON_EXPRESSION, Type.CRON, Module.WS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_NAME, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_CONCURRENCY, Type.CONCURRENCY, Module.WS_PLUGIN, Usage.DOMAIN, true)
         );

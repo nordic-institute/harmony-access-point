@@ -1,13 +1,16 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
@@ -30,7 +33,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserMessage findByEntityId(Long entityId) {
         final UserMessage userMessage = super.read(entityId);
 
@@ -73,6 +76,27 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findUserMessageByGroupId", UserMessage.class);
         query.setParameter(GROUP_ID, groupId);
         return query.getResultList();
+    }
+
+    @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
+    @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
+    public List<String> findAllPartitionsOlderThan(String partitionName) {
+        Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
+        q.setParameter("PNAME", partitionName);
+        final List<String> partitionNames = q.getResultList();
+        LOG.debug("Partitions [{}]", partitionNames);
+        return partitionNames;
+    }
+
+    @Timer(clazz = UserMessageDao.class, value = "deletePartition")
+    @Counter(clazz = UserMessageDao.class, value = "deletePartition")
+    @Transactional
+    public int deletePartition(String partitionName) {
+        LOG.debug("Deleting partition [{}]", partitionName);
+        final Query deleteQuery = em.createNativeQuery("ALTER TABLE TB_USER_MESSAGE DROP PARTITION " + partitionName + " UPDATE INDEXES");
+        int result = deleteQuery.executeUpdate();
+        LOG.debug("Delete partition [{}] result [{}]", partitionName, result);
+        return result;
     }
 
     @Timer(clazz = UserMessageDao.class, value = "deleteMessages")

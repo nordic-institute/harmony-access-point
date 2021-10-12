@@ -261,7 +261,7 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			page.grid().waitForRowsToLoad();
 
 			log.info("checking number of messages");
-			soft.assertTrue(page.grid().getRowsNo() == 1, "One message is listed, the one that was on first position before");
+			soft.assertTrue(page.grid().getRowsNo() >= 1, "At least one message is listed");
 
 			log.info("checking message id");
 			HashMap<String, String> newRowInfo = page.grid().getRowInfo(0);
@@ -530,10 +530,13 @@ public class JMSMessPgUXTest extends SeleniumTest {
 
 		JSONObject customProp = new JSONObject(messInfo.get("Custom prop"));
 
-		String messageId = customProp.getString("messageId");
-		String fromPartyId = customProp.getString("fromPartyId");
+		String key1 = customProp.keySet().toArray()[0].toString();
+		String key2 = customProp.keySet().toArray()[1].toString();
 
-		String selector = String.format("messageId='%s' AND fromPartyId='%s'", messageId, fromPartyId);
+		String val1 = customProp.getString(key1);
+		String val2 = customProp.getString(key2);
+
+		String selector = String.format("%s='%s' AND %s='%s'", key1, val1, key2, val2);
 		return selector;
 	}
 

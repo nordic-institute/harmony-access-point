@@ -29,6 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -112,7 +113,8 @@ public class MessagingServiceImpl implements MessagingService {
         }
         LOG.debug("Saving Messaging");
     }
-    
+
+    @Transactional
     @Override
     public void saveUserMessageAndPayloads(UserMessage userMessage, List<PartInfo> partInfoList) {
         userMessageDao.create(userMessage);
@@ -127,7 +129,7 @@ public class MessagingServiceImpl implements MessagingService {
 
         final String messageId = userMessage.getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");
-        userMessageService.scheduleSourceMessageSending(messageId);
+        userMessageService.scheduleSourceMessageSending(messageId, userMessage.getEntityId());
     }
 
     protected void setPayloadsContentType(List<PartInfo> partInfoList) {

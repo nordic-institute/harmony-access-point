@@ -51,8 +51,8 @@ public class MessageSenderService {
 
     @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
     @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
-    public void sendUserMessage(final String messageId, int retryCount) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+    public void sendUserMessage(final String messageId, Long messageEntityId, int retryCount) {
+        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
 
         if (MessageStatus.NOT_FOUND == messageStatus) {
@@ -70,7 +70,7 @@ public class MessageSenderService {
             return;
         }
 
-        final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
+        final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
 

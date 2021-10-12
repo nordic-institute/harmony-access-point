@@ -26,7 +26,7 @@
             <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
             <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
             <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
-            <xsd:element name="ProcessingType" type="tns:ProcessingType"/>
+            <xsd:element name="ProcessingType" type="tns:ProcessingType" minOccurs="0"/>
         </xsd:all>
         <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
     </xsd:complexType>

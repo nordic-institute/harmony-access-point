@@ -2,9 +2,12 @@ package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.GatewayConfigurationValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -16,6 +19,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
 import static org.junit.Assert.*;
 
 /**
@@ -41,6 +45,15 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    GatewayConfigurationValidator gatewayConfigurationValidator;
+
+    @Injectable
+    MultiDomainCryptoService multiDomainCryptoService;
+
+    @Injectable
+    TLSCertificateManager tlsCertificateManager;
 
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
@@ -112,31 +125,14 @@ public class DomibusContextRefreshedListenerTest {
         new Expectations(domibusContextRefreshedListener) {{
             domibusContextRefreshedListener.useLockForExecution();
             result = true;
-
-            domibusContextRefreshedListener.getLockFileLocation();
-            result = fileLock;
         }};
 
         domibusContextRefreshedListener.executeWithLockIfNeeded(task);
 
         new Verifications() {{
-            domainTaskExecutor.submit(task, (Runnable) any, fileLock, true, 3L, TimeUnit.MINUTES);
+            domainTaskExecutor.submit(task, (Runnable) any, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
             times = 1;
         }};
     }
 
-    @Test
-    public void getLockFile() {
-        String configLocation = "home";
-
-        new Expectations() {{
-            domibusConfigurationService.getConfigLocation();
-            result = configLocation;
-        }};
-
-        final File lockFile = domibusContextRefreshedListener.getLockFileLocation();
-
-        assertEquals(configLocation, lockFile.getParent());
-        assertEquals(DomibusContextRefreshedListener.SYNC_LOCK_FILE, lockFile.getName());
-    }
 }
