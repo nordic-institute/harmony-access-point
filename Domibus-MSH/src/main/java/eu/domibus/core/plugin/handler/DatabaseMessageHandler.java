@@ -150,33 +150,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         checkMessageAuthorization(userMessage);
 
         List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
-        boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage, partInfos);
-        if (shouldDeleteDownloadedMessage) {
-            partInfoService.clearPayloadData(userMessage.getEntityId());
 
-            // Sets the message log status to DELETED
-            userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
-            // Sets the log status to deleted also for the signal messages (if present).
+        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
 
-            final SignalMessage signalMessage = signalMessageDao.read(userMessage.getEntityId());
-            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
-        } else {
-            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-        }
         return transformer.transformFromMessaging(userMessage, partInfos);
-    }
-
-    protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage, List<PartInfo> partInfos) {
-        // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
-        return (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpcValue()) && !isPayloadOnFileSystem(partInfos));
-    }
-
-    protected boolean isPayloadOnFileSystem(List<PartInfo> partInfos) {
-        for (PartInfo partInfo : partInfos) {
-            if (StringUtils.isNotEmpty(partInfo.getFileName()))
-                return true;
-        }
-        return false;
     }
 
     @Override
