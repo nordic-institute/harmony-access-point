@@ -3,7 +3,6 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
-import eu.domibus.core.multitenancy.DomainTaskExecutorImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
@@ -11,7 +10,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
@@ -20,9 +18,9 @@ import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_K
  * @author Ion Perpegel
  * @since 5.0
  */
-public class DomainTaskExecutorImplIT extends AbstractIT {
+public class SynchronizedRunnableIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImplIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
 
     @Autowired
     SynchronizedRunnableFactory synchronizedRunnableFactory;

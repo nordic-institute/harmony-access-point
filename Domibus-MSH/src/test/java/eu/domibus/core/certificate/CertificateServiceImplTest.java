@@ -3,10 +3,13 @@ package eu.domibus.core.certificate;
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
@@ -14,10 +17,11 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -54,6 +58,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 import static org.junit.Assert.*;
@@ -103,10 +108,22 @@ public class CertificateServiceImplTest {
     private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
     @Injectable
-    BackupService backupService;
+    CertificateHelper certificateHelper;
 
     @Injectable
-    CertificateHelper certificateHelper;
+    protected DomainService domainService;
+
+    @Injectable
+    protected DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    protected TruststoreDao truststoreDao;
+
+    @Injectable
+    private PasswordDecryptionService passwordDecryptionService;
+
+    @Injectable
+    private DomainContextProvider domainContextProvider;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -713,13 +730,17 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_KeyStoreException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                         @Injectable KeyStore trustStore) throws Exception {
+                                                                                         @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             trustStore.store(oldTrustStoreBytes, (char[]) any);
@@ -727,7 +748,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2", TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -740,7 +761,7 @@ public class CertificateServiceImplTest {
         thrown.expect(ConfigurationException.class);
 
         new Expectations(certificateService) {{
-            certificateService.getTrustStore(anyString, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
             trustStore.containsAlias("alias");
             result = true;
@@ -749,7 +770,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias", TRUST_STORE_BACKUP_LOCATION);
+        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
     }
 
     @Test
@@ -759,14 +780,7 @@ public class CertificateServiceImplTest {
             int count = 0;
 
             @Mock
-            boolean removeCertificate(Invocation invocation, String password, String trustStoreLocation, String alias, String trustStoreBackupLocation) {
-                invocation.proceed();
-                Assert.assertEquals("Should have persisted the trust store after removing certificates", 1, count);
-                return true;
-            }
-
-            @Mock
-            KeyStore getTrustStore(String trustStoreLocation, String password) {
+            KeyStore getTrustStore(String name) {
                 return trustStore;
             }
 
@@ -776,13 +790,13 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            void persistTrustStore(Invocation invocation, KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) {
+            void persistTrustStore(Invocation invocation, KeyStore truststore, String name) {
                 count = invocation.getInvocationCount();
             }
         };
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias", TRUST_STORE_BACKUP_LOCATION);
+        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
     }
 
     @Test
@@ -791,7 +805,7 @@ public class CertificateServiceImplTest {
         // Given
         new MockUp<CertificateServiceImpl>() {
             @Mock
-            KeyStore getTrustStore(String trustStoreLocation, String password) {
+            KeyStore getTrustStore(String name) {
                 return trustStore;
             }
 
@@ -801,13 +815,13 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) {
+            void persistTrustStore(KeyStore truststore, String name) {
                 Assert.fail("Should have not persisted the trust store if not removing certificates inside");
             }
         };
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias", TRUST_STORE_BACKUP_LOCATION);
+        certificateService.removeCertificate(DOMIBUS_TRUSTSTORE_NAME, "alias");
     }
 
     @Test
@@ -828,13 +842,17 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                                @Injectable KeyStore trustStore) throws Exception {
+                                                                                                @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             trustStore.store(oldTrustStoreBytes, (char[]) any);
@@ -842,7 +860,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2", TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -851,13 +869,17 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_CertificateException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                            @Injectable KeyStore trustStore) throws Exception {
+                                                                                            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore((byte[]) any, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             trustStore.store(oldTrustStoreBytes, (char[]) any);
@@ -865,7 +887,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2", TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -874,7 +896,8 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToLoadTheNewTrustStore_IOException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                             @Injectable KeyStore trustStore) throws CertificateException, NoSuchAlgorithmException, IOException {
+                                                                             @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity)
+            throws CertificateException, NoSuchAlgorithmException, IOException {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -882,8 +905,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("originalMessage");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayInputStream(store);
             result = newTrustStoreBytes;
             certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
@@ -892,12 +919,12 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
     public void throwsExceptionWhenFailingToLoadTheNewTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                                          @Injectable KeyStore trustStore) throws Exception {
+                                                                                          @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -905,8 +932,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("originalMessage");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayInputStream(store);
             result = newTrustStoreBytes;
             certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
@@ -915,12 +946,12 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
     public void throwsExceptionWhenFailingToLoadTheNewTrustStore_CertificateException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                                      @Injectable KeyStore trustStore) throws Exception {
+                                                                                      @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -928,8 +959,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("originalMessage");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayInputStream(store);
             result = newTrustStoreBytes;
             certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
@@ -938,12 +973,13 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
     public void throwsExceptionWhenPersistTheTrustStore_CryptoException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                        @Injectable KeyStore trustStore) throws CertificateException, NoSuchAlgorithmException, IOException {
+                                                                        @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity)
+            throws CertificateException, NoSuchAlgorithmException, IOException {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -951,24 +987,28 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("originalMessage");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayInputStream(store);
             result = newTrustStoreBytes;
             certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
             trustStore.load(newTrustStoreBytes, (char[]) any);
-            certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
             result = new CryptoException("originalMessage");
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
     public void throwsExceptionWhenFailingToRestoreTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore_IOException(
             @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore) throws Exception {
+            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -976,8 +1016,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             new ByteArrayInputStream(store);
@@ -992,13 +1036,13 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
     public void throwsExceptionWhenFailingToRestoreTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore_NoSuchAlgorithmException(
             @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore) throws Exception {
+            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -1006,8 +1050,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             new ByteArrayInputStream(store);
@@ -1022,13 +1070,13 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
     public void throwsExceptionWhenFailingToRestoreTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore_CertificateException(
             @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore) throws Exception {
+            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -1036,8 +1084,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             new ByteArrayInputStream(store);
@@ -1052,19 +1104,23 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test(expected = CryptoException.class) // ignore the CryptoException being initially thrown
     public void signalsTheTrustStoreUpdateWhenSuccessfullyRestoringTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore(
             @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore) throws Exception {
+            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             new ByteArrayInputStream(store);
@@ -1078,140 +1134,12 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
 
         // Then
         new Verifications() {{
             trustStore.load(oldTrustStoreInputStream, (char[]) any);
         }};
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToCreateMissingParentFolderForPersistingTheTrustStore(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                                                @Injectable KeyStore trustStore) {
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not create parent directory for truststore");
-
-        new MockUp<FileUtils>() {
-            @Mock
-            void forceMkdir(File directory) throws IOException {
-                throw new IOException();
-            }
-        };
-
-        new Expectations(certificateService) {{
-            certificateService.createFileWithLocation(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = false;
-        }};
-
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
-    }
-
-    @Test
-    public void createsMissingParentDirectoryWhenPersistingTheTrustStore(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                         @Mocked FileUtils fileUtils, @Injectable KeyStore trustStore) throws Exception {
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(File file) { /* ignore */ }
-
-            @Mock
-            void close() { /* ignore */ }
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = false;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-        }};
-
-        // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
-
-        // Then
-        new Verifications() {{
-            FileUtils.forceMkdir(trustStoreDirectory);
-        }};
-    }
-
-    @Test
-    public void storesTheTrustStoreContentCorrectlyWhenPersistingTheTrustStore(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                               @Injectable KeyStore trustStore) throws Exception {
-
-        // use fakes since we cannot mock most of the java.io classes (see mockit.internal.expectations.mocking.ExpectationsModifier
-        // #isDisallowedJREClass(String)) and partial mocking for FileOutputStream via @Injectable fails when calling #close()
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(Invocation invocation, File file) {
-                if (file != trustStoreFile) {
-                    invocation.proceed();
-                }
-            }
-
-            @Mock
-            void close() { /* ignore */}
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = true;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-        }};
-
-        // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
-
-        // Then
-        new Verifications() {{
-            trustStore.store((FileOutputStream) any, (char[]) any);
-        }};
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToPersistTheTrustStore_IOException(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                             @Injectable KeyStore trustStore) throws Exception {
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Could not persist truststore:");
-
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(File file) { /* ignore */ }
-
-            @Mock
-            void close() { /* ignore */}
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = true;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-            trustStore.store((FileOutputStream) any, (char[]) any);
-            result = new IOException();
-        }};
-
-        // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1244,7 +1172,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1277,7 +1205,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1309,39 +1237,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
-    }
-
-    @Test
-    public void signalsTheTrustStoreUpdateWhenSuccessfullyPersisting(@Injectable File trustStoreFile, @Injectable File trustStoreDirectory,
-                                                                     @Injectable KeyStore trustStore) throws Exception {
-        new MockUp<FileOutputStream>() {
-            @Mock
-            void $init(File file) { /* ignore */ }
-
-            @Mock
-            void close() { /* ignore */}
-        };
-
-        new Expectations(File.class) {{
-            new File(TRUST_STORE_LOCATION);
-            result = trustStoreFile;
-            trustStoreFile.getParentFile();
-            result = trustStoreDirectory;
-            trustStoreDirectory.exists();
-            result = true;
-
-            trustStoreFile.getAbsolutePath();
-            result = "";
-        }};
-
-        // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
-
-        // Then
-        new Verifications() {{
-            trustStore.store((FileOutputStream) any, TRUST_STORE_PASSWORD.toCharArray());
-        }};
+        certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1350,18 +1246,23 @@ public class CertificateServiceImplTest {
         // Given
         new MockUp<CertificateServiceImpl>() {
             @Mock
+            KeyStore getTrustStore(String trustName) {
+                return truststore;
+            }
+
+            @Mock
             boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
                 return false;
             }
 
             @Mock
-            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) {
+            void persistTrustStore(KeyStore truststore, String trustName) {
                 Assert.fail("Should have not persisted the trust store if not adding nor replacing certificates inside");
             }
         };
 
         // When
-        certificateService.doAddCertificates(truststore, "pass", "location", certificates, false, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, false);
     }
 
     @Test
@@ -1500,15 +1401,19 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_IOException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                   @Injectable KeyStore trustStore) throws Exception {
+                                                                                   @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
         byte[] store = {1, 2, 3};
 
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(store, anyString);
+            certificateService.getTrustStore(anyString);
             result = trustStore;
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getPassword();
+            result = "password";
             new ByteArrayOutputStream();
             result = oldTrustStoreBytes;
             trustStore.store(oldTrustStoreBytes, (char[]) any);
@@ -1516,7 +1421,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -1531,12 +1436,12 @@ public class CertificateServiceImplTest {
         thrown.expectMessage("Exception loading truststore.");
 
         new Expectations(certificateService) {{
-            certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD);
+            certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE);
             result = new IOException();
         }};
 
         // When
-        certificateService.loadTrustStore(content, TRUST_STORE_PASSWORD);
+        certificateService.loadTrustStore(content, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE);
     }
 
     @Test
@@ -1553,7 +1458,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD);
+        certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE);
 
         new Verifications() {{
             certificateService.closeStream(contentStream);
@@ -1561,39 +1466,22 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void getTruststoreContent(@Injectable File file, @Injectable Path path) throws IOException {
-
-        String absolutePath = "path";
-
-        thrown.expect(DomibusCertificateException.class);
-        thrown.expectMessage("Could not read truststore from ");
+    public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent, @Mocked TruststoreEntity entity) {
 
         new Expectations(certificateService) {{
-            certificateService.createFileWithLocation(TRUST_STORE_LOCATION);
-            result = file;
-            file.getAbsolutePath();
-            result = absolutePath;
-            Files.readAllBytes(path);
-            result = new IOException();
-        }};
-
-        // When
-        certificateService.getTruststoreContent(TRUST_STORE_PASSWORD);
-    }
-
-    @Test
-    public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent) {
-
-        new Expectations(certificateService) {{
+            certificateService.getTruststoreEntity(anyString);
+            result = entity;
+            entity.getType();
+            result = TRUST_STORE_TYPE;
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
-        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
@@ -1603,11 +1491,11 @@ public class CertificateServiceImplTest {
         String TEST_KEYSTORE = "testkeystore.jks";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
 
-        certificateService.backupTrustStore(testFile, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.backupTrustStore(DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
-            backupService.backupFileInLocation(testFile, TRUST_STORE_BACKUP_LOCATION);
-            times = 1;
+//            backupService.backupFileInLocation(testFile, TRUST_STORE_BACKUP_LOCATION);
+//            times = 1;
         }};
     }
 
@@ -1617,11 +1505,11 @@ public class CertificateServiceImplTest {
         String TEST_KEYSTORE = "inexistent_testkeystore.jks";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
 
-        certificateService.backupTrustStore(testFile, TRUST_STORE_BACKUP_LOCATION);
+        certificateService.backupTrustStore(DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
-            backupService.backupFile((File) any);
-            times = 0;
+//            backupService.backupFile((File) any);
+//            times = 0;
         }};
     }
 
@@ -1633,16 +1521,18 @@ public class CertificateServiceImplTest {
         boolean overwrite = true;
 
         new Expectations(certificateService) {{
+            certificateService.getTrustStore(anyString);
+            result = trustStore;
             certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
             result = true;
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
-        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
 
         assertTrue(result);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
@@ -1654,11 +1544,13 @@ public class CertificateServiceImplTest {
         boolean overwrite = true;
 
         new Expectations(certificateService) {{
+            certificateService.getTrustStore(anyString);
+            result = trustStore;
             certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
             result = false;
         }};
 
-        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doAddCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates, overwrite);
 
         assertFalse(result);
     }
@@ -1671,16 +1563,18 @@ public class CertificateServiceImplTest {
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
+            certificateService.getTrustStore(anyString);
+            result = trustStore;
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = true;
-            certificateService.persistTrustStore(trustStore, trustStorePassword, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, TRUST_STORE_LOCATION, certificates, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
 
         assertTrue(result);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, trustStorePassword, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
+            certificateService.persistTrustStore(trustStore, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
@@ -1693,11 +1587,13 @@ public class CertificateServiceImplTest {
         List<String> certificates = Arrays.asList(alias1, alias2);
 
         new Expectations(certificateService) {{
+            certificateService.getTrustStore(anyString);
+            result = trustStore;
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = false;
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, TRUST_STORE_LOCATION, certificates, TRUST_STORE_BACKUP_LOCATION);
+        boolean result = certificateService.doRemoveCertificates(DOMIBUS_TRUSTSTORE_NAME, certificates);
 
         assertFalse(result);
     }

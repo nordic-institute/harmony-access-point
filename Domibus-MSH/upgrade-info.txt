@@ -5,6 +5,8 @@ Domibus 5.0 (from 4.2.3)
                     - For each domain, move its properties file into the domain folder (e.g. move domain1-domibus.properties into conf/domibus/domains/domain1/)
                     - For each domain, move its logback file into the domain folder (e.g. move domain1-logback.xml into conf/domibus/domains/domain1/)
                       and then update the reference to the domain logback file in the main logback.xml file, in the multitenancy section
+                    - For each domain, move domain_name_clientauthentication.xml file into the domain folder (e.g. move conf/domibus/domain1_clientauthentication.xml
+                      into conf/domibus/domains/domain1/domain1_clientauthentication.xml)
                     - For each domain, create a "keystores" folder (e.g. conf/domibus/domains/domain1/keystores) and move inside it the keystores used by that domain;
                       update the "domibus.security.keystore.location", "domibus.security.truststore.location" and "domibus.security.truststore.backup.location" paths
                       in the domain properties file
@@ -75,6 +77,7 @@ Domibus 5.0 (from 4.2.3)
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
+                - Rename conf/domibus/default_clientauthentication.xml to conf/domibus/clientauthentication.xml
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Run the appropriate DB migration script(mysql-4.2.3-to-5.0-migration.ddl for MySQL or oracle-4.2.3-to-5.0-migration.ddl for Oracle)
                 - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.

@@ -13,4 +13,6 @@ public interface PasswordDecryptionService {
     String decryptProperty(Domain domain, String propertyName, String encryptedFormatValue);
 
     boolean isValueEncrypted(final String propertyValue);
+
+    String decryptPropertyIfEncrypted(Domain domain, String propertyName, String propertyValue);
 }
