@@ -80,6 +80,15 @@ public class DomainDaoImpl implements DomainDao {
         return result;
     }
 
+    @Override
+    public String getDomainTitle(Domain domain) {
+        String domainTitle = domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
+        if (StringUtils.isEmpty(domainTitle)) {
+            domainTitle = domain.getCode();
+        }
+        return domainTitle;
+    }
+
     protected List<String> findAllDomainCodes() {
         final String configLocation = domibusConfigurationService.getConfigLocation();
         File confDirectory = new File(configLocation + File.separator + DomainService.DOMAINS_HOME);
@@ -106,14 +115,6 @@ public class DomainDaoImpl implements DomainDao {
         } else {
             return true;
         }
-    }
-
-    protected String getDomainTitle(Domain domain) {
-        String domainTitle = domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
-        if (StringUtils.isEmpty(domainTitle)) {
-            domainTitle = domain.getCode();
-        }
-        return domainTitle;
     }
 }
 

@@ -11,9 +11,11 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
+import eu.domibus.core.property.DomibusPropertyConfiguration;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -23,7 +25,6 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -39,13 +40,17 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDomainManagementServiceImpl.class);
 
-    private List<Domain> originalDomains;
-
     @Autowired
     private DomainService domainService;
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected DomainDao domainDao;
+
+    @Autowired
+    AnnotationConfigWebApplicationContext rootContext;
 
 
     @Autowired
@@ -81,31 +86,20 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     @Autowired
     DomibusScheduler domibusScheduler;
 
-    @Autowired
-    AnnotationConfigWebApplicationContext rootContext;
-
-    @PostConstruct
-    public void init() {
-        originalDomains = domainService.getDomains();
-    }
-
     @Override
     public void handleDomainsChanged() {
         if (domibusConfigurationService.isSingleTenantAware()) {
             return;
         }
 
-        domainService.resetDomains();
-        List<Domain> currentList = domainService.getDomains();
-        List<Domain> addedDomains = currentList.stream()
-                .filter(el -> !originalDomains.contains(el))
-                .collect(Collectors.toList());
-
+        List<Domain> addedDomains = getAddedDomains();
         if (addedDomains.isEmpty()) {
             return;
         }
 
         loadProperties(addedDomains);
+        // now the domain title property is loaded in domibus property provider
+        addedDomains.forEach(domain -> domain.setName(domainDao.getDomainTitle(domain)));
 
         // let's see if order counts, otherwise we might inject a list of DomainAware instead
         messageListenerContainerInitializer.domainsChanged(addedDomains, null);
@@ -119,6 +113,17 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         gatewayConfigurationValidator.domainsChanged(addedDomains, null);
         passwordEncryptionService.domainsChanged(addedDomains, null);
         domibusScheduler.domainsChanged(addedDomains, null);
+    }
+
+    private List<Domain> getAddedDomains() {
+        // todo looks non cohesive
+        List<Domain> previousDomains = domainService.getDomains();
+        domainService.resetDomains();
+        List<Domain> currentDomains = domainService.getDomains();
+        List<Domain> addedDomains = currentDomains.stream()
+                .filter(el -> !previousDomains.contains(el))
+                .collect(Collectors.toList());
+        return addedDomains;
     }
 
     private void loadProperties(List<Domain> addedDomains) {
