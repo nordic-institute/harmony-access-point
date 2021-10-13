@@ -2,6 +2,7 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -59,40 +60,44 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     PropertyProviderDispatcher propertyProviderDispatcher;
 
     @Autowired
-    MessageListenerContainerInitializer messageListenerContainerInitializer;
-
-    @Autowired
-    EArchiveFileStorageProvider eArchiveFileStorageProvider;
-
-    @Autowired
-    StaticDictionaryService staticDictionaryService;
-
-    @Autowired
-    PayloadEncryptionService payloadEncryptionService;
-
-    @Autowired
-    PayloadFileStorageProvider payloadFileStorageProvider;
-
-    @Autowired
-    BackendFilterInitializerService backendFilterInitializerService;
-
-    @Autowired
-    GatewayConfigurationValidator gatewayConfigurationValidator;
-
-    @Autowired
-    PasswordEncryptionService passwordEncryptionService;
-
-    @Autowired
-    MultiDomainCryptoService multiDomainCryptoService;
-
-    @Autowired
-    TLSCertificateManager tlsCertificateManager;
-
-    @Autowired
-    DomibusScheduler domibusScheduler;
-
-    @Autowired
     DomibusCacheService domibusCacheService;
+
+    @Autowired
+    List<DomainsAware> domainsAwareList;
+
+
+//    @Autowired
+//    MessageListenerContainerInitializer messageListenerContainerInitializer;
+//
+//    @Autowired
+//    EArchiveFileStorageProvider eArchiveFileStorageProvider;
+//
+//    @Autowired
+//    StaticDictionaryService staticDictionaryService;
+//
+//    @Autowired
+//    PayloadEncryptionService payloadEncryptionService;
+//
+//    @Autowired
+//    PayloadFileStorageProvider payloadFileStorageProvider;
+//
+//    @Autowired
+//    BackendFilterInitializerService backendFilterInitializerService;
+//
+//    @Autowired
+//    GatewayConfigurationValidator gatewayConfigurationValidator;
+//
+//    @Autowired
+//    PasswordEncryptionService passwordEncryptionService;
+//
+//    @Autowired
+//    MultiDomainCryptoService multiDomainCryptoService;
+//
+//    @Autowired
+//    TLSCertificateManager tlsCertificateManager;
+//
+//    @Autowired
+//    DomibusScheduler domibusScheduler;
 
     @Override
     public void handleDomainsChanged() {
@@ -112,18 +117,20 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
             domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
             domain.setName(domainDao.getDomainTitle(domain));
 
+            domainsAwareList.forEach(el->el.domainAdded(domain));
+
             // let's see if order counts, otherwise we might inject a list of DomainAware instead
-            messageListenerContainerInitializer.domainAdded(domain);
-            eArchiveFileStorageProvider.domainAdded(domain);
-            staticDictionaryService.domainAdded(domain);
-            multiDomainCryptoService.domainAdded(domain);
-            tlsCertificateManager.domainAdded(domain);
-            payloadEncryptionService.domainAdded(domain);
-            payloadFileStorageProvider.domainAdded(domain);
-            backendFilterInitializerService.domainAdded(domain);
-            gatewayConfigurationValidator.domainAdded(domain);
-            passwordEncryptionService.domainAdded(domain);
-            domibusScheduler.domainAdded(domain);
+//            messageListenerContainerInitializer.domainAdded(domain);
+//            eArchiveFileStorageProvider.domainAdded(domain);
+//            staticDictionaryService.domainAdded(domain);
+//            multiDomainCryptoService.domainAdded(domain);
+//            tlsCertificateManager.domainAdded(domain);
+//            payloadEncryptionService.domainAdded(domain);
+//            payloadFileStorageProvider.domainAdded(domain);
+//            backendFilterInitializerService.domainAdded(domain);
+//            gatewayConfigurationValidator.domainAdded(domain);
+//            passwordEncryptionService.domainAdded(domain);
+//            domibusScheduler.domainAdded(domain);
         });
 
     }
