@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -115,14 +117,14 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findMessagesToDelete() {
-
-        final Date currentDate = new Date();
-        final Date startDate = new Date(currentDate.getTime() - (1000 * 60 * 60 * 24));
-        final Date endDate = new Date(currentDate.getTime() + (1000 * 60 * 60 * 24));
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
+
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-3");
 
-        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, startDate, endDate);
+        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
         Assert.assertEquals("msg-test-3", message.get(0));
     }
 }
