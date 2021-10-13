@@ -3216,7 +3216,7 @@
     </changeSet>
 
     <changeSet author="ion perpegel" id="EDELIVERY-8503_1">
-        <createTable tableName="TB_LOCK">
+        <createTable tableName="TB_LOCK" remarks="Stores keys used for locking/synchronizing in cluster">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_LOCK"/>
             </column>
