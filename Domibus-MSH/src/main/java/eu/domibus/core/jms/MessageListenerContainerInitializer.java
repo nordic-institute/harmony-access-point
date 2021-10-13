@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -67,8 +68,12 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        createListenerContainers(added);
+    public void domainAdded(final Domain domain) {
+        createListenerContainers(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void createListenerContainers(List<Domain> domains) {

@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +47,12 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        createStorage(added);
+    public void domainAdded(final Domain domain) {
+        createStorage(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void createStorage(List<Domain> domains) {

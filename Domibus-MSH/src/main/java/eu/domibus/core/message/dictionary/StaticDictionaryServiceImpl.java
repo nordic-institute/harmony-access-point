@@ -71,8 +71,12 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        createEntries(added);
+    public void domainAdded(final Domain domain) {
+        createEntries(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void createEntries(List<Domain> domains) {

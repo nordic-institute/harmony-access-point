@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -109,8 +110,12 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        encryptPasswords(added);
+    public void domainAdded(final Domain domain) {
+        encryptPasswords(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void encryptPasswords(List<Domain> domains) {

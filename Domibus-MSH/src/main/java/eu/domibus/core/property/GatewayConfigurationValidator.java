@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,8 +59,12 @@ public class GatewayConfigurationValidator implements DomainsAware {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        validateCertificates(added);
+    public void domainAdded(final Domain domain) {
+        validateCertificates(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     protected void validateCertificates() {

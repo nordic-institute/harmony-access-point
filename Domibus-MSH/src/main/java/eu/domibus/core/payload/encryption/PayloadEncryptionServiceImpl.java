@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,8 +56,12 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        createPayloadEncryptionKeyForAllDomainsIfNotExists(added);
+    public void domainAdded(final Domain domain) {
+        createPayloadEncryptionKeyForAllDomainsIfNotExists(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void createPayloadEncryptionKeyForAllDomainsIfNotExists(List<Domain> domains) {

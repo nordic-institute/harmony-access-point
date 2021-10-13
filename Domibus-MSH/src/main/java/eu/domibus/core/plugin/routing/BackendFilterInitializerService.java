@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -71,8 +72,12 @@ public class BackendFilterInitializerService implements DomainsAware {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        createBackendFilters(added);
+    public void domainAdded(final Domain domain) {
+        createBackendFilters(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void createBackendFilters(List<Domain> domains) {

@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.security.auth.callback.CallbackHandler;
 import java.security.*;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -233,8 +230,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        persistTruststoresIfApplicable(added);
+    public void domainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     private void persistTruststoresIfApplicable(List<Domain> domains) {

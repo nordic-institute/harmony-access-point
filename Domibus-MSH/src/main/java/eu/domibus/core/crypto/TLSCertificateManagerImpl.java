@@ -16,6 +16,7 @@ import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -105,8 +106,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void domainsChanged(final List<Domain> added, final List<Domain> removed) {
-        persistTruststoresIfApplicable(added);
+    public void domainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void domainRemoved(Domain domain) {
     }
 
     protected KeyStoreType getTruststoreParams() {

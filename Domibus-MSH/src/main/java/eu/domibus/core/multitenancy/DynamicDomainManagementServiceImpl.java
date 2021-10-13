@@ -105,25 +105,27 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
             return;
         }
 
-        loadProperties(addedDomains);
-        // now the domain title property is loaded in domibus property provider
         addedDomains.forEach(domain -> {
+            // now the domain title property is loaded in domibus property provider
+            loadProperties(domain);
+
             domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
             domain.setName(domainDao.getDomainTitle(domain));
+
+            // let's see if order counts, otherwise we might inject a list of DomainAware instead
+            messageListenerContainerInitializer.domainAdded(domain);
+            eArchiveFileStorageProvider.domainAdded(domain);
+            staticDictionaryService.domainAdded(domain);
+            multiDomainCryptoService.domainAdded(domain);
+            tlsCertificateManager.domainAdded(domain);
+            payloadEncryptionService.domainAdded(domain);
+            payloadFileStorageProvider.domainAdded(domain);
+            backendFilterInitializerService.domainAdded(domain);
+            gatewayConfigurationValidator.domainAdded(domain);
+            passwordEncryptionService.domainAdded(domain);
+            domibusScheduler.domainAdded(domain);
         });
 
-        // let's see if order counts, otherwise we might inject a list of DomainAware instead
-        messageListenerContainerInitializer.domainsChanged(addedDomains, null);
-        eArchiveFileStorageProvider.domainsChanged(addedDomains, null);
-        staticDictionaryService.domainsChanged(addedDomains, null);
-        multiDomainCryptoService.domainsChanged(addedDomains, null);
-        tlsCertificateManager.domainsChanged(addedDomains, null);
-        payloadEncryptionService.domainsChanged(addedDomains, null);
-        payloadFileStorageProvider.domainsChanged(addedDomains, null);
-        backendFilterInitializerService.domainsChanged(addedDomains, null);
-        gatewayConfigurationValidator.domainsChanged(addedDomains, null);
-        passwordEncryptionService.domainsChanged(addedDomains, null);
-        domibusScheduler.domainsChanged(addedDomains, null);
     }
 
     private List<Domain> getAddedDomains() {
@@ -137,23 +139,23 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         return addedDomains;
     }
 
-    private void loadProperties(List<Domain> addedDomains) {
-        // import the new properties files
-        // TODO move elsewhere??
+    // import the new properties files
+    // TODO move elsewhere??
+    private void loadProperties(Domain domain) {
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
-        addedDomains.stream().forEach(domain -> {
-            String configFile = domibusConfigurationService.getConfigLocation() + "/" + domibusConfigurationService.getConfigurationFileName(domain);
-            try (FileInputStream fis = new FileInputStream(configFile)) {
-                Properties properties = new Properties();
-                properties.load(fis);
-                DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
-                propertySources.addLast(newPropertySource);
-            } catch (IOException ex) {
-                LOG.error("Could not read properties file: [{}]", configFile, ex);
-                // TODO throw
-            }
-        });
+
+        String configFile = domibusConfigurationService.getConfigLocation() + "/" + domibusConfigurationService.getConfigurationFileName(domain);
+        try (FileInputStream fis = new FileInputStream(configFile)) {
+            Properties properties = new Properties();
+            properties.load(fis);
+            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
+            propertySources.addLast(newPropertySource);
+        } catch (IOException ex) {
+            LOG.error("Could not read properties file: [{}]", configFile, ex);
+            // TODO throw
+        }
+
     }
 
 }
