@@ -132,6 +132,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    @Transactional(readOnly = true)
+    public UserMessageLog findByEntityId(Long entityId) {
+        final UserMessageLog userMessageLog = super.read(entityId);
+
+        initializeChildren(userMessageLog);
+
+        return userMessageLog;
+    }
 
     public UserMessageLog findByMessageId(String messageId) {
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly

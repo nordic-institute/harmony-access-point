@@ -28,8 +28,9 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
 
     @Override
     public void onMessage(final Message message) {
-        Long delay = 0L;
         String messageId = null;
+        Long messageEntityId = null;
+
         int retryCount = 0;
         String domainCode = null;
         try {
@@ -37,8 +38,8 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
             if (message.propertyExists(MessageConstants.RETRY_COUNT)) {
                 retryCount = message.getIntProperty(MessageConstants.RETRY_COUNT);
             }
+            messageEntityId = Long.valueOf(message.getStringProperty(MessageConstants.MESSAGE_ENTITY_ID));
             domainCode = message.getStringProperty(MessageConstants.DOMAIN);
-            delay = message.getLongProperty(MessageConstants.DELAY);
         } catch (final NumberFormatException nfe) {
             getLogger().trace("Error getting message properties", nfe);
             //This is ok, no delay has been set
@@ -47,6 +48,10 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         }
         if (StringUtils.isBlank(messageId)) {
             getLogger().error("Message ID is empty: could not send message");
+            return;
+        }
+        if (messageEntityId == null) {
+            getLogger().error("Message entity ID is empty: could not send message");
             return;
         }
         if (StringUtils.isBlank(domainCode)) {
@@ -58,19 +63,12 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         domainContextProvider.setCurrentDomain(domainCode);
         getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
-        if (delay > 0) {
-            scheduleSending(messageId, delay);
-            return;
-        }
-
-        sendUserMessage(messageId, retryCount);
+        sendUserMessage(messageId, messageEntityId, retryCount);
 
         getLogger().debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
     }
 
     public abstract DomibusLogger getLogger();
 
-    public abstract void scheduleSending(String messageId, Long delay);
-
-    public abstract void sendUserMessage(final String messageId, int retryCount);
+    public abstract void sendUserMessage(final String messageId, Long messageEntityId, int retryCount);
 }

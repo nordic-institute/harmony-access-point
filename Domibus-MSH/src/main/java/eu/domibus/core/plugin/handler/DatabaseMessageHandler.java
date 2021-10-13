@@ -131,6 +131,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
 
+    @Autowired
+    protected UserMessageHandlerServiceImpl userMessageHandlerService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -336,7 +339,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
@@ -372,6 +374,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
+
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;
@@ -383,6 +386,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
+                messageStatus = messageStatusEntity.getMessageStatus();
             }
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
             if (to == null) {
@@ -413,7 +419,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             try {
                 messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+
+                userMessageHandlerService.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
@@ -438,24 +445,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                         .mshRole(MSHRole.SENDING)
                         .build();
             }
-
-            if (messageStatus == null) {
-                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
-                messageStatus = messageStatusEntity.getMessageStatus();
-            }
-            final boolean sourceMessage = userMessage.isSourceMessage();
-            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-                    backendName);
-
-            if (!sourceMessage) {
-                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
-            }
-
-            userMessageLogService.replicationUserMessageSubmitted(messageId);
             LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
-
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
             errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, null);
