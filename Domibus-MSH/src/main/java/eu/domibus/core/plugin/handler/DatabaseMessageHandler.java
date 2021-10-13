@@ -379,6 +379,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             Party to = null;
             MessageStatus messageStatus = null;
             if (messageExchangeService.forcePullOnMpc(userMessage)) {
+                submission.setProcessingType(ProcessingType.PULL);
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, submission.getProcessingType());
@@ -386,7 +387,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
                 final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
                 messageStatus = messageStatusEntity.getMessageStatus();
             }
