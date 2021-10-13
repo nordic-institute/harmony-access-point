@@ -39,16 +39,30 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     }
 
     @Override
-    public void clearCache(String refreshCacheName) {
+    public void clearCache(String cacheName) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache != null) {
+            LOG.debug("Clearing cache [{}]", cacheName);
+            cache.clear();
+        }
+    }
+
+    private Cache getCacheByName(String refreshCacheName) {
         Collection<String> cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {
             if (StringUtils.equalsIgnoreCase(cacheName, refreshCacheName)) {
-                final Cache cache = cacheManager.getCache(cacheName);
-                if (cache != null) {
-                    LOG.debug("Clearing cache [{}]", refreshCacheName);
-                    cache.clear();
-                }
+                return cacheManager.getCache(cacheName);
             }
+        }
+        return null;
+    }
+
+    @Override
+    public void evict(String cacheName, String propertyName) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache != null) {
+            LOG.debug("Evicting property [{}] of cache [{}]", propertyName, cacheName);
+            cache.evict(propertyName);
         }
     }
 
@@ -75,6 +89,7 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         domibusCacheServiceNotifierList
                 .forEach(DomibusCacheServiceNotifier::notifyClearAllCaches);
     }
+
     protected void notifyClear2LCaches() {
         LOG.debug("Notifying cache subscribers about clear second level caches event");
         domibusCacheServiceNotifierList

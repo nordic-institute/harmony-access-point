@@ -7,6 +7,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
@@ -15,8 +16,8 @@ import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
-import eu.domibus.core.property.DomibusPropertyConfiguration;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.property.PropertyProviderDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 
 /**
  * @author Ion Perpegel
@@ -52,6 +55,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     @Autowired
     AnnotationConfigWebApplicationContext rootContext;
 
+    @Autowired
+    PropertyProviderDispatcher propertyProviderDispatcher;
 
     @Autowired
     MessageListenerContainerInitializer messageListenerContainerInitializer;
@@ -86,6 +91,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     @Autowired
     DomibusScheduler domibusScheduler;
 
+    @Autowired
+    DomibusCacheService domibusCacheService;
+
     @Override
     public void handleDomainsChanged() {
         if (domibusConfigurationService.isSingleTenantAware()) {
@@ -99,7 +107,10 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         loadProperties(addedDomains);
         // now the domain title property is loaded in domibus property provider
-        addedDomains.forEach(domain -> domain.setName(domainDao.getDomainTitle(domain)));
+        addedDomains.forEach(domain -> {
+            domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
+            domain.setName(domainDao.getDomainTitle(domain));
+        });
 
         // let's see if order counts, otherwise we might inject a list of DomainAware instead
         messageListenerContainerInitializer.domainsChanged(addedDomains, null);
