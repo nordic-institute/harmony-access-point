@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.annotation.PostConstruct;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -44,7 +46,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
-
 
 
     @Autowired
@@ -104,18 +105,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
             return;
         }
 
-        // import the new properties files
-        // TODO move elsewhere
-        addedDomains.stream().forEach(domain -> {
-            ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
-            MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
-
-            Properties properties = new Properties();
-            // TODO fill properties
-            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain"+domain.getCode(), properties);
-            propertySources.addFirst(newPropertySource);
-        });
-
+        loadProperties(addedDomains);
 
         // let's see if order counts, otherwise we might inject a list of DomainAware instead
         messageListenerContainerInitializer.domainsChanged(addedDomains, null);
@@ -129,6 +119,25 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         gatewayConfigurationValidator.domainsChanged(addedDomains, null);
         passwordEncryptionService.domainsChanged(addedDomains, null);
         domibusScheduler.domainsChanged(addedDomains, null);
+    }
+
+    private void loadProperties(List<Domain> addedDomains) {
+        // import the new properties files
+        // TODO move elsewhere??
+        ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
+        MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
+        addedDomains.stream().forEach(domain -> {
+            String configFile = domibusConfigurationService.getConfigLocation() + "/" + domibusConfigurationService.getConfigurationFileName(domain);
+            try (FileInputStream fis = new FileInputStream(configFile)) {
+                Properties properties = new Properties();
+                properties.load(fis);
+                DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
+                propertySources.addLast(newPropertySource);
+            } catch (IOException ex) {
+                LOG.error("Could not read properties file: [{}]", configFile, ex);
+                // TODO throw
+            }
+        });
     }
 
 }
