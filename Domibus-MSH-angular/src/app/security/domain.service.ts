@@ -1,5 +1,5 @@
 ﻿import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {AsyncSubject, BehaviorSubject, Subject} from 'rxjs';
 import 'rxjs/add/operator/map';
@@ -58,7 +58,16 @@ export class DomainService {
   }
 
   getDomains(): Promise<Domain[]> {
-    return this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL).toPromise();
+    let searchParams = new HttpParams();
+    searchParams = searchParams.append('active', 'true');
+    return this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL, {params: searchParams}).toPromise();
+  }
+
+  async getAllDomains(): Promise<Domain[]> {
+    const all = await this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL).toPromise();
+    const activeDomains = await this.getDomains();
+    all.forEach(el => el.active = activeDomains.some(d => d.code == d.code));
+    return all;
   }
 
   setCurrentDomain(domain: Domain) {

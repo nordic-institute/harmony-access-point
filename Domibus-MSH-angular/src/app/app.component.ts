@@ -131,4 +131,8 @@ export class AppComponent implements OnInit {
       }
     }
   }
+
+  isSuperAdmin() {
+    return (this.isMultiDomain && this.securityService.isCurrentUserSuperAdmin());
+  }
 }

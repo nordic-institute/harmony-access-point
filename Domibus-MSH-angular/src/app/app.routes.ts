@@ -202,7 +202,7 @@ export const appRoutes: Routes = [
     component: DomainsComponent,
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
     data: {
-      checkRoles: SecurityService.ROLE_AP_ADMIN,
+      checkRoles: [SecurityService.ROLE_AP_ADMIN],
       helpPage: 'DomainsMonitoring'
     },
     runGuardsAndResolvers: 'always'

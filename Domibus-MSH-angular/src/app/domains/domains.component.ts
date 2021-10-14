@@ -16,6 +16,7 @@ import {MatDialog} from '@angular/material';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
+import {DomainService} from '../security/domain.service';
 
 /**
  * @author Ion Perpegel
@@ -34,11 +35,9 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
-  @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
-  @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
+  @ViewChild('monitorStatus', {static: false}) statusTemplate: TemplateRef<any>;
 
-  constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
-              private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
+  constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
   }
 
@@ -57,7 +56,7 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
   }
 
   private async getDataAndSetResults() {
-    let rows = await this.connectionsMonitorService.getMonitors();
+    let rows = await this.domainService.getAllDomains();
     super.rows = rows;
     super.count = this.rows.length;
   }
@@ -66,23 +65,20 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
 
     this.columnPicker.allColumns = [
       {
+        name: 'Domain Code',
+        prop: 'code',
+        width: 10
+      },
+      {
         name: 'Domain Name',
         prop: 'name',
         width: 10
       },
       {
-        cellTemplate: this.monitorStatusTemplate,
-        name: 'Monitoring',
-        prop: 'monitorStatus',
+        cellTemplate: this.statusTemplate,
+        name: 'Active',
+        prop: 'active',
         width: 20,
-        canAutoResize: true,
-        sortable: false
-      },
-      {
-        cellTemplate: this.connectionStatusTemplate,
-        name: 'Connection Status',
-        prop: 'connectionStatus',
-        width: 170,
         canAutoResize: true,
         sortable: false
       },
