@@ -99,6 +99,14 @@ public interface CertificateService {
     String serializeCertificateChainIntoPemFormat(List<? extends Certificate> certificates);
 
     /**
+     * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates loaded with the specified provider.
+     *
+     * @param chain the pem formatted string.
+     * @return the list of certificates.
+     */
+    List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain, String provider);
+
+    /**
      * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates.
      *
      * @param chain the pem formatted string.

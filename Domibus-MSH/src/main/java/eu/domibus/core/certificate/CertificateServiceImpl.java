@@ -40,10 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.*;
 import java.util.*;
 
@@ -453,9 +450,23 @@ public class CertificateServiceImpl implements CertificateService {
      */
     @Override
     public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
+        return  deserializeCertificateChainFromPemFormat(chain, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain, String provider) {
         List<X509Certificate> certificates = new ArrayList<>();
         try (PemReader reader = new PemReader(new StringReader(chain))) {
-            CertificateFactory cf = CertificateFactory.getInstance("X509");
+            CertificateFactory cf;
+            if(provider == null) {
+                cf = CertificateFactory.getInstance("X509");
+            } else {
+                cf = CertificateFactory.getInstance("X509", provider);
+            }
+
             PemObject o;
             while ((o = reader.readPemObject()) != null) {
                 if (o.getType().equals("CERTIFICATE")) {
@@ -468,7 +479,7 @@ public class CertificateServiceImpl implements CertificateService {
                 }
             }
 
-        } catch (IOException | CertificateException e) {
+        } catch (IOException | CertificateException | NoSuchProviderException e) {
             LOG.error("Error while instantiating certificates from pem", e);
         }
         return certificates;

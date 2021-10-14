@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.PkiExtService;
@@ -47,6 +48,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private CertificateVerifierService certificateVerifierService;
 
+    private CertificateService certificateService;
+
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
             final TSLRepository tslRepository,
@@ -54,7 +57,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             final ValidationConstraintPropertyMapper constraintMapper,
             final PkiExtService pkiExtService,
             final DssCache dssCache,
-            CertificateVerifierService certificateVerifierService) {
+            CertificateVerifierService certificateVerifierService,
+            CertificateService certificateService) {
         super(defaultDomainCryptoService);
         this.certificateVerifierService = certificateVerifierService;
         this.tslRepository = tslRepository;
@@ -62,6 +66,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         this.constraintMapper = constraintMapper;
         this.pkiExtService = pkiExtService;
         this.dssCache = dssCache;
+        this.certificateService = certificateService;
     }
 
 
@@ -89,10 +94,18 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
                 LOG.trace("Certificate has been added to the DSS cache by another thread.");
                 return;
             }
-            final X509Certificate leafCertificate = getX509LeafCertificate(certs);
+
+            List<Certificate> serCerts = new ArrayList<>();
+            for (int i = 0; i < certs.length; i++) {
+                X509Certificate cert = certs[i];
+                serCerts.add(cert);
+            }
+            X509Certificate[] dssCerts = certificateService.deserializeCertificateChainFromPemFormat(certificateService.serializeCertificateChainIntoPemFormat(serCerts), "BC").toArray(new X509Certificate[]{});
+
+            final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.
             final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
-            CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
+            CertificateSource adjunctCertSource = prepareCertificateSource(dssCerts, leafCertificate);
             certificateVerifier.setAdjunctCertSource(adjunctCertSource);
             LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
             //add leaf certificate to DSS
@@ -102,7 +115,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             dssCache.addToCache(cacheKey, true);
             LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
         }
-
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
