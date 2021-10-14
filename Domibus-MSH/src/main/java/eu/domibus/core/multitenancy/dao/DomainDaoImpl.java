@@ -41,7 +41,7 @@ public class DomainDaoImpl implements DomainDao {
     protected DomibusConfigurationService domibusConfigurationService;
     protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
 
-    @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
+//    @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
     @Override
     public List<Domain> findAll() {
         LOG.trace("Finding all domains");
