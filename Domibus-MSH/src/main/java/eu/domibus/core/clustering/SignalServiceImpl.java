@@ -166,9 +166,10 @@ public class SignalServiceImpl implements SignalService {
     }
 
     @Override
-    public void signalDomainsAdded() {
+    public void signalDomainsAdded(Domain domain) {
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.DOMAIN_ADDED);
+        commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
 
         sendMessage(commandProperties);
     }

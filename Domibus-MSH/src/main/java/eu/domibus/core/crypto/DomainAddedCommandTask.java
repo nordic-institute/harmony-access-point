@@ -35,6 +35,7 @@ public class DomainAddedCommandTask implements CommandTask {
     public void execute(Map<String, String> properties) {
         LOGGER.debug("Checking and handling domains added");
 
-        dynamicDomainManagementService.checkAndHandleDomainsChanged();
+        String domainCode = properties.get(MessageConstants.DOMAIN);
+        dynamicDomainManagementService.addDomain(domainCode);
     }
 }

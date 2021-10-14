@@ -60,6 +60,27 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     List<DomainsAware> domainsAwareList;
 
     @Override
+    public void addDomain(String dimainCode) {
+        // temporary  create like so
+        Domain domain = new Domain(dimainCode, dimainCode);
+        try {
+            addDomain(domain);
+        } catch (Exception ex) {
+            //todo return a result type detailing the outcome for each domain
+            LOG.error("Could not add domain [{}]!", dimainCode);
+        }
+
+        //signal for other nodes in the cluster
+        LOG.debug("Broadcasting dynamically adding domain [{}]", dimainCode);
+        try {
+            signalService.signalDomainsAdded(domain);
+        } catch (Exception ex) {
+            throw new DomibusPropertyException("Exception signaling dynamically adding domain " + dimainCode, ex);
+        }
+    }
+
+    //todo rewrite or delete
+    @Override
     public void checkAndHandleDomainsChanged() {
         if (domibusConfigurationService.isSingleTenantAware()) {
             return;
@@ -77,15 +98,15 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
                 //todo return a result type detailing the outcome for each domain
                 LOG.error("Could not add domain [[]]!");
             }
-        });
 
-        //signal for other nodes in the cluster
-        LOG.debug("Broadcasting dynamically adding domains [{}]", addedDomains);
-        try {
-            signalService.signalDomainsAdded();
-        } catch (Exception ex) {
-            throw new DomibusPropertyException("Exception signaling dynamically adding domains " + addedDomains, ex);
-        }
+            //signal for other nodes in the cluster
+            LOG.debug("Broadcasting dynamically adding domains [{}]", addedDomains);
+            try {
+                signalService.signalDomainsAdded(domain);
+            } catch (Exception ex) {
+                throw new DomibusPropertyException("Exception signaling dynamically adding domains " + domain, ex);
+            }
+        });
     }
 
     private void addDomain(Domain domain) {

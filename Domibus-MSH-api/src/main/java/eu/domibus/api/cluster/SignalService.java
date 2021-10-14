@@ -71,5 +71,5 @@ public interface SignalService {
     /**
      * signals that domains were added to other servers in the cluster
      */
-    void signalDomainsAdded();
+    void signalDomainsAdded(Domain domain);
 }
