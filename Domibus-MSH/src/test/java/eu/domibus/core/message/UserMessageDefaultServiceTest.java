@@ -52,6 +52,7 @@ import javax.persistence.EntityManager;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -845,7 +846,7 @@ public class UserMessageDefaultServiceTest {
             partInfoWithPartProperties.getPartProperties();
             result = partProperties;
             partProperty.getName();
-            result = "PayloadName";
+            result = PAYLOAD_NAME;
             partProperty.getValue();
             result = "test.txt";
         }};
