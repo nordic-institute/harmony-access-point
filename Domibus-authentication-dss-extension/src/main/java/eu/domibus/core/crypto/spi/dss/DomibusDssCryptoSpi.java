@@ -34,6 +34,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDssCryptoSpi.class);
 
+    private static final String BOUNCYCASTLE_PROVIDER = "BC";
+
     private static final String CERTPATH = "certpath";
 
     private TSLRepository tslRepository;
@@ -96,14 +98,14 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             }
 
             //Fix for [EDELIVERY-8556] Copy the certificates for dss and reload them with Bouncy Castle provider
-            LOG.trace("Copy the certificates for DSS and reload them with Bouncy Castle provider");
+            LOG.trace("Copy the [{}] certificates for DSS and reload them with Bouncy Castle provider.", certs.length);
             List<Certificate> serCerts = new ArrayList<>();
             for (int i = 0; i < certs.length; i++) {
                 X509Certificate cert = certs[i];
-                LOG.trace("cert [{}] ", cert);
                 serCerts.add(cert);
             }
-            X509Certificate[] dssCerts = certificateService.deserializeCertificateChainFromPemFormat(certificateService.serializeCertificateChainIntoPemFormat(serCerts), "BC").toArray(new X509Certificate[]{});
+
+            X509Certificate[] dssCerts = certificateService.deserializeCertificateChainFromPemFormat(certificateService.serializeCertificateChainIntoPemFormat(serCerts), BOUNCYCASTLE_PROVIDER).toArray(new X509Certificate[]{});
 
             final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.
