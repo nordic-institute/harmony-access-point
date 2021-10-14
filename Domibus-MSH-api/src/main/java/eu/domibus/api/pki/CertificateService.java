@@ -107,6 +107,15 @@ public interface CertificateService {
     List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain, String provider);
 
     /**
+     * Reloads the certificates with the specified provider
+     *
+     * @param certificates the array of certificates.
+     * @param provider the provider string (e.g. Bouncy Castle)
+     * @return the array of certificates loaded with the given provider
+     */
+    X509Certificate[] reloadCertificates(X509Certificate[] certificates, String provider);
+
+    /**
      * Given a pem formatted string containing a list of certificates, the method returns a list of X509 certificates.
      *
      * @param chain the pem formatted string.

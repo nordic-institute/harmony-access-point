@@ -1,6 +1,7 @@
 package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
+import com.mchange.v1.util.CollectionUtils;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -443,6 +444,20 @@ public class CertificateServiceImpl implements CertificateService {
         final String certificateChainValue = sw.toString();
         LOG.debug("Serialized certificates:[{}]", certificateChainValue);
         return certificateChainValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public X509Certificate[] reloadCertificates(X509Certificate[] certs, String provider) {
+        List<java.security.cert.Certificate> serCerts = new ArrayList<>();
+        for (int i = 0; i < certs.length; i++) {
+            X509Certificate cert = certs[i];
+            serCerts.add(cert);
+        }
+
+        return deserializeCertificateChainFromPemFormat(serializeCertificateChainIntoPemFormat(serCerts), provider).toArray(new X509Certificate[]{});
     }
 
     /**

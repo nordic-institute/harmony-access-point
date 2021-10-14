@@ -99,13 +99,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
             //Fix for [EDELIVERY-8556] Copy the certificates for dss and reload them with Bouncy Castle provider
             LOG.trace("Copy the [{}] certificates for DSS and reload them with Bouncy Castle provider.", certs.length);
-            List<Certificate> serCerts = new ArrayList<>();
-            for (int i = 0; i < certs.length; i++) {
-                X509Certificate cert = certs[i];
-                serCerts.add(cert);
-            }
-
-            X509Certificate[] dssCerts = certificateService.deserializeCertificateChainFromPemFormat(certificateService.serializeCertificateChainIntoPemFormat(serCerts), BOUNCYCASTLE_PROVIDER).toArray(new X509Certificate[]{});
+            X509Certificate[] dssCerts = certificateService.reloadCertificates(certs, BOUNCYCASTLE_PROVIDER);
 
             final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.
