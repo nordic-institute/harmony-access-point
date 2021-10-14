@@ -92,7 +92,7 @@ public class MessageMonitoringExtResource {
         return messageMonitorExtService.getAttemptsHistory(messageId);
     }
 
-    @ApiOperation(value = "Delete message payload", notes = "Delete the payload of a message which is not in final statuses (ACKNOWLEDGED, ACKNOWLEDGED_WITH_WARNING, DOWNLOADED, RECEIVED, RECEIVED_WITH_WARNINGS)",
+    @ApiOperation(value = "Delete message payload", notes = "Delete the payload of a message which is not in final statuses.",
             authorizations = @Authorization(value = "basicAuth"), tags = "monitoring")
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
@@ -100,7 +100,7 @@ public class MessageMonitoringExtResource {
         messageMonitorExtService.deleteMessageNotInFinalStatus(messageId);
     }
 
-    @ApiOperation(value = "Delete messages payload", notes = "Delete the payload of messages within a certain time interval which are not in final statuses (ACKNOWLEDGED, ACKNOWLEDGED_WITH_WARNING, DOWNLOADED, RECEIVED, RECEIVED_WITH_WARNINGS)",
+    @ApiOperation(value = "Delete messages payload", notes = "Delete the payload of messages within a certain time interval which are not in final statuses.",
             authorizations = @Authorization(value = "basicAuth"), tags = "monitoring")
     @ResponseBody
     @DeleteMapping(path = "/delete")

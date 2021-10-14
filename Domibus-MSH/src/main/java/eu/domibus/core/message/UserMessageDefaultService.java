@@ -546,7 +546,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public List<String> deleteMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
-        if (messagesToDelete == null) {
+        if (messagesToDelete.isEmpty() || messagesToDelete == null) {
+            LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+
             return null;
         }
         LOG.debug("Found messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
