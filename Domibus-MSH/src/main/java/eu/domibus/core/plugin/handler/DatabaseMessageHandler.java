@@ -366,6 +366,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
                 throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
             }
+            backendMessageValidator.validateSubmissionPayload(submission);
             List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
 
             populateMessageIdIfNotPresent(userMessage);

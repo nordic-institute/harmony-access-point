@@ -90,6 +90,7 @@ public enum DomibusMessageCode implements MessageCode {
     VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH("BUS-079", "Value of [{}] is too long (over 255 characters). Value provided: [{}]"),
     VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN("BUS-080", "Value of [{}] does not conform to the required MessageIdPattern: [{}]. Value provided: [{}]"),
     DUPLICATE_MESSAGEID("BUS-081", "Message with id [{}] already exists. Message identifiers must be unique."),
+    VALUE_LONGER_THAN_STRING_LENGTH_1024("BUS-082", "Value of [{}] is too long (over 1024 characters). Value provided: [{}]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),
