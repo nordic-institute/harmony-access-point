@@ -1,0 +1,32 @@
+<page-header id="connectionmonitorheader_id">Domains Management</page-header>
+
+<div class="panel">
+
+</div>
+
+<page-grid [parent]="this" [selectionType]="'none'"></page-grid>
+
+
+<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+
+</ng-template>
+
+
+<ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+  <span class="connection-monitor-status">
+    <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.monitored" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
+    <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+  </span>
+</ng-template>
+
+
+<ng-template #connectionStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+  <div *ngIf="row.testable && row.status" class="connection-status">
+    <span>
+      <mat-icon *ngIf="row.status == 'OK'" style="color: green">check_circle</mat-icon>
+      <mat-icon *ngIf="row.status == 'BROKEN'" style="color: red">error</mat-icon>
+      <mat-icon *ngIf="row.status == 'UNKNOWN'" style="color: orange">indeterminate_check_box</mat-icon>
+      <mat-progress-spinner *ngIf="row.status == 'PENDING'" mode="indeterminate" diameter="32"></mat-progress-spinner>
+    </span>
+  </div>
+</ng-template>

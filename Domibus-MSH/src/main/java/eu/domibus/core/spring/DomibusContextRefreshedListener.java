@@ -96,7 +96,7 @@ public class DomibusContextRefreshedListener {
         tlsCertificateManager.persistTruststoresIfApplicable();
 
         // todo to be removed; temporary, for testing
-        dynamicDomainManagementService.addDomain("domain_2");
+//        dynamicDomainManagementService.addDomain("domain_2");
     }
 
     /**
