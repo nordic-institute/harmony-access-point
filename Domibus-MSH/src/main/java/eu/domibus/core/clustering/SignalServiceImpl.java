@@ -164,4 +164,12 @@ public class SignalServiceImpl implements SignalService {
 
         sendMessage(commandProperties);
     }
+
+    @Override
+    public void signalDomainsAdded() {
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DOMAIN_ADDED);
+
+        sendMessage(commandProperties);
+    }
 }

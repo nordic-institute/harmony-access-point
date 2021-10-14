@@ -1,23 +1,14 @@
 package eu.domibus.core.multitenancy;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.crypto.api.TLSCertificateManager;
-import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
-import eu.domibus.core.jms.MessageListenerContainerInitializer;
-import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
-import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.property.PropertyProviderDispatcher;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -63,44 +54,13 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     DomibusCacheService domibusCacheService;
 
     @Autowired
+    SignalService signalService;
+
+    @Autowired
     List<DomainsAware> domainsAwareList;
 
-
-//    @Autowired
-//    MessageListenerContainerInitializer messageListenerContainerInitializer;
-//
-//    @Autowired
-//    EArchiveFileStorageProvider eArchiveFileStorageProvider;
-//
-//    @Autowired
-//    StaticDictionaryService staticDictionaryService;
-//
-//    @Autowired
-//    PayloadEncryptionService payloadEncryptionService;
-//
-//    @Autowired
-//    PayloadFileStorageProvider payloadFileStorageProvider;
-//
-//    @Autowired
-//    BackendFilterInitializerService backendFilterInitializerService;
-//
-//    @Autowired
-//    GatewayConfigurationValidator gatewayConfigurationValidator;
-//
-//    @Autowired
-//    PasswordEncryptionService passwordEncryptionService;
-//
-//    @Autowired
-//    MultiDomainCryptoService multiDomainCryptoService;
-//
-//    @Autowired
-//    TLSCertificateManager tlsCertificateManager;
-//
-//    @Autowired
-//    DomibusScheduler domibusScheduler;
-
     @Override
-    public void handleDomainsChanged() {
+    public void checkAndHandleDomainsChanged() {
         if (domibusConfigurationService.isSingleTenantAware()) {
             return;
         }
@@ -111,28 +71,31 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         addedDomains.forEach(domain -> {
-            // now the domain title property is loaded in domibus property provider
-            loadProperties(domain);
-
-            domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
-            domain.setName(domainDao.getDomainTitle(domain));
-
-            domainsAwareList.forEach(el->el.domainAdded(domain));
-
-            // let's see if order counts, otherwise we might inject a list of DomainAware instead
-//            messageListenerContainerInitializer.domainAdded(domain);
-//            eArchiveFileStorageProvider.domainAdded(domain);
-//            staticDictionaryService.domainAdded(domain);
-//            multiDomainCryptoService.domainAdded(domain);
-//            tlsCertificateManager.domainAdded(domain);
-//            payloadEncryptionService.domainAdded(domain);
-//            payloadFileStorageProvider.domainAdded(domain);
-//            backendFilterInitializerService.domainAdded(domain);
-//            gatewayConfigurationValidator.domainAdded(domain);
-//            passwordEncryptionService.domainAdded(domain);
-//            domibusScheduler.domainAdded(domain);
+            try {
+                addDomain(domain);
+            } catch (Exception ex) {
+                //todo return a result type detailing the outcome for each domain
+                LOG.error("Could not add domain [[]]!");
+            }
         });
 
+        //signal for other nodes in the cluster
+        LOG.debug("Broadcasting dynamically adding domains [{}]", addedDomains);
+        try {
+            signalService.signalDomainsAdded();
+        } catch (Exception ex) {
+            throw new DomibusPropertyException("Exception signaling dynamically adding domains " + addedDomains, ex);
+        }
+    }
+
+    private void addDomain(Domain domain) {
+
+        loadProperties(domain);
+
+        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
+        domain.setName(domainDao.getDomainTitle(domain));
+
+        domainsAwareList.forEach(el -> el.domainAdded(domain));
     }
 
     private List<Domain> getAddedDomains() {
@@ -153,6 +116,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
 
         String configFile = domibusConfigurationService.getConfigLocation() + "/" + domibusConfigurationService.getConfigurationFileName(domain);
+        LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Properties properties = new Properties();
             properties.load(fis);
