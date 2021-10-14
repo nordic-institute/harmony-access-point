@@ -548,8 +548,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
         if (messagesToDelete.isEmpty() || messagesToDelete == null) {
             LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
-
-            return null;
+            return Collections.emptyList();
         }
         LOG.debug("Found messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
 
