@@ -41,29 +41,21 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     @Override
     public void clearCache(String cacheName) {
         final Cache cache = getCacheByName(cacheName);
-        if (cache != null) {
-            LOG.debug("Clearing cache [{}]", cacheName);
-            cache.clear();
+        if (cache == null) {
+            return;
         }
-    }
-
-    private Cache getCacheByName(String refreshCacheName) {
-        Collection<String> cacheNames = cacheManager.getCacheNames();
-        for (String cacheName : cacheNames) {
-            if (StringUtils.equalsIgnoreCase(cacheName, refreshCacheName)) {
-                return cacheManager.getCache(cacheName);
-            }
-        }
-        return null;
+        LOG.debug("Clearing cache [{}]", cacheName);
+        cache.clear();
     }
 
     @Override
     public void evict(String cacheName, String propertyName) {
         final Cache cache = getCacheByName(cacheName);
-        if (cache != null) {
-            LOG.debug("Evicting property [{}] of cache [{}]", propertyName, cacheName);
-            cache.evict(propertyName);
+        if (cache == null) {
+            return;
         }
+        LOG.debug("Evicting property [{}] of cache [{}]", propertyName, cacheName);
+        cache.evict(propertyName);
     }
 
     @Override
@@ -82,6 +74,17 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         SessionFactory sessionFactory = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
         sessionFactory.getCache().evictAll();
         notifyClear2LCaches();
+    }
+
+    private Cache getCacheByName(String name) {
+        Collection<String> cacheNames = cacheManager.getCacheNames();
+        for (String cacheName : cacheNames) {
+            if (StringUtils.equalsIgnoreCase(cacheName, name)) {
+                return cacheManager.getCache(cacheName);
+            }
+        }
+        LOG.warn("Could not find cache with name cache [{}]", name);
+        return null;
     }
 
     protected void notifyClearAllCaches() {
