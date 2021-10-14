@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
@@ -117,6 +118,9 @@ public class DssConfiguration {
 
     @Autowired
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
+
+    @Autowired
+    protected CertificateService certificateService;
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -379,7 +383,8 @@ public class DssConfiguration {
                 constraintMapper,
                 pkiExtService,
                 dssCache,
-                certificateVerifierService);
+                certificateVerifierService,
+                certificateService);
     }
 
     @Bean

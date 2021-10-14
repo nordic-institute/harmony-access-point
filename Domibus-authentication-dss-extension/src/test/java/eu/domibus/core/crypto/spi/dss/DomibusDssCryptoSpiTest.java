@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
@@ -37,8 +38,9 @@ public class DomibusDssCryptoSpiTest {
                                           @Mocked TSLRepository tslRepository,
                                           @Mocked ValidationReport validationReport,
                                           @Mocked PkiExtService pkiExtService,
-                                          @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, tslRepository, validationReport, null, pkiExtService, null, certificateVerifierService);
+                                          @Mocked CertificateVerifierService certificateVerifierService,
+                                          @Mocked CertificateService certificateService) throws WSSecurityException {
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, tslRepository, validationReport, null, pkiExtService, null, certificateVerifierService, certificateService);
         domibusDssCryptoProvider.verifyTrust(new X509Certificate[]{}, true, null, null);
         fail("WSSecurityException expected");
     }
@@ -52,14 +54,15 @@ public class DomibusDssCryptoSpiTest {
                                              @Mocked X509Certificate chainCertificate,
                                              @Mocked PkiExtService pkiExtService,
                                              @Mocked DssCache dssCache,
-                                             @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+                                             @Mocked CertificateVerifierService certificateVerifierService,
+                                             @Mocked CertificateService certificateService) throws WSSecurityException {
         final X509Certificate[] x509Certificates = {noLeafCertificate, chainCertificate};
 
         new Expectations() {{
             pkiExtService.extractLeafCertificateFromChain(withAny(new ArrayList<>()));
             result = null;
         }};
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, tslRepository, validationReport, null, pkiExtService, dssCache, certificateVerifierService);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(defaultDomainCryptoService, tslRepository, validationReport, null, pkiExtService, dssCache, certificateVerifierService, certificateService);
         domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
         fail("WSSecurityException expected");
     }
@@ -75,12 +78,13 @@ public class DomibusDssCryptoSpiTest {
             @Mocked CertificateReports reports,
             @Mocked PkiExtService pkiExtService,
             @Mocked DssCache dssCache,
-            @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+            @Mocked CertificateVerifierService certificateVerifierService,
+            @Mocked CertificateService certificateService) throws WSSecurityException {
         final X509Certificate[] x509Certificates = {untrustedCertificate, chainCertificate};
         org.apache.xml.security.Init.init();
 
         ValidationReport validationReport = new ValidationReport();
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService, certificateService);
 
         new Expectations(domibusDssCryptoProvider, validationReport) {{
             untrustedCertificate.getSigAlgOID();
@@ -123,12 +127,13 @@ public class DomibusDssCryptoSpiTest {
             @Mocked CertificateReports reports,
             @Mocked PkiExtService pkiExtService,
             @Mocked DssCache dssCache,
-            @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+            @Mocked CertificateVerifierService certificateVerifierService,
+            @Mocked CertificateService certificateService) throws WSSecurityException {
         final X509Certificate[] x509Certificates = {invalidCertificate, chainCertificate};
         org.apache.xml.security.Init.init();
 
         ValidationReport validationReport = new ValidationReport();
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService, certificateService);
 
         new Expectations(domibusDssCryptoProvider, validationReport) {{
 
@@ -170,12 +175,13 @@ public class DomibusDssCryptoSpiTest {
             @Mocked CertificateReports reports,
             @Mocked PkiExtService pkiExtService,
             @Mocked DssCache dssCache,
-            @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+            @Mocked CertificateVerifierService certificateVerifierService,
+            @Mocked CertificateService certificateService) throws WSSecurityException {
         final X509Certificate[] x509Certificates = {validLeafhCertificate, chainCertificate};
         org.apache.xml.security.Init.init();
 
         ValidationReport validationReport = new ValidationReport();
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService, certificateService);
 
         new Expectations(domibusDssCryptoProvider, validationReport) {{
 
@@ -227,12 +233,13 @@ public class DomibusDssCryptoSpiTest {
             @Mocked X509Certificate chainCertificate,
             @Mocked PkiExtService pkiExtService,
             @Mocked DssCache dssCache,
-            @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+            @Mocked CertificateVerifierService certificateVerifierService,
+            @Mocked CertificateService certificateService) throws WSSecurityException {
         final X509Certificate[] x509Certificates = {validLeafhCertificate, chainCertificate};
         org.apache.xml.security.Init.init();
 
         ValidationReport validationReport = new ValidationReport();
-        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService);
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService, certificateService);
 
         new Expectations(domibusDssCryptoProvider, validationReport) {{
 
