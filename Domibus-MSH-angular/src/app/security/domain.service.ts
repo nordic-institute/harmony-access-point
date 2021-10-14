@@ -11,7 +11,7 @@ export class DomainService {
 
   static readonly MULTI_TENANCY_URL: string = 'rest/application/multitenancy';
   static readonly CURRENT_DOMAIN_URL: string = 'rest/security/user/domain';
-  static readonly DOMAIN_LIST_URL: string = 'rest/application/domains';
+  static readonly DOMAIN_LIST_URL: string = 'rest/domains';
 
   private isMultiDomainSubject: Subject<boolean>;
   private domainSubject: Subject<Domain>;
