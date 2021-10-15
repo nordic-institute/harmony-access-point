@@ -136,7 +136,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
 
     @Override
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
-        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull, null);
+        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
     }
 
     @Override
