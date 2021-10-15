@@ -160,11 +160,11 @@ public class SubmissionAS4Transformer {
             partInfo.setFileName(payload.getFilepath());
 
             Set<PartProperty> properties = new HashSet<>();
-            partInfo.setPartProperties(properties);
             for (final Submission.TypedProperty entry : payload.getPayloadProperties()) {
                 final PartProperty property = partPropertyDictionaryService.findOrCreatePartProperty(entry.getKey(), entry.getValue(), entry.getType());
                 properties.add(property);
             }
+            partInfo.setPartProperties(properties);
             partInfo.setPartOrder(result.size());
             result.add(partInfo);
         }
