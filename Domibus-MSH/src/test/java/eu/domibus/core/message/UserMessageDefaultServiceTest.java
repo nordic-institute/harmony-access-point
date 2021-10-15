@@ -52,6 +52,7 @@ import javax.persistence.EntityManager;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -830,15 +831,29 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testPayloadName(@Mocked final PartInfo partInfoWithBodyload, @Mocked final PartInfo partInfoWithPayload) {
+    public void testPayloadName(@Injectable final PartInfo partInfoWithBodyload, @Injectable final PartInfo partInfoWithPayload,
+                                @Injectable final PartInfo partInfoWithPartProperties, @Injectable PartProperty partProperty) {
+
+        Set<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
         new Expectations() {{
             partInfoWithBodyload.getHref();
             result = null;
             partInfoWithPayload.getHref();
             result = "cid:1234";
+            partInfoWithPartProperties.getHref();
+            result = "cid:1234";
+            partInfoWithPartProperties.getPartProperties();
+            result = partProperties;
+            partProperty.getName();
+            result = PAYLOAD_NAME;
+            partProperty.getValue();
+            result = "test.txt";
         }};
+
         Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
         Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
+        Assert.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
     }
 
     @Test

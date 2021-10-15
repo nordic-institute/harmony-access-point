@@ -81,6 +81,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
+    static final String PAYLOAD_NAME = "PayloadName";
 
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
@@ -712,7 +713,12 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
             return info.getHref();
         }
-
+        for (PartProperty property : info.getPartProperties()) {
+            if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
+                LOG.debug("Payload Name exists [{}]", property.getName());
+                return property.getValue();
+            }
+        }
         return info.getHref().replace("cid:", "");
     }
 
