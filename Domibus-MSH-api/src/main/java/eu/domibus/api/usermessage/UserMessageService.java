@@ -75,6 +75,11 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
+    void deleteMessageNotInFinalStatus(String messageId);
+
+    List<String> deleteMessagesDuringPeriod(Date begin, Date end, String finalRecipient);
+
+
     /**
      * Schedules the handling of the SplitAndJoin send failed event
      *

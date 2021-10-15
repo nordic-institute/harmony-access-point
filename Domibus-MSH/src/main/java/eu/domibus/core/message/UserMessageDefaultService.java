@@ -509,6 +509,13 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteMessage(messageId);
     }
 
+    @Transactional
+    @Override
+    public void deleteMessageNotInFinalStatus(String messageId) {
+        getMessageNotInFinalStatus(messageId);
+        deleteMessage(messageId);
+    }
+
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
@@ -518,6 +525,40 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
         }
         return userMessageLog;
+    }
+
+    protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
+        final UserMessageLog messageToDelete = userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+        if (messageToDelete == null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+        }
+        return messageToDelete;
+    }
+
+
+    @Transactional
+    @Override
+    public List<String> deleteMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+        if (messagesToDelete.isEmpty() || messagesToDelete == null) {
+            LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            return Collections.emptyList();
+        }
+        LOG.debug("Found messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+
+        final List<String> deletedMessages = new ArrayList<>();
+        for (String messageId : messagesToDelete) {
+            try {
+                deleteMessage(messageId);
+                deletedMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to delete message [" + messageId + "]", e);
+            }
+        }
+
+        LOG.debug("Deleted messages [{}] using start date [{}], end date [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+
+        return deletedMessages;
     }
 
     @Override
