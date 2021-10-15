@@ -4,6 +4,7 @@ import eu.domibus.api.scheduler.Reprogrammable;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Federico Martini
@@ -39,8 +40,27 @@ import java.util.Date;
                         "JOIN uml.userMessage um                                                                                           " +
                         "left join um.messageProperties p                                                                         " +
                         "WHERE uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.DELETED                                              " +
-                        "AND uml.deleted IS NOT NULL AND um.mpc.value = :MPC AND uml.deleted < :DATE                                            "),
-        @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
+                        "AND uml.deleted IS NOT NULL AND um.mpc.value = :MPC AND uml.deleted < :DATE"),
+        @NamedQuery(name = "UserMessageLog.findMessageToDeleteNotInFinalStatus",
+                query = "SELECT uml                                   " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN uml.userMessage um                                                                                           " +
+                        "left join um.messageProperties p                                                                         " +
+                        "WHERE uml.messageStatus.messageStatus NOT IN :MESSAGE_STATUSES                                               " +
+                        "AND uml.deleted IS NULL  " +
+                        "AND uml.userMessage.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod",
+                query = "SELECT DISTINCT um.messageId                                    " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN uml.userMessage um                                                                                           " +
+                        "left join um.messageProperties p                                                                         " +
+                        "WHERE uml.messageStatus.messageStatus NOT IN :MESSAGE_STATUSES                                               " +
+                        "AND uml.deleted IS NULL  " +
+                        "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
+                        "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE) " +
+                        "AND (:END_DATE is null or uml.userMessage.entityId <= :END_DATE)"),
+
+       @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
                 query = "SELECT um.entityId   as " + UserMessageLogDto.ENTITY_ID + "           ,                            " +
                         "       um.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
                         "       um.testMessage          as " + UserMessageLogDto.TEST_MESSAGE + "      ,                            " +
@@ -107,6 +127,8 @@ import java.util.Date;
                 "WHERE uml.entityId IN( :ENTITY_IDS )"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
+
+    public static final List<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = MessageStatus.getFinalStates();
 
     @Column(name = "BACKEND")
     private String backend;
@@ -187,6 +209,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @JoinColumn(name = "ID_PK")
     @MapsId
     private UserMessage userMessage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PROCESSING_TYPE")
+    private ProcessingType processingType;
 
     public UserMessageLog() {
         setReceived(new Date());

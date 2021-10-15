@@ -184,6 +184,25 @@ public class MessageDaoTestUtil {
         return userMessageLog;
     }
 
+    public UserMessageLog createTestMessageInSend_Failure(String msgId) {
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false);
+
+        SignalMessage signal = new SignalMessage();
+        signal.setUserMessage(userMessageLog.getUserMessage());
+        signal.setSignalMessageId("signal-" + msgId);
+        signalMessageDao.create(signal);
+
+        SignalMessageLog signalMessageLog = new SignalMessageLog();
+        signalMessageLog.setReceived(new Date());
+        signalMessageLog.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
+        signalMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.SEND_FAILURE));
+
+        signalMessageLog.setSignalMessage(signal);
+        signalMessageLogDao.create(signalMessageLog);
+
+        return userMessageLog;
+    }
+
     private To createTo(String role, String partyId) {
         To to = new To();
         to.setToRole(partyRoleDao.findOrCreateRole(role));

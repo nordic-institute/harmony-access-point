@@ -22,6 +22,11 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.NUMBER_FORMAT_DEFAULT;
@@ -289,6 +294,30 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void getMessageInFinalStatus() {
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
+
+        UserMessageLog message = userMessageLogDao.findMessageToDeleteNotInFinalStatus("msg-test-2");
+        Assert.assertEquals("msg-test-2", message.getUserMessage().getMessageId());
+    }
+
+    @Test
+    @Transactional
+    public void findMessagesToDelete() {
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
+        final String finalRecipient = "finalRecipient2";
+
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-3");
+
+        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
+        Assert.assertEquals("msg-test-3", message.get(0));
+    }
+
+
+    @Test
+    @Transactional
     public void testFindMessagesForArchiving_oldest() {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
@@ -321,5 +350,4 @@ public class UserMessageLogDaoIT extends AbstractIT {
             Assert.assertNotNull(uml.getArchived());
         }
     }
-
 }

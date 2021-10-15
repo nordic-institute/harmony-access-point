@@ -6,13 +6,13 @@ import requests
 
 log.basicConfig(level=log.DEBUG)
 
-WS_ENDPOINT = 'http://localhost:9080/domibus/services/wsplugin?wsdl'
-MESS_ENDPOINT = 'http://localhost:9080/domibus/services/backend?wsdl'
-SOAP_ENDPOINT_CONTEXT_REGEX = 'http://localhost:9080/domibus/services/.*'
+WS_ENDPOINT = 'http://localhost:9088/domibus/services/wsplugin?wsdl'
+MESS_ENDPOINT = 'http://localhost:9088/domibus/services/backend?wsdl'
+SOAP_ENDPOINT_CONTEXT_REGEX = 'http://localhost:9088/domibus/services/.*'
 
 apiKey = '8888'
 zap_url = 'http://localhost:8281'
-domibus_url = 'http://localhost:9080/domibus/'
+domibus_url = 'http://localhost:9088/domibus/'
 plugin_auth_info = 'Basic c29hcFNjYW5TY3JpcHQ6UVchQHF3MTI='
 
 localProxy = {"http": zap_url, "https": zap_url}
@@ -31,8 +31,8 @@ def create_domibus_plugin_user():
 	plugin_user_info = '[{"status":"NEW","userName":"soapScanScript","active":true,"suspended":false,"authenticationType":"BASIC","authRoles":"ROLE_ADMIN","password":"QW!@qw12"}]'
 	plugin_auth_info = 'Basic c29hcFNjYW5TY3JpcHQ6UVchQHF3MTI='
 
-	login_url = "http://localhost:9080/domibus/rest/security/authentication"
-	plugin_user_url = "http://localhost:9080/domibus/rest/plugin/users"
+	login_url = "http://localhost:9088/domibus/rest/security/authentication"
+	plugin_user_url = "http://localhost:9088/domibus/rest/plugin/users"
 
 	# login
 	response = requests.post(url=login_url, headers=headers, data=str(login_info))

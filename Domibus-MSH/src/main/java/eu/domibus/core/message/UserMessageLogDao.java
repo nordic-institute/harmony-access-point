@@ -22,9 +22,15 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
+
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -37,6 +43,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
+
+    public static final String MAX = "9999999999";
 
     private final DateUtil dateUtil;
 
@@ -86,7 +94,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
         String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
-                "left join m.messageProperties p,  " +
+                "left join m.messageProperties p, " +
                 "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
         if (StringUtils.isNotEmpty(finalRecipient)) {
             queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
@@ -107,6 +115,16 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         if (failedEndDate != null) {
             query.setParameter("END_DATE", failedEndDate);
         }
+        return query.getResultList();
+    }
+
+    public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH))+ MAX));
+
+        query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         return query.getResultList();
     }
 
@@ -161,6 +179,17 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter(STR_MESSAGE_ID, messageId);
         return query.getSingleResult();
 
+    }
+    public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
+        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
+        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [" + messageId + "]");
+            return null;
+        }
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {

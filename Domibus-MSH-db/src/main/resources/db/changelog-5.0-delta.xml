@@ -497,6 +497,12 @@
         </createTable>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
     </changeSet>
+    <changeSet id="EDELIVERY-8519" author="dussath">
+        <addColumn tableName="TB_USER_MESSAGE_LOG">
+            <column name="PROCESSING_TYPE" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
 
     <!-- Start EArchive Tables -->
     <changeSet author="Francois Gautier" id="EDELIVERY-8450">
