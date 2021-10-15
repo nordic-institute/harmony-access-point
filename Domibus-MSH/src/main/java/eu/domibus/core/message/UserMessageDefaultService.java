@@ -714,7 +714,7 @@ public class UserMessageDefaultService implements UserMessageService {
             return info.getHref();
         }
         for (PartProperty property : info.getPartProperties()) {
-            if (property.getName().equals(PAYLOAD_NAME)) {
+            if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
                 LOG.debug("Payload Name exists [{}]", property.getName());
                 return property.getValue();
             }
