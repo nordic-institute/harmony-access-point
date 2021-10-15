@@ -28,6 +28,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -241,7 +242,7 @@ public abstract class PModeProvider {
     }
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
-    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
 
         final String agreementName;
         final String service;
@@ -281,7 +282,7 @@ public abstract class PModeProvider {
                 leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc, initiatorRole, responderRole);
             } else {
                 mpc = userMessage.getMpcValue();
-                leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+                leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType);
             }
             LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
 
@@ -390,6 +391,11 @@ public abstract class PModeProvider {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
     }
 
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, boolean isPull) throws EbMS3Exception {
+        return findUserMessageExchangeContext(userMessage, mshRole, isPull, null);
+    }
+
     /**
      * It will check if the messages are sent to the same Domibus instance
      *
@@ -410,7 +416,7 @@ public abstract class PModeProvider {
 
     public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
 
-    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole) throws EbMS3Exception;
+    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType) throws EbMS3Exception;
 
     public abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc, Role initiatorRole, Role responderRole) throws EbMS3Exception;
 

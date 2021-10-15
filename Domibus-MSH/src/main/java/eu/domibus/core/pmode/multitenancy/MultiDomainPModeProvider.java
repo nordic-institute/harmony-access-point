@@ -19,6 +19,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.ProcessingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,8 +95,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole) throws EbMS3Exception {
-        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType) throws EbMS3Exception {
+        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType);
     }
 
     @Override
@@ -134,8 +135,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
-        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull);
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
+        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
     }
 
     @Override

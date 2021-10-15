@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.provider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Role;
+import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -19,11 +20,13 @@ public class LegFilterCriteria {
     private final Role responderRole;
     private final String service;
     private final String action;
+    private final ProcessingType processingType;
+
 
     private Map<Process, String> processMismatchErrors;
     private Map<LegConfiguration, String> legMismatchErrors;
 
-    public LegFilterCriteria(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action) {
+    public LegFilterCriteria(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, ProcessingType processingType) {
         this.agreementName = agreementName;
         this.senderParty = senderParty;
         this.receiverParty = receiverParty;
@@ -34,6 +37,7 @@ public class LegFilterCriteria {
 
         this.processMismatchErrors = new HashMap<>();
         this.legMismatchErrors = new HashMap<>();
+        this.processingType = processingType;
     }
 
     public String getAgreementName() {
@@ -100,11 +104,15 @@ public class LegFilterCriteria {
         legMismatchErrors.put(legConfiguration, legMismatchErrors.get(legConfiguration).concat(", ").concat(newErrorDetail));
     }
 
-    public Set<LegConfiguration> listLegConfigurationsWitMismatchErrors(){
+    public Set<LegConfiguration> listLegConfigurationsWitMismatchErrors() {
         return legMismatchErrors.keySet();
     }
 
-    public String getLegConfigurationMismatchErrorDetails(){
+    public String getLegConfigurationMismatchErrorDetails() {
         return String.join("\n", legMismatchErrors.values());
+    }
+
+    public ProcessingType getProcessingType() {
+        return processingType;
     }
 }

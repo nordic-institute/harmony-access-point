@@ -630,6 +630,7 @@
             </column>
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="PROCESSING_TYPE" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
                                  constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
@@ -664,13 +665,16 @@
             <column name="RECEIVED"/>
         </createIndex>
         <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_USER_MESSAGE_LOG">
-            <column name="FK_TIMEZONE_OFFSET" />
+            <column name="FK_TIMEZONE_OFFSET"/>
         </createIndex>
         <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ARCHIVED"/>
         </createIndex>
         <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ACKNOWLEDGED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_PROCESSING_TYPE" tableName="TB_USER_MESSAGE_LOG">
+            <column name="PROCESSING_TYPE"/>
         </createIndex>
 
 

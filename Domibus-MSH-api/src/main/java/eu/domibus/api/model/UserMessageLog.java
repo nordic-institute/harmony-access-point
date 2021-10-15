@@ -197,6 +197,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @MapsId
     private UserMessage userMessage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PROCESSING_TYPE")
+    private ProcessingType processingType;
+
     public UserMessageLog() {
         setReceived(new Date());
         setSendAttempts(0);
