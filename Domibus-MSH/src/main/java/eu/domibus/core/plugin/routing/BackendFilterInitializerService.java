@@ -72,12 +72,12 @@ public class BackendFilterInitializerService implements DomainsAware {
     }
 
     @Override
-    public void domainAdded(final Domain domain) {
+    public void onDomainAdded(final Domain domain) {
         createBackendFilters(Arrays.asList(domain));
     }
 
     @Override
-    public void domainRemoved(Domain domain) {
+    public void onDomainRemoved(Domain domain) {
     }
 
     private void createBackendFilters(List<Domain> domains) {

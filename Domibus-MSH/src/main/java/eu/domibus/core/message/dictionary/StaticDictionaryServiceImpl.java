@@ -71,12 +71,12 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     }
 
     @Override
-    public void domainAdded(final Domain domain) {
+    public void onDomainAdded(final Domain domain) {
         createEntries(Arrays.asList(domain));
     }
 
     @Override
-    public void domainRemoved(Domain domain) {
+    public void onDomainRemoved(Domain domain) {
     }
 
     private void createEntries(List<Domain> domains) {

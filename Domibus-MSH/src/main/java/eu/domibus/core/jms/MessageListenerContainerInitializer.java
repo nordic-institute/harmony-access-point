@@ -68,12 +68,12 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     }
 
     @Override
-    public void domainAdded(final Domain domain) {
+    public void onDomainAdded(final Domain domain) {
         createListenerContainers(Arrays.asList(domain));
     }
 
     @Override
-    public void domainRemoved(Domain domain) {
+    public void onDomainRemoved(Domain domain) {
     }
 
     private void createListenerContainers(List<Domain> domains) {

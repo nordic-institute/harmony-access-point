@@ -5,7 +5,6 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
@@ -63,9 +62,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     @Autowired
     List<DomainsAware> domainsAwareList;
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
-
     @Override
     public void addDomain(String domainCode) {
         if (domainService.getDomains().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
@@ -91,30 +87,30 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
     }
 
-    //todo rewrite or delete
-    @Override
-    public void checkAndHandleDomainsChanged() {
-        if (domibusConfigurationService.isSingleTenantAware()) {
-            return;
-        }
-
-        List<Domain> addedDomains = getAddedDomains();
-        if (addedDomains.isEmpty()) {
-            return;
-        }
-
-        addedDomains.forEach(domain -> {
-            try {
-                addDomain(domain);
-
-                LOG.debug("Broadcasting dynamically adding domain [{}]", domain);
-                signalService.signalDomainsAdded(domain);
-            } catch (Exception ex) {
-                //todo return a result type detailing the outcome for each domain
-                LOG.error("Could not add domain [[]]!");
-            }
-        });
-    }
+    //todo delete??
+//    @Override
+//    public void checkAndHandleDomainsChanged() {
+//        if (domibusConfigurationService.isSingleTenantAware()) {
+//            return;
+//        }
+//
+//        List<Domain> addedDomains = getAddedDomains();
+//        if (addedDomains.isEmpty()) {
+//            return;
+//        }
+//
+//        addedDomains.forEach(domain -> {
+//            try {
+//                addDomain(domain);
+//
+//                LOG.debug("Broadcasting dynamically adding domain [{}]", domain);
+//                signalService.signalDomainsAdded(domain);
+//            } catch (Exception ex) {
+//                //todo return a result type detailing the outcome for each domain
+//                LOG.error("Could not add domain [[]]!");
+//            }
+//        });
+//    }
 
     private void addDomain(Domain domain) {
         loadProperties(domain);
@@ -131,9 +127,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         domainsAwareList.forEach(el -> {
             LOG.info("Adding domain in bean [{}]", el);
-            el.domainAdded(domain);
+            el.onDomainAdded(domain);
         });
-
 
 
         List<Domain> res = domainService.getDomains();

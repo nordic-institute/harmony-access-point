@@ -1,7 +1,7 @@
 package eu.domibus.api.multitenancy;
 
 public interface DomainsAware {
-    void domainAdded(final Domain domain);
+    void onDomainAdded(final Domain domain);
 
-    void domainRemoved(final Domain domain);
+    void onDomainRemoved(final Domain domain);
 }

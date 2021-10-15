@@ -6,14 +6,12 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
-import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -79,10 +77,6 @@ public class DomibusContextRefreshedListener {
         executeNonSynchronized();
     }
 
-//    @Autowired
-//    @Lazy
-//    DynamicDomainManagementService dynamicDomainManagementService;
-
     /**
      * Method executed in a serial/sync mode (if in a cluster environment)
      * Add code that needs to be executed with regard to other nodes in the cluster
@@ -94,9 +88,6 @@ public class DomibusContextRefreshedListener {
 
         multiDomainCryptoService.persistTruststoresIfApplicable();
         tlsCertificateManager.persistTruststoresIfApplicable();
-
-//        dynamicDomainManagementService.addDomain("domain_2");
-//        dynamicDomainManagementService.checkAndHandleDomainsChanged();
     }
 
     /**

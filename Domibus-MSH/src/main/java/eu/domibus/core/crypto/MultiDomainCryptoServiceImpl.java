@@ -230,12 +230,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void domainAdded(final Domain domain) {
+    public void onDomainAdded(final Domain domain) {
         persistTruststoresIfApplicable(Arrays.asList(domain));
     }
 
     @Override
-    public void domainRemoved(Domain domain) {
+    public void onDomainRemoved(Domain domain) {
     }
 
     private void persistTruststoresIfApplicable(List<Domain> domains) {

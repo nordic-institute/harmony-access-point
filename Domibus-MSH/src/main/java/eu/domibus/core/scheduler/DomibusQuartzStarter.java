@@ -90,12 +90,12 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     }
 
     @Override
-    public void domainAdded(final Domain domain) {
+    public void onDomainAdded(final Domain domain) {
         initQuartzSchedulers(Arrays.asList(domain));
     }
 
     @Override
-    public void domainRemoved(Domain domain) {
+    public void onDomainRemoved(Domain domain) {
     }
 
     private void initQuartzSchedulers(List<Domain> domains) {
