@@ -233,16 +233,6 @@ public class DatabaseMessageHandlerTest {
 
         userMessage.setPartyInfo(partyInfo);
 
-//        PayloadInfo payloadInfo = new PayloadInfo();
-//        PartInfo partInfo = new PartInfo();
-//        partInfo.setHref("cid:message");
-
-//        HashSet<PartProperty> partProperties1 = new HashSet<>();
-//        partProperties1.add(createPartProperty("text/xml", "MimeType", STRING_TYPE))
-//        partInfo.setPartProperties(partProperties1);
-
-//        payloadInfo.getPartInfo().add(partInfo);
-//        userMessage.setPayloadInfo(payloadInfo);
         return userMessage;
     }
 
@@ -277,12 +267,6 @@ public class DatabaseMessageHandlerTest {
             messageExchangeConfiguration.getPmodeKey();
             result = pModeKey;
 
-//            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
-//            result = messageStatus;
-//
-//            messageStatus.getMessageStatus();
-//            result = MessageStatus.SEND_ENQUEUED;
-
             pModeProvider.getSenderParty(pModeKey);
             result = sender;
 
@@ -303,10 +287,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
-//            messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
-//            userMessageLogService.save(withAny(new UserMessage()), anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString);
-//            userMessageService.scheduleSending(userMessage, (UserMessageLog) any);
         }};
     }
 
@@ -328,12 +309,6 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
-
-//            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
-//            result = messageStatus;
-//
-//            messageStatus.getMessageStatus();
-//            result = MessageStatus.READY_TO_PULL;
 
             Party sender = new Party();
             sender.setName(GREEN);
@@ -375,11 +350,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             UserMessage message;
-//            assertEquals("TC2Leg1", message.getCollaborationInfo().getAction());
-//            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
-//            messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
-//            userMessageLogService.save(withAny(new UserMessage()), MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
         }};
@@ -506,7 +477,6 @@ public class DatabaseMessageHandlerTest {
             result = gatewayParty;
 
             backendMessageValidator.validateInitiatorParty(gatewayParty, from);
-//            backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("The initiator party's name [" + GREEN + "] does not correspond to the access point's name [" + BLUE + "]")
@@ -586,7 +556,6 @@ public class DatabaseMessageHandlerTest {
             result = to;
 
             backendMessageValidator.validateParties(from, to);
-//            backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("The initiator party's name is the same as the responder party's one")
@@ -1175,9 +1144,6 @@ public class DatabaseMessageHandlerTest {
             userMessageExchangeConfiguration.getPmodeKey();
             result = pModeKey;
 
-//            databaseMessageHandler.messageValidations(userMessage, null, pModeKey, backendName);
-//            result = to;
-
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
 
@@ -1190,12 +1156,6 @@ public class DatabaseMessageHandlerTest {
 
         databaseMessageHandler.submitMessageFragment(userMessage, new MessageFragmentEntity(), null, backendName);
 
-        new Verifications() {{
-//            messagingService.storeMessagePayloads(userMessage, null, MSHRole.SENDING, legConfiguration, backendName);
-//            times = 1;
-//            uiReplicationSignalService.userMessageSubmitted(withCapture());
-//            times = 1;
-        }};
     }
 
 }
