@@ -23,7 +23,7 @@ Domibus 5.0 (from 4.2.3)
                 - [WebLogic only]
                      o  Modify file "/conf/domibus/domibus.properties":
                          - add the following properties:
-                             domibus.jms.earchive.alert=jms/domibus.internal.earchive.queue
+                             domibus.jms.queue.earchive=jms/domibus.internal.earchive.queue
                 - [Tomcat only]
                      Modify file "/conf/domibus/domibus.properties":
                           o add the following properties:
@@ -54,11 +54,7 @@ Domibus 5.0 (from 4.2.3)
                                       .............................
                                       <jms-destinations>
                                           .............................
-                                           <jms-queue name="DomibusEArchiveQueue">
-                                               <entry name="java:/jms/domibus.internal.earchive.queue"/>
-                                               <entry name="java:/jms/queue/DomibusEArchiveQueue"/>
-                                               <durable>true</durable>
-                                           </jms-queue>
+                                           <jms-queue name="DomibusEArchiveQueue" entries="java:/jms/domibus.internal.earchive.queue java:/jms/queue/DomibusEArchiveQueue" durable="true"/>
                                           .............................
                                       </jms-destinations>
                                       .............................
@@ -67,10 +63,7 @@ Domibus 5.0 (from 4.2.3)
                                           .............................
                                           <address-settings>
                                               .............................
-                                              <address-setting match="jms.queue.DomibusEArchiveQueue">
-                                                 <expiry-address>jms.queue.ExpiryQueue</expiry-address>
-                                                 <max-delivery-attempts>1</max-delivery-attempts>
-                                              </address-setting>
+                                              <address-setting name="jms.queue.DomibusEArchiveQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="3"/>
                                               .............................
                                           </address-settings>
                                           .............................

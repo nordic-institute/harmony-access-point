@@ -14,7 +14,8 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
 @NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
-@NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived", query = "SELECT batch.lastPkUserMessage FROM EArchiveBatchEntity batch where batch.lastPkUserMessage = (SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE)")
+@NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived",
+        query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
 public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")

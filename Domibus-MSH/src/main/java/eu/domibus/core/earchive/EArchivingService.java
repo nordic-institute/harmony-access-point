@@ -2,9 +2,10 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +64,7 @@ public class EArchivingService {
 
     private InputStream getInputStream(Long entityId, PartInfo partInfo) {
         if (partInfo.getPayloadDatahandler() == null) {
-            throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and messageId [" + entityId + "]");
+            throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and entityId [" + entityId + "]");
         }
         try {
             return partInfo.getPayloadDatahandler().getInputStream();

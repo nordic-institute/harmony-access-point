@@ -70,10 +70,7 @@ public class EArchiveBatchService {
     public EArchiveBatchEntity createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, ListUserMessageDto userMessageToBeArchived) {
         EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed);
 
-        Integer batchInsertSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE);
-        batches(userMessageToBeArchived, batchInsertSize)
-                .forEach(userMessageDTOS ->
-                        eArchiveBatchUserMessageDao.create(eArchiveBatch, getEntityIds(userMessageDTOS.getUserMessageDtos())));
+        eArchiveBatchUserMessageDao.create(eArchiveBatch, getEntityIds(userMessageToBeArchived.getUserMessageDtos()));
         return eArchiveBatch;
     }
 

@@ -15,13 +15,13 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_MAX;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_SIZE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author François Gautier
@@ -55,12 +55,22 @@ public class EArchiveBatchDispatcherService {
     @Timer(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     @Counter(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     public void startBatch(Domain domain) {
-        LOG.debug("Start eArchive batch");
+        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+        if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
+            return ;
+        }
         Long lastEntityIdProcessed = eArchiveBatchService.getLastEntityIdArchived();
 
         long maxEntityIdToArchived = eArchiveBatchService.getMaxEntityIdToArchived();
         int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
+        LOG.info("Start eArchive batch lastEntityIdProcessed [{}], " +
+                        "maxEntityIdToArchived [{}], " +
+                        "batchSize [{}], " +
+                        "maxNumberOfBatchesCreated [{}]", lastEntityIdProcessed,
+                maxEntityIdToArchived,
+                batchSize,
+                maxNumberOfBatchesCreated);
 
         for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
             LOG.debug("Start creation batch number [{}]", i);
