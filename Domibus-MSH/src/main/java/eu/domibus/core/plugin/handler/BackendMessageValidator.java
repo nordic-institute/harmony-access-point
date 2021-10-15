@@ -543,13 +543,13 @@ public class BackendMessageValidator {
         }
     }
 
-    private void validateSubmissionPartInfoProperties(Collection<Submission.TypedProperty> payloadProperties) throws EbMS3Exception {
+    protected void validateSubmissionPartInfoProperties(Collection<Submission.TypedProperty> payloadProperties) throws EbMS3Exception {
         for (Submission.TypedProperty payloadProperty : payloadProperties) {
             validateSubmissionPayloadProperty(payloadProperty);
         }
     }
 
-    private void validateSubmissionPayloadProperty(Submission.TypedProperty payloadProperty) throws EbMS3Exception {
+    protected void validateSubmissionPayloadProperty(Submission.TypedProperty payloadProperty) throws EbMS3Exception {
         if(payloadProperty == null || payloadProperty.getValue() == null){
             return;
         }

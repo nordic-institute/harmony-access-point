@@ -14,10 +14,7 @@ import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -774,5 +771,16 @@ public class BackendMessageValidatorTest {
             result = MessageStatus.NOT_FOUND;
         }};
         backendMessageValidatorObj.validateMessageIsUnique("messageId");
+    }
+
+    @Test
+    public void validateSubmissionPayloadProperty_PayloadPropertyTooLong(@Mocked Submission.TypedProperty payloadProperty )throws EbMS3Exception{
+        new Expectations(){{
+            payloadProperty.getValue();
+            result = StringUtils.rightPad("TestString", 1025, "Test1");
+        }};
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("PartProperty is too long (over 1024 characters).");
+        backendMessageValidatorObj.validateSubmissionPayloadProperty(payloadProperty);
     }
 }
