@@ -22,6 +22,7 @@ import javax.persistence.PersistenceContext;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT;
 
 /**
@@ -65,6 +66,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         mshWebserviceTest.invoke(soapMessage);
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT, "0");
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         jmsManager = new JMSManagerImpl() {
             public void sendMessageToQueue(JmsMessage message, Queue destination) {
                 jmsManagerTriggered = true;

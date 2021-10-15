@@ -185,7 +185,7 @@ public class MessageDaoTestUtil {
     }
 
     public UserMessageLog createTestMessageInSend_Failure(String msgId) {
-        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false);
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC);
 
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());

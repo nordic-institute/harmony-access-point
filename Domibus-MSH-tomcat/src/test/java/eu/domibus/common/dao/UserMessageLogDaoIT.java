@@ -22,11 +22,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.NUMBER_FORMAT_DEFAULT;
@@ -309,10 +304,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-3");
-
         List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
-        Assert.assertEquals("msg-test-3", message.get(0));
+        Assert.assertEquals(3, message.size());
     }
 
 
@@ -323,7 +316,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(0L, maxEntityId, 100);
         Assert.assertEquals(7, messagesForArchiving.getUserMessageDtos().size());
-        Assert.assertEquals(msg.getEntityId(), messagesForArchiving.getUserMessageDtos().get(0).getEntityId());
+        Assert.assertEquals(msg.getEntityId(), messagesForArchiving.getUserMessageDtos().get(messagesForArchiving.getUserMessageDtos().size()-1).getEntityId());
     }
 
     @Test
