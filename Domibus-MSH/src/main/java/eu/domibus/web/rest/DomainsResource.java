@@ -59,8 +59,7 @@ public class DomainsResource {
     }
 
     @PostMapping(value = "")
-    public void addDomain(@RequestBody @Valid String domainCode) throws RequestValidationException {
-//        Domain domain = coreMapper.domainROToDomain(domainRO);
+    public void addDomain(@RequestBody @Valid String domainCode){
         dynamicDomainManagementService.addDomain(domainCode);
     }
 

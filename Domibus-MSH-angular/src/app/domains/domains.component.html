@@ -1,20 +1,14 @@
-<page-header id="connectionmonitorheader_id">Domains Management</page-header>
+<page-header id="connectionmonitorheader_id">Domains</page-header>
 
-<div class="panel">
-
-</div>
+<div class="panel"></div>
 
 <page-grid [parent]="this" [selectionType]="'none'"></page-grid>
 
-
-<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-
-</ng-template>
-
+<!--<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template></ng-template>-->
 
 <ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
   <span class="connection-monitor-status">
-    <mat-slide-toggle [(ngModel)]="row.active" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
+    <mat-slide-toggle [(ngModel)]="row.active" (change)="toggleActiveState(row)"></mat-slide-toggle>
   </span>
 </ng-template>
 

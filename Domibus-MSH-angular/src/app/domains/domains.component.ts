@@ -11,12 +11,10 @@ import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import * as moment from 'moment';
-import {MatDialog} from '@angular/material';
-import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {DomainService} from '../security/domain.service';
+import {Domain} from '../security/domain';
 
 /**
  * @author Ion Perpegel
@@ -82,37 +80,33 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
         canAutoResize: true,
         sortable: false
       },
-      {
-        cellTemplate: this.rowActions,
-        name: 'Actions',
-        prop: 'actions',
-        width: 60,
-        canAutoResize: true,
-        sortable: false
-      }
+      // {
+      //   cellTemplate: this.rowActions,
+      //   name: 'Actions',
+      //   prop: 'actions',
+      //   width: 60,
+      //   canAutoResize: true,
+      //   sortable: false
+      // }
     ];
     this.columnPicker.selectedColumns = this.columnPicker.allColumns;
   }
 
-  formatDate(dt) {
-    return dt ? moment(dt).fromNow() : '';
+
+  async toggleActiveState(domain: Domain) {
+    let active = domain.active;
+
+    try {
+      super.isLoading = true;
+      await this.domainService.setActiveState(domain, active);
+      domain.active = active;
+      this.alertService.success(`Added domain ${domain.name}`);
+    } catch (err) {
+      domain.active = !active;
+      this.alertService.exception(`Could not add the ${domain.name} domain.`, err);
+    } finally {
+      super.isLoading = false;
+    }
   }
-
-  async toggleConnectionMonitor(row: any) {
-
-    // let newMonitoredValue = row.monitored;
-    // let newMonitorState = `${(newMonitoredValue ? 'enabled' : 'disabled')}`;
-    //
-    // try {
-    //   await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
-    //   row.monitored = newMonitoredValue;
-    //   this.alertService.success(`Monitoring ${newMonitorState} for <b>${row.partyId}</b>`);
-    // } catch (err) {
-    //   row.monitored = !newMonitoredValue;
-    //   this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>:<br>`, err);
-    // }
-
-  }
-
 
 }

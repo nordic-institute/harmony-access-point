@@ -66,7 +66,7 @@ export class DomainService {
   async getAllDomains(): Promise<Domain[]> {
     const all = await this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL).toPromise();
     const activeDomains = await this.getDomains();
-    all.forEach(el => el.active = activeDomains.some(d => d.code == d.code));
+    all.forEach(el => el.active = activeDomains.some(d => d.code == el.code));
     return all;
   }
 
@@ -86,6 +86,13 @@ export class DomainService {
     this.getTitle().then((title) => {
       this.titleService.setTitle(title);
     });
+  }
+
+  async setActiveState(domain: Domain, active: boolean) {
+    if (!active) {
+      throw new Error('Cannot remove domain ' + domain.name)
+    }
+    await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
   }
 
 }

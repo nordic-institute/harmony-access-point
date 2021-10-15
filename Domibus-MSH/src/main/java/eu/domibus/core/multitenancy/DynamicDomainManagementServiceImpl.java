@@ -1,8 +1,11 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
@@ -60,8 +63,15 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     @Autowired
     List<DomainsAware> domainsAwareList;
 
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
+
     @Override
     public void addDomain(String domainCode) {
+        if (domainService.getDomains().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Cannot add domain [%s] since is is already added.", domainCode));
+        }
+
         //check domain code is among valid folders
 //        this.domibusCacheService.clearCache(DomibusCacheService.ALL_DOMAINS_CACHE);
         if (!domainDao.findAll().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
@@ -69,12 +79,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
         // temporary  create like so
         Domain domain = new Domain(domainCode, domainCode);
-        try {
-            addDomain(domain);
-        } catch (Exception ex) {
-            //todo return a result type detailing the outcome for each domain
-            LOG.error("Could not add domain [{}]!", domainCode);
-        }
+
+        addDomain(domain);
 
         //signal for other nodes in the cluster
         LOG.debug("Broadcasting dynamically adding domain [{}]", domainCode);
@@ -100,41 +106,42 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         addedDomains.forEach(domain -> {
             try {
                 addDomain(domain);
+
+                LOG.debug("Broadcasting dynamically adding domain [{}]", domain);
+                signalService.signalDomainsAdded(domain);
             } catch (Exception ex) {
                 //todo return a result type detailing the outcome for each domain
                 LOG.error("Could not add domain [[]]!");
-            }
-
-            //signal for other nodes in the cluster
-            LOG.debug("Broadcasting dynamically adding domains [{}]", addedDomains);
-            try {
-                signalService.signalDomainsAdded(domain);
-            } catch (Exception ex) {
-                throw new DomibusPropertyException("Exception signaling dynamically adding domains " + domain, ex);
             }
         });
     }
 
     private void addDomain(Domain domain) {
-
         loadProperties(domain);
 
         //need this eviction since the load properties put an empty value as domain title
         domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
         domain.setName(domainDao.getDomainTitle(domain));
 
-        domainsAwareList.forEach(el -> el.domainAdded(domain));
+//        domainTaskExecutor.submit(() -> domainsAwareList.forEach(el -> el.domainAdded(domain)));
 
-        //todo maybe add an add method to domains service ??
+        //todo  add an add method to domains service ??
         // check already exists??
         domainService.getDomains().add(domain);
+
+        domainsAwareList.forEach(el -> {
+            LOG.info("Adding domain in bean [{}]", el);
+            el.domainAdded(domain);
+        });
+
+
+
+        List<Domain> res = domainService.getDomains();
     }
 
     private List<Domain> getAddedDomains() {
-        // todo looks non cohesive
         List<Domain> previousDomains = domainService.getDomains();
-        domainService.resetDomains();
-        List<Domain> currentDomains = domainService.getDomains();
+        List<Domain> currentDomains = domainDao.findAll();
         List<Domain> addedDomains = currentDomains.stream()
                 .filter(el -> !previousDomains.contains(el))
                 .collect(Collectors.toList());
@@ -155,7 +162,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
             DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
             propertySources.addLast(newPropertySource);
         } catch (IOException ex) {
-//            LOG.error("Could not read properties file: [{}]", configFile, ex);
             throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
         }
 

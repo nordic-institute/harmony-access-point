@@ -79,9 +79,9 @@ public class DomibusContextRefreshedListener {
         executeNonSynchronized();
     }
 
-    @Autowired
-    @Lazy
-    DynamicDomainManagementService dynamicDomainManagementService;
+//    @Autowired
+//    @Lazy
+//    DynamicDomainManagementService dynamicDomainManagementService;
 
     /**
      * Method executed in a serial/sync mode (if in a cluster environment)
@@ -95,8 +95,8 @@ public class DomibusContextRefreshedListener {
         multiDomainCryptoService.persistTruststoresIfApplicable();
         tlsCertificateManager.persistTruststoresIfApplicable();
 
-        // todo to be removed; temporary, for testing
 //        dynamicDomainManagementService.addDomain("domain_2");
+//        dynamicDomainManagementService.checkAndHandleDomainsChanged();
     }
 
     /**
