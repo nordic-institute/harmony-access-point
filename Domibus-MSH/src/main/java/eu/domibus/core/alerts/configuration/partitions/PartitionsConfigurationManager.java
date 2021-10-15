@@ -11,6 +11,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class PartitionsConfigurationManager
         try {
             final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Integer frequency = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX_FREQUENCY_DAYS));
-            if (!alertActive) {
+            if (BooleanUtils.isFalse(alertActive)) {
                 return new PartitionsModuleConfiguration();
             }
             return new PartitionsModuleConfiguration(AlertLevel.HIGH, null, frequency);

@@ -100,9 +100,9 @@ public interface EventService {
 
 
     /**
-     * Will create an expiration event and enqueue it to the alert/event monitoring queue.
+     * Verifies if an alert should be created based on the last alert and frequency
      *
-     * @param event the even for which the alert should be created
+     * @param event the event for which the alert should be or not created
      * @param frequency the period in days to send another alert
      * @return true if the previous alert is older than the specified frequency
      */

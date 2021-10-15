@@ -54,6 +54,7 @@ public class PartitionExpirationListener {
     }
 
     private void saveEventAndTriggerAlert(Event event, @Header(name = "DOMAIN") String domain) {
+        domainContextProvider.setCurrentDomain(domain);
         PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
         eu.domibus.core.alerts.model.persist.Event persistedEvent = eventDao.findWithTypeAndPropertyValue(event.getType(), PartitionExpirationEvent.PARTITION_NAME.name(), event.findStringProperty(PartitionExpirationEvent.PARTITION_NAME.name()).get());
 
@@ -63,8 +64,6 @@ public class PartitionExpirationListener {
         event.setLastAlertDate(LocalDate.now());
 
         LOG.debug("Partition expiration event:[{}] for domain:[{}]", event, domain);
-        domainContextProvider.setCurrentDomain(domain);
-        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.persistEvent(event);
 
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
