@@ -141,35 +141,4 @@ public class MessageMonitoringServiceDelegateTest {
             messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
         }};
     }
-
-    @Test
-    public void deleteMessagesDuringPeriod() {
-        final Date startDate = new Date();
-        final Date endDate = new Date();
-
-        final String originalUserFromSecurityContext = "C4";
-
-        new Expectations(messageMonitoringServiceDelegate) {{
-            userMessageSecurityService.getOriginalUserFromSecurityContext();
-            result = originalUserFromSecurityContext;
-        }};
-
-        messageMonitoringServiceDelegate.deleteMessagesDuringPeriod(startDate, endDate);
-
-        new Verifications() {{
-            userMessageService.deleteMessagesDuringPeriod(startDate, endDate, originalUserFromSecurityContext);
-        }};
-    }
-
-    @Test
-    public void deleteMessageNotInFinalStatus() {
-        final String messageId = "1";
-
-        messageMonitoringServiceDelegate.deleteMessageNotInFinalStatus(messageId);
-
-        new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
-            userMessageService.deleteMessageNotInFinalStatus(messageId);
-        }};
-    }
 }

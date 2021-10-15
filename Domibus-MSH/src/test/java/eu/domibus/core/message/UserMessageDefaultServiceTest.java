@@ -52,7 +52,6 @@ import javax.persistence.EntityManager;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
-import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -831,29 +830,15 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testPayloadName(@Injectable final PartInfo partInfoWithBodyload, @Injectable final PartInfo partInfoWithPayload,
-                                @Injectable final PartInfo partInfoWithPartProperties, @Injectable PartProperty partProperty) {
-
-        Set<PartProperty> partProperties = new HashSet<>();
-        partProperties.add(partProperty);
+    public void testPayloadName(@Mocked final PartInfo partInfoWithBodyload, @Mocked final PartInfo partInfoWithPayload) {
         new Expectations() {{
             partInfoWithBodyload.getHref();
             result = null;
             partInfoWithPayload.getHref();
             result = "cid:1234";
-            partInfoWithPartProperties.getHref();
-            result = "cid:1234";
-            partInfoWithPartProperties.getPartProperties();
-            result = partProperties;
-            partProperty.getName();
-            result = PAYLOAD_NAME;
-            partProperty.getValue();
-            result = "test.txt";
         }};
-
         Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
         Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
-        Assert.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
     }
 
     @Test
@@ -885,81 +870,5 @@ public class UserMessageDefaultServiceTest {
             times = 0;
         }};
     }
-
-    @Test
-    public void getMessageInFinalStatus(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
-            result = null;
-        }};
-        try {
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
-            Assert.fail();
-        } catch (UserMessageException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
-        }
-
-    }
-
-    @Test
-    public void getMessageNotInFinalStatus(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
-            result = userMessageLog;
-        }};
-
-        final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId);
-        Assert.assertNotNull(message);
-    }
-
-    @Test
-    public void deleteMessageNotInFinalStatus() {
-        final String messageId = UUID.randomUUID().toString();
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
-            times = 1;
-            userMessageDefaultService.deleteMessage(messageId);
-            times = 1;
-        }};
-
-        userMessageDefaultService.deleteMessageNotInFinalStatus(messageId);
-
-        new FullVerificationsInOrder(userMessageDefaultService) {{
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
-            userMessageDefaultService.deleteMessage(messageId);
-        }};
-    }
-
-    @Test
-    public void deleteMessagesDuringPeriod() {
-        final Date startDate = new Date();
-        final Date endDate = new Date();
-        final String messageId = "1";
-        final List<String> messagesToDelete = new ArrayList<>();
-        messagesToDelete.add(messageId);
-
-        final String originalUserFromSecurityContext = "C4";
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
-            result = messagesToDelete;
-            userMessageDefaultService.deleteMessage(messageId);
-            times = 1;
-        }};
-
-        userMessageDefaultService.deleteMessagesDuringPeriod(startDate, endDate, originalUserFromSecurityContext);
-
-        new FullVerificationsInOrder(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
-            userMessageDefaultService.deleteMessage(messageId);
-            times = 1;
-        }};
-    }
-
 
 }

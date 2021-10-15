@@ -14,8 +14,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -103,28 +101,5 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         String messageId = userMessageLogDao.findLastTestMessageId(testParty);
         Assert.assertEquals("msg-test-1", messageId);
-    }
-
-    @Test
-    @Transactional
-    public void getMessageInFinalStatus() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
-
-        UserMessageLog message = userMessageLogDao.findMessageToDeleteNotInFinalStatus("msg-test-2");
-        Assert.assertEquals("msg-test-2", message.getUserMessage().getMessageId());
-    }
-
-    @Test
-    @Transactional
-    public void findMessagesToDelete() {
-        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
-        final ZonedDateTime startDate = currentDate.minusDays(1);
-        final ZonedDateTime endDate = currentDate.plusDays(1);
-        final String finalRecipient = "finalRecipient2";
-
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-3");
-
-        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
-        Assert.assertEquals("msg-test-3", message.get(0));
     }
 }

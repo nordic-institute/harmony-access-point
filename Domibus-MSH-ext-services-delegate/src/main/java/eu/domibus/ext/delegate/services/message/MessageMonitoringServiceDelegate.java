@@ -98,16 +98,4 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
         final List<MessageAttempt> attemptsHistory = messageAttemptService.getAttemptsHistory(messageId);
         return messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
     }
-
-    @Override
-    public void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
-        userMessageService.deleteMessageNotInFinalStatus(messageId);
-    }
-
-    @Override
-    public List<String> deleteMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
-        return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
-    }
 }
