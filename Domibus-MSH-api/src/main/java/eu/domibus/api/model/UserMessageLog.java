@@ -119,7 +119,7 @@ import java.util.List;
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.deleted IS NULL " +
                         "  and uml.archived IS NULL " +
-                        "order by uml.entityId desc"),
+                        "order by uml.entityId asc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
                 "UPDATE UserMessageLog uml " +

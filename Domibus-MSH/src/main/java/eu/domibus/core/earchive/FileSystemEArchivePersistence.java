@@ -38,7 +38,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     private final EArchivingService eArchivingService;
 
-    private EARKSIPBuilderService eArkSipBuilderService;
+    private final EARKSIPBuilderService eArkSipBuilderService;
 
 
     public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
@@ -53,7 +53,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     @Override
     public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) {
-        LOG.info("Create earchive structure for batchId [{}]", batchEArchiveDTO.getBatchId());
+        LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchEArchiveDTO.getBatchId(), userMessageEntityIds.size());
 
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatchId())) {
             batchDirectory.createFolder();

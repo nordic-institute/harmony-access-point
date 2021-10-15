@@ -93,7 +93,7 @@ public class EArchiveBatchDispatcherService {
             LOG.debug("No message to archive");
             return null;
         }
-        long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId();
+        long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(userMessageToBeArchived.getUserMessageDtos().size()-1).getEntityId();
 
         EArchiveBatchEntity eArchiveBatch = eArchiveBatchService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
 
