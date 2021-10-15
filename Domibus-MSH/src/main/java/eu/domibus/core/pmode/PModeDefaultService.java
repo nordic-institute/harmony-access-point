@@ -48,7 +48,7 @@ public class PModeDefaultService implements PModeService {
         boolean isPull = messageExchangeService.forcePullOnMpc(userMessage);
         String pModeKey;
         try {
-            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, isPull, null).getPmodeKey();
+            pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, isPull).getPmodeKey();
         } catch (EbMS3Exception e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]. Pull [" + isPull + "]", e);
         }

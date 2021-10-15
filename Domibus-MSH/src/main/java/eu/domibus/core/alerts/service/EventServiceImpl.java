@@ -221,7 +221,7 @@ public class EventServiceImpl implements EventService {
             String receiverPartyName = null;
             if (mpcService.forcePullOnMpc(userMessage.getMpcValue())) {
                 LOG.debug("Find UserMessage exchange context (pull context)");
-                userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, null);
+                userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 LOG.debug("Extract receiverPartyName from mpc");
                 receiverPartyName = mpcService.extractInitiator(userMessage.getMpcValue());
             } else {

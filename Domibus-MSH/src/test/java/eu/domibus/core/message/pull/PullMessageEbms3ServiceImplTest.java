@@ -198,7 +198,7 @@ public class PullMessageEbms3ServiceImplTest {
 //            result = messageId;
 //            messageLog.getMpc();
 //            result = mpc;
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean, null).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
                     .message("")
@@ -231,7 +231,7 @@ public class PullMessageEbms3ServiceImplTest {
             userMessage.getPartyInfo().getToParty();
             result = partyId;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean, null).getPmodeKey();
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = pmodeKey;
 
             pModeProvider.getLegConfiguration(pmodeKey);

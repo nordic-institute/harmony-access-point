@@ -181,7 +181,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             messagingLock.getMessageState();
             result = MessageState.WAITING;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, null);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
             result = messageConfiguration;
 
             messageConfiguration.getPmodeKey();
@@ -203,7 +203,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
 
         new Verifications() {{
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, null);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;

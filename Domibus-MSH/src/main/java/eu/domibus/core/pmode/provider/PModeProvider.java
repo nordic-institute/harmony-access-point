@@ -388,7 +388,12 @@ public abstract class PModeProvider {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
-        return findUserMessageExchangeContext(userMessage, mshRole, false, null);
+        return findUserMessageExchangeContext(userMessage, mshRole, false);
+    }
+
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, boolean isPull) throws EbMS3Exception {
+        return findUserMessageExchangeContext(userMessage, mshRole, isPull, null);
     }
 
     /**
