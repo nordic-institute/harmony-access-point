@@ -6,13 +6,21 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_DIALECT;
 
@@ -117,6 +125,25 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         LOG.debug("Using property file [{}]", propertyFileName);
 
         return propertyFileName;
+    }
+
+    @Autowired
+    AnnotationConfigWebApplicationContext rootContext;
+
+    public void loadProperties(Domain domain) {
+        ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
+        MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
+
+        String configFile = getConfigLocation() + "/" + getConfigurationFileName(domain);
+        LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
+        try (FileInputStream fis = new FileInputStream(configFile)) {
+            Properties properties = new Properties();
+            properties.load(fis);
+            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
+            propertySources.addLast(newPropertySource);
+        } catch (IOException ex) {
+            throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
+        }
     }
 
     public String getDomainConfigurationFileName(Domain domain) {

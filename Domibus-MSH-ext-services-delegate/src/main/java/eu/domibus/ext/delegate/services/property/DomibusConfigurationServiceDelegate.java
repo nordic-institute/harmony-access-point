@@ -1,7 +1,9 @@
 package eu.domibus.ext.delegate.services.property;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,5 +44,11 @@ public class DomibusConfigurationServiceDelegate implements DomibusConfiguration
     @Override
     public boolean isClusterDeployment() {
         return domibusConfigurationService.isClusterDeployment();
+    }
+
+    @Override
+    public void loadProperties(DomainDTO domain) {
+        //todo replace with converter
+        domibusConfigurationService.loadProperties(new Domain(domain.getCode(), domain.getName()));
     }
 }

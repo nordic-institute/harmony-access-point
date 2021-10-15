@@ -45,4 +45,5 @@ public interface DomibusConfigurationService {
 
     String getConfigurationFileName(Domain domain);
 
+    void loadProperties(Domain domain);
 }

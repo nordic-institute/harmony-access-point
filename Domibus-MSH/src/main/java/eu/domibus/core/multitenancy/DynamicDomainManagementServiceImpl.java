@@ -11,21 +11,15 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.multitenancy.dao.DomainDao;
-import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.PropertyProviderDispatcher;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainsAwareExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 
@@ -48,9 +42,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     protected DomainDao domainDao;
 
     @Autowired
-    AnnotationConfigWebApplicationContext rootContext;
-
-    @Autowired
     PropertyProviderDispatcher propertyProviderDispatcher;
 
     @Autowired
@@ -61,6 +52,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     @Autowired
     List<DomainsAware> domainsAwareList;
+
+    @Autowired
+    List<DomainsAwareExt> externalDomainsAwareList;
 
     @Override
     public void addDomain(String domainCode) {
@@ -73,18 +67,49 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         if (!domainDao.findAll().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
             throw new ConfigurationException(String.format("Cannot add domain [%s] since there is no corresponding folder or the folder is invalid.", domainCode));
         }
-        // temporary  create like so
+        // temporary  create like this
         Domain domain = new Domain(domainCode, domainCode);
 
-        addDomain(domain);
+        doAddDomain(domain);
 
-        //signal for other nodes in the cluster
+        //notify other nodes in the cluster
         LOG.debug("Broadcasting dynamically adding domain [{}]", domainCode);
         try {
             signalService.signalDomainsAdded(domain);
         } catch (Exception ex) {
             throw new DomibusPropertyException("Exception signaling dynamically adding domain " + domainCode, ex);
         }
+    }
+
+    private void doAddDomain(Domain domain) {
+        domibusConfigurationService.loadProperties(domain);
+
+        //need this eviction since the load properties put an empty value as domain title
+        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
+        domain.setName(domainDao.getDomainTitle(domain));
+
+        //todo  add an add method to domains service ??
+        domainService.getDomains().add(domain);
+
+        try {
+            domainsAwareList.forEach(el -> {
+                //todo on error rollback all done already
+                LOG.info("Adding domain in bean [{}]", el);
+                el.onDomainAdded(domain);
+            });
+
+            //notify external modules
+            DomainDTO domainDTO = new DomainDTO(domain.getCode(), domain.getName());
+            externalDomainsAwareList.forEach(el -> {
+                //todo on error rollback all done already
+                LOG.info("Notifying external module [{}]", el);
+                el.onDomainAdded(domainDTO);
+            });
+        } catch (Exception ex) {
+            domainService.getDomains().remove(domain);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Error when adding the domain [%s]. ", domain));
+        }
+
     }
 
     //todo delete??
@@ -111,55 +136,12 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 //            }
 //        });
 //    }
-
-    private void addDomain(Domain domain) {
-        loadProperties(domain);
-
-        //need this eviction since the load properties put an empty value as domain title
-        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
-        domain.setName(domainDao.getDomainTitle(domain));
-
-//        domainTaskExecutor.submit(() -> domainsAwareList.forEach(el -> el.domainAdded(domain)));
-
-        //todo  add an add method to domains service ??
-        // check already exists??
-        domainService.getDomains().add(domain);
-
-        domainsAwareList.forEach(el -> {
-            LOG.info("Adding domain in bean [{}]", el);
-            el.onDomainAdded(domain);
-        });
-
-
-        List<Domain> res = domainService.getDomains();
-    }
-
-    private List<Domain> getAddedDomains() {
-        List<Domain> previousDomains = domainService.getDomains();
-        List<Domain> currentDomains = domainDao.findAll();
-        List<Domain> addedDomains = currentDomains.stream()
-                .filter(el -> !previousDomains.contains(el))
-                .collect(Collectors.toList());
-        return addedDomains;
-    }
-
-    // import the new properties files
-    // TODO move elsewhere??
-    private void loadProperties(Domain domain) {
-        ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
-        MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
-
-        String configFile = domibusConfigurationService.getConfigLocation() + "/" + domibusConfigurationService.getConfigurationFileName(domain);
-        LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
-        try (FileInputStream fis = new FileInputStream(configFile)) {
-            Properties properties = new Properties();
-            properties.load(fis);
-            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
-            propertySources.addLast(newPropertySource);
-        } catch (IOException ex) {
-            throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
-        }
-
-    }
-
+//    private List<Domain> getAddedDomains() {
+//        List<Domain> previousDomains = domainService.getDomains();
+//        List<Domain> currentDomains = domainDao.findAll();
+//        List<Domain> addedDomains = currentDomains.stream()
+//                .filter(el -> !previousDomains.contains(el))
+//                .collect(Collectors.toList());
+//        return addedDomains;
+//    }
 }
