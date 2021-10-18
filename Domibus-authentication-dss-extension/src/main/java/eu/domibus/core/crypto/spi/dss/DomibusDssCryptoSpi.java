@@ -94,7 +94,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
             //Fix for [EDELIVERY-8556] Copy the certificates for dss and reload them with Bouncy Castle provider
             LOG.trace("Copy the [{}] certificates for DSS and reload them with Bouncy Castle provider.", certs.length);
-            X509Certificate[] dssCerts = pkiExtService.reloadCertificates(certs, BOUNCYCASTLE_PROVIDER);
+            X509Certificate[] dssCerts = pkiExtService.getCertificatesWithProvider(certs, BOUNCYCASTLE_PROVIDER);
 
             final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.

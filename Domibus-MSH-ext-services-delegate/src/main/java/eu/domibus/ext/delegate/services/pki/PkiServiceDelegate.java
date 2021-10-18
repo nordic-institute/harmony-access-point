@@ -33,7 +33,7 @@ public class PkiServiceDelegate implements PkiExtService {
      * {@inheritDoc}
      */
     @Override
-    public X509Certificate[] reloadCertificates(X509Certificate[] certificates, String provider) {
-        return certificateService.reloadCertificates(certificates, provider);
+    public X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider) {
+        return certificateService.getCertificatesWithProvider(certificates, provider);
     }
 }
