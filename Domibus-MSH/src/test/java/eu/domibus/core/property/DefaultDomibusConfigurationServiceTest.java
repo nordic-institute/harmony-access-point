@@ -61,54 +61,54 @@ public class DefaultDomibusConfigurationServiceTest {
         Assert.assertTrue(defaultDomibusConfigurationService.isPasswordEncryptionActive(domain));
     }
 
-    @Test
-    public void getConfigurationFileName() {
-        Assert.assertEquals(DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, defaultDomibusConfigurationService.getConfigurationFileName());
-    }
+//    @Test
+//    public void getConfigurationFileName() {
+//        Assert.assertEquals(DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, defaultDomibusConfigurationService.getConfigurationFileName());
+//    }
 
-    @Test
-    public void getConfigurationFileNameDefaultDomain() {
-        String domainConfigFile = "default.key";
+//    @Test
+//    public void getConfigurationFileNameDefaultDomain() {
+//        String domainConfigFile = "default.key";
+//
+//        new Expectations(defaultDomibusConfigurationService) {{
+//            defaultDomibusConfigurationService.isSingleTenantAware();
+//            result = false;
+//
+//            defaultDomibusConfigurationService.getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+//            result = domainConfigFile;
+//        }};
+//
+//        final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(DomainService.DEFAULT_DOMAIN);
+//        Assert.assertEquals(domainConfigFile, configurationFileName);
+//    }
 
-        new Expectations(defaultDomibusConfigurationService) {{
-            defaultDomibusConfigurationService.isSingleTenantAware();
-            result = false;
+//    @Test
+//    public void getConfigurationFileNameCustomDomain(@Injectable Domain domain,
+//                                                     @Mocked DomibusLoggerFactory domibusLoggerFactory,
+//                                                     @Mocked LoggerWrapper loggerWrapper) {
+//
+//        String domainConfigFile = "/homecustom.key";
+//
+//        new Expectations(defaultDomibusConfigurationService) {{
+//            defaultDomibusConfigurationService.isSingleTenantAware();
+//            result = false;
+//            defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
+//            result = domainConfigFile;
+//        }};
+//
+//        final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(domain);
+//        Assert.assertEquals(domainConfigFile, configurationFileName);
+//    }
 
-            defaultDomibusConfigurationService.getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
-            result = domainConfigFile;
-        }};
-
-        final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(DomainService.DEFAULT_DOMAIN);
-        Assert.assertEquals(domainConfigFile, configurationFileName);
-    }
-
-    @Test
-    public void getConfigurationFileNameCustomDomain(@Injectable Domain domain,
-                                                     @Mocked DomibusLoggerFactory domibusLoggerFactory,
-                                                     @Mocked LoggerWrapper loggerWrapper) {
-
-        String domainConfigFile = "/homecustom.key";
-
-        new Expectations(defaultDomibusConfigurationService) {{
-            defaultDomibusConfigurationService.isSingleTenantAware();
-            result = false;
-            defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
-            result = domainConfigFile;
-        }};
-
-        final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(domain);
-        Assert.assertEquals(domainConfigFile, configurationFileName);
-    }
-
-    @Test
-    public void getDomainConfigurationFileName(@Injectable Domain domain) {
-        String myDomain = "myDomain";
-        new Expectations() {{
-            domain.getCode();
-            result = myDomain;
-        }};
-
-        final String domainConfigurationFileName = defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
-        Assert.assertEquals("domains" + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
-    }
+//    @Test
+//    public void getDomainConfigurationFileName(@Injectable Domain domain) {
+//        String myDomain = "myDomain";
+//        new Expectations() {{
+//            domain.getCode();
+//            result = myDomain;
+//        }};
+//
+//        final String domainConfigurationFileName = defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
+//        Assert.assertEquals("domains" + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
+//    }
 }

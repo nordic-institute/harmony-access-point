@@ -44,6 +44,4 @@ public interface DomibusConfigurationService {
     String getConfigurationFileName();
 
     String getConfigurationFileName(Domain domain);
-
-    void loadProperties(Domain domain);
 }

@@ -118,32 +118,13 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         String propertyFileName;
 
         if (isSingleTenantAware()) {
-            propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+            propertyFileName = getConfigurationFileName();
         } else {
             propertyFileName = getDomainConfigurationFileName(domain);
         }
         LOG.debug("Using property file [{}]", propertyFileName);
 
         return propertyFileName;
-    }
-
-    @Autowired
-    AnnotationConfigWebApplicationContext rootContext;
-
-    public void loadProperties(Domain domain) {
-        ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
-        MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
-
-        String configFile = getConfigLocation() + "/" + getConfigurationFileName(domain);
-        LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
-        try (FileInputStream fis = new FileInputStream(configFile)) {
-            Properties properties = new Properties();
-            properties.load(fis);
-            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
-            propertySources.addLast(newPropertySource);
-        } catch (IOException ex) {
-            throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
-        }
     }
 
     public String getDomainConfigurationFileName(Domain domain) {

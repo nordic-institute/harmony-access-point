@@ -1,5 +1,6 @@
 package eu.domibus.property;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
@@ -68,5 +69,20 @@ public class ExternalTestModulePropertyManager extends DomibusPropertyExtService
             return;
         }
         super.onSetLocalPropertyValue(domainCode, propertyName, propertyValue, broadcast);
+    }
+
+    @Override
+    protected String getPropertiesFileName() {
+        return null;
+    }
+
+    @Override
+    public String getConfigurationFileName() {
+        return null;
+    }
+
+    @Override
+    public String getConfigurationFileName(DomainDTO domain) {
+        return null;
     }
 }

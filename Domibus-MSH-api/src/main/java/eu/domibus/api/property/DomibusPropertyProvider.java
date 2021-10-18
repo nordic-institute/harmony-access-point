@@ -154,4 +154,12 @@ public interface DomibusPropertyProvider {
      * @return the type of the property
      */
     DomibusPropertyMetadata.Type getPropertyType(String propertyName);
+
+//    String getConfigurationFileName();
+//
+//    String getConfigurationFileName(Domain domain);
+
+    void loadProperties(Domain domain);
+
+    void loadProperties(Domain domain, String propertiesFilePath);
 }
