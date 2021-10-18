@@ -261,7 +261,10 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            messageData.getProcessingType();
+            result = ProcessingType.PUSH;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, messageData.getProcessingType());
             result = messageExchangeConfiguration;
 
             messageExchangeConfiguration.getPmodeKey();
@@ -285,7 +288,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
         }};
@@ -306,7 +308,10 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            messageData.getProcessingType();
+            result = ProcessingType.PULL;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, messageData.getProcessingType());
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
@@ -347,7 +352,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             UserMessage message;
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
@@ -454,7 +458,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING,false,ProcessingType.PUSH);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
 
             // Here the configuration of the access point is supposed to be BLUE!
@@ -504,7 +508,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             times = 1;
 
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING,false,ProcessingType.PUSH);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             times = 1;
             backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             times = 1;
@@ -612,7 +616,7 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING,false,ProcessingType.PUSH);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("PMode could not be found. Are PModes configured in the database?")
@@ -639,7 +643,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING,false,ProcessingType.PUSH);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
@@ -987,7 +991,7 @@ public class DatabaseMessageHandlerTest {
             databaseMessageHandler.downloadMessage(MESS_ID);
             Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
         } catch (MessageNotFoundException mnfEx) {
-           //OK
+            //OK
         }
 
         new Verifications() {{
