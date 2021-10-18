@@ -101,4 +101,20 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return knownProperties;
     }
+
+    @Override
+    protected String getModulePropertiesHome() {
+        return "extensions/config";
+    }
+
+    @Override
+    protected String getPropertiesFileName() {
+        return "authentication-dss-extension.properties";
+    }
+
+    @Override
+    public String getConfigurationFileName(DomainDTO domain) {
+        // intentionally return null as there is no property file for a domain
+        return null;
+    }
 }

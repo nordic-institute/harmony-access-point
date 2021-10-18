@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -25,6 +26,9 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Autowired
     protected DomainExtService domainExtService;
+
+    @Autowired
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     public abstract Map<String, DomibusPropertyMetadataDTO> getKnownProperties();
 
@@ -151,6 +155,41 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         }
         LOG.debug("Property [{}] is not stored globally so onSetLocalPropertyValue is called.", propertyName);
         onSetLocalPropertyValue(propertyName, propertyValue);
+    }
+
+    protected abstract String getPropertiesFileName();
+
+    protected String getModulePropertiesHome() {
+        return "plugins/config";
+    }
+
+    @Override
+    public String getConfigurationFileName() {
+        return getModulePropertiesHome() + File.separator + getPropertiesFileName();
+    }
+
+    @Override
+    public String getConfigurationFileName(DomainDTO domain) {
+        String propertyFileName;
+
+        if (domibusConfigurationExtService.isSingleTenantAware()) {
+            propertyFileName = getConfigurationFileName();
+        } else {
+            propertyFileName = getDomainConfigurationFileName(domain);
+        }
+        LOG.debug("Using property file [{}]", propertyFileName);
+
+        return propertyFileName;
+    }
+
+    protected String getDomainConfigurationFileName(DomainDTO domain) {
+        return getModulePropertiesHome() + File.separator + "domains" + File.separator + domain.getCode() +
+                File.separator + domain.getCode() + '-' + getPropertiesFileName();
+    }
+
+    @Override
+    public void loadProperties(DomainDTO domain) {
+        domibusPropertyExtService.loadProperties(domain, getConfigurationFileName(domain));
     }
 
     /**
