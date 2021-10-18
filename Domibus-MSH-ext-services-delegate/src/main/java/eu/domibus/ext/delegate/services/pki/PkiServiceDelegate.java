@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -26,5 +27,13 @@ public class PkiServiceDelegate implements PkiExtService {
     @Override
     public Certificate extractLeafCertificateFromChain(final List<? extends Certificate> certificates) {
         return certificateService.extractLeafCertificateFromChain(certificates);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public X509Certificate[] reloadCertificates(X509Certificate[] certificates, String provider) {
+        return certificateService.reloadCertificates(certificates, provider);
     }
 }

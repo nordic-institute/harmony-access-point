@@ -1,6 +1,5 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.PkiExtService;
@@ -50,8 +49,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private CertificateVerifierService certificateVerifierService;
 
-    private CertificateService certificateService;
-
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
             final TSLRepository tslRepository,
@@ -59,8 +56,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             final ValidationConstraintPropertyMapper constraintMapper,
             final PkiExtService pkiExtService,
             final DssCache dssCache,
-            CertificateVerifierService certificateVerifierService,
-            CertificateService certificateService) {
+            CertificateVerifierService certificateVerifierService) {
         super(defaultDomainCryptoService);
         this.certificateVerifierService = certificateVerifierService;
         this.tslRepository = tslRepository;
@@ -68,7 +64,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         this.constraintMapper = constraintMapper;
         this.pkiExtService = pkiExtService;
         this.dssCache = dssCache;
-        this.certificateService = certificateService;
     }
 
 
@@ -99,7 +94,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
             //Fix for [EDELIVERY-8556] Copy the certificates for dss and reload them with Bouncy Castle provider
             LOG.trace("Copy the [{}] certificates for DSS and reload them with Bouncy Castle provider.", certs.length);
-            X509Certificate[] dssCerts = certificateService.reloadCertificates(certs, BOUNCYCASTLE_PROVIDER);
+            X509Certificate[] dssCerts = pkiExtService.reloadCertificates(certs, BOUNCYCASTLE_PROVIDER);
 
             final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.

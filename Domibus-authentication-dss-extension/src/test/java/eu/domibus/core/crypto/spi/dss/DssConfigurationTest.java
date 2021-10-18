@@ -1,6 +1,5 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
@@ -46,9 +45,6 @@ public class DssConfigurationTest {
 
     @Injectable
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
-
-    @Injectable
-    protected CertificateService certificateService;
 
     @Tested
     private DssConfiguration dssConfiguration;
