@@ -91,10 +91,9 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         cxfServlet.addMapping("/services/*");
 
         Map<String, String> initParams = new HashMap<>();
-//        initParams.put("services-list-path", "");
         initParams.put("hide-service-list-page", "true");
         cxfServlet.setInitParameters(initParams);
-        
+
         configureMetrics(servletContext);
     }
 
