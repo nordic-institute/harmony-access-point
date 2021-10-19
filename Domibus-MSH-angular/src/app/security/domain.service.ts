@@ -88,10 +88,11 @@ export class DomainService {
     });
   }
 
-  async setActiveState(domain: Domain, active: boolean) {
-    if (!active) {
-      throw new Error('Cannot remove domain ' + domain.name)
+  async setActiveState(domain: Domain) {
+    if (!domain.active) {
+      throw new Error('Cannot remove domain ' + domain.name);
     }
+    // add domain
     await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
   }
 

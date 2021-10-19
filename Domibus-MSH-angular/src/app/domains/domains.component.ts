@@ -37,6 +37,7 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
 
   constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
+    super.isMultiDomain = false;
   }
 
   ngOnInit() {
@@ -92,21 +93,21 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
     this.columnPicker.selectedColumns = this.columnPicker.allColumns;
   }
 
-
   async toggleActiveState(domain: Domain) {
     let active = domain.active;
-
     try {
       super.isLoading = true;
-      await this.domainService.setActiveState(domain, active);
-      domain.active = active;
-      this.alertService.success(`Added domain ${domain.name}`);
+      await this.domainService.setActiveState(domain);
+      this.alertService.success(`Successfully added domain ${domain.name}`);
     } catch (err) {
-      domain.active = !active;
-      this.alertService.exception(`Could not add the ${domain.name} domain.`, err);
+      this.alertService.exception(`Operation failed:`, err);
+      setTimeout(() => domain.active = !active, 200);
     } finally {
       super.isLoading = false;
     }
   }
 
+  refresh() {
+    this.loadServerData();
+  }
 }

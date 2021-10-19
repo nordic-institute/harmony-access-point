@@ -104,7 +104,7 @@
       <span>Properties</span>
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/domains']" *ngIf="isSuperAdmin()" id="domains_id">
-      <mat-icon mat-tooltip="Add or Delete Domains">settings</mat-icon>
+      <mat-icon mat-tooltip="Add or Delete Domains">dns</mat-icon>
       <span>Domains</span>
     </button>
 
@@ -140,7 +140,9 @@
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()"></domain-selector>
+      <domain-selector *ngIf="currentUser && applicationService.getCurrentComponent() && applicationService.getCurrentComponent().isMultiDomain"
+                       [currentComponent]="applicationService.getCurrentComponent()">
+      </domain-selector>
 
       <div class="helpMenu">
         <page-helper></page-helper>

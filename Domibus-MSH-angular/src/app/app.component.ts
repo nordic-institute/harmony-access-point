@@ -10,6 +10,7 @@ import {DialogsService} from './common/dialogs/dialogs.service';
 import {Server} from './security/Server';
 import {SessionState} from './security/SessionState';
 import {SessionService} from './security/session.service';
+import BaseListComponent from './common/mixins/base-list.component';
 
 @Component({
   selector: 'app-root',
@@ -50,7 +51,7 @@ export class AppComponent implements OnInit {
         }
       } else if (event instanceof NavigationEnd) {
         let comp = this.outlet && this.outlet.isActivated ? this.outlet.component : null;
-        applicationService.setCurrentComponent(this.outlet.component);
+        applicationService.setCurrentComponent(<BaseListComponent<any>>this.outlet.component);
       }
     });
   }
