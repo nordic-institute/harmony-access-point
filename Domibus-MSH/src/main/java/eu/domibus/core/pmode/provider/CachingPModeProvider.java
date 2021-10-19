@@ -343,13 +343,13 @@ public class CachingPModeProvider extends PModeProvider {
         if (legFilterCriteria == null) {
             return new ArrayList<>();
         }
-        List<Process> allPrcesses = this.getConfiguration().getBusinessProcesses().getProcesses();
+        List<Process> allProcesses = findAllProcesses();
         LOG.debug("All processes:");
-        for (Process process : allPrcesses) {
+        for (Process process : allProcesses) {
             LOG.debug("     [{}]",process.getName());
         }
         List<Process> candidateProcesses = filterProcessesByProcessingType(legFilterCriteria.getProcessingType(),
-                allPrcesses);
+                allProcesses);
         LOG.debug("Filtered processes:");
         for (Process process : candidateProcesses) {
             LOG.debug("     [{}]",process.getName());
