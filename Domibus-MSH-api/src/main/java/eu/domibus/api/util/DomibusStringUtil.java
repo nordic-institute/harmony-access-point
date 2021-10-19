@@ -6,7 +6,9 @@ import static org.apache.commons.lang3.StringUtils.trim;
 
 public final class DomibusStringUtil {
     public static final int DEFAULT_MAX_STRING_LENGTH = 255;
+    public static final int MAX_STRING_LENGTH_1024 = 1024;
     public static final String ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH = " is too long (over 255 characters).";
+    public static final String ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024 = " is too long (over 1024 characters).";
 
     public static String uncamelcase(String str) {
         String result = str.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
@@ -21,5 +23,7 @@ public final class DomibusStringUtil {
         return isStringLengthLongerThanDefaultMaxLength(trim(testString));
     }
 
-
+    public static boolean isStringLengthLongerThan1024Chars(String testString){
+        return (StringUtils.length(testString) > MAX_STRING_LENGTH_1024);
+    }
 }
