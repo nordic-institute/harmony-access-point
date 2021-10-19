@@ -111,7 +111,7 @@ public class EArchiveListenerTest {
         };
     }
 
-    @Test
+    @Test(expected = DomibusEArchiveException.class)
     public void onMessage_noMessages(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch) {
         new Expectations() {{

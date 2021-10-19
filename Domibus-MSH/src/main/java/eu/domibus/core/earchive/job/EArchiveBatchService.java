@@ -18,9 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.function.IntFunction;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -78,39 +79,6 @@ public class EArchiveBatchService {
         return userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(toList());
     }
 
-    protected List<ListUserMessageDto> batches(ListUserMessageDto source, int batchInsertSize) {
-        if (batchInsertSize <= 0) {
-            throw new DomibusEArchiveException(DOMIBUS_EARCHIVE_BATCH_INSERT_BATCH_SIZE + " invalid");
-        }
-        if (source == null || CollectionUtils.isEmpty(source.getUserMessageDtos())) {
-            return Collections.singletonList(new ListUserMessageDto(new ArrayList<>()));
-        }
-        int totalSize = source.getUserMessageDtos().size();
-
-        int maxBatchesToCreate = (totalSize - 1) / batchInsertSize;
-        return IntStream.range(0, maxBatchesToCreate + 1)
-                .mapToObj(createListUserMessageDtos(source.getUserMessageDtos(), batchInsertSize, totalSize, maxBatchesToCreate))
-                .collect(toList());
-    }
-
-    private IntFunction<ListUserMessageDto> createListUserMessageDtos(List<UserMessageDTO> userMessageDtos, int batchInsertSize, int totalSize, int maxBatchesToCreate) {
-        return i -> new ListUserMessageDto(
-                userMessageDtos.subList(
-                        getFromIndex(batchInsertSize, i),
-                        getToIndex(batchInsertSize, totalSize, maxBatchesToCreate, i)));
-    }
-
-    private int getFromIndex(int batchInsertSize, int i) {
-        return i * batchInsertSize;
-    }
-
-    private int getToIndex(int batchInsertSize, int totalSize, int maxBatchesToCreate, int i) {
-        if (i == maxBatchesToCreate) {
-            return totalSize;
-        }
-        return (i + 1) * batchInsertSize;
-    }
-
     private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
         entity.setBatchSize(batchSize);
@@ -122,7 +90,6 @@ public class EArchiveBatchService {
         eArchiveBatchDao.create(entity);
         return entity;
     }
-
 
     public long getMaxEntityIdToArchived() {
         return Long.parseLong(ZonedDateTime
@@ -149,28 +116,34 @@ public class EArchiveBatchService {
     }
 
 
-    private int getMaxRetryTimeOutFiltered(List<String> mpcs, LegConfigurationPerMpc legConfigurationPerMpc) {
+    protected int getMaxRetryTimeOutFiltered(List<String> mpcs, LegConfigurationPerMpc legConfigurationPerMpc) {
         int maxRetryTimeOut = 0;
         for (Map.Entry<String, List<LegConfiguration>> legConfigPerMpcs : legConfigurationPerMpc.entrySet()) {
-            LOG.debug("MPC: [{}]", legConfigPerMpcs.getKey());
+            LOG.debug("MPCs: [{}]", legConfigPerMpcs.getKey());
             if (CollectionUtils.isEmpty(mpcs) || mpcs.stream().anyMatch(s -> equalsIgnoreCase(legConfigPerMpcs.getKey(), s))) {
-                for (LegConfiguration legConfiguration : legConfigPerMpcs.getValue()) {
-                    int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
-                    if (maxRetryTimeOut < retryTimeout) {
-                        maxRetryTimeOut = retryTimeout;
-                    }
-                }
+                maxRetryTimeOut = findNewMaxRetryTimeOut(maxRetryTimeOut, legConfigPerMpcs);
             }
         }
         return maxRetryTimeOut;
     }
 
-    private List<String> getMpcs() {
+    private int findNewMaxRetryTimeOut(int actualMaxRetryTimeOut, Map.Entry<String, List<LegConfiguration>> legConfigPerMpcs) {
+        int maxRetryTimeOut = actualMaxRetryTimeOut;
+        for (LegConfiguration legConfiguration : legConfigPerMpcs.getValue()) {
+            int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
+            if (actualMaxRetryTimeOut < retryTimeout) {
+                maxRetryTimeOut = retryTimeout;
+            }
+        }
+        return maxRetryTimeOut;
+    }
+
+    protected List<String> getMpcs() {
         String mpcs = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_BATCH_MPCS);
         if (StringUtils.isBlank(mpcs)) {
             return new ArrayList<>();
         }
-        return Arrays.asList(StringUtils.split(mpcs, ','));
+        return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
 }

@@ -80,8 +80,7 @@ public class EArchiveListener implements MessageListener {
         List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
         if (CollectionUtils.isEmpty(userMessageDtos)) {
-            LOG.error("no messages present in the earchive batch [{}]", batchId);
-            return;
+            throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
         }
         LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
                 batchId,

@@ -64,7 +64,7 @@ public class EArchiveBatchDispatcherService {
         long maxEntityIdToArchived = eArchiveBatchService.getMaxEntityIdToArchived();
         int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
-        LOG.info("Start eArchive batch lastEntityIdProcessed [{}], " +
+        LOG.debug("Start eArchive batch lastEntityIdProcessed [{}], " +
                         "maxEntityIdToArchived [{}], " +
                         "batchSize [{}], " +
                         "maxNumberOfBatchesCreated [{}]", lastEntityIdProcessed,
