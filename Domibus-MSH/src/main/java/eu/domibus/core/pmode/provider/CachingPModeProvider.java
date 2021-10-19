@@ -343,8 +343,17 @@ public class CachingPModeProvider extends PModeProvider {
         if (legFilterCriteria == null) {
             return new ArrayList<>();
         }
+        List<Process> allPrcesses = this.getConfiguration().getBusinessProcesses().getProcesses();
+        LOG.debug("All processes:");
+        for (Process process : allPrcesses) {
+            LOG.debug("     [{}]",process.getName());
+        }
         List<Process> candidateProcesses = filterProcessesByProcessingType(legFilterCriteria.getProcessingType(),
-                this.getConfiguration().getBusinessProcesses().getProcesses());
+                allPrcesses);
+        LOG.debug("Filtered processes:");
+        for (Process process : candidateProcesses) {
+            LOG.debug("     [{}]",process.getName());
+        }
         for (Process process : candidateProcesses) {
             ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), legFilterCriteria.getSenderParty(), legFilterCriteria.getReceiverParty());
             checkAgreementMismatch(process, legFilterCriteria);
