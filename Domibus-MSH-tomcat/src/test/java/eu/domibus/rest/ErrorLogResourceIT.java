@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.web.rest.ErrorLogResource;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
@@ -23,6 +24,9 @@ import java.util.Date;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Rollback
 public class ErrorLogResourceIT extends AbstractIT {
+
+    @Autowired
+    UserMessageDao userMessageDao;
 
     @Autowired
     ErrorLogResource errorLogResource;
@@ -65,6 +69,7 @@ public class ErrorLogResourceIT extends AbstractIT {
         logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         logEntry.setErrorCode(ErrorCode.EBMS_0004);
         logEntry.setTimestamp(new Date());
+        logEntry.setUserMessage(userMessageDao.findByEntityId(19700101L));
         errorLogDao.create(logEntry);
     }
 

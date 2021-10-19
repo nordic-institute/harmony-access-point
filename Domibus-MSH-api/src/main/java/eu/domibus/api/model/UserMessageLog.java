@@ -111,7 +111,20 @@ import java.util.List;
                         "and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE                          "),
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
+        @NamedQuery(name = "UserMessageLog.findMessagesForArchivingDesc",
+                query = "select new eu.domibus.api.model.UserMessageDTO(uml.entityId, uml.userMessage.messageId) " +
+                        "from UserMessageLog uml " +
+                        "where uml.entityId > :LAST_ENTITY_ID " +
+                        "  and uml.entityId < :MAX_ENTITY_ID " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.deleted IS NULL " +
+                        "  and uml.archived IS NULL " +
+                        "order by uml.entityId asc"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
+        @NamedQuery(name = "UserMessageLog.updateArchived", query =
+                "UPDATE UserMessageLog uml " +
+                "SET uml.archived = :CURRENT_TIMESTAMP " +
+                "WHERE uml.entityId IN( :ENTITY_IDS )"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
 

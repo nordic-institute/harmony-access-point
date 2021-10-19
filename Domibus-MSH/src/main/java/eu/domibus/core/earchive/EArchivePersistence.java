@@ -1,6 +1,9 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.model.UserMessageDTO;
 import org.apache.commons.vfs2.FileObject;
+
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -8,6 +11,6 @@ import org.apache.commons.vfs2.FileObject;
  */
 public interface EArchivePersistence {
 
-    FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO);
+    FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds);
 
 }

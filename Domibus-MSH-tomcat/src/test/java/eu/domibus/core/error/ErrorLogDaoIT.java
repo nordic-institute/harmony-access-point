@@ -4,7 +4,9 @@ package eu.domibus.core.error;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,6 +35,9 @@ public class ErrorLogDaoIT extends AbstractIT {
     private ErrorLogDao errorLogDao;
 
     @Autowired
+    private UserMessageDao userMessageDao;
+
+    @Autowired
     private MshRoleDao mshRoleDao;
 
     @Before
@@ -48,6 +53,8 @@ public class ErrorLogDaoIT extends AbstractIT {
     }
 
     private void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail, Date timestamp) {
+        UserMessage byEntityId = userMessageDao.findByEntityId(19700101L);
+
         ErrorLogEntry errorLogEntry = new ErrorLogEntry();
         MSHRoleEntity mshRole1 = mshRoleDao.findOrCreate(mshRole);
         errorLogEntry.setMshRole(mshRole1);
@@ -55,7 +62,7 @@ public class ErrorLogDaoIT extends AbstractIT {
         errorLogEntry.setErrorCode(errorCode);
         errorLogEntry.setErrorDetail(errorDetail);
         errorLogEntry.setTimestamp(timestamp);
-
+        errorLogEntry.setUserMessage(byEntityId);
         errorLogDao.create(errorLogEntry);
     }
 

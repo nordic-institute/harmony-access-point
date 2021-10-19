@@ -55,7 +55,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -63,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static eu.domibus.messaging.MessageConstants.MESSAGE_ID;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.awaitility.Awaitility.with;
 
 /**
@@ -142,7 +142,7 @@ public abstract class AbstractIT {
     protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
 
-        String pmodeText = IOUtils.toString(inputStream, "UTF-8");
+        String pmodeText = IOUtils.toString(inputStream, UTF_8);
         if (toReplace != null) {
             pmodeText = replace(pmodeText, toReplace);
         }
@@ -151,7 +151,7 @@ public abstract class AbstractIT {
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
         }
 
-        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes("UTF-8"));
+        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes(UTF_8));
         configurationDAO.updateConfiguration(pModeConfiguration);
     }
 
@@ -161,9 +161,8 @@ public abstract class AbstractIT {
 
     protected UserMessage getUserMessageTemplate() throws IOException {
         Resource userMessageTemplate = new ClassPathResource("dataset/messages/UserMessageTemplate.json");
-        String jsonStr = new String(IOUtils.toByteArray(userMessageTemplate.getInputStream()), StandardCharsets.UTF_8);
-        UserMessage userMessage = new Gson().fromJson(jsonStr, UserMessage.class);
-        return userMessage;
+        String jsonStr = new String(IOUtils.toByteArray(userMessageTemplate.getInputStream()), UTF_8);
+        return new Gson().fromJson(jsonStr, UserMessage.class);
     }
 
 
@@ -204,8 +203,6 @@ public abstract class AbstractIT {
     /**
      * Convert the given file to a string
      *
-     * @param file
-     * @return
      */
     protected String getAS4Response(String file) {
         try {
@@ -230,10 +227,6 @@ public abstract class AbstractIT {
     /**
      * The connection must be started and stopped before and after the method call.
      *
-     * @param connection
-     * @param queueName
-     * @return
-     * @throws Exception
      */
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 

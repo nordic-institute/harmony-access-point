@@ -1647,4 +1647,18 @@ public class CachingPModeProviderTest {
         assertFalse(cachingPModeProvider.isPartyIdTypeMatching("testidType1", "TESTIDTYPE2"));
 
     }
+
+    @Test
+    public void getAllLegConfigurations() throws Exception {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getLegConfigurations();
+            result = configuration.getBusinessProcesses().getLegConfigurations();
+        }};
+        LegConfigurationPerMpc allLegConfigurations = cachingPModeProvider.getAllLegConfigurations();
+        assertEquals(1, allLegConfigurations.entrySet().size());
+
+        new FullVerifications(){};
+    }
 }

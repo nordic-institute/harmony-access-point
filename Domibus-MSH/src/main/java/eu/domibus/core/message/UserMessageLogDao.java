@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,8 @@ import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.IntFunction;
+import java.util.stream.IntStream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -39,6 +42,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private static final String MESSAGESTATUS_DELIMITER = "','";
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+    public static final int IN_CLAUSE_MAX_SIZE = 1000;
 
     public static final String MAX = "9999999999";
 
@@ -72,6 +76,16 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
+    }
+
+    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
+        query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
+        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setMaxResults(size);
+
+        return new ListUserMessageDto(query.getResultList());
     }
 
     public List<String> findFailedMessages(String finalRecipient) {
@@ -365,7 +379,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public int countUnarchivedMessagesOnPartition(String partitionName) {
         final Query countQuery = em.createNativeQuery("SELECT COUNT(*) FROM tb_user_message_log PARTITION (" + partitionName + ") WHERE archived IS NULL");
         try {
-            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
             return result;
         } catch (NoResultException nre) {
@@ -478,5 +492,52 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             }
         }
         return predicates;
+    }
+
+    public UserMessageLog findById(Long entityId) {
+        return this.em.find(UserMessageLog.class, entityId);
+    }
+
+    public void updateArchived(List<Long> entityIds) {
+        if (CollectionUtils.isEmpty(entityIds)) {
+            return;
+        }
+
+        int totalSize = entityIds.size();
+
+        int maxBatchesToCreate = (totalSize - 1) / IN_CLAUSE_MAX_SIZE;
+
+        IntStream.range(0, maxBatchesToCreate + 1)
+                .mapToObj(createList(entityIds, totalSize, maxBatchesToCreate))
+                .forEach(this::updateArchivedBatched);
+
+    }
+
+    private IntFunction<List<Long>> createList(List<Long> entityIds, int totalSize, int maxBatchesToCreate) {
+        return i -> entityIds.subList(
+                getFromIndex(i),
+                getToIndex(i, totalSize, maxBatchesToCreate));
+    }
+
+    private int getFromIndex(int i) {
+        return i * IN_CLAUSE_MAX_SIZE;
+    }
+
+    private int getToIndex(int i, int totalSize, int maxBatchesToCreate) {
+        if (i == maxBatchesToCreate) {
+            return totalSize;
+        }
+        return (i + 1) * IN_CLAUSE_MAX_SIZE;
+    }
+
+    public void updateArchivedBatched(List<Long> entityIds) {
+        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateArchived");
+
+        namedQuery.setParameter("ENTITY_IDS", entityIds);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        int i = namedQuery.executeUpdate();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("UserMessageLogs [{}] updated(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+        }
     }
 }
