@@ -75,6 +75,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
 
+    protected List<DomibusDomainQuartzJob> jobsToDelete = new ArrayList<>();
+
     @PostConstruct
     public void initQuartzSchedulers() {
         // General Schedulers
@@ -93,6 +95,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 LOG.error("Could not initialize the Quartz Scheduler for domain [{}]", domain, e);
             }
         }
+
+        removeMarkedForDeletionJobs();
     }
 
     @PreDestroy
@@ -141,6 +145,17 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         LOG.info("Quartz scheduler started for domain [{}]", domain);
 
         domainContextProvider.clearCurrentDomain();
+    }
+
+    protected void removeMarkedForDeletionJobs() {
+        synchronized (jobsToDelete) {
+            ListIterator<DomibusDomainQuartzJob> listIterator = jobsToDelete.listIterator();
+            while (listIterator.hasNext()) {
+                DomibusDomainQuartzJob domibusDomainQuartzJob = listIterator.next();
+                deleteJobByDomain(domibusDomainQuartzJob.getDomain(), domibusDomainQuartzJob.getQuartzJob());
+                listIterator.remove();
+            }
+        }
     }
 
     /**
@@ -351,9 +366,43 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             JobKey jobKey = findJob(scheduler, jobNameToReschedule);
             rescheduleJob(scheduler, jobKey, newCronExpression);
         } catch (SchedulerException ex) {
-            LOG.error("Error rescheduling job [{}] ", jobNameToReschedule, ex);
+            LOG.error("Error rescheduling job [{}]", jobNameToReschedule, ex);
             throw new DomibusSchedulerException(ex);
         }
+    }
+
+    @Override
+    public void markJobForDeletionByDomain(Domain domain, String jobNameToDelete) {
+        jobsToDelete.add(new DomibusDomainQuartzJob(domain, jobNameToDelete));
+    }
+
+    protected void deleteJobByDomain(Domain domain, String jobNameToDelete) throws DomibusSchedulerException {
+        try {
+            LOG.debug("Deleting job with jobKey=[{}] for domain=[{}]", jobNameToDelete, domain.getCode());
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            if (scheduler != null) {
+                JobKey jobKey = findJob(scheduler, jobNameToDelete);
+                deleteSchedulerJob(scheduler, jobKey);
+            }
+        } catch (SchedulerException ex) {
+            LOG.error("Error rescheduling job [{}] ", jobNameToDelete, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    protected void deleteSchedulerJob(Scheduler scheduler, JobKey jobKey) {
+        // the job deletion needs to happen inside a transaction,
+        // ensuring that, when the scheduler is started immediately afterwards, the deletion is already committed
+        new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    scheduler.deleteJob(jobKey);
+                    LOG.warn("DELETED Quartz job: {} from group: {}", jobKey.getName(), jobKey.getGroup());
+                } catch (Exception e) {
+                    LOG.error("Error while deleting Quartz job: {}", jobKey.getName(), e);
+                }
+            }
+        });
     }
 
     /**
