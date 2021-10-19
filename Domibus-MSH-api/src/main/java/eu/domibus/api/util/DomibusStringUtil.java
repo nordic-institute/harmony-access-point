@@ -24,6 +24,6 @@ public final class DomibusStringUtil {
     }
 
     public static boolean isStringLengthLongerThan1024Chars(String testString){
-        return ((testString != null) && (StringUtils.length(testString) > MAX_STRING_LENGTH_1024));
+        return (StringUtils.length(testString) > MAX_STRING_LENGTH_1024);
     }
 }

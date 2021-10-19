@@ -520,6 +520,7 @@ public class BackendMessageValidator {
     public void validateSubmissionSending(Submission submission) throws DuplicateMessageException, EbMS3Exception {
         validateUserMessageForPmodeMatch(submission, MSHRole.SENDING);
         messagePropertyValidator.validate(submission, MSHRole.SENDING);
+        validateSubmissionPayload(submission, MSHRole.SENDING);
     }
 
     public void validatePayloadProfile(UserMessage userMessage, List<PartInfo> partInfos, String pModeKey) throws EbMS3Exception {
@@ -537,20 +538,21 @@ public class BackendMessageValidator {
         }
     }
 
-    public void validateSubmissionPayload(Submission submission) throws EbMS3Exception {
+    public void validateSubmissionPayload(Submission submission, MSHRole mshRole) throws EbMS3Exception {
         for (Submission.Payload submissionPayload : submission.getPayloads()) {
-            validateSubmissionPartInfoProperties(submissionPayload.getPayloadProperties());
+            validateSubmissionPartInfoProperties(submissionPayload.getPayloadProperties(), mshRole);
         }
     }
 
-    protected void validateSubmissionPartInfoProperties(Collection<Submission.TypedProperty> payloadProperties) throws EbMS3Exception {
+    protected void validateSubmissionPartInfoProperties(Collection<Submission.TypedProperty> payloadProperties, MSHRole mshRole) throws EbMS3Exception {
         for (Submission.TypedProperty payloadProperty : payloadProperties) {
-            validateSubmissionPayloadProperty(payloadProperty);
+            validateSubmissionPayloadProperty(payloadProperty, mshRole);
         }
     }
 
-    protected void validateSubmissionPayloadProperty(Submission.TypedProperty payloadProperty) throws EbMS3Exception {
+    protected void validateSubmissionPayloadProperty(Submission.TypedProperty payloadProperty, MSHRole mshRole) throws EbMS3Exception {
         if(payloadProperty == null || payloadProperty.getValue() == null){
+            LOG.debug("Payload properties empty in usermessage submission");
             return;
         }
         String payloadPropertyValue = payloadProperty.getValue();
@@ -559,6 +561,7 @@ public class BackendMessageValidator {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message(PART_PROPERTY + ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024)
+                    .mshRole(mshRole)
                     .build();
         }
     }

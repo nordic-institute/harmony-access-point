@@ -664,8 +664,6 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
-            backendMessageValidator.validateSubmissionPayload(submission);
-            times = 1;
             errorLogService.createErrorLog((EbMS3Exception) any, MSHRole.SENDING, null);
             times = 1;
 

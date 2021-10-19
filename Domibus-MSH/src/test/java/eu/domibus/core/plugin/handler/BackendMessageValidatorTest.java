@@ -781,6 +781,6 @@ public class BackendMessageValidatorTest {
         }};
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("PartProperty is too long (over 1024 characters).");
-        backendMessageValidatorObj.validateSubmissionPayloadProperty(payloadProperty);
+        backendMessageValidatorObj.validateSubmissionPayloadProperty(payloadProperty, MSHRole.SENDING);
     }
 }
