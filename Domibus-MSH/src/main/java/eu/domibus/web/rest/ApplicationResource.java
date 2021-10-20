@@ -119,11 +119,11 @@ public class ApplicationResource {
      * @return a list of domains
      */
     // todo mark as obsolete or remove altogether as we have a dedicates resource now
-    @RequestMapping(value = "domains", method = RequestMethod.GET)
-    public List<DomainRO> getDomains() {
-        LOG.debug("Getting domains");
-        return coreMapper.domainListToDomainROList(domainService.getDomains());
-    }
+//    @RequestMapping(value = "domains", method = RequestMethod.GET)
+//    public List<DomainRO> getDomains() {
+//        LOG.debug("Getting domains");
+//        return coreMapper.domainListToDomainROList(domainService.getDomains());
+//    }
 
     @RequestMapping(value = "fourcornerenabled", method = RequestMethod.GET)
     public boolean getFourCornerModelEnabled() {
