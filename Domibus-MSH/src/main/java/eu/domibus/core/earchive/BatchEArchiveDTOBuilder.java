@@ -1,0 +1,76 @@
+package eu.domibus.core.earchive;
+
+import java.util.List;
+
+public class BatchEArchiveDTOBuilder {
+    private String version;
+    private String batchId;
+    private String requestType;
+    private String status;
+    private String errorCode;
+    private String errorDescription;
+    private String timestamp;
+    private String messageStartDate;
+    private String messageEndDate;
+    private String manifestChecksum;
+    private List<String> messages;
+
+    public BatchEArchiveDTOBuilder version(String version) {
+        this.version = version;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder batchId(String batchId) {
+        this.batchId = batchId;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder requestType(String requestType) {
+        this.requestType = requestType;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder status(String status) {
+        this.status = status;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder errorCode(String errorCode) {
+        this.errorCode = errorCode;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder errorDescription(String errorDescription) {
+        this.errorDescription = errorDescription;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder timestamp(String timestamp) {
+        this.timestamp = timestamp;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder messageStartDate(String messageStartDate) {
+        this.messageStartDate = messageStartDate;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder messageEndDate(String messageEndDate) {
+        this.messageEndDate = messageEndDate;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder manifestChecksum(String manifestChecksum) {
+        this.manifestChecksum = manifestChecksum;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder messages(List<String> messages) {
+        this.messages = messages;
+        return this;
+    }
+
+    public BatchEArchiveDTO createBatchEArchiveDTO() {
+        return new BatchEArchiveDTO(version, batchId, requestType, status, errorCode, errorDescription, timestamp, messageStartDate, messageEndDate, manifestChecksum, messages);
+    }
+}

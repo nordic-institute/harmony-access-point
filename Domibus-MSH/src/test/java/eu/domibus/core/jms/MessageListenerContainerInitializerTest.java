@@ -2,6 +2,7 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
@@ -39,6 +40,9 @@ public class MessageListenerContainerInitializerTest {
 
     @Injectable
     protected DomibusCoreMapper coreMapper;
+
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     protected UserMessagePriorityService userMessagePriorityService;

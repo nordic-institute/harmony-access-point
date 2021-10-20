@@ -1137,6 +1137,17 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
+    @Override
+    public LegConfigurationPerMpc getAllLegConfigurations() {
+        Map<String, List<LegConfiguration>> result = new HashMap<>();
+        for (LegConfiguration legConfiguration : getConfiguration().getBusinessProcesses().getLegConfigurations()) {
+            List<LegConfiguration> legs = result.computeIfAbsent(legConfiguration.getDefaultMpc().getName(), k -> new ArrayList<>());
+            legs.add(legConfiguration);
+        }
+        return new LegConfigurationPerMpc(result);
+    }
+
+    @Override
     public String findMpcUri(final String mpcName) throws EbMS3Exception {
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
             if (equalsIgnoreCase(mpc.getName(), mpcName)) {
@@ -1149,7 +1160,6 @@ public class CachingPModeProvider extends PModeProvider {
                 .build();
     }
 
-    @Nullable
     private Agreement getAgreementRefHandleProcess(Process found) {
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
             if (equalsIgnoreCase(process.getName(), found.getName())) {

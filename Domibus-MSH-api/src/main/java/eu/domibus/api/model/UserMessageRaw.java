@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 @Table(name = "TB_USER_MESSAGE_RAW")
 @NamedQueries({
         @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM UserMessageRaw l where l.userMessage.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "RawDto.findByEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM UserMessageRaw l where l.entityId=:ENTITY_ID"),
         @NamedQuery(name = "Raw.deleteByMessageID", query = "DELETE FROM UserMessageRaw r where r.entityId=:MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "RawDto.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) " +
                 "FROM UserMessageRaw l where l.userMessage.entityId=:USER_MESSAGE_ID"),
