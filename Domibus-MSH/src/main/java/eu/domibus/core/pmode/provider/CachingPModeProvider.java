@@ -370,7 +370,7 @@ public class CachingPModeProvider extends PModeProvider {
     private void logProcesses(List<Process> allProcesses) {
         if (LOG.isDebugEnabled()) {
             for (Process process : allProcesses) {
-                LOG.debug("     [{}]", process.getName());
+                LOG.debug("[{}]", process.getName());
             }
         }
     }
@@ -381,7 +381,8 @@ public class CachingPModeProvider extends PModeProvider {
         if (processingType == null) {
             LOG.debug("ProcessingType is null, returning all processes.");
             return candidateProcesses;
-        } else if (processingType == ProcessingType.PULL) {
+        }
+        if (processingType == ProcessingType.PULL) {
             processBinding.add(ONE_WAY_PULL.getUri());
             LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
             return candidateProcesses.
