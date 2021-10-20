@@ -132,4 +132,35 @@ public interface MessageMonitorExtService {
      */
     List<MessageAttemptDTO> getAttemptsHistory(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
 
+    /**
+     * Operation to delete a message which is not in final statuses in the access point.
+     * <p>Only the payload will be deleted. The LOGs tables will keep track of the message.
+     *
+     * @param messageId Unique id of the message
+     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
+     * @throws MessageMonitorExtException Raised in case an exception occurs while trying to delete the message
+     */
+    void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
+
+
+    /**
+     * Operation to delete all messages which are not in the final status
+     * during the period occurred between the "begin" and "end" times.
+     * <p>This operation will set each message to DELETED status.</p>
+     *
+     * The method takes into account the user permissions:
+     * <ul>
+     * <li>It delete all messages matching the criteria if unsecured authorization is allowed or the user has ROLE_ADMIN</li>
+     * <li>It delete all the messages matching the finalRecipient value in case the user has ROLE_USER</li>
+     * </ul>
+     *
+     * @param begin specific instant time starting period
+     * @param end   specific instant time ending period
+     * @return List the messages ids's list of successfully deleted messages.
+     * @throws MessageMonitorExtException Raised in case a blocking event occurs. It is not raised when the operation is successful for at least one message
+     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
+     */
+    List<String> deleteMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException;
+
+
 }
