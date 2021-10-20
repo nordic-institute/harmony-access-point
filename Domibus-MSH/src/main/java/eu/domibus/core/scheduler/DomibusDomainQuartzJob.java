@@ -2,6 +2,9 @@ package eu.domibus.core.scheduler;
 
 import eu.domibus.api.multitenancy.Domain;
 
+/**
+ * Encapsulates Domibus domain and a Quartz job
+ */
 public class DomibusDomainQuartzJob {
     private Domain domain;
 
