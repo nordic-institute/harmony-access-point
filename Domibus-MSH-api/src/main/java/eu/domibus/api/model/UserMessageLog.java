@@ -354,5 +354,4 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     public void setUserMessage(UserMessage userMessage) {
         this.userMessage = userMessage;
     }
-
 }

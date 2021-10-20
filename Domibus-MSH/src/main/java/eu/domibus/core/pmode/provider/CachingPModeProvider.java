@@ -345,15 +345,13 @@ public class CachingPModeProvider extends PModeProvider {
         }
         List<Process> allProcesses = findAllProcesses();
         LOG.debug("All processes:");
-        for (Process process : allProcesses) {
-            LOG.debug("     [{}]",process.getName());
-        }
+        logProcesses(allProcesses);
+
         List<Process> candidateProcesses = filterProcessesByProcessingType(legFilterCriteria.getProcessingType(),
                 allProcesses);
         LOG.debug("Filtered processes:");
-        for (Process process : candidateProcesses) {
-            LOG.debug("     [{}]",process.getName());
-        }
+        logProcesses(candidateProcesses);
+
         for (Process process : candidateProcesses) {
             ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), legFilterCriteria.getSenderParty(), legFilterCriteria.getReceiverParty());
             checkAgreementMismatch(process, legFilterCriteria);
@@ -369,6 +367,14 @@ public class CachingPModeProvider extends PModeProvider {
         return candidateProcesses;
     }
 
+    private void logProcesses(List<Process> allProcesses) {
+        if (LOG.isDebugEnabled()) {
+            for (Process process : allProcesses) {
+                LOG.debug("     [{}]", process.getName());
+            }
+        }
+    }
+
     private List<Process> filterProcessesByProcessingType(ProcessingType processingType, List<Process> candidateProcesses) {
         Set<String> processBinding = new HashSet<>();
         LOG.debug("Filter process by processing type:");
@@ -380,7 +386,7 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
             return candidateProcesses.
                     stream().
-                    peek(process->LOG.debug("Checking binding for:[{}]",process.getName())).
+                    peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
                     filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
         } else {
             processBinding.add(ONE_WAY_PUSH.getUri());
@@ -388,14 +394,14 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
             return candidateProcesses.
                     stream().
-                    peek(process->LOG.debug("Checking binding for:[{}]",process.getName())).
+                    peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
                     filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
         }
     }
 
     private boolean compareMepBinding(Binding mepBinding, Set<String> bindings) {
         boolean sameMepBinding = mepBinding != null && mepBinding.getValue() != null && bindings.contains(mepBinding.getValue());
-        LOG.debug("Compare process binding:[{}] to bindings List:[{}]-> mep matches:[{}]", mepBinding, String.join(", ", bindings),sameMepBinding);
+        LOG.debug("Compare process binding:[{}] to bindings List:[{}]-> mep matches:[{}]", mepBinding, String.join(", ", bindings), sameMepBinding);
         return sameMepBinding;
     }
 
