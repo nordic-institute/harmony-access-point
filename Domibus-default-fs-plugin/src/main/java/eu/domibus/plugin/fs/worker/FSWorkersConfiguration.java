@@ -153,7 +153,7 @@ public class FSWorkersConfiguration {
             return true; // this job only works for a domain
         }
         if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("we cannot create {}, domain {} is disabled", jobName, domain);
+            LOG.debug("we cannot create [{}], domain [{}] is disabled", jobName, domain);
 
             domibusSchedulerExtService.markJobForDeletion(domain.getCode(), jobName);
             LOG.debug("Quartz job [{}] marked for deletion domain=[{}]", jobName, domain.getCode());

@@ -148,14 +148,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     }
 
     protected void removeMarkedForDeletionJobs() {
-        synchronized (jobsToDelete) {
-            ListIterator<DomibusDomainQuartzJob> listIterator = jobsToDelete.listIterator();
-            while (listIterator.hasNext()) {
-                DomibusDomainQuartzJob domibusDomainQuartzJob = listIterator.next();
-                deleteJobByDomain(domibusDomainQuartzJob.getDomain(), domibusDomainQuartzJob.getQuartzJob());
-                listIterator.remove();
-            }
-        }
+        jobsToDelete.forEach(domibusDomainQuartzJob -> deleteJobByDomain(domibusDomainQuartzJob.getDomain(), domibusDomainQuartzJob.getQuartzJob()));
     }
 
     /**
@@ -385,7 +378,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 deleteSchedulerJob(scheduler, jobKey);
             }
         } catch (SchedulerException ex) {
-            LOG.error("Error rescheduling job [{}] ", jobNameToDelete, ex);
+            LOG.error("Error deleting job [{}] ", jobNameToDelete, ex);
             throw new DomibusSchedulerException(ex);
         }
     }
