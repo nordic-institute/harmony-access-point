@@ -1,7 +1,5 @@
 package eu.domibus.ext.services;
 
-import eu.domibus.ext.domain.DomainDTO;
-
 /**
  * Service used for operations related with Domibus Configuration.
  *
@@ -24,6 +22,4 @@ public interface DomibusConfigurationExtService {
     String getConfigLocation();
 
     boolean isClusterDeployment();
-
-    void loadProperties(DomainDTO domain);
 }

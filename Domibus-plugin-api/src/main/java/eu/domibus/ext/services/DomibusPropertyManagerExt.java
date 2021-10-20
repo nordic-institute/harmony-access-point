@@ -1,5 +1,7 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.ext.domain.DomainDTO;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -66,4 +68,26 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @return the current property value
      */
     String getKnownPropertyValue(String domainCode, String propertyName);
+
+    /**
+     * The name of the property file in ST mode or of the general properties in MT mode
+     *
+     * @return the file name
+     */
+    String getConfigurationFileName();
+
+    /**
+     * The name of the property file of the specified domain in MT mode
+     *
+     * @param domain the domain whose property name we want
+     * @return the name of the file
+     */
+    String getConfigurationFileName(DomainDTO domain);
+
+    /**
+     * Loads the property file of the specified domain in domibus property provider
+     *
+     * @param domain
+     */
+    void loadProperties(DomainDTO domain);
 }
