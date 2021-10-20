@@ -339,7 +339,11 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 try {
                     scheduler.deleteJob(jobKey);
-                    LOG.warn("DELETED Quartz job: {} from group: {} cause: {}", jobKey.getName(), jobKey.getGroup(), se.getMessage());
+                    if (se != null) {
+                        LOG.warn("DELETED Quartz job: {} from group: {} cause: {}", jobKey.getName(), jobKey.getGroup(), se.getMessage());
+                    } else {
+                        LOG.warn("DELETED Quartz job: {} from group: {}", jobKey.getName(), jobKey.getGroup());
+                    }
                 } catch (Exception e) {
                     LOG.error("Error while deleting Quartz job: {}", jobKey.getName(), e);
                 }
@@ -375,27 +379,12 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
             if (scheduler != null) {
                 JobKey jobKey = findJob(scheduler, jobNameToDelete);
-                deleteSchedulerJob(scheduler, jobKey);
+                deleteSchedulerJob(scheduler, jobKey, null);
             }
         } catch (SchedulerException ex) {
             LOG.error("Error deleting job [{}] ", jobNameToDelete, ex);
             throw new DomibusSchedulerException(ex);
         }
-    }
-
-    protected void deleteSchedulerJob(Scheduler scheduler, JobKey jobKey) {
-        // the job deletion needs to happen inside a transaction,
-        // ensuring that, when the scheduler is started immediately afterwards, the deletion is already committed
-        new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                try {
-                    scheduler.deleteJob(jobKey);
-                    LOG.warn("DELETED Quartz job: {} from group: {}", jobKey.getName(), jobKey.getGroup());
-                } catch (Exception e) {
-                    LOG.error("Error while deleting Quartz job: {}", jobKey.getName(), e);
-                }
-            }
-        });
     }
 
     /**
