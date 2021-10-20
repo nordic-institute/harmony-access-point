@@ -1,15 +1,18 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.core.cache.DomibusCacheService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import java.util.Properties;
 
@@ -52,6 +55,15 @@ public class DomibusPropertyProviderImplTest {
 
     @Injectable
     private PasswordDecryptionService passwordDecryptionService;
+
+    @Injectable
+    private AnnotationConfigWebApplicationContext rootContext;
+
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    private DomibusCacheService domibusCacheService;
 
     private String propertyName = "domibus.property.name";
     private String propertyValue = "domibus.property.value";

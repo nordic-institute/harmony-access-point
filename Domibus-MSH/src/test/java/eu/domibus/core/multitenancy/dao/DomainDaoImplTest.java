@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(JMockit.class)
 public class DomainDaoImplTest {
@@ -44,6 +43,7 @@ public class DomainDaoImplTest {
         new Expectations(domainDao) {{
             domainDao.findAllDomainCodes();
             result = Arrays.asList("zdomain", "adomain");
+            domainDao.checkValidDomain((List<Domain>)any, anyString);
         }};
 
         List<Domain> domains = domainDao.findAll();
@@ -74,7 +74,7 @@ public class DomainDaoImplTest {
         List<Domain> domains = new ArrayList<>();
 
         try {
-            domainDao.isValidDomain(domains, domainCode);
+            domainDao.checkValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
@@ -91,7 +91,7 @@ public class DomainDaoImplTest {
         Domain domain1 = new Domain(domainCode1, null);
         domains.add(domain1);
         try {
-            domainDao.isValidDomain(domains, domainCode);
+            domainDao.checkValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
@@ -100,11 +100,20 @@ public class DomainDaoImplTest {
     }
 
     @Test
-    public void testValidateDomain_ValidDomain(@Injectable Domain domain) {
+    public void testValidateDomain_ValidDomain() {
 
         final String domainCode = "domain1";
         List<Domain> domains = new ArrayList<>();
-        assertTrue(domainDao.isValidDomain(domains, domainCode));
+
+        new Expectations(domainDao) {{
+            domainDao.checkConfigFile(domainCode);
+        }};
+
+        try {
+            domainDao.checkValidDomain(domains, domainCode);
+        } catch (Exception ex) {
+            Assert.fail();
+        }
     }
 
 
@@ -115,7 +124,7 @@ public class DomainDaoImplTest {
         List<Domain> domains = new ArrayList<>();
 
         try {
-            domainDao.isValidDomain(domains, domainCode);
+            domainDao.checkValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);

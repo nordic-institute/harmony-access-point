@@ -51,6 +51,9 @@ public class MultiDomainCryptoServiceImplTest {
     @Injectable
     DomibusRawPropertyProvider domibusRawPropertyProvider;
 
+    @Injectable
+    DomainService domainService;
+
     @Test
     public void getX509Certificates(@Mocked DomainCryptoServiceImpl cryptoService) throws WSSecurityException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
