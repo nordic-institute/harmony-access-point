@@ -389,15 +389,15 @@ public class CachingPModeProvider extends PModeProvider {
                     stream().
                     peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
                     filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
-        } else {
-            processBinding.add(ONE_WAY_PUSH.getUri());
-            processBinding.add(TWO_WAY_PUSH_PUSH.getUri());
-            LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
-            return candidateProcesses.
-                    stream().
-                    peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
-                    filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
         }
+        processBinding.add(ONE_WAY_PUSH.getUri());
+        processBinding.add(TWO_WAY_PUSH_PUSH.getUri());
+        LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
+        return candidateProcesses.
+                stream().
+                peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
+                filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
+
     }
 
     private boolean compareMepBinding(Binding mepBinding, Set<String> bindings) {
