@@ -7,12 +7,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -41,7 +39,7 @@ public class DomainDaoImpl implements DomainDao {
     protected DomibusConfigurationService domibusConfigurationService;
     protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
 
-//    @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
+    //    @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
     @Override
     public List<Domain> findAll() {
         LOG.trace("Finding all domains");
@@ -60,13 +58,14 @@ public class DomainDaoImpl implements DomainDao {
 
         List<Domain> domains = new ArrayList<>();
         for (String domainCode : domainCodes) {
-            if (isValidDomain(domains, domainCode)) {
-                Domain domain = new Domain();
-                domain.setCode(domainCode.toLowerCase());
-                domain.setName(getDomainTitle(domain));
-                domains.add(domain);
-                LOG.trace("Domain name is valid. Added domain [{}]", domain);
-            }
+            checkValidDomain(domains, domainCode);
+
+            Domain domain = new Domain();
+            domain.setCode(domainCode.toLowerCase());
+            domain.setName(getDomainTitle(domain));
+            domains.add(domain);
+
+            LOG.trace("Domain name is valid. Added domain [{}]", domain);
         }
         if (domains.stream().noneMatch(domain -> DomainService.DEFAULT_DOMAIN.equals(domain))) {
             LOG.warn("Default domain is normally present in the configuration.");
@@ -80,8 +79,7 @@ public class DomainDaoImpl implements DomainDao {
         return result;
     }
 
-    @Override
-    public String getDomainTitle(Domain domain) {
+    protected String getDomainTitle(Domain domain) {
         String domainTitle = domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
         if (StringUtils.isEmpty(domainTitle)) {
             domainTitle = domain.getCode();
@@ -100,7 +98,7 @@ public class DomainDaoImpl implements DomainDao {
         return Arrays.stream(domainHomes).map(File::getName).sorted().collect(Collectors.toList());
     }
 
-    protected boolean isValidDomain(List<Domain> domains, String domainCode) {
+    protected void checkValidDomain(List<Domain> domains, String domainCode) {
         if (Character.isDigit(domainCode.charAt(0))) {
             LOG.error("Domain name [{}] should not start with a number. It should start with a letter and contain only lower case letters, numbers and underscore.", domainCode);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Domain name should not start with a number. Invalid domain name:" + domainCode);
@@ -109,11 +107,21 @@ public class DomainDaoImpl implements DomainDao {
         if (domains.stream().anyMatch(d -> d.getCode().equals(domainCode))) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Found duplicate domain name :" + domainCode);
         }
+
         if (!domainCode.matches(DOMAIN_NAME_REGEX)) {
             LOG.error("Domain name [{}] is not valid. It should start with a letter and contain only lower case letters, numbers and underscore.", domainCode);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Forbidden characters like capital letters or special characters, except underscore found in domain name. Invalid domain name:" + domainCode);
-        } else {
-            return true;
+        }
+
+        checkConfigFile(domainCode);
+    }
+
+    protected void checkConfigFile(String domainCode) {
+        Domain domain = new Domain(domainCode, domainCode);
+        String configFile = domibusConfigurationService.getConfigLocation() + File.separator + domibusConfigurationService.getConfigurationFileName(domain);
+        File f = new File(configFile);
+        if (!f.exists() || f.isDirectory()) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("The domain [%s] does not have a properties file defined.", domainCode));
         }
     }
 }

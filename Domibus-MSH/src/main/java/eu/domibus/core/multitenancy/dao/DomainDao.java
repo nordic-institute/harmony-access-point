@@ -12,5 +12,4 @@ public interface DomainDao {
 
     List<Domain> findAll();
 
-    String getDomainTitle(Domain domain);
 }
