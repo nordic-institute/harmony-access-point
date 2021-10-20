@@ -23,6 +23,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.ebms3.MessageExchangePattern.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -245,12 +247,13 @@ public class CachingPModeProvider extends PModeProvider {
                                   final String receiverParty, final String service, final String action, final String mpc, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
         final List<LegConfiguration> candidates = new ArrayList<>();
         ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(
-                MessageExchangePattern.ONE_WAY_PULL.getUri(), senderParty, receiverParty);
+                ONE_WAY_PULL.getUri(), senderParty, receiverParty);
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
         processes = processes.stream().filter(process -> matchAgreement(process, agreementName))
+                .filter(process -> process.getMepBinding() != null && matchMepBinding(process.getMepBinding().getValue(), BackendConnector.Mode.PULL.getFileMapping()))
                 .filter(process -> matchRole(process.getInitiatorRole(), initiatorRole))
                 .filter(process -> matchRole(process.getResponderRole(), responderRole))
-                .filter(process -> MessageExchangePattern.ONE_WAY_PULL.getUri().equals(process.getMepBinding().getValue()))
+                .filter(process -> ONE_WAY_PULL.getUri().equals(process.getMepBinding().getValue()))
                 .filter(process -> matchInitiator(process, processTypePartyExtractor))
                 .filter(process -> matchResponder(process, processTypePartyExtractor)).collect(Collectors.toList());
 
@@ -294,9 +297,9 @@ public class CachingPModeProvider extends PModeProvider {
      */
     @Override
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
-                              final String service, final String action, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
+                              final String service, final String action, final Role initiatorRole, final Role responderRole, ProcessingType processingType) throws EbMS3Exception {
 
-        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action);
+        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processingType);
 
         final List<Process> matchingProcesses = filterMatchingProcesses(legFilterCriteria);
         if (matchingProcesses.isEmpty()) {
@@ -340,7 +343,8 @@ public class CachingPModeProvider extends PModeProvider {
         if (legFilterCriteria == null) {
             return new ArrayList<>();
         }
-        List<Process> candidateProcesses = new ArrayList<>(this.getConfiguration().getBusinessProcesses().getProcesses());
+        List<Process> candidateProcesses = filterProcessesByProcessingType(legFilterCriteria.getProcessingType(),
+                this.getConfiguration().getBusinessProcesses().getProcesses());
         for (Process process : candidateProcesses) {
             ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), legFilterCriteria.getSenderParty(), legFilterCriteria.getReceiverParty());
             checkAgreementMismatch(process, legFilterCriteria);
@@ -354,6 +358,24 @@ public class CachingPModeProvider extends PModeProvider {
             LOG.debug("Names of matched processes:[{}]", listProcessNames(candidateProcesses));
         }
         return candidateProcesses;
+    }
+
+    private List<Process> filterProcessesByProcessingType(ProcessingType processingType, List<Process> candidateProcesses) {
+        Set<String> processBinding = new HashSet<>();
+        if (processingType == null) {
+            return candidateProcesses;
+        } else if (processingType == ProcessingType.PULL) {
+            processBinding.add(ONE_WAY_PULL.getUri());
+            return candidateProcesses.stream().filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
+        } else {
+            processBinding.add(ONE_WAY_PUSH.getUri());
+            processBinding.add(TWO_WAY_PUSH_PUSH.getUri());
+            return candidateProcesses.stream().filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
+        }
+    }
+
+    private boolean compareMepBinding(Binding mepBinding, Set<String> bindings) {
+        return mepBinding != null && bindings.contains(mepBinding.getValue());
     }
 
     private String listProcessNames(List<Process> candidateProcesses) {
@@ -400,6 +422,16 @@ public class CachingPModeProvider extends PModeProvider {
             return;
         }
         legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Action:[" + legFilterCriteria.getAction() + DOES_NOT_MATCH_END_STRING);
+    }
+
+    protected boolean matchMepBinding(final String processMepBiding, final String messageProcessingType) {
+        if (Objects.equals(processMepBiding, messageProcessingType)) {
+            LOG.debug("Mep binding do  match:processMepBiding[{}]==messageProcessingType[{}]", processMepBiding, messageProcessingType);
+            return true;
+        }
+
+        LOG.trace("Mep binding do not match:processMepBiding[{}]!=messageProcessingType[{}]", processMepBiding, messageProcessingType);
+        return false;
     }
 
     protected boolean matchRole(final Role processRole, final Role role) {
@@ -1077,6 +1109,17 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
+    @Override
+    public LegConfigurationPerMpc getAllLegConfigurations() {
+        Map<String, List<LegConfiguration>> result = new HashMap<>();
+        for (LegConfiguration legConfiguration : getConfiguration().getBusinessProcesses().getLegConfigurations()) {
+            List<LegConfiguration> legs = result.computeIfAbsent(legConfiguration.getDefaultMpc().getName(), k -> new ArrayList<>());
+            legs.add(legConfiguration);
+        }
+        return new LegConfigurationPerMpc(result);
+    }
+
+    @Override
     public String findMpcUri(final String mpcName) throws EbMS3Exception {
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
             if (equalsIgnoreCase(mpc.getName(), mpcName)) {
@@ -1089,7 +1132,6 @@ public class CachingPModeProvider extends PModeProvider {
                 .build();
     }
 
-    @Nullable
     private Agreement getAgreementRefHandleProcess(Process found) {
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
             if (equalsIgnoreCase(process.getName(), found.getName())) {

@@ -150,33 +150,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         checkMessageAuthorization(userMessage);
 
         List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
-        boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage, partInfos);
-        if (shouldDeleteDownloadedMessage) {
-            partInfoService.clearPayloadData(userMessage.getEntityId());
 
-            // Sets the message log status to DELETED
-            userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
-            // Sets the log status to deleted also for the signal messages (if present).
+        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
 
-            final SignalMessage signalMessage = signalMessageDao.read(userMessage.getEntityId());
-            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
-        } else {
-            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-        }
         return transformer.transformFromMessaging(userMessage, partInfos);
-    }
-
-    protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage, List<PartInfo> partInfos) {
-        // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
-        return (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpcValue()) && !isPayloadOnFileSystem(partInfos));
-    }
-
-    protected boolean isPayloadOnFileSystem(List<PartInfo> partInfos) {
-        for (PartInfo partInfo : partInfos) {
-            if (StringUtils.isNotEmpty(partInfo.getFileName()))
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -378,19 +355,19 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;
-            if (ProcessingType.PULL.equals(submission.getProcessingType()) && messageExchangeService.forcePullOnMpc(userMessage)) {
+            if (messageExchangeService.forcePullOnMpc(userMessage)) {
+                submission.setProcessingType(ProcessingType.PULL);
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, submission.getProcessingType());
                 to = createNewParty(userMessage.getMpcValue());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
                 final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
                 messageStatus = messageStatusEntity.getMessageStatus();
             }
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-
             if (to == null) {
                 //TODO validation should not return a business value
                 to = messageValidations(userMessage, partInfos, pModeKey, backendName);

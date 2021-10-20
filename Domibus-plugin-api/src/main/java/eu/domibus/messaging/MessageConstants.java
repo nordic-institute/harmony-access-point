@@ -10,6 +10,8 @@ public final class MessageConstants {
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final String MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
+    public static final String BATCH_ID = "BATCH_ID";
+    public static final String BATCH_ENTITY_ID = "BATCH_ENTITY_ID";
     public static final String DOMAIN = "DOMAIN";
     public static final String ENDPOINT = "ENDPOINT";
     public static final String DELAY = "DELAY";

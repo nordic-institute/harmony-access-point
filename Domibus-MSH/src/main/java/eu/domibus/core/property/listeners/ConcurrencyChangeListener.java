@@ -9,18 +9,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONCURENCY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_QUEUE_CONCURENCY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_JMS_CONCURRENCY;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.DISPATCH_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.PULL_MESSAGE_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.PULL_RECEIPT_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.RETENTION_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.SEND_LARGE_MESSAGE_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.SPLIT_AND_JOIN_CONTAINER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.*;
 
 /**
  * @author Ion Perpegel
@@ -45,6 +35,7 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
                 DOMIBUS_RETENTION_JMS_CONCURRENCY,
                 DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY,
                 DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY,
+                DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY,
                 DOMIBUS_PULL_QUEUE_CONCURENCY);
     }
 
@@ -70,6 +61,9 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
                 break;
             case DOMIBUS_PULL_QUEUE_CONCURENCY:
                 messageListenerContainerInitializer.setConcurrency(domain, PULL_MESSAGE_CONTAINER, propertyValue);
+                break;
+            case DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY:
+                messageListenerContainerInitializer.setConcurrency(domain, EARCHIVE_MESSAGE_CONTAINER, propertyValue);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown property: " + propertyName);

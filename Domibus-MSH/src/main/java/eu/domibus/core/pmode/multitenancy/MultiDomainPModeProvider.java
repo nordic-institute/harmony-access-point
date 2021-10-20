@@ -13,12 +13,14 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.ProcessingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,8 +96,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole) throws EbMS3Exception {
-        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType) throws EbMS3Exception {
+        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType);
     }
 
     @Override
@@ -134,8 +136,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull) throws EbMS3Exception {
-        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull);
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
+        return getCurrentPModeProvider().findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
     }
 
     @Override
@@ -281,6 +283,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     @Override
     public Agreement getAgreementRef(String serviceValue) {
         return getCurrentPModeProvider().getAgreementRef(serviceValue);
+    }
+
+    @Override
+    public LegConfigurationPerMpc getAllLegConfigurations() {
+        return getCurrentPModeProvider().getAllLegConfigurations();
     }
 
     @Override

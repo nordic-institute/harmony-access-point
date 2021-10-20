@@ -575,6 +575,7 @@
                 <jms-queue name="DomibusPullReceiptQueue" entries="java:/jms/domibus.internal.pull.receipt.queue java:/jms/queue/DomibusPullReceiptQueue" durable="true"/>
                 <jms-queue name="DomibusRetentionMessageQueue" entries="java:/jms/domibus.internal.retentionMessage.queue java:/jms/queue/DomibusRetentionMessageQueue" durable="true"/>
                 <jms-queue name="DomibusAlertMessageQueue" entries="java:/jms/domibus.internal.alert.queue java:/jms/queue/DomibusAlertMessageQueue" durable="true"/>
+                <jms-queue name="DomibusEArchiveQueue" entries="java:/jms/domibus.internal.earchive.queue java:/jms/queue/DomibusEArchiveQueue" durable="true"/>
                 <jms-queue name="DomibusUIReplicationQueue" entries="java:/jms/domibus.internal.ui.replication.queue java:/jms/queue/DomibusUIReplicationQueue" durable="true"/>
                 <jms-queue name="DomibusNotifyBackendWebServiceQueue" entries="java:/jms/domibus.notification.webservice java:/jms/queue/DomibusNotifyBackendWebServiceQueue" durable="true"/>
                 <jms-queue name="DomibusNotifyBackendFileSystemQueue" entries="java:/jms/domibus.notification.filesystem java:/jms/queue/DomibusNotifyBackendFileSystemQueue" durable="true"/>

@@ -2,6 +2,7 @@ package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
@@ -23,14 +24,14 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
-import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
-import static eu.domibus.api.util.DomibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength;
+import static eu.domibus.api.util.DomibusStringUtil.*;
 import static eu.domibus.logging.DomibusMessageCode.*;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -62,6 +63,7 @@ public class BackendMessageValidator {
     public static final String SERVICE = "Service";
     public static final String SERVICE_TYPE = "ServiceType";
     public static final String ACTION = "Action";
+    public static final String PART_PROPERTY = "PartProperty";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -518,6 +520,7 @@ public class BackendMessageValidator {
     public void validateSubmissionSending(Submission submission) throws DuplicateMessageException, EbMS3Exception {
         validateUserMessageForPmodeMatch(submission, MSHRole.SENDING);
         messagePropertyValidator.validate(submission, MSHRole.SENDING);
+        validateSubmissionPayload(submission, MSHRole.SENDING);
     }
 
     public void validatePayloadProfile(UserMessage userMessage, List<PartInfo> partInfos, String pModeKey) throws EbMS3Exception {
@@ -532,6 +535,34 @@ public class BackendMessageValidator {
         MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
         if (!MessageStatus.NOT_FOUND.equals(messageStatus)) {
             throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
+        }
+    }
+
+    public void validateSubmissionPayload(Submission submission, MSHRole mshRole) throws EbMS3Exception {
+        for (Submission.Payload submissionPayload : submission.getPayloads()) {
+            validateSubmissionPartInfoProperties(submissionPayload.getPayloadProperties(), mshRole);
+        }
+    }
+
+    protected void validateSubmissionPartInfoProperties(Collection<Submission.TypedProperty> payloadProperties, MSHRole mshRole) throws EbMS3Exception {
+        for (Submission.TypedProperty payloadProperty : payloadProperties) {
+            validateSubmissionPayloadProperty(payloadProperty, mshRole);
+        }
+    }
+
+    protected void validateSubmissionPayloadProperty(Submission.TypedProperty payloadProperty, MSHRole mshRole) throws EbMS3Exception {
+        if(payloadProperty == null || payloadProperty.getValue() == null){
+            LOG.debug("Payload properties empty in usermessage submission");
+            return;
+        }
+        String payloadPropertyValue = payloadProperty.getValue();
+        if (DomibusStringUtil.isStringLengthLongerThan1024Chars(payloadPropertyValue)) {
+            LOG.businessError(VALUE_LONGER_THAN_STRING_LENGTH_1024, PART_PROPERTY, payloadPropertyValue);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message(PART_PROPERTY + ERROR_MSG_STRING_LONGER_THAN_STRING_LENGTH_1024)
+                    .mshRole(mshRole)
+                    .build();
         }
     }
 }

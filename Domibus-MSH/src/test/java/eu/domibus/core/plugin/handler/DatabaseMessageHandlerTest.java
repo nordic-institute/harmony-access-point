@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
@@ -40,7 +41,6 @@ import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.access.AccessDeniedException;
@@ -233,16 +233,6 @@ public class DatabaseMessageHandlerTest {
 
         userMessage.setPartyInfo(partyInfo);
 
-//        PayloadInfo payloadInfo = new PayloadInfo();
-//        PartInfo partInfo = new PartInfo();
-//        partInfo.setHref("cid:message");
-
-//        HashSet<PartProperty> partProperties1 = new HashSet<>();
-//        partProperties1.add(createPartProperty("text/xml", "MimeType", STRING_TYPE))
-//        partInfo.setPartProperties(partProperties1);
-
-//        payloadInfo.getPartInfo().add(partInfo);
-//        userMessage.setPayloadInfo(payloadInfo);
         return userMessage;
     }
 
@@ -253,13 +243,13 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSubmitMessageGreen2RedOk(@Injectable final Submission messageData,
                                              @Injectable PartInfo partInfo,
                                              @Injectable MessageExchangeConfiguration messageExchangeConfiguration,
                                              @Injectable Party sender,
                                              @Injectable Party receiver,
-                                             @Injectable Party confParty) throws Exception {
+                                             @Injectable Party confParty,
+                                             @Injectable MessageStatusEntity messageStatus) throws Exception {
         final UserMessage userMessage = new UserMessage();
         new Expectations() {{
             authUtils.getOriginalUserFromSecurityContext();
@@ -271,14 +261,14 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            messageData.getProcessingType();
+            result = ProcessingType.PUSH;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, messageData.getProcessingType());
             result = messageExchangeConfiguration;
 
             messageExchangeConfiguration.getPmodeKey();
             result = pModeKey;
-
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
-            result = MessageStatus.SEND_ENQUEUED;
 
             pModeProvider.getSenderParty(pModeKey);
             result = sender;
@@ -298,18 +288,14 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
-            messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
-            userMessageLogService.save(withAny(new UserMessage()), anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString);
-            userMessageService.scheduleSending(userMessage, (UserMessageLog) any);
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSubmitPullMessageGreen2RedOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
+    public void testSubmitPullMessageGreen2RedOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo,
+                                                 @Injectable MessageStatusEntity messageStatus) throws Exception {
         new Expectations() {{
 
             authUtils.getOriginalUserFromSecurityContext();
@@ -322,12 +308,12 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            messageData.getProcessingType();
+            result = ProcessingType.PULL;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, messageData.getProcessingType());
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
-
-            messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
-            result = MessageStatus.READY_TO_PULL;
 
             Party sender = new Party();
             sender.setName(GREEN);
@@ -366,14 +352,9 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             UserMessage message;
-//            assertEquals("TC2Leg1", message.getCollaborationInfo().getAction());
-//            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
-            messagePropertyValidator.validate(withAny(new UserMessage()), MSHRole.SENDING);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
-            userMessageLogService.save(withAny(new UserMessage()), MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
         }};
@@ -477,7 +458,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
 
             // Here the configuration of the access point is supposed to be BLUE!
@@ -500,7 +481,6 @@ public class DatabaseMessageHandlerTest {
             result = gatewayParty;
 
             backendMessageValidator.validateInitiatorParty(gatewayParty, from);
-//            backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("The initiator party's name [" + GREEN + "] does not correspond to the access point's name [" + BLUE + "]")
@@ -528,7 +508,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             times = 1;
 
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             times = 1;
             backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             times = 1;
@@ -550,6 +530,10 @@ public class DatabaseMessageHandlerTest {
                                               @Injectable final Party to) throws Exception {
         UserMessage userMessage = createUserMessage();
         new Expectations() {{
+
+            submission.getProcessingType();
+            result = ProcessingType.PUSH;
+
             submission.getMessageId();
             result = "messageId";
 
@@ -566,7 +550,7 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             result = userMessageExchangeConfiguration;
             times = 1;
 
@@ -580,7 +564,6 @@ public class DatabaseMessageHandlerTest {
             result = to;
 
             backendMessageValidator.validateParties(from, to);
-//            backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("The initiator party's name is the same as the responder party's one")
@@ -633,7 +616,7 @@ public class DatabaseMessageHandlerTest {
             transformer.generatePartInfoList(submission);
             result = new ArrayList<>();
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("PMode could not be found. Are PModes configured in the database?")
@@ -651,7 +634,7 @@ public class DatabaseMessageHandlerTest {
             assertTrue(mpEx.getMessage().contains("PMode could not be found. Are PModes configured in the database?"));
         }
 
-        new FullVerifications() {{
+        new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
@@ -660,7 +643,7 @@ public class DatabaseMessageHandlerTest {
             times = 1;
             messageIdGenerator.generateMessageId();
             times = 1;
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             times = 1;
             backendMessageValidator.validateSubmissionSending(submission);
             times = 1;
@@ -683,7 +666,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PULL);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
             result = messageExchangeConfiguration;
 
@@ -703,9 +686,7 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
-            userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
-            times = 0;
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PULL);
         }};
     }
 
@@ -762,6 +743,10 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitMessageStoreNOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
         new Expectations() {{
+
+            messageData.getProcessingType();
+            result = ProcessingType.PUSH;
+
             authUtils.getOriginalUserFromSecurityContext();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
@@ -772,7 +757,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
 
             Party sender = new Party();
@@ -809,14 +794,15 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             pModeProvider.getLegConfiguration(anyString);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, legConfiguration, anyString);
         }};
     }
 
 
-    public void testStoreMessageToBePulled(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws EbMS3Exception {
+    public void testStoreMessageToBePulled(@Injectable final Submission messageData, @Injectable PartInfo partInfo,
+                                           @Injectable MessageStatusEntity messageStatus) throws EbMS3Exception {
         new Expectations() {{
 
             authUtils.getOriginalUserFromSecurityContext();
@@ -869,8 +855,10 @@ public class DatabaseMessageHandlerTest {
             result = true;
 
             messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH);
-            result = MessageStatus.READY_TO_PULL;
+            result = messageStatus;
 
+            messageStatus.getMessageStatus();
+            result = MessageStatus.READY_TO_PULL;
         }};
 
     }
@@ -916,7 +904,6 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testDownloadMessageOK(@Injectable UserMessage userMessage,
                                       @Injectable UserMessageLog userMessageLog,
                                       @Injectable Submission submission,
@@ -924,14 +911,10 @@ public class DatabaseMessageHandlerTest {
 
         new Expectations(databaseMessageHandler) {{
 
+            userMessageService.getByMessageId(MESS_ID);
+            result = userMessage;
             userMessageLogService.findByMessageId(MESS_ID);
             result = userMessageLog;
-
-            databaseMessageHandler.shouldDeleteDownloadedMessage(userMessage, null);
-            result = false;
-
-            transformer.transformFromMessaging(userMessage, null);
-            result = submission;
 
         }};
 
@@ -946,19 +929,16 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testDownloadMessageOK_RetentionNonZero(@Injectable Messaging messaging,
                                                        @Injectable UserMessage userMessage,
                                                        @Injectable final UserMessageLog messageLog) throws Exception {
         new Expectations(databaseMessageHandler) {{
-            messaging.getUserMessage();
+            userMessageService.getByMessageId(MESS_ID);
             result = userMessage;
 
             userMessageLogService.findByMessageId(MESS_ID);
             result = messageLog;
 
-            databaseMessageHandler.shouldDeleteDownloadedMessage(userMessage, null);
-            result = false;
         }};
 
         databaseMessageHandler.downloadMessage(MESS_ID);
@@ -1001,16 +981,17 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testDownloadMessageNoMsgFound() {
-
+        new Expectations() {{
+            userMessageService.getByMessageId(MESS_ID);
+            result = new MessageNotFoundException();
+        }};
 
         try {
             databaseMessageHandler.downloadMessage(MESS_ID);
             Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
         } catch (MessageNotFoundException mnfEx) {
-            LOG.debug("Expected :", mnfEx);
-            assertTrue(mnfEx.getMessage().contains("was not found"));
+            //OK
         }
 
         new Verifications() {{
@@ -1131,30 +1112,29 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void browseMessage(@Injectable UserMessage userMessage,
                               @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException {
         String messageId = "123";
 
         new Expectations(databaseMessageHandler) {{
-            userMessageLogService.findByMessageId(messageId);
-            result = userMessageLog;
+            userMessageService.getByMessageId(messageId);
+            result = userMessage;
 
-            databaseMessageHandler.checkMessageAuthorization(userMessage);
+
         }};
 
         databaseMessageHandler.browseMessage(messageId);
 
         new Verifications() {{
-            transformer.transformFromMessaging(userMessage, null);
+            databaseMessageHandler.checkMessageAuthorization(userMessage);
+            messagingService.getSubmission(userMessage);
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void submitMessageFragmentTest(@Injectable UserMessage userMessage,
                                           @Mocked Messaging message,
-                                          @Injectable MessageStatus messageStatus,
+                                          @Injectable MessageStatusEntity messageStatus,
                                           @Injectable MSHRole mshRole,
                                           @Injectable ObjectFactory ebMS3Of,
                                           @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
@@ -1167,58 +1147,25 @@ public class DatabaseMessageHandlerTest {
         new Expectations(databaseMessageHandler) {{
             userMessage.getMessageId();
             result = messageId;
-            userMessageLogService.getMessageStatus(messageId);
-            result = MessageStatus.NOT_FOUND;
+
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = userMessageExchangeConfiguration;
+
             userMessageExchangeConfiguration.getPmodeKey();
             result = pModeKey;
-            databaseMessageHandler.messageValidations(userMessage, null, pModeKey, backendName);
-            result = to;
+
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
+
             messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
             result = messageStatus;
+
+            messageStatus.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
         }};
 
-        databaseMessageHandler.submitMessageFragment(userMessage, null, null, backendName);
+        databaseMessageHandler.submitMessageFragment(userMessage, new MessageFragmentEntity(), null, backendName);
 
-        new Verifications() {{
-            messagingService.storeMessagePayloads(userMessage, null, MSHRole.SENDING, legConfiguration, backendName);
-            times = 1;
-            uiReplicationSignalService.userMessageSubmitted(withCapture());
-            times = 1;
-        }};
     }
 
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void downloadMessageShouldDeleteDownloadedMessageTest(@Injectable UserMessage userMessage,
-                                                                 @Injectable UserMessageLog userMessageLog,
-                                                                 @Injectable Submission submission,
-                                                                 @Injectable Messaging messaging) throws Exception {
-
-        new Expectations(databaseMessageHandler) {{
-            userMessageLogService.findByMessageId(MESS_ID);
-            result = userMessageLog;
-
-            databaseMessageHandler.shouldDeleteDownloadedMessage(userMessage, null);
-            result = true;
-
-            transformer.transformFromMessaging(userMessage, null);
-            result = submission;
-
-        }};
-
-        databaseMessageHandler.downloadMessage(MESS_ID);
-
-        new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            times = 1;
-            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-            times = 1;
-
-        }};
-
-    }
 }

@@ -591,6 +591,7 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
             </column>
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="PROCESSING_TYPE" type="VARCHAR(255)"/>
         </createTable>
 
         <!-- TB_SIGNAL_MESSAGE_LOG -->

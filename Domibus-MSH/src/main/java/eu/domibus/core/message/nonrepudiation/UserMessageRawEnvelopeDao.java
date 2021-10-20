@@ -7,6 +7,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
@@ -42,6 +43,19 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
             LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", messageId, nr);
             return null;
         }
+    }
+
+    public RawEnvelopeDto findRawXmlByEntityId(final long entityId) {
+        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByEntityId", RawEnvelopeDto.class);
+        namedQuery.setParameter("ENTITY_ID", entityId);
+
+        List<RawEnvelopeDto> resultList = namedQuery.getResultList();
+        if (CollectionUtils.isEmpty(resultList)) {
+            LOG.trace("The message with entity id[{}] has no associated raw xml saved in the database.", entityId);
+            return null;
+        }
+        LOG.debug("[findRawXmlByEntityId][Message]:[{}]", entityId);
+        return resultList.get(0);
     }
 
     public RawEnvelopeDto findUserMessageEnvelopeById(final long userMessageId) {

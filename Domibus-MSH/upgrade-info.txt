@@ -19,6 +19,56 @@ Domibus 5.0 (from 4.2.3)
                         * JMS-Plugin multitenancy installation: move any domain specific properties from jms-plugin.properties
                         to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-jms-plugin.properties)
                     Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
+
+                - [WebLogic only]
+                     o  Modify file "/conf/domibus/domibus.properties":
+                         - add the following properties:
+                             domibus.jms.queue.earchive=jms/domibus.internal.earchive.queue
+                - [Tomcat only]
+                     Modify file "/conf/domibus/domibus.properties":
+                          o add the following properties:
+                              domibus.jms.queue.earchive=domibus.internal.earchive.queue
+                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
+                             - in the destinations section add the following queues:
+                                        .............................
+                                        <destinations>
+                                            .............................
+                                             <queue id="alertMessageQueue"
+                                                                physicalName="domibus.internal.earchive.queue"/>
+                              -  in the redeliveryPolicyEntries section add the following entries:
+                                             .............................
+                                             <redeliveryPolicyEntries>
+                                                 .............................
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="3"/>
+                              -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
+                                            - original:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
+                                            -new configuration:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue" reportInterval="10000"/>
+                - [Wildfly only]
+                    Modify file "/conf/domibus/domibus.properties":
+                         o add the following property:
+                             domibus.jms.queue.earchive=jms/domibus.internal.earchive.queue
+                         o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
+                          - add the following queues in the destination section
+                                      .............................
+                                      <jms-destinations>
+                                          .............................
+                                           <jms-queue name="DomibusEArchiveQueue" entries="java:/jms/domibus.internal.earchive.queue java:/jms/queue/DomibusEArchiveQueue" durable="true"/>
+                                          .............................
+                                      </jms-destinations>
+                                      .............................
+                           -  in the address-settings section
+                                   o add the following address-setting configurations:
+                                          .............................
+                                          <address-settings>
+                                              .............................
+                                              <address-setting name="jms.queue.DomibusEArchiveQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="3"/>
+                                              .............................
+                                          </address-settings>
+                                          .............................
+                - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
+                to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
                 - Rename conf/domibus/default_clientauthentication.xml to conf/domibus/clientauthentication.xml
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"

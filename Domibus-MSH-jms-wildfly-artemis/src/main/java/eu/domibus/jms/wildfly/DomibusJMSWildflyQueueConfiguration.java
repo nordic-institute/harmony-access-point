@@ -106,6 +106,14 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
+    @Bean(EARCHIVE_QUEUE)
+    public JndiObjectFactoryBean eArchiveQueue() {
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setJndiName("jms/domibus.internal.earchive.queue");
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
+    }
+
     @Bean(UI_REPLICATION_QUEUE)
     public JndiObjectFactoryBean uiReplicationQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();

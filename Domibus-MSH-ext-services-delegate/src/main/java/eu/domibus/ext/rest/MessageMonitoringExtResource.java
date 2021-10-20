@@ -104,16 +104,16 @@ public class MessageMonitoringExtResource {
         return messageMonitorExtService.getAttemptsHistory(messageId);
     }
 
-    @ApiOperation(value = "Delete message payload", notes = "Delete the payload of a message which is not in final statuses.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "monitoring")
+    @Operation(summary = "Delete message payload", description = "Delete the payload of a message which is not in final statuses.",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
     public void deleteMessage(@PathVariable(value = "messageId") String messageId) {
         messageMonitorExtService.deleteMessageNotInFinalStatus(messageId);
     }
 
-    @ApiOperation(value = "Delete messages payload", notes = "Delete the payload of messages within a certain time interval which are not in final statuses.",
-            authorizations = @Authorization(value = "basicAuth"), tags = "monitoring")
+    @Operation(summary = "Delete messages payload", description = "Delete the payload of messages within a certain time interval which are not in final statuses.",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/delete")
     public List<String> deleteMessages(@RequestBody FailedMessagesCriteriaRO deleteMessagesCriteriaRO) {
