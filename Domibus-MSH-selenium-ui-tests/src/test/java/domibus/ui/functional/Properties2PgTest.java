@@ -51,6 +51,8 @@ public class Properties2PgTest extends SeleniumTest {
 		grid.setPropertyValue(propertyName, newPropValue);
 		page.getAlertArea().waitForAlert();
 
+		page.wait.forXMillis(500);
+
 		return oldVal;
 	}
 
