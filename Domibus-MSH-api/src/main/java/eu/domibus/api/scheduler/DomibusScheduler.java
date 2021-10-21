@@ -33,4 +33,11 @@ public interface DomibusScheduler {
      * @throws Exception
      */
     QuartzInfo getTriggerInfo() throws Exception;
+
+    /**
+     * Deletes job by domain, jobName
+     * @param domain
+     * @param jobNameToDelete
+     */
+    public void markJobForDeletionByDomain(Domain domain, String jobNameToDelete);
 }

@@ -32,4 +32,10 @@ public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtServi
         Domain domain = domainService.getDomain(domainCode);
         domibusScheduler.rescheduleJob(domain, jobNameToReschedule, newRepeatInterval);
     }
+
+    @Override
+    public void markJobForDeletion(String domainCode, String jobNameToDelete) {
+        Domain domain = domainService.getDomain(domainCode);
+        domibusScheduler.markJobForDeletionByDomain(domain, jobNameToDelete);
+    }
 }
