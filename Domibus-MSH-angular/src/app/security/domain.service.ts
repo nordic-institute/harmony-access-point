@@ -1,7 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {AsyncSubject, BehaviorSubject, Subject} from 'rxjs';
+import {AsyncSubject, BehaviorSubject, ReplaySubject, Subject} from 'rxjs';
 import 'rxjs/add/operator/map';
 import {Domain} from './domain';
 import {Title} from '@angular/platform-browser';
@@ -15,6 +15,7 @@ export class DomainService {
 
   private isMultiDomainSubject: Subject<boolean>;
   private domainSubject: Subject<Domain>;
+  private _domains: ReplaySubject<Domain[]>;
 
   constructor(private http: HttpClient, private titleService: Title) {
   }
@@ -57,6 +58,14 @@ export class DomainService {
     this.domainSubject = null;
   }
 
+  public get domains(): Observable<Domain[]> {
+    if (!this._domains) {
+      this._domains = new ReplaySubject<Domain[]>(1);
+      this.getDomains().then(res => this._domains.next(res));
+    }
+    return this._domains.asObservable();
+  }
+
   getDomains(): Promise<Domain[]> {
     let searchParams = new HttpParams();
     searchParams = searchParams.append('active', 'true');
@@ -94,6 +103,7 @@ export class DomainService {
     }
     // add domain
     await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
+    this.getDomains().then(res => this._domains.next(res));
   }
 
 }

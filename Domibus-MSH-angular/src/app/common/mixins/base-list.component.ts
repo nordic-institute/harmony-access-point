@@ -29,7 +29,6 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public count: number;
   public columnPicker: ColumnPickerBase;
   public isLoading: boolean;
-  public isMultiDomain = true;
   private propertiesService: PropertiesService;
 
   constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, protected http: HttpClient) {

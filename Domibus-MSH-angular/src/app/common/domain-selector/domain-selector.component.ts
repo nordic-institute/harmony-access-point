@@ -6,7 +6,6 @@ import {MatDialog} from '@angular/material';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
 import {DialogsService} from '../dialogs/dialogs.service';
-import {instanceOfModifiableList} from '../mixins/type.utils';
 
 @Component({
   selector: 'domain-selector',
@@ -31,6 +30,9 @@ export class DomainSelectorComponent implements OnInit {
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {
+    this.domainService.domains.subscribe(domains => {
+      this.domains = domains;
+    })
   }
 
   async ngOnInit() {
@@ -38,7 +40,7 @@ export class DomainSelectorComponent implements OnInit {
       const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
 
       if (isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) {
-        this.domains = await this.domainService.getDomains();
+        // this.domains = await this.domainService.getDomains();
         this.displayDomains = true;
         this.showDomains = this.shouldShowDomains(this.route.snapshot);
 

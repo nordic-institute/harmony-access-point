@@ -140,8 +140,7 @@
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser && applicationService.getCurrentComponent() && applicationService.getCurrentComponent().isMultiDomain"
-                       [currentComponent]="applicationService.getCurrentComponent()">
+      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()">
       </domain-selector>
 
       <div class="helpMenu">

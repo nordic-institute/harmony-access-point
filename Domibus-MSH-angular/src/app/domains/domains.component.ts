@@ -37,7 +37,6 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
 
   constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
     super();
-    super.isMultiDomain = false;
   }
 
   ngOnInit() {

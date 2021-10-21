@@ -14,7 +14,6 @@ export interface IBaseList<T> {
   readonly csvUrl: string;
   columnPicker: ColumnPickerBase;
   isLoading: boolean;
-  isMultiDomain: boolean;
 
   isBusy(): boolean;
 
