@@ -16,6 +16,7 @@ import java.util.Date;
 @NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
 @NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived",
         query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
+
 public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")
@@ -24,6 +25,10 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     @Column(name = "REQUEST_TYPE")
     @Enumerated(EnumType.STRING)
     private RequestType requestType;
+
+    @Column(name = "BATCH_STATUS")
+    @Enumerated(EnumType.STRING)
+    private EArchiveBatchStatus eArchiveBatchStatus;
 
     @Column(name = "DATE_REQUESTED")
     @Temporal(TemporalType.TIMESTAMP)
@@ -100,14 +105,23 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.storageLocation = storageLocation;
     }
 
+    public EArchiveBatchStatus geteArchiveBatchStatus() {
+        return eArchiveBatchStatus;
+    }
+
+    public void seteArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
+        this.eArchiveBatchStatus = eArchiveBatchStatus;
+    }
+
     @Override
     public String toString() {
         return "EArchiveBatchEntity{" +
                 "batchId='" + batchId + '\'' +
                 ", requestType=" + requestType +
+                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
                 ", dateRequested=" + dateRequested +
                 ", lastPkUserMessage=" + lastPkUserMessage +
-                ", size=" + batchSize +
+                ", batchSize=" + batchSize +
                 ", storageLocation='" + storageLocation + '\'' +
                 ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
                 "} " + super.toString();

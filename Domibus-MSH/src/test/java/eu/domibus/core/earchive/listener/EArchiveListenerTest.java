@@ -1,13 +1,11 @@
 package eu.domibus.core.earchive.listener;
 
 import com.google.gson.Gson;
+import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.BatchEArchiveDTO;
-import eu.domibus.core.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.util.JmsUtil;
@@ -25,10 +23,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Message;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -160,7 +155,16 @@ public class EArchiveListenerTest {
             eArchiveBatch.getMessageIdsJson();
             result = new Gson().toJson(new ListUserMessageDto(userMessageDTOS), ListUserMessageDto.class).getBytes(StandardCharsets.UTF_8);
 
-            fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);
+            eArchiveBatch.getDateRequested();
+            result = new Date();
+
+            eArchiveBatch.getRequestType();
+            result = RequestType.CONTINUOUS;
+
+            eArchiveBatch.geteArchiveBatchStatus();
+            result = EArchiveBatchStatus.STARTED;
+
+            fileSystemEArchivePersistence.createEArkSipStructure((EArchiveBatchDTO) any, (List<UserMessageDTO>) any);
             result = fileObject;
 
             eArchiveBatch.getBatchId();
@@ -178,6 +182,11 @@ public class EArchiveListenerTest {
             times = 1;
 
             fileObject.close();
+
+            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
+            times = 1;
+            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.COMPLETED);
+            times = 1;
         }};
     }
 }

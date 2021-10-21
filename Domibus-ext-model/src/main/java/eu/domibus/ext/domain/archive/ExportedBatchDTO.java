@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -11,11 +11,13 @@ public class ExportedBatchDTO {
 
     String batchId;
     BatchRequestType requestType;
+    ExportedBatchStatusType status;
     String errorCode;
     String errorDescription;
-    Date enqueuedTimestamp;
-    Date messageStartDate;
-    Date messageEndDate;
+    ZonedDateTime enqueuedTimestamp;
+    // Same as message parameter max and min:  yyMMddHH
+    Long messageStartDate;
+    Long messageEndDate;
     String manifestChecksum;
 
     List<String> messages;
@@ -36,6 +38,14 @@ public class ExportedBatchDTO {
         this.requestType = requestType;
     }
 
+    public ExportedBatchStatusType getStatus() {
+        return status;
+    }
+
+    public void setStatus(ExportedBatchStatusType status) {
+        this.status = status;
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -52,27 +62,27 @@ public class ExportedBatchDTO {
         this.errorDescription = errorDescription;
     }
 
-    public Date getEnqueuedTimestamp() {
+    public ZonedDateTime getEnqueuedTimestamp() {
         return enqueuedTimestamp;
     }
 
-    public void setEnqueuedTimestamp(Date enqueuedTimestamp) {
+    public void setEnqueuedTimestamp(ZonedDateTime enqueuedTimestamp) {
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 
-    public Date getMessageStartDate() {
+    public Long getMessageStartDate() {
         return messageStartDate;
     }
 
-    public void setMessageStartDate(Date messageStartDate) {
+    public void setMessageStartDate(Long messageStartDate) {
         this.messageStartDate = messageStartDate;
     }
 
-    public Date getMessageEndDate() {
+    public Long getMessageEndDate() {
         return messageEndDate;
     }
 
-    public void setMessageEndDate(Date messageEndDate) {
+    public void setMessageEndDate(Long messageEndDate) {
         this.messageEndDate = messageEndDate;
     }
 

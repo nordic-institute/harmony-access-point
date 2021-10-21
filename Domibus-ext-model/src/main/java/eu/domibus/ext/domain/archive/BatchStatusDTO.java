@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.time.OffsetDateTime;
+import java.util.Date;
 
 /**
  * @author Joze Rihtarsic
@@ -9,8 +9,8 @@ import java.time.OffsetDateTime;
 public class BatchStatusDTO {
 
     String batchId;
-    OffsetDateTime timestamp;
-    String status;
+    Date timestamp;
+    ExportedBatchStatusType status;
     String message;
 
     public String getBatchId() {
@@ -21,19 +21,19 @@ public class BatchStatusDTO {
         this.batchId = batchId;
     }
 
-    public OffsetDateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(OffsetDateTime timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
-    public String getStatus() {
+    public ExportedBatchStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ExportedBatchStatusType status) {
         this.status = status;
     }
 

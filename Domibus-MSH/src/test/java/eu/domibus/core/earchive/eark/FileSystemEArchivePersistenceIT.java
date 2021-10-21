@@ -1,7 +1,7 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
@@ -62,7 +62,7 @@ public class FileSystemEArchivePersistenceIT {
 
     private File temp;
 
-    private BatchEArchiveDTO batchEArchiveDTO;
+    private EArchiveBatchDTO EArchiveBatchDTO;
     private String batchId;
     private String msg1;
     private String msg2;
@@ -76,7 +76,7 @@ public class FileSystemEArchivePersistenceIT {
         msg1 = UUID.randomUUID().toString();
         msg2 = UUID.randomUUID().toString();
 
-        batchEArchiveDTO = new BatchEArchiveDTOBuilder()
+        EArchiveBatchDTO = new BatchEArchiveDTOBuilder()
                 .batchId(batchId)
                 .messages(asList(msg1, msg2))
                 .createBatchEArchiveDTO();
@@ -126,7 +126,7 @@ public class FileSystemEArchivePersistenceIT {
             domibusVersionService.getDisplayVersion();
             result = "getDisplayVersion";
 
-            eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
+            eArchivingFileService.getBatchFileJson(EArchiveBatchDTO);
             result = new ByteArrayInputStream("batch.json content".getBytes(StandardCharsets.UTF_8));
 
             eArchivingFileService.getArchivingFiles(entityId1);
@@ -143,7 +143,7 @@ public class FileSystemEArchivePersistenceIT {
         }};
 
 
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
+        fileSystemEArchivePersistence.createEArkSipStructure(EArchiveBatchDTO, userMessageEntityIds);
 
         new FullVerifications() {
         };

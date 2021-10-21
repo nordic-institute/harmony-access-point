@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -10,10 +10,10 @@ import java.util.List;
 public class QueuedBatchDTO {
 
     String batchId;
-    String requestType;
-    Date enqueuedTimestamp;
-    Date messageStartDate;
-    Date messageEndDate;
+    BatchRequestType requestType;
+    ZonedDateTime enqueuedTimestamp;
+    Long messageStartDate;
+    Long messageEndDate;
     List<String> messages;
 
     public String getBatchId() {
@@ -24,35 +24,35 @@ public class QueuedBatchDTO {
         this.batchId = batchId;
     }
 
-    public String getRequestType() {
+    public BatchRequestType getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(String requestType) {
+    public void setRequestType(BatchRequestType requestType) {
         this.requestType = requestType;
     }
 
-    public Date getEnqueuedTimestamp() {
+    public ZonedDateTime getEnqueuedTimestamp() {
         return enqueuedTimestamp;
     }
 
-    public void setEnqueuedTimestamp(Date enqueuedTimestamp) {
+    public void setEnqueuedTimestamp(ZonedDateTime enqueuedTimestamp) {
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 
-    public Date getMessageStartDate() {
+    public Long getMessageStartDate() {
         return messageStartDate;
     }
 
-    public void setMessageStartDate(Date messageStartDate) {
+    public void setMessageStartDate(Long messageStartDate) {
         this.messageStartDate = messageStartDate;
     }
 
-    public Date getMessageEndDate() {
+    public Long getMessageEndDate() {
         return messageEndDate;
     }
 
-    public void setMessageEndDate(Date messageEndDate) {
+    public void setMessageEndDate(Long messageEndDate) {
         this.messageEndDate = messageEndDate;
     }
 

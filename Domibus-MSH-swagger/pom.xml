@@ -143,7 +143,7 @@
             </plugin>
 
             <!-- Purpose of the maven-failsafe-plugin plugin is to setup MockMVC and run IT test: OpenApiGenerator with purpose to generated the open API document from
-            REST endpoint -->
+            REST endpoint >
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -155,14 +155,14 @@
                             <goal>integration-test</goal>
                         </goals>
                         <configuration>
-                            <!-- Force running plugin -->
+
                             <skip>false</skip>
                             <skipTests>false</skipTests>
                             <skipITs>false</skipITs>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <!-- plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>

@@ -1,4 +1,4 @@
-package eu.domibus.core.earchive;
+package eu.domibus.api.earchive;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
-public class BatchEArchiveDTO {
+public class EArchiveBatchDTO {
 
     String version;
 
@@ -30,7 +30,7 @@ public class BatchEArchiveDTO {
 
     List<String> messages;
 
-    public BatchEArchiveDTO(String version,
+    public EArchiveBatchDTO(String version,
                             String batchId,
                             String requestType,
                             String status,

@@ -8,16 +8,17 @@ import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.List;
 
 /**
  * eArchive Domibus services.
@@ -44,8 +45,8 @@ public class DomibusEArchiveExtResource {
     /**
      * Handling EArchive exceptions
      *
-     * @param e: Domibus Archive Exception
      * @return ErrorDTO object.
+     * @param: Rest Exception response
      */
     @ExceptionHandler(DomibusEArchiveExtException.class)
     public ResponseEntity<ErrorDTO> handleEArchiveExtException(DomibusEArchiveExtException e) {
@@ -58,25 +59,33 @@ public class DomibusEArchiveExtResource {
      * Method returns the list of batches that are queued to be processed asynchronously by
      * Domibus. It can be used for monitoring purposes.
      *
-     * @param lastCountRequests return last N enqueued bath export requests
-     * @param maxCountResults   return max number of enqueued bath export requests
-     * @param requestType       return bath types  (values  ALL, CONTINUOUS, ONE_TIME)
+     * @param lastCountRequests return last N enqueued batch export requests - if this parameter is given all others are ignored*
+     * @param requestType       return batch types  (values  ALL, CONTINUOUS, MANUAL)
      * @param startDate         start day-time  of batches enqueued
      * @param endDate           end day-time  of batches enqueued
+     * @param pageStart: the offset from which the message IDs export will start
+     * @param pageSize:  maximum number of records in the page
      * @return the list of queued batches
      */
     @Operation(summary = "List batch export requests that are queued",
             description = "Method returns the list of batches that are queued to be processed asynchronously by Domibus.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth")
+            security = @SecurityRequirement(name = "DomibusBasicAuth")
     )
-    @GetMapping(path = "batches/queued")
-    public QueuedBatchResultDTO getQueuedBatchRequests(@RequestParam(value = "lastCountRequests", required = false) Integer lastCountRequests,
-                                                       @RequestParam(value = "maxCountResults", defaultValue = "100") Integer maxCountResults,
-                                                       @RequestParam(value = "requestType", defaultValue = "ALL") BatchRequestType requestType,
-                                                       @RequestParam(value = "startDate" , required = false) OffsetDateTime startDate,
-                                                       @RequestParam(value = "endDate", required = false) OffsetDateTime endDate) {
+    @GetMapping(path = "batches/queued", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public QueuedBatchResultDTO getQueuedBatchRequests(
+            @Parameter(description = "Return last N enqueued batch export requests. If this parameter is given all others are ignored.") @RequestParam(value = "lastCountRequests", required = false) Integer lastCountRequests,
+            @Parameter(description = "Filter by batch type") @RequestParam(value = "requestType", defaultValue = "ALL") BatchRequestTypeParameter requestType,
+            @Parameter(description = "Start date-time of batches enqueued") @RequestParam(value = "startDate", required = false) ZonedDateTime startDate,
+            @Parameter(description = "End date-time of batches enqueued") @RequestParam(value = "endDate", required = false) ZonedDateTime endDate,
+            @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
+            @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
+    ) {
 
-        QueuedBatchResultDTO resultDTO = new QueuedBatchResultDTO(lastCountRequests, maxCountResults, requestType, startDate, endDate);
+
+
+
+        QueuedBatchResultDTO resultDTO = new QueuedBatchResultDTO(lastCountRequests, requestType, startDate, endDate, pageStart, pageSize);
+
 
         // TODO implement search method
         return resultDTO;
@@ -88,24 +97,25 @@ public class DomibusEArchiveExtResource {
      * Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the
      * limit and start parameters are not provided.
      *
-     * @param batchId: batch id of the message ids,
+     * @param batchId:   batch id of the message ids,
      * @param pageStart: the offset from which the message IDs export will start
-     * @param pageSize: maximum number of records in the page
+     * @param pageSize:  maximum number of records in the page
      * @return List of message ids in the batch
      */
 
     @Operation(summary = "Get the message IDs exported in a batch",
             description = "Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the\n" +
                     "limit and start parameters are not provided.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "batches/exported/{batchId:.+}/messages")
-    public ExportedBatchMessagesResultDTO getBatchMessageIds(@PathVariable(name = "batchId") String batchId,
-                                                             @RequestParam("pageStart") Integer pageStart,
-                                                             @RequestParam("pageSize") Integer pageSize
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "/batches/exported/{batchId:.+}/messages", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ExportedBatchMessagesResultDTO getBatchMessageIds(
+            @Parameter(description = "Batch id.") @PathVariable(name = "batchId") String batchId,
+            @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
+            @Parameter(description = "Maximum number of returned records/page size.") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
-
+        ExportedBatchMessagesResultDTO resultDTO = new ExportedBatchMessagesResultDTO(batchId, pageStart, pageSize);
         // TODO implement search method
-        return null;
+        return resultDTO;
     }
 
 
@@ -113,30 +123,31 @@ public class DomibusEArchiveExtResource {
      * History of the exported batches
      * <p>
      * This REST endpoint provides a history of exported batches with status success, failed or expired. It
-     * allows the archiving client to validate if it has archived all exported batches.
+     * allows the archiving client to validate if it has ~~archived all exported batches.
      *
-     * @param startDate: start date of the exported messages in the batch
-     * @param endDate:   end date  of the exported messages included in the batch,
-     * @param status:   batch status,
-     * @param reExport:   batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
-     * @param pageStart: the offset/page from which the message IDs export will start. List is sorted by batch request date
-     * @param pageSize: maximum number of records in the page
+     * @param messageStartDate: start date and hour of the exported messages in the batch yyMMddHH
+     * @param messageEndDate:   end date  of the exported messages included in the batch,
+     * @param status:           batch status,
+     * @param reExport:         batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
+     * @param pageStart:        the offset/page from which the message IDs export will start. List is sorted by batch request date
+     * @param pageSize:         maximum number of records in the page
      * @return list of the exported batches
      */
     @Operation(summary = "History of the exported batches",
             description = "This REST endpoint provides a history of exported batches with status success, failed or expired. It\n" +
                     " allows the archiving client to validate if it has archived all exported batches.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "batches/exported")
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "/batches/exported", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ExportedBatchResultDTO historyOfTheExportedBatches(
-            @RequestParam("startDate") OffsetDateTime startDate,
-            @RequestParam("endDate") OffsetDateTime endDate,
-            @RequestParam("status") String status,
-            @RequestParam("reExport") Boolean reExport,
-            @RequestParam("pageStart") Integer pageStart,
-            @RequestParam("pageSize") Integer pageSize
+            // message start date-hour in format yyMMddHH
+            @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate,
+            @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageEndDate") Long messageEndDate,
+            @Parameter(description = "Filter batches by status") @RequestParam(value = "status", defaultValue = "ALL") ExportedBatchStatusTypeParameter status,
+            @Parameter(description = "Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "reExport", defaultValue = "true") Boolean reExport,
+            @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
+            @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
-        ExportedBatchResultDTO exportedBatchResultDTO = new ExportedBatchResultDTO(startDate, endDate, status, reExport, pageStart, pageSize);
+        ExportedBatchResultDTO exportedBatchResultDTO = new ExportedBatchResultDTO(messageStartDate, messageEndDate, status, reExport, pageStart, pageSize);
         // TODO implement search method
         return exportedBatchResultDTO;
     }
@@ -159,13 +170,14 @@ public class DomibusEArchiveExtResource {
     @Operation(summary = "Export a batch based on batch id",
             description = "This REST endpoint will export a new batch with a new batch id containing the same messages that" +
                     " were already exported in a batch identified by the batch id provided as a parameter.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @PutMapping(path = "batches/exported/{batchId:.+}/export")
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PutMapping(path = "/batches/{batchId:.+}/export", produces = {MediaType.APPLICATION_JSON_VALUE})
     public BatchStatusDTO exportBatch(
-            @PathVariable(name = "batchId") String batchId
+            @Parameter(description = "The batch Id which must be (re)exported.") @PathVariable(name = "batchId") String batchId
     ) {
+        BatchStatusDTO batchStatusDTO = new BatchStatusDTO();
         // TODO implement method
-        return null;
+        return batchStatusDTO;
     }
 
     /**
@@ -183,18 +195,21 @@ public class DomibusEArchiveExtResource {
      * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
      * @return status of the queued export request
      */
-    @Operation(summary = "Sets batch as successfully archived",
+    @Operation(summary = "Sets final status to batch as archived or failed.",
             description = "This REST endpoint will be used by the archiving client to confirm that a batch was archived " +
                     "successfully or that it failed to archive it. The request contains the batch identifier which allows " +
                     "Domibus to identify all messages in the batch to mark them as archived or failed and eligible for purging. " +
                     "Note that, for performance reasons, Domibus will asynchronously mark the batch messages as " +
                     "archived.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @PutMapping(path = "batches/exported/{batchId:.+}/close")
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PutMapping(path = "/batches/exported/{batchId:.+}/close", produces = {MediaType.APPLICATION_JSON_VALUE})
     public BatchStatusDTO setBatchAsArchived(
-            @PathVariable(name = "batchId") String batchId) {
+            @Parameter(description = "The batch Id.") @PathVariable(name = "batchId") String batchId,
+            @Parameter(description = "Set the batch archive status.") @RequestParam("status") BatchArchiveStatusType status) {
+
+        BatchStatusDTO batchStatusDTO = new BatchStatusDTO();
         // TODO implement method
-        return null;
+        return batchStatusDTO;
     }
 
     /**
@@ -205,58 +220,55 @@ public class DomibusEArchiveExtResource {
      * The response will contain the list of the message IDs which were not archived during the specified
      * period.
      *
-     * @param startDate: start date of the period to be checked
-     * @param startDate: end date of the period to be checked,
-     * @param pageStart: the offset/page from which the message IDs export will start. List is sorted by batch request date
-     * @param pageSize: maximum number of records in the page
+     * @param messageStartDate: start date of the period to be checked
+     * @param messageEndDate:   end date of the period to be checked,
+     * @param pageStart:        the offset/page from which the message IDs export will start. List is sorted by batch request date
+     * @param pageSize:         maximum number of records in the page
      * @return message list
      */
     @Operation(summary = " Messages which were not archived within a specific period",
             description = "This REST endpoint can be used to check if all AS4 messages received or sent within a specific period " +
                     "were archived.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "messages/not-archived")
-    public MessagesDTO notArchivedMessages(@RequestParam("startDate") OffsetDateTime startDate,
-                                           @RequestParam("endDate") OffsetDateTime endDate,
-                                           @RequestParam("pageStart") Integer pageStart,
-                                           @RequestParam("pageSize") Integer pageSize
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "/messages/not-archived", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public NotArchivedMessagesResultDTO notArchivedMessages(@Parameter(description = "Message start date of the period to be checked.") @RequestParam("messageStartDate") ZonedDateTime messageStartDate,
+                                                            @Parameter(description = "Message end date of the period to be checked.") @RequestParam("messageEndDate") ZonedDateTime messageEndDate,
+                                                            @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
+                                                            @Parameter(description = "Maximum number of returned records/page size.") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
-        MessagesDTO messagesDTO = new MessagesDTO();
+        NotArchivedMessagesResultDTO messagesDTO = new NotArchivedMessagesResultDTO(messageStartDate, messageEndDate, pageSize, pageSize);
 
         // TODO implement method
         return messagesDTO;
     }
 
     /**
-     * Get the current start date of the continuous export
-     * <p>
-     * This REST endpoint will expose the continuous export mechanism current start date
-     *
-     * @return current "continuous export" batch start date
-     */
-    @Operation(summary = "Get the current start date of the continuous export",
-            description = "This REST endpoint will expose the continuous export mechanism current start date.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "/continous-export/current-start-date")
-    public CurrentBatchStartDateDTO getCurrentExportDate() {
-        CurrentBatchStartDateDTO result = new CurrentBatchStartDateDTO();
-        result.setStartDate(OffsetDateTime.now());
-        // TODO implement method
-        return result;
-    }
-
-    /**
-     * Request to update the start date of the next archive job.
+     * Request to update the start date of the next continuous archive job.
      */
     @Operation(summary = "Reset the Continuous archiving with a date",
             description = "This REST endpoint force the continuous archiving process to start at a given date provided by the user." +
                     " All messages older than this date will be consider for archiving if they are not already archived," +
                     " not deleted and in a final state.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PutMapping(path = "batches/continuous/reset")
-    public void resetContinuousArchiving(@RequestParam("startDate") Date startDate) {
-        LOG.info("Reset continuous archive start date [{}]", startDate);
-        domibusEArchiveExtService.updateStartDateContinuousArchive(startDate);
+    @PutMapping(path = "/continuous-mechanism/start-date")
+    public void resetContinuousArchivingStartDate(
+            @Parameter(description = "Start date and hour. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate
+    ) {
+        LOG.info("Reset continuous archive start date [{}]", messageStartDate);
+        domibusEArchiveExtService.updateStartDateContinuousArchive(messageStartDate);
+    }
+
+    /**
+     * Request the start date of the next continuous archive job.
+     */
+    @Operation(summary = "Get the Continuous archiving start date",
+            description = "This REST endpoint get the date of the next batch for continuous archiving.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "/continuous-mechanism/start-date", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Long getContinuousArchivingStartDate() {
+        Long startDateContinuousArchive = domibusEArchiveExtService.getStartDateContinuousArchive();
+        LOG.info("Get continuous archive start date: [{}]", startDateContinuousArchive);
+        return startDateContinuousArchive;
     }
 
     /**
@@ -267,10 +279,25 @@ public class DomibusEArchiveExtResource {
                     " All messages older than this date will be consider for archiving if they are not already archived," +
                     " not deleted and in a final state.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PutMapping(path = "batches/sanity/reset")
-    public void resetSanityArchiving(@RequestParam("startDate") Date startDate) {
-        LOG.info("Reset sanity archive start date [{}]", startDate);
-        domibusEArchiveExtService.updateStartDateSanityArchive(startDate);
+    @PutMapping(path = "/sanity-mechanism/start-date")
+    public void resetSanityArchivingStartDate(
+            @Parameter(description = "Start date and hour. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate
+    ) {
+        LOG.info("Reset sanity archive start date [{}]", messageStartDate);
+        domibusEArchiveExtService.updateStartDateSanityArchive(messageStartDate);
+    }
+
+    /**
+     * Request the start date of the next sanity archive job.
+     */
+    @Operation(summary = "Get the Sanity archiving start date",
+            description = "This REST endpoint get the date of the next batch for sanity archiving.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "/sanity-mechanism/start-date", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public Long getSanityArchivingStartDate() {
+        Long startDateSanityArchive = domibusEArchiveExtService.getStartDateSanityArchive();
+        LOG.info("Get sanity archive start date: [{}]", startDateSanityArchive);
+        return startDateSanityArchive;
     }
 }
 

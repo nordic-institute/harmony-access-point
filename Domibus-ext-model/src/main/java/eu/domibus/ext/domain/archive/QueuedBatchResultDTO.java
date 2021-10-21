@@ -1,6 +1,7 @@
 package eu.domibus.ext.domain.archive;
 
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,63 +10,30 @@ import java.util.List;
  * @since 5.0
  */
 public class QueuedBatchResultDTO {
-
-    Integer lastCountRequests;
-    Integer maxCountResults;
-    BatchRequestType requestType;
-    OffsetDateTime startDate;
-    OffsetDateTime endDate;
+    QueuedBatchFilterDTO filter;
+    PaginationDTO pagination;
     List<QueuedBatchDTO> queuedBatches;
 
-    public QueuedBatchResultDTO() {
+
+    public QueuedBatchResultDTO(Integer lastCountRequests, BatchRequestTypeParameter requestType, ZonedDateTime startDate, ZonedDateTime endDate, Integer pageStart, Integer pageSize) {
+        this.filter = new QueuedBatchFilterDTO(lastCountRequests, requestType, startDate, endDate);
+        this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 
-    public QueuedBatchResultDTO(Integer lastCountRequests, Integer maxCountResults, BatchRequestType requestType, OffsetDateTime startDate, OffsetDateTime endDate) {
-        this.lastCountRequests = lastCountRequests;
-        this.maxCountResults = maxCountResults;
-        this.requestType = requestType;
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public QueuedBatchFilterDTO getFilter() {
+        return filter;
     }
 
-    public Integer getLastCountRequests() {
-        return lastCountRequests;
+    public void setFilter(QueuedBatchFilterDTO filter) {
+        this.filter = filter;
     }
 
-    public void setLastCountRequests(Integer lastCountRequests) {
-        this.lastCountRequests = lastCountRequests;
+    public PaginationDTO getPagination() {
+        return pagination;
     }
 
-    public Integer getMaxCountResults() {
-        return maxCountResults;
-    }
-
-    public void setMaxCountResults(Integer maxCountResults) {
-        this.maxCountResults = maxCountResults;
-    }
-
-    public BatchRequestType getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(BatchRequestType requestType) {
-        this.requestType = requestType;
-    }
-
-    public OffsetDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(OffsetDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public OffsetDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(OffsetDateTime endDate) {
-        this.endDate = endDate;
+    public void setPagination(PaginationDTO pagination) {
+        this.pagination = pagination;
     }
 
     public List<QueuedBatchDTO> getQueuedBatches() {

@@ -1,10 +1,14 @@
 package eu.domibus.ext.delegate.services.earchive;
 
 import eu.domibus.api.earchive.DomibusEArchiveService;
+import eu.domibus.ext.domain.archive.BatchRequestTypeParameter;
+import eu.domibus.ext.domain.archive.QueuedBatchDTO;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -20,11 +24,32 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     }
 
     @Override
-    public void updateStartDateContinuousArchive(Date startDate) {
+    public void updateStartDateContinuousArchive(Long startDate) {
         domibusEArchiveService.updateStartDateContinuousArchive(startDate);
     }
+
     @Override
-    public void updateStartDateSanityArchive(Date startDate) {
+    public Long getStartDateContinuousArchive() {
+        return domibusEArchiveService.getStartDateContinuousArchive();
+    }
+
+    @Override
+    public void updateStartDateSanityArchive(Long startDate) {
         domibusEArchiveService.updateStartDateSanityArchive(startDate);
+    }
+
+    @Override
+    public Long getStartDateSanityArchive() {
+        return domibusEArchiveService.getStartDateSanityArchive();
+    }
+
+    @Override
+    public Integer getQueuedBatchRequestsCount(BatchRequestTypeParameter requestType, ZonedDateTime startDate, ZonedDateTime endDate) {
+        return null;
+    }
+
+    @Override
+    public List<QueuedBatchDTO> getQueuedBatchRequests(BatchRequestTypeParameter requestType, ZonedDateTime startDate, ZonedDateTime endDate, Integer pageStart, Integer pageSize) {
+        return null;
     }
 }

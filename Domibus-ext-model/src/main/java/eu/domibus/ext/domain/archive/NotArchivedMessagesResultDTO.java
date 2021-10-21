@@ -1,28 +1,21 @@
 package eu.domibus.ext.domain.archive;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
  * @author Joze Rihtarsic
  * @since 5.0
  */
-public class ExportedBatchMessagesResultDTO {
+public class NotArchivedMessagesResultDTO {
 
-    String batchId;
+    NotArchivedMessagesFilterDTO filter;
     PaginationDTO pagination;
     List<String> messages;
 
-    public ExportedBatchMessagesResultDTO(String batchId, Integer pageStart, Integer pageSize) {
-        this.batchId = batchId;
+    public NotArchivedMessagesResultDTO(ZonedDateTime messageStartDate, ZonedDateTime messageEndDate, Integer pageStart, Integer pageSize) {
+        this.filter = new NotArchivedMessagesFilterDTO(messageStartDate, messageEndDate);
         this.pagination = new PaginationDTO(pageStart, pageSize);
-    }
-
-    public String getBatchId() {
-        return batchId;
-    }
-
-    public void setBatchId(String batchId) {
-        this.batchId = batchId;
     }
 
     public PaginationDTO getPagination() {

@@ -1,9 +1,10 @@
 package eu.domibus.core.earchive.eark;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -37,10 +38,12 @@ public class EArchivingFileService {
     private final PartInfoService partInfoService;
 
     private final UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+    private ObjectMapper objectMapper;
 
-    public EArchivingFileService(PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao) {
+    public EArchivingFileService(PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao, ObjectMapper objectMapper) {
         this.partInfoService = partInfoService;
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional(readOnly = true)
@@ -48,17 +51,17 @@ public class EArchivingFileService {
         HashMap<String, InputStream> files = new HashMap<>();
 
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
-        if(rawXmlByMessageId != null) {
+        if (rawXmlByMessageId != null) {
             files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
         }
-        if(rawXmlByMessageId == null){
+        if (rawXmlByMessageId == null) {
             LOG.debug("No userMessageRaw found for entityId [{}]", entityId);
         }
 
         final List<PartInfo> partInfos = partInfoService.findPartInfo(entityId);
 
         for (PartInfo partInfo : partInfos) {
-           files.put(getFileName(partInfo), getInputStream(entityId, partInfo));
+            files.put(getFileName(partInfo), getInputStream(entityId, partInfo));
         }
         return files;
     }
@@ -99,7 +102,11 @@ public class EArchivingFileService {
         return info.getHref().replace("cid:", "");
     }
 
-    public InputStream getBatchFileJson(BatchEArchiveDTO batchEArchiveDTO) {
-        return new ByteArrayInputStream(new Gson().toJson(batchEArchiveDTO, BatchEArchiveDTO.class).getBytes(StandardCharsets.UTF_8));
+    public InputStream getBatchFileJson(EArchiveBatchDTO EArchiveBatchDTO) {
+        try {
+            return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(EArchiveBatchDTO).getBytes(StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new DomibusEArchiveException("Could not write Batch.json " + EArchiveBatchDTO, e);
+        }
     }
 }

@@ -21,10 +21,12 @@ import java.util.Locale;
 public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends IdentifierGenerator, PersistentIdentifierGenerator, Configurable {
 
     String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
+    long MAX_DATETIME_NUMBER = 99999999L;
 
     String NUMBER_FORMAT_DEFAULT = "%010d";
 
     String MAX = "9999999999";
+    long MAX_INCREMENT_NUMBER = 9999999999L;
 
     String MIN = "0000000000";
 
@@ -46,5 +48,15 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
         seqStr += String.format(NUMBER_FORMAT_DEFAULT, this.generate(session, object));;
 
         return NumberUtils.toLong(seqStr);
+    }
+
+    static Long extractDateFromPKUserMessageId(Long pkUserMessage){
+        if (pkUserMessage==null){
+            return null;
+        }
+        return pkUserMessage /(MAX_INCREMENT_NUMBER+1);
+    }
+    static Long dateToPKUserMessageId(Long pkUserMessageDate){
+        return pkUserMessageDate==null?null:pkUserMessageDate *(MAX_INCREMENT_NUMBER+1);
     }
 }

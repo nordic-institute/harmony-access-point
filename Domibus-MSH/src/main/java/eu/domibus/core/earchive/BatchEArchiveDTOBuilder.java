@@ -1,5 +1,7 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.earchive.EArchiveBatchDTO;
+
 import java.util.List;
 
 public class BatchEArchiveDTOBuilder {
@@ -70,7 +72,7 @@ public class BatchEArchiveDTOBuilder {
         return this;
     }
 
-    public BatchEArchiveDTO createBatchEArchiveDTO() {
-        return new BatchEArchiveDTO(version, batchId, requestType, status, errorCode, errorDescription, timestamp, messageStartDate, messageEndDate, manifestChecksum, messages);
+    public EArchiveBatchDTO createBatchEArchiveDTO() {
+        return new EArchiveBatchDTO(version, batchId, requestType, status, errorCode, errorDescription, timestamp, messageStartDate, messageEndDate, manifestChecksum, messages);
     }
 }

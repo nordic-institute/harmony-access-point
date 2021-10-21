@@ -1,6 +1,10 @@
 package eu.domibus.ext.services;
 
-import java.util.Date;
+import eu.domibus.ext.domain.archive.BatchRequestTypeParameter;
+import eu.domibus.ext.domain.archive.QueuedBatchDTO;
+
+import java.time.ZonedDateTime;
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -8,8 +12,24 @@ import java.util.Date;
  */
 public interface DomibusEArchiveExtService {
 
-    void updateStartDateContinuousArchive(Date startDate);
+    void updateStartDateContinuousArchive(Long startDate);
 
-    void updateStartDateSanityArchive(Date startDate);
+    Long getStartDateContinuousArchive();
 
+    void updateStartDateSanityArchive(Long startDate);
+
+    Long getStartDateSanityArchive();
+
+
+    Integer getQueuedBatchRequestsCount(BatchRequestTypeParameter requestType,
+                                   ZonedDateTime startDate,
+                                   ZonedDateTime endDate
+    );
+
+    List<QueuedBatchDTO> getQueuedBatchRequests(BatchRequestTypeParameter requestType,
+                                                ZonedDateTime startDate,
+                                                ZonedDateTime endDate,
+                                                Integer pageStart,
+                                                Integer pageSize
+    );
 }
