@@ -65,12 +65,12 @@ public class EArchiveBatchService {
 
     @Transactional(readOnly = true)
     public long getLastEntityIdArchived() {
-        return eArchiveBatchStartDao.findByReference(EArchivingService.CONTINUOUS_ID).getLastPkUserMessage();
+        return eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
     }
 
     @Transactional
     public void updateLastEntityIdArchived(Long lastPkUserMessage) {
-        eArchiveBatchStartDao.findByReference(EArchivingService.CONTINUOUS_ID).setLastPkUserMessage(lastPkUserMessage);
+        eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).setLastPkUserMessage(lastPkUserMessage);
     }
 
     @Transactional

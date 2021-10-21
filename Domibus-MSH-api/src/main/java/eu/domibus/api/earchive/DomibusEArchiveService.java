@@ -9,6 +9,10 @@ import java.util.Date;
 public interface DomibusEArchiveService {
 
     void updateStartDateContinuousArchive(Date startDate);
+
     void updateStartDateSanityArchive(Date startDate);
 
+    Date getStartDateContinuousArchive();
+
+    Date getStartDateSanityArchive();
 }

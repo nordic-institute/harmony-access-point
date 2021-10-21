@@ -7,14 +7,15 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dtf;
-import static eu.domibus.core.earchive.EArchivingService.CONTINUOUS_ID;
-import static eu.domibus.core.earchive.EArchivingService.SANITY_ID;
+import static eu.domibus.core.earchive.EArchivingDefaultService.CONTINUOUS_ID;
+import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
 
 /**
  * @author François Gautier
@@ -23,7 +24,7 @@ import static eu.domibus.core.earchive.EArchivingService.SANITY_ID;
 public class EArchivingServiceIT extends AbstractIT {
 
     @Autowired
-    private EArchivingService eArchivingService;
+    private EArchivingDefaultService eArchivingService;
 
     @Autowired
     private EArchiveBatchStartDao eArchiveBatchStartDao;
@@ -48,11 +49,29 @@ public class EArchivingServiceIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void getStartDateContinuousArchive() {
+
+        Date startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
+
+        Assert.assertEquals(Date.from(LocalDate.of(2000, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant()), startDateContinuousArchive);
+    }
+
+    @Test
+    @Transactional
     public void updateStartDateSanityArchive() {
         Date startDate = new Date();
         eArchivingService.updateStartDateSanityArchive(startDate);
         Assert.assertEquals(Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(dtf) + MIN),
                 ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
 
+    }
+
+    @Test
+    @Transactional
+    public void getStartDateSanityArchive() {
+
+        Date startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
+
+        Assert.assertEquals(Date.from(LocalDate.of(2000, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant()), startDateSanityArchive);
     }
 }

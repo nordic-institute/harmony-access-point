@@ -100,6 +100,7 @@ public class EArchivingFileService {
     }
 
     public InputStream getBatchFileJson(BatchEArchiveDTO batchEArchiveDTO) {
+        //new ObjectMapper().write
         return new ByteArrayInputStream(new Gson().toJson(batchEArchiveDTO, BatchEArchiveDTO.class).getBytes(StandardCharsets.UTF_8));
     }
 }

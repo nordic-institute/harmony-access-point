@@ -23,8 +23,19 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     public void updateStartDateContinuousArchive(Date startDate) {
         domibusEArchiveService.updateStartDateContinuousArchive(startDate);
     }
+
+    @Override
+    public Date getStartDateContinuousArchive() {
+        return domibusEArchiveService.getStartDateContinuousArchive();
+    }
+
     @Override
     public void updateStartDateSanityArchive(Date startDate) {
         domibusEArchiveService.updateStartDateSanityArchive(startDate);
+    }
+
+    @Override
+    public Date getStartDateSanityArchive() {
+        return domibusEArchiveService.getStartDateSanityArchive();
     }
 }

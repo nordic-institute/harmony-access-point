@@ -239,17 +239,30 @@ public class DomibusEArchiveExtResource {
     }
 
     /**
-     * Request to update the start date of the next archive job.
+     * Request to update the start date of the next continuous archive job.
      */
     @Operation(summary = "Reset the Continuous archiving with a date",
             description = "This REST endpoint force the continuous archiving process to start at a given date provided by the user." +
                     " All messages older than this date will be consider for archiving if they are not already archived," +
                     " not deleted and in a final state.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PutMapping(path = "batches/continuous/reset")
-    public void resetContinuousArchiving(@RequestParam("startDate") Date startDate) {
+    @PutMapping(path = "batches/continuous/start-date/current")
+    public void resetContinuousArchivingStartDate(@RequestParam("startDate") Date startDate) {
         LOG.info("Reset continuous archive start date [{}]", startDate);
         domibusEArchiveExtService.updateStartDateContinuousArchive(startDate);
+    }
+
+    /**
+     * Request the start date of the next continuous archive job.
+     */
+    @Operation(summary = "Get the Continuous archiving start date",
+            description = "This REST endpoint get the date of the next batch for continuous archiving.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "batches/continuous/start-date/current")
+    public Date getContinuousArchivingStartDate() {
+        Date startDateContinuousArchive = domibusEArchiveExtService.getStartDateContinuousArchive();
+        LOG.info("Get continuous archive start date: [{}]", startDateContinuousArchive);
+        return startDateContinuousArchive;
     }
 
     /**
@@ -260,10 +273,23 @@ public class DomibusEArchiveExtResource {
                     " All messages older than this date will be consider for archiving if they are not already archived," +
                     " not deleted and in a final state.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PutMapping(path = "batches/sanity/reset")
-    public void resetSanityArchiving(@RequestParam("startDate") Date startDate) {
+    @PutMapping(path = "batches/sanity/start-date/current")
+    public void resetSanityArchivingStartDate(@RequestParam("startDate") Date startDate) {
         LOG.info("Reset sanity archive start date [{}]", startDate);
         domibusEArchiveExtService.updateStartDateSanityArchive(startDate);
+    }
+
+    /**
+     * Request the start date of the next sanity archive job.
+     */
+    @Operation(summary = "Get the Sanity archiving start date",
+            description = "This REST endpoint get the date of the next batch for sanity archiving.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "batches/sanity/start-date/current")
+    public Date getSanityArchivingStartDate() {
+        Date startDateSanityArchive = domibusEArchiveExtService.getStartDateSanityArchive();
+        LOG.info("Get sanity archive start date: [{}]", startDateSanityArchive);
+        return startDateSanityArchive;
     }
 }
 

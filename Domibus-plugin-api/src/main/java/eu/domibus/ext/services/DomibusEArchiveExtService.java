@@ -10,6 +10,10 @@ public interface DomibusEArchiveExtService {
 
     void updateStartDateContinuousArchive(Date startDate);
 
+    Date getStartDateContinuousArchive();
+
     void updateStartDateSanityArchive(Date startDate);
+
+    Date getStartDateSanityArchive();
 
 }
