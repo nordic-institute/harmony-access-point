@@ -411,9 +411,12 @@ public class AlertPgTest extends SeleniumTest {
 	@Test(description = "ALRT-21", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUserLoginFailure() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String user = Gen.randomAlphaNumeric(10);
-		log.info("Create plugin user");
-		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+
+//		 = Gen.randomAlphaNumeric(10);
+//		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
+		String user = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+		log.info("Using plugin user " + user);
+
 		if (!data.isMultiDomain()) {
 			log.info("Setting properties");
 			String propName = "domibus.auth.unsecureLoginAllowed";
@@ -425,7 +428,7 @@ public class AlertPgTest extends SeleniumTest {
 
 		log.info("Send message using plugin user credentials");
 		try {
-			messageSender.sendMessage(user, data.getNewTestPass(), null, null);
+			messageSender.sendMessage(user, "WrongPassword", null, null);
 		} catch (Exception e) {
 			log.debug("Authentication exception" + e);
 		}
@@ -443,6 +446,7 @@ public class AlertPgTest extends SeleniumTest {
 			log.info("Select show domain check box");
 			page.filters().showDomainAlert();
 		}
+
 		page.grid().waitForRowsToLoad();
 
 		HashMap<String, String> info = page.grid().getRowInfo(0);
