@@ -384,25 +384,29 @@ public class CachingPModeProvider extends PModeProvider {
         }
         if (processingType == ProcessingType.PULL) {
             processBinding.add(ONE_WAY_PULL.getUri());
-            LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
-            return candidateProcesses.
-                    stream().
-                    peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
-                    filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
+            return filterProcess(processingType, candidateProcesses, processBinding);
         }
         processBinding.add(ONE_WAY_PUSH.getUri());
         processBinding.add(TWO_WAY_PUSH_PUSH.getUri());
-        LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
+        return filterProcess(processingType, candidateProcesses, processBinding);
+
+    }
+
+    private List<Process> filterProcess(ProcessingType processingType, List<Process> candidateProcesses, Set<String> processBinding) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
+        }
         return candidateProcesses.
                 stream().
                 peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
                 filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
-
     }
 
     private boolean compareMepBinding(Binding mepBinding, Set<String> bindings) {
         boolean sameMepBinding = mepBinding != null && mepBinding.getValue() != null && bindings.contains(mepBinding.getValue());
-        LOG.debug("Compare process binding:[{}] to bindings List:[{}]-> mep matches:[{}]", mepBinding, String.join(", ", bindings), sameMepBinding);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Compare process binding:[{}] to bindings List:[{}]-> mep matches:[{}]", mepBinding, String.join(", ", bindings), sameMepBinding);
+        }
         return sameMepBinding;
     }
 
