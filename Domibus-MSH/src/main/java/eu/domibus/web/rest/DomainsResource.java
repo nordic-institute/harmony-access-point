@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.core.converter.DomibusCoreMapper;

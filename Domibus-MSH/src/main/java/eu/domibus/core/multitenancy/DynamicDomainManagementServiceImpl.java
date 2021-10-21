@@ -63,30 +63,28 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     @Override
     public void addDomain(String domainCode) {
-        if (domainService.getDomains().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Cannot add domain [%s] since is is already added.", domainCode));
-        }
-
-        if (!domainDao.findAll().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
-            throw new ConfigurationException(String.format("Cannot add domain [%s] since there is no corresponding folder or the folder is invalid.", domainCode));
-        }
+        validateAddition(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
 
-        doAddDomain(domain);
+        internalAddDomain(domain);
 
         notifyExternalModules(domain);
 
-        //notify other nodes in the cluster
-        LOG.debug("Broadcasting adding domain [{}]", domainCode);
-        try {
-            signalService.signalDomainsAdded(domainCode);
-        } catch (Exception ex) {
-            LOG.warn("Exception signaling adding domain [{}].", domainCode, ex);
+        notifyClusterNodes(domainCode);
+    }
+
+    protected void validateAddition(String domainCode) {
+        if (domainService.getDomains().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] since is is already added.", domainCode));
+        }
+
+        if (!domainDao.findAll().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] since there is no corresponding folder or the folder is invalid.", domainCode));
         }
     }
 
-    private void doAddDomain(Domain domain) {
+    protected void internalAddDomain(Domain domain) {
         domibusPropertyProvider.loadProperties(domain);
 
         domainService.getDomains().add(domain);
@@ -104,7 +102,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
             }
         } catch (Exception ex) {
             domainService.getDomains().remove(domain);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Error adding the domain [%s]. ", domain), ex);
+            throw new DomibusDomainException(String.format("Error adding the domain [%s]. ", domain), ex);
         }
     }
 
@@ -131,6 +129,16 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
                 LOG.warn("Error adding the domain [{}] to module [{}] ", domain, el, ex);
             }
         });
+    }
+
+    protected void notifyClusterNodes(String domainCode) {
+        //notify other nodes in the cluster
+        LOG.debug("Broadcasting adding domain [{}]", domainCode);
+        try {
+            signalService.signalDomainsAdded(domainCode);
+        } catch (Exception ex) {
+            LOG.warn("Exception signaling adding domain [{}].", domainCode, ex);
+        }
     }
 
     //todo delete??
