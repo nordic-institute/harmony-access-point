@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 /**
  * @author Joze Rihtarsic
@@ -8,13 +8,13 @@ import java.util.Date;
  */
 public class CurrentBatchStartDateDTO {
 
-    Date startDate;
+    OffsetDateTime startDate;
 
-    public Date getStartDate() {
+    public OffsetDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(OffsetDateTime startDate) {
         this.startDate = startDate;
     }
 }

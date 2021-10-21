@@ -116,7 +116,7 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
-                        <phase>process-resources</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -150,18 +150,20 @@
                 <executions>
                     <execution>
                         <id>generate-open-api</id>
-                        <phase>integration-test</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>integration-test</goal>
                         </goals>
                         <configuration>
-                            <!-- Skip the default running of this plug-in (or everything is run twice) -->
-                            <skip>true</skip>
+                            <!-- Force running plugin -->
+                            <skip>false</skip>
+                            <skipTests>false</skipTests>
+                            <skipITs>false</skipITs>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!-- plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.0.0</version>
@@ -184,7 +186,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin -->
 
         </plugins>
     </build>

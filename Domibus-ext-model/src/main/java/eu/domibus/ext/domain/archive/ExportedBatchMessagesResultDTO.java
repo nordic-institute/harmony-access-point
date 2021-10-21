@@ -6,7 +6,7 @@ import java.util.List;
  * @author Joze Rihtarsic
  * @since 5.0
  */
-public class ExportedBatchMessagesDTO {
+public class ExportedBatchMessagesResultDTO {
 
     String batchId;
     Integer limit;

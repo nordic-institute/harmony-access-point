@@ -3,6 +3,7 @@ package eu.domibus.ext.rest;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
+import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -32,9 +34,11 @@ public class DomibusEArchiveExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
 
     final DomibusEArchiveExtService domibusEArchiveExtService;
+    final ExtExceptionHelper extExceptionHelper;
 
-    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService) {
+    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService, ExtExceptionHelper extExceptionHelper) {
         this.domibusEArchiveExtService = domibusEArchiveExtService;
+        this.extExceptionHelper = extExceptionHelper;
     }
 
     /**
@@ -45,8 +49,7 @@ public class DomibusEArchiveExtResource {
      */
     @ExceptionHandler(DomibusEArchiveExtException.class)
     public ResponseEntity<ErrorDTO> handleEArchiveExtException(DomibusEArchiveExtException e) {
-        // TODO implement error handling
-        return null;
+        return extExceptionHelper.handleExtException(e);
     }
 
     /**
@@ -67,13 +70,16 @@ public class DomibusEArchiveExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth")
     )
     @GetMapping(path = "batches/queued")
-    public List<QueuedBatchDTO> getQueuedBatchRequests(@RequestParam("lastCountRequests") Integer lastCountRequests,
-                                                       @RequestParam("maxCountResults") Integer maxCountResults,
-                                                       @RequestParam("requestType") BatchRequestType requestType,
-                                                       @RequestParam("startDate") Date startDate,
-                                                       @RequestParam("endDate") Date endDate) {
+    public QueuedBatchResultDTO getQueuedBatchRequests(@RequestParam(value = "lastCountRequests", required = false) Integer lastCountRequests,
+                                                       @RequestParam(value = "maxCountResults", defaultValue = "100") Integer maxCountResults,
+                                                       @RequestParam(value = "requestType", defaultValue = "ALL") BatchRequestType requestType,
+                                                       @RequestParam(value = "startDate" , required = false) OffsetDateTime startDate,
+                                                       @RequestParam(value = "endDate", required = false) OffsetDateTime endDate) {
+
+        QueuedBatchResultDTO resultDTO = new QueuedBatchResultDTO(lastCountRequests, maxCountResults, requestType, startDate, endDate);
+
         // TODO implement search method
-        return null;
+        return resultDTO;
     }
 
     /**
@@ -93,9 +99,9 @@ public class DomibusEArchiveExtResource {
                     "limit and start parameters are not provided.",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "batches/exported/{batchId:.+}/messages")
-    public ExportedBatchMessagesDTO getBatchMessageIds(@PathVariable(name = "batchId") String batchId,
-                                                       @RequestParam("pageStart") Integer pageStart,
-                                                       @RequestParam("pageSize") Integer pageSize
+    public ExportedBatchMessagesResultDTO getBatchMessageIds(@PathVariable(name = "batchId") String batchId,
+                                                             @RequestParam("pageStart") Integer pageStart,
+                                                             @RequestParam("pageSize") Integer pageSize
     ) {
 
         // TODO implement search method
@@ -122,16 +128,17 @@ public class DomibusEArchiveExtResource {
                     " allows the archiving client to validate if it has archived all exported batches.",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "batches/exported")
-    public List<ExportedBatchDTO> historyOfTheExportedBatches(
-            @RequestParam("startDate") Date startDate,
-            @RequestParam("endDate") Date endDate,
+    public ExportedBatchResultDTO historyOfTheExportedBatches(
+            @RequestParam("startDate") OffsetDateTime startDate,
+            @RequestParam("endDate") OffsetDateTime endDate,
             @RequestParam("status") String status,
             @RequestParam("reExport") Boolean reExport,
             @RequestParam("pageStart") Integer pageStart,
             @RequestParam("pageSize") Integer pageSize
     ) {
+        ExportedBatchResultDTO exportedBatchResultDTO = new ExportedBatchResultDTO(startDate, endDate, status, reExport, pageStart, pageSize);
         // TODO implement search method
-        return null;
+        return exportedBatchResultDTO;
     }
 
     /**
@@ -174,7 +181,6 @@ public class DomibusEArchiveExtResource {
      * and it does not mean that the batch messages are already marked as archived.
      *
      * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
-     * @param batchFinalStatus: Status of the batch ARCHIVED if successfully archived or  FAILED if archival system fail to archive it
      * @return status of the queued export request
      */
     @Operation(summary = "Sets batch as successfully archived",
@@ -186,10 +192,7 @@ public class DomibusEArchiveExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @PutMapping(path = "batches/exported/{batchId:.+}/close")
     public BatchStatusDTO setBatchAsArchived(
-            @PathVariable(name = "batchId") String batchId,
-            @RequestParam("batchFinalStatus") BatchStatusType batchFinalStatus
-
-    ) {
+            @PathVariable(name = "batchId") String batchId) {
         // TODO implement method
         return null;
     }
@@ -213,13 +216,15 @@ public class DomibusEArchiveExtResource {
                     "were archived.",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "messages/not-archived")
-    public MessagesDTO notArchivedMessages(@RequestParam("startDate") Date startDate,
-                                           @RequestParam("endDate") Date endDate,
+    public MessagesDTO notArchivedMessages(@RequestParam("startDate") OffsetDateTime startDate,
+                                           @RequestParam("endDate") OffsetDateTime endDate,
                                            @RequestParam("pageStart") Integer pageStart,
                                            @RequestParam("pageSize") Integer pageSize
     ) {
+        MessagesDTO messagesDTO = new MessagesDTO();
+
         // TODO implement method
-        return null;
+        return messagesDTO;
     }
 
     /**
@@ -234,8 +239,10 @@ public class DomibusEArchiveExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "/continous-export/current-start-date")
     public CurrentBatchStartDateDTO getCurrentExportDate() {
+        CurrentBatchStartDateDTO result = new CurrentBatchStartDateDTO();
+        result.setStartDate(OffsetDateTime.now());
         // TODO implement method
-        return null;
+        return result;
     }
 
     /**
