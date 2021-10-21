@@ -89,7 +89,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         Map<String, InputStream> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getEntityId());
 
         for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
-            LOG.debug("Process file [{}]", file.getKey());
+            LOG.trace("Process file [{}]", file.getKey());
             processFile(representation1, messageId.getMessageId(), file);
         }
     }

@@ -18,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
@@ -96,6 +93,8 @@ public class EArchiveBatchService {
         entity.setBatchId(uuidGenerator.generate().toString());
         entity.setMessageIdsJson(new Gson().toJson(userMessageToBeArchived, ListUserMessageDto.class));
         entity.setLastPkUserMessage(lastEntity);
+        entity.seteArchiveBatchStatus(EArchiveBatchStatus.STARTING);
+        entity.setDateRequested(new Date());
         eArchiveBatchDao.create(entity);
         return entity;
     }

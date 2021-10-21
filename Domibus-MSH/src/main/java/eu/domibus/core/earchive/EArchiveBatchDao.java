@@ -2,6 +2,7 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 import java.util.List;
@@ -39,5 +40,11 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
             return null;
         }
         return resultList.get(0);
+    }
+
+    @Transactional
+    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
+        eArchiveBatchByBatchId.seteArchiveBatchStatus(status);
+        em.merge(eArchiveBatchByBatchId);
     }
 }

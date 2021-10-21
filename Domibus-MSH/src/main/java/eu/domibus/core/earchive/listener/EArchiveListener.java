@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
-import eu.domibus.core.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.metrics.Counter;
@@ -25,6 +22,8 @@ import org.springframework.util.CollectionUtils;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,30 +74,45 @@ public class EArchiveListener implements MessageListener {
         jmsUtil.setDomain(message);
 
         EArchiveBatchEntity eArchiveBatchByBatchId = getEArchiveBatch(entityId);
+        try {
+            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
 
-        List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
+            List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
-        if (CollectionUtils.isEmpty(userMessageDtos)) {
-            throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
-        }
-        LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
-                batchId,
-                userMessageDtos.get(userMessageDtos.size() - 1),
-                userMessageDtos.get(0));
-
-        try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                new BatchEArchiveDTOBuilder()
-                        .batchId(eArchiveBatchByBatchId.getBatchId())
-                        .messages(getMessageIds(userMessageDtos))
-                        .createBatchEArchiveDTO(),
-                userMessageDtos)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
+            if (CollectionUtils.isEmpty(userMessageDtos)) {
+                throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
             }
-        } catch (FileSystemException e) {
-            throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
+            LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
+                    batchId,
+                    userMessageDtos.get(userMessageDtos.size() - 1),
+                    userMessageDtos.get(0));
+
+            try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
+                    new BatchEArchiveDTOBuilder()
+                            .batchId(eArchiveBatchByBatchId.getBatchId())
+                            .requestType(eArchiveBatchByBatchId.getRequestType().name())
+                            .status(eArchiveBatchByBatchId.geteArchiveBatchStatus().name())
+                            .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
+                            .messageStartDate(""+userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
+                            .messageEndDate(""+userMessageDtos.get(0))
+                            // TODO: François Gautier 21-10-21 find first message date and end message date
+                            .messages(getMessageIds(userMessageDtos))
+                            .createBatchEArchiveDTO(),
+                    userMessageDtos)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
+                }
+            } catch (FileSystemException e) {
+                throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
+            }
+            userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
+            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.COMPLETED);
+        } catch (Exception e) {
+            LOG.error("EArchive Batch in error", e);
+            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED);
+            // TODO: François Gautier 21-10-21 update batch.json with description and error code
+            throw e;
         }
-        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
     }
 
     private EArchiveBatchEntity getEArchiveBatch(long entityId) {

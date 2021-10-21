@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
 
+import java.util.Objects;
+
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -60,11 +62,11 @@ public class EArchiveBatchDispatcherService {
             return ;
         }
         Long lastEntityIdProcessed = eArchiveBatchService.getLastEntityIdArchived();
-
+        Long newLastEntityIdProcessed = lastEntityIdProcessed;
         long maxEntityIdToArchived = eArchiveBatchService.getMaxEntityIdToArchived();
         int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
-        LOG.debug("Start eArchive batch lastEntityIdProcessed [{}], " +
+        LOG.trace("Start eArchive batch lastEntityIdProcessed [{}], " +
                         "maxEntityIdToArchived [{}], " +
                         "batchSize [{}], " +
                         "maxNumberOfBatchesCreated [{}]", lastEntityIdProcessed,
@@ -73,23 +75,28 @@ public class EArchiveBatchDispatcherService {
                 maxNumberOfBatchesCreated);
 
         for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
-            LOG.debug("Start creation batch number [{}]", i);
-            Long batchAndEnqueue = createBatchAndEnqueue(lastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain);
+            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain);
             if (batchAndEnqueue == null) {
                 break;
             }
-            lastEntityIdProcessed = batchAndEnqueue;
+            newLastEntityIdProcessed = batchAndEnqueue.getLastPkUserMessage();
             LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
-        eArchiveBatchService.updateLastEntityIdArchived(lastEntityIdProcessed);
-        LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
+        if(batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
+            eArchiveBatchService.updateLastEntityIdArchived(newLastEntityIdProcessed);
+            LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
+        }
+    }
+
+    private boolean batchCreated(Long lastEntityIdProcessed, Long newLastEntityIdProcessed) {
+        return !Objects.equals(newLastEntityIdProcessed, lastEntityIdProcessed);
     }
 
 
     /**
      * @return null if no messages found
      */
-    private Long createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
+    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
         ListUserMessageDto userMessageToBeArchived = userMessageLogDao.findMessagesForArchivingDesc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
         if (CollectionUtils.isEmpty(userMessageToBeArchived.getUserMessageDtos())) {
             LOG.debug("No message to archive");
@@ -101,7 +108,7 @@ public class EArchiveBatchDispatcherService {
 
         enqueueEArchive(eArchiveBatch, domain);
 
-        return lastEntityIdTreated;
+        return eArchiveBatch;
     }
 
     private int getProperty(String property) {
