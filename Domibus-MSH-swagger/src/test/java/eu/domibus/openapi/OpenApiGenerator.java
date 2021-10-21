@@ -11,8 +11,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import java.io.File;
+
 import java.io.FileWriter;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,7 +53,7 @@ public class OpenApiGenerator {
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         // store document to webapp
-        try (FileWriter fileWriter = new FileWriter(new File("./src/main/webapp/openapi.json"))) {
+        try (FileWriter fileWriter = new FileWriter("./src/main/webapp/openapi.json")) {
             fileWriter.write(content);
             fileWriter.flush();
         }

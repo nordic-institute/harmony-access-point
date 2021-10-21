@@ -1,8 +1,9 @@
-package eu.domibus.core.earchive;
+package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import mockit.Expectations;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 
@@ -34,13 +34,13 @@ import static org.junit.Assert.assertEquals;
  * @since 5.0
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
-public class EArchivingServiceTest {
+public class EArchivingFileServiceTest {
 
     public static final String RAW_ENVELOPE_CONTENT = "rawEnvelopeDto";
     public static final String CID = "cid:";
     public static final String MESSAGE = "message";
     @Tested
-    private EArchivingService eArchivingService;
+    private EArchivingFileService eArchivingFileService;
 
     @Injectable
     private UserMessageService userMessageService;
@@ -66,7 +66,7 @@ public class EArchivingServiceTest {
             partInfo.getHref();
             result = CID + MESSAGE;
         }};
-        String fileName = eArchivingService.getFileName(partInfo);
+        String fileName = eArchivingFileService.getFileName(partInfo);
 
         assertEquals(MESSAGE + ".attachment.xml", fileName);
     }
@@ -80,7 +80,7 @@ public class EArchivingServiceTest {
             partInfo.getHref();
             result = CID + MESSAGE;
         }};
-        String fileName = eArchivingService.getFileName(partInfo);
+        String fileName = eArchivingFileService.getFileName(partInfo);
 
         assertEquals(MESSAGE + ".attachment", fileName);
     }
@@ -94,7 +94,7 @@ public class EArchivingServiceTest {
             partInfo.getHref();
             result = null;
         }};
-        String fileName = eArchivingService.getFileName(partInfo);
+        String fileName = eArchivingFileService.getFileName(partInfo);
 
         assertEquals("bodyload.attachment.xml", fileName);
     }
@@ -108,7 +108,7 @@ public class EArchivingServiceTest {
             partInfo.getHref();
             result = "NOCID";
         }};
-        String fileName = eArchivingService.getFileName(partInfo);
+        String fileName = eArchivingFileService.getFileName(partInfo);
 
         assertEquals("NOCID.attachment.xml", fileName);
     }
@@ -143,12 +143,12 @@ public class EArchivingServiceTest {
             result = CID + MESSAGE;
         }};
 
-        Map<String, InputStream> archivingFiles = eArchivingService.getArchivingFiles(entityId);
+        Map<String, InputStream> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
 
         new FullVerifications() {
         };
 
-        Assert.assertThat(IOUtils.toString(archivingFiles.get(SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
+        Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
         Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
     }
 
@@ -180,7 +180,7 @@ public class EArchivingServiceTest {
         }};
 
         try {
-            eArchivingService.getArchivingFiles(entityId);
+            eArchivingFileService.getArchivingFiles(entityId);
             Assert.fail();
         } catch (DomibusEArchiveException e) {
             //ok
@@ -221,7 +221,7 @@ public class EArchivingServiceTest {
         }};
 
         try {
-            eArchivingService.getArchivingFiles(entityId);
+            eArchivingFileService.getArchivingFiles(entityId);
             Assert.fail();
         } catch (DomibusEArchiveException e) {
             //ok

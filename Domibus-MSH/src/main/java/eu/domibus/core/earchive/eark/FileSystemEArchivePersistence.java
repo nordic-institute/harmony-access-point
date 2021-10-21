@@ -1,9 +1,8 @@
-package eu.domibus.core.earchive;
+package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.core.earchive.eark.DomibusEARKSIP;
-import eu.domibus.core.earchive.eark.DomibusIPFile;
-import eu.domibus.core.earchive.eark.EARKSIPBuilderService;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
@@ -36,18 +35,18 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     protected final DomibusVersionService domibusVersionService;
 
-    private final EArchivingService eArchivingService;
+    private final EArchivingFileService eArchivingFileService;
 
     private final EARKSIPBuilderService eArkSipBuilderService;
 
 
     public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
                                          DomibusVersionService domibusVersionService,
-                                         EArchivingService eArchivingService,
+                                         EArchivingFileService eArchivingFileService,
                                          EARKSIPBuilderService eArkSipBuilderService) {
         this.storageProvider = storageProvider;
         this.domibusVersionService = domibusVersionService;
-        this.eArchivingService = eArchivingService;
+        this.eArchivingFileService = eArchivingFileService;
         this.eArkSipBuilderService = eArkSipBuilderService;
     }
 
@@ -78,7 +77,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         sip.addRepresentation(representation1);
 
         LOG.debug("Add batch.json");
-        InputStream batchFileJson = eArchivingService.getBatchFileJson(batchEArchiveDTO);
+        InputStream batchFileJson = eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
         representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON));
         for (UserMessageDTO messageId : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", messageId);
@@ -87,7 +86,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     private void addUserMessage(IPRepresentation representation1, UserMessageDTO messageId) {
-        Map<String, InputStream> archivingFile = eArchivingService.getArchivingFiles(messageId.getEntityId());
+        Map<String, InputStream> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getEntityId());
 
         for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
             LOG.debug("Process file [{}]", file.getKey());

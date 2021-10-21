@@ -1,11 +1,12 @@
-package eu.domibus.core.earchive;
+package eu.domibus.core.earchive.eark;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.message.UserMessageDao;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
-import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
+import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
@@ -46,6 +47,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     @Autowired
     private UserMessageDao userMessageDao;
+
     @Autowired
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;
 

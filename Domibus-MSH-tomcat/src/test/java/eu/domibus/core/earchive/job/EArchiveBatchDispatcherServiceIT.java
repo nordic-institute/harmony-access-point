@@ -22,7 +22,10 @@ import javax.persistence.PersistenceContext;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 
+import java.util.UUID;
+
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_SIZE;
 
 /**
  * @author François Gautier
@@ -50,21 +53,19 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     protected EntityManager em;
 
     private Domain domain;
-    private String messageId;
 
     private boolean jmsManagerTriggered = false;
 
     @Before
     public void setUp() throws Exception {
-        messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         domain = new Domain("default", "default");
         uploadPmode(SERVICE_PORT);
 
-        String filename = "SOAPMessage2.xml";
-        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-        mshWebserviceTest.invoke(soapMessage);
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", UUID.randomUUID().toString()));
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", UUID.randomUUID().toString()));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_BATCH_SIZE, "1");
         jmsManager = new JMSManagerImpl() {
             public void sendMessageToQueue(JmsMessage message, Queue destination) {
                 jmsManagerTriggered = true;
@@ -80,7 +81,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         eArchiveBatchDispatcherService.startBatch(domain);
         Assert.assertTrue(jmsManagerTriggered);
 
-        Assert.assertEquals(1, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
-        Assert.assertEquals(1, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
+        Assert.assertEquals(2, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
     }
 }

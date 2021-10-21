@@ -3,6 +3,7 @@ package eu.domibus.ext.rest;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
+import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +31,11 @@ import java.util.List;
 public class DomibusEArchiveExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
 
+    final DomibusEArchiveExtService domibusEArchiveExtService;
+
+    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService) {
+        this.domibusEArchiveExtService = domibusEArchiveExtService;
+    }
 
     /**
      * Handling EArchive exceptions
@@ -229,6 +236,34 @@ public class DomibusEArchiveExtResource {
     public CurrentBatchStartDateDTO getCurrentExportDate() {
         // TODO implement method
         return null;
+    }
+
+    /**
+     * Request to update the start date of the next archive job.
+     */
+    @Operation(summary = "Reset the Continuous archiving with a date",
+            description = "This REST endpoint force the continuous archiving process to start at a given date provided by the user." +
+                    " All messages older than this date will be consider for archiving if they are not already archived," +
+                    " not deleted and in a final state.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PutMapping(path = "batches/continuous/reset")
+    public void resetContinuousArchiving(@RequestParam("startDate") Date startDate) {
+        LOG.info("Reset continuous archive start date [{}]", startDate);
+        domibusEArchiveExtService.updateStartDateContinuousArchive(startDate);
+    }
+
+    /**
+     * Request to update the start date of the next archive job.
+     */
+    @Operation(summary = "Reset the Sanity archiving with a date",
+            description = "This REST endpoint force the sanity archiving process to start at a given date provided by the user." +
+                    " All messages older than this date will be consider for archiving if they are not already archived," +
+                    " not deleted and in a final state.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PutMapping(path = "batches/sanity/reset")
+    public void resetSanityArchiving(@RequestParam("startDate") Date startDate) {
+        LOG.info("Reset sanity archive start date [{}]", startDate);
+        domibusEArchiveExtService.updateStartDateSanityArchive(startDate);
     }
 }
 

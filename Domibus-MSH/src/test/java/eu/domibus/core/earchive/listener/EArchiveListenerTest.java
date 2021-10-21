@@ -3,9 +3,12 @@ package eu.domibus.core.earchive.listener;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.core.earchive.DomibusEArchiveException;
+import eu.domibus.core.earchive.EArchiveBatchDao;
+import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
@@ -22,7 +25,6 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Message;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -50,16 +52,15 @@ public class EArchiveListenerTest {
     private EArchiveBatchDao eArchiveBatchDao;
 
     @Injectable
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
     private UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Injectable
     private JmsUtil jmsUtil;
 
-    String batchId;
-    Long entityId;
+    private String batchId;
+
+    private Long entityId;
+
     private List<UserMessageDTO> userMessageDTOS;
 
     @Before
@@ -161,9 +162,6 @@ public class EArchiveListenerTest {
 
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);
             result = fileObject;
-
-            fileObject.getPath().toAbsolutePath();
-            result = Paths.get("");
 
             eArchiveBatch.getBatchId();
             result = batchId;

@@ -3,9 +3,12 @@ package eu.domibus.core.earchive.listener;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
+import eu.domibus.core.earchive.DomibusEArchiveException;
+import eu.domibus.core.earchive.EArchiveBatchDao;
+import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -38,32 +41,28 @@ public class EArchiveListener implements MessageListener {
 
     private final DatabaseUtil databaseUtil;
 
-    private EArchiveBatchDao eArchiveBatchDao;
+    private final EArchiveBatchDao eArchiveBatchDao;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final UserMessageLogDefaultService userMessageLogDefaultService;
 
-    private UserMessageLogDefaultService userMessageLogDefaultService;
-
-    private JmsUtil jmsUtil;
+    private final JmsUtil jmsUtil;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
             EArchiveBatchDao eArchiveBatchDao,
             UserMessageLogDefaultService userMessageLogDefaultService,
-            JmsUtil jmsUtil,
-            DomibusPropertyProvider domibusPropertyProvider) {
+            JmsUtil jmsUtil) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsUtil = jmsUtil;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
-    @Timer(clazz = EArchiveListener.class, value = "process_batch_earchive")
-    @Counter(clazz = EArchiveListener.class, value = "process_batch_earchive")
+    @Timer(clazz = EArchiveListener.class, value = "process_1_batch_earchive")
+    @Counter(clazz = EArchiveListener.class, value = "process_1_batch_earchive")
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
@@ -75,7 +74,7 @@ public class EArchiveListener implements MessageListener {
         }
         jmsUtil.setDomain(message);
 
-        EArchiveBatchEntity eArchiveBatchByBatchId = geteArchiveBatch(entityId);
+        EArchiveBatchEntity eArchiveBatchByBatchId = getEArchiveBatch(entityId);
 
         List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
@@ -93,15 +92,16 @@ public class EArchiveListener implements MessageListener {
                         .messages(getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
                 userMessageDtos)) {
-
-            LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
+            }
         } catch (FileSystemException e) {
             throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
         }
         userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
     }
 
-    private EArchiveBatchEntity geteArchiveBatch(long entityId) {
+    private EArchiveBatchEntity getEArchiveBatch(long entityId) {
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
 
         if (eArchiveBatchByBatchId == null) {

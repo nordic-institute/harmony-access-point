@@ -36,9 +36,9 @@ public class EArchiveBatchDispatcherService {
     private final Queue eArchiveQueue;
     private final UserMessageLogDao userMessageLogDao;
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private EArchiveBatchService eArchiveBatchService;
+    private final EArchiveBatchService eArchiveBatchService;
 
     public EArchiveBatchDispatcherService(UserMessageLogDao userMessageLogDao,
                                           JMSManager jmsManager,
@@ -74,12 +74,14 @@ public class EArchiveBatchDispatcherService {
 
         for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
             LOG.debug("Start creation batch number [{}]", i);
-            lastEntityIdProcessed = createBatchAndEnqueue(lastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain);
-            if (lastEntityIdProcessed == null) {
+            Long batchAndEnqueue = createBatchAndEnqueue(lastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain);
+            if (batchAndEnqueue == null) {
                 break;
             }
+            lastEntityIdProcessed = batchAndEnqueue;
             LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
+        eArchiveBatchService.updateLastEntityIdArchived(lastEntityIdProcessed);
         LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
     }
 
@@ -99,13 +101,8 @@ public class EArchiveBatchDispatcherService {
 
         enqueueEArchive(eArchiveBatch, domain);
 
-        if (userMessageToBeArchived.getUserMessageDtos().size() < batchSize) {
-            LOG.debug("Last batch created");
-            return null;
-        }
         return lastEntityIdTreated;
     }
-
 
     private int getProperty(String property) {
         Integer integerProperty = domibusPropertyProvider.getIntegerProperty(property);

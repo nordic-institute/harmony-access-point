@@ -1,6 +1,7 @@
-package eu.domibus.core.earchive;
+package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
 import org.apache.commons.vfs2.FileObject;
 
 import java.util.List;
