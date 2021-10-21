@@ -12,6 +12,7 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -20,6 +21,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -71,29 +73,25 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     MessageRetentionDefaultService messageRetentionService;
 
+    @Autowired
+    protected NonRepudiationService nonRepudiationService;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleReliabilityInNewTransaction(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
-        LOG.debug("Handling reliability in a new transaction");
-        handleReliability(userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+    public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
         final Boolean isTestMessage = userMessage.isTestMessage();
 
         switch (reliabilityCheckSuccessful) {
             case OK:
+                if(StringUtils.isNotBlank(requestRawXMLMessage)) {
+                    nonRepudiationService.saveRawEnvelope(requestRawXMLMessage, userMessage);
+                }
                 responseHandler.saveResponse(responseSoapMessage, userMessage, responseResult.getResponseMessaging());
 
                 ResponseHandler.ResponseStatus responseStatus = responseResult.getResponseStatus();

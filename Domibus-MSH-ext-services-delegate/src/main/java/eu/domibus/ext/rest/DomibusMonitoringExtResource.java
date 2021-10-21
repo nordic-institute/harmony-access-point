@@ -7,8 +7,9 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/ext/monitoring/application")
+@Tag(name = "status", description = "Domibus monitoring service API")
 public class DomibusMonitoringExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringExtResource.class);
 
@@ -44,8 +46,8 @@ public class DomibusMonitoringExtResource {
      * @param filters The filters for which monitoring status are retrieved
      * @return MonitoringInfoDTO with the status of monitoring services specific to the filter
      */
-    @ApiOperation(value = "Check Domibus is Alive ", notes = "Shows the accessibility and status of Domibus Database, JMS broker and Quartz Trigger",
-            authorizations = @Authorization(value = "basicAuth"), tags = "status")
+    @Operation(summary = "Check Domibus is Alive ", description = "Shows the accessibility and status of Domibus Database, JMS broker and Quartz Trigger",
+            security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "status")
     public MonitoringInfoDTO getMonitoringDetails(@RequestParam(value = "filter", defaultValue = "all") List<String> filters) {
         LOG.debug("Getting Domibus status for the filters [{}]", filters);

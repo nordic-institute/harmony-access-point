@@ -2,6 +2,7 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
@@ -13,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONCURENCY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 
 /**
  * @author Ion Perpegel
@@ -49,6 +52,9 @@ public class MessageListenerContainerInitializer {
     protected DomainMessageListenerContainerFactory messageListenerContainerFactory;
 
     @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
     protected DomainService domainService;
 
     @Autowired
@@ -68,6 +74,7 @@ public class MessageListenerContainerInitializer {
             createSplitAndJoinListenerContainer(domain);
             createPullReceiptListenerContainer(domain);
             createPullMessageListenerContainer(domain);
+            createEArchiveMessageListenerContainer(domain);
             createRetentionListenerContainer(domain);
 
             createMessageListenersForPlugins(domain);
@@ -226,6 +233,17 @@ public class MessageListenerContainerInitializer {
         instance.start();
         instances.add(instance);
         LOG.info("PullListenerContainer initialized for domain [{}]", domain);
+    }
+
+    protected void createEArchiveMessageListenerContainer(Domain domain) {
+        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+        if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
+            return ;
+        }
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createEArchiveMessageListenerContainer(domain);
+        instance.start();
+        instances.add(instance);
+        LOG.info("EArchiveListenerContainer initialized for domain [{}]", domain);
     }
 
     public void setConcurrency(Domain domain, String beanName, String concurrency) {

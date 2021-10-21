@@ -28,16 +28,5 @@ public interface ReliabilityService {
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
-
-    /**
-     * This method is used when handleReliability failed
-     *
-     * @param userMessage                  the processed message id.
-     * @param reliabilityCheckSuccessful the state of the reliability check.
-     * @param responseResult             status result for reliability.
-     * @param legConfiguration           the legconfiguration of this message exchange.
-     */
-    void handleReliabilityInNewTransaction(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
-
+    void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 }

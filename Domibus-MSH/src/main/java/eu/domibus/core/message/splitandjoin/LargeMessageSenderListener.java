@@ -21,14 +21,10 @@ public class LargeMessageSenderListener extends AbstractMessageSenderListener {
         super.onMessage(message);
     }
 
-    @Override
-    public void scheduleSending(String messageId, Long delay) {
-        super.userMessageService.scheduleSending(messageId, delay);
-    }
 
     @Override
-    public void sendUserMessage(String messageId, int retryCount) {
-        super.messageSenderService.sendUserMessage(messageId, retryCount);
+    public void sendUserMessage(String messageId, Long messageEntityId, int retryCount) {
+        super.messageSenderService.sendUserMessage(messageId, messageEntityId, retryCount);
     }
 
     @Override

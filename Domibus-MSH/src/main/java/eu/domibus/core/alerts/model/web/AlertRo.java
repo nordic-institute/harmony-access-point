@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class AlertRo {
 
-    private long entityId;
+    private String entityId;
 
     private boolean processed;
 
@@ -45,11 +45,11 @@ public class AlertRo {
 
     private boolean superAdmin;
 
-    public long getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(long alertId) {
+    public void setEntityId(String alertId) {
         this.entityId = alertId;
     }
 

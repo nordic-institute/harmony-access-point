@@ -77,6 +77,9 @@ public class FSPurgeSentServiceTest {
             fsMultiTenancyService.getFSPluginDomain();
             result = domain;
 
+            fsPluginProperties.getDomainEnabled(domain);
+            result = true;
+
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
 
@@ -109,6 +112,9 @@ public class FSPurgeSentServiceTest {
 
             fsMultiTenancyService.getFSPluginDomain();
             result = "DOMAIN1";
+
+            fsPluginProperties.getDomainEnabled("DOMAIN1");
+            result = true;
 
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");

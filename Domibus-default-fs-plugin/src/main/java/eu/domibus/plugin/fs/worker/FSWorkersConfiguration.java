@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -26,6 +27,9 @@ public class FSWorkersConfiguration {
     @Autowired
     protected DomainContextExtService domainContextExtService;
 
+    @Autowired
+    protected DomibusSchedulerExtService domibusSchedulerExtService;
+
     @Bean
     public JobDetailFactoryBean fsPluginSendMessagesWorkerJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();
@@ -39,7 +43,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginSendMessagesWorkerTrigger")){
+        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginSendMessagesWorkerJob")){
             return null;
         }
 
@@ -62,7 +66,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeSentWorkerTrigger")){
+        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeSentWorkerJob")){
             return null;
         }
 
@@ -85,7 +89,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeFailedWorkerTrigger")){
+        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeFailedWorkerJob")){
             return null;
         }
 
@@ -108,7 +112,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeReceivedWorkerTrigger")){
+        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeReceivedWorkerJob")){
             return null;
         }
 
@@ -131,7 +135,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeLocksWorkerTrigger")){
+        if (isDomainNullOrDisabled(fsPluginProperties, domain, "fsPluginPurgeLocksWorkerJob")){
             return null;
         }
 
@@ -143,13 +147,17 @@ public class FSWorkersConfiguration {
     }
 
 
-    protected boolean isDomainNullOrDisabled(FSPluginProperties fsPluginProperties, DomainDTO domain, String triggerName) {
+    protected boolean isDomainNullOrDisabled(FSPluginProperties fsPluginProperties, DomainDTO domain, String jobName) {
         if (domain == null) {
-            LOG.debug("we cannot create {}, domain is null", triggerName);
+            LOG.debug("we cannot create {}, domain is null", jobName);
             return true; // this job only works for a domain
         }
         if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("we cannot create {}, domain {} is disabled", triggerName, domain);
+            LOG.debug("we cannot create [{}], domain [{}] is disabled", jobName, domain);
+
+            domibusSchedulerExtService.markJobForDeletion(domain.getCode(), jobName);
+            LOG.debug("Quartz job [{}] marked for deletion domain=[{}]", jobName, domain.getCode());
+
             return true;
         }
         return false;

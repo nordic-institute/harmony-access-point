@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.earchive.eark.EARKSIPBuilderService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
@@ -27,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.junit.Assert.assertEquals;
@@ -63,15 +65,25 @@ public class FileSystemEArchivePersistenceIT {
     private String batchId;
     private String msg1;
     private String msg2;
+    private long entityId1;
+    private long entityId2;
+    private List<UserMessageDTO> userMessageEntityIds;
 
     @Before
     public void setUp() throws Exception {
-        batchEArchiveDTO = new BatchEArchiveDTO();
         batchId = UUID.randomUUID().toString();
-        batchEArchiveDTO.setBatchId(batchId);
         msg1 = UUID.randomUUID().toString();
         msg2 = UUID.randomUUID().toString();
-        batchEArchiveDTO.setMessages(Arrays.asList(msg1, msg2));
+
+        batchEArchiveDTO = new BatchEArchiveDTOBuilder()
+                .batchId(batchId)
+                .messages(asList(msg1, msg2))
+                .createBatchEArchiveDTO();
+        Random random = new Random();
+        entityId1 = random.nextLong();
+        entityId2 = random.nextLong();
+        userMessageEntityIds = asList(new UserMessageDTO(entityId1, msg1), new UserMessageDTO(entityId2, msg2));
+
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
     }
@@ -116,10 +128,10 @@ public class FileSystemEArchivePersistenceIT {
             eArchivingService.getBatchFileJson(batchEArchiveDTO);
             result = new ByteArrayInputStream("batch.json content".getBytes(StandardCharsets.UTF_8));
 
-            eArchivingService.getArchivingFiles(batchEArchiveDTO.getMessages().get(0));
+            eArchivingService.getArchivingFiles(entityId1);
             result = messageId1;
 
-            eArchivingService.getArchivingFiles(batchEArchiveDTO.getMessages().get(1));
+            eArchivingService.getArchivingFiles(entityId2);
             result = messageId2;
 
             storageProvider.getCurrentStorage();
@@ -129,7 +141,8 @@ public class FileSystemEArchivePersistenceIT {
             result = temp;
         }};
 
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO);
+
+        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
 
         new FullVerifications() {
         };

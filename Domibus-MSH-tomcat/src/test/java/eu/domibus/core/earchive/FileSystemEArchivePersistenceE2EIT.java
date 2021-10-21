@@ -1,11 +1,14 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -40,6 +44,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceE2EIT.class);
 
+    @Autowired
+    private UserMessageDao userMessageDao;
     @Autowired
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
@@ -72,10 +78,11 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     public void setUp() throws Exception {
         messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
 
-        batchEArchiveDTO = new BatchEArchiveDTO();
         batchId = UUID.randomUUID().toString();
-        batchEArchiveDTO.setBatchId(batchId);
-        batchEArchiveDTO.setMessages(Arrays.asList(messageId));
+        batchEArchiveDTO = new BatchEArchiveDTOBuilder()
+                .batchId(batchId)
+                .messages(singletonList(messageId))
+                .createBatchEArchiveDTO();
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
@@ -85,10 +92,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
-        Domain aDefault = domainService.getDomain("default");
-        domibusPropertyProvider.setProperty(aDefault, DOMIBUS_EARCHIVE_ACTIVE, "true");
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
-        domibusPropertyProvider.setProperty(aDefault, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION, temp.getAbsolutePath());
 
         storageProvider.getCurrentStorage().reset();
@@ -103,7 +109,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure() {
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO);
+        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
+
+        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new UserMessageDTO(byMessageId.getEntityId(), messageId)));
 
         File[] files = temp.listFiles();
         File batchFolder = files[0];
@@ -126,7 +134,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
             if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
                 List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
                 assertEquals("message.attachment", collect.get(0).getName());
-                assertEquals(SOAP_ENVELOPE_XML,  collect.get(1).getName());
+                assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
             }
         }
     }

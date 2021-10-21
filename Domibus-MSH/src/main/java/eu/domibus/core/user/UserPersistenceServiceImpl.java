@@ -131,7 +131,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     private void setUserDomainForMultiTenancy(eu.domibus.api.user.User user) {
-        if (StringUtils.isNotEmpty(user.getDomain()) && domibusConfigurationService.isMultiTenantAware()) {
+        if (StringUtils.isNotEmpty(user.getDomain()) && domibusConfigurationService.isMultiTenantAware() && (domainContextProvider.getCurrentDomainSafely() != null)) {
             LOG.debug("Setting current domain:[{}]", user.getDomain());
             domainContextProvider.setCurrentDomain(user.getDomain());
         }

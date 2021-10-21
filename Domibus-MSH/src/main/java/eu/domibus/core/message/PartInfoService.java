@@ -17,6 +17,8 @@ public interface PartInfoService {
 
     List<PartInfo> findPartInfo(UserMessage userMessage);
 
+    List<PartInfo> findPartInfo(long entityId);
+
     void clearPayloadData(long entityId);
 
     void clearFileSystemPayloads(List<PartInfo> partInfos);

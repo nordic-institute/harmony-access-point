@@ -4,7 +4,9 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -17,12 +19,12 @@ import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
+import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
-import eu.domibus.core.util.backup.BackupServiceImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -138,8 +140,14 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
                 Mockito.spy(ExpiredCertificateConfigurationManager.class),
-                Mockito.spy(BackupServiceImpl.class),
-                Mockito.spy(CertificateHelper.class));
+//                Mockito.spy(BackupServiceImpl.class),
+                Mockito.spy(CertificateHelper.class),
+                Mockito.spy(DomainService.class),
+                Mockito.spy(DomainTaskExecutor.class),
+                Mockito.spy(TruststoreDao.class),
+                Mockito.spy(PasswordDecryptionService.class),
+                Mockito.spy(DomainContextProvider.class)
+                );
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

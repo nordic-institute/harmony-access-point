@@ -8,6 +8,7 @@ import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyTy
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -102,13 +103,16 @@ public class WSPluginDispatchRulesService {
 
     protected List<WSBackendMessageType> getTypes(String property) {
         List<WSBackendMessageType> result = new ArrayList<>();
-        String[] messageTypes = split(RegExUtils.replaceAll(property, " ", ""), ",");
         LOG.debug("get WSBackendMessageType with property: [{}]", property);
-        for (String type : messageTypes) {
-            try {
-                result.add(WSBackendMessageType.valueOf(trim(type)));
-            } catch (Exception e) {
-                throw new WSPluginException("Type does not exists [" + type + "]. It should be one of " + Arrays.toString(WSBackendMessageType.values()), e);
+
+        if (StringUtils.isNotBlank(property)) {
+            String[] messageTypes = split(RegExUtils.replaceAll(property, " ", ""), ",");
+            for (String type : messageTypes) {
+                try {
+                    result.add(WSBackendMessageType.valueOf(trim(type)));
+                } catch (Exception e) {
+                    throw new WSPluginException("Type does not exists [" + type + "]. It should be one of " + Arrays.toString(WSBackendMessageType.values()), e);
+                }
             }
         }
 

@@ -145,8 +145,7 @@ public class TLSReaderTest {
     }
 
     private boolean isDomainSpecificScenario(String... more) {
-        Optional<String> first = Arrays.stream(more).findFirst();
-        return first.isPresent() && first.get().startsWith(StringUtils.stripToEmpty(domainCode) + "_");
+        return Arrays.stream(more).anyMatch(el-> el.startsWith(StringUtils.stripToEmpty(domainCode)));
     }
 
     private void whenRetrievingTheClientAuthenticationPath() {

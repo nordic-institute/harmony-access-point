@@ -42,7 +42,7 @@ public class OutQueueConcurrencyChangeListener implements PluginPropertyChangeLi
         DomainDTO domain = domainExtService.getDomain(domainCode);
 
         if (!fsPluginProperties.getDomainEnabled(domainCode)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin exiting...", domainCode);
+            LOG.debug("Domain [{}] is disabled for FSPlugin exiting...", domainCode);
             return;
         }
 

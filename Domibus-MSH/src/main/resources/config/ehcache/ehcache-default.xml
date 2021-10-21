@@ -12,36 +12,36 @@
     </service>
 
     <!-- cache definitions start here -->
-    <cache uses-template="ttl-3600-heap-5mb" alias="policyCache"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="backendFilterCache"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="tlsCache"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="certValidationByAlias"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="crlByCert"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="lookupInfo"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="dispatchClient"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="auditTarget"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="userDomain"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="preferredUserDomain"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="allDomains"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="domainByCode"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="domainByScheduler"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="domibusProperties"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="encryptionKey"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="passwordEncryptionKey"/>
-    <cache uses-template="ttl-3600-heap-5mb" alias="multitenantCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="policyCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="backendFilterCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="tlsCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="certValidationByAlias"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="crlByCert"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="lookupInfo"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="dispatchClient"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="auditTarget"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="userDomain"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="preferredUserDomain"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="allDomains"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domainByCode"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domainByScheduler"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domibusProperties"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="encryptionKey"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="passwordEncryptionKey"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="multitenantCache"/>
 
     <cache alias="dss-cache">
         <expiry>
             <ttl>600</ttl>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache>
 
     <cache alias="jmsDestinations">
         <expiry>
             <ttl>300</ttl>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache>
 
     <cache uses-template="no-expiry-queries" alias="dictionary-queries"/>
@@ -61,23 +61,23 @@
 
     <!-- cache definitions ends here -->
 
-    <cache-template name="ttl-3600-heap-5mb">
+    <cache-template name="ttl-3600-heap-5000">
         <expiry>
             <ttl>3600</ttl>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache-template>
 
     <cache-template name="no-expiry">
         <expiry>
             <none/>
         </expiry>
-        <heap unit="MB">5</heap>
+        <heap unit="entries">5000</heap>
     </cache-template>
     <cache-template name="no-expiry-queries">
         <expiry>
             <none/>
         </expiry>
-        <heap unit="MB">20</heap>
+        <heap unit="entries">20000</heap>
     </cache-template>
 </config>

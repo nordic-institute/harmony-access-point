@@ -20,6 +20,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.SSLContext;
@@ -47,13 +48,13 @@ public class HttpUtilImpl implements HttpUtil {
     @Autowired
     ProxyUtil proxyUtil;
 
+    // we have a cyclic dependency: DomibusX509TrustManager->MultiDomainCryptoServiceImpl->DomainCryptoServiceFactory->CertificateServiceImpl->CRLServiceImpl->CRLUtil->HttpUtilImpl
+    @Lazy
     @Autowired
     DomibusX509TrustManager domibusX509TrustManager;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
-
-    public final static int MILIS_TO_SECONDS = 1000;
 
     public ByteArrayInputStream downloadURL(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         HttpClientBuilder httpClientBuilder = getHttpClientBuilder(url);

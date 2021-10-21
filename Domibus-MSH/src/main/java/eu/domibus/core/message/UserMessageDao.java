@@ -33,7 +33,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserMessage findByEntityId(Long entityId) {
         final UserMessage userMessage = super.read(entityId);
 
@@ -49,10 +49,12 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         userMessage.getServiceValue();
         userMessage.getActionValue();
         userMessage.getAgreementRefValue();
-        userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
-        userMessage.getPartyInfo().getFrom().getRoleValue();
-        userMessage.getPartyInfo().getTo().getToPartyId().getValue();
-        userMessage.getPartyInfo().getTo().getRoleValue();
+        if(userMessage.getPartyInfo() != null) {
+            userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
+            userMessage.getPartyInfo().getFrom().getRoleValue();
+            userMessage.getPartyInfo().getTo().getToPartyId().getValue();
+            userMessage.getPartyInfo().getTo().getRoleValue();
+        }
     }
 
     @Transactional
