@@ -340,9 +340,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 try {
                     scheduler.deleteJob(jobKey);
                     if (se != null) {
-                        LOG.warn("DELETED Quartz job: {} from group: {} cause: {}", jobKey.getName(), jobKey.getGroup(), se.getMessage());
+                        LOG.info("DELETED Quartz job: {} from group: {} cause: {}", jobKey.getName(), jobKey.getGroup(), se.getMessage());
                     } else {
-                        LOG.warn("DELETED Quartz job: {} from group: {}", jobKey.getName(), jobKey.getGroup());
+                        LOG.info("DELETED Quartz job: {} from group: {}", jobKey.getName(), jobKey.getGroup());
                     }
                 } catch (Exception e) {
                     LOG.error("Error while deleting Quartz job: {}", jobKey.getName(), e);
@@ -379,7 +379,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
             if (scheduler != null) {
                 JobKey jobKey = findJob(scheduler, jobNameToDelete);
-                deleteSchedulerJob(scheduler, jobKey, null);
+                if (jobKey != null) {
+                    deleteSchedulerJob(scheduler, jobKey, null);
+                }
+
             }
         } catch (SchedulerException ex) {
             LOG.error("Error deleting job [{}] ", jobNameToDelete, ex);

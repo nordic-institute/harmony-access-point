@@ -4,6 +4,8 @@ import eu.domibus.api.multitenancy.Domain;
 
 /**
  * Encapsulates Domibus domain and a Quartz job
+ * @since 5.0
+ * @author Catalin Enache
  */
 public class DomibusDomainQuartzJob {
     private Domain domain;

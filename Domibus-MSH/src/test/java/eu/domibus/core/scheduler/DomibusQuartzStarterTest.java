@@ -1,11 +1,11 @@
 package eu.domibus.core.scheduler;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -64,6 +64,9 @@ public class DomibusQuartzStarterTest {
     @Before
     public void setUp() throws Exception {
         jobKeys.add(jobKey1);
+
+        Domain domain = new Domain();
+        domain.setCode(domainName);
     }
 
     @Test
@@ -324,4 +327,38 @@ public class DomibusQuartzStarterTest {
         }};
     }
 
+    @Test
+    public void test_markJobForDeletionByDomain(@Injectable Domain domain) {
+
+        String jobNameToDelete = "job1";
+
+        //tested method
+        domibusQuartzStarter.markJobForDeletionByDomain(domain, jobNameToDelete);
+
+        new Verifications() {{
+            domibusQuartzStarter.jobsToDelete.add(new DomibusDomainQuartzJob(domain, jobNameToDelete));
+        }};
+    }
+
+
+    @Test
+    public void test_deleteJobByDomain(@Injectable Domain domain, @Injectable Scheduler scheduler) throws SchedulerException {
+        String jobNameToDelete = "job1";
+
+        domibusQuartzStarter.schedulers.put(domain, scheduler);
+        new Expectations(domibusQuartzStarter) {{
+            domain.getCode();
+            result = "domain1";
+
+            domibusQuartzStarter.findJob(scheduler, jobNameToDelete);
+            result = jobKey1;
+        }};
+
+        //tested method
+        domibusQuartzStarter.deleteJobByDomain(domain, jobNameToDelete);
+
+        new FullVerifications(domibusQuartzStarter) {{
+            domibusQuartzStarter.deleteSchedulerJob(scheduler, jobKey1, null);
+        }};
+    }
 }
