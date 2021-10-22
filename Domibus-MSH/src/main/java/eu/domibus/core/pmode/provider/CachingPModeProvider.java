@@ -343,8 +343,15 @@ public class CachingPModeProvider extends PModeProvider {
         if (legFilterCriteria == null) {
             return new ArrayList<>();
         }
+        List<Process> allProcesses = findAllProcesses();
+        LOG.debug("All processes:");
+        logProcesses(allProcesses);
+
         List<Process> candidateProcesses = filterProcessesByProcessingType(legFilterCriteria.getProcessingType(),
-                this.getConfiguration().getBusinessProcesses().getProcesses());
+                allProcesses);
+        LOG.debug("Filtered processes:");
+        logProcesses(candidateProcesses);
+
         for (Process process : candidateProcesses) {
             ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), legFilterCriteria.getSenderParty(), legFilterCriteria.getReceiverParty());
             checkAgreementMismatch(process, legFilterCriteria);
@@ -360,22 +367,47 @@ public class CachingPModeProvider extends PModeProvider {
         return candidateProcesses;
     }
 
-    private List<Process> filterProcessesByProcessingType(ProcessingType processingType, List<Process> candidateProcesses) {
-        Set<String> processBinding = new HashSet<>();
-        if (processingType == null) {
-            return candidateProcesses;
-        } else if (processingType == ProcessingType.PULL) {
-            processBinding.add(ONE_WAY_PULL.getUri());
-            return candidateProcesses.stream().filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
-        } else {
-            processBinding.add(ONE_WAY_PUSH.getUri());
-            processBinding.add(TWO_WAY_PUSH_PUSH.getUri());
-            return candidateProcesses.stream().filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
+    private void logProcesses(List<Process> allProcesses) {
+        if (LOG.isDebugEnabled()) {
+            for (Process process : allProcesses) {
+                LOG.debug("[{}]", process.getName());
+            }
         }
     }
 
+    private List<Process> filterProcessesByProcessingType(ProcessingType processingType, List<Process> candidateProcesses) {
+        Set<String> processBinding = new HashSet<>();
+        LOG.debug("Filter process by processing type:");
+        if (processingType == null) {
+            LOG.debug("ProcessingType is null, returning all processes.");
+            return candidateProcesses;
+        }
+        if (processingType == ProcessingType.PULL) {
+            processBinding.add(ONE_WAY_PULL.getUri());
+            return filterProcess(processingType, candidateProcesses, processBinding);
+        }
+        processBinding.add(ONE_WAY_PUSH.getUri());
+        processBinding.add(TWO_WAY_PUSH_PUSH.getUri());
+        return filterProcess(processingType, candidateProcesses, processBinding);
+
+    }
+
+    private List<Process> filterProcess(ProcessingType processingType, List<Process> candidateProcesses, Set<String> processBinding) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ProcessingType is:[{}], returning processes with:[{}]", processingType, String.join(", ", processBinding));
+        }
+        return candidateProcesses.
+                stream().
+                peek(process -> LOG.debug("Checking binding for:[{}]", process.getName())).
+                filter(process -> compareMepBinding(process.getMepBinding(), processBinding)).collect(Collectors.toList());
+    }
+
     private boolean compareMepBinding(Binding mepBinding, Set<String> bindings) {
-        return mepBinding != null && bindings.contains(mepBinding.getValue());
+        boolean sameMepBinding = mepBinding != null && mepBinding.getValue() != null && bindings.contains(mepBinding.getValue());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Compare process binding:[{}] to bindings List:[{}]-> mep matches:[{}]", mepBinding, String.join(", ", bindings), sameMepBinding);
+        }
+        return sameMepBinding;
     }
 
     private String listProcessNames(List<Process> candidateProcesses) {
