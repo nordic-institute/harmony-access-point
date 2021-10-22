@@ -83,6 +83,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         batchId = UUID.randomUUID().toString();
         batchEArchiveDTO = new BatchEArchiveDTOBuilder()
                 .batchId(batchId)
+                .messageEndDate("")
                 .messages(singletonList(messageId))
                 .createBatchEArchiveDTO();
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -73,7 +74,7 @@ public class DomibusEArchiveExtResource {
                                                        @RequestParam("startDate") Date startDate,
                                                        @RequestParam("endDate") Date endDate) {
         // TODO implement search method
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -131,7 +132,7 @@ public class DomibusEArchiveExtResource {
             @RequestParam("pageSize") Integer pageSize
     ) {
         // TODO implement search method
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -218,22 +219,6 @@ public class DomibusEArchiveExtResource {
                                            @RequestParam("pageStart") Integer pageStart,
                                            @RequestParam("pageSize") Integer pageSize
     ) {
-        // TODO implement method
-        return null;
-    }
-
-    /**
-     * Get the current start date of the continuous export
-     * <p>
-     * This REST endpoint will expose the continuous export mechanism current start date
-     *
-     * @return current "continuous export" batch start date
-     */
-    @Operation(summary = "Get the current start date of the continuous export",
-            description = "This REST endpoint will expose the continuous export mechanism current start date.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "/continous-export/current-start-date")
-    public CurrentBatchStartDateDTO getCurrentExportDate() {
         // TODO implement method
         return null;
     }
