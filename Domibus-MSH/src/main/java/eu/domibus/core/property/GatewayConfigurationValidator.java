@@ -19,6 +19,8 @@ import java.security.KeyStoreException;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+
 /**
  * Created by idragusa on 4/14/16.
  */
@@ -50,7 +52,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
                 return;
             }
             try (BufferedReader br = new BufferedReader((new InputStreamReader(resourceAsStream)))) {
-                validateFileHash("domibus.properties", br.readLine());
+                validateFileHash(DOMIBUS_PROPERTY_FILE, br.readLine());
             }
         } catch (Exception e) {
             LOG.warn("Could not verify the configuration file hash", e);
