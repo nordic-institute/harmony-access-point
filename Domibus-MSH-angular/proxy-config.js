@@ -1,6 +1,6 @@
 const PROXY_CONFIG = {
   "/rest/**": {
-    target: "http://localhost:8082",
+    target: "http://localhost:8080",
     changeOrigin: true,
     pathRewrite: {"^/": "/domibus/"},
     secure: false,

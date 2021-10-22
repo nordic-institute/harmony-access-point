@@ -155,10 +155,6 @@ public interface DomibusPropertyProvider {
      */
     DomibusPropertyMetadata.Type getPropertyType(String propertyName);
 
-//    String getConfigurationFileName();
-//
-//    String getConfigurationFileName(Domain domain);
-
     void loadProperties(Domain domain);
 
     void loadProperties(Domain domain, String propertiesFilePath);

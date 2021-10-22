@@ -197,31 +197,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
-    // move them here from configuration service??
-    //    @Override
-//    public String getConfigurationFileName() {
-//        return DOMIBUS_PROPERTY_FILE;
-//    }
-//
-//    @Override
-//    public String getConfigurationFileName(Domain domain) {
-//        String propertyFileName;
-//
-//        if (!propertyProviderHelper.isMultiTenantAware()) {
-//            propertyFileName = getConfigurationFileName();
-//        } else {
-//            propertyFileName = getDomainConfigurationFileName(domain);
-//        }
-//        LOG.debug("Using property file [{}]", propertyFileName);
-//
-//        return propertyFileName;
-//    }
-//
-//    public String getDomainConfigurationFileName(Domain domain) {
-//        return DomainService.DOMAINS_HOME + File.separator + domain.getCode() +
-//                File.separator + domain.getCode() + '-' + DOMIBUS_PROPERTY_FILE;
-//    }
-
     protected String getPropertyValue(String propertyName, Domain domain) {
         String value = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
 
