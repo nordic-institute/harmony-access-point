@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2.2</version>
+        <version>4.2.4</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
     <packaging>jar</packaging>
@@ -72,7 +72,7 @@
                </configuration>
                <executions>
 
-                   <!-- 4.2.2 starts here -->
+                   <!-- 4.2.4 starts here -->
                    <execution>
                        <id>generate-mysql-script-data</id>
                        <phase>generate-resources</phase>
@@ -127,7 +127,31 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
-                   <!-- 4.2.2 ends here -->
+                   <!-- 4.2.4 ends here -->
+
+                   <!-- delta 4.2.3 to 4.2.4 starts here -->
+                   <!-- delta 4.2.3 to 4.2.4 ends here -->
+
+                   <!-- delta 4.2.2 to 4.2.3 starts here -->
+                   <execution>
+                       <id>generate-mysql-script-delta-4.2.3</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-4.2.3-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2.3-delta.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.2-to-4.2.3-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- delta 4.2.2 to 4.2.3 ends here -->
 
                    <!-- delta 4.2.1 to 4.2.2 starts here -->
                    <execution>
