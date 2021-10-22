@@ -10,6 +10,9 @@ import eu.domibus.ext.domain.DomainDTO;
  * Used to expose all (configuration) property metadata and for getting and setting properties at runtime
  */
 public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManagerExt {
+    String DOMAINS_HOME = "domains";
+    String PLUGINS_CONFIG_HOME = "plugins/config";
+    String EXTENSIONS_CONFIG_HOME = "extensions/config";
 
     /**
      * Returns the current property value for the current domain

@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 5.0
- *
- *  Service responsible with reacting to adding and removing of domains at runtime
+ * <p>
+ * Service responsible with reacting to adding and removing of domains at runtime
  */
 @Service
 public class JMSPluginDomainsManagerImpl extends DefaultDomainsAwareExt {
+
     public JMSPluginDomainsManagerImpl(JmsPluginPropertyManager jmsPluginPropertyManager) {
         super(jmsPluginPropertyManager);
     }
+
 }

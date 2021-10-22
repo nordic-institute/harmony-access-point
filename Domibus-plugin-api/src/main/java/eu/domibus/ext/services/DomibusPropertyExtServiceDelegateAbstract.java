@@ -160,7 +160,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     protected abstract String getPropertiesFileName();
 
     protected String getModulePropertiesHome() {
-        return "plugins/config";
+        return PLUGINS_CONFIG_HOME;
     }
 
     @Override
@@ -170,20 +170,21 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getConfigurationFileName(DomainDTO domain) {
-        String propertyFileName;
+        if (domain == null) {
+            throw new DomibusPropertyExtException("Domain cannot be null. Call the method without the domain if this is the intention.");
+        }
 
         if (domibusConfigurationExtService.isSingleTenantAware()) {
-            propertyFileName = getConfigurationFileName();
-        } else {
-            propertyFileName = getDomainConfigurationFileName(domain);
+            throw new DomibusPropertyExtException("PLease call the method without the domain ST mode");
         }
-        LOG.debug("Using property file [{}]", propertyFileName);
 
+        String propertyFileName = getDomainConfigurationFileName(domain);
+        LOG.debug("Using property file [{}]", propertyFileName);
         return propertyFileName;
     }
 
     protected String getDomainConfigurationFileName(DomainDTO domain) {
-        return getModulePropertiesHome() + File.separator + "domains" + File.separator + domain.getCode() +
+        return getModulePropertiesHome() + File.separator + DOMAINS_HOME + File.separator + domain.getCode() +
                 File.separator + domain.getCode() + '-' + getPropertiesFileName();
     }
 

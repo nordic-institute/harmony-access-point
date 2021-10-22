@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
@@ -56,6 +57,7 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_CONSTRAINTS_CONSTRAINT2_NAME= CONSTRAINTS_PREFIX +".constraint2.name";
     public static final String DSS_CONSTRAINTS_CONSTRAINT1_STATUS= CONSTRAINTS_PREFIX +".constraint1.status";
     public static final String DSS_CONSTRAINTS_CONSTRAINT2_STATUS= CONSTRAINTS_PREFIX +".constraint2.status";
+    public static final String DSS_EXTENSION_PROPERTIES = "authentication-dss-extension.properties";
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -104,12 +106,12 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
 
     @Override
     protected String getModulePropertiesHome() {
-        return "extensions/config";
+        return EXTENSIONS_CONFIG_HOME;
     }
 
     @Override
     protected String getPropertiesFileName() {
-        return "authentication-dss-extension.properties";
+        return DSS_EXTENSION_PROPERTIES;
     }
 
     @Override
