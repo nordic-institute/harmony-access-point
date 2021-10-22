@@ -5,7 +5,7 @@
     <parent>
         <artifactId>domibus</artifactId>
         <groupId>eu.domibus</groupId>
-        <version>4.2.2</version>
+        <version>4.2.4</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

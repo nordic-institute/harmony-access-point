@@ -17,9 +17,9 @@ public class PModeArchiveInfoDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** id of the PMode file */
-    private int id;
+    private long id;
 
-    /** configuraiton date */
+    /** configuration date */
     private Date configurationDate;
 
     /** username who has save/update the PMode file */
@@ -28,11 +28,11 @@ public class PModeArchiveInfoDTO implements Serializable {
     /** description when the PMode file is created/updated */
     private String description;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

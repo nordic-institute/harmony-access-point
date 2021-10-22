@@ -41,7 +41,7 @@ public class PModeFileExtResourceTest {
 
     @Test
     public void test_downloadPMode(@Mocked ResponseEntity responseEntity) {
-        final int pModeId = 1;
+        final long pModeId = 1;
 
         final byte[] bytes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes(StandardCharsets.UTF_8);
 
@@ -64,7 +64,7 @@ public class PModeFileExtResourceTest {
 
     @Test
     public void test_downloadPMode_NoContent(@Mocked ResponseEntity responseEntity) {
-        final int pModeId = 1;
+        final long pModeId = 1;
 
         final byte[] bytes = "".getBytes(StandardCharsets.UTF_8);
 
@@ -88,7 +88,7 @@ public class PModeFileExtResourceTest {
     @Test
     public void test_GetCurrentPMode(final @Mocked PModeArchiveInfoDTO pModeArchiveInfoDTO) {
 
-        final int pModeId = 2;
+        final long pModeId = 2;
 
         new Expectations() {{
             pModeExtService.getCurrentPmode();

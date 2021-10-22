@@ -6,15 +6,15 @@ package eu.domibus.api.process;
  */
 public class Process {
 
-    private int id;
+    private long id;
 
     private String name;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
