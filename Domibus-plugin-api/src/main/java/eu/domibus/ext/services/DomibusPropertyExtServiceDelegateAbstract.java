@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Ion Perpegel
@@ -169,7 +170,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
     }
 
     @Override
-    public String getConfigurationFileName(DomainDTO domain) {
+    public Optional<String> getConfigurationFileName(DomainDTO domain) {
         if (domain == null) {
             throw new DomibusPropertyExtException("Domain cannot be null. Call the method without the domain if this is the intention.");
         }
@@ -180,7 +181,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
         String propertyFileName = getDomainConfigurationFileName(domain);
         LOG.debug("Using property file [{}]", propertyFileName);
-        return propertyFileName;
+        return Optional.of(propertyFileName);
     }
 
     protected String getDomainConfigurationFileName(DomainDTO domain) {
@@ -190,7 +191,12 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public void loadProperties(DomainDTO domain) {
-        domibusPropertyExtService.loadProperties(domain, getConfigurationFileName(domain));
+        Optional<String> propFileName = getConfigurationFileName(domain);
+        if (!propFileName.isPresent()) {
+            LOG.info("No property file name provided for domain [{}]. Exiting.", domain);
+            return;
+        }
+        domibusPropertyExtService.loadProperties(domain, propFileName.get());
     }
 
     /**

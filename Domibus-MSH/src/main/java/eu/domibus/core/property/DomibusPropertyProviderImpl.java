@@ -11,7 +11,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
@@ -178,7 +177,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void loadProperties(Domain domain, String propertiesFilePath) {
-        if(StringUtils.isEmpty(propertiesFilePath)){
+        if (StringUtils.isEmpty(propertiesFilePath)) {
             LOG.info("Exiting loading properties file for domain [{}] as properties file path is empty. .", domain);
             return;
         }

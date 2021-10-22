@@ -8,10 +8,7 @@ import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,7 +79,7 @@ public class ExternalTestModulePropertyManager extends DomibusPropertyExtService
     }
 
     @Override
-    public String getConfigurationFileName(DomainDTO domain) {
-        return null;
+    public Optional<String> getConfigurationFileName(DomainDTO domain) {
+        return Optional.empty();
     }
 }

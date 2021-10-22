@@ -2,6 +2,8 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 
+import java.util.Optional;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -85,7 +87,7 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param domain the domain whose property name we want
      * @return the name of the file
      */
-    String getConfigurationFileName(DomainDTO domain);
+    Optional<String> getConfigurationFileName(DomainDTO domain);
 
     /**
      * Loads the property file of the specified domain in domibus property provider
