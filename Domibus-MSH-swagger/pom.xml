@@ -15,7 +15,8 @@
     <packaging>war</packaging>
     <name>Domibus MSH REST API documentation</name>
     <properties>
-        <it.test>OpenApiGenerator</it.test>
+        <openapi.output>${project.build.directory}/generated-sources</openapi.output>
+        <generator.sourceDirectory>${project.basedir}/src/generator/java</generator.sourceDirectory>
         <swagger-ui.version>3.52.3</swagger-ui.version>
         <upstream.url>https://github.com/swagger-api/swagger-ui/archive/v${swagger-ui.version}.zip</upstream.url>
     </properties>
@@ -101,6 +102,7 @@
     </dependencies>
 
     <build>
+        <testSourceDirectory>${generator.sourceDirectory}</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -109,60 +111,82 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webappDirectory>${openapi.output}</webappDirectory>
+                </configuration>
             </plugin>
             <!-- Purpose of the ANT plugin is to download and extract swagger-ui pages to folder ${project.basedir}/src/main/webapp-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
-                        <phase>process-resources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <target>
+                                <echoproperties />
+                                <!-- download and extract swagger-ui scripts/html pages -->
                                 <echo message="download archive"/>
                                 <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip"/>
                                 <echo message="unzip archive"/>
                                 <unzip src="${project.build.directory}/${project.artifactId}.zip"
                                        dest="${project.build.directory}"/>
-                                <echo message="Clean old webapp"/>
-                                <delete dir="${project.basedir}/src/main/webapp/"/>
                                 <echo message="moving resources"/>
-                                <move todir="${project.basedir}/src/main/webapp">
+                                <move todir="${openapi.output}">
                                     <fileset dir="${project.build.directory}/swagger-ui-${swagger-ui.version}/dist"/>
                                 </move>
                                 <echo message="Set openapi.json as default file (openapi.json is generated in test OpenApiGenerator.java)"/>
-                                <replace file="${project.basedir}/src/main/webapp/index.html"
-                                         token="https://petstore.swagger.io/v2/swagger.json" value="openapi.json"/>
+                                <replace file="${openapi.output}/index.html"
+                                         token="https://petstore.swagger.io/v2/swagger.json" value="openapi.json" />
+                               <!-- generate openAPI document using springdoc -->
+<!-- start maven plugin with java instead of mvn because some maven applications does not have execute permission as example
+   maven in intellj -->
+                                <exec dir="${project.basedir}" executable="${java.home}/bin/java">
+                                    <arg value="-cp"/>
+                                    <arg value='${maven.home}/boot/*'/>
+                                    <arg value="-Dmaven.multiModuleProjectDirectory=${maven.multiModuleProjectDirectory}" />
+                                    <arg value="-Dmaven.home=${maven.home}" />
+                                    <arg value="-Dclassworlds.conf=${maven.home}/bin/m2.conf" />
+                                    <arg value="-Dfile.encoding=UTF-8" />
+                                    <arg value="-Dproject.reporting.outputEncoding=UTF-8" />
+                                    <arg value="org.codehaus.classworlds.Launcher" />
+                                    <arg value="org.apache.maven.plugins:maven-failsafe-plugin:2.19.1:integration-test" />
+                                    <arg value="-Dit.test=OpenApiGenerator" />
+                                </exec>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Purpose of the maven-failsafe-plugin plugin is to setup MockMVC and run IT test: OpenApiGenerator with purpose to generated the open API document from
-            REST endpoint -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
-                        <id>generate-open-api</id>
-                        <phase>integration-test</phase>
+                        <id>enforce-files</id>
+                        <phase>install</phase>
                         <goals>
-                            <goal>integration-test</goal>
+                            <goal>enforce</goal>
                         </goals>
                         <configuration>
-                            <!-- Skip the default running of this plug-in (or everything is run twice) -->
-                            <skip>true</skip>
+                            <rules>
+                                <requireFilesExist>
+                                    <files>
+                                        <file>${openapi.output}/openapi.json</file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
-
-
 </project>
