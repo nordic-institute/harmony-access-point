@@ -1,14 +1,12 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainsAwareExt;
@@ -44,13 +42,15 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     private final DomibusCoreMapper coreMapper;
 
+    private final DomibusConfigurationService domibusConfigurationService;
+
     public DynamicDomainManagementServiceImpl(DomainService domainService,
                                               DomibusPropertyProvider domibusPropertyProvider,
                                               DomainDao domainDao,
                                               SignalService signalService,
                                               List<DomainsAware> domainsAwareList,
                                               List<DomainsAwareExt> externalDomainsAwareList,
-                                              DomibusCoreMapper coreMapper) {
+                                              DomibusCoreMapper coreMapper, DomibusConfigurationService domibusConfigurationService) {
 
         this.domainService = domainService;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -59,6 +59,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         this.domainsAwareList = domainsAwareList;
         this.externalDomainsAwareList = externalDomainsAwareList;
         this.coreMapper = coreMapper;
+        this.domibusConfigurationService = domibusConfigurationService;
     }
 
     @Override
@@ -75,6 +76,10 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     protected void validateAddition(String domainCode) {
+        if(domibusConfigurationService.isSingleTenantAware()){
+            throw new DomibusDomainException(String.format("Cannot add a domain in single tenancy mode.", domainCode));
+        }
+
         if (domainService.getDomains().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] since is is already added.", domainCode));
         }

@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -48,6 +49,9 @@ public class DynamicDomainManagementServiceImplTest {
 
     @Injectable
     private DomibusCoreMapper coreMapper;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     List<Domain> domains, allDomains;
     Domain domain1, domain2;
