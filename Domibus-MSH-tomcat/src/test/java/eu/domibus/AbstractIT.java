@@ -1,6 +1,7 @@
 package eu.domibus;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.MessageStatus;
@@ -13,7 +14,7 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -165,6 +166,7 @@ public abstract class AbstractIT {
 
     protected UserMessage getUserMessageTemplate() throws IOException {
         XStream xStream = new XStream();
+        xStream.addPermission(new ExplicitTypePermission(new Class[]{From.class, PartyId.class, UserMessage.class, Property.class, PartInfo.class}));
         return (UserMessage) xStream.fromXML(new ClassPathResource("dataset/messages/UserMessageTemplate.xml").getInputStream());
     }
 
