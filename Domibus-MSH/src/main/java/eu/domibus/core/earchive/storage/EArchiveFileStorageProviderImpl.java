@@ -48,7 +48,7 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        createStorage(Arrays.asList(domain));
+        createStorage(domain);
     }
 
     @Override
@@ -57,10 +57,14 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     private void createStorage(List<Domain> domains) {
         for (Domain domain : domains) {
-            EArchiveFileStorage instance = storageFactory.create(domain);
-            instances.put(domain, instance);
-            LOG.info("EArchiving Storage initialized for domain [{}]", domain);
+            createStorage(domain);
         }
+    }
+
+    private void createStorage(Domain domain) {
+        EArchiveFileStorage instance = storageFactory.create(domain);
+        instances.put(domain, instance);
+        LOG.info("EArchiving Storage initialized for domain [{}]", domain);
     }
 
     @Override

@@ -44,19 +44,23 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        createStorage(Arrays.asList(domain));
+        createStorage(domain);
     }
 
     @Override
     public void onDomainRemoved(Domain domain) {
     }
 
-    private void createStorage(List<Domain> domains) {
+    protected void createStorage(List<Domain> domains) {
         for (Domain domain : domains) {
-            PayloadFileStorage instance = storageFactory.create(domain);
-            instances.put(domain, instance);
-            LOG.info("Storage initialized for domain [{}]", domain);
+            createStorage(domain);
         }
+    }
+
+    private void createStorage(Domain domain) {
+        PayloadFileStorage instance = storageFactory.create(domain);
+        instances.put(domain, instance);
+        LOG.info("Storage initialized for domain [{}]", domain);
     }
 
     @Override

@@ -72,16 +72,19 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        createEntries(Arrays.asList(domain));
+        createEntries(domain);
     }
 
     @Override
     public void onDomainRemoved(Domain domain) {
     }
 
+    private void createEntries(Domain domain) {
+        createEntries(Arrays.asList(domain));
+    }
+
     private void createEntries(List<Domain> domains) {
-        Runnable createEntriesCall = createEntriesCall();
-        Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall);
+        Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall());
         for (Domain domain : domains) {
             LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
             domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);

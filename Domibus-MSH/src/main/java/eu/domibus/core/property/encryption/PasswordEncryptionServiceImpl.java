@@ -111,7 +111,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        encryptPasswords(Arrays.asList(domain));
+        encryptPasswords(domain);
     }
 
     @Override
@@ -120,11 +120,15 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     private void encryptPasswords(List<Domain> domains) {
         for (Domain domain : domains) {
-            domainContextProvider.setCurrentDomain(domain);
-            final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
-            encryptPasswords(passwordEncryptionContextDomain);
-            domainContextProvider.clearCurrentDomain();
+            encryptPasswords(domain);
         }
+    }
+
+    private void encryptPasswords(Domain domain) {
+        domainContextProvider.setCurrentDomain(domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+        encryptPasswords(passwordEncryptionContextDomain);
+        domainContextProvider.clearCurrentDomain();
     }
 
     @Override

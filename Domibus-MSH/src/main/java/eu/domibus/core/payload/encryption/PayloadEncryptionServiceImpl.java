@@ -1,11 +1,11 @@
 package eu.domibus.core.payload.encryption;
 
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.encryption.EncryptionKeyDao;
 import eu.domibus.core.encryption.EncryptionKeyEntity;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,7 +56,7 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        createPayloadEncryptionKeyForAllDomainsIfNotExists(Arrays.asList(domain));
+        createPayloadEncryptionKeyIfNotExists(domain);
     }
 
     @Override

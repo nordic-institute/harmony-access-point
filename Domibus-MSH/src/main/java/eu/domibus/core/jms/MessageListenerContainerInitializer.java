@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        createListenerContainers(Arrays.asList(domain));
+        createListenerContainers(domain);
     }
 
     @Override
@@ -84,16 +83,20 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
     private void createListenerContainers(List<Domain> domains) {
         for (Domain domain : domains) {
-            createSendMessageListenerContainers(domain);
-            createSendLargeMessageListenerContainer(domain);
-            createSplitAndJoinListenerContainer(domain);
-            createPullReceiptListenerContainer(domain);
-            createPullMessageListenerContainer(domain);
-            createEArchiveMessageListenerContainer(domain);
-            createRetentionListenerContainer(domain);
-
-            createMessageListenersForPlugins(domain);
+            createListenerContainers(domain);
         }
+    }
+
+    private void createListenerContainers(Domain domain) {
+        createSendMessageListenerContainers(domain);
+        createSendLargeMessageListenerContainer(domain);
+        createSplitAndJoinListenerContainer(domain);
+        createPullReceiptListenerContainer(domain);
+        createPullMessageListenerContainer(domain);
+        createEArchiveMessageListenerContainer(domain);
+        createRetentionListenerContainer(domain);
+
+        createMessageListenersForPlugins(domain);
     }
 
     @PreDestroy

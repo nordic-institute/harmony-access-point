@@ -73,24 +73,28 @@ public class BackendFilterInitializerService implements DomainsAware {
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        createBackendFilters(Arrays.asList(domain));
+        createBackendFilters(domain);
     }
 
     @Override
     public void onDomainRemoved(Domain domain) {
     }
 
-    private void createBackendFilters(List<Domain> domains) {
+    protected void createBackendFilters(List<Domain> domains) {
         LOG.debug("Checking and updating the configured plugins for all the domains in MultiTenancy environment");
         for (Domain domain : domains) {
-            LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
-
-            Runnable wrappedCreateBackendFilters = () -> authUtils.runWithDomibusSecurityContext(routingService::createBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
-            //wait 3 minutes to complete the task; the actual execution of the business logic is fast but
-            //sometime at server startup it might take a while to have enough threads available
-            domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);
-
-            LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
+            createBackendFilters(domain);
         }
+    }
+
+    protected void createBackendFilters(Domain domain) {
+        LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
+
+        Runnable wrappedCreateBackendFilters = () -> authUtils.runWithDomibusSecurityContext(routingService::createBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
+        //wait 3 minutes to complete the task; the actual execution of the business logic is fast but
+        //sometime at server startup it might take a while to have enough threads available
+        domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);
+
+        LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
     }
 }

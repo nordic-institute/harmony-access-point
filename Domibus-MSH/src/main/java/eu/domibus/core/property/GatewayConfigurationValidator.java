@@ -62,7 +62,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
 
     @Override
     public void onDomainAdded(final Domain domain) {
-        validateCertificates(Arrays.asList(domain));
+        validateCerts(domain);
     }
 
     @Override
