@@ -67,7 +67,7 @@
         <mysql.connector.java.version>8.0.19</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
-        <dependency.check.version>6.2.2</dependency.check.version>
+        <dependency.check.version>6.4.1</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 
         <!-- Sonar properties -->
@@ -129,7 +129,7 @@
         <activation.version>1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
 
-        <xmlsec.version>2.1.5</xmlsec.version>
+        <xmlsec.version>2.1.7</xmlsec.version>
         <httpcore.version>4.4.5</httpcore.version>
         <ehcache.version>2.10.6</ehcache.version>
         <hamcrest.version>1.3</hamcrest.version>
