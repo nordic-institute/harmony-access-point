@@ -189,7 +189,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Properties properties = new Properties();
             properties.load(fis);
-            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource("propertiesOfDomain" + domain.getCode(), properties);
+            String propertySourceName = domain.getCode() + "-" + new File(configFile).getName();
+            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource(propertySourceName, properties);
             propertySources.addLast(newPropertySource);
         } catch (IOException ex) {
             throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
