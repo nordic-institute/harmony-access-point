@@ -32,8 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         OpenApiConfig.class,
 })
 public class OpenApiGenerator {
-    public static String sourcepath = "./target/generated-sources" +
-            "";
+    public static String sourcepath = "./target/generated-sources";
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webAppContext;
