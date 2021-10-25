@@ -146,36 +146,4 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
     }
 
-    //todo delete??
-//    @Override
-//    public void checkAndHandleDomainsChanged() {
-//        if (domibusConfigurationService.isSingleTenantAware()) {
-//            return;
-//        }
-//
-//        List<Domain> addedDomains = getAddedDomains();
-//        if (addedDomains.isEmpty()) {
-//            return;
-//        }
-//
-//        addedDomains.forEach(domain -> {
-//            try {
-//                addDomain(domain);
-//
-//                LOG.debug("Broadcasting dynamically adding domain [{}]", domain);
-//                signalService.signalDomainsAdded(domain);
-//            } catch (Exception ex) {
-//                //todo return a result type detailing the outcome for each domain
-//                LOG.error("Could not add domain [[]]!");
-//            }
-//        });
-//    }
-//    private List<Domain> getAddedDomains() {
-//        List<Domain> previousDomains = domainService.getDomains();
-//        List<Domain> currentDomains = domainDao.findAll();
-//        List<Domain> addedDomains = currentDomains.stream()
-//                .filter(el -> !previousDomains.contains(el))
-//                .collect(Collectors.toList());
-//        return addedDomains;
-//    }
 }
