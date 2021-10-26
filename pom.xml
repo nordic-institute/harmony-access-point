@@ -27,29 +27,29 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.4</cxf.version>
-        <wss4j-ws-security.version>2.3.2</wss4j-ws-security.version>
+        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
         <spring.version>5.2.16.RELEASE</spring.version>
         <spring.security.version>5.4.7</spring.security.version>
-        <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
-        <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
+        <spring.session.core.version>2.5.2</spring.session.core.version>
+        <spring.session.jdbc.version>2.5.2</spring.session.jdbc.version>
         <springdoc.version>1.5.10</springdoc.version>
         <io.swagger.core.v3.version>2.1.10</io.swagger.core.v3.version>
-        <hibernate.version>5.4.27.Final</hibernate.version>
-        <activemq.version>5.16.1</activemq.version>
+        <hibernate.version>5.5.7.Final</hibernate.version>
+        <activemq.version>5.16.3</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <slf4j.version>1.7.30</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.6</logback.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
-        <commons-io.version>2.8.0</commons-io.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.67</bouncycastle.version>
+        <bouncycastle.version>1.69</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-        <c3p0.version>0.9.5.5</c3p0.version>
+<!--        <c3p0.version>0.9.5.5</c3p0.version>-->
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
