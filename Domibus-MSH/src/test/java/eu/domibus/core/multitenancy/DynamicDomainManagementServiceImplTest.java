@@ -67,17 +67,7 @@ public class DynamicDomainManagementServiceImplTest {
         domains = new ArrayList<>();
         domains.add(domain1);
         allDomains = Arrays.asList(domain1, domain2);
-        domainsAwareList.add(new DomainsAware() {
-            @Override
-            public void onDomainAdded(Domain domain) {
-                throw new DomibusCertificateException();
-            }
 
-            @Override
-            public void onDomainRemoved(Domain domain) {
-
-            }
-        });
 
         externalDomainsAwareList.add(new DomainsAwareExt() {
             @Override
@@ -115,7 +105,7 @@ public class DynamicDomainManagementServiceImplTest {
     }
 
     @Test
-    public void internalAddDomain() {
+    public void internalAddDomain(@Injectable List<DomainsAware> domainsAwareList) {
         new Expectations() {{
             domainService.getDomains();
             result = domains;
@@ -129,6 +119,18 @@ public class DynamicDomainManagementServiceImplTest {
 
     @Test(expected = DomibusDomainException.class)
     public void internalAddDomainError() throws Exception {
+        domainsAwareList.add(new DomainsAware() {
+            @Override
+            public void onDomainAdded(Domain domain) {
+                throw new DomibusCertificateException();
+            }
+
+            @Override
+            public void onDomainRemoved(Domain domain) {
+
+            }
+        });
+
         new Expectations() {{
             domainService.getDomains();
             result = domains;
