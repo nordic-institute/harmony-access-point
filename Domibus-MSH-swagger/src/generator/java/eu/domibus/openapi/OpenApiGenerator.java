@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         OpenApiConfig.class,
 })
 public class OpenApiGenerator {
-    public static String sourcepath = "./target/generated-sources";
+    public static String sourcePath = "./target/generated-sources";
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webAppContext;
@@ -51,12 +51,12 @@ public class OpenApiGenerator {
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
-        File target = new File(sourcepath);
+        File target = new File(sourcePath);
         if (!target.exists()){
             target.mkdirs();
         }
         // store document to webapp
-        try (FileWriter fileWriter = new FileWriter(new File(sourcepath, "openapi.json"))) {
+        try (FileWriter fileWriter = new FileWriter(new File(sourcePath, "openapi.json"))) {
             fileWriter.write(content);
             fileWriter.flush();
         }
