@@ -98,4 +98,14 @@ public interface EventService {
      */
     void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration);
 
+
+    /**
+     * Verifies if an alert should be created based on the last alert and frequency
+     *
+     * @param event the event for which the alert should be or not created
+     * @param frequency the period in days to send another alert
+     * @return true if the previous alert is older than the specified frequency
+     */
+    boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event event, int frequency);
+
 }

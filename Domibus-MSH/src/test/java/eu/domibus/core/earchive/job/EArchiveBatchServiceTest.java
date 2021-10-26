@@ -1,13 +1,11 @@
 package eu.domibus.core.earchive.job;
 
 import com.fasterxml.uuid.NoArgGenerator;
-import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchDao;
+import eu.domibus.core.earchive.EArchiveBatchStartDao;
 import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -20,7 +18,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_MPCS;
 import static java.util.Arrays.asList;
@@ -47,33 +47,9 @@ public class EArchiveBatchServiceTest {
     @Injectable
     private EArchiveBatchDao eArchiveBatchDao;
     @Injectable
+    private EArchiveBatchStartDao eArchiveBatchStartDao;
+    @Injectable
     private NoArgGenerator uuidGenerator;
-
-
-//    @Test(expected = DomibusEArchiveException.class)
-//    public void batches_invalid() {
-//        eArchiveBatchService.batches(new ListUserMessageDto(null), 0);
-//    }
-//
-//    @Test
-//    public void batches_empty() {
-//        List<ListUserMessageDto> batches = eArchiveBatchService.batches(new ListUserMessageDto(null), 2);
-//        Assert.assertEquals(1, batches.size());
-//        Assert.assertEquals(0, batches.get(0).getUserMessageDtos().size());
-//    }
-//
-//    @Test
-//    public void batches_3messages() {
-//        List<UserMessageDTO> resultList = asList(
-//                new UserMessageDTO(new Random().nextLong(), UUID.randomUUID().toString()),
-//                new UserMessageDTO(new Random().nextLong(), UUID.randomUUID().toString()),
-//                new UserMessageDTO(new Random().nextLong(), UUID.randomUUID().toString()));
-//
-//        List<ListUserMessageDto> batches = eArchiveBatchService.batches(new ListUserMessageDto(resultList), 2);
-//        Assert.assertEquals(2, batches.size());
-//        Assert.assertEquals(2, batches.get(0).getUserMessageDtos().size());
-//        Assert.assertEquals(1, batches.get(1).getUserMessageDtos().size());
-//    }
 
     @Test
     public void getMpcs() {

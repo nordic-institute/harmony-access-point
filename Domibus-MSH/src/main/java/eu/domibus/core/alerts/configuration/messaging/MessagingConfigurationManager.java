@@ -25,8 +25,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 /**
  * Manages the reading of messaging alert configuration
  *
- * @author Ion Perpegel
- * @since 4.2
+ * @author idragusa
+ * @since 5.0
  */
 @Service
 public class MessagingConfigurationManager

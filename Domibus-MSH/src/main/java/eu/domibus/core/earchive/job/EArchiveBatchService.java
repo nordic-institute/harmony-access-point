@@ -18,12 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
@@ -38,8 +36,6 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 public class EArchiveBatchService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchService.class);
-    public static final String MAX = "9999999999";
-
     private final EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
@@ -48,23 +44,33 @@ public class EArchiveBatchService {
 
     private final EArchiveBatchDao eArchiveBatchDao;
 
+    private final EArchiveBatchStartDao eArchiveBatchStartDao;
+
     private final NoArgGenerator uuidGenerator;
 
 
-    public EArchiveBatchService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao, DomibusPropertyProvider domibusPropertyProvider, PModeProvider pModeProvider, EArchiveBatchDao eArchiveBatchDao, NoArgGenerator uuidGenerator) {
+    public EArchiveBatchService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
+                                DomibusPropertyProvider domibusPropertyProvider,
+                                PModeProvider pModeProvider,
+                                EArchiveBatchDao eArchiveBatchDao,
+                                EArchiveBatchStartDao eArchiveBatchStartDao,
+                                NoArgGenerator uuidGenerator) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
         this.eArchiveBatchDao = eArchiveBatchDao;
+        this.eArchiveBatchStartDao = eArchiveBatchStartDao;
         this.uuidGenerator = uuidGenerator;
     }
 
+    @Transactional(readOnly = true)
     public long getLastEntityIdArchived() {
-        Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();
-        if (lastEntityIdArchived == null) {
-            return 0;
-        }
-        return lastEntityIdArchived;
+        return eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
+    }
+
+    @Transactional
+    public void updateLastEntityIdArchived(Long lastPkUserMessage) {
+        eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).setLastPkUserMessage(lastPkUserMessage);
     }
 
     @Transactional
@@ -87,6 +93,8 @@ public class EArchiveBatchService {
         entity.setBatchId(uuidGenerator.generate().toString());
         entity.setMessageIdsJson(new Gson().toJson(userMessageToBeArchived, ListUserMessageDto.class));
         entity.setLastPkUserMessage(lastEntity);
+        entity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
+        entity.setDateRequested(new Date());
         eArchiveBatchDao.create(entity);
         return entity;
     }
