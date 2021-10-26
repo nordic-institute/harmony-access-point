@@ -12,6 +12,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainsAwareExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -76,15 +77,15 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     protected void validateAddition(String domainCode) {
-        if(domibusConfigurationService.isSingleTenantAware()){
+        if (domibusConfigurationService.isSingleTenantAware()) {
             throw new DomibusDomainException(String.format("Cannot add a domain in single tenancy mode.", domainCode));
         }
 
-        if (domainService.getDomains().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
+        if (domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] since is is already added.", domainCode));
         }
 
-        if (!domainDao.findAll().stream().anyMatch(el -> el.getCode().equals(domainCode))) {
+        if (!domainDao.findAll().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] since there is no corresponding folder or the folder is invalid.", domainCode));
         }
     }
@@ -95,19 +96,23 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         domainService.getDomains().add(domain);
 
         try {
-            List<DomainsAware> executedSuccessfully = new ArrayList<>();
-            for (DomainsAware bean : domainsAwareList) {
-                try {
-                    LOG.debug("Adding domain [{}] in bean [{}]", domain, bean);
-                    bean.onDomainAdded(domain);
-                    executedSuccessfully.add(bean);
-                } catch (Exception addException) {
-                    handleAddDomainException(domain, executedSuccessfully, bean, addException);
-                }
-            }
+            notifyInternalBeans(domain);
         } catch (Exception ex) {
             domainService.getDomains().remove(domain);
             throw new DomibusDomainException(String.format("Error adding the domain [%s]. ", domain), ex);
+        }
+    }
+
+    protected void notifyInternalBeans(Domain domain) throws Exception {
+        List<DomainsAware> executedSuccessfully = new ArrayList<>();
+        for (DomainsAware bean : domainsAwareList) {
+            try {
+                LOG.debug("Adding domain [{}] in bean [{}]", domain, bean);
+                bean.onDomainAdded(domain);
+                executedSuccessfully.add(bean);
+            } catch (Exception addException) {
+                handleAddDomainException(domain, executedSuccessfully, bean, addException);
+            }
         }
     }
 

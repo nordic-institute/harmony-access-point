@@ -43,7 +43,7 @@ public class DomainDaoImplTest {
         new Expectations(domainDao) {{
             domainDao.findAllDomainCodes();
             result = Arrays.asList("zdomain", "adomain");
-            domainDao.checkValidDomain((List<Domain>)any, anyString);
+            domainDao.checkValidDomain((List<Domain>) any, anyString);
         }};
 
         List<Domain> domains = domainDao.findAll();
@@ -109,11 +109,7 @@ public class DomainDaoImplTest {
             domainDao.checkConfigFile(domainCode);
         }};
 
-        try {
-            domainDao.checkValidDomain(domains, domainCode);
-        } catch (Exception ex) {
-            Assert.fail();
-        }
+        domainDao.checkValidDomain(domains, domainCode);
     }
 
 

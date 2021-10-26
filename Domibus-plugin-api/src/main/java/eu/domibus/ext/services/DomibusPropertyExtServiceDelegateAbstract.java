@@ -184,7 +184,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         return Optional.of(propertyFileName);
     }
 
-    protected String getDomainConfigurationFileName(DomainDTO domain) {
+    protected final String getDomainConfigurationFileName(DomainDTO domain) {
         return getModulePropertiesHome() + File.separator + DOMAINS_HOME + File.separator + domain.getCode() +
                 File.separator + domain.getCode() + '-' + getPropertiesFileName();
     }
