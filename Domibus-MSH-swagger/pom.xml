@@ -17,7 +17,6 @@
     <properties>
         <openapi.output>${project.build.directory}/generated-sources</openapi.output>
         <generator.sourceDirectory>${project.basedir}/src/generator/java</generator.sourceDirectory>
-        <swagger-ui.version>3.52.3</swagger-ui.version>
         <upstream.url>https://github.com/swagger-api/swagger-ui/archive/v${swagger-ui.version}.zip</upstream.url>
     </properties>
 
@@ -118,7 +117,6 @@
             <!-- Purpose of the ANT plugin is to download and extract swagger-ui pages to folder ${project.basedir}/src/main/webapp-->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
@@ -127,7 +125,6 @@
                         </goals>
                         <configuration>
                             <target>
-                                <echoproperties />
                                 <!-- download and extract swagger-ui scripts/html pages -->
                                 <echo message="download archive"/>
                                 <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip"/>
@@ -143,7 +140,7 @@
                                          token="https://petstore.swagger.io/v2/swagger.json" value="openapi.json" />
                                <!-- generate openAPI document using springdoc -->
 <!-- start maven plugin with java instead of mvn because some maven applications does not have execute permission as example
-   maven in intellj -->
+   maven in intellij -->
                                 <exec dir="${project.basedir}" executable="${java.home}/bin/java">
                                     <arg value="-cp"/>
                                     <arg value='${maven.home}/boot/*'/>
@@ -153,7 +150,7 @@
                                     <arg value="-Dfile.encoding=UTF-8" />
                                     <arg value="-Dproject.reporting.outputEncoding=UTF-8" />
                                     <arg value="org.codehaus.classworlds.Launcher" />
-                                    <arg value="org.apache.maven.plugins:maven-failsafe-plugin:2.19.1:integration-test" />
+                                    <arg value="org.apache.maven.plugins:maven-failsafe-plugin:${maven-failsafe-plugin.version}:integration-test" />
                                     <arg value="-Dit.test=OpenApiGenerator" />
                                 </exec>
                             </target>
@@ -163,9 +160,7 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>enforce-files</id>
@@ -186,7 +181,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>
