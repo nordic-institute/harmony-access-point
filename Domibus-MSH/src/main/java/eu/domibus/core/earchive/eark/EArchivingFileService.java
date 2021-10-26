@@ -1,16 +1,19 @@
-package eu.domibus.core.earchive;
+package eu.domibus.core.earchive.eark;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,19 +30,23 @@ import java.util.Map;
  * @since 5.0
  */
 @Service
-public class EArchivingService {
+public class EArchivingFileService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingFileService.class);
 
     public static final String SOAP_ENVELOPE_XML = "soap.envelope.xml";
 
     private final PartInfoService partInfoService;
 
     private final UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
+    private final ObjectMapper objectMapper;
 
-    public EArchivingService(PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao) {
+    public EArchivingFileService(PartInfoService partInfoService,
+                                 UserMessageRawEnvelopeDao userMessageRawEnvelopeDao,
+                                 @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
         this.partInfoService = partInfoService;
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional(readOnly = true)
@@ -47,17 +54,17 @@ public class EArchivingService {
         HashMap<String, InputStream> files = new HashMap<>();
 
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
-        if(rawXmlByMessageId != null) {
+        if (rawXmlByMessageId != null) {
             files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
         }
-        if(rawXmlByMessageId == null){
+        if (rawXmlByMessageId == null) {
             LOG.debug("No userMessageRaw found for entityId [{}]", entityId);
         }
 
         final List<PartInfo> partInfos = partInfoService.findPartInfo(entityId);
 
         for (PartInfo partInfo : partInfos) {
-           files.put(getFileName(partInfo), getInputStream(entityId, partInfo));
+            files.put(getFileName(partInfo), getInputStream(entityId, partInfo));
         }
         return files;
     }
@@ -99,7 +106,10 @@ public class EArchivingService {
     }
 
     public InputStream getBatchFileJson(BatchEArchiveDTO batchEArchiveDTO) {
-        // TODO: François Gautier 07-09-21 to be done
-        return new ByteArrayInputStream("batch.json content".getBytes(StandardCharsets.UTF_8));
+        try {
+            return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveDTO).getBytes(StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
+        }
     }
 }
