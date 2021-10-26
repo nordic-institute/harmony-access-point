@@ -74,7 +74,7 @@
         <mysql.connector.java.version>8.0.22</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
-        <dependency.check.version>6.2.2</dependency.check.version>
+        <owasp.dependency.check.version>6.4.1</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
@@ -1507,7 +1507,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>${dependency.check.version}</version>
+                        <version>${owasp.dependency.check.version}</version>
                         <inherited>false</inherited>
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
