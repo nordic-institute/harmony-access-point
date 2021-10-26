@@ -36,14 +36,21 @@ public class PartitionsConfigurationManager
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(PartitionsConfigurationManager.class);
 
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private DomainContextProvider domainContextProvider;
+    protected DomainContextProvider domainContextProvider;
 
-    @Autowired
-    AlertConfigurationService alertConfigurationService;
+    protected AlertConfigurationService alertConfigurationService;
+
+
+    public PartitionsConfigurationManager(DomibusPropertyProvider domibusPropertyProvider,
+                                          DomainContextProvider domainContextProvider,
+                                          AlertConfigurationService alertConfigurationService) {
+        super();
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainContextProvider = domainContextProvider;
+        this.alertConfigurationService = alertConfigurationService;
+    }
 
     @Override
     public AlertType getAlertType() {
