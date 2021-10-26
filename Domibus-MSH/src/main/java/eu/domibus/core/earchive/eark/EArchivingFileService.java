@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.earchive.EArchiveBatchDTO;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +39,11 @@ public class EArchivingFileService {
     private final PartInfoService partInfoService;
 
     private final UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public EArchivingFileService(PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao, ObjectMapper objectMapper) {
+    public EArchivingFileService(PartInfoService partInfoService,
+                                 UserMessageRawEnvelopeDao userMessageRawEnvelopeDao,
+                                 @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
         this.partInfoService = partInfoService;
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
         this.objectMapper = objectMapper;
@@ -102,11 +105,11 @@ public class EArchivingFileService {
         return info.getHref().replace("cid:", "");
     }
 
-    public InputStream getBatchFileJson(EArchiveBatchDTO EArchiveBatchDTO) {
+    public InputStream getBatchFileJson(BatchEArchiveDTO batchEArchiveDTO) {
         try {
-            return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(EArchiveBatchDTO).getBytes(StandardCharsets.UTF_8));
+            return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveDTO).getBytes(StandardCharsets.UTF_8));
         } catch (JsonProcessingException e) {
-            throw new DomibusEArchiveException("Could not write Batch.json " + EArchiveBatchDTO, e);
+            throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
         }
     }
 }

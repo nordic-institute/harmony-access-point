@@ -111,6 +111,20 @@ public class EArchiveBatchDispatcherService {
         return eArchiveBatch;
     }
 
+    /**
+     *  Method creates a batch copy/ re-export existing batch with new Batch ID.
+     * @return null if no messages found
+     */
+    public EArchiveBatchEntity createBatchCopyAndEnqueue(final String batchId, Domain domain) {
+
+        // create a copy
+        EArchiveBatchEntity eArchiveBatchCopy = eArchiveBatchService.createEArchiveBatchCopy(batchId);
+
+        enqueueEArchive(eArchiveBatchCopy, domain);
+
+        return eArchiveBatchCopy;
+    }
+
     private int getProperty(String property) {
         Integer integerProperty = domibusPropertyProvider.getIntegerProperty(property);
         if (integerProperty == null) {

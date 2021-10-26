@@ -1,9 +1,13 @@
 package eu.domibus.ext.services;
 
-import eu.domibus.ext.domain.archive.BatchRequestTypeParameter;
-import eu.domibus.ext.domain.archive.QueuedBatchDTO;
+import eu.domibus.ext.domain.archive.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,16 +24,21 @@ public interface DomibusEArchiveExtService {
 
     Long getStartDateSanityArchive();
 
+    Long getQueuedBatchRequestsCount(QueuedBatchFilterDTO filter);
 
-    Integer getQueuedBatchRequestsCount(BatchRequestTypeParameter requestType,
-                                   ZonedDateTime startDate,
-                                   ZonedDateTime endDate
-    );
+    List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
 
-    List<QueuedBatchDTO> getQueuedBatchRequests(BatchRequestTypeParameter requestType,
-                                                ZonedDateTime startDate,
-                                                ZonedDateTime endDate,
-                                                Integer pageStart,
-                                                Integer pageSize
-    );
+    Long getExportedBatchRequestsCount(ExportedBatchFilterDTO filter);
+
+    List<ExportedBatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
+
+    Long getBatchMessageCount(String batchId);
+
+    List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize);
+
+    BatchStatusDTO reExportBatch(String batchId);
+
+    BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus);
+
+    List<String>  getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
 }

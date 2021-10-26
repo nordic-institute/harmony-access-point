@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.listener;
 
 import com.google.gson.Gson;
 import eu.domibus.api.earchive.EArchiveBatchDTO;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
@@ -101,6 +102,7 @@ public class EArchiveListenerTest {
             eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
             result = null;
         }};
+
         eArchiveListener.onMessage(message);
 
         new FullVerifications() {
@@ -164,7 +166,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.geteArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
-            fileSystemEArchivePersistence.createEArkSipStructure((EArchiveBatchDTO) any, (List<UserMessageDTO>) any);
+            fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);
             result = fileObject;
 
             eArchiveBatch.getBatchId();
@@ -185,7 +187,7 @@ public class EArchiveListenerTest {
 
             eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
-            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.COMPLETED);
+            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.EXPORTED);
             times = 1;
         }};
     }

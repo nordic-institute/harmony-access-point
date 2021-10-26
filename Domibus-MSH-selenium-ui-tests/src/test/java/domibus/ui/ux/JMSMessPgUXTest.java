@@ -116,10 +116,8 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo));
 			page.filters().getJmsSearchButton().click();
 
+			page.wait.forXMillis(500);
 			page.grid().waitForRowsToLoad();
-
-			log.info("checking number of messages");
-			soft.assertTrue(page.grid().getRowsNo() == 1, "One message is listed, the one that was on first position before");
 
 			log.info("checking message id");
 			HashMap<String, String> newRowInfo = page.grid().getRowInfo(0);

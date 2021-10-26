@@ -1,6 +1,7 @@
 package eu.domibus.ext.domain.archive;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -8,27 +9,27 @@ import java.util.List;
  * @since 5.0
  */
 public class NotArchivedMessagesFilterDTO {
-    ZonedDateTime messageStartDate;
-    ZonedDateTime messageEndDate;
+    Date messageStartDate;
+    Date messageEndDate;
 
-    public NotArchivedMessagesFilterDTO(ZonedDateTime messageStartDate, ZonedDateTime messageEndDate) {
+    public NotArchivedMessagesFilterDTO(Date messageStartDate, Date messageEndDate) {
         this.messageStartDate = messageStartDate;
         this.messageEndDate = messageEndDate;
     }
 
-    public ZonedDateTime getMessageStartDate() {
+    public Date getMessageStartDate() {
         return messageStartDate;
     }
 
-    public void setMessageStartDate(ZonedDateTime messageStartDate) {
+    public void setMessageStartDate(Date messageStartDate) {
         this.messageStartDate = messageStartDate;
     }
 
-    public ZonedDateTime getMessageEndDate() {
+    public Date getMessageEndDate() {
         return messageEndDate;
     }
 
-    public void setMessageEndDate(ZonedDateTime messageEndDate) {
+    public void setMessageEndDate(Date messageEndDate) {
         this.messageEndDate = messageEndDate;
     }
 }

@@ -1,14 +1,20 @@
 package eu.domibus.ext.delegate.services.earchive;
 
 import eu.domibus.api.earchive.DomibusEArchiveService;
-import eu.domibus.ext.domain.archive.BatchRequestTypeParameter;
-import eu.domibus.ext.domain.archive.QueuedBatchDTO;
+import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
+import eu.domibus.api.earchive.EArchiveBatchFilter;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.model.ListUserMessageDto;
+import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
+import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dateToPKUserMessageId;
 
 /**
  * @author François Gautier
@@ -18,9 +24,11 @@ import java.util.List;
 public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService {
 
     private final DomibusEArchiveService domibusEArchiveService;
+    private final EArchiveExtMapper eArchiveExtMapper;
 
-    public DomibusEArchiveServiceDelegate(DomibusEArchiveService domibusEArchiveService) {
+    public DomibusEArchiveServiceDelegate(DomibusEArchiveService domibusEArchiveService, EArchiveExtMapper eArchiveExtMapper) {
         this.domibusEArchiveService = domibusEArchiveService;
+        this.eArchiveExtMapper = eArchiveExtMapper;
     }
 
     @Override
@@ -43,13 +51,147 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         return domibusEArchiveService.getStartDateSanityArchive();
     }
 
+    /**
+     * Method returns count of Queued batches in database for given search filter
+     * @param filter
+     * @return
+     */
     @Override
-    public Integer getQueuedBatchRequestsCount(BatchRequestTypeParameter requestType, ZonedDateTime startDate, ZonedDateTime endDate) {
-        return null;
+    public Long getQueuedBatchRequestsCount(QueuedBatchFilterDTO filter) {
+        EArchiveBatchFilter archiveBatchFilter = convertQueuedFilter(filter, null, null);
+        return domibusEArchiveService.getBatchRequestListCount(archiveBatchFilter);
+    }
+
+    /**
+     * Method returns Queued batches in database for given search filter and page
+     * @param filter
+     * @return
+     */
+    @Override
+    public List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        EArchiveBatchFilter archiveBatchFilter = convertQueuedFilter(filter, pageStart, pageSize);
+        List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
+        return result.stream().map(eArchiveBatchDTO -> eArchiveExtMapper.archiveBatchToQueuedBatch(eArchiveBatchDTO)).collect(Collectors.toList());
+    }
+
+    /**
+     * Method returns count of Exported batches in database for given search filter
+     * @param filter
+     * @return
+     */
+    @Override
+    public Long getExportedBatchRequestsCount(ExportedBatchFilterDTO filter) {
+        EArchiveBatchFilter archiveBatchFilter = convertExportFilter(filter, null, null);
+        return domibusEArchiveService.getBatchRequestListCount(archiveBatchFilter);
+    }
+
+    /**
+     * Method returns Exported batches in database for given search filter and page
+     * @param filter
+     * @return
+     */
+    @Override
+    public List<ExportedBatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        EArchiveBatchFilter archiveBatchFilter = convertExportFilter(filter, pageStart, pageSize);
+        List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
+        return result.stream().map(eArchiveBatchDTO -> eArchiveExtMapper.archiveBatchToExportBatch(eArchiveBatchDTO)).collect(Collectors.toList());
+
     }
 
     @Override
-    public List<QueuedBatchDTO> getQueuedBatchRequests(BatchRequestTypeParameter requestType, ZonedDateTime startDate, ZonedDateTime endDate, Integer pageStart, Integer pageSize) {
-        return null;
+    public Long getBatchMessageCount(String batchId) {
+        ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId);
+        return new Long(batchMessageList == null ? 0 : batchMessageList.getUserMessageDtos().size());
+    }
+
+    @Override
+    public List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize) {
+        ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId);
+
+        List<UserMessageDTO> messages = batchMessageList.getUserMessageDtos();
+        if (messages.size() < pageSize) {
+            return Collections.emptyList();
+        }
+        // get the page!
+        List<String> sublist = new ArrayList<>();
+        for (int i = pageStart; i < messages.size() && i < pageSize; i++) {
+            sublist.add(messages.get(i).getMessageId());
+        }
+        return sublist;
+    }
+
+    @Override
+    public BatchStatusDTO reExportBatch(String batchId) {
+        EArchiveBatchRequestDTO batchDTO = domibusEArchiveService.reExportBatch(batchId);
+        return eArchiveExtMapper.archiveBatchToBatchStatus(batchDTO);
+    }
+
+    @Override
+    public BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus) {
+        EArchiveBatchStatus status = EArchiveBatchStatus.valueOf(batchStatus.name());
+        EArchiveBatchRequestDTO batchDTO = domibusEArchiveService.setBatchClientStatus(batchId, status);
+        return eArchiveExtMapper.archiveBatchToBatchStatus(batchDTO);
+    }
+
+    @Override
+    public List<String> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
+        ListUserMessageDto list = domibusEArchiveService.getNotArchivedMessages(messageStartDate, messageEndDate, pageStart, pageSize);
+        return list.getUserMessageDtos().stream().map(um->um.getMessageId()).collect(Collectors.toList());
+    }
+
+    /**
+     * build EArchiveBatchFilter for browsing the queued batches
+     *
+     * @param filter    request filter data
+     * @param pageStart pagination data
+     * @param pageSize  pagination size
+     * @return genera archive batch filter for searching the queued bathes
+     */
+    protected EArchiveBatchFilter convertQueuedFilter(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        EArchiveBatchFilter archiveBatchFilter = new EArchiveBatchFilter();
+        // return  only QUEUED batches
+        archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.QUEUED);
+        // set filter
+        if (filter.getLastCountRequests() != null || filter.getLastCountRequests() > 0) {
+            archiveBatchFilter.setPageSize(filter.getLastCountRequests());
+        } else {
+            // ignore all other filters and return last count
+            archiveBatchFilter.setRequestType(Objects.equals(filter.getRequestType(), BatchRequestTypeParameter.ALL) ? null : filter.getRequestType().name());
+            archiveBatchFilter.setStartDate(filter.getStartDate());
+            archiveBatchFilter.setEndDate(filter.getEndDate());
+            archiveBatchFilter.setRequestType(filter.getRequestType().name());
+        }
+        // set pagination
+        archiveBatchFilter.setPageSize(pageSize);
+        archiveBatchFilter.setPageStart(pageStart);
+        return archiveBatchFilter;
+    }
+
+    /**
+     * build EArchiveBatchFilter for browsing the queued batches
+     *
+     * @param filter    request filter data
+     * @param pageStart pagination data
+     * @param pageSize  pagination size
+     * @return genera archive batch filter for searching the queued bathes
+     */
+    protected EArchiveBatchFilter convertExportFilter(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        EArchiveBatchFilter archiveBatchFilter = new EArchiveBatchFilter();
+        // return  only QUEUED batches
+        if (filter.getStatus() == null) {
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPORTED);
+        } else {
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(filter.getStatus().name()));
+        }
+
+        // set filter
+        archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
+        archiveBatchFilter.setMessageEndDate(dateToPKUserMessageId(filter.getMessageEndDate()));
+        archiveBatchFilter.setShowReExported(filter.getReExport());
+
+        // set pagination
+        archiveBatchFilter.setPageSize(pageSize);
+        archiveBatchFilter.setPageStart(pageStart);
+        return archiveBatchFilter;
     }
 }

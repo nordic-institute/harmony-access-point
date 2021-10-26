@@ -1,17 +1,21 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+
 import java.util.Date;
 
 public class EArchiveTestUtils {
 
     public static EArchiveBatchEntity createEArchiveBatchEntity(final String batchIdq,
-                                                                RequestType requestType,
-                                                                EArchiveBatchStatus eArchiveBatchStatus,
-                                                                Date dateRequested,
-                                                                Long lastPkUserMessage,
-                                                                Integer batchSize,
-                                                                String storageLocation,
-                                                                final String rawJson) {
+                                                                final RequestType requestType,
+                                                                final EArchiveBatchStatus eArchiveBatchStatus,
+                                                                final Date dateRequested,
+                                                                final Long lastPkUserMessage,
+                                                                final Integer batchSize,
+                                                                final String storageLocation,
+                                                                final String rawJson,
+                                                                 final Long copyFromId
+                                                                ) {
         EArchiveBatchEntity instance = new EArchiveBatchEntity();
         instance.setBatchId(batchIdq);
         instance.setRequestType(requestType);
@@ -21,6 +25,7 @@ public class EArchiveTestUtils {
         instance.setBatchSize(batchSize);
         instance.setStorageLocation(storageLocation);
         instance.setMessageIdsJson(rawJson);
+        instance.setCreatedFromBatchIdPk(copyFromId);
         return instance;
     }
 }

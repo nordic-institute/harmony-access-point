@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -37,8 +38,11 @@ import static org.junit.Assert.assertEquals;
 public class EArchivingFileServiceTest {
 
     public static final String RAW_ENVELOPE_CONTENT = "rawEnvelopeDto";
+
     public static final String CID = "cid:";
+
     public static final String MESSAGE = "message";
+
     @Tested
     private EArchivingFileService eArchivingFileService;
 
@@ -47,6 +51,9 @@ public class EArchivingFileServiceTest {
 
     @Injectable
     private PartInfoService partInfoService;
+
+    @Injectable
+    private ObjectMapper objectMapper;
 
     @Injectable
     private UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;

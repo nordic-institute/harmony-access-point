@@ -1,6 +1,6 @@
 package eu.domibus.api.earchive;
 
-import java.time.ZonedDateTime;
+import eu.domibus.api.model.ListUserMessageDto;
 import java.util.Date;
 import java.util.List;
 
@@ -18,9 +18,15 @@ public interface DomibusEArchiveService {
 
     Long getStartDateSanityArchive();
 
-    Long getQueuedBatchRequestsCount(EArchiveBatchFilter filter);
+    Long getBatchRequestListCount(EArchiveBatchFilter filter);
 
-    List<EArchiveBatchDTO> getQueuedBatchRequests(EArchiveBatchFilter filter);
+    List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter);
 
+    ListUserMessageDto getBatchUserMessageList(String batchId);
 
+    ListUserMessageDto getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
+
+    EArchiveBatchRequestDTO reExportBatch(String batchId);
+
+    EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus);
 }

@@ -1,21 +1,25 @@
 package eu.domibus.core.earchive;
 
-import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.dao.BasicDao;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static eu.domibus.core.earchive.RequestType.CONTINUOUS;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
@@ -30,17 +34,26 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public EArchiveBatchEntity findEArchiveBatchByBatchId(long entityId) {
-        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByBatchId", EArchiveBatchEntity.class);
+        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByEntityId", EArchiveBatchEntity.class);
         query.setParameter("BATCH_ENTITY_ID", entityId);
 
-        List<EArchiveBatchEntity> resultList = query.getResultList();
+        return getFirstResult(query);
+    }
+
+    public EArchiveBatchEntity findEArchiveBatchByBatchId(String batchId) {
+        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByBatchId", EArchiveBatchEntity.class);
+        query.setParameter("BATCH_ID", batchId);
+
+        return getFirstResult(query);
+    }
+
+    protected <T> T getFirstResult(TypedQuery<T> query) {
+        List<T> resultList = query.getResultList();
         if (isEmpty(resultList)) {
             return null;
         }
-
         return resultList.get(0);
     }
-
 
     public Long findLastEntityIdArchived() {
         TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatchEntity.findLastEntityIdArchived", Long.class);
@@ -53,68 +66,76 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     @Transactional
-    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
+    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
         eArchiveBatchByBatchId.seteArchiveBatchStatus(status);
-        em.merge(eArchiveBatchByBatchId);
+        return merge(eArchiveBatchByBatchId);
     }
 
-
-    /** Returns criteria builder for filter.
-     * @param filter
-     * @param forCount - if true then result is count, else query returns list of entities
-     * @return
-     */
-    protected CriteriaQuery getEArchiveBatchCriteriaQuery(EArchiveBatchFilter filter, boolean forCount) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery criteria = forCount ? builder.createQuery(Long.class) : builder.createQuery(EArchiveBatchEntity.class);
-
-        final Root<EArchiveBatchEntity> eArchiveBatchRoot = criteria.from(EArchiveBatchEntity.class);
-        List<Predicate> predicates = new ArrayList<>();
-
-        if (forCount) {
-            criteria.select(builder.count(eArchiveBatchRoot));
-        } else {
-            // always sort by DateRequestedEArchiveBatchEntity
-
-            criteria.orderBy(builder.desc(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested)));
-        }
-
-        if (filter.getEndDate() != null) {
-            predicates.add(builder.lessThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested), filter.getEndDate()));
-        }
-
-        if (filter.getStartDate() != null) {
-            predicates.add(builder.greaterThanOrEqualTo(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested), filter.getStartDate()));
-        }
-
-        if (StringUtils.isNotEmpty(filter.getRequestType())) {
-            RequestType requestType = RequestType.valueOf(filter.getRequestType());
-            predicates.add(builder.equal(eArchiveBatchRoot.get(EArchiveBatchEntity_.requestType), requestType));
-        }
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-        return criteria;
-    }
-
-    public Long getQueuedBatchRequestsCount(EArchiveBatchFilter filter) {
-        CriteriaQuery<Long> countQuery = getEArchiveBatchCriteriaQuery(filter, true);
-        return em.createQuery(countQuery).getSingleResult();
-    }
-
-    public List<EArchiveBatchEntity> getQueuedBatchRequests(EArchiveBatchFilter filter) {
-        CriteriaQuery<EArchiveBatchEntity>  batchCriteriaQuery = getEArchiveBatchCriteriaQuery(filter, false);
-        TypedQuery<EArchiveBatchEntity> batchQuery = em.createQuery(batchCriteriaQuery);
+    public List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter) {
+        TypedQuery<EArchiveBatchRequestDTO> batchQuery = em.createNamedQuery("EArchiveBatchRequest.getBatchList", EArchiveBatchRequestDTO.class);
+        // set parameters
+        setBatchQueryParametersFromFilter(batchQuery, filter);
         // set pagination
-        int pageSize = filter.getPageSize()==null?0:filter.getPageSize();
-        int startingAt = (filter.getPageStart()==null?0:filter.getPageStart()) * pageSize;
-        if (filter.getPageSize() > 0) {
-            batchQuery.setMaxResults(filter.getPageSize());
-        }
-        if (startingAt > 0) {
-            batchQuery.setFirstResult(startingAt);
-        }
+        setPaginationParametersToQuery(batchQuery, filter.getPageSize(), filter.getPageSize());
 
         return batchQuery.getResultList();
     }
+
+    public List<UserMessageDTO> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
+        TypedQuery<UserMessageDTO> query = em.createNamedQuery("EArchiveBatchRequest.getNotArchivedMessagesForPeriod", UserMessageDTO.class);
+        query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+
+        setPaginationParametersToQuery(query, pageSize, pageStart);
+
+        return query.getResultList();
+    }
+
+    public List<UserMessageDTO> getBatchMessageList(String batchId) {
+        TypedQuery<UserMessageDTO> query = em.createNamedQuery("EArchiveBatchRequest.getMessagesForBatchId", UserMessageDTO.class);
+        query.setParameter("batchId",batchId );
+        return query.getResultList();
+    }
+
+    public Long getBatchRequestListCount(EArchiveBatchFilter filter) {
+        TypedQuery<Long> countQuery = em.createNamedQuery("EArchiveBatchRequest.getBatchListCount", Long.class);
+        setBatchQueryParametersFromFilter(countQuery, filter);
+        return countQuery.getSingleResult();
+    }
+
+    public <T> void setBatchQueryParametersFromFilter(TypedQuery query, EArchiveBatchFilter filter) {
+        putQueryParameter(query, "batchStartRequestDate", filter.getStartDate());
+        putQueryParameter(query, "batchEndRequestDate", filter.getEndDate());
+        putQueryParameter(query, "requestType", filter.getRequestType());
+        putQueryParameter(query, "statusList", filter.getStatusList());
+        putQueryParameter(query, "messageStartId", filter.getMessageStarId());
+        putQueryParameter(query, "messageEndId", filter.getMessageEndDate());
+        putQueryParameter(query, "reExport", filter.getShowReExported());
+    }
+
+    public <T> void putQueryParameter(TypedQuery query, String paramName, T value) {
+        if (value == null) {
+            query.setParameter(paramName, null);
+        } else if (value instanceof List) {
+            query.setParameter(paramName, ((List) value).isEmpty() ? "" : value);
+        } else {
+            query.setParameter(paramName, value);
+        }
+    }
+
+    public <T> void setPaginationParametersToQuery(TypedQuery<T> query, Integer pageSize, Integer pageStart){
+        // set pagination
+        if (pageSize == null || pageSize <0){
+            // page size is not given - can not set pagination. Return all results
+            return;
+        }
+
+        // if page is not set start with the fist page
+        int startingAt = (pageStart == null || pageStart < 0 ?  0: pageStart) * pageSize;
+        query.setMaxResults(pageSize);
+        query.setFirstResult(startingAt);
+
+    }
+
 
 }

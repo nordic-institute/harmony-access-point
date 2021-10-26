@@ -1,6 +1,7 @@
 package eu.domibus.ext.domain.archive;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ public class NotArchivedMessagesResultDTO {
     PaginationDTO pagination;
     List<String> messages;
 
-    public NotArchivedMessagesResultDTO(ZonedDateTime messageStartDate, ZonedDateTime messageEndDate, Integer pageStart, Integer pageSize) {
+    public NotArchivedMessagesResultDTO(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
         this.filter = new NotArchivedMessagesFilterDTO(messageStartDate, messageEndDate);
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }

@@ -6,6 +6,7 @@ import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.earchive.EArchiveBatchDTO;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
@@ -71,7 +72,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     private File temp;
 
-    private EArchiveBatchDTO EArchiveBatchDTO;
+    private BatchEArchiveDTO batchEArchiveDTO;
 
     private String messageId;
     private String batchId;
@@ -81,9 +82,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
 
         batchId = UUID.randomUUID().toString();
-        EArchiveBatchDTO = new BatchEArchiveDTOBuilder()
+        batchEArchiveDTO = new BatchEArchiveDTOBuilder()
                 .batchId(batchId)
-                .messageEndDate("")
+                .messageEndId("")
                 .messages(singletonList(messageId))
                 .createBatchEArchiveDTO();
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
@@ -114,7 +115,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     public void createEArkSipStructure() {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
 
-        fileSystemEArchivePersistence.createEArkSipStructure(EArchiveBatchDTO, singletonList(new UserMessageDTO(byMessageId.getEntityId(), messageId)));
+        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new UserMessageDTO(byMessageId.getEntityId(), messageId)));
 
         File[] files = temp.listFiles();
         File batchFolder = files[0];

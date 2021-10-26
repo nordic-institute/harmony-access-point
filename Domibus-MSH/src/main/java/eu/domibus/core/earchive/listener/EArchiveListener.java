@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.listener;
 
 import com.google.gson.Gson;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
@@ -46,17 +47,21 @@ public class EArchiveListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
+    private final EArchiveBatchUtils eArchiveBatchUtils;
+
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
             EArchiveBatchDao eArchiveBatchDao,
             UserMessageLogDefaultService userMessageLogDefaultService,
-            JmsUtil jmsUtil) {
+            JmsUtil jmsUtil,
+            EArchiveBatchUtils eArchiveBatchUtils) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsUtil = jmsUtil;
+        this.eArchiveBatchUtils = eArchiveBatchUtils;
     }
 
     @Override
@@ -77,7 +82,7 @@ public class EArchiveListener implements MessageListener {
         try {
             eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
 
-            List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
+            List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
             if (CollectionUtils.isEmpty(userMessageDtos)) {
                 throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
@@ -87,31 +92,34 @@ public class EArchiveListener implements MessageListener {
                     userMessageDtos.get(userMessageDtos.size() - 1),
                     userMessageDtos.get(0));
 
-            try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                    new BatchEArchiveDTOBuilder()
-                            .batchId(eArchiveBatchByBatchId.getBatchId())
-                            .requestType(eArchiveBatchByBatchId.getRequestType().name())
-                            .status(eArchiveBatchByBatchId.geteArchiveBatchStatus().name())
-                            .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                            .messageStartDate(""+userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
-                            .messageEndDate(""+userMessageDtos.get(0))
-                            // TODO: François Gautier 21-10-21 find first message date and end message date
-                            .messages(getMessageIds(userMessageDtos))
-                            .createBatchEArchiveDTO(),
-                    userMessageDtos)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
-                }
-            } catch (FileSystemException e) {
-                throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
-            }
-            userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
-            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.COMPLETED);
+            exportInFileSystem(batchId, eArchiveBatchByBatchId, userMessageDtos);
+            userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         } catch (Exception e) {
             LOG.error("EArchive Batch in error", e);
-            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED);
+            eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.RETRIED);
             // TODO: François Gautier 21-10-21 update batch.json with description and error code
             throw e;
+        }
+    }
+
+    private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<UserMessageDTO> userMessageDtos) {
+        try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
+                new BatchEArchiveDTOBuilder()
+                        .batchId(eArchiveBatchByBatchId.getBatchId())
+                        .requestType(eArchiveBatchByBatchId.getRequestType().name())
+                        .status(eArchiveBatchByBatchId.geteArchiveBatchStatus().name())
+                        .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
+                        .messageStartId(""+ userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
+                        .messageEndId(""+ userMessageDtos.get(0))
+                        .messages(eArchiveBatchUtils.getMessageIds(userMessageDtos))
+                        .createBatchEArchiveDTO(),
+                userMessageDtos)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
+            }
+        } catch (FileSystemException e) {
+            throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
         }
     }
 
@@ -122,17 +130,5 @@ public class EArchiveListener implements MessageListener {
             throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
         }
         return eArchiveBatchByBatchId;
-    }
-
-    private List<String> getMessageIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getMessageId).collect(Collectors.toList());
-    }
-
-    private List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
-    }
-
-    private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatchEntity eArchiveBatchByBatchId) {
-        return new Gson().fromJson(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
     }
 }

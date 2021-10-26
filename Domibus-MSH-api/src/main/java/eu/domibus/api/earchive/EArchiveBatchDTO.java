@@ -1,5 +1,6 @@
 package eu.domibus.api.earchive;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,39 +21,37 @@ public class EArchiveBatchDTO {
 
     String errorDescription;
 
-    String timestamp;
+    Date timestamp;
 
-    String messageStartDate;
+    String messageStartId;
 
-    String messageEndDate;
+    String messageEndId;
 
     String manifestChecksum;
 
     List<String> messages;
 
-    public EArchiveBatchDTO(String version,
-                            String batchId,
+
+    public EArchiveBatchDTO(String batchId, String requestType) {
+        this.batchId = batchId;
+        this.requestType = requestType;
+    }
+
+    public EArchiveBatchDTO(String batchId,
                             String requestType,
                             String status,
-                            String errorCode,
-                            String errorDescription,
-                            String timestamp,
-                            String messageStartDate,
-                            String messageEndDate,
-                            String manifestChecksum,
-                            List<String> messages) {
-        this.version = version;
+                            Date timestamp,
+                            String messageStartId,
+                            String messageEndId
+                            ) {
         this.batchId = batchId;
         this.requestType = requestType;
         this.status = status;
-        this.errorCode = errorCode;
-        this.errorDescription = errorDescription;
         this.timestamp = timestamp;
-        this.messageStartDate = messageStartDate;
-        this.messageEndDate = messageEndDate;
-        this.manifestChecksum = manifestChecksum;
-        this.messages = messages;
+        this.messageStartId = messageStartId;
+        this.messageEndId = messageEndId;
     }
+
     public String getVersion() {
         return version;
     }
@@ -101,28 +100,28 @@ public class EArchiveBatchDTO {
         this.errorDescription = errorDescription;
     }
 
-    public String getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
-    public String getMessageStartDate() {
-        return messageStartDate;
+    public String getMessageStartId() {
+        return messageStartId;
     }
 
-    public void setMessageStartDate(String messageStartDate) {
-        this.messageStartDate = messageStartDate;
+    public void setMessageStartId(String messageStartId) {
+        this.messageStartId = messageStartId;
     }
 
-    public String getMessageEndDate() {
-        return messageEndDate;
+    public String getMessageEndId() {
+        return messageEndId;
     }
 
-    public void setMessageEndDate(String messageEndDate) {
-        this.messageEndDate = messageEndDate;
+    public void setMessageEndId(String messageEndId) {
+        this.messageEndId = messageEndId;
     }
 
     public String getManifestChecksum() {
@@ -151,8 +150,8 @@ public class EArchiveBatchDTO {
                 ", errorCode='" + errorCode + '\'' +
                 ", errorDescription='" + errorDescription + '\'' +
                 ", timestamp='" + timestamp + '\'' +
-                ", messageStartDate='" + messageStartDate + '\'' +
-                ", messageEndDate='" + messageEndDate + '\'' +
+                ", messageStartDate='" + messageStartId + '\'' +
+                ", messageEndDate='" + messageEndId + '\'' +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
                 ", messages=" + messages +
                 '}';

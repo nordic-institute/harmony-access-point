@@ -1,6 +1,7 @@
 package eu.domibus.ext.domain.archive;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
  * @author Joze Rihtarsic
@@ -10,11 +11,11 @@ public class QueuedBatchFilterDTO {
 
     Integer lastCountRequests;
     BatchRequestTypeParameter requestType;
-    ZonedDateTime startDate;
-    ZonedDateTime endDate;
+    Date startDate;
+    Date endDate;
 
 
-    public QueuedBatchFilterDTO(Integer lastCountRequests, BatchRequestTypeParameter requestType, ZonedDateTime startDate, ZonedDateTime endDate) {
+    public QueuedBatchFilterDTO(Integer lastCountRequests, BatchRequestTypeParameter requestType, Date startDate, Date endDate) {
         this.lastCountRequests = lastCountRequests;
         this.requestType = requestType;
         this.startDate = startDate;
@@ -37,19 +38,19 @@ public class QueuedBatchFilterDTO {
         this.requestType = requestType;
     }
 
-    public ZonedDateTime getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(ZonedDateTime startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public ZonedDateTime getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(ZonedDateTime endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 }

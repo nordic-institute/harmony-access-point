@@ -1,7 +1,8 @@
 package eu.domibus.api.earchive;
 
-import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Joze Rihtarsic
@@ -12,8 +13,12 @@ public class EArchiveBatchFilter {
     String requestType;
     Date startDate;
     Date endDate;
+    Long messageStartDate;
+    Long messageEndDate;
+    Boolean showReExported;
     Integer pageStart;
     Integer pageSize;
+    List<EArchiveBatchStatus> statusList;
 
     public EArchiveBatchFilter() {
     }
@@ -66,14 +71,49 @@ public class EArchiveBatchFilter {
         this.pageSize = pageSize;
     }
 
+    public Long getMessageStarId() {
+        return messageStartDate;
+    }
+
+    public void setMessageStartId(Long messageStartDate) {
+        this.messageStartDate = messageStartDate;
+    }
+
+    public Long getMessageEndDate() {
+        return messageEndDate;
+    }
+
+    public void setMessageEndDate(Long messageEndDate) {
+        this.messageEndDate = messageEndDate;
+    }
+
+    public Boolean getShowReExported() {
+        return showReExported;
+    }
+
+    public void setShowReExported(Boolean showReExported) {
+        this.showReExported = showReExported;
+    }
+
+    public List<EArchiveBatchStatus> getStatusList() {
+        if (statusList == null) {
+            statusList = new ArrayList<>();
+        }
+        return statusList;
+    }
+
     @Override
     public String toString() {
         return "EArchiveBatchFilter{" +
                 "requestType='" + requestType + '\'' +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
+                ", messageStartDate=" + messageStartDate +
+                ", messageEndDate=" + messageEndDate +
+                ", reExport=" + showReExported +
                 ", pageStart=" + pageStart +
                 ", pageSize=" + pageSize +
+                ", statusList=" + statusList +
                 '}';
     }
 }

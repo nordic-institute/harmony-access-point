@@ -12,6 +12,13 @@ public class ExportedBatchResultDTO {
     PaginationDTO pagination;
     ExportedBatchFilterDTO filter;
     List<ExportedBatchDTO> exportedBatches;
+
+    public ExportedBatchResultDTO(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        this.filter = filter;
+        this.pagination = new PaginationDTO(pageStart, pageSize);
+    }
+
+
     public ExportedBatchResultDTO(Long messageStartDate, Long messageEndDate, ExportedBatchStatusTypeParameter status, Boolean reExport, Integer pageStart, Integer pageSize) {
         this.filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, status, reExport);
         this.pagination = new PaginationDTO(pageStart, pageSize);

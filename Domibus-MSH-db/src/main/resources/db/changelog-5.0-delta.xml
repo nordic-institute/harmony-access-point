@@ -497,12 +497,6 @@
         </createTable>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
     </changeSet>
-    <changeSet id="EDELIVERY-8519" author="dussath">
-        <addColumn tableName="TB_USER_MESSAGE_LOG">
-            <column name="PROCESSING_TYPE" type="VARCHAR(255)"/>
-        </addColumn>
-    </changeSet>
-
 
     <!-- Start EArchive Tables -->
     <changeSet author="Francois Gautier" id="EDELIVERY-8450">
@@ -511,10 +505,13 @@
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_BATCH"/>
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
+            <column name="CREATED_FROM_ID_PK" type="BIGINT"/>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
             <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
             <column name="SIZE" type="INT"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
             <column name="MESSAGEIDS_JSON" type="LONGBLOB"/>

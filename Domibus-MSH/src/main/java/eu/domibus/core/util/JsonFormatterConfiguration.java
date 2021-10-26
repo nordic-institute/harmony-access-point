@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JsonFormatterConfiguration {
 
-    @Bean
+    @Bean("domibusJsonMapper")
     public ObjectMapper objectMapper() {
         ObjectMapper bean = new ObjectMapper();
         bean.registerModule(new JavaTimeModule());
