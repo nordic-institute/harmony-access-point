@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +39,11 @@ public class EArchivingFileService {
     private final PartInfoService partInfoService;
 
     private final UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public EArchivingFileService(PartInfoService partInfoService, UserMessageRawEnvelopeDao userMessageRawEnvelopeDao, ObjectMapper objectMapper) {
+    public EArchivingFileService(PartInfoService partInfoService,
+                                 UserMessageRawEnvelopeDao userMessageRawEnvelopeDao,
+                                 @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
         this.partInfoService = partInfoService;
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
         this.objectMapper = objectMapper;

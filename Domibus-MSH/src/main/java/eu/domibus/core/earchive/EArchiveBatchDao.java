@@ -45,6 +45,6 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     @Transactional
     public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
         eArchiveBatchByBatchId.seteArchiveBatchStatus(status);
-        em.merge(eArchiveBatchByBatchId);
+        update(eArchiveBatchByBatchId);
     }
 }

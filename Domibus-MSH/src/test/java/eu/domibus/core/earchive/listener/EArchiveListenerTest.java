@@ -100,6 +100,7 @@ public class EArchiveListenerTest {
             eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
             result = null;
         }};
+
         eArchiveListener.onMessage(message);
 
         new FullVerifications() {
@@ -184,7 +185,7 @@ public class EArchiveListenerTest {
 
             eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
-            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.COMPLETED);
+            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.EXPORTED);
             times = 1;
         }};
     }

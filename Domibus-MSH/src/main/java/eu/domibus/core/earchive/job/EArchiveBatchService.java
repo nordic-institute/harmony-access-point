@@ -93,7 +93,7 @@ public class EArchiveBatchService {
         entity.setBatchId(uuidGenerator.generate().toString());
         entity.setMessageIdsJson(new Gson().toJson(userMessageToBeArchived, ListUserMessageDto.class));
         entity.setLastPkUserMessage(lastEntity);
-        entity.seteArchiveBatchStatus(EArchiveBatchStatus.STARTING);
+        entity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
         eArchiveBatchDao.create(entity);
         return entity;

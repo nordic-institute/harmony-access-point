@@ -3,7 +3,6 @@ package eu.domibus.core.earchive.job;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -22,7 +21,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
-import java.util.List;
 import java.util.UUID;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
@@ -78,7 +76,6 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     @Transactional
     public void startBatch() {
         ReflectionTestUtils.setField(eArchiveBatchDispatcherService, "jmsManager", jmsManager);
-        List<UserMessageLog> select_u_from_userMessageLog_u = this.em.createQuery("select u from UserMessageLog u", UserMessageLog.class).getResultList();
 
         eArchiveBatchDispatcherService.startBatch(domain);
         Assert.assertTrue(jmsManagerTriggered);
