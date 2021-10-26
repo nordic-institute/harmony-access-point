@@ -3,6 +3,7 @@ package eu.domibus.ext.rest;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
+import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +32,11 @@ import java.util.List;
 public class DomibusEArchiveExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
 
+    final DomibusEArchiveExtService domibusEArchiveExtService;
+
+    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService) {
+        this.domibusEArchiveExtService = domibusEArchiveExtService;
+    }
 
     /**
      * Handling EArchive exceptions
@@ -66,7 +74,7 @@ public class DomibusEArchiveExtResource {
                                                        @RequestParam("startDate") Date startDate,
                                                        @RequestParam("endDate") Date endDate) {
         // TODO implement search method
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -124,7 +132,7 @@ public class DomibusEArchiveExtResource {
             @RequestParam("pageSize") Integer pageSize
     ) {
         // TODO implement search method
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -216,19 +224,57 @@ public class DomibusEArchiveExtResource {
     }
 
     /**
-     * Get the current start date of the continuous export
-     * <p>
-     * This REST endpoint will expose the continuous export mechanism current start date
-     *
-     * @return current "continuous export" batch start date
+     * Request to update the start date of the next continuous archive job.
      */
-    @Operation(summary = "Get the current start date of the continuous export",
-            description = "This REST endpoint will expose the continuous export mechanism current start date.",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @GetMapping(path = "/continous-export/current-start-date")
-    public CurrentBatchStartDateDTO getCurrentExportDate() {
-        // TODO implement method
-        return null;
+    @Operation(summary = "Reset the Continuous archiving with a date",
+            description = "This REST endpoint force the continuous archiving process to start at a given date provided by the user." +
+                    " All messages older than this date will be consider for archiving if they are not already archived," +
+                    " not deleted and in a final state.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PutMapping(path = "batches/continuous/start-date/current")
+    public void resetContinuousArchivingStartDate(@RequestParam("startDate") Date startDate) {
+        LOG.info("Reset continuous archive start date [{}]", startDate);
+        domibusEArchiveExtService.updateStartDateContinuousArchive(startDate);
+    }
+
+    /**
+     * Request the start date of the next continuous archive job.
+     */
+    @Operation(summary = "Get the Continuous archiving start date",
+            description = "This REST endpoint get the date of the next batch for continuous archiving.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "batches/continuous/start-date/current")
+    public Date getContinuousArchivingStartDate() {
+        Date startDateContinuousArchive = domibusEArchiveExtService.getStartDateContinuousArchive();
+        LOG.info("Get continuous archive start date: [{}]", startDateContinuousArchive);
+        return startDateContinuousArchive;
+    }
+
+    /**
+     * Request to update the start date of the next archive job.
+     */
+    @Operation(summary = "Reset the Sanity archiving with a date",
+            description = "This REST endpoint force the sanity archiving process to start at a given date provided by the user." +
+                    " All messages older than this date will be consider for archiving if they are not already archived," +
+                    " not deleted and in a final state.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PutMapping(path = "batches/sanity/start-date/current")
+    public void resetSanityArchivingStartDate(@RequestParam("startDate") Date startDate) {
+        LOG.info("Reset sanity archive start date [{}]", startDate);
+        domibusEArchiveExtService.updateStartDateSanityArchive(startDate);
+    }
+
+    /**
+     * Request the start date of the next sanity archive job.
+     */
+    @Operation(summary = "Get the Sanity archiving start date",
+            description = "This REST endpoint get the date of the next batch for sanity archiving.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "batches/sanity/start-date/current")
+    public Date getSanityArchivingStartDate() {
+        Date startDateSanityArchive = domibusEArchiveExtService.getStartDateSanityArchive();
+        LOG.info("Get sanity archive start date: [{}]", startDateSanityArchive);
+        return startDateSanityArchive;
     }
 }
 

@@ -1,7 +1,8 @@
-package eu.domibus.core.earchive;
+package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.core.earchive.eark.EARKSIPBuilderService;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
@@ -27,7 +28,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.core.earchive.EArchivingService.SOAP_ENVELOPE_XML;
+import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -51,7 +52,7 @@ public class FileSystemEArchivePersistenceIT {
     protected DomibusVersionService domibusVersionService;
 
     @Injectable
-    protected EArchivingService eArchivingService;
+    protected EArchivingFileService eArchivingFileService;
 
     @Injectable
     protected EARKSIPBuilderService eArkSipBuilderService;
@@ -125,13 +126,13 @@ public class FileSystemEArchivePersistenceIT {
             domibusVersionService.getDisplayVersion();
             result = "getDisplayVersion";
 
-            eArchivingService.getBatchFileJson(batchEArchiveDTO);
+            eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
             result = new ByteArrayInputStream("batch.json content".getBytes(StandardCharsets.UTF_8));
 
-            eArchivingService.getArchivingFiles(entityId1);
+            eArchivingFileService.getArchivingFiles(entityId1);
             result = messageId1;
 
-            eArchivingService.getArchivingFiles(entityId2);
+            eArchivingFileService.getArchivingFiles(entityId2);
             result = messageId2;
 
             storageProvider.getCurrentStorage();

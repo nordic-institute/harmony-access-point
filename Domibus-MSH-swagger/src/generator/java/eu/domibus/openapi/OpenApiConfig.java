@@ -115,6 +115,11 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public DomibusEArchiveExtService beanDomibusEArchiveExtService() {
+        return Mockito.mock(DomibusEArchiveExtService.class);
+    }
+
+    @Bean
     public MessageMonitorExtService beanMessageMonitorExtService() {
         return Mockito.mock(MessageMonitorExtService.class);
     }
