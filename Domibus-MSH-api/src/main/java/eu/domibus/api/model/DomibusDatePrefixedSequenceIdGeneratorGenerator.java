@@ -19,10 +19,17 @@ import java.util.Locale;
  * @since 5.0
  */
 public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends IdentifierGenerator, PersistentIdentifierGenerator, Configurable {
+
     String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
+
     String NUMBER_FORMAT_DEFAULT = "%010d";
 
+    String MAX = "9999999999";
+
+    String MIN = "0000000000";
+
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
+
     ZoneId zoneId = ZoneId.of("UTC");
 
     /**

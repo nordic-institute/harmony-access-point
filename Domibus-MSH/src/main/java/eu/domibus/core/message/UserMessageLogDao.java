@@ -29,6 +29,7 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 
@@ -39,12 +40,8 @@ import static java.util.Locale.ENGLISH;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    private static final String MESSAGESTATUS_DELIMITER = "','";
-
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
-
-    public static final String MAX = "9999999999";
 
     private final DateUtil dateUtil;
 
@@ -79,6 +76,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+        LOG.debug("UserMessageLog.findMessagesForArchivingDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
+                lastUserMessageLogId,
+                maxEntityIdToArchived,
+                size);
         TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
@@ -122,7 +123,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH))+ MAX));
+        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
 
         query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         return query.getResultList();
@@ -180,6 +181,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getSingleResult();
 
     }
+
     public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
         query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
@@ -305,10 +307,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         LOG.trace("sqlString to find non expired messages: " + sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
-        countQuery.setParameter("MPC", mpc );
+        countQuery.setParameter("MPC", mpc);
         countQuery.setParameter("STARTDATE", startDate);
         countQuery.setParameter("MESSAGESTATUS", messageStatus);
-        int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+        int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
         LOG.debug("count by message status result [{}] for mpc [{}] on partition [{}]", result, mpc, partitionName);
         return result;
     }
@@ -390,11 +392,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName +") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName + ") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
         try {
             final Query countQuery = em.createNativeQuery(sqlString);
             countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);
-            int result = ((BigDecimal)countQuery.getSingleResult()).intValue();
+            int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count by message status result [{}]", result);
             return result;
         } catch (NoResultException nre) {
