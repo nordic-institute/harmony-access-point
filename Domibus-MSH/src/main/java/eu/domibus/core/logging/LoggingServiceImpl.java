@@ -34,7 +34,7 @@ import static org.apache.commons.lang3.reflect.FieldUtils.readField;
 @Service
 public class LoggingServiceImpl implements LoggingService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingServiceImpl.class);
-    public static final String PREFIX_CLASS_ = "class ";
+    protected static final String PREFIX_CLASS_ = "class ";
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
