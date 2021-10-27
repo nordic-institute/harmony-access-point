@@ -165,9 +165,11 @@ public class LoggingServiceImplTest {
         DomibusLogger LOG2 = DomibusLoggerFactory.getLogger("class org.ehcache.core.Ehcache-eu.domibus.api.model.PartyRole");
 
         List<LoggingEntry> loggingEntries = loggingService.getLoggingLevel("eu.domibus", true);
+        List<LoggingEntry> loggingEntries2 = loggingService.getLoggingLevel("class", true);
 
         Predicate<LoggingEntry> findEntriesBeginWithClassPredicate = loggingEntry -> loggingEntry.getName().startsWith(PREFIX_CLASS_);
         Assert.assertEquals("No logger entries should start with 'class '.", 0, loggingEntries.stream().filter(findEntriesBeginWithClassPredicate).count());
+        Assert.assertEquals("No logger entries should start with 'class '.", 0, loggingEntries2.stream().filter(findEntriesBeginWithClassPredicate).count());
     }
 
     @Test
