@@ -1,13 +1,4 @@
-import {
-  AfterViewChecked,
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  OnInit,
-  TemplateRef,
-  ViewChild
-} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {LoggingLevelResult} from './support/logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
