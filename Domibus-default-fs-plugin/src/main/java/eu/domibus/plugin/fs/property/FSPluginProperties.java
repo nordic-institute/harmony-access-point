@@ -14,6 +14,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.Map;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
@@ -32,6 +33,8 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
+
+    public static final String PLUGIN_PROPERTIES_FILE_NAME = "fs-plugin.properties";
 
     @Autowired
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
@@ -296,6 +299,11 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     @Override
     public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return fsPluginPropertiesMetadataManager.getKnownProperties();
+    }
+
+    @Override
+    protected String getPropertiesFileName() {
+        return PLUGIN_PROPERTIES_FILE_NAME;
     }
 
 }

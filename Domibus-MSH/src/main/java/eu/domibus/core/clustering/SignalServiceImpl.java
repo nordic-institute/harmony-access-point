@@ -132,7 +132,8 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalClearCaches() {
-        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        String domainCode = domain == null ? null : domain.getCode();
 
         LOG.debug("Signaling clearing caches [{}] domain", domainCode);
 
@@ -144,7 +145,8 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalClear2LCCaches() {
-        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        String domainCode = domain == null ? null : domain.getCode();
 
         LOG.debug("Signaling clearing caches [{}] domain", domainCode);
 
@@ -159,6 +161,15 @@ public class SignalServiceImpl implements SignalService {
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_TLS_TRUSTSTORE);
         commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalDomainsAdded(String domainCode) {
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DOMAIN_ADDED);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
 
         sendMessage(commandProperties);
     }

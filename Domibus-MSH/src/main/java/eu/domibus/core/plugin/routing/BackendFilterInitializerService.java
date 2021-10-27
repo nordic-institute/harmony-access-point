@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.routing;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
@@ -13,6 +14,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @since 4.2
  */
 @Service
-public class BackendFilterInitializerService {
+public class BackendFilterInitializerService implements DomainsAware {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFilterInitializerService.class);
 
@@ -64,18 +66,35 @@ public class BackendFilterInitializerService {
 
         // multitenancy
         final List<Domain> domains = domainService.getDomains();
-        LOG.debug("Checking and updating the configured plugins for all the domains in MultiTenancy environment");
-        for (Domain domain : domains) {
-            LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
-
-            Runnable wrappedCreateBackendFilters = () -> authUtils.runWithDomibusSecurityContext(routingService::createBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
-            //wait 3 minutes to complete the task; the actual execution of the business logic is fast but
-            //sometime at server startup it might take a while to have enough threads available
-            domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);
-
-            LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
-        }
+        createBackendFilters(domains);
 
         LOG.info("Finished checking and updating the configured plugins");
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        createBackendFilters(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    protected void createBackendFilters(List<Domain> domains) {
+        LOG.debug("Checking and updating the configured plugins for all the domains in MultiTenancy environment");
+        for (Domain domain : domains) {
+            createBackendFilters(domain);
+        }
+    }
+
+    protected void createBackendFilters(Domain domain) {
+        LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
+
+        Runnable wrappedCreateBackendFilters = () -> authUtils.runWithDomibusSecurityContext(routingService::createBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
+        //wait 3 minutes to complete the task; the actual execution of the business logic is fast but
+        //sometime at server startup it might take a while to have enough threads available
+        domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);
+
+        LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
     }
 }

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -100,17 +101,34 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
-            for (Domain domain : domains) {
-                domainContextProvider.setCurrentDomain(domain);
-                final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
-                encryptPasswords(passwordEncryptionContextDomain);
-                domainContextProvider.clearCurrentDomain();
-            }
+            encryptPasswords(domains);
         }
 
         domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
 
         LOG.debug("Finished encrypting passwords");
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        encryptPasswords(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void encryptPasswords(List<Domain> domains) {
+        for (Domain domain : domains) {
+            encryptPasswords(domain);
+        }
+    }
+
+    private void encryptPasswords(Domain domain) {
+        domainContextProvider.setCurrentDomain(domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+        encryptPasswords(passwordEncryptionContextDomain);
+        domainContextProvider.clearCurrentDomain();
     }
 
     @Override

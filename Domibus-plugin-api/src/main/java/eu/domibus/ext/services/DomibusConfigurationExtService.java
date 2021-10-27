@@ -22,5 +22,4 @@ public interface DomibusConfigurationExtService {
     String getConfigLocation();
 
     boolean isClusterDeployment();
-
 }

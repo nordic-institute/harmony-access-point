@@ -68,4 +68,9 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     public void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast) {
 
     }
+
+    @Override
+    public void loadProperties(DomainDTO domain, String propertiesFilePath) {
+
+    }
 }

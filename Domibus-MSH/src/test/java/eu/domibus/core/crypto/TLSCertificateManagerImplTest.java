@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -43,6 +44,9 @@ public class TLSCertificateManagerImplTest {
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DomainService domainService;
 
     @Test
     public void replaceTrustStore(@Mocked KeyStoreType trustStore, @Mocked String fileName, @Mocked byte[] fileContent, @Mocked String filePassword, @Mocked String backupLocation) {

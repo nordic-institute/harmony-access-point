@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_HOME;
+import static eu.domibus.plugin.fs.property.FSPluginProperties.PLUGIN_PROPERTIES_FILE_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES;
 
 /**
@@ -55,7 +57,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     @Override
     public File getConfigurationFile() {
-        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "plugins/config/fs-plugin.properties");
+        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + PLUGINS_CONFIG_HOME + File.separator + PLUGIN_PROPERTIES_FILE_NAME);
         LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
         return configurationFile;
     }

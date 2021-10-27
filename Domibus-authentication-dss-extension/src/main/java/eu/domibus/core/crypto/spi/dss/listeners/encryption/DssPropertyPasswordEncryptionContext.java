@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.DSS_EXTENSION_PROPERTIES;
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.EXTENSIONS_CONFIG_HOME;
+
 /**
  * @author Soumya Chandran
  * @since 5.0
@@ -54,7 +57,8 @@ public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncry
 
     @Override
     public File getConfigurationFile() {
-        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation() + File.separator + "extensions/config/authentication-dss-extension.properties");
+        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation()
+                + File.separator + EXTENSIONS_CONFIG_HOME + File.separator + DSS_EXTENSION_PROPERTIES);
         LOG.debug("Using DSS configuration file [{}]", configurationFile);
         return configurationFile;
     }

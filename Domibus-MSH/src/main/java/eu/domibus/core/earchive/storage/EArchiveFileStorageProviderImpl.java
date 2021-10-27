@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +43,28 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     @PostConstruct
     public void init() {
         final List<Domain> domains = domainService.getDomains();
+        createStorage(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        createStorage(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void createStorage(List<Domain> domains) {
         for (Domain domain : domains) {
-            EArchiveFileStorage instance = storageFactory.create(domain);
-            instances.put(domain, instance);
-            LOG.info("EArchiving Storage initialized for domain [{}]", domain);
+            createStorage(domain);
         }
+    }
+
+    private void createStorage(Domain domain) {
+        EArchiveFileStorage instance = storageFactory.create(domain);
+        instances.put(domain, instance);
+        LOG.info("EArchiving Storage initialized for domain [{}]", domain);
     }
 
     @Override

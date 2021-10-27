@@ -1,6 +1,7 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
@@ -176,5 +177,6 @@ public interface CertificateService {
 
     byte[] getTruststoreContent(String trustName);
 
-    void persistTruststoresIfApplicable(final String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier);
+    void persistTruststoresIfApplicable(final String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier,
+                                        Supplier<String> passwordSupplier, final List<Domain> domains);
 }

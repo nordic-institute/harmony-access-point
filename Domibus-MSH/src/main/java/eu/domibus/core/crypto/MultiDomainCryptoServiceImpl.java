@@ -3,6 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -22,10 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.security.auth.callback.CallbackHandler;
 import java.security.*;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -58,12 +56,14 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     final protected DomibusRawPropertyProvider domibusRawPropertyProvider;
 
+    protected final DomainService domainService;
+
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
                                         DomibusCacheService domibusCacheService,
                                         CertificateHelper certificateHelper,
                                         DomibusPropertyProvider domibusPropertyProvider,
                                         CertificateService certificateService,
-                                        DomainContextProvider domainContextProvider, DomibusRawPropertyProvider domibusRawPropertyProvider) {
+                                        DomainContextProvider domainContextProvider, DomibusRawPropertyProvider domibusRawPropertyProvider, DomainService domainService) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
         this.domibusCacheService = domibusCacheService;
         this.certificateHelper = certificateHelper;
@@ -71,6 +71,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         this.certificateService = certificateService;
         this.domainContextProvider = domainContextProvider;
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
+        this.domainService = domainService;
     }
 
     @Override
@@ -224,16 +225,32 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void persistTruststoresIfApplicable() {
+        final List<Domain> domains = domainService.getDomains();
+        persistTruststoresIfApplicable(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void persistTruststoresIfApplicable(List<Domain> domains) {
         certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME,
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_LOCATION),
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_TYPE),
-                () -> domibusRawPropertyProvider.getRawPropertyValue(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD)
+                () -> domibusRawPropertyProvider.getRawPropertyValue(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD),
+                domains
         );
 
         certificateService.persistTruststoresIfApplicable(DOMIBUS_KEYSTORE_NAME,
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_LOCATION),
                 () -> domibusPropertyProvider.getProperty(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_TYPE),
-                () -> domibusRawPropertyProvider.getRawPropertyValue(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_PASSWORD)
+                () -> domibusRawPropertyProvider.getRawPropertyValue(domainContextProvider.getCurrentDomainSafely(), DOMIBUS_SECURITY_KEYSTORE_PASSWORD),
+                domains
         );
     }
 

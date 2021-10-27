@@ -1,5 +1,6 @@
 package eu.domibus.plugin.jms.property;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
@@ -81,4 +82,10 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
 
         return allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
+
+    @Override
+    protected String getPropertiesFileName() {
+        return "jms-plugin.properties";
+    }
+
 }
