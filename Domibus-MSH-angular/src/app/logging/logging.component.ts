@@ -1,4 +1,13 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {LoggingLevelResult} from './support/logginglevelresult';
 import {AlertService} from '../common/alert/alert.service';
@@ -6,7 +15,6 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
-import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 
@@ -21,7 +29,7 @@ import {ComponentName} from '../common/component-name-decorator';
 })
 @ComponentName('Logging')
 export class LoggingComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
+  .with(FilterableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly LOGGING_URL: string = 'rest/logging/loglevel';
@@ -38,10 +46,6 @@ export class LoggingComponent extends mix(BaseListComponent)
 
   ngOnInit() {
     super.ngOnInit();
-
-    super.orderBy = 'name';
-    super.asc = false;
-
     this.filterData();
   }
 
@@ -49,11 +53,13 @@ export class LoggingComponent extends mix(BaseListComponent)
     this.columnPicker.allColumns = [
       {
         name: 'Logger Name',
-        prop: 'name'
+        prop: 'name',
+        sortable: false
       },
       {
         cellTemplate: this.rowWithToggleTpl,
-        name: 'Logger Level'
+        name: 'Logger Level',
+        sortable: false
       }
     ];
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
