@@ -45,7 +45,8 @@ export class LoggingComponent extends mix(BaseListComponent)
   }
 
   ngOnInit() {
-    super.ngOnInit();
+
+    super.ngOnInit()
     this.filterData();
   }
 
