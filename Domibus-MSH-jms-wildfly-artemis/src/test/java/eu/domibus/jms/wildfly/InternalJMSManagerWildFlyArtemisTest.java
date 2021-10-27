@@ -168,13 +168,13 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
             sendAddressControl.getQueueNames();
             result = sendQueueNames;
-            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, RoutingType.ANYCAST, (ObjectNameBuilder) any);
+            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, null, RoutingType.ANYCAST, (ObjectNameBuilder) any);
             result = Arrays.stream(sendQueueNames).collect(Collectors.toMap(Function.identity(),
                     queueName -> getQueueObjectName("jms.queue.DomibusSendMessageQueue", queueName)));
 
             splitAndJoinAddressControl.getQueueNames();
             result = splitAndJoinQueueNames;
-            jmsManager.getAddressQueueMap("jms.queue.DomibusSplitAndJoinQueue", splitAndJoinQueueNames, RoutingType.ANYCAST, (ObjectNameBuilder) any);
+            jmsManager.getAddressQueueMap("jms.queue.DomibusSplitAndJoinQueue", splitAndJoinQueueNames, null, RoutingType.ANYCAST, (ObjectNameBuilder) any);
             result = Arrays.stream(splitAndJoinQueueNames).collect(Collectors.toMap(Function.identity(),
                     queueName -> getQueueObjectName("jms.queue.DomibusSplitAndJoinQueue", queueName)));
         }};
@@ -193,6 +193,139 @@ public class InternalJMSManagerWildFlyArtemisTest {
                             .map(entry -> entry.getKey() + "->" + entry.getValue().toString())
                             .collect(Collectors.toSet())
             );
+        }};
+    }
+
+    @Test
+    public void testGetQueueMap_IgnoresInternalAddresses(@Injectable AddressControl internalAddressControl) throws Exception {
+        final String[] addressNames = {"$.artemis.internal.my-cluster"};
+
+        // GIVEN
+        new MockUp<MBeanServerInvocationHandler>() {
+            @Mock
+            public <T> T newProxyInstance(MBeanServerConnection connection,
+                                          ObjectName objectName,
+                                          Class<T> interfaceClass,
+                                          boolean notificationBroadcaster) {
+                if (AddressControl.class.isAssignableFrom(interfaceClass)) {
+                    if (objectName.getCanonicalName().contains("address=\"$.artemis.internal.my-cluster\"")) {
+                        return (T) internalAddressControl;
+                    } else {
+                        throw new IllegalArgumentException("Unknown AddressControl object name: " + objectName);
+                    }
+                }
+                throw new IllegalArgumentException("Unknown proxy interface argument: " + interfaceClass);
+            }
+        };
+
+        new Expectations(jmsManager) {{
+            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
+            result = "localhost";
+
+            activeMQServerControl.getAddressNames();
+            result = addressNames;
+        }};
+
+        // WHEN
+        jmsManager.getQueueMap(RoutingType.ANYCAST);
+
+        // THEN
+        new Verifications() {{
+            internalAddressControl.getQueueNames();
+            times = 0;
+
+            jmsManager.getAddressQueueMap("$.artemis.internal.my-cluster", (String[]) any, null, RoutingType.ANYCAST, (ObjectNameBuilder) any);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testGetQueueMap_IgnoresAnycastTopicAddresses(@Injectable AddressControl anycastTopicAddressControl) throws Exception {
+        final String[] addressNames = {"jms.topic.DomibusClusterCommandTopic"};
+        final RoutingType anycastRouting = RoutingType.ANYCAST;
+
+        // GIVEN
+        new MockUp<MBeanServerInvocationHandler>() {
+            @Mock
+            public <T> T newProxyInstance(MBeanServerConnection connection,
+                                          ObjectName objectName,
+                                          Class<T> interfaceClass,
+                                          boolean notificationBroadcaster) {
+                if (AddressControl.class.isAssignableFrom(interfaceClass)) {
+                    if (objectName.getCanonicalName().contains("address=\"jms.topic.DomibusClusterCommandTopic\"")) {
+                        return (T) anycastTopicAddressControl;
+                    } else {
+                        throw new IllegalArgumentException("Unknown AddressControl object name: " + objectName);
+                    }
+                }
+                throw new IllegalArgumentException("Unknown proxy interface argument: " + interfaceClass);
+            }
+        };
+
+        new Expectations(jmsManager) {{
+            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
+            result = "localhost";
+
+            activeMQServerControl.getAddressNames();
+            result = addressNames;
+        }};
+
+        // WHEN
+        jmsManager.getQueueMap(anycastRouting);
+
+        // THEN
+        new Verifications() {{
+            anycastTopicAddressControl.getQueueNames();
+            times = 0;
+
+            jmsManager.getAddressQueueMap("jms.topic.DomibusClusterCommandTopic", (String[]) any, null, anycastRouting, (ObjectNameBuilder) any);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testGetQueueMap_NetworkTopology(@Injectable AddressControl sendAddressControl) throws Exception {
+        final String[] addressNames = {"jms.queue.DomibusSendMessageQueue"};
+        final String[] sendQueueNames = {"jms.queue.DomibusSendMessageQueue1", "jms.queue.DomibusSendMessageQueue2"};
+        final String[] nodeIds = {"03d9638d-358a-11ec-8f90-0242ac140003", "e88c4097-3589-11ec-8c9e-0242ac140004"};
+
+        // GIVEN
+        new MockUp<MBeanServerInvocationHandler>() {
+            @Mock
+            public <T> T newProxyInstance(MBeanServerConnection connection,
+                                          ObjectName objectName,
+                                          Class<T> interfaceClass,
+                                          boolean notificationBroadcaster) {
+                if (AddressControl.class.isAssignableFrom(interfaceClass)) {
+                    if (objectName.getCanonicalName().contains("address=\"jms.queue.DomibusSendMessageQueue\"")) {
+                        return (T) sendAddressControl;
+                    } else {
+                        throw new IllegalArgumentException("Unknown AddressControl object name: " + objectName);
+                    }
+                }
+                throw new IllegalArgumentException("Unknown proxy interface argument: " + interfaceClass);
+            }
+        };
+
+        new Expectations(jmsManager) {{
+            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
+            result = "localhost";
+            activeMQServerControl.getAddressNames();
+            result = addressNames;
+
+            activeMQServerControl.listNetworkTopology();
+            result = "[{\"nodeID\": \"03d9638d-358a-11ec-8f90-0242ac140003\"}, {\"nodeID\": \"e88c4097-3589-11ec-8c9e-0242ac140004\"}]";
+
+            sendAddressControl.getQueueNames();
+            result = sendQueueNames;
+        }};
+
+        // WHEN
+        jmsManager.getQueueMap(RoutingType.ANYCAST);
+
+        // THEN
+        new Verifications() {{
+            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, nodeIds, RoutingType.ANYCAST, (ObjectNameBuilder) any);
         }};
     }
 
@@ -230,7 +363,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
             sendAddressControl.getQueueNames();
             result = sendQueueNames;
-            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, RoutingType.ANYCAST, (ObjectNameBuilder) any);
+            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, null, RoutingType.ANYCAST, (ObjectNameBuilder) any);
             result = Arrays.stream(sendQueueNames).collect(Collectors.toMap(Function.identity(),
                     queueName -> getQueueObjectName("jms.queue.DomibusSendMessageQueue", queueName)));
 
@@ -289,12 +422,12 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
             sendAddressControl.getQueueNames();
             result = sendQueueNames;
-            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, RoutingType.ANYCAST, (ObjectNameBuilder) any);
+            jmsManager.getAddressQueueMap("jms.queue.DomibusSendMessageQueue", sendQueueNames, null, RoutingType.ANYCAST, (ObjectNameBuilder) any);
             result = new DomibusJMXException("Error creating object name for address [jms.queue.DomibusSendMessageQueue]", new Exception());
 
             splitAndJoinAddressControl.getQueueNames();
             result = splitAndJoinQueueNames;
-            jmsManager.getAddressQueueMap("jms.queue.DomibusSplitAndJoinQueue", splitAndJoinQueueNames, RoutingType.ANYCAST, (ObjectNameBuilder) any);
+            jmsManager.getAddressQueueMap("jms.queue.DomibusSplitAndJoinQueue", splitAndJoinQueueNames, null, RoutingType.ANYCAST, (ObjectNameBuilder) any);
             result = Arrays.stream(splitAndJoinQueueNames).collect(Collectors.toMap(Function.identity(),
                     queueName -> getQueueObjectName("jms.queue.DomibusSplitAndJoinQueue", queueName)));
         }};
@@ -355,9 +488,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
     }
 
     @Test
-    public void testGetAddressQueueMap(@Injectable AddressControl sendAddressControl,
-                                       @Injectable AddressControl splitAndJoinAddressControl,
-                                       @Injectable ObjectNameBuilder objectNameBuilder) throws Exception {
+    public void testGetAddressQueueMap(@Injectable ObjectNameBuilder objectNameBuilder) throws Exception {
         // GIVEN
         final String addressName = "jms.queue.DomibusSendMessageQueue";
         final String[] queueNames = {"jms.queue.DomibusSendMessageQueue1", "jms.queue.DomibusSendMessageQueue2"};
@@ -371,7 +502,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         }};
 
         // WHEN
-        Map<String, ObjectName> queues = jmsManager.getAddressQueueMap(addressName, queueNames, RoutingType.ANYCAST, objectNameBuilder);
+        Map<String, ObjectName> queues = jmsManager.getAddressQueueMap(addressName, queueNames, null, RoutingType.ANYCAST, objectNameBuilder);
 
         // THEN
         new Verifications() {{
@@ -392,10 +523,30 @@ public class InternalJMSManagerWildFlyArtemisTest {
         }};
     }
 
+    @Test
+    public void testGetAddressQueueMap_IgnoresClusterQueueNames(@Injectable ObjectNameBuilder objectNameBuilder) throws Exception {
+        // GIVEN
+        final String addressName = "jms.queue.DomibusSendMessageQueue";
+        final String[] queueNames = {"jms.queue.DomibusSendMessageQueue1", "jms.queue.DomibusSendMessageQueuee88c4097-3589-11ec-8c9e-0242ac140004"};
+        final String[] nodeIds = {"03d9638d-358a-11ec-8f90-0242ac140003", "e88c4097-3589-11ec-8c9e-0242ac140004"};
+
+        new Expectations() {{
+            objectNameBuilder.getQueueObjectName(toSimpleString(addressName), toSimpleString("jms.queue.DomibusSendMessageQueue1"), RoutingType.ANYCAST);
+            result = getQueueObjectName(addressName, "jms.queue.DomibusSendMessageQueue1");
+        }};
+
+        // WHEN
+        jmsManager.getAddressQueueMap(addressName, queueNames, nodeIds, RoutingType.ANYCAST, objectNameBuilder);
+
+        // THEN
+        new Verifications() {{
+            objectNameBuilder.getQueueObjectName(toSimpleString(addressName), toSimpleString("jms.queue.DomibusSendMessageQueuee88c4097-3589-11ec-8c9e-0242ac140004"), RoutingType.ANYCAST);
+            times = 0;
+        }};
+    }
+
     @Test(expected = DomibusJMXException.class)
-    public void testGetAddressQueueMap_throwsException(@Injectable AddressControl sendAddressControl,
-                                                       @Injectable AddressControl splitAndJoinAddressControl,
-                                                       @Injectable ObjectNameBuilder objectNameBuilder) throws Exception {
+    public void testGetAddressQueueMap_throwsException(@Injectable ObjectNameBuilder objectNameBuilder) throws Exception {
         // GIVEN
         final String addressName = "jms.queue.DomibusSendMessageQueue";
         final String[] queueNames = {"jms.queue.DomibusSendMessageQueue1", "jms.queue.DomibusSendMessageQueue2"};
@@ -409,7 +560,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         }};
 
         // WHEN
-        jmsManager.getAddressQueueMap(addressName, queueNames, RoutingType.ANYCAST, objectNameBuilder);
+        jmsManager.getAddressQueueMap(addressName, queueNames, null, RoutingType.ANYCAST, objectNameBuilder);
     }
 
     private ObjectName getQueueObjectName(String addressName, String queueName) throws RuntimeException {
