@@ -16,6 +16,7 @@ import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Ion Perpegel
@@ -86,23 +87,39 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void persistTruststoresIfApplicable() {
-        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME,
-                () -> getTruststoreParams().getFile(),
-                () -> getTruststoreParams().getType(),
-                () -> getTruststoreParams().getPassword()
-        );
+        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, true,
+                () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword());
     }
 
-    protected KeyStoreType getTruststoreParams() {
+    private Optional<String> getTrustFileLocation() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.isPresent() ? Optional.of(params.get().getFile()) : Optional.empty();
+    }
+
+    private String getTrustType() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.isPresent() ? params.get().getType() : null;
+    }
+
+    private String getTrustPassword() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.isPresent() ? params.get().getPassword() : null;
+    }
+
+    protected Optional<KeyStoreType> getTruststoreParams() {
         String domainCode = null;
-        if(domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
             Domain domain = domainProvider.getCurrentDomain();
             domainCode = domain != null ? domain.getCode() : null;
         }
-        TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
-        KeyStoreType result = params.getTrustManagers().getKeyStore();
+        Optional<TLSClientParametersType> params = tlsReaderService.getTlsClientParametersType(domainCode);
+        if (!params.isPresent()) {
+            return Optional.empty();
+        }
+
+        KeyStoreType result = params.get().getTrustManagers().getKeyStore();
         LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
-        return result;
+        return Optional.of(result);
     }
 
     protected void resetTLSTruststore() {

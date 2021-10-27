@@ -11,6 +11,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -176,5 +177,5 @@ public interface CertificateService {
 
     byte[] getTruststoreContent(String trustName);
 
-    void persistTruststoresIfApplicable(final String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier);
+    void persistTruststoresIfApplicable(final String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier);
 }
