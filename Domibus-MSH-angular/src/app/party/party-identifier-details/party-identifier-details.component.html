@@ -16,16 +16,15 @@
             </mat-form-field>
             <mat-form-field style="width:100%">
               <input matInput placeholder="Party Id Type" name="partyIdType_name" id="partyIdType_id"
-                     [(ngModel)]="partyIdentifier.partyIdType.name" input-debounce
-                     #partyIdType_name="ngModel" required [maxlength]="255">
-              <span class="help-block" *ngIf="shouldShowErrors(partyIdType_name)">
-                <div *ngIf="partyIdType_name.errors?.required" style="color:red; font-size: 70%">You should type a party id type</div>
-              </span>
+                     [(ngModel)]="(partyIdentifier.partyIdType == null)?null : partyIdentifier.partyIdType.name"
+                     (ngModelChange)="partyIdentifier.partyIdType = $event" input-debounce
+                     #partyIdType_name="ngModel" [maxlength]="255">
             </mat-form-field>
             <mat-form-field style="width:100%">
               <input matInput placeholder="Party Id Value" name="partyIdType_value" id="partyIdValue_id"
-                     [(ngModel)]="partyIdentifier.partyIdType.value" input-debounce
-                     #partyIdType_value="ngModel" required [maxlength]="255" [pattern]="partyIdTypePattern">
+                     [(ngModel)]="(partyIdentifier.partyIdType == null)?null : partyIdentifier.partyIdType.value"
+                     input-debounce
+                     #partyIdType_value="ngModel" [maxlength]="255" [pattern]="partyIdTypePattern">
               <span class="help-block" *ngIf="shouldShowErrors(partyIdType_value)">
                 <div *ngIf="partyIdType_value.errors.pattern">{{partyIdTypeMessage}}</div>
               </span>
