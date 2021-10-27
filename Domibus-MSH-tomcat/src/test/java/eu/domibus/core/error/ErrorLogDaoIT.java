@@ -4,11 +4,10 @@ package eu.domibus.core.error;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.dictionary.*;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
@@ -36,47 +35,26 @@ public class ErrorLogDaoIT extends AbstractIT {
     private ErrorLogDao errorLogDao;
 
     @Autowired
+    private UserMessageDao userMessageDao;
+
+    @Autowired
     private MshRoleDao mshRoleDao;
-
-    @Autowired
-    MessageDaoTestUtil messageDaoTestUtil;
-
-    @Autowired
-    UserMessageDao userMessageDao;
-
-    @Autowired
-    protected MpcDao mpcDao;
-
-    @Autowired
-    protected PartyIdDao partyIdDao;
-
-    @Autowired
-    protected PartyRoleDao partyRoleDao;
-
-    @Autowired
-    protected ActionDao actionDao;
-
-    @Autowired
-    protected ServiceDao serviceDao;
-
-    @Autowired
-    protected AgreementDao agreementDao;
-
-
 
     @Before
     public void setUp() {
-        createErrorLog(MSHRole.SENDING, "messageId_123", ErrorCode.EBMS_0003, "error test 4", new Date(), "messageId_123");
-        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0001, "error test 1", DateUtils.addDays(new Date(), -1), "messageId_1");
-        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 2", DateUtils.addDays(new Date(), -2), "messageId_2");
-        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 3", DateUtils.addDays(new Date(), -5), "messageId_3");
+        createErrorLog(MSHRole.SENDING, "messageId_123", ErrorCode.EBMS_0003, "error test 4", new Date());
+        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0001, "error test 1", DateUtils.addDays(new Date(), -1));
+        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 2", DateUtils.addDays(new Date(), -2));
+        createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 3", DateUtils.addDays(new Date(), -5));
 
-        createErrorLog(MSHRole.RECEIVING, "messageId_4", ErrorCode.EBMS_0004, "error test filter", new Date(), "messageId_4");
+        createErrorLog(MSHRole.RECEIVING, "messageId_2", ErrorCode.EBMS_0004, "error test filter", new Date());
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
-    private void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail, Date timestamp, String msgId) {
+    private void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail, Date timestamp) {
+        UserMessage byEntityId = userMessageDao.findByEntityId(19700101L);
+
         ErrorLogEntry errorLogEntry = new ErrorLogEntry();
         MSHRoleEntity mshRole1 = mshRoleDao.findOrCreate(mshRole);
         errorLogEntry.setMshRole(mshRole1);
@@ -84,8 +62,7 @@ public class ErrorLogDaoIT extends AbstractIT {
         errorLogEntry.setErrorCode(errorCode);
         errorLogEntry.setErrorDetail(errorDetail);
         errorLogEntry.setTimestamp(timestamp);
-        UserMessageLog userMessageLog =messageDaoTestUtil.createUserMessageLog(msgId, new Date());
-        errorLogEntry.setUserMessage(userMessageLog.getUserMessage());
+        errorLogEntry.setUserMessage(byEntityId);
         errorLogDao.create(errorLogEntry);
     }
 
