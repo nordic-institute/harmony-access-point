@@ -26,7 +26,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.4.4</cxf.version>
+        <cxf.version>3.4.5</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
         <spring.version>5.2.16.RELEASE</spring.version>
         <spring.security.version>5.4.7</spring.security.version>
@@ -50,7 +50,6 @@
         <commons-codec.version>1.15</commons-codec.version>
         <bouncycastle.version>1.69</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-<!--        <c3p0.version>0.9.5.5</c3p0.version>-->
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
@@ -501,11 +500,6 @@
                 <artifactId>hibernate-envers</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>com.mchange</groupId>-->
-<!--                <artifactId>c3p0</artifactId>-->
-<!--                <version>${c3p0.version}</version>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
