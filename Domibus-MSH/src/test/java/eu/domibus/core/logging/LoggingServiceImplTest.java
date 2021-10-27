@@ -9,6 +9,8 @@ import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+
+import static eu.domibus.core.logging.LoggingServiceImpl.PREFIX_CLASS_;
 
 /**
  * @author Catalin Enache
@@ -152,6 +157,19 @@ public class LoggingServiceImplTest {
 
         Assert.assertTrue(CollectionUtils.isNotEmpty(loggingEntries));
         Assert.assertTrue(loggingEntries.get(0).getName().contains("domibus"));
+    }
+
+    @Test
+    public void testGetLoggingLevel_ClassNotPresentInList(){
+        DomibusLogger LOG1 = DomibusLoggerFactory.getLogger("class TestLoggerName");
+        DomibusLogger LOG2 = DomibusLoggerFactory.getLogger("class org.ehcache.core.Ehcache-eu.domibus.api.model.PartyRole");
+
+        List<LoggingEntry> loggingEntries = loggingService.getLoggingLevel("eu.domibus", true);
+        List<LoggingEntry> loggingEntries2 = loggingService.getLoggingLevel("class", true);
+
+        Predicate<LoggingEntry> findEntriesBeginWithClassPredicate = loggingEntry -> loggingEntry.getName().startsWith(PREFIX_CLASS_);
+        Assert.assertEquals("No logger entries should start with 'class '.", 0, loggingEntries.stream().filter(findEntriesBeginWithClassPredicate).count());
+        Assert.assertEquals("No logger entries should start with 'class '.", 0, loggingEntries2.stream().filter(findEntriesBeginWithClassPredicate).count());
     }
 
     @Test
