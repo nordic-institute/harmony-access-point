@@ -31,6 +31,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.DOMAINS_HOME;
+
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Ion Perpegel
@@ -84,7 +86,6 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
             return Optional.empty();
-//            throw new DomibusCertificateException("Could not find client authentication file for domain [" + domainCode + "]");
         }
         try {
             String fileContent = getFileContent(path);
@@ -116,7 +117,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     private Optional<Path> getClientAuthenticationPath(String domainCode) {
         if (domainCode != null) {
             String domainSpecificFileName = StringUtils.stripToEmpty(domainCode) + "_" + CLIENT_AUTHENTICATION_XML;
-            Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), "domains", domainCode, domainSpecificFileName);
+            Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), DOMAINS_HOME, domainCode, domainSpecificFileName);
             boolean domainSpecificPathExists = Files.exists(domainSpecificPath);
             LOG.debug("Client authentication file [{}] at the domain specific path [{}] exists [{}]", domainSpecificFileName, domainSpecificPath, domainSpecificPathExists);
             if (domainSpecificPathExists) {

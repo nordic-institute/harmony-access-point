@@ -2,6 +2,7 @@ package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainsAware;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -19,7 +20,7 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.0
  */
-public interface MultiDomainCryptoService {
+public interface MultiDomainCryptoService extends DomainsAware {
 
     X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException;
 

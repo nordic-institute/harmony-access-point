@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_HOME;
+
 
 /**
  * @author Cosmin Baciu
@@ -45,7 +47,7 @@ public class DomibusCacheConfiguration {
     @Value("${domibus.config.location}/internal/ehcache.xml")
     protected String externalEhCacheFile;
 
-    @Value("${domibus.config.location}/plugins/config")
+    @Value("${domibus.config.location}/" + PLUGINS_CONFIG_HOME)
     protected String pluginsConfigLocation;
 
     protected String defaultEhCacheFile = CONFIG_EHCACHE_EHCACHE_DEFAULT_XML;

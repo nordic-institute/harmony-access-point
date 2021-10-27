@@ -2,6 +2,8 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -52,18 +54,22 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     final protected DomibusRawPropertyProvider domibusRawPropertyProvider;
 
+    protected final DomainService domainService;
+
     public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
                                         DomibusCacheService domibusCacheService,
                                         CertificateHelper certificateHelper,
                                         DomibusPropertyProvider domibusPropertyProvider,
                                         CertificateService certificateService,
-                                        DomibusRawPropertyProvider domibusRawPropertyProvider) {
+                                        DomibusRawPropertyProvider domibusRawPropertyProvider,
+                                        DomainService domainService) {
         this.domainCryptoServiceFactory = domainCryptoServiceFactory;
         this.domibusCacheService = domibusCacheService;
         this.certificateHelper = certificateHelper;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
+        this.domainService = domainService;
     }
 
     @Override
@@ -217,16 +223,32 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void persistTruststoresIfApplicable() {
+        final List<Domain> domains = domainService.getDomains();
+        persistTruststoresIfApplicable(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    protected void persistTruststoresIfApplicable(List<Domain> domains) {
         certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION)),
                 () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE),
-                () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD)
+                () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD),
+                domains
         );
 
         certificateService.persistTruststoresIfApplicable(DOMIBUS_KEYSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION)),
                 () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE),
-                () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD)
+                () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD),
+                domains
         );
     }
 

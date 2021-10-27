@@ -113,7 +113,8 @@ public class CertificateServiceImpl implements CertificateService {
                                   DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
                                   TruststoreDao truststoreDao,
-                                  PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider) {
+                                  PasswordDecryptionService passwordDecryptionService,
+                                  DomainContextProvider domainContextProvider) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -585,10 +586,10 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void persistTruststoresIfApplicable(String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    public void persistTruststoresIfApplicable(String name, boolean optional,
+                                               Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
+                                               List<Domain> domains) {
         LOG.debug("Persisting the truststore [{}] for all domains if not yet exists", name);
-
-        final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             try {
                 domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
@@ -596,11 +597,11 @@ public class CertificateServiceImpl implements CertificateService {
                 LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }
         }
-
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
     }
 
-    private void persistCurrentDomainTruststoreIfApplicable(String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    private void persistCurrentDomainTruststoreIfApplicable(String name, boolean optional,
+                                                            Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
         try {
             if (truststoreDao.existsWithName(name)) {
                 LOG.debug("The truststore [{}] is already persisted; exiting", name);
@@ -610,10 +611,10 @@ public class CertificateServiceImpl implements CertificateService {
             Optional<String> filePath = filePathSupplier.get();
             if (!filePath.isPresent()) {
                 if (optional) {
-                    LOG.info("");
+                    LOG.info("Trustore with type [{}] is missing and optional so exiting.", name);
                     return;
                 }
-                throw new DomibusCertificateException("");
+                throw new DomibusCertificateException(String.format("Trustore with type [%s] is missing and is not optional.", name));
             }
 
             byte[] content = getTruststoreContentFromFile(filePath.get());

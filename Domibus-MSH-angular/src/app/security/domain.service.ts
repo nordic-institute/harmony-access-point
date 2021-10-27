@@ -1,7 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {AsyncSubject, BehaviorSubject, Subject} from 'rxjs';
+import {AsyncSubject, BehaviorSubject, ReplaySubject, Subject} from 'rxjs';
 import 'rxjs/add/operator/map';
 import {Domain} from './domain';
 import {Title} from '@angular/platform-browser';
@@ -11,10 +11,11 @@ export class DomainService {
 
   static readonly MULTI_TENANCY_URL: string = 'rest/application/multitenancy';
   static readonly CURRENT_DOMAIN_URL: string = 'rest/security/user/domain';
-  static readonly DOMAIN_LIST_URL: string = 'rest/application/domains';
+  static readonly DOMAIN_LIST_URL: string = 'rest/domains';
 
   private isMultiDomainSubject: Subject<boolean>;
   private domainSubject: Subject<Domain>;
+  private _domains: ReplaySubject<Domain[]>;
 
   constructor(private http: HttpClient, private titleService: Title) {
   }
@@ -57,8 +58,25 @@ export class DomainService {
     this.domainSubject = null;
   }
 
+  public get domains(): Observable<Domain[]> {
+    if (!this._domains) {
+      this._domains = new ReplaySubject<Domain[]>(1);
+      this.getDomains().then(res => this._domains.next(res));
+    }
+    return this._domains.asObservable();
+  }
+
   getDomains(): Promise<Domain[]> {
-    return this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL).toPromise();
+    let searchParams = new HttpParams();
+    searchParams = searchParams.append('active', 'true');
+    return this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL, {params: searchParams}).toPromise();
+  }
+
+  async getAllDomains(): Promise<Domain[]> {
+    const all = await this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL).toPromise();
+    const activeDomains = await this.getDomains();
+    all.forEach(el => el.active = activeDomains.some(d => d.code == el.code));
+    return all;
   }
 
   setCurrentDomain(domain: Domain) {
@@ -77,6 +95,15 @@ export class DomainService {
     this.getTitle().then((title) => {
       this.titleService.setTitle(title);
     });
+  }
+
+  async setActiveState(domain: Domain) {
+    if (!domain.active) {
+      throw new Error('Cannot remove domain ' + domain.name);
+    }
+    // add domain
+    await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
+    this.getDomains().then(res => this._domains.next(res));
   }
 
 }

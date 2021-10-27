@@ -1,5 +1,6 @@
 import {Injectable, Injector} from '@angular/core';
 import 'rxjs/add/operator/map';
+import BaseListComponent from './mixins/base-list.component';
 
 /**
  * @author Ion Perpegel
@@ -14,11 +15,11 @@ export class ApplicationContextService {
   constructor (public injector: Injector) {
   }
 
-  getCurrentComponent (): any {
+  getCurrentComponent (): BaseListComponent<any> {
     return this.currentComponent;
   }
 
-  setCurrentComponent (value: any) {
+  setCurrentComponent (value: BaseListComponent<any>) {
     this.currentComponent = value;
   }
 

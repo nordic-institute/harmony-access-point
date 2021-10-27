@@ -1,18 +1,30 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 
 /**
  * The single entry point for getting and setting internal and external domibus properties;
@@ -41,10 +53,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private final PasswordDecryptionService passwordDecryptionService;
 
+    private final AnnotationConfigWebApplicationContext rootContext;
+
+    private final DomibusConfigurationService domibusConfigurationService;
+
+    private final DomibusCacheService domibusCacheService;
+
     public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, PropertyProviderDispatcher propertyProviderDispatcher,
                                        PrimitivePropertyTypesManager primitivePropertyTypesManager, NestedPropertiesManager nestedPropertiesManager,
                                        ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper,
-                                       PasswordDecryptionService passwordDecryptionService) {
+                                       PasswordDecryptionService passwordDecryptionService, AnnotationConfigWebApplicationContext rootContext,
+                                       DomibusConfigurationService domibusConfigurationService, DomibusCacheService domibusCacheService) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderDispatcher = propertyProviderDispatcher;
         this.primitivePropertyTypesManager = primitivePropertyTypesManager;
@@ -52,6 +71,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         this.environment = environment;
         this.propertyProviderHelper = propertyProviderHelper;
         this.passwordDecryptionService = passwordDecryptionService;
+        this.rootContext = rootContext;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.domibusCacheService = domibusCacheService;
     }
 
     @Override
@@ -144,6 +166,37 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return meta.getTypeAsEnum();
     }
 
+    @Override
+    public void loadProperties(Domain domain) {
+        loadProperties(domain, domibusConfigurationService.getConfigurationFileName(domain));
+
+        //need this eviction since the load properties puts an empty value to domain title
+        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
+        domain.setName(getDomainTitle(domain));
+    }
+
+    @Override
+    public void loadProperties(Domain domain, String propertiesFilePath) {
+        if (StringUtils.isEmpty(propertiesFilePath)) {
+            LOG.info("Exiting loading properties file for domain [{}] as properties file path is empty. .", domain);
+            return;
+        }
+        ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
+        MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
+
+        String configFile = domibusConfigurationService.getConfigLocation() + File.separator + propertiesFilePath;
+        LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
+        try (FileInputStream fis = new FileInputStream(configFile)) {
+            Properties properties = new Properties();
+            properties.load(fis);
+            String propertySourceName = domain.getCode() + "-" + new File(configFile).getName();
+            DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource(propertySourceName, properties);
+            propertySources.addLast(newPropertySource);
+        } catch (IOException ex) {
+            throw new ConfigurationException(String.format("Could not read properties file: [%s] for domain [%s]", configFile, domain), ex);
+        }
+    }
+
     protected String getPropertyValue(String propertyName, Domain domain) {
         String value = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
 
@@ -165,5 +218,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
         return result;
     }
-    
+
+    private String getDomainTitle(Domain domain) {
+        String domainTitle = getProperty(domain, DOMAIN_TITLE);
+        if (StringUtils.isEmpty(domainTitle)) {
+            domainTitle = domain.getCode();
+        }
+        return domainTitle;
+    }
 }

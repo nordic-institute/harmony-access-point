@@ -506,6 +506,7 @@
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
+            <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="SIZE" type="INT"/>
@@ -540,7 +541,21 @@
                                  constraintName="FK_USER_MESSAGE_ID_FTR" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
-
+        <createTable tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_START"/>
+            </column>
+            <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
     </changeSet>
     <!-- End EArchive Tables -->
     <!-- this file must be included in every future changelog-xx-delta.xml -->

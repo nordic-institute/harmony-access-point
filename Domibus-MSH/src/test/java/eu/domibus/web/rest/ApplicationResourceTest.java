@@ -105,32 +105,6 @@ public class ApplicationResourceTest {
     }
 
     @Test
-    public void testGetDomains() {
-        // Given
-        final List<Domain> domainEntries = Collections.singletonList(DomainService.DEFAULT_DOMAIN);
-        final DomainRO domainRO = new DomainRO();
-        domainRO.setCode(DomainService.DEFAULT_DOMAIN.getCode());
-        domainRO.setName(DomainService.DEFAULT_DOMAIN.getName());
-        final List<DomainRO> domainROEntries = Collections.singletonList(domainRO);
-
-        new Expectations(applicationResource) {{
-            domainService.getDomains();
-            result = domainEntries;
-
-            coreMapper.domainListToDomainROList(domainEntries);
-            result = domainROEntries;
-        }};
-
-        // When
-        final List<DomainRO> result = applicationResource.getDomains();
-
-        // Then
-        Assert.assertNotNull(result);
-        Assert.assertNotEquals(0, result.size());
-        Assert.assertEquals(domainROEntries, result);
-    }
-
-    @Test
     public void testGetMultiTenancy() {
         // Given
         new Expectations(applicationResource) {{

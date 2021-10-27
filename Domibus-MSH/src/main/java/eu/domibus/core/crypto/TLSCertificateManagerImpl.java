@@ -5,6 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -15,6 +16,7 @@ import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,15 +40,19 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
+    protected final DomainService domainService;
+
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
                                      CertificateService certificateService,
                                      DomainContextProvider domainProvider,
-                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService) {
+                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService,
+                                     DomainService domainService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.domainService = domainService;
     }
 
     @Override
@@ -87,8 +93,23 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void persistTruststoresIfApplicable() {
+        final List<Domain> domains = domainService.getDomains();
+        persistTruststoresIfApplicable(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void persistTruststoresIfApplicable(List<Domain> domains) {
         certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, true,
-                () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword());
+                () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
+                domains);
     }
 
     private Optional<String> getTrustFileLocation() {
