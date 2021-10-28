@@ -154,7 +154,11 @@
         <classes>
             <class name="domibus.ui.ux.TruststorePgUXTest"/>
             <class name="domibus.ui.functional.TruststorePgTest"></class>
-            <class name="domibus.ui.functional.TlsTrustStorePgTest"></class>
+            <class name="domibus.ui.functional.TlsTrustStorePgTest">
+                <methods>
+                    <exclude name="uploadCertificate"/>
+                </methods>
+            </class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
                     <!--                    need fixes -->
