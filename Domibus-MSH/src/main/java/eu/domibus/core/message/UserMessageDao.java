@@ -88,6 +88,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     public List<String> findAllPartitionsOlderThan(String partitionName, String dbUser) {
         Query q = em.createNamedQuery("UserMessage.findPartitionsForUser_ORACLE");
+        q.setParameter("TNAME", UserMessage.TB_USER_MESSAGE);
         q.setParameter("PNAME", partitionName);
         q.setParameter("DB_USER", dbUser.toUpperCase());
         final List<String> partitionNames = q.getResultList();
@@ -100,6 +101,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     public List<String> findAllPartitionsOlderThan(String partitionName) {
         Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
+        q.setParameter("TNAME", UserMessage.TB_USER_MESSAGE);
         q.setParameter("PNAME", partitionName);
         final List<String> partitionNames = q.getResultList();
         LOG.debug("Partitions [{}]", partitionNames);

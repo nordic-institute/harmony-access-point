@@ -97,18 +97,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Find partitions older than [{}]", newestPartitionName);
-        List<String> partitionNames;
-        if(domibusConfigurationService.isMultiTenantAware()) {
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, domainService.getDatabaseSchema(currentDomain));
-        } else {
-            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
-        }
-        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size(), partitionNames);
-
-        // remove default partition (the oldest partition) as we don't delete it
-        partitionNames.remove(DEFAULT_PARTITION_NAME);
-
+        List<String> partitionNames = getExpiredPartitions(newestPartitionName);
         for (String partitionName : partitionNames) {
             LOG.info("Verify partition [{}]", partitionName);
             // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
@@ -136,6 +125,22 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
             userMessageDao.dropPartition(partitionName);
         }
+    }
+
+    protected List<String> getExpiredPartitions(String newestPartitionName){
+        List<String> partitionNames;
+        if(domibusConfigurationService.isMultiTenantAware()) {
+            Domain currentDomain = domainContextProvider.getCurrentDomain();
+            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, domainService.getDatabaseSchema(currentDomain));
+        } else {
+            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
+        }
+        LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size(), partitionNames);
+
+        // remove default partition (the oldest partition) as we don't delete it
+        partitionNames.remove(DEFAULT_PARTITION_NAME);
+
+        return partitionNames;
     }
 
     protected boolean verifyIfAllMessagesAreArchived(String partitionName) {
