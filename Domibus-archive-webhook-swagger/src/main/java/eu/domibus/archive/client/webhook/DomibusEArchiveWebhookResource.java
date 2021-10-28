@@ -1,7 +1,6 @@
 package eu.domibus.archive.client.webhook;
 
 
-
 import eu.domibus.archive.client.webhook.model.BatchNotification;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -21,7 +20,7 @@ import javax.ws.rs.PathParam;
 /**
  * The class is webhook eArchive domibus REST API example based on "standard" javax RS API annotations. The purpose of the class is to
  * generate OpenAPI document. The class can be used also by the java developers to implement Webhook REST API endpoints.
- *
+ * <p>
  * In order to integrate with Domibus, an archiving client MUST implement the REST API
  * services defined in this class.
  * <p>
@@ -30,7 +29,7 @@ import javax.ws.rs.PathParam;
  * configured in the Domibus properties.
  *
  * @author Joze Rihtarsic
- * @since 1.0
+ * @since 5.0
  */
 
 @OpenAPIDefinition(
@@ -57,8 +56,8 @@ interface DomibusEArchiveWebhookResource {
      * Domibus notifies the archiving client when a batch has been exported in the shared folder.
      * The notification is performed for a successful and for a failed export.
      *
-     * @param batchId return last N enqueued bath export requests
-     * @return the list of queued batches
+     * @param batchId           the targeted batch id
+     * @param batchNotification Notification message
      */
     @Operation(summary = "Receive notification when a batch has been exported in the shared folder",
             description = "Domibus notifies the archiving client when a batch has been exported in the shared folder. " +
@@ -72,14 +71,15 @@ interface DomibusEArchiveWebhookResource {
     @PUT
     @Path("/{batch_id:.+}/export-notification")
     void putExportNotification(@PathParam("batch_id") final String batchId,
-                                      @Parameter(description = "Notification message on export event for the batch", required = true) final BatchNotification batchNotification);
+                               @Parameter(description = "Notification message on export event for the batch", required = true) final BatchNotification batchNotification);
 
-    /** Receive notification when an expired batch has been deleted.
+    /**
+     * Receive notification when an expired batch has been deleted.
      * <p>
      * Domibus notifies the archiving client when it deletes an expired batch.
      *
-     * @param batchId return last N enqueued bath export requests
-     * @return the list of queued batches
+     * @param batchId           the targeted batch id
+     * @param batchNotification Notification message
      */
     @Operation(summary = "Receive notification when an expired batch has been deleted",
             description = "Domibus notifies the archiving client when it deletes an expired batch.",
@@ -92,7 +92,7 @@ interface DomibusEArchiveWebhookResource {
     @PUT
     @Path("/{batch_id:.+}/stale-notification")
     void putStaleNotification(@PathParam("batch_id") final String batchId,
-                                     @Parameter(description = "Notification message on delete for expired batch", required = true) final BatchNotification batchNotification);
+                              @Parameter(description = "Notification message on delete for expired batch", required = true) final BatchNotification batchNotification);
 
 }
 

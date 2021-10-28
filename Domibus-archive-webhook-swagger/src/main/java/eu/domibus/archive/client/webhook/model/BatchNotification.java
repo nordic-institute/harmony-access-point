@@ -3,6 +3,10 @@ package eu.domibus.archive.client.webhook.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * @author Joze Rihtarsic
+ * @since 5.0
+ */
 public class BatchNotification {
 
     String batchId;
