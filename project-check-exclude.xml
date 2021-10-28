@@ -76,6 +76,8 @@
         <!-- we are not affected by this CVE as we don't manipulate the validated value-->
         <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-validator@.*$</packageUrl>
         <cve>CVE-2020-10693</cve>
+        <!-- we don't use @SafeHtml java annotation -->
+        <cve>CVE-2019-10219</cve>
     </suppress>
 
     <suppress>

@@ -33,6 +33,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDssCryptoSpi.class);
 
+    private static final String BOUNCYCASTLE_PROVIDER = "BC";
+
     private static final String CERTPATH = "certpath";
 
     private TSLRepository tslRepository;
@@ -89,10 +91,15 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
                 LOG.trace("Certificate has been added to the DSS cache by another thread.");
                 return;
             }
-            final X509Certificate leafCertificate = getX509LeafCertificate(certs);
+
+            //Fix for [EDELIVERY-8556] Copy the certificates for dss and reload them with Bouncy Castle provider
+            LOG.trace("Copy the [{}] certificates for DSS and reload them with Bouncy Castle provider.", certs.length);
+            X509Certificate[] dssCerts = pkiExtService.getCertificatesWithProvider(certs, BOUNCYCASTLE_PROVIDER);
+
+            final X509Certificate leafCertificate = getX509LeafCertificate(dssCerts);
             //add signing certificate to DSS.
             final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
-            CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
+            CertificateSource adjunctCertSource = prepareCertificateSource(dssCerts, leafCertificate);
             certificateVerifier.setAdjunctCertSource(adjunctCertSource);
             LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
             //add leaf certificate to DSS
@@ -102,7 +109,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             dssCache.addToCache(cacheKey, true);
             LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
         }
-
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {

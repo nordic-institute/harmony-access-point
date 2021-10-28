@@ -1,10 +1,14 @@
+Domibus 4.2.5 (from 4.2.4):
+                - Replace the Domibus war
+                - Replace the default dss extension jar into "/conf/domibus/extensions/lib"
+                - Remove all revoked certificates from /conf/domibus/keystores/dss-tls-truststore.p12
 Domibus 4.2.4 (from 4.2.3):
                 - Replace the Domibus war
 Domibus 4.2.3 (from 4.2.2):
                 - Run the appropriate DB migration script(mysql-4.2.2-to-4.2.3-migration.ddl for MySQL or oracle-4.2.2-to-4.2.3-migration.ddl for Oracle)
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
-                - Replace the default dss extension jar and property file into  "/conf/domibus/extensions/lib" respectively into "/conf/domibus/extensions/config"
+                - Replace the default dss extension jar and property file into "/conf/domibus/extensions/lib" respectively into "/conf/domibus/extensions/config"
 Domibus 4.2.2 (from 4.2.1):
                 - [Mysql8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:
