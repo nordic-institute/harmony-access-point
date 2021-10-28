@@ -23,6 +23,10 @@ import java.util.Set;
 })
 @NamedNativeQueries({
         @NamedNativeQuery(
+                name    =   "UserMessage.findPartitionsForUser_ORACLE",
+                query   =   "SELECT partition_name FROM all_tab_partitions WHERE table_owner = :DB_USER and table_name = 'TB_USER_MESSAGE' and partition_name <= :PNAME"
+        ),
+        @NamedNativeQuery(
                 name    =   "UserMessage.findPartitions_ORACLE",
                 query   =   "SELECT partition_name FROM user_tab_partitions WHERE table_name = 'TB_USER_MESSAGE' and partition_name <= :PNAME"
         )

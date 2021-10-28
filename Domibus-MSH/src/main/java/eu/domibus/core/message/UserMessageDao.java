@@ -8,13 +8,17 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.ParameterMode;
 import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -82,6 +86,18 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
+    public List<String> findAllPartitionsOlderThan(String partitionName, String dbUser) {
+        Query q = em.createNamedQuery("UserMessage.findPartitionsForUser_ORACLE");
+        q.setParameter("PNAME", partitionName);
+        q.setParameter("DB_USER", dbUser.toUpperCase());
+        final List<String> partitionNames = q.getResultList();
+        LOG.debug("Partitions [{}]", partitionNames);
+        return partitionNames;
+    }
+
+
+    @Timer(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
+    @Counter(clazz = UserMessageDao.class, value = "findPotentialExpiredPartitions")
     public List<String> findAllPartitionsOlderThan(String partitionName) {
         Query q = em.createNamedQuery("UserMessage.findPartitions_ORACLE");
         q.setParameter("PNAME", partitionName);
@@ -90,15 +106,27 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return partitionNames;
     }
 
-    @Timer(clazz = UserMessageDao.class, value = "deletePartition")
-    @Counter(clazz = UserMessageDao.class, value = "deletePartition")
+    @Timer(clazz = UserMessageDao.class, value = "dropPartition")
+    @Counter(clazz = UserMessageDao.class, value = "dropPartition")
     @Transactional
-    public int deletePartition(String partitionName) {
-        LOG.debug("Deleting partition [{}]", partitionName);
-        final Query deleteQuery = em.createNativeQuery("ALTER TABLE TB_USER_MESSAGE DROP PARTITION " + partitionName + " UPDATE INDEXES");
-        int result = deleteQuery.executeUpdate();
-        LOG.debug("Delete partition [{}] result [{}]", partitionName, result);
-        return result;
+    public void dropPartition(String partitionName) {
+        StoredProcedureQuery query = em.createStoredProcedureQuery("DROP_PARTITION")
+                .registerStoredProcedureParameter(
+                        "partition_name",
+                        String.class,
+                        ParameterMode.IN
+                )
+                .setParameter("partition_name", partitionName);
+        try {
+            query.execute();
+        } finally {
+            try {
+                query.unwrap(ProcedureOutputs.class).release();
+                LOG.debug("Finished releasing drop partition procedure");
+            } catch (Exception ex) {
+                LOG.error("Finally exception when using the procedure to drop partitions", ex);
+            }
+        }
     }
 
     @Timer(clazz = UserMessageDao.class, value = "deleteMessages")

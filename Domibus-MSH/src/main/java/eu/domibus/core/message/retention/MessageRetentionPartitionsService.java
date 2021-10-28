@@ -1,6 +1,10 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
@@ -44,6 +48,11 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected EventService eventService;
 
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    protected DomainService domainService;
+
+    protected DomainContextProvider domainContextProvider;
 
     public static final String DEFAULT_PARTITION_NAME = "P21000000"; // default partition that we never delete
     public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
@@ -53,12 +62,18 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              UserMessageDao userMessageDao,
                                              UserMessageLogDao userMessageLogDao,
                                              DomibusPropertyProvider domibusPropertyProvider,
-                                             EventService eventService) {
+                                             EventService eventService,
+                                             DomibusConfigurationService domibusConfigurationService,
+                                             DomainService domainService,
+                                             DomainContextProvider domainContextProvider) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.eventService = eventService;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.domainService = domainService;
+        this.domainContextProvider = domainContextProvider;
     }
 
     @Override
@@ -79,9 +94,16 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         Date newestPartitionToCheckDate = DateUtils.addMinutes(new Date(), maxRetention * -1);
+
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Find partitions older than [{}]", newestPartitionName);
-        List<String> partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
+        List<String> partitionNames;
+        if(domibusConfigurationService.isMultiTenantAware()) {
+            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, domainService.getDatabaseSchema(currentDomain));
+        } else {
+            partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName);
+        }
         LOG.info("Found [{}] partitions to verify expired messages: [{}]", partitionNames.size(), partitionNames);
 
         // remove default partition (the oldest partition) as we don't delete it
@@ -112,7 +134,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                 continue;
             }
 
-            userMessageDao.deletePartition(partitionName);
+            userMessageDao.dropPartition(partitionName);
         }
     }
 
