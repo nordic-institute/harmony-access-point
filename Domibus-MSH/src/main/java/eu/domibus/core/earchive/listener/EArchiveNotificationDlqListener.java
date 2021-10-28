@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -52,18 +51,11 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         }
         jmsUtil.setDomain(message);
 
-        EArchiveBatchStatus notificationType = getNotificationType(message);
+        EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId);
         // TODO: François Gautier 28-10-21 create an alert
         LOG.info("Create Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
     }
 
-    private EArchiveBatchStatus getNotificationType(Message message) {
-        String stringPropertySafely = jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE);
-        if (StringUtils.isBlank(stringPropertySafely)) {
-            throw new DomibusEArchiveException("Notification type not found");
-        }
-        return EArchiveBatchStatus.valueOf(stringPropertySafely);
-    }
 }

@@ -3,6 +3,8 @@ package eu.domibus.core.earchive;
 import eu.domibus.api.earchive.DomibusEArchiveService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
+import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,12 +12,15 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dtf;
@@ -35,16 +40,21 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final EArchiveBatchStartDao eArchiveBatchStartDao;
 
+    private final UserMessageLogDefaultService userMessageLogDefaultService;
+
     private final EArchiveBatchDao eArchiveBatchDao;
 
     private final JMSManager jmsManager;
 
     private final Queue eArchiveNotificationQueue;
 
-    public EArchivingDefaultService(EArchiveBatchStartDao eArchiveBatchStartDao, EArchiveBatchDao eArchiveBatchDao,
+    public EArchivingDefaultService(EArchiveBatchStartDao eArchiveBatchStartDao,
+                                    UserMessageLogDefaultService userMessageLogDefaultService,
+                                    EArchiveBatchDao eArchiveBatchDao,
                                     JMSManager jmsManager,
                                     @Qualifier(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE) Queue eArchiveNotificationQueue) {
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
+        this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.jmsManager = jmsManager;
         this.eArchiveNotificationQueue = eArchiveNotificationQueue;
@@ -106,5 +116,17 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
                 .property(MessageConstants.BATCH_ENTITY_ID, "" + eArchiveBatchByBatchId.getEntityId())
                 .property(MessageConstants.NOTIFICATION_TYPE, type.name())
                 .build(), eArchiveNotificationQueue);
+    }
+
+    @Transactional
+    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<UserMessageDTO> userMessageDtos) {
+        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
+        setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
+        sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
+    }
+
+
+    private List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
+        return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }
 }

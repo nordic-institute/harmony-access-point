@@ -90,9 +90,8 @@ public class EArchiveListener implements MessageListener {
                 userMessageDtos.get(0));
 
         exportInFileSystem(batchId, eArchiveBatchByBatchId, userMessageDtos);
-        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
-        eArchivingDefaultService.sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
+
+        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId, userMessageDtos);
     }
 
     private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<UserMessageDTO> userMessageDtos) {
@@ -117,10 +116,6 @@ public class EArchiveListener implements MessageListener {
 
     private List<String> getMessageIds(List<UserMessageDTO> userMessageDtos) {
         return userMessageDtos.stream().map(UserMessageDTO::getMessageId).collect(Collectors.toList());
-    }
-
-    private List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }
 
     private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatchEntity eArchiveBatchByBatchId) {

@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -52,29 +51,19 @@ public class EArchiveNotificationListener implements MessageListener {
         }
         jmsUtil.setDomain(message);
 
-        EArchiveBatchStatus notificationType = getNotificationType(message);
+        EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId);
 
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the earchive client for batch FAILED [{}] ", eArchiveBatchByBatchId);
             // TODO: François Gautier 28-10-21 notification failed
-            throw new RuntimeException("Notification failed for failed status for batch id [" + eArchiveBatchByBatchId.getBatchId() + "]");
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
             LOG.info("Notification to the earchive client for batch EXPORTED [{}] ", eArchiveBatchByBatchId);
             // TODO: François Gautier 28-10-21 notification exported
-            throw new RuntimeException("Notification failed for failed status for batch id [" + eArchiveBatchByBatchId.getBatchId() + "]");
         }
-    }
-
-    private EArchiveBatchStatus getNotificationType(Message message) {
-        String stringPropertySafely = jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE);
-        if (StringUtils.isBlank(stringPropertySafely)) {
-            throw new DomibusEArchiveException("Notification type not found");
-        }
-        return EArchiveBatchStatus.valueOf(stringPropertySafely);
     }
 
 }
