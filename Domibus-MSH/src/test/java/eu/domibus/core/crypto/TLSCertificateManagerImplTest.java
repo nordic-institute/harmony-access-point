@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.Optional;
 
 import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
 
@@ -123,19 +124,19 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void getTruststoreParams(@Mocked TLSClientParametersType params, @Mocked KeyStoreType trustStore, @Mocked Domain domain) {
         new Expectations(tlsCertificateManager) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
             domainProvider.getCurrentDomain();
             result = domain;
             tlsReaderService.getTlsClientParametersType(domain.getCode());
-            result = params;
+            result = Optional.of(params);
             params.getTrustManagers().getKeyStore();
             result = trustStore;
         }};
 
-        KeyStoreType result = tlsCertificateManager.getTruststoreParams();
+        Optional<KeyStoreType> result = tlsCertificateManager.getTruststoreParams();
 
-        Assert.assertEquals(trustStore, result);
+        Assert.assertEquals(trustStore, result.get());
     }
 
     @Test

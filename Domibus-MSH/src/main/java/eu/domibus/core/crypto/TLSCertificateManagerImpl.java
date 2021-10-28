@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Ion Perpegel
@@ -96,15 +97,6 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         persistTruststoresIfApplicable(domains);
     }
 
-    private void persistTruststoresIfApplicable(List<Domain> domains) {
-        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME,
-                () -> getTruststoreParams().getFile(),
-                () -> getTruststoreParams().getType(),
-                () -> getTruststoreParams().getPassword(),
-                domains
-        );
-    }
-
     @Override
     public void onDomainAdded(final Domain domain) {
         persistTruststoresIfApplicable(Arrays.asList(domain));
@@ -114,16 +106,41 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     public void onDomainRemoved(Domain domain) {
     }
 
-    protected KeyStoreType getTruststoreParams() {
-        String domainCode = null;
-        if (domibusConfigurationService.isMultiTenantAware()) {
+    private void persistTruststoresIfApplicable(List<Domain> domains) {
+        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, true,
+                () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
+                domains);
+    }
+
+    private Optional<String> getTrustFileLocation() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.map(k -> Optional.of(k.getFile())).orElse(Optional.empty());
+    }
+
+    private String getTrustType() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.map(k -> k.getType()).orElse(null);
+    }
+
+    private String getTrustPassword() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.map(k -> k.getPassword()).orElse(null);
+    }
+
+    protected Optional<KeyStoreType> getTruststoreParams() {
+        final String domainCode;
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            domainCode = null;
+        } else {
             Domain domain = domainProvider.getCurrentDomain();
             domainCode = domain != null ? domain.getCode() : null;
         }
-        TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
-        KeyStoreType result = params.getTrustManagers().getKeyStore();
-        LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
-        return result;
+        Optional<TLSClientParametersType> params = tlsReaderService.getTlsClientParametersType(domainCode);
+        return params.map(k -> {
+            KeyStoreType result = k.getTrustManagers().getKeyStore();
+            LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
+            return Optional.of(result);
+        }).orElse(Optional.empty());
     }
 
     protected void resetTLSTruststore() {
