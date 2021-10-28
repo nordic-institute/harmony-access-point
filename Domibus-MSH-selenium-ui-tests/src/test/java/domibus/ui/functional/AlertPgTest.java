@@ -435,9 +435,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void pluginUserLoginFailure() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-//		 = Gen.randomAlphaNumeric(10);
-//		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
-		String user = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+		String user = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, true).getString("userName");
 		log.info("Using plugin user " + user);
 
 		if (!data.isMultiDomain()) {

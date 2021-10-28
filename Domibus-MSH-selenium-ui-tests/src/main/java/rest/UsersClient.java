@@ -87,7 +87,8 @@ public class UsersClient extends BaseRestClient {
 		switchDomain(domain);
 		ClientResponse response = putUser(toUpdate, domain);
 		if(response.getStatus() < 300){
-			log.info("change saved");
+			log.info("password change saved");
+			log.info(response.getEntity(String.class));
 		}else {
 			throw new DomibusRestException("Updating user password failed!!!", response);
 		}
