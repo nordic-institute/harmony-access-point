@@ -63,7 +63,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, PropertyProviderDispatcher propertyProviderDispatcher,
                                        PrimitivePropertyTypesManager primitivePropertyTypesManager, NestedPropertiesManager nestedPropertiesManager,
                                        ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper,
-                                       PasswordDecryptionService passwordDecryptionService, @Lazy AnnotationConfigWebApplicationContext rootContext,
+                                       PasswordDecryptionService passwordDecryptionService, AnnotationConfigWebApplicationContext rootContext,
                                        DomibusConfigurationService domibusConfigurationService, DomibusCacheService domibusCacheService) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderDispatcher = propertyProviderDispatcher;
