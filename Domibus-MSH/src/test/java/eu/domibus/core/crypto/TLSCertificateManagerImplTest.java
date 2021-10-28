@@ -124,8 +124,8 @@ public class TLSCertificateManagerImplTest {
     @Test
     public void getTruststoreParams(@Mocked TLSClientParametersType params, @Mocked KeyStoreType trustStore, @Mocked Domain domain) {
         new Expectations(tlsCertificateManager) {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
             domainProvider.getCurrentDomain();
             result = domain;
             tlsReaderService.getTlsClientParametersType(domain.getCode());
