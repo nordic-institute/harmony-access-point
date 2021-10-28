@@ -42,6 +42,9 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     @Column(name = "STORAGE_LOCATION")
     private String storageLocation;
 
+    @Column(name = "ERROR")
+    private String error;
+
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "MESSAGEIDS_JSON")
@@ -104,12 +107,20 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.storageLocation = storageLocation;
     }
 
-    public EArchiveBatchStatus geteArchiveBatchStatus() {
+    public EArchiveBatchStatus getEArchiveBatchStatus() {
         return eArchiveBatchStatus;
     }
 
-    public void seteArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
+    public void setEArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
         this.eArchiveBatchStatus = eArchiveBatchStatus;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
     @Override

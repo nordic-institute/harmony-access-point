@@ -33,9 +33,9 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
  * @since 5.0
  */
 @Service
-public class EArchiveBatchService {
+public class EArchivingJobService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingJobService.class);
     private final EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
@@ -49,7 +49,7 @@ public class EArchiveBatchService {
     private final NoArgGenerator uuidGenerator;
 
 
-    public EArchiveBatchService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
+    public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                 DomibusPropertyProvider domibusPropertyProvider,
                                 PModeProvider pModeProvider,
                                 EArchiveBatchDao eArchiveBatchDao,
@@ -93,7 +93,7 @@ public class EArchiveBatchService {
         entity.setBatchId(uuidGenerator.generate().toString());
         entity.setMessageIdsJson(new Gson().toJson(userMessageToBeArchived, ListUserMessageDto.class));
         entity.setLastPkUserMessage(lastEntity);
-        entity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
+        entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
         eArchiveBatchDao.create(entity);
         return entity;

@@ -62,7 +62,17 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     @Override
     public DomainMessageListenerContainer createEArchiveMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_MESSAGE_CONTAINER, domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_CONTAINER, domain);
+    }
+    @Override
+    public DomainMessageListenerContainer createEArchiveNotificationListenerContainer(Domain domain) {
+        LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_NOTIF_CONTAINER, domain);
+    }
+    @Override
+    public DomainMessageListenerContainer createEArchiveNotificationDlqListenerContainer(Domain domain) {
+        LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_NOTIF_DLQ_CONTAINER, domain);
     }
 
 }

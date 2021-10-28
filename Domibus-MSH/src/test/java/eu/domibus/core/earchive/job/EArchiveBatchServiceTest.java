@@ -36,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 public class EArchiveBatchServiceTest {
 
     @Tested
-    private EArchiveBatchService eArchiveBatchService;
+    private EArchivingJobService eArchiveBatchService;
 
     @Injectable
     private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;

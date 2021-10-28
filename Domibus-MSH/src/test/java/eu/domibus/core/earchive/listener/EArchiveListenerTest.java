@@ -161,7 +161,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = RequestType.CONTINUOUS;
 
-            eArchiveBatch.geteArchiveBatchStatus();
+            eArchiveBatch.getEArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);
@@ -183,9 +183,9 @@ public class EArchiveListenerTest {
 
             fileObject.close();
 
-            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
+            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED, "error");
             times = 1;
-            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.EXPORTED);
+            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.EXPORTED, "error");
             times = 1;
         }};
     }
