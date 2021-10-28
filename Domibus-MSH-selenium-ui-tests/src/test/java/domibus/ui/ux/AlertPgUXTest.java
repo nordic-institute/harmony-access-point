@@ -197,29 +197,36 @@ public class AlertPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
+
+		log.info("showing domain alerts");
 		page.filters().getShowDomainCheckbox().click();
 		page.filters().getSearchButton().click();
-		log.info("Getting all listed message info");
-		List<HashMap<String, String>> allRowInfo = page.grid().getListedRowInfo();
+		page.grid().waitForRowsToLoad();
 
-		if(allRowInfo.size() == 0){
+		log.info("Getting all listed message info");
+		List<HashMap<String, String>> dom1RowInfo = page.grid().getListedRowInfo();
+
+		if(dom1RowInfo.size() == 0){
 			throw new SkipException("not enough alerts to perform test");
 		}
 
-		HashMap<String, String> alertFirstRowData = allRowInfo.get(0);
-
-
+		log.info("changing domain");
 		page.getDomainSelector().selectAnotherDomain();
-		List<HashMap<String, String>> allRowInfos = page.grid().getListedRowInfo();
-		HashMap<String, String> domainAlertFirstRowData = allRowInfos.get(0);
 
-		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(), "Show domain checkbox is not checked");
-		soft.assertFalse(alertFirstRowData.equals(domainAlertFirstRowData),"Grid Data are different");
+		log.info("showing domain alerts");
+		page.filters().getShowDomainCheckbox().click();
+		page.filters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
+
+		List<HashMap<String, String>> dom2rowInfo = page.grid().getListedRowInfo();
+
+		soft.assertFalse(TestUtils.isEqualMapListContent(dom1RowInfo, dom2rowInfo), "Listed info for the 2 domains is different");
+
 		soft.assertAll();
 
 	}
+
 	// EDELIVERY-7149 - ALRT-37 - Super admin filters super alerts
-	/*  ALRT-37 - Super admin filters super alerts  */
 	@Test(description = "ALRT-37", groups = {"multiTenancy"})
 	public void filterSuperAlert() throws Exception {
 		AlertPage page = new AlertPage(driver);
