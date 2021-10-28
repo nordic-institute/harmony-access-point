@@ -114,33 +114,33 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private Optional<String> getTrustFileLocation() {
         Optional<KeyStoreType> params = getTruststoreParams();
-        return params.isPresent() ? Optional.of(params.get().getFile()) : Optional.empty();
+        return params.map(k -> Optional.of(k.getFile())).orElse(Optional.empty());
     }
 
     private String getTrustType() {
         Optional<KeyStoreType> params = getTruststoreParams();
-        return params.isPresent() ? params.get().getType() : null;
+        return params.map(k -> k.getType()).orElse(null);
     }
 
     private String getTrustPassword() {
         Optional<KeyStoreType> params = getTruststoreParams();
-        return params.isPresent() ? params.get().getPassword() : null;
+        return params.map(k -> k.getPassword()).orElse(null);
     }
 
     protected Optional<KeyStoreType> getTruststoreParams() {
-        String domainCode = null;
-        if (domibusConfigurationService.isMultiTenantAware()) {
+        final String domainCode;
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            domainCode = null;
+        } else {
             Domain domain = domainProvider.getCurrentDomain();
             domainCode = domain != null ? domain.getCode() : null;
         }
         Optional<TLSClientParametersType> params = tlsReaderService.getTlsClientParametersType(domainCode);
-        if (!params.isPresent()) {
-            return Optional.empty();
-        }
-
-        KeyStoreType result = params.get().getTrustManagers().getKeyStore();
-        LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
-        return Optional.of(result);
+        return params.map(k -> {
+            KeyStoreType result = k.getTrustManagers().getKeyStore();
+            LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
+            return Optional.of(result);
+        }).orElse(Optional.empty());
     }
 
     protected void resetTLSTruststore() {
