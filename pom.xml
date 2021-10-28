@@ -66,6 +66,7 @@
         <peppol.version>1.1.4</peppol.version>
         <dynamic.discovery.client.version>1.13-SNAPSHOT</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
         <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
@@ -1053,6 +1054,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs-api.version}</version>
+            </dependency>
             <!-- Test dependencies -->
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -1359,6 +1365,16 @@
                     <groupId>com.coderplus.maven.plugins</groupId>
                     <artifactId>copy-rename-maven-plugin</artifactId>
                     <version>1.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.swagger.core.v3</groupId>
+                    <artifactId>swagger-maven-plugin</artifactId>
+                    <version>2.1.11</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.swagger.codegen.v3</groupId>
+                    <artifactId>swagger-codegen-maven-plugin</artifactId>
+                    <version>3.0.27</version>
                 </plugin>
             </plugins>
         </pluginManagement>
