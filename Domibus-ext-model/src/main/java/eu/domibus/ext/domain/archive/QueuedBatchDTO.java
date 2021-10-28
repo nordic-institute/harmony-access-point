@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ public class QueuedBatchDTO {
 
     String batchId;
     BatchRequestType requestType;
-    ZonedDateTime enqueuedTimestamp;
+    Date enqueuedTimestamp;
     Long messageStartDate;
     Long messageEndDate;
     List<String> messages;
@@ -32,11 +32,11 @@ public class QueuedBatchDTO {
         this.requestType = requestType;
     }
 
-    public ZonedDateTime getEnqueuedTimestamp() {
+    public Date getEnqueuedTimestamp() {
         return enqueuedTimestamp;
     }
 
-    public void setEnqueuedTimestamp(ZonedDateTime enqueuedTimestamp) {
+    public void setEnqueuedTimestamp(Date enqueuedTimestamp) {
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 

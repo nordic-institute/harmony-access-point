@@ -1,6 +1,5 @@
 package eu.domibus.core.earchive;
 
-
 import java.util.List;
 
 public class BatchEArchiveDTOBuilder {

@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
@@ -52,33 +51,33 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     @Override
-    public FileObject createEArkSipStructure(BatchEArchiveDTO eArchiveBatchDTO, List<UserMessageDTO> userMessageEntityIds) {
-        LOG.info("Create earchive structure for batchId [{}] with [{}] messages", eArchiveBatchDTO.getBatchId(), userMessageEntityIds.size());
+    public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) {
+        LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchEArchiveDTO.getBatchId(), userMessageEntityIds.size());
 
-        try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatchDTO.getBatchId())) {
+        try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatchId())) {
             batchDirectory.createFolder();
 
             DomibusEARKSIP sip = new DomibusEARKSIP();
-            sip.setBatchId(eArchiveBatchDTO.getBatchId());
+            sip.setBatchId(batchEArchiveDTO.getBatchId());
             sip.addCreatorSoftwareAgent(domibusVersionService.getArtifactName(), domibusVersionService.getDisplayVersion());
             sip.setDescription(domibusVersionService.getDisplayVersion());
 
             LOG.debug("DomibusEARKSIP initialized [{}]", sip);
-            addRepresentation1(sip, eArchiveBatchDTO, userMessageEntityIds);
+            addRepresentation1(sip, batchEArchiveDTO, userMessageEntityIds);
             LOG.debug("DomibusEARKSIP created [{}]", sip);
 
             return eArkSipBuilderService.build(sip, batchDirectory);
         } catch (IPException | FileSystemException e) {
-            throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + eArchiveBatchDTO + "]", e);
+            throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "]", e);
         }
     }
 
-    protected void addRepresentation1(SIP sip, BatchEArchiveDTO eArchiveBatchDTO, List<UserMessageDTO> userMessageEntityIds) throws IPException {
+    protected void addRepresentation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) throws IPException {
         IPRepresentation representation1 = new IPRepresentation("representation1");
         sip.addRepresentation(representation1);
 
         LOG.debug("Add batch.json");
-        InputStream batchFileJson = eArchivingFileService.getBatchFileJson(eArchiveBatchDTO);
+        InputStream batchFileJson = eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
         representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON));
         for (UserMessageDTO messageId : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", messageId);

@@ -1,6 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ public class ExportedBatchDTO {
     ExportedBatchStatusType status;
     String errorCode;
     String errorDescription;
-    ZonedDateTime enqueuedTimestamp;
+    Date enqueuedTimestamp;
     // Same as message parameter max and min:  yyMMddHH
     Long messageStartDate;
     Long messageEndDate;
@@ -62,11 +62,11 @@ public class ExportedBatchDTO {
         this.errorDescription = errorDescription;
     }
 
-    public ZonedDateTime getEnqueuedTimestamp() {
+    public Date getEnqueuedTimestamp() {
         return enqueuedTimestamp;
     }
 
-    public void setEnqueuedTimestamp(ZonedDateTime enqueuedTimestamp) {
+    public void setEnqueuedTimestamp(Date enqueuedTimestamp) {
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 

@@ -5,7 +5,6 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;

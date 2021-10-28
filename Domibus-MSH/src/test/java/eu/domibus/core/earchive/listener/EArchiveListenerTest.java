@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
 import com.google.gson.Gson;
-import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;

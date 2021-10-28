@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.api.earchive.EArchiveBatchDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
