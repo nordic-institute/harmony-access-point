@@ -11,6 +11,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, PropertyProviderDispatcher propertyProviderDispatcher,
                                        PrimitivePropertyTypesManager primitivePropertyTypesManager, NestedPropertiesManager nestedPropertiesManager,
                                        ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper,
-                                       PasswordDecryptionService passwordDecryptionService, AnnotationConfigWebApplicationContext rootContext,
+                                       PasswordDecryptionService passwordDecryptionService, @Lazy AnnotationConfigWebApplicationContext rootContext,
                                        DomibusConfigurationService domibusConfigurationService, DomibusCacheService domibusCacheService) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderDispatcher = propertyProviderDispatcher;
