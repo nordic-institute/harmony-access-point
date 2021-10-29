@@ -112,6 +112,7 @@ import {TruststoreComponent} from './truststore/truststore.component';
 import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
 import {PluginUserValidatorService} from './pluginuser/support/pluginuservalidator.service';
 import {DomibusFutureDatePipe} from './common/customDate/domibusFutureDatePipe';
+import {DomainsComponent} from './domains/domains.component';
 
 @NgModule({
   declarations: [
@@ -177,7 +178,8 @@ import {DomibusFutureDatePipe} from './common/customDate/domibusFutureDatePipe';
     ConnectionsComponent,
     ConnectionDetailsComponent,
     SessionExpiredDialogComponent,
-    AddNestedPropertyDialogComponent
+    AddNestedPropertyDialogComponent,
+    DomainsComponent
   ],
   entryComponents: [
     AppComponent,

@@ -78,6 +78,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_SESSION_SAME_SITE),
 
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_TIMEOUT, Type.NUMERIC, false, Usage.DOMAIN, true),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE, Type.BOOLEAN),
 
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, Usage.DOMAIN, true),

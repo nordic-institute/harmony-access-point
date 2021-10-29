@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.util.WarningUtil;
@@ -15,13 +16,16 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.util.Arrays;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
 
 /**
  * Created by idragusa on 4/14/16.
  */
 @Component
-public class GatewayConfigurationValidator {
+public class GatewayConfigurationValidator implements DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GatewayConfigurationValidator.class);
 
@@ -48,7 +52,7 @@ public class GatewayConfigurationValidator {
                 return;
             }
             try (BufferedReader br = new BufferedReader((new InputStreamReader(resourceAsStream)))) {
-                validateFileHash("domibus.properties", br.readLine());
+                validateFileHash(DOMIBUS_PROPERTY_FILE, br.readLine());
             }
         } catch (Exception e) {
             LOG.warn("Could not verify the configuration file hash", e);
@@ -56,8 +60,21 @@ public class GatewayConfigurationValidator {
 
     }
 
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        validateCerts(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
     protected void validateCertificates() {
         final List<Domain> domains = domainService.getDomains();
+        validateCertificates(domains);
+    }
+
+    private void validateCertificates(List<Domain> domains) {
         for (Domain domain : domains) {
             validateCerts(domain);
         }

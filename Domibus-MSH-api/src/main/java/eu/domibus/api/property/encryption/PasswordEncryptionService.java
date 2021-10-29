@@ -1,12 +1,13 @@
 package eu.domibus.api.property.encryption;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainsAware;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-public interface PasswordEncryptionService {
+public interface PasswordEncryptionService extends DomainsAware {
     boolean isValueEncrypted(final String propertyValue);
 
     void encryptPasswords();

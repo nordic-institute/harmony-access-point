@@ -96,7 +96,10 @@
                     <exclude name="verifyHeaders"></exclude>
                     <!--                    bug EDELIVERY-8466    -->
                     <exclude name="checkProcessed"></exclude>
-
+<!--                    inconsistent behaviour-->
+                    <exclude name="userLoginFailureAlert"/>
+                    <exclude name="pluginUserLoginFailure"/>
+                    <exclude name="pluginUserDisabled"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.ChangePasswordPgTest"/>
@@ -154,7 +157,11 @@
         <classes>
             <class name="domibus.ui.ux.TruststorePgUXTest"/>
             <class name="domibus.ui.functional.TruststorePgTest"></class>
-            <class name="domibus.ui.functional.TlsTrustStorePgTest"></class>
+            <class name="domibus.ui.functional.TlsTrustStorePgTest">
+                <methods>
+                    <exclude name="uploadCertificate"/>
+                </methods>
+            </class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
                     <!--                    need fixes -->

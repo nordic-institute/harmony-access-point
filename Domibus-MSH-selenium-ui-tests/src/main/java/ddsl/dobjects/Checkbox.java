@@ -43,6 +43,7 @@ public class Checkbox extends DObject {
 		if (isChecked()) return;
 		if (isEnabled()) {
 			clickCheckbox();
+			wait.forXMillis(100);
 			return;
 		}
 		throw new Exception("Checkbox is not enabled");

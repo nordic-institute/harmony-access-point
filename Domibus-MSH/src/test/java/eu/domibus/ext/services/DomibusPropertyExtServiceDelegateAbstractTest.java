@@ -24,6 +24,9 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
     @Injectable
     protected DomainExtService domainExtService;
 
+    @Injectable
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
+
     @Test
     public void getKnownPropertyValue_global(@Mocked String propertyName,
                                              @Mocked Map<String, DomibusPropertyMetadataDTO> props,

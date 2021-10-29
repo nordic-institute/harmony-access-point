@@ -7,7 +7,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Ion Perpegel
@@ -25,6 +27,9 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Autowired
     protected DomainExtService domainExtService;
+
+    @Autowired
+    protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     public abstract Map<String, DomibusPropertyMetadataDTO> getKnownProperties();
 
@@ -151,6 +156,47 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         }
         LOG.debug("Property [{}] is not stored globally so onSetLocalPropertyValue is called.", propertyName);
         onSetLocalPropertyValue(propertyName, propertyValue);
+    }
+
+    protected abstract String getPropertiesFileName();
+
+    protected String getModulePropertiesHome() {
+        return PLUGINS_CONFIG_HOME;
+    }
+
+    @Override
+    public String getConfigurationFileName() {
+        return getModulePropertiesHome() + File.separator + getPropertiesFileName();
+    }
+
+    @Override
+    public Optional<String> getConfigurationFileName(DomainDTO domain) {
+        if (domain == null) {
+            throw new DomibusPropertyExtException("Domain cannot be null. Call the method without the domain if this is the intention.");
+        }
+
+        if (domibusConfigurationExtService.isSingleTenantAware()) {
+            throw new DomibusPropertyExtException("PLease call the method without the domain ST mode");
+        }
+
+        String propertyFileName = getDomainConfigurationFileName(domain);
+        LOG.debug("Using property file [{}]", propertyFileName);
+        return Optional.of(propertyFileName);
+    }
+
+    protected final String getDomainConfigurationFileName(DomainDTO domain) {
+        return getModulePropertiesHome() + File.separator + DOMAINS_HOME + File.separator + domain.getCode() +
+                File.separator + domain.getCode() + '-' + getPropertiesFileName();
+    }
+
+    @Override
+    public void loadProperties(DomainDTO domain) {
+        Optional<String> propFileName = getConfigurationFileName(domain);
+        if (!propFileName.isPresent()) {
+            LOG.info("No property file name provided for domain [{}]. Exiting.", domain);
+            return;
+        }
+        domibusPropertyExtService.loadProperties(domain, propFileName.get());
     }
 
     /**

@@ -34,6 +34,7 @@ import static org.apache.commons.lang3.reflect.FieldUtils.readField;
 @Service
 public class LoggingServiceImpl implements LoggingService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingServiceImpl.class);
+    protected static final String PREFIX_CLASS_ = "class ";
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -94,7 +95,9 @@ public class LoggingServiceImpl implements LoggingService {
         Predicate<Logger> nameStartsWithPredicate = p -> p.getName().startsWith(loggerName);
         Predicate<Logger> nameContainsPredicate = p -> p.getName().contains(loggerName);
         Predicate<Logger> isLoggerForClassPredicate = p -> addChildLoggers(p, showClasses);
-        Predicate<Logger> fullPredicate = (nameStartsWithPredicate.or(nameContainsPredicate)).and(isLoggerForClassPredicate);
+        //for ehCache caches having full class name in alias, Logback logger cache adds them as full packages and classes. they need to be filtered out.
+        Predicate<Logger> filterOutNameBeginWithClassPredicate = p -> !p.getName().startsWith(PREFIX_CLASS_);
+        Predicate<Logger> fullPredicate = (nameStartsWithPredicate.or(nameContainsPredicate)).and(isLoggerForClassPredicate).and(filterOutNameBeginWithClassPredicate);
 
         //filter existing loggers which starts with name
         result = loggerList.stream().filter(fullPredicate).map(this::convertToLoggingLevel).

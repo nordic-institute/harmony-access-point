@@ -12,6 +12,8 @@ import org.springframework.core.io.Resource;
 import java.io.File;
 import java.io.IOException;
 
+import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -30,7 +32,7 @@ public class DomibusPropertyConfigurationTest {
             Resource[] locations = null;
             propertiesFactoryBean.setLocations(locations = withCapture());
             Assert.assertEquals("domibus-default.properties", locations[0].getFilename());
-            Assert.assertEquals("domibus.properties", locations[1].getFilename());
+            Assert.assertEquals(DOMIBUS_PROPERTY_FILE, locations[1].getFilename());
         }};
 
     }
@@ -46,8 +48,8 @@ public class DomibusPropertyConfigurationTest {
             propertiesFactoryBean.setLocations(locations = withCapture());
 
             Assert.assertEquals("domibus-default.properties", locations[0].getFilename());
-            Assert.assertEquals("domibus.properties", locations[1].getFilename());
-            Assert.assertEquals(File.separator + domibusConfigLocation + File.separator + "domibus.properties", locations[2].getFile().getPath());
+            Assert.assertEquals(DOMIBUS_PROPERTY_FILE, locations[1].getFilename());
+            Assert.assertEquals(File.separator + domibusConfigLocation + File.separator + DOMIBUS_PROPERTY_FILE, locations[2].getFile().getPath());
         }};
     }
 
