@@ -17,8 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -259,8 +257,6 @@ public class DomibusEArchiveExtResource {
     ) {
         NotArchivedMessagesResultDTO messagesDTO = new NotArchivedMessagesResultDTO(messageStartDate, messageEndDate, pageSize, pageSize);
         messagesDTO.getMessages().addAll(domibusEArchiveExtService.getNotArchivedMessages(messageStartDate, messageEndDate, pageStart, pageSize));
-
-        // TODO implement method
         return messagesDTO;
     }
 

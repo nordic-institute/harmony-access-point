@@ -14,6 +14,8 @@ public class QueuedBatchFilterDTO {
     Date startDate;
     Date endDate;
 
+    public QueuedBatchFilterDTO() {
+    }
 
     public QueuedBatchFilterDTO(Integer lastCountRequests, BatchRequestTypeParameter requestType, Date startDate, Date endDate) {
         this.lastCountRequests = lastCountRequests;

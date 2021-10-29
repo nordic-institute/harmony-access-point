@@ -15,6 +15,8 @@ public class QueuedBatchResultDTO {
     PaginationDTO pagination;
     List<QueuedBatchDTO> queuedBatches;
 
+    public QueuedBatchResultDTO() {
+    }
 
     public QueuedBatchResultDTO(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         this.filter = filter;
