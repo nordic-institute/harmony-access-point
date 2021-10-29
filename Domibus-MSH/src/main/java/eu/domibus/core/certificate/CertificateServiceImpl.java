@@ -113,7 +113,8 @@ public class CertificateServiceImpl implements CertificateService {
                                   DomainService domainService,
                                   DomainTaskExecutor domainTaskExecutor,
                                   TruststoreDao truststoreDao,
-                                  PasswordDecryptionService passwordDecryptionService, DomainContextProvider domainContextProvider) {
+                                  PasswordDecryptionService passwordDecryptionService,
+                                  DomainContextProvider domainContextProvider) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -585,11 +586,13 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void persistTruststoresIfApplicable(String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains) {
+    public void persistTruststoresIfApplicable(String name, boolean optional,
+                                               Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier,
+                                               List<Domain> domains) {
         LOG.debug("Persisting the truststore [{}] for all domains if not yet exists", name);
         for (Domain domain : domains) {
             try {
-                persistTruststoreIfApplicable(domain, name, filePathSupplier, typeSupplier, passwordSupplier);
+                domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
             } catch (DomibusCertificateException dce) {
                 LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }
@@ -597,18 +600,24 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Finished persisting the truststore [{}] for all domains if not yet exists", name);
     }
 
-    private void persistTruststoreIfApplicable(Domain domain, String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
-        domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, filePathSupplier, typeSupplier, passwordSupplier), domain);
-    }
-
-    private void persistCurrentDomainTruststoreIfApplicable(String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
+    private void persistCurrentDomainTruststoreIfApplicable(String name, boolean optional,
+                                                            Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
         try {
             if (truststoreDao.existsWithName(name)) {
                 LOG.debug("The truststore [{}] is already persisted; exiting", name);
                 return;
             }
 
-            byte[] content = getTruststoreContentFromFile(filePathSupplier.get());
+            Optional<String> filePath = filePathSupplier.get();
+            if (!filePath.isPresent()) {
+                if (optional) {
+                    LOG.info("Trustore with type [{}] is missing and optional so exiting.", name);
+                    return;
+                }
+                throw new DomibusCertificateException(String.format("Trustore with type [%s] is missing and is not optional.", name));
+            }
+
+            byte[] content = getTruststoreContentFromFile(filePath.get());
 
             TruststoreEntity entity = new TruststoreEntity();
             entity.setName(name);
@@ -618,8 +627,8 @@ public class CertificateServiceImpl implements CertificateService {
 
             truststoreDao.create(entity);
         } catch (Exception ex) {
-            LOG.error(String.format("The truststore [%s] could not be persisted! " +
-                    "Please check that the trustsore file is located and the location property is set accordingly.", name), ex);
+            LOG.error(String.format("The truststore [%s], whose file location is [%s], could not be persisted! " +
+                    "Please check that the truststore file is present and the location property is set accordingly.", name, filePathSupplier.get()), ex);
         }
     }
 

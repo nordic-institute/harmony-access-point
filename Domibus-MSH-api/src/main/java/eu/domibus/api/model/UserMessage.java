@@ -23,13 +23,19 @@ import java.util.Set;
 })
 @NamedNativeQueries({
         @NamedNativeQuery(
+                name    =   "UserMessage.findPartitionsForUser_ORACLE",
+                query   =   "SELECT partition_name FROM all_tab_partitions WHERE table_owner = :DB_USER and table_name = :TNAME and partition_name <= :PNAME"
+        ),
+        @NamedNativeQuery(
                 name    =   "UserMessage.findPartitions_ORACLE",
-                query   =   "SELECT partition_name FROM user_tab_partitions WHERE table_name = 'TB_USER_MESSAGE' and partition_name <= :PNAME"
+                query   =   "SELECT partition_name FROM user_tab_partitions WHERE table_name = :TNAME and partition_name <= :PNAME"
         )
 })
 @Entity
-@Table(name = "TB_USER_MESSAGE")
+@Table(name = UserMessage.TB_USER_MESSAGE)
 public class UserMessage extends AbstractBaseEntity {
+
+    public static final String TB_USER_MESSAGE = "TB_USER_MESSAGE";
 
     public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";
     public static final long DEFAULT_USER_MESSAGE_ID_PK = 19700101; // 1st of January 1970

@@ -22,7 +22,8 @@ BEGIN
             AND   object_type IN (
                 'TABLE',
                 'VIEW',
-                'SEQUENCE'
+                'SEQUENCE',
+                'PROCEDURE'
             )
     ) LOOP
         IF
@@ -43,6 +44,17 @@ BEGIN
             )
         THEN
             sql_stmt := 'GRANT SELECT ON '
+            || DOMAIN_SCHEMA || '.'
+            || t.object_name
+            || ' TO ' || GENERAL_SCHEMA;
+            EXECUTE IMMEDIATE sql_stmt;
+            DBMS_OUTPUT.PUT_LINE(sql_stmt);
+        ELSIF
+            t.object_type IN (
+                'PROCEDURE'
+            )
+        THEN
+            sql_stmt := 'GRANT EXECUTE ON '
             || DOMAIN_SCHEMA || '.'
             || t.object_name
             || ' TO ' || GENERAL_SCHEMA;

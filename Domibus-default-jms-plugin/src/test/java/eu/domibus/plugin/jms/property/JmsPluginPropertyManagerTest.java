@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -32,6 +33,8 @@ public class JmsPluginPropertyManagerTest {
     @Injectable
     protected DomainExtService domainExtService;
 
+    @Injectable
+    DomibusConfigurationExtService domibusConfigurationExtService;
 
     private final String jmsProperty = "jmsplugin.fromPartyId";
     private final String testValue = "new-value";

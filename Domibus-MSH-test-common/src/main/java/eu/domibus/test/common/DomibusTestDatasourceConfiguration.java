@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.sql.DataSource;
 import java.util.TimeZone;
@@ -27,6 +28,11 @@ public class DomibusTestDatasourceConfiguration {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Bean
+    public AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext() {
+        return new AnnotationConfigWebApplicationContext();
+    }
 
     @Primary
     @Bean(name = {DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE}, destroyMethod = "close")
