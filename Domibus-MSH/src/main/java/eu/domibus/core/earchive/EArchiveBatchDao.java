@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.core.dao.BasicDao;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +44,11 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     @Transactional
-    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
-        eArchiveBatchByBatchId.seteArchiveBatchStatus(status);
+    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error) {
+        eArchiveBatchByBatchId.setEArchiveBatchStatus(status);
+        if(StringUtils.isNotBlank(error)) {
+            eArchiveBatchByBatchId.setError(error);
+        }
         update(eArchiveBatchByBatchId);
     }
 }

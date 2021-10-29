@@ -1,12 +1,12 @@
 package eu.domibus.core.earchive.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
-import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
@@ -15,15 +15,14 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Message;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author François Gautier
@@ -43,13 +42,13 @@ public class EArchiveListenerTest {
     private DatabaseUtil databaseUtil;
 
     @Injectable
-    private EArchiveBatchDao eArchiveBatchDao;
-
-    @Injectable
-    private UserMessageLogDefaultService userMessageLogDefaultService;
+    private EArchivingDefaultService eArchivingDefaultService;
 
     @Injectable
     private JmsUtil jmsUtil;
+
+    @Injectable
+    private ObjectMapper jsonMapper;
 
     private String batchId;
 
@@ -97,8 +96,8 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
-            result = null;
+            eArchivingDefaultService.getEArchiveBatch(entityId);
+            result = new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
         }};
 
         eArchiveListener.onMessage(message);
@@ -120,7 +119,7 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+            eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
 
             eArchiveBatch.getMessageIdsJson();
@@ -138,7 +137,9 @@ public class EArchiveListenerTest {
     @Test
     public void onMessage_ok(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
-                                     @Injectable FileObject fileObject) throws FileSystemException {
+                                     @Injectable FileObject fileObject) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        byte[] bytes = objectMapper.writeValueAsString(new ListUserMessageDto(userMessageDTOS)).getBytes(StandardCharsets.UTF_8);
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -149,11 +150,14 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+            eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
 
             eArchiveBatch.getMessageIdsJson();
-            result = new Gson().toJson(new ListUserMessageDto(userMessageDTOS), ListUserMessageDto.class).getBytes(StandardCharsets.UTF_8);
+            result = bytes;
+
+            jsonMapper.readValue(anyString, (Class) any);
+            result = objectMapper.readValue(new String(bytes,StandardCharsets.UTF_8), ListUserMessageDto.class);
 
             eArchiveBatch.getDateRequested();
             result = new Date();
@@ -161,7 +165,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = RequestType.CONTINUOUS;
 
-            eArchiveBatch.geteArchiveBatchStatus();
+            eArchiveBatch.getEArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);
@@ -178,14 +182,12 @@ public class EArchiveListenerTest {
             jmsUtil.setDomain(message);
             times = 1;
 
-            userMessageLogDefaultService.updateStatusToArchived(userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList()));
+            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<UserMessageDTO>) any);
             times = 1;
 
             fileObject.close();
 
-            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
-            times = 1;
-            eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.EXPORTED);
+            eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
         }};
     }

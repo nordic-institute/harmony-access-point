@@ -260,7 +260,13 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         }
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createEArchiveMessageListenerContainer(domain);
         instance.start();
+        DomainMessageListenerContainer instance1 = messageListenerContainerFactory.createEArchiveNotificationListenerContainer(domain);
+        instance1.start();
+        DomainMessageListenerContainer instance2 = messageListenerContainerFactory.createEArchiveNotificationDlqListenerContainer(domain);
+        instance2.start();
         instances.add(instance);
+        instances.add(instance1);
+        instances.add(instance2);
         LOG.info("EArchiveListenerContainer initialized for domain [{}]", domain);
     }
 
