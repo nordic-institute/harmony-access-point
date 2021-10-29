@@ -24,8 +24,7 @@ public class MessagePropertyDaoIT extends AbstractIT {
         final String name = "prop1";
         final String value = "value1";
         final String type = "string";
-        MessageProperty property = buildProperty(name, value, type);
-        propertyDao.create(property);
+        final MessageProperty property = propertyDao.findOrCreateProperty(name, value, type);
 
         final MessageProperty foundProperty = propertyDao.findOrCreateProperty(name, value, type);
         assertNotNull(foundProperty);
@@ -45,8 +44,7 @@ public class MessagePropertyDaoIT extends AbstractIT {
         final String name = "prop1";
         final String value = "value1";
         final String type = null;
-        MessageProperty property = buildProperty(name, value, type);
-        propertyDao.create(property);
+        final MessageProperty property = propertyDao.findOrCreateProperty(name, value, type);
 
         final MessageProperty foundProperty = propertyDao.findOrCreateProperty(name, value, type);
         assertNotNull(foundProperty);
@@ -84,12 +82,4 @@ public class MessagePropertyDaoIT extends AbstractIT {
         Assert.assertNotEquals(foundEntity1.getEntityId(), foundEntity4.getEntityId());
     }
 
-
-    private MessageProperty buildProperty(String name, String value, String type) {
-        MessageProperty property = new MessageProperty();
-        property.setName(name);
-        property.setValue(value);
-        property.setType(type);
-        return property;
-    }
 }
