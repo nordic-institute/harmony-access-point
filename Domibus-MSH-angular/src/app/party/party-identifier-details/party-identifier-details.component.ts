@@ -22,4 +22,22 @@ export class PartyIdentifierDetailsComponent extends EditPopupBaseComponent impl
   ngOnInit() {
   }
 
+  get partyIdTypeName(): string {
+    return this.partyIdentifier.partyIdType && this.partyIdentifier.partyIdType.name;
+  }
+
+  set partyIdTypeName(val: string) {
+    this.partyIdentifier.partyIdType = {...this.partyIdentifier.partyIdType, name: val};
+  }
+
+
+  get partyIdTypeValue(): string {
+    return this.partyIdentifier.partyIdType && this.partyIdentifier.partyIdType.value;
+
+  }
+
+  set partyIdTypeValue(val: string) {
+    this.partyIdentifier.partyIdType = {...this.partyIdentifier.partyIdType, value: val};
+  }
+
 }
