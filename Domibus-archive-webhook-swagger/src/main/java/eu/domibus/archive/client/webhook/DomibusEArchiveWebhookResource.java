@@ -1,6 +1,5 @@
 package eu.domibus.archive.client.webhook;
 
-
 import eu.domibus.archive.client.webhook.model.BatchNotification;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -16,7 +15,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-
 /**
  * The class is webhook eArchive domibus REST API example based on "standard" javax RS API annotations. The purpose of the class is to
  * generate OpenAPI document. The class can be used also by the java developers to implement Webhook REST API endpoints.
@@ -31,7 +29,6 @@ import javax.ws.rs.PathParam;
  * @author Joze Rihtarsic
  * @since 5.0
  */
-
 @OpenAPIDefinition(
         info = @Info(
                 title = "DomibusArchiveWebhook eArchive client's servlet API",
