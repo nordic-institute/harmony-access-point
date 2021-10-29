@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.job;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -50,6 +51,8 @@ public class EArchivingJobServiceTest {
     private EArchiveBatchStartDao eArchiveBatchStartDao;
     @Injectable
     private NoArgGenerator uuidGenerator;
+    @Injectable
+    private ObjectMapper domibusJsonMapper;
 
     @Test
     public void getMpcs() {

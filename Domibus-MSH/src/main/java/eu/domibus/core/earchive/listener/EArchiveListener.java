@@ -1,6 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
@@ -15,11 +15,13 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -43,15 +45,19 @@ public class EArchiveListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
+    private final ObjectMapper jsonMapper;
+
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchivingDefaultService,
-            JmsUtil jmsUtil) {
+            JmsUtil jmsUtil,
+            @Qualifier("domibusJsonMapper") ObjectMapper jsonMapper) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
         this.jmsUtil = jmsUtil;
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -114,6 +120,11 @@ public class EArchiveListener implements MessageListener {
     }
 
     private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatchEntity eArchiveBatchByBatchId) {
-        return new Gson().fromJson(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
+        String content = new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8);
+        try {
+            return jsonMapper.readValue(content, ListUserMessageDto.class);
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Could not convert [" + content + "] to ListUserMessageDto", e);
+        }
     }
 }

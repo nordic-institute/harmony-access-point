@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
@@ -14,12 +15,12 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Message;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -45,6 +46,9 @@ public class EArchiveListenerTest {
 
     @Injectable
     private JmsUtil jmsUtil;
+
+    @Injectable
+    private ObjectMapper jsonMapper;
 
     private String batchId;
 
@@ -133,7 +137,9 @@ public class EArchiveListenerTest {
     @Test
     public void onMessage_ok(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
-                                     @Injectable FileObject fileObject) throws FileSystemException {
+                                     @Injectable FileObject fileObject) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        byte[] bytes = objectMapper.writeValueAsString(new ListUserMessageDto(userMessageDTOS)).getBytes(StandardCharsets.UTF_8);
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -148,7 +154,10 @@ public class EArchiveListenerTest {
             result = eArchiveBatch;
 
             eArchiveBatch.getMessageIdsJson();
-            result = new Gson().toJson(new ListUserMessageDto(userMessageDTOS), ListUserMessageDto.class).getBytes(StandardCharsets.UTF_8);
+            result = bytes;
+
+            jsonMapper.readValue(anyString, (Class) any);
+            result = objectMapper.readValue(new String(bytes,StandardCharsets.UTF_8), ListUserMessageDto.class);
 
             eArchiveBatch.getDateRequested();
             result = new Date();

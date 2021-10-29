@@ -1,7 +1,8 @@
 package eu.domibus.core.earchive.job;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
-import com.google.gson.Gson;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -13,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,18 +50,21 @@ public class EArchivingJobService {
 
     private final NoArgGenerator uuidGenerator;
 
+    private final ObjectMapper objectMapper;
 
     public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                 DomibusPropertyProvider domibusPropertyProvider,
                                 PModeProvider pModeProvider,
                                 EArchiveBatchDao eArchiveBatchDao,
                                 EArchiveBatchStartDao eArchiveBatchStartDao,
+                                @Qualifier("domibusJsonMapper") ObjectMapper jsonMapper,
                                 NoArgGenerator uuidGenerator) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
+        this.objectMapper = jsonMapper;
         this.uuidGenerator = uuidGenerator;
     }
 
@@ -91,7 +96,7 @@ public class EArchivingJobService {
         entity.setRequestType(RequestType.CONTINUOUS);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
-        entity.setMessageIdsJson(new Gson().toJson(userMessageToBeArchived, ListUserMessageDto.class));
+        entity.setMessageIdsJson(getRawJson(userMessageToBeArchived));
         entity.setLastPkUserMessage(lastEntity);
         entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
@@ -99,7 +104,15 @@ public class EArchivingJobService {
         return entity;
     }
 
-    public long getMaxEntityIdToArchived() {//211029079999999999
+    private String getRawJson(ListUserMessageDto userMessageToBeArchived) {
+        try {
+            return objectMapper.writeValueAsString(userMessageToBeArchived);
+        } catch (JsonProcessingException e) {
+            throw new DomibusEArchiveException("Could not parse the list of userMessages", e);
+        }
+    }
+
+    public long getMaxEntityIdToArchived() {
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(getRetryTimeOut())
