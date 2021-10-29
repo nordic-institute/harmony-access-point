@@ -34,6 +34,17 @@ public class AlertArea extends DComponent {
 		} catch (Exception e) {}
 	}
 
+	public void waitForAlertSucces() throws Exception {
+		waitForAlert();
+
+		DObject alertObject = new DObject(driver, alertContainer);
+		if (!alertObject.isPresent()) {
+			throw new Exception("Alert message not present");
+		}
+		wait.forAttributeToContain(alertContainer, "class", "success");
+
+	}
+
 	public void closeAlert() throws Exception{
 		weToDobject(closeButton).click();
 	}
@@ -61,8 +72,7 @@ public class AlertArea extends DComponent {
 	public boolean isError() throws Exception {
 		try {
 			wait.forElementToBeVisible(alertContainer, true);
-		} catch (Exception e) {
-		}
+		} catch (Exception e) {	}
 
 		DObject alertObject = new DObject(driver, alertContainer);
 

@@ -2,11 +2,14 @@ package eu.domibus.plugin.ws.property;
 
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.plugin.ws.property.listeners.MtomEnabledChangeListener;
 import eu.domibus.plugin.ws.property.listeners.SchemaValidationEnabledChangeListener;
 import junit.framework.TestCase;
-import mockit.*;
+import mockit.Injectable;
+import mockit.Mocked;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,6 +39,9 @@ public class WSPluginPropertyManagerTest extends TestCase {
 
     @Injectable
     DomainExtService domainExtService;
+
+    @Injectable
+    DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Test
     public void getKnownProperties() {

@@ -129,4 +129,6 @@ public interface DomibusPropertyExtService {
      **/
     default void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast) {
     }
+
+    void loadProperties(DomainDTO domain, String propertiesFilePath);
 }

@@ -113,17 +113,6 @@ public class ApplicationResource {
         return domibusConfigurationService.isMultiTenantAware();
     }
 
-    /**
-     * Retrieve all configured domains in multi-tenancy mode
-     *
-     * @return a list of domains
-     */
-    @RequestMapping(value = "domains", method = RequestMethod.GET)
-    public List<DomainRO> getDomains() {
-        LOG.debug("Getting domains");
-        return coreMapper.domainListToDomainROList(domainService.getDomains());
-    }
-
     @RequestMapping(value = "fourcornerenabled", method = RequestMethod.GET)
     public boolean getFourCornerModelEnabled() {
         LOG.debug("Getting four corner enabled");

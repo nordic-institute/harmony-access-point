@@ -1,0 +1,140 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "DomibusArchiveWebhook eArchive client's servlet API",
+    "description" : "In order to fully integrate with the Domibus, an archiving client MUST implement the REST API message notification methods. Domibus will notify the archiving client each time it will export or delete a batch. The REST endpoint URLs that Domibus will use to notify the archiving client must be statically configured in the Domibus properties.",
+    "contact" : {
+      "name" : "Domibus",
+      "url" : "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus"
+    },
+    "license" : {
+      "name" : "EUPL 1.2",
+      "url" : "https://www.eupl.eu/"
+    },
+    "version" : "v1.0"
+  },
+  "externalDocs" : {
+    "description" : "Domibus page",
+    "url" : "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus"
+  },
+  "tags" : [ {
+    "name" : "archive-webhook",
+    "description" : "The REST endpoint URLs that Domibus will use to notify the archiving client each time it will export a batch."
+  } ],
+  "paths" : {
+    "/domibus-archive-client/webhook/{batch_id}/export-notification" : {
+      "put" : {
+        "tags" : [ "archive-webhook" ],
+        "summary" : "Receive notification when a batch has been exported in the shared folder",
+        "description" : "Domibus notifies the archiving client when a batch has been exported in the shared folder. The notification is performed for a successful and for a failed export.",
+        "operationId" : "putExportNotification",
+        "parameters" : [ {
+          "name" : "batch_id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Notification message on export event for the batch",
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BatchNotification"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Bad request"
+          },
+          "404" : {
+            "description" : "Batch ID not found"
+          }
+        }
+      }
+    },
+    "/domibus-archive-client/webhook/{batch_id}/stale-notification" : {
+      "put" : {
+        "tags" : [ "archive-webhook" ],
+        "summary" : "Receive notification when an expired batch has been deleted",
+        "description" : "Domibus notifies the archiving client when it deletes an expired batch.",
+        "operationId" : "putStaleNotification",
+        "parameters" : [ {
+          "name" : "batch_id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Notification message on delete for expired batch",
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BatchNotification"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Bad request"
+          },
+          "404" : {
+            "description" : "Batch ID not found"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "BatchNotification" : {
+        "type" : "object",
+        "properties" : {
+          "batchId" : {
+            "type" : "string"
+          },
+          "requestType" : {
+            "type" : "string",
+            "enum" : [ "CONTINUOUS", "MANUAL" ]
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "EXPORTED", "ARCHIVED", "ARCHIVE_FAILED", "EXPIRED", "DELETED" ]
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "messageStartDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "messageEndDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "messages" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "errorCode" : {
+            "type" : "string"
+          },
+          "errorDescription" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}

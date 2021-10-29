@@ -58,11 +58,7 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     public void createStaticDictionaryEntries() {
         LOG.debug("Start checking and creating static dictionary entries if missing");
 
-        Runnable createEntriesCall = () -> {
-            Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
-            Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
-            Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
-        };
+        Runnable createEntriesCall = createEntriesCall();
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Start checking and creating static dictionary entries in single tenancy mode");
@@ -70,7 +66,33 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
             return;
         }
 
-        Runnable transactionWrappedCall = () -> {
+        final List<Domain> domains = domainService.getDomains();
+        createEntries(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        createEntries(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void createEntries(Domain domain) {
+        createEntries(Arrays.asList(domain));
+    }
+
+    private void createEntries(List<Domain> domains) {
+        Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall());
+        for (Domain domain : domains) {
+            LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
+            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);
+        }
+    }
+
+    private Runnable transactionWrappedCall(Runnable createEntriesCall) {
+        return () -> {
             new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     try {
@@ -81,12 +103,14 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
                 }
             });
         };
+    }
 
-        final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
-            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);
-        }
+    private Runnable createEntriesCall() {
+        return () -> {
+            Arrays.stream(MessageStatus.values()).forEach(messageStatus -> messageStatusDao.findOrCreate(messageStatus));
+            Arrays.stream(NotificationStatus.values()).forEach(notificationStatus -> notificationStatusDao.findOrCreate(notificationStatus));
+            Arrays.stream(MSHRole.values()).forEach(mshRole -> mshRoleDao.findOrCreate(mshRole));
+        };
     }
 
 }

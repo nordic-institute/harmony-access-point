@@ -24,6 +24,7 @@ public class Command {
     public static final String MESSAGE_FILTER_UPDATE = "MESSAGE_FILTER_UPDATE";
     public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
     public static final String RELOAD_TLS_TRUSTSTORE = "RELOAD_TLS_TRUSTSTORE";
+    public static final String DOMAIN_ADDED = "DOMAIN_ADDED";
 
     private long entityId;
     protected String commandName;

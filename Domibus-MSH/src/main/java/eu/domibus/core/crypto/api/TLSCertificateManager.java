@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.api;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 5.0
  */
-public interface TLSCertificateManager {
+public interface TLSCertificateManager extends DomainsAware {
 
     /**
      * Replaces the truststore pointed by the clientauthentication.xml file with the one provided as parameters

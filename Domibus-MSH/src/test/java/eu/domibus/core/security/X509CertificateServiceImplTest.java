@@ -23,9 +23,9 @@ import static org.junit.Assert.assertNotNull;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class X509CertificateEbms3ServiceImplTest {
+public class X509CertificateServiceImplTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateEbms3ServiceImplTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateServiceImplTest.class);
 
     @Injectable
     private CertificateServiceImpl certificateService;

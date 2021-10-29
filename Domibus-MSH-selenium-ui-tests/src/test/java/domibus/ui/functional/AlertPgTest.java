@@ -325,7 +325,6 @@ public class AlertPgTest extends SeleniumTest {
 
 	}
 
-	//This method will verify alert for user login failure case
     /* EDELIVERY-5299 - ALRT-17 - Check data for USERLOGINFAILURE alert */
 	@Test(description = "ALRT-17", groups = {"multiTenancy", "singleTenancy"})
 	public void userLoginFailureAlert() throws Exception {
@@ -348,7 +347,7 @@ public class AlertPgTest extends SeleniumTest {
 		log.info("Check if multidomain exists");
 		if (data.isMultiDomain()) {
 			log.info("Select show domain check box");
-			page.filters().getShowDomainCheckbox().click();
+			page.filters().getShowDomainCheckbox().check();
 		}
 
 		log.info("Click on search button");
@@ -356,9 +355,22 @@ public class AlertPgTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		log.info("Validate presence of alert data for user_login_failure alert type for given user");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Type").contains("USER_LOGIN_FAILURE"), "Top row contains alert type as USER_LOGIN_FAILURE");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Alert Level").contains("LOW"), "Top row contains alert level as low");
-		soft.assertTrue(page.grid().getRowInfo(0).get("Parameters").contains(username), "Top row contains alert type as USER_LOGIN_FAILURE");
+		ArrayList<HashMap<String, String>> listedInfo = page.grid().getListedRowInfo();
+
+		boolean found = false;
+		for (HashMap<String, String> map : listedInfo) {
+			if (map.get("Parameters").contains(username)){
+				found = true;
+				soft.assertTrue(map.get("Alert Type").contains("USER_LOGIN_FAILURE"), "Alert for disabled account is shown ");
+				soft.assertTrue(map.get("Alert Level").contains("LOW"), "Disable account alert is of High level");
+				soft.assertTrue(map.get("Parameters").contains(username), "Alert for user : " + username + "disabled account is shown here");
+			}
+		}
+
+		soft.assertTrue(found, "Alert for the blocked user was found");
+
+
+
 		soft.assertAll();
 	}
 
@@ -381,28 +393,39 @@ public class AlertPgTest extends SeleniumTest {
 			}
 		}
 
-		AlertPage apage = new AlertPage(driver);
+		AlertPage page = new AlertPage(driver);
 		log.info("Login with Super/admin user");
-		apage.getSidebar().goToPage(PAGES.ALERTS);
+		page.getSidebar().goToPage(PAGES.ALERTS);
 		log.info("Navigate to Alerts page");
 
 		log.info("Search by basic filter for alert type : user account disabled");
-		apage.filters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
+		page.filters().basicFilterBy(null, "USER_ACCOUNT_DISABLED", null, null, null, null);
 
 		log.info("Check if multi domain exists");
 		if (data.isMultiDomain()) {
 			log.info("Check show domain alert checkbox");
-			apage.filters().getShowDomainCheckbox().click();
+			page.filters().getShowDomainCheckbox().check();
 			log.info("Click on search button");
-			apage.filters().getSearchButton().click();
+			page.filters().getSearchButton().click();
 		}
 
-		apage.grid().waitForRowsToLoad();
+		page.grid().waitForRowsToLoad();
 
-		log.info("Validate top row for user account disabled alert type for given user");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Type").contains("USER_ACCOUNT_DISABLED"), "Alert for disabled account is shown ");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Alert Level").contains("HIGH"), "Disable account alert is of High level");
-		soft.assertTrue(apage.grid().getRowInfo(0).get("Parameters").contains(username), "Alert for user : " + username + "disabled account is shown here");
+		log.info("Validate row for user account disabled alert type for given user");
+		ArrayList<HashMap<String, String>> listedInfo = page.grid().getListedRowInfo();
+
+		boolean found = false;
+		for (HashMap<String, String> map : listedInfo) {
+			if (map.get("Parameters").contains(username)){
+				found = true;
+				soft.assertTrue(map.get("Alert Type").contains("USER_ACCOUNT_DISABLED"), "Alert for disabled account is shown ");
+				soft.assertTrue(map.get("Alert Level").contains("HIGH"), "Disable account alert is of High level");
+				soft.assertTrue(map.get("Parameters").contains(username), "Alert for user : " + username + "disabled account is shown here");
+			}
+		}
+
+		soft.assertTrue(found, "Alert for the blocked user was found");
+
 		soft.assertAll();
 
 	}
@@ -412,9 +435,7 @@ public class AlertPgTest extends SeleniumTest {
 	public void pluginUserLoginFailure() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-//		 = Gen.randomAlphaNumeric(10);
-//		rest.pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), null);
-		String user = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+		String user = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, true).getString("userName");
 		log.info("Using plugin user " + user);
 
 		if (!data.isMultiDomain()) {

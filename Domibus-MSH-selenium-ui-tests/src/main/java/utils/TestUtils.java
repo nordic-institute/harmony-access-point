@@ -183,7 +183,54 @@ public class TestUtils {
 		Collections.sort(l2);
 		return ListUtils.isEqualList(l1, l2);
 	}
-	
+
+	public static boolean isEqualMapListContent(List<HashMap<String, String>> l1, List<HashMap<String, String>> l2) {
+		l1 = ListUtils.emptyIfNull(l1);
+		l2 = ListUtils.emptyIfNull(l2);
+
+		if(l1.size() != l2.size()){return false;}
+
+		for (HashMap<String, String> l1map : l1) {
+			boolean found = false;
+
+			for (HashMap<String, String> l2map : l2) {
+				if(areHashMapsEqual(l1map, l2map)){
+					found = true;
+					break;
+				}
+			}
+			if(!found){return false;}
+		}
+
+		return true;
+	}
+
+	public static boolean areHashMapsEqual(HashMap<String, String> map1, HashMap<String, String>  map2){
+
+		if ((null == map1 && null != map2) || (null == map2 && null != map1)){
+			return false;
+		}
+
+		if (null == map1 && null == map2){
+			return true;
+		}
+
+		if (map1.keySet().size() != map2.keySet().size()){
+			return false;
+		}
+
+		for (String k : map1.keySet()) {
+			if (!map2.containsKey(k)){
+				return false;
+			}
+
+			if(!StringUtils.equalsIgnoreCase(map1.get(k), map2.get(k))){
+				return false;
+			}
+		}
+
+		return true;
+	}
 	
 	public static HashMap<String, String> unzip(String zipFilePath) throws Exception {
 		
