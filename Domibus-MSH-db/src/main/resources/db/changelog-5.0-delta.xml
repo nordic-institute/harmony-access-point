@@ -538,10 +538,6 @@
                                  constraintName="FK_EARCHIVE_BATCH_ID_FTR" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EARCHIVE_BATCH"/>
-        <addForeignKeyConstraint baseColumnNames="FK_USER_MESSAGE_ID" baseTableName="TB_EARCHIVEBATCH_UM"
-                                 constraintName="FK_USER_MESSAGE_ID_FTR" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
         <createTable tableName="TB_EARCHIVE_START">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_START"/>
