@@ -20,8 +20,24 @@ Domibus 5.0 (from 4.2.3)
                         to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-jms-plugin.properties)
                     Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
                 - [Tomcat only]
-                     Modify file "/conf/domibus/domibus.properties":
                          o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
+                             - in the policies section add the following:
+                              .............................
+                                            <policyEntries>
+                                             .............................
+                                                 <policyEntry queue="domibus.internal.earchive.notification.queue">
+                                                     <deadLetterStrategy>
+                                                         <!--<individualDeadLetterStrategy queuePrefix="DLQ."/>-->
+                                                         <sharedDeadLetterStrategy processExpired="false">
+                                                             <deadLetterQueue>
+                                                                 <queue physicalName="domibus.internal.earchive.notification.dlq"/>
+                                                             </deadLetterQueue>
+                                                         </sharedDeadLetterStrategy>
+                                                     </deadLetterStrategy>
+                                                     <dispatchPolicy>
+                                                         <priorityDispatchPolicy/>
+                                                     </dispatchPolicy>
+                                                 </policyEntry>
                              - in the destinations section add the following queues:
                                         .............................
                                         <destinations>
@@ -34,15 +50,14 @@ Domibus 5.0 (from 4.2.3)
                                              <redeliveryPolicyEntries>
                                                  .............................
                                                  <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
-                                                 <redeliveryPolicy queue="domibus.internal.earchive.notification.queue"/>
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.notification.queue" maximumRedeliveries="6" redeliveryDelay="1800000"/>/>
                                                  <redeliveryPolicy queue="domibus.internal.earchive.notification.dlq" maximumRedeliveries="0"/>
                               -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
                                             - original:
                                                 <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
                                             -new configuration:
-                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue domibus.internal.earchive.notification.queue domibus.internal.earchive.notification.dlq" reportInterval="10000"/>
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue domibus.internal.earchive.notification.dlq" reportInterval="10000"/>
                 - [Wildfly only]
-                    Modify file "/conf/domibus/domibus.properties":
                          o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                           - add the following queues in the destination section
                                       .............................

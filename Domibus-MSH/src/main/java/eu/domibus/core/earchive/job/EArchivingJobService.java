@@ -69,7 +69,7 @@ public class EArchivingJobService {
     }
 
     @Transactional
-    public void updateLastEntityIdArchived(Long lastPkUserMessage) {
+    public void updateLastEntityIdExported(Long lastPkUserMessage) {
         eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).setLastPkUserMessage(lastPkUserMessage);
     }
 
@@ -99,7 +99,7 @@ public class EArchivingJobService {
         return entity;
     }
 
-    public long getMaxEntityIdToArchived() {
+    public long getMaxEntityIdToArchived() {//211029079999999999
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(getRetryTimeOut())

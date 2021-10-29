@@ -23,13 +23,12 @@ public class EArchiveErrorHandler implements ErrorHandler {
 
     private final EArchivingDefaultService eArchivingDefaultService;
 
-
     public EArchiveErrorHandler(EArchivingDefaultService eArchivingDefaultService) {
         this.eArchivingDefaultService = eArchivingDefaultService;
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey(DomibusLogger.MDC_BATCH_ENTITY_ID)
     @Transactional
     public void handleError(Throwable t) {
 

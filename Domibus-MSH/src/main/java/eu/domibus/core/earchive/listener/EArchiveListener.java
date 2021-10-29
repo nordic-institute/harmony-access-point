@@ -6,7 +6,6 @@ import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
-import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.JmsUtil;
@@ -42,20 +41,16 @@ public class EArchiveListener implements MessageListener {
 
     private final EArchivingDefaultService eArchivingDefaultService;
 
-    private final UserMessageLogDefaultService userMessageLogDefaultService;
-
     private final JmsUtil jmsUtil;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchivingDefaultService,
-            UserMessageLogDefaultService userMessageLogDefaultService,
             JmsUtil jmsUtil) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
-        this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsUtil = jmsUtil;
     }
 
