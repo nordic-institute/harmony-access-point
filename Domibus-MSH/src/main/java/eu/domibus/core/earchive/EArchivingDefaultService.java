@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final EArchiveBatchStartDao eArchiveBatchStartDao;
 
+    // circular dependency on Wildfly use lazy initialization
     private final UserMessageLogDefaultService userMessageLogDefaultService;
 
     private final EArchiveBatchDao eArchiveBatchDao;
@@ -49,7 +51,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     private final Queue eArchiveNotificationQueue;
 
     public EArchivingDefaultService(EArchiveBatchStartDao eArchiveBatchStartDao,
-                                    UserMessageLogDefaultService userMessageLogDefaultService,
+                                    @Lazy UserMessageLogDefaultService userMessageLogDefaultService,
                                     EArchiveBatchDao eArchiveBatchDao,
                                     JMSManager jmsManager,
                                     @Qualifier(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE) Queue eArchiveNotificationQueue) {
