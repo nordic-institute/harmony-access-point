@@ -46,6 +46,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final EArchiveBatchDao eArchiveBatchDao;
     private final EArchiveBatchStartDao eArchiveBatchStartDao;
+
+    // circular dependency on Wildfly use lazy initialization
     private final EArchiveBatchMapper eArchiveBatchMapper;
     private final EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
     private final DomainContextProvider domainContextProvider;
