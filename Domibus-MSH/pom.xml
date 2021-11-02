@@ -563,6 +563,12 @@
                 <directory>src/main/conf/domibus</directory>
                 <filtering>true</filtering>
             </testResource>
+            <testResource>
+                <!-- set h2 DDL scripts for integration tests -->
+                <directory>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</directory>
+                <targetPath>config/database</targetPath>
+                <filtering>true</filtering>
+            </testResource>
         </testResources>
         <plugins>
             <!-- Generation of the OpenApi client -->
