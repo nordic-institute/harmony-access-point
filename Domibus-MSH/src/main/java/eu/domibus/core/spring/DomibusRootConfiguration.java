@@ -7,6 +7,10 @@ import org.springframework.context.annotation.*;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.io.File;
+
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_HOME;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -16,7 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         "classpath:META-INF/cxf/cxf-extension-jaxws.xml",
         "classpath:META-INF/cxf/cxf-servlet.xml",
         "classpath*:config/*-plugin.xml",
-        "file:///${domibus.config.location}/plugins/config/*-plugin.xml",
+        "file:///${domibus.config.location}/"+ PLUGINS_CONFIG_HOME + "/*-plugin.xml",
         "classpath*:META-INF/resources/WEB-INF/cxf-endpoint.xml"
 })
 @ComponentScan(

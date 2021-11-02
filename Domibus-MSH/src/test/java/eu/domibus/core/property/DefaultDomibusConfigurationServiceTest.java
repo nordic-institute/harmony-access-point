@@ -17,6 +17,7 @@ import org.slf4j.ext.LoggerWrapper;
 import java.io.File;
 
 import static eu.domibus.api.property.DomibusConfigurationService.PASSWORD_ENCRYPTION_ACTIVE_PROPERTY;
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.DOMAINS_HOME;
 
 /**
  * @author Cosmin Baciu
@@ -109,6 +110,6 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String domainConfigurationFileName = defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
-        Assert.assertEquals("domains" + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
+        Assert.assertEquals(DOMAINS_HOME + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
     }
 }

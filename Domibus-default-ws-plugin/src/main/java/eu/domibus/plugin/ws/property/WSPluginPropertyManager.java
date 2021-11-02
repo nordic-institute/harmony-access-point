@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.property;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
@@ -75,5 +76,10 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return knownProperties;
+    }
+
+    @Override
+    protected String getPropertiesFileName() {
+        return "ws-plugin.properties";
     }
 }

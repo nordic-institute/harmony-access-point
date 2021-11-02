@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.job;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -33,10 +34,10 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class EArchiveBatchServiceTest {
+public class EArchivingJobServiceTest {
 
     @Tested
-    private EArchiveBatchService eArchiveBatchService;
+    private EArchivingJobService eArchivingJobService;
 
     @Injectable
     private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
@@ -50,6 +51,8 @@ public class EArchiveBatchServiceTest {
     private EArchiveBatchStartDao eArchiveBatchStartDao;
     @Injectable
     private NoArgGenerator uuidGenerator;
+    @Injectable
+    private ObjectMapper domibusJsonMapper;
 
     @Test
     public void getMpcs() {
@@ -58,7 +61,7 @@ public class EArchiveBatchServiceTest {
             domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_BATCH_MPCS);
             result = "test1, test2,test3";
         }};
-        List<String> mpcs = eArchiveBatchService.getMpcs();
+        List<String> mpcs = eArchivingJobService.getMpcs();
         Assert.assertEquals("test1", mpcs.get(0));
         Assert.assertEquals("test2", mpcs.get(1));
         Assert.assertEquals("test3", mpcs.get(2));
@@ -72,7 +75,7 @@ public class EArchiveBatchServiceTest {
             domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_BATCH_MPCS);
             result = null;
         }};
-        List<String> mpcs = eArchiveBatchService.getMpcs();
+        List<String> mpcs = eArchivingJobService.getMpcs();
         assertTrue(mpcs.isEmpty());
 
     }
@@ -106,7 +109,7 @@ public class EArchiveBatchServiceTest {
             result = 3;
         }};
 
-        int mpc1 = eArchiveBatchService.getMaxRetryTimeOutFiltered(Collections.singletonList("mpc1"), new LegConfigurationPerMpc(map));
+        int mpc1 = eArchivingJobService.getMaxRetryTimeOutFiltered(Collections.singletonList("mpc1"), new LegConfigurationPerMpc(map));
 
         assertEquals(3, mpc1);
         new FullVerifications() {

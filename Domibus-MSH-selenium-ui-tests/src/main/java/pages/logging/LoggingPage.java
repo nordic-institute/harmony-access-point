@@ -83,10 +83,13 @@ public class LoggingPage extends DomibusPage {
 		log.info("Searching for: " + term);
 
 		wait.forAttributeNotEmpty(searchInputField, "value");
+		wait.forXMillis(500);
+
 		getSearchInputField().fill(term);
 
 		log.info("Click on search button");
 		getSearchButton().click();
+
 		grid().waitForRowsToLoad();
 	}
 
@@ -97,12 +100,11 @@ public class LoggingPage extends DomibusPage {
 		LoggingGrid grid = loggingGrid();
 		int index = grid.scrollTo("Logger Name", item);
 		if(index<0){
-			throw new Exception("Item is not found, logg level is not changed");
+			throw new Exception("Item is not found, log level is not changed");
 		}
 
 		grid.setLoggLevel(index, level);
 
-		getAlertArea().waitForAlert();
 
 	}
 	

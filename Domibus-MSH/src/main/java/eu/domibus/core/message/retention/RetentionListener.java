@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -40,9 +39,6 @@ public class RetentionListener implements MessageListener {
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    private JsonUtil jsonUtil;
 
     @Timer(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
     @Counter(clazz = RetentionListener.class,value = "onMessage.deleteMessages")

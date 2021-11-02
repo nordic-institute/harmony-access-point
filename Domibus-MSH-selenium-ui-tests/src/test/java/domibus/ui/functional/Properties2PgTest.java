@@ -49,7 +49,7 @@ public class Properties2PgTest extends SeleniumTest {
 		log.info("setting property");
 		String oldVal = (grid.getPropertyValue(propertyName));
 		grid.setPropertyValue(propertyName, newPropValue);
-		page.getAlertArea().waitForAlert();
+		page.getAlertArea().waitForAlertSucces();
 
 		page.wait.forXMillis(500);
 
@@ -321,12 +321,17 @@ public class Properties2PgTest extends SeleniumTest {
 	public void checkPolicyPattern() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		PropertiesPage page = new PropertiesPage(driver);
+
+
 //		checking property at domain level
-		String username = rest.getUsername(null, DRoles.USER, true, false, false);
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
 
 		String oldPropVal = modifyProperty("domibus.passwordPolicy.pattern", true, "[0-9].{8,32}");
+		log.info("property modified");
 
 		try {
+			page.wait.forXMillis(1000);
 			rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(10));
 		} catch (Exception e) {
 			soft.assertTrue(false, "Updating pass to only numbers failed for user");
@@ -341,6 +346,7 @@ public class Properties2PgTest extends SeleniumTest {
 			modifyProperty("domibus.passwordPolicy.pattern", false, "[0-9].{8,32}");
 
 			try {
+				page.wait.forXMillis(1000);
 				rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(10));
 			} catch (Exception e) {
 				soft.assertTrue(false, "Updating pass to only numbers failed for super");

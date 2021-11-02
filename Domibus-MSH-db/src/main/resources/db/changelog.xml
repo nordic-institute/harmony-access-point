@@ -2830,6 +2830,7 @@
             <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
             <column name="BATCH_SIZE" type="INT"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
+            <column name="ERROR" type="VARCHAR(255)"/>
             <column name="MESSAGEIDS_JSON" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>

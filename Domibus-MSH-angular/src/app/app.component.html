@@ -103,6 +103,10 @@
       <mat-icon mat-tooltip="View or Set Domibus Properties">settings</mat-icon>
       <span>Properties</span>
     </button>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/domains']" *ngIf="isSuperAdmin()" id="domains_id">
+      <mat-icon mat-tooltip="Add or Delete Domains">dns</mat-icon>
+      <span>Domains</span>
+    </button>
 
     <div class="collapse-button">
       <button *ngIf="fullMenu" mat-raised-button id="expand_id" (click)="toggleMenu()">
@@ -136,7 +140,8 @@
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()"></domain-selector>
+      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()">
+      </domain-selector>
 
       <div class="helpMenu">
         <page-helper></page-helper>

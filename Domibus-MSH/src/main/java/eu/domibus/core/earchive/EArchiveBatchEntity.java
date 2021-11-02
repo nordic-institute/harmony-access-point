@@ -68,10 +68,6 @@ import java.util.Arrays;
 
 public class EArchiveBatchEntity extends EArchiveBatchBaseEntity {
 
-    /*
-        @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        private List<EArchiveBatchUserMessage> eArchiveBatchUserMessages;
-    */
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "MESSAGEIDS_JSON")
@@ -103,6 +99,6 @@ public class EArchiveBatchEntity extends EArchiveBatchBaseEntity {
                 ", errorMessage='" + errorMessage + '\'' +
                 ", storageLocation='" + storageLocation + '\'' +
                 ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
-                '}';
+                "} " + super.toString();
     }
 }

@@ -23,4 +23,6 @@ public interface DomainMessageListenerContainerFactory {
     DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain);
 
     DomainMessageListenerContainer createEArchiveMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainer createEArchiveNotificationListenerContainer(Domain domain);
+    DomainMessageListenerContainer createEArchiveNotificationDlqListenerContainer(Domain domain);
 }

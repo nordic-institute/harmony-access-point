@@ -8,7 +8,6 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
 import {ApplicationContextService} from '../application-context.service';
 import {CustomURLEncoder} from '../custom-url-encoder';
-import {SecurityService} from '../../security/security.service';
 
 /**
  * @author Ion Perpegel

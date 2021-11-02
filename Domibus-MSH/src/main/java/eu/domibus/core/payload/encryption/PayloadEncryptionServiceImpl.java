@@ -1,11 +1,11 @@
 package eu.domibus.core.payload.encryption;
 
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.encryption.EncryptionKeyDao;
 import eu.domibus.core.encryption.EncryptionKeyEntity;
@@ -49,9 +49,23 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
     @Override
     public void createPayloadEncryptionKeyForAllDomainsIfNotExists() {
+        final List<Domain> domains = domainService.getDomains();
+
+        createPayloadEncryptionKeyForAllDomainsIfNotExists(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        createPayloadEncryptionKeyIfNotExists(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void createPayloadEncryptionKeyForAllDomainsIfNotExists(List<Domain> domains) {
         LOG.debug("Creating encryption key for all domains if not yet exists");
 
-        final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             createPayloadEncryptionKeyIfNotExists(domain);
         }

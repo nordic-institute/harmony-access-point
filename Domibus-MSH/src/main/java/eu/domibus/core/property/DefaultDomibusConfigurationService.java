@@ -110,7 +110,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         String propertyFileName;
 
         if (isSingleTenantAware()) {
-            propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+            propertyFileName = getConfigurationFileName();
         } else {
             propertyFileName = getDomainConfigurationFileName(domain);
         }

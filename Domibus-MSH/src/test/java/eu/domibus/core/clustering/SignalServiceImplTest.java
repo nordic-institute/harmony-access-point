@@ -23,7 +23,7 @@ import java.util.Map;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class SignalEbms3ServiceImplTest {
+public class SignalServiceImplTest {
 
     @Injectable
     protected JMSManager jmsManager;
@@ -165,8 +165,8 @@ public class SignalEbms3ServiceImplTest {
     @Test
     public void signalClearCaches() {
         new Expectations(signalService) {{
-            domainContextProvider.getCurrentDomain().getCode();
-            result = "default";
+            domainContextProvider.getCurrentDomainSafely();
+            result = new Domain("default", "default");
         }};
 
         signalService.signalClearCaches();
