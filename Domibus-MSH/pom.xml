@@ -111,6 +111,7 @@
 
         <!-- Google libraries -->
         <dependency>
+            <!-- to be removed EDELIVERY-8617-->
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>

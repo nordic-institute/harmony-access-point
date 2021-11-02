@@ -63,7 +63,7 @@ public class ConcurrencyChangeListener implements DomibusPropertyChangeListener 
                 messageListenerContainerInitializer.setConcurrency(domain, PULL_MESSAGE_CONTAINER, propertyValue);
                 break;
             case DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY:
-                messageListenerContainerInitializer.setConcurrency(domain, EARCHIVE_MESSAGE_CONTAINER, propertyValue);
+                messageListenerContainerInitializer.setConcurrency(domain, EARCHIVE_CONTAINER, propertyValue);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown property: " + propertyName);

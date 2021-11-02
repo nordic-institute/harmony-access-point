@@ -104,6 +104,7 @@ public class TestService {
         Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
         String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
 
+        // TODO: François Gautier 29-10-21 GSon to be removed EDELIVERY-8617
         Submission submission = new Gson().fromJson(jsonStr, Submission.class);
 
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));

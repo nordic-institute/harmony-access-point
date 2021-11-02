@@ -1,7 +1,6 @@
 package eu.domibus.core.message.testservice;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -43,9 +42,6 @@ public class TestServiceIT {
 
     @Injectable
     private ErrorLogService errorLogService;
-
-    @Injectable
-    private JsonUtil jsonUtil;
 
     @Injectable
     private SignalMessageDao signalMessageDao;
