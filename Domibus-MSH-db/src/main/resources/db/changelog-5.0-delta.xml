@@ -509,7 +509,7 @@
             <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
-            <column name="SIZE" type="INT"/>
+            <column name="BATCH_SIZE" type="INT"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
             <column name="ERROR" type="VARCHAR(255)"/>
             <column name="MESSAGEIDS_JSON" type="LONGBLOB"/>
