@@ -8,9 +8,11 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.core.util.DatabaseUtilImpl;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.H2Dialect;
 import org.junit.Assert;
 import org.junit.Before;
@@ -116,11 +118,17 @@ public class EArchiveBatchDaoBatchFiltersIT {
             lef.setDataSource(h2DataSource);
             lef.setJpaVendorAdapter(new HibernateJpaVendorAdapter() {{
                 // change this to see sql on hibernate level for this tests
-                // another option is to modify h2 databse configuration in DomibusTestDatasourceConfiguration
+                // another option is to modify h2 database configuration in DomibusTestDatasourceConfiguration
                 setShowSql(true);
             }});
             // scan for entities
             lef.setPackagesToScan(TEST_ENV_DOMIBUS_DB_ENTITIES_PACKAGE);
+            lef.setJpaProperties(new Properties() {{
+                setProperty(Environment.JDBC_TIME_ZONE, DomibusJPAConfiguration.JPA_PROPERTY_TIMEZONE_UTC);
+                setProperty("hibernate.connection.driver_class", "org.h2.Driver");
+                setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+                setProperty("hibernate.id.new_generator_mappings", "false");
+            }});
             return lef;
         }
 
