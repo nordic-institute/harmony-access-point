@@ -51,6 +51,9 @@ public class EArchiveListenerTest {
     @Injectable
     private ObjectMapper jsonMapper;
 
+    @Injectable
+    private EArchiveBatchUtils eArchiveBatchUtils;
+
     private String batchId;
 
     private Long entityId;
@@ -122,10 +125,6 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
-
-            eArchiveBatch.getMessageIdsJson();
-            result = new Gson().toJson(new ListUserMessageDto(null), ListUserMessageDto.class).getBytes(StandardCharsets.UTF_8);
-
         }};
 
         eArchiveListener.onMessage(message);
@@ -154,10 +153,7 @@ public class EArchiveListenerTest {
             eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
 
-            eArchiveBatch.getMessageIdsJson();
-            result = bytes;
-
-            jsonMapper.readValue(anyString, (Class) any);
+            eArchiveBatchUtils.getUserMessageDtoFromJson((EArchiveBatchEntity)any);
             result = objectMapper.readValue(new String(bytes,StandardCharsets.UTF_8), ListUserMessageDto.class);
 
             eArchiveBatch.getDateRequested();
@@ -166,7 +162,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = RequestType.CONTINUOUS;
 
-            eArchiveBatch.getEArchiveBatchStatus();
+            eArchiveBatch.geteArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);
@@ -184,6 +180,9 @@ public class EArchiveListenerTest {
             times = 1;
 
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<UserMessageDTO>) any);
+            times = 1;
+
+            eArchiveBatchUtils.getMessageIds((List<UserMessageDTO>) any);
             times = 1;
 
             fileObject.close();

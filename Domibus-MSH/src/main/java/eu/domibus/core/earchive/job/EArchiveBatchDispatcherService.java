@@ -118,7 +118,7 @@ public class EArchiveBatchDispatcherService {
      */
     public EArchiveBatchEntity createBatchCopyAndEnqueue(final String batchId, Domain domain) {
         // create a copy
-        EArchiveBatchEntity eArchiveBatch = eArchiveBatchService.reExportEArchiveBatch(batchId);
+        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.reExportEArchiveBatch(batchId);
         enqueueEArchive(eArchiveBatch, domain);
         return eArchiveBatch;
     }

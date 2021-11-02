@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
@@ -15,14 +14,11 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -51,8 +47,7 @@ public class EArchiveListener implements MessageListener {
             DatabaseUtil databaseUtil,
             EArchiveBatchUtils eArchiveBatchUtils,
             EArchivingDefaultService eArchivingDefaultService,
-            JmsUtil jmsUtil,
-            @Qualifier("domibusJsonMapper") ObjectMapper jsonMapper) {
+            JmsUtil jmsUtil) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
@@ -79,7 +74,7 @@ public class EArchiveListener implements MessageListener {
 
         eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
 
-            List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
+        List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
@@ -99,7 +94,7 @@ public class EArchiveListener implements MessageListener {
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .requestType(eArchiveBatchByBatchId.getRequestType().name())
-                        .status(eArchiveBatchByBatchId.getEArchiveBatchStatus().name())
+                        .status(eArchiveBatchByBatchId.geteArchiveBatchStatus().name())
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
                         .messageStartId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
                         .messageEndId("" + userMessageDtos.get(0))

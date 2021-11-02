@@ -11,9 +11,6 @@ public class UserMessageDTO {
     String messageId;
 
     public UserMessageDTO() {
-    }
-
-    public UserMessageDTO() {
         this(-1, null);
     }
 

@@ -1,8 +1,8 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -56,12 +56,12 @@ public class EArchiveNotificationListener implements MessageListener {
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId);
 
         if (notificationType == EArchiveBatchStatus.FAILED) {
-            LOG.info("Notification to the earchive client for batch FAILED [{}] ", eArchiveBatchByBatchId);
+            LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatchByBatchId);
             // TODO: François Gautier 28-10-21 notification failed
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
-            LOG.info("Notification to the earchive client for batch EXPORTED [{}] ", eArchiveBatchByBatchId);
+            LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatchByBatchId);
             // TODO: François Gautier 28-10-21 notification exported
         }
     }

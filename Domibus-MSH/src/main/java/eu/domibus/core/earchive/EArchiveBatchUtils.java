@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
@@ -38,5 +39,13 @@ public class EArchiveBatchUtils {
 
     public List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
         return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
+    }
+
+    public String getRawJson(ListUserMessageDto userMessageToBeArchived) {
+        try {
+            return objectMapper.writeValueAsString(userMessageToBeArchived);
+        } catch (JsonProcessingException e) {
+            throw new DomibusEArchiveException("Could not parse the list of userMessages", e);
+        }
     }
 }
