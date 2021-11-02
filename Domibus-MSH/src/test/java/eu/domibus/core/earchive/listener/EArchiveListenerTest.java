@@ -98,7 +98,7 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+            eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
             result = null;
         }};
 
@@ -121,7 +121,7 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+            eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
             result = eArchiveBatch;
 
             eArchiveBatch.getMessageIdsJson();
@@ -138,8 +138,8 @@ public class EArchiveListenerTest {
 
     @Test
     public void onMessage_ok(@Injectable Message message,
-                                     @Injectable EArchiveBatchEntity eArchiveBatch,
-                                     @Injectable FileObject fileObject) throws FileSystemException {
+                             @Injectable EArchiveBatchEntity eArchiveBatch,
+                             @Injectable FileObject fileObject) throws FileSystemException {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -150,7 +150,7 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+            eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
             result = eArchiveBatch;
 
             eArchiveBatch.getMessageIdsJson();

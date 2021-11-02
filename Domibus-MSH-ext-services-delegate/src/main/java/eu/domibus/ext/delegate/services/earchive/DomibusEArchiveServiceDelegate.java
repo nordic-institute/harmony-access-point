@@ -1,8 +1,8 @@
 package eu.domibus.ext.delegate.services.earchive;
 
 import eu.domibus.api.earchive.DomibusEArchiveService;
-import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
+import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
@@ -53,6 +53,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns count of Queued batches in database for given search filter
+     *
      * @param filter
      * @return
      */
@@ -64,6 +65,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns Queued batches in database for given search filter and page
+     *
      * @param filter
      * @return
      */
@@ -76,6 +78,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns count of Exported batches in database for given search filter
+     *
      * @param filter
      * @return
      */
@@ -87,6 +90,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns Exported batches in database for given search filter and page
+     *
      * @param filter
      * @return
      */
@@ -100,13 +104,12 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     @Override
     public Long getBatchMessageCount(String batchId) {
-        ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId);
-        return new Long(batchMessageList == null ? 0 : batchMessageList.getUserMessageDtos().size());
+        return domibusEArchiveService.getBatchUserMessageListCount(batchId);
     }
 
     @Override
     public List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize) {
-        ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId);
+        ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId, pageStart, pageSize);
 
         List<UserMessageDTO> messages = batchMessageList.getUserMessageDtos();
         if (messages.size() < pageSize) {
@@ -136,7 +139,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     @Override
     public List<String> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
         ListUserMessageDto list = domibusEArchiveService.getNotArchivedMessages(messageStartDate, messageEndDate, pageStart, pageSize);
-        return list.getUserMessageDtos().stream().map(um->um.getMessageId()).collect(Collectors.toList());
+        return list.getUserMessageDtos().stream().map(um -> um.getMessageId()).collect(Collectors.toList());
     }
 
     /**
@@ -177,17 +180,26 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      */
     protected EArchiveBatchFilter convertExportFilter(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         EArchiveBatchFilter archiveBatchFilter = new EArchiveBatchFilter();
-        // return  only QUEUED batches
+        // return  only EXPORTED batches
         if (filter.getStatus() == null) {
             archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPORTED);
+        } else if (filter.getStatus().equals(ExportedBatchStatusTypeParameter.ALL)) {
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPORTED);
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.ARCHIVED);
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.ARCHIVE_FAILED);
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPIRED);
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.DELETED);
         } else {
             archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(filter.getStatus().name()));
         }
 
+        if (filter.getReExport()) {
+            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.REEXPORTED);
+        }
+
         // set filter
         archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
-        archiveBatchFilter.setMessageEndDate(dateToPKUserMessageId(filter.getMessageEndDate()));
-        archiveBatchFilter.setShowReExported(filter.getReExport());
+        archiveBatchFilter.setMessageEndId(dateToPKUserMessageId(filter.getMessageEndDate()));
 
         // set pagination
         archiveBatchFilter.setPageSize(pageSize);

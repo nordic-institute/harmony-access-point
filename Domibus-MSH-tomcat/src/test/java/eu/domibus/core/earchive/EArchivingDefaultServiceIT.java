@@ -2,10 +2,9 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.MessageDaoTestUtil;
 import org.apache.commons.lang3.time.DateUtils;
@@ -48,7 +47,11 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     UserMessageLog uml1;
     UserMessageLog uml2;
     UserMessageLog uml3;
-    UserMessageLog notArchivedUML;
+    UserMessageLog uml4;
+    UserMessageLog uml5;
+    UserMessageLog uml6;
+    UserMessageLog uml7_not_archived;
+    UserMessageLog uml8_not_archived;
 
     @Before
     @Transactional
@@ -58,22 +61,26 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Assert.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
-        batch1 = EArchiveTestUtils.createEArchiveBatchEntity(
+
+        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml2 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml3 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml4 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml5 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml6 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml7_not_archived = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml8_not_archived = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+
+        batch1 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
                 RequestType.CONTINUOUS,
                 EArchiveBatchStatus.STARTED,
                 DateUtils.addDays(currentDate, -30),
-                2110100000000001L,
+                uml1.getEntityId(),
+                uml3.getEntityId(),
                 1,
                 "/tmp/batch",
-                "{\"2110100000000002\"}",
-                null);
-        eArchiveBatchDao.create(batch1);
-
-        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(),currentDate);
-        uml2 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(),currentDate);
-        uml3 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(),currentDate);
-        notArchivedUML =  messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(),currentDate);
+                "{\"2110100000000001\"}"));
         eArchiveBatchUserMessageDao.create(batch1, Arrays.asList(
                 uml1.getEntityId(),
                 uml2.getEntityId(),
@@ -84,28 +91,28 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
                 RequestType.CONTINUOUS,
                 EArchiveBatchStatus.FAILED,
                 DateUtils.addDays(currentDate, -5),
-                2110100000000002L,
+                2110100000000011L,
+                2110100000000020L,
                 1,
                 "/tmp/batch",
-                "{\"2110100000000003\"}",
-                null));
+                "{\"2110100000000003\"}"));
 
         eArchiveBatchUserMessageDao.create(batch2, Arrays.asList(
-                messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(),currentDate).getEntityId()
+                uml4.getEntityId(), uml5.getEntityId()
         ));
 
         batch3 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
-                UUID.randomUUID().toString(),
+                batch2.getBatchId(),
                 RequestType.MANUAL,
                 EArchiveBatchStatus.EXPORTED,
                 DateUtils.addDays(currentDate, 0),
-                2110100000000003L,
+                2110100000000021L,
+                2110110000000001L,
                 1,
                 "/tmp/batch",
-                "{\"2110100000000004\"}",
-                batch2.getEntityId() )); // is copy from 2
+                "{\"2110100000000004\"}")); // is copy from 2
         eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(
-                messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(),currentDate).getEntityId()));
+                uml6.getEntityId()));
 
     }
 
@@ -151,35 +158,27 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Transactional
     public void getBatchCount() {
         Long batchRequestsCount = eArchivingService.getBatchRequestListCount(new EArchiveBatchFilter());
-        Assert.assertEquals(2, batchRequestsCount.longValue());
+        Assert.assertEquals(3, batchRequestsCount.longValue());
     }
 
     @Test
     @Transactional
     public void getBatchListDefaultFilter() {
-        EArchiveBatchFilter filter  =new EArchiveBatchFilter( );
-        List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
-        Assert.assertEquals(2, batchRequestsCount.size());
-        // descending order
-        Assert.assertEquals(uml1.getEntityId(), batchRequestsCount.get(1).getMessageStartId().longValue());
-        Assert.assertEquals(uml3.getEntityId(), batchRequestsCount.get(1).getMessageEndId().longValue());
-    }
-    @Test
-    @Transactional
-    public void getBatchListWithExported() {
-        EArchiveBatchFilter filter  =new EArchiveBatchFilter();
-        filter.setShowReExported(Boolean.TRUE);
+        EArchiveBatchFilter filter = new EArchiveBatchFilter();
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         Assert.assertEquals(3, batchRequestsCount.size());
-        Assert.assertEquals(uml1.getEntityId(), batchRequestsCount.get(2).getMessageStartId().longValue());
-        Assert.assertEquals(uml3.getEntityId(), batchRequestsCount.get(2).getMessageEndId().longValue());
+        // descending order
+        // the batch 1 is last in list
+        Assert.assertEquals(batch1.getBatchId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getBatchId());
+        Assert.assertEquals(uml1.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageStartId().longValue());
+        Assert.assertEquals(uml3.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageEndId().longValue());
     }
 
     @Test
     @Transactional
     public void getBatchListFilterDates() {
         Date currentDate = Calendar.getInstance().getTime();
-        EArchiveBatchFilter filter  =new EArchiveBatchFilter(null, DateUtils.addDays(currentDate, -40) , DateUtils.addDays(currentDate, -20), null, null );
+        EArchiveBatchFilter filter = new EArchiveBatchFilter(null, DateUtils.addDays(currentDate, -40), DateUtils.addDays(currentDate, -20), null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // second batch2 with only one message
         Assert.assertEquals(1, batchRequestsCount.size());
@@ -188,21 +187,20 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void getBatchListFilterStatus() {
-        EArchiveBatchFilter filter  =new EArchiveBatchFilter(RequestType.CONTINUOUS.name(), null ,null, null, null );
+        EArchiveBatchFilter filter = new EArchiveBatchFilter(RequestType.CONTINUOUS.name(), null, null, null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // second batch2 with only one message
-        Assert.assertEquals(1, batchRequestsCount.size());
+        Assert.assertEquals(2, batchRequestsCount.size());
         Assert.assertEquals(batchRequestsCount.get(0).getMessageEndId(), batchRequestsCount.get(0).getMessageEndId());
     }
 
     @Test
     @Transactional
     public void getBatchUserMessageList() {
-        ListUserMessageDto listUserMessageDto = eArchivingService.getBatchUserMessageList(batch1.getBatchId());
+        ListUserMessageDto listUserMessageDto = eArchivingService.getBatchUserMessageList(batch1.getBatchId(), null, null);
 
         Assert.assertEquals(3, listUserMessageDto.getUserMessageDtos().size());
     }
-
 
     @Test
     @Transactional
@@ -211,8 +209,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         ListUserMessageDto listUserMessageDto = eArchivingService.getNotArchivedMessages(DateUtils.addDays(currentDate, -30),
                 DateUtils.addDays(currentDate, 1), null, null);
 
-        Assert.assertEquals(1, listUserMessageDto.getUserMessageDtos().size());
-        Assert.assertEquals(notArchivedUML.getEntityId(), listUserMessageDto.getUserMessageDtos().get(0).getEntityId());
+        Assert.assertEquals(2, listUserMessageDto.getUserMessageDtos().size());
+        Assert.assertEquals(uml7_not_archived.getEntityId(), listUserMessageDto.getUserMessageDtos().get(0).getEntityId());
+        Assert.assertEquals(uml8_not_archived.getEntityId(), listUserMessageDto.getUserMessageDtos().get(1).getEntityId());
     }
 
 }

@@ -1,8 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
-import com.google.gson.Gson;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
@@ -22,11 +20,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author François Gautier
@@ -110,8 +106,8 @@ public class EArchiveListener implements MessageListener {
                         .requestType(eArchiveBatchByBatchId.getRequestType().name())
                         .status(eArchiveBatchByBatchId.geteArchiveBatchStatus().name())
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId(""+ userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
-                        .messageEndId(""+ userMessageDtos.get(0))
+                        .messageStartId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
+                        .messageEndId("" + userMessageDtos.get(0))
                         .messages(eArchiveBatchUtils.getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
                 userMessageDtos)) {
@@ -124,7 +120,7 @@ public class EArchiveListener implements MessageListener {
     }
 
     private EArchiveBatchEntity getEArchiveBatch(long entityId) {
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchId(entityId);
+        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
 
         if (eArchiveBatchByBatchId == null) {
             throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");

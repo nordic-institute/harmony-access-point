@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import eu.domibus.api.earchive.DomibusEArchiveService;
@@ -8,6 +7,7 @@ import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.delegate.mapper.TestMapperContextConfiguration;
 import eu.domibus.ext.delegate.services.earchive.DomibusEArchiveServiceDelegate;
+import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
 import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,9 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -31,17 +29,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,7 +48,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DomibusEArchiveExtResourceIT {
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";
-    public static final String TEST_ENDPOINT_QUEUED_BATCHES = TEST_ENDPOINT_RESOURCE + "/batches/queued";
+    public static final String TEST_ENDPOINT_QUEUED = TEST_ENDPOINT_RESOURCE + "/batches/queued";
+    public static final String TEST_ENDPOINT_EXPORTED = TEST_ENDPOINT_RESOURCE + "/batches/exported";
     public static final String TEST_ENDPOINT_SANITY_DATE = TEST_ENDPOINT_RESOURCE + "/sanity-mechanism/start-date";
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
 
@@ -76,18 +70,7 @@ public class DomibusEArchiveExtResourceIT {
 
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class ContextConfiguration
-            //        implements WebMvcConfigurer
-    {
-        /*
-        @Override
-        public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-            Jackson2ObjectMapperBuilder builder = jacksonBuilder();
-            converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
-        }
-        /
-         */
-
+    static class ContextConfiguration {
         @Bean
         public DomibusEArchiveServiceDelegate beanDomibusEArchiveExtService(EArchiveExtMapper eArchiveExtMapper) {
             return new DomibusEArchiveServiceDelegate(mockDomibusEArchiveService, eArchiveExtMapper);
@@ -108,14 +91,8 @@ public class DomibusEArchiveExtResourceIT {
 
     @Before
     public void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(testInstance).
-                build();
+        mockMvc = MockMvcBuilders.standaloneSetup(testInstance).build();
         Mockito.reset(mockDomibusEArchiveService);
-
-        /*mockMvc = MockMvcBuilders
-                .webAppContextSetup(webAppContext).
-                build();
-*/
     }
 
     @Test
@@ -182,7 +159,7 @@ public class DomibusEArchiveExtResourceIT {
         Integer lastCountRequests = 10;
         when(mockDomibusEArchiveService.getBatchRequestListCount(any())).thenReturn(0L);
         // when
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED_BATCHES)
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
                 .param("lastCountRequests", lastCountRequests + "")
         )
                 .andExpect(status().is2xxSuccessful())
@@ -206,7 +183,6 @@ public class DomibusEArchiveExtResourceIT {
         Integer lastCountRequests = 5;
 
         when(mockDomibusEArchiveService.getBatchRequestListCount(any())).thenReturn(2L);
-        when(mockDomibusEArchiveService.getBatchRequestListCount(any())).thenReturn(2L);
         when(mockDomibusEArchiveService.getBatchRequestList(any())).thenReturn(Arrays.asList(
                 new EArchiveBatchRequestDTO() {{
                     setBatchId("Batch1");
@@ -217,7 +193,7 @@ public class DomibusEArchiveExtResourceIT {
         ));
 
         // when
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED_BATCHES)
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
                 .param("lastCountRequests", lastCountRequests + "")
         )
                 .andExpect(status().is2xxSuccessful())
@@ -233,6 +209,44 @@ public class DomibusEArchiveExtResourceIT {
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
         assertEquals(2, response.getQueuedBatches().size());
         assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
+    }
+
+    @Test
+    public void testHistoryOfTheExportedBatches() throws Exception {
+// given
+        Long messageStartDate = 211005L;
+        Long messageEndDate = 211015L;
+
+        when(mockDomibusEArchiveService.getBatchRequestListCount(any())).thenReturn(2L);
+        when(mockDomibusEArchiveService.getBatchRequestList(any())).thenReturn(Arrays.asList(
+                new EArchiveBatchRequestDTO() {{
+                    setBatchId("Batch1");
+                }},
+                new EArchiveBatchRequestDTO() {{
+                    setBatchId("Batch2");
+                }}
+        ));
+
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_EXPORTED)
+                .param("messageStartDate", messageStartDate + "")
+                .param("messageEndDate", messageEndDate + "")
+        )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        ExportedBatchResultDTO response = objectMapper.readValue(content, ExportedBatchResultDTO.class);
+
+        verify(mockDomibusEArchiveService, times(1)).getBatchRequestListCount(any());
+        verify(mockDomibusEArchiveService, times(1)).getBatchRequestList(any());
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
+        assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
+        assertEquals(2, response.getExportedBatches().size());
+        assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
+        assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
+        assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
     }
 
 }

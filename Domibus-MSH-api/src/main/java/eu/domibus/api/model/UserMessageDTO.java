@@ -10,6 +10,10 @@ public class UserMessageDTO {
 
     final String messageId;
 
+    public UserMessageDTO() {
+        this(-1, null);
+    }
+
     public UserMessageDTO(long entityId, String messageId) {
         this.entityId = entityId;
         this.messageId = messageId;

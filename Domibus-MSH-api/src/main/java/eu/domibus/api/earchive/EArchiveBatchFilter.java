@@ -13,9 +13,8 @@ public class EArchiveBatchFilter {
     String requestType;
     Date startDate;
     Date endDate;
-    Long messageStartDate;
-    Long messageEndDate;
-    Boolean showReExported;
+    Long messageStartId;
+    Long messageEndId;
     Integer pageStart;
     Integer pageSize;
     List<EArchiveBatchStatus> statusList;
@@ -24,11 +23,18 @@ public class EArchiveBatchFilter {
     }
 
     public EArchiveBatchFilter(String requestType, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
+        this(new ArrayList<>(), requestType, startDate, endDate, null, null, pageStart, pageSize);
+    }
+
+    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, String requestType, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Integer pageStart, Integer pageSize) {
         this.requestType = requestType;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.messageStartId = messageStartId;
+        this.messageEndId = messageEndId;
         this.pageStart = pageStart;
         this.pageSize = pageSize;
+        this.statusList = statusList;
     }
 
     public String getRequestType() {
@@ -72,27 +78,19 @@ public class EArchiveBatchFilter {
     }
 
     public Long getMessageStarId() {
-        return messageStartDate;
+        return messageStartId;
     }
 
     public void setMessageStartId(Long messageStartDate) {
-        this.messageStartDate = messageStartDate;
+        this.messageStartId = messageStartDate;
     }
 
-    public Long getMessageEndDate() {
-        return messageEndDate;
+    public Long getMessageEndId() {
+        return messageEndId;
     }
 
-    public void setMessageEndDate(Long messageEndDate) {
-        this.messageEndDate = messageEndDate;
-    }
-
-    public Boolean getShowReExported() {
-        return showReExported;
-    }
-
-    public void setShowReExported(Boolean showReExported) {
-        this.showReExported = showReExported;
+    public void setMessageEndId(Long messageEndDate) {
+        this.messageEndId = messageEndDate;
     }
 
     public List<EArchiveBatchStatus> getStatusList() {
@@ -108,9 +106,8 @@ public class EArchiveBatchFilter {
                 "requestType='" + requestType + '\'' +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", messageStartDate=" + messageStartDate +
-                ", messageEndDate=" + messageEndDate +
-                ", reExport=" + showReExported +
+                ", messageStartDate=" + messageStartId +
+                ", messageEndDate=" + messageEndId +
                 ", pageStart=" + pageStart +
                 ", pageSize=" + pageSize +
                 ", statusList=" + statusList +

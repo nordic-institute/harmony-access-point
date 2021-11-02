@@ -12,6 +12,9 @@ public class ListUserMessageDto {
 
     List<UserMessageDTO> userMessageDtos;
 
+    public ListUserMessageDto() {
+    }
+
     public ListUserMessageDto(List<UserMessageDTO> resultList) {
         this.userMessageDtos = resultList;
     }

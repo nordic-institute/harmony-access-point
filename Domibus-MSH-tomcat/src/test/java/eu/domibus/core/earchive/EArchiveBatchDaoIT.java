@@ -46,9 +46,9 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findEArchiveBatchByBatchId() {
-        EArchiveBatchEntity first = eArchiveBatchDao.findEArchiveBatchByBatchId(firstContinuous.getEntityId());
-        EArchiveBatchEntity second = eArchiveBatchDao.findEArchiveBatchByBatchId(secondContinuous.getEntityId());
-        EArchiveBatchEntity third = eArchiveBatchDao.findEArchiveBatchByBatchId(firstManual.getEntityId());
+        EArchiveBatchEntity first = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(firstContinuous.getEntityId());
+        EArchiveBatchEntity second = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(secondContinuous.getEntityId());
+        EArchiveBatchEntity third = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(firstManual.getEntityId());
 
         Assert.assertNotNull(first);
         Assert.assertNotNull(second);
@@ -72,7 +72,7 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     @Test
     public void findLastEntityIdArchived_notFound() {
         em.createQuery("delete from EArchiveBatchEntity batch " +
-                        "where batch.requestType = eu.domibus.core.earchive.RequestType.CONTINUOUS")
+                "where batch.requestType = eu.domibus.core.earchive.RequestType.CONTINUOUS")
                 .executeUpdate();
 
         Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();

@@ -13,6 +13,9 @@ public class ExportedBatchResultDTO {
     ExportedBatchFilterDTO filter;
     List<ExportedBatchDTO> exportedBatches;
 
+    public ExportedBatchResultDTO() {
+    }
+
     public ExportedBatchResultDTO(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         this.filter = filter;
         this.pagination = new PaginationDTO(pageStart, pageSize);

@@ -4,7 +4,6 @@ import com.fasterxml.uuid.NoArgGenerator;
 import com.google.gson.Gson;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
@@ -87,32 +86,33 @@ public class EArchiveBatchService {
     }
 
     @Transactional
-    public EArchiveBatchEntity createEArchiveBatchCopy(String batchId) {
-        EArchiveBatchEntity originEntity =  eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+    public EArchiveBatchEntity reExportEArchiveBatch(String batchId) {
+        EArchiveBatchEntity originEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (originEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        EArchiveBatchEntity batchCopy = new EArchiveBatchEntity();
-        batchCopy.setBatchSize(originEntity.getBatchSize());
-        batchCopy.setRequestType(RequestType.MANUAL);
-        batchCopy.setMessageIdsJson(originEntity.getMessageIdsJson());
-        batchCopy.setLastPkUserMessage(originEntity.getLastPkUserMessage());
-        batchCopy.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
-        batchCopy.setDateRequested(new Date());
+
+        // save batch data for audit
+        EArchiveBatchEntity reExportBatch = new EArchiveBatchEntity();
+        reExportBatch.setBatchSize(originEntity.getBatchSize());
+        reExportBatch.setRequestType(originEntity.getRequestType());
+        reExportBatch.setMessageIdsJson(originEntity.getMessageIdsJson());
+        reExportBatch.setFirstPkUserMessage(originEntity.getFirstPkUserMessage());
+        reExportBatch.setLastPkUserMessage(originEntity.getLastPkUserMessage());
+        reExportBatch.seteArchiveBatchStatus(EArchiveBatchStatus.REEXPORTED);
+        reExportBatch.setDateRequested(originEntity.getDateRequested());
         // set updated storage location and new batch id
-        batchCopy.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
-        batchCopy.setBatchId(uuidGenerator.generate().toString());
-
-        //use merge because we need entity id now and not at commit
-        batchCopy = eArchiveBatchDao.merge(batchCopy);
-        // set copy reference to old batch
-        originEntity.setCreatedFromBatchIdPk(batchCopy.getEntityId());
+        reExportBatch.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
+        reExportBatch.setBatchId(originEntity.getBatchId());
+        // reuse the same entity to reduce the need for insert "UserMessage mappings to the "TB_EARCHIVEBATCH_UM"
+        originEntity.setDateRequested(new Date());
+        originEntity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
+        originEntity.setRequestType(RequestType.MANUAL);
+        // update database data
+        eArchiveBatchDao.create(reExportBatch);
         eArchiveBatchDao.merge(originEntity);
-        // create batch to User message mapping
-        List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(originEntity).getUserMessageDtos();
-        eArchiveBatchUserMessageDao.create(batchCopy, eArchiveBatchUtils.getEntityIds(userMessageDtos));
 
-        return batchCopy;
+        return originEntity;
     }
 
     private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
@@ -183,5 +183,4 @@ public class EArchiveBatchService {
         }
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
-
 }

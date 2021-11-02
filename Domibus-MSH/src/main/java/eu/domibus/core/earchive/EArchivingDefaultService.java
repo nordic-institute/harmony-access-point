@@ -7,6 +7,7 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.EArchiveBatchMapper;
 import eu.domibus.core.earchive.job.EArchiveBatchDispatcherService;
 import eu.domibus.logging.DomibusLogger;
@@ -15,9 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dateToPKUserMessageId;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.extractDateFromPKUserMessageId;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES;
 
 /**
  * @author François Gautier
@@ -37,20 +40,20 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     private final EArchiveBatchMapper eArchiveBatchMapper;
     private final EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
     private final DomainContextProvider domainContextProvider;
-    private final EArchiveBatchUtils eArchiveBatchUtils;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
     public EArchivingDefaultService(EArchiveBatchDao eArchiveBatchDao,
                                     EArchiveBatchStartDao eArchiveBatchStartDao,
                                     EArchiveBatchMapper eArchiveBatchMapper,
                                     EArchiveBatchDispatcherService eArchiveBatchDispatcherService,
                                     DomainContextProvider domainContextProvider,
-                                    EArchiveBatchUtils eArchiveBatchUtils) {
+                                    DomibusPropertyProvider domibusPropertyProvider) {
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.eArchiveBatchMapper = eArchiveBatchMapper;
         this.eArchiveBatchDispatcherService = eArchiveBatchDispatcherService;
         this.domainContextProvider = domainContextProvider;
-        this.eArchiveBatchUtils = eArchiveBatchUtils;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -86,24 +89,33 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter) {
-        List<EArchiveBatchRequestDTO> requestDTOList = eArchiveBatchDao.getBatchRequestList(filter);
-        // TODO add a system parameter to return message IDs on request!
-        for (EArchiveBatchRequestDTO requestDTO : requestDTOList) {
-            List<UserMessageDTO> list = eArchiveBatchDao.getBatchMessageList(requestDTO.getBatchId());
-            requestDTO.setMessages(eArchiveBatchUtils.getMessageIds(list));
+
+        Boolean returnMessages = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES);
+        Class<? extends EArchiveBatchBaseEntity> getResultProjections = returnMessages ? EArchiveBatchEntity.class : EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity.class;
+        List<? extends EArchiveBatchBaseEntity> requestDTOList = eArchiveBatchDao.getBatchRequestList(filter, getResultProjections);
+        return requestDTOList.stream().map(eArchiveBatchEntity ->
+                eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(eArchiveBatchEntity)
+        ).collect(Collectors.toList());
+    }
+
+    @Override
+    public ListUserMessageDto getBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize) {
+        List<UserMessageDTO> list = eArchiveBatchDao.getBatchMessageList(batchId, pageStart, pageSize);
+        return new ListUserMessageDto(list);
+    }
+
+    @Override
+    public Long getBatchUserMessageListCount(String batchId) {
+        EArchiveBatchEntity batch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+        if (batch == null) {
+            throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        return requestDTOList;
+        return batch.getBatchSize() != null ? batch.getBatchSize().longValue() : 0L;
     }
 
     @Override
-    public ListUserMessageDto getBatchUserMessageList(String batchId){
-        List<UserMessageDTO> list  = eArchiveBatchDao.getBatchMessageList(batchId);
-        return  new ListUserMessageDto(list);
-    }
-
-    @Override
-    public ListUserMessageDto getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize){
-        List<UserMessageDTO> list  = eArchiveBatchDao.getNotArchivedMessages(messageStartDate,messageEndDate,pageStart, pageSize );
+    public ListUserMessageDto getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
+        List<UserMessageDTO> list = eArchiveBatchDao.getNotArchivedMessages(messageStartDate, messageEndDate, pageStart, pageSize);
         return new ListUserMessageDto(list);
     }
 

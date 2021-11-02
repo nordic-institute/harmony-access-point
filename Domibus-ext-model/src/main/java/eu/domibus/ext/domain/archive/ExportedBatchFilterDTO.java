@@ -1,8 +1,5 @@
 package eu.domibus.ext.domain.archive;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Joze Rihtarsic
  * @since 5.0
@@ -13,6 +10,9 @@ public class ExportedBatchFilterDTO {
     Long messageEndDate;
     ExportedBatchStatusTypeParameter status;
     Boolean reExport;
+
+    public ExportedBatchFilterDTO() {
+    }
 
     public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, ExportedBatchStatusTypeParameter status, Boolean reExport) {
         this.messageStartDate = messageStartDate;
@@ -52,5 +52,4 @@ public class ExportedBatchFilterDTO {
     public void setReExport(Boolean reExport) {
         this.reExport = reExport;
     }
-
 }

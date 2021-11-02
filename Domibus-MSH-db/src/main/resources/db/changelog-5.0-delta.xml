@@ -505,11 +505,11 @@
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_BATCH"/>
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
-            <column name="CREATED_FROM_ID_PK" type="BIGINT"/>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
             <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="FIRST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="ERROR_CODE" type="VARCHAR(255)"/>
             <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
             <column name="SIZE" type="INT"/>

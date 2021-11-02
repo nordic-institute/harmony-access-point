@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
-
 import java.util.Objects;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -59,7 +58,7 @@ public class EArchiveBatchDispatcherService {
     public void startBatch(Domain domain) {
         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
-            return ;
+            return;
         }
         Long lastEntityIdProcessed = eArchiveBatchService.getLastEntityIdArchived();
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
@@ -82,7 +81,7 @@ public class EArchiveBatchDispatcherService {
             newLastEntityIdProcessed = batchAndEnqueue.getLastPkUserMessage();
             LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
-        if(batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
+        if (batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
             eArchiveBatchService.updateLastEntityIdArchived(newLastEntityIdProcessed);
             LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
         }
@@ -102,7 +101,7 @@ public class EArchiveBatchDispatcherService {
             LOG.debug("No message to archive");
             return null;
         }
-        long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(userMessageToBeArchived.getUserMessageDtos().size()-1).getEntityId();
+        long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(userMessageToBeArchived.getUserMessageDtos().size() - 1).getEntityId();
 
         EArchiveBatchEntity eArchiveBatch = eArchiveBatchService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
 
@@ -112,17 +111,15 @@ public class EArchiveBatchDispatcherService {
     }
 
     /**
-     *  Method creates a batch copy/ re-export existing batch with new Batch ID.
+     * Method creates a batch copy/ re-export existing batch with new Batch ID.
+     *
      * @return null if no messages found
      */
     public EArchiveBatchEntity createBatchCopyAndEnqueue(final String batchId, Domain domain) {
-
         // create a copy
-        EArchiveBatchEntity eArchiveBatchCopy = eArchiveBatchService.createEArchiveBatchCopy(batchId);
-
-        enqueueEArchive(eArchiveBatchCopy, domain);
-
-        return eArchiveBatchCopy;
+        EArchiveBatchEntity eArchiveBatch = eArchiveBatchService.reExportEArchiveBatch(batchId);
+        enqueueEArchive(eArchiveBatch, domain);
+        return eArchiveBatch;
     }
 
     private int getProperty(String property) {

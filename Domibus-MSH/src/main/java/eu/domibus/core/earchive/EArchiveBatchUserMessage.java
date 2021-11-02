@@ -18,7 +18,7 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
             name = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = "eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator")
+            strategy = JPAConstants.DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
     @Column(name = "ID_PK")
     private long entityId;
 
