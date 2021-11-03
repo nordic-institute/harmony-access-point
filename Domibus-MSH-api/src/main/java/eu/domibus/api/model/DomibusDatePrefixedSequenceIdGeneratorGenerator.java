@@ -35,28 +35,14 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
     ZoneId zoneId = ZoneId.of("UTC");
 
     /**
-     *
      * @return id of the shape: yyMMddHHDDDDDDDDDD ex: 210809150000000050
-     *
      */
     default Serializable generateDomibus(SharedSessionContractImplementor session,
                                          Object object) throws HibernateException {
-
         LocalDateTime now = LocalDateTime.now(zoneId);
         String seqStr = now.format(dtf);
 
-        seqStr += String.format(NUMBER_FORMAT_DEFAULT, this.generate(session, object));;
-
+        seqStr += String.format(NUMBER_FORMAT_DEFAULT, this.generate(session, object));
         return NumberUtils.toLong(seqStr);
-    }
-
-    static Long extractDateFromPKUserMessageId(Long pkUserMessage){
-        if (pkUserMessage==null){
-            return null;
-        }
-        return pkUserMessage /(MAX_INCREMENT_NUMBER+1);
-    }
-    static Long dateToPKUserMessageId(Long pkUserMessageDate){
-        return pkUserMessageDate==null?null:pkUserMessageDate *(MAX_INCREMENT_NUMBER+1);
     }
 }

@@ -5,16 +5,18 @@ import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dateToPKUserMessageId;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER;
 
 /**
  * @author François Gautier
@@ -110,17 +112,13 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     @Override
     public List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize) {
         ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId, pageStart, pageSize);
-
-        List<UserMessageDTO> messages = batchMessageList.getUserMessageDtos();
-        if (messages.size() < pageSize) {
+        if (batchMessageList == null
+                || batchMessageList.getUserMessageDtos() == null
+                || batchMessageList.getUserMessageDtos().isEmpty()) {
             return Collections.emptyList();
         }
-        // get the page!
-        List<String> sublist = new ArrayList<>();
-        for (int i = pageStart; i < messages.size() && i < pageSize; i++) {
-            sublist.add(messages.get(i).getMessageId());
-        }
-        return sublist;
+        return batchMessageList.getUserMessageDtos().stream()
+                .map(userMessageDTO -> userMessageDTO.getMessageId()).collect(Collectors.toList());
     }
 
     @Override
@@ -176,7 +174,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * @param filter    request filter data
      * @param pageStart pagination data
      * @param pageSize  pagination size
-     * @return genera archive batch filter for searching the queued bathes
+     * @return internal archive batch filter for searching the bathes
      */
     protected EArchiveBatchFilter convertExportFilter(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         EArchiveBatchFilter archiveBatchFilter = new EArchiveBatchFilter();
@@ -205,5 +203,9 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         archiveBatchFilter.setPageSize(pageSize);
         archiveBatchFilter.setPageStart(pageStart);
         return archiveBatchFilter;
+    }
+
+    protected Long dateToPKUserMessageId(Long pkUserMessageDate) {
+        return pkUserMessageDate == null ? null : pkUserMessageDate * (MAX_INCREMENT_NUMBER + 1);
     }
 }

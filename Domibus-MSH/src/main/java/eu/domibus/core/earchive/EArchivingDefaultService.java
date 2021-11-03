@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dateToPKUserMessageId;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.extractDateFromPKUserMessageId;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES;
 
 /**
@@ -50,6 +48,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     // circular dependency on Wildfly use lazy initialization
     private final EArchiveBatchMapper eArchiveBatchMapper;
     private final EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
+    private final EArchiveBatchUtils eArchiveBatchUtils;
     private final DomainContextProvider domainContextProvider;
     private final DomibusPropertyProvider domibusPropertyProvider;
     private final UserMessageLogDefaultService userMessageLogDefaultService;
@@ -64,12 +63,14 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
                                     @Qualifier(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE) Queue eArchiveNotificationQueue,
                                     EArchiveBatchMapper eArchiveBatchMapper,
                                     EArchiveBatchDispatcherService eArchiveBatchDispatcherService,
+                                    EArchiveBatchUtils eArchiveBatchUtils,
                                     DomainContextProvider domainContextProvider,
                                     DomibusPropertyProvider domibusPropertyProvider) {
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.eArchiveBatchMapper = eArchiveBatchMapper;
         this.eArchiveBatchDispatcherService = eArchiveBatchDispatcherService;
+        this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.domainContextProvider = domainContextProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.userMessageLogDefaultService = userMessageLogDefaultService;
@@ -89,17 +90,17 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public Long getStartDateContinuousArchive() {
-        return extractDateFromPKUserMessageId(eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
+        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
     }
 
     @Override
     public Long getStartDateSanityArchive() {
-        return extractDateFromPKUserMessageId(eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
+        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
     }
 
     private void updateEArchiveBatchStart(int sanityId, Long startMessageDate) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(sanityId);
-        long lastPkUserMessage = dateToPKUserMessageId(startMessageDate);
+        long lastPkUserMessage = eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate);
         if (LOG.isDebugEnabled()) {
             LOG.debug("New start date archive [{}] batch lastPkUserMessage : [{}]", byReference.getDescription(), lastPkUserMessage);
         }

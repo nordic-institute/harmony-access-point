@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER;
+
 /**
  * @author Joze Rihtarsic
  * @since 5.0
@@ -29,7 +31,7 @@ public class EArchiveBatchUtils {
         try {
             return objectMapper.readValue(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
         } catch (IOException e) {
-            throw new  DomibusEArchiveException("Could not read batch list from batch:" + eArchiveBatchByBatchId.getBatchId(), e);
+            throw new DomibusEArchiveException("Could not read batch list from batch:" + eArchiveBatchByBatchId.getBatchId(), e);
         }
     }
 
@@ -47,5 +49,16 @@ public class EArchiveBatchUtils {
         } catch (JsonProcessingException e) {
             throw new DomibusEArchiveException("Could not parse the list of userMessages", e);
         }
+    }
+
+    Long extractDateFromPKUserMessageId(Long pkUserMessage) {
+        if (pkUserMessage == null) {
+            return null;
+        }
+        return pkUserMessage / (MAX_INCREMENT_NUMBER + 1);
+    }
+
+    Long dateToPKUserMessageId(Long pkUserMessageDate) {
+        return pkUserMessageDate == null ? null : pkUserMessageDate * (MAX_INCREMENT_NUMBER + 1);
     }
 }

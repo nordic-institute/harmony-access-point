@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.dateToPKUserMessageId;
 import static eu.domibus.core.earchive.EArchivingDefaultService.CONTINUOUS_ID;
 import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
 
@@ -27,16 +26,19 @@ import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
-    private EArchivingDefaultService eArchivingService;
+    EArchivingDefaultService eArchivingService;
 
     @Autowired
-    private EArchiveBatchStartDao eArchiveBatchStartDao;
+    EArchiveBatchStartDao eArchiveBatchStartDao;
 
     @Autowired
-    private EArchiveBatchDao eArchiveBatchDao;
+    EArchiveBatchDao eArchiveBatchDao;
 
     @Autowired
     EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
+
+    @Autowired
+    EArchiveBatchUtils eArchiveBatchUtils;
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
@@ -123,7 +125,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startMessageDate = 21102610L;
         eArchivingService.updateStartDateContinuousArchive(startMessageDate);
 
-        Assert.assertEquals(dateToPKUserMessageId(startMessageDate),
+        Assert.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
 
     }
@@ -142,7 +144,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startMessageDate = 102710L;
         eArchivingService.updateStartDateSanityArchive(startMessageDate);
 
-        Assert.assertEquals(dateToPKUserMessageId(startMessageDate),
+        Assert.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
     }
 
