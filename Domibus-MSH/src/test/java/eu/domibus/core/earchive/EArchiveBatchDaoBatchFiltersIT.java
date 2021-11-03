@@ -142,10 +142,11 @@ public class EArchiveBatchDaoBatchFiltersIT {
     }
 
 
-    private static final String BATCH_ID_01 = UUID.randomUUID().toString();
-    private static final String BATCH_ID_02 = UUID.randomUUID().toString();
-    private static final String BATCH_ID_03 = UUID.randomUUID().toString();
-    private static final String BATCH_ID_04 = UUID.randomUUID().toString();
+    private static final String BATCH_ID_01 = "BATCH_ID_01@"+UUID.randomUUID().toString();
+
+    private static final String BATCH_ID_02 = "BATCH_ID_02@"+UUID.randomUUID().toString();
+    private static final String BATCH_ID_03 = "BATCH_ID_03@"+UUID.randomUUID().toString();
+    private static final String BATCH_ID_04 = "BATCH_ID_04@"+UUID.randomUUID().toString();
 
 
     @Parameterized.Parameters(name = "{index}: {0}")
@@ -157,9 +158,9 @@ public class EArchiveBatchDaoBatchFiltersIT {
                 {"With filter status exported and reexported ", asList(BATCH_ID_02), 1L, new EArchiveBatchFilter(asList(EXPORTED), null, null, null, null, null, null, null)},
                 {"With filter by type", asList(BATCH_ID_02), 1L, new EArchiveBatchFilter(asList(EXPORTED), singletonList(EArchiveRequestType.MANUAL), null, null, null, null, null, null)},
                 // Note batches are ordered from latest to oldest
-                {"With filter: request date", asList(BATCH_ID_04, BATCH_ID_02, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null)},
-                {"With filter: get All ", asList(BATCH_ID_04, BATCH_ID_02, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null)},
-                {"With filter: test page size", asList(BATCH_ID_04, BATCH_ID_02), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 2)},
+                {"With filter: request date", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null)},
+                {"With filter: get All ", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null)},
+                {"With filter: test page size", asList(BATCH_ID_04, BATCH_ID_03), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 2)},
                 {"With filter: test page start", asList(BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, 1, 2)},
         });
     }
@@ -216,7 +217,6 @@ public class EArchiveBatchDaoBatchFiltersIT {
         // then
         Assert.assertEquals(expectedBatchIds.size(), resultList.size());
         Assert.assertArrayEquals(expectedBatchIds.toArray(), resultList.stream().map(eArchiveBatchEntity -> eArchiveBatchEntity.getBatchId()).collect(Collectors.toList()).toArray());
-
     }
 
     @Test
