@@ -1,9 +1,9 @@
 package eu.domibus.ext.domain.archive;
 
 public class PaginationDTO {
-    Integer pageStart;
-    Integer pageSize;
-    Integer total;
+    protected Integer pageStart;
+    protected Integer pageSize;
+    protected Integer total;
 
     public PaginationDTO() {
     }

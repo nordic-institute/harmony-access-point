@@ -1,7 +1,8 @@
 package eu.domibus.ext.domain.archive;
 
-import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Joze Rihtarsic
@@ -9,17 +10,17 @@ import java.util.Date;
  */
 public class QueuedBatchFilterDTO {
 
-    Integer lastCountRequests;
-    BatchRequestTypeParameter requestType;
-    Date startDate;
-    Date endDate;
+    protected Integer lastCountRequests;
+    protected List<BatchRequestType> requestTypes;
+    protected Date startDate;
+    protected Date endDate;
 
     public QueuedBatchFilterDTO() {
     }
 
-    public QueuedBatchFilterDTO(Integer lastCountRequests, BatchRequestTypeParameter requestType, Date startDate, Date endDate) {
+    public QueuedBatchFilterDTO(Integer lastCountRequests, List<BatchRequestType> requestTypes, Date startDate, Date endDate) {
         this.lastCountRequests = lastCountRequests;
-        this.requestType = requestType;
+        this.requestTypes = requestTypes;
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -32,13 +33,13 @@ public class QueuedBatchFilterDTO {
         this.lastCountRequests = lastCountRequests;
     }
 
-    public BatchRequestTypeParameter getRequestType() {
-        return requestType;
+    public List<BatchRequestType> getRequestTypes() {
+        if (requestTypes == null) {
+            requestTypes = new ArrayList<>();
+        }
+        return requestTypes;
     }
 
-    public void setRequestType(BatchRequestTypeParameter requestType) {
-        this.requestType = requestType;
-    }
 
     public Date getStartDate() {
         return startDate;
@@ -54,5 +55,15 @@ public class QueuedBatchFilterDTO {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    @Override
+    public String toString() {
+        return "QueuedBatchFilterDTO{" +
+                "lastCountRequests=" + lastCountRequests +
+                ", requestTypes=" + requestTypes +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                '}';
     }
 }

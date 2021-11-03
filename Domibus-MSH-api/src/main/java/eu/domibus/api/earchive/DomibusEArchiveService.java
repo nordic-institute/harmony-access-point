@@ -29,7 +29,9 @@ public interface DomibusEArchiveService {
 
     ListUserMessageDto getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
 
+    Long getNotArchivedMessagesCount(Date messageStartDate, Date messageEndDate);
+
     EArchiveBatchRequestDTO reExportBatch(String batchId);
 
-    EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus);
+    EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus, String message);
 }

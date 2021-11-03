@@ -16,6 +16,7 @@ import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -117,7 +118,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     public List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter) {
 
         Boolean returnMessages = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES);
-        Class<? extends EArchiveBatchBaseEntity> getResultProjections = returnMessages ? EArchiveBatchEntity.class : EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity.class;
+        Class<? extends EArchiveBatchBaseEntity> getResultProjections = returnMessages ? EArchiveBatchEntity.class : EArchiveBatchSummaryEntity.class;
         List<? extends EArchiveBatchBaseEntity> requestDTOList = eArchiveBatchDao.getBatchRequestList(filter, getResultProjections);
         return requestDTOList.stream().map(eArchiveBatchEntity ->
                 eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(eArchiveBatchEntity)
@@ -146,20 +147,27 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    public Long getNotArchivedMessagesCount(Date messageStartDate, Date messageEndDate) {
+        return eArchiveBatchDao.getNotArchivedMessageCountForPeriod(messageStartDate, messageEndDate);
+    }
+
+    @Override
     public EArchiveBatchRequestDTO reExportBatch(String batchId) {
         // create a copy of the  batch and submit it to JMS
-        EArchiveBatchEntity copyBatch = eArchiveBatchDispatcherService.createBatchCopyAndEnqueue(batchId, domainContextProvider.getCurrentDomain());
+        EArchiveBatchEntity copyBatch = eArchiveBatchDispatcherService.reExportBatchAndEnqueue(batchId, domainContextProvider.getCurrentDomain());
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(copyBatch);
     }
 
     @Override
-    public EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus) {
+    @Transactional
+    public EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus,String message) {
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_RECEIVED, batchId,batchStatus.name(), message );
         EArchiveBatchEntity eArchiveBatchEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
-
         if (eArchiveBatchEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        EArchiveBatchEntity result = eArchiveBatchDao.setStatus(eArchiveBatchEntity, batchStatus, null);
+        EArchiveBatchEntity result = eArchiveBatchDao.setStatus(eArchiveBatchEntity, batchStatus, message);
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_RECEIVED, batchId,batchStatus.name(), message );
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(result);
     }
 
@@ -193,6 +201,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<UserMessageDTO> userMessageDtos) {
         userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(),eArchiveBatchByBatchId.getStorageLocation() );
         sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
     }
 

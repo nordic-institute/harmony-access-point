@@ -2,6 +2,7 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.dao.BasicDao;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
-import static eu.domibus.core.earchive.RequestType.CONTINUOUS;
+import static eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -83,7 +84,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public Long getBatchRequestListCount(EArchiveBatchFilter filter) {
-        CriteriaQuery<Long> countQuery = getEArchiveBatchCriteriaQuery(filter, true, EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity.class);
+        CriteriaQuery<Long> countQuery = getEArchiveBatchCriteriaQuery(filter, true, EArchiveBatchSummaryEntity.class);
         return em.createQuery(countQuery).getSingleResult();
     }
 
@@ -91,10 +92,15 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         TypedQuery<UserMessageDTO> query = em.createNamedQuery("EArchiveBatchRequest.getNotArchivedMessagesForPeriod", UserMessageDTO.class);
         query.setParameter("FROM_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         query.setParameter("TO_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-
         setPaginationParametersToQuery(query, pageStart, pageSize);
-
         return query.getResultList();
+    }
+
+    public Long getNotArchivedMessageCountForPeriod(Date messageStartDate, Date messageEndDate) {
+        TypedQuery<Long> query = em.createNamedQuery("EArchiveBatchRequest.getNotArchivedMessagesCountForPeriod", Long.class);
+        query.setParameter("FROM_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("TO_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        return query.getSingleResult();
     }
 
     public List<UserMessageDTO> getBatchMessageList(String batchId, Integer pageStart, Integer pageSize) {
@@ -168,12 +174,12 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         }
 
         // filter by type
-        if (StringUtils.isNotEmpty(filter.getRequestType())) {
-            RequestType requestType = RequestType.valueOf(filter.getRequestType());
-            predicates.add(builder.equal(eArchiveBatchRoot.get(EArchiveBatchBaseEntity_.requestType), requestType));
+        if (filter.getRequestTypes() != null && !filter.getRequestTypes().isEmpty()) {
+            Expression<EArchiveRequestType> statusExpression = eArchiveBatchRoot.get(EArchiveBatchBaseEntity_.requestType);
+            predicates.add(statusExpression.in(filter.getRequestTypes()));
         }
 
-        // filter by batch status list
+        // filter by batch status list.
         if (filter.getStatusList() != null && !filter.getStatusList().isEmpty()) {
             Expression<EArchiveBatchStatus> statusExpression = eArchiveBatchRoot.get(EArchiveBatchBaseEntity_.eArchiveBatchStatus);
             predicates.add(statusExpression.in(filter.getStatusList()));

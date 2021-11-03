@@ -1,7 +1,5 @@
 package eu.domibus.ext.domain.archive;
 
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,9 +9,9 @@ import java.util.List;
  * @since 5.0
  */
 public class QueuedBatchResultDTO {
-    QueuedBatchFilterDTO filter;
-    PaginationDTO pagination;
-    List<QueuedBatchDTO> queuedBatches;
+    protected QueuedBatchFilterDTO filter;
+    protected PaginationDTO pagination;
+    protected List<QueuedBatchDTO> queuedBatches;
 
     public QueuedBatchResultDTO() {
     }
@@ -22,8 +20,9 @@ public class QueuedBatchResultDTO {
         this.filter = filter;
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
-    public QueuedBatchResultDTO(Integer lastCountRequests, BatchRequestTypeParameter requestType, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
-        this.filter = new QueuedBatchFilterDTO(lastCountRequests, requestType, startDate, endDate);
+
+    public QueuedBatchResultDTO(Integer lastCountRequests, List<BatchRequestType> requestTypes, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
+        this.filter = new QueuedBatchFilterDTO(lastCountRequests, requestTypes, startDate, endDate);
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 

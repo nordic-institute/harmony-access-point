@@ -6,8 +6,8 @@ import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
-import eu.domibus.core.earchive.EArchiveBatchBaseEntity;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.EArchiveBatchSummaryEntity;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.util.JsonFormatterConfiguration;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class EArchiveBatchMapperTest {
     @Test
     public void testEArchiveBatchSummaryEntityToDto() {
         // given
-        EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity testEntity = new EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity();
+        EArchiveBatchSummaryEntity testEntity = new EArchiveBatchSummaryEntity();
         testEntity.setBatchId(UUID.randomUUID().toString());
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
@@ -53,7 +53,7 @@ public class EArchiveBatchMapperTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(testEntity.getBatchId(), result.getBatchId());
         Assert.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
-        Assert.assertEquals(testEntity.geteArchiveBatchStatus().name(), result.getStatus());
+        Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
         Assert.assertEquals(testEntity.getErrorCode(), result.getErrorCode());
         Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
@@ -87,7 +87,7 @@ public class EArchiveBatchMapperTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(testEntity.getBatchId(), result.getBatchId());
         Assert.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
-        Assert.assertEquals(testEntity.geteArchiveBatchStatus().name(), result.getStatus());
+        Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
         Assert.assertEquals(testEntity.getErrorCode(), result.getErrorCode());
         Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());

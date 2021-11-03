@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
@@ -17,25 +18,34 @@ import java.util.Date;
 public class EArchiveBatchBaseEntity extends AbstractBaseEntity {
     @Column(name = "BATCH_ID")
     protected String batchId;
+
     @Column(name = "REQUEST_TYPE")
     @Enumerated(EnumType.STRING)
-    protected RequestType requestType;
+    protected EArchiveRequestType requestType;
+
     @Column(name = "BATCH_STATUS")
     @Enumerated(EnumType.STRING)
     protected EArchiveBatchStatus eArchiveBatchStatus;
+
     @Column(name = "DATE_REQUESTED")
     @Temporal(TemporalType.TIMESTAMP)
     protected Date dateRequested;
+
     @Column(name = "LAST_PK_USER_MESSAGE")
     protected Long lastPkUserMessage;
+
     @Column(name = "BATCH_SIZE")
     protected Integer batchSize;
+
     @Column(name = "ERROR_CODE")
     protected String errorCode;
+
     @Column(name = "ERROR_DETAIL")
     protected String errorMessage;
+
     @Column(name = "STORAGE_LOCATION")
     protected String storageLocation;
+
     @Column(name = "FIRST_PK_USER_MESSAGE")
     private Long firstPkUserMessage;
 
@@ -47,11 +57,11 @@ public class EArchiveBatchBaseEntity extends AbstractBaseEntity {
         this.batchId = batchId;
     }
 
-    public RequestType getRequestType() {
+    public EArchiveRequestType getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(RequestType requestType) {
+    public void setRequestType(EArchiveRequestType requestType) {
         this.requestType = requestType;
     }
 
@@ -95,7 +105,7 @@ public class EArchiveBatchBaseEntity extends AbstractBaseEntity {
         this.storageLocation = storageLocation;
     }
 
-    public EArchiveBatchStatus geteArchiveBatchStatus() {
+    public EArchiveBatchStatus getEArchiveBatchStatus() {
         return eArchiveBatchStatus;
     }
 
@@ -117,14 +127,5 @@ public class EArchiveBatchBaseEntity extends AbstractBaseEntity {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
-    }
-
-    /**
-     * Entity with the lightweight fields
-     */
-    @Entity
-    @Table(name = "TB_EARCHIVE_BATCH")
-    public static class EArchiveBatchSummaryEntity
-            extends EArchiveBatchBaseEntity {
     }
 }

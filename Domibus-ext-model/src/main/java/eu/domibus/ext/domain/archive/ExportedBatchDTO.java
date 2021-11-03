@@ -9,18 +9,17 @@ import java.util.List;
  */
 public class ExportedBatchDTO {
 
-    String batchId;
-    BatchRequestType requestType;
-    ExportedBatchStatusType status;
-    String errorCode;
-    String errorDescription;
-    Date enqueuedTimestamp;
+    protected String batchId;
+    protected BatchRequestType requestType;
+    protected ExportedBatchStatusType status;
+    protected String errorCode;
+    protected String errorDescription;
+    protected Date enqueuedTimestamp;
     // Same as message parameter max and min:  yyMMddHH
-    Long messageStartDate;
-    Long messageEndDate;
-    String manifestChecksum;
-
-    List<String> messages;
+    protected Long messageStartDate;
+    protected Long messageEndDate;
+    protected String manifestChecksum;
+    protected List<String> messages;
 
     public String getBatchId() {
         return batchId;

@@ -3,6 +3,7 @@ package eu.domibus.core.earchive;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -144,19 +145,21 @@ public class EArchiveBatchDaoBatchFiltersIT {
     private static final String BATCH_ID_01 = UUID.randomUUID().toString();
     private static final String BATCH_ID_02 = UUID.randomUUID().toString();
     private static final String BATCH_ID_03 = UUID.randomUUID().toString();
+    private static final String BATCH_ID_04 = UUID.randomUUID().toString();
+
 
     @Parameterized.Parameters(name = "{index}: {0}")
     // test desc. result batchIds, filter
     public static Collection<Object[]> data() {
         return asList(new Object[][]{
-                {"With filter status queued ", singletonList(BATCH_ID_03), 1L, new EArchiveBatchFilter(singletonList(QUEUED), null, null, null, null, null, null, null)},
+                {"With filter status queued ", singletonList(BATCH_ID_04), 1L, new EArchiveBatchFilter(singletonList(QUEUED), null, null, null, null, null, null, null)},
                 {"With filter status exported ", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, null, null)},
-                {"With filter status exported and reexported ", asList(BATCH_ID_02, BATCH_ID_02), 2L, new EArchiveBatchFilter(asList(EXPORTED, REEXPORTED), null, null, null, null, null, null, null)},
-                {"With filter by type", asList(BATCH_ID_02), 1L, new EArchiveBatchFilter(null, RequestType.MANUAL.name(), null, null, null, null, null, null)},
+                {"With filter status exported and reexported ", asList(BATCH_ID_02), 1L, new EArchiveBatchFilter(asList(EXPORTED), null, null, null, null, null, null, null)},
+                {"With filter by type", asList(BATCH_ID_02), 1L, new EArchiveBatchFilter(asList(EXPORTED), singletonList(EArchiveRequestType.MANUAL), null, null, null, null, null, null)},
                 // Note batches are ordered from latest to oldest
-                {"With filter: request date", asList(BATCH_ID_03, BATCH_ID_02, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null)},
-                {"With filter: get All ", asList(BATCH_ID_03, BATCH_ID_02, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null)},
-                {"With filter: test page size", asList(BATCH_ID_03, BATCH_ID_02), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 2)},
+                {"With filter: request date", asList(BATCH_ID_04, BATCH_ID_02, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null)},
+                {"With filter: get All ", asList(BATCH_ID_04, BATCH_ID_02, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null)},
+                {"With filter: test page size", asList(BATCH_ID_04, BATCH_ID_02), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 2)},
                 {"With filter: test page start", asList(BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, 1, 2)},
         });
     }
@@ -188,13 +191,13 @@ public class EArchiveBatchDaoBatchFiltersIT {
     public void setup() {
         Date currentDate = Calendar.getInstance().getTime();
         // prepare database -> create batches
-        create(BATCH_ID_01, DateUtils.addDays(currentDate, -30), 1L, 10L, RequestType.CONTINUOUS, EArchiveBatchStatus.ARCHIVED);
-        create(BATCH_ID_02, DateUtils.addDays(currentDate, -25), 11L, 20L, RequestType.CONTINUOUS, EArchiveBatchStatus.REEXPORTED);
-        create(BATCH_ID_02, DateUtils.addDays(currentDate, -22), 11L, 20L, RequestType.MANUAL, EXPORTED);
-        create(BATCH_ID_03, DateUtils.addDays(currentDate, -15), 21L, 30L, RequestType.CONTINUOUS, QUEUED);
+        create(BATCH_ID_01, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, ARCHIVED);
+        create(BATCH_ID_02, DateUtils.addDays(currentDate, -25), 11L, 20L, EArchiveRequestType.MANUAL, EXPORTED);
+        create(BATCH_ID_03, DateUtils.addDays(currentDate, -22), 21L, 30L, EArchiveRequestType.MANUAL, EXPIRED);
+        create(BATCH_ID_04, DateUtils.addDays(currentDate, -15), 31L, 40L, EArchiveRequestType.CONTINUOUS, QUEUED);
     }
 
-    private EArchiveBatchEntity create(String batchId, Date dateRequested, Long firstPkUserMessage, Long lastPkUserMessage, RequestType continuous, EArchiveBatchStatus status) {
+    private EArchiveBatchEntity create(String batchId, Date dateRequested, Long firstPkUserMessage, Long lastPkUserMessage, EArchiveRequestType continuous, EArchiveBatchStatus status) {
         EArchiveBatchEntity batch = new EArchiveBatchEntity();
         batch.setBatchId(batchId);
         batch.setDateRequested(dateRequested);
@@ -209,7 +212,7 @@ public class EArchiveBatchDaoBatchFiltersIT {
     @Test
     public void testGetBatchRequestListWithoutClob() {
         // given-when
-        List<EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity> resultList = eArchiveBatchDao.getBatchRequestList(filter, EArchiveBatchBaseEntity.EArchiveBatchSummaryEntity.class);
+        List<EArchiveBatchSummaryEntity> resultList = eArchiveBatchDao.getBatchRequestList(filter, EArchiveBatchSummaryEntity.class);
         // then
         Assert.assertEquals(expectedBatchIds.size(), resultList.size());
         Assert.assertArrayEquals(expectedBatchIds.toArray(), resultList.stream().map(eArchiveBatchEntity -> eArchiveBatchEntity.getBatchId()).collect(Collectors.toList()).toArray());

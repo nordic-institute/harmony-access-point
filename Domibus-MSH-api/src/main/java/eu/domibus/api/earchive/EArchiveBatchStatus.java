@@ -27,10 +27,6 @@ public enum EArchiveBatchStatus {
      */
     EXPORTED,
     /**
-     * A batch was rexported.
-     */
-    REEXPORTED,
-    /**
      * End status of client does not notify ARCHIVED in time
      */
     EXPIRED,

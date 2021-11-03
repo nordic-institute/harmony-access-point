@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.job;
 
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -90,37 +91,23 @@ public class EArchivingJobService {
         if (originEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-
-        // save batch data for audit
-        EArchiveBatchEntity reExportBatch = new EArchiveBatchEntity();
-        reExportBatch.setBatchSize(originEntity.getBatchSize());
-        reExportBatch.setRequestType(originEntity.getRequestType());
-        reExportBatch.setMessageIdsJson(originEntity.getMessageIdsJson());
-        reExportBatch.setFirstPkUserMessage(originEntity.getFirstPkUserMessage());
-        reExportBatch.setLastPkUserMessage(originEntity.getLastPkUserMessage());
-        reExportBatch.seteArchiveBatchStatus(EArchiveBatchStatus.REEXPORTED);
-        reExportBatch.setDateRequested(originEntity.getDateRequested());
-        // set updated storage location and new batch id
-        reExportBatch.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
-        reExportBatch.setBatchId(originEntity.getBatchId());
         // reuse the same entity to reduce the need for insert "UserMessage mappings to the "TB_EARCHIVEBATCH_UM"
-        originEntity.setDateRequested(new Date());
+        // update the time
+        originEntity.setDateRequested(Calendar.getInstance().getTime());
         originEntity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
-        originEntity.setRequestType(RequestType.MANUAL);
-        // update database data
-        eArchiveBatchDao.create(reExportBatch);
-        eArchiveBatchDao.merge(originEntity);
-
+        originEntity.setRequestType(EArchiveRequestType.MANUAL); // rexported batch is set to manual
+        originEntity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         return originEntity;
     }
 
     private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
         entity.setBatchSize(batchSize);
-        entity.setRequestType(RequestType.CONTINUOUS);
+        entity.setRequestType(EArchiveRequestType.CONTINUOUS);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
         entity.setMessageIdsJson(eArchiveBatchUtils.getRawJson(userMessageToBeArchived));
+        entity.setFirstPkUserMessage(userMessageToBeArchived.getUserMessageDtos().isEmpty()?null:userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId());
         entity.setLastPkUserMessage(lastEntity);
         entity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());

@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -38,9 +39,9 @@ public class EArchiveBatchDaoIT extends AbstractIT {
         secondContinuous = new EArchiveBatchEntity();
         firstManual = new EArchiveBatchEntity();
 
-        create(firstContinuous, 10L, RequestType.CONTINUOUS);
-        create(secondContinuous, 20L, RequestType.CONTINUOUS);
-        create(firstManual, 30L, RequestType.MANUAL);
+        create(firstContinuous, 10L, EArchiveRequestType.CONTINUOUS);
+        create(secondContinuous, 20L, EArchiveRequestType.CONTINUOUS);
+        create(firstManual, 30L, EArchiveRequestType.MANUAL);
     }
 
     @Test
@@ -63,7 +64,7 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     }
 
 
-    private void create(EArchiveBatchEntity eArchiveBatch, Long lastPkUserMessage, RequestType continuous) {
+    private void create(EArchiveBatchEntity eArchiveBatch, Long lastPkUserMessage, EArchiveRequestType continuous) {
         eArchiveBatch.setLastPkUserMessage(lastPkUserMessage);
         eArchiveBatch.setRequestType(continuous);
         eArchiveBatchDao.create(eArchiveBatch);
@@ -72,7 +73,7 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     @Test
     public void findLastEntityIdArchived_notFound() {
         em.createQuery("delete from EArchiveBatchEntity batch " +
-                "where batch.requestType = eu.domibus.core.earchive.RequestType.CONTINUOUS")
+                "where batch.requestType = eu.domibus.core.earchive.EArchiveRequestType.CONTINUOUS")
                 .executeUpdate();
 
         Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();

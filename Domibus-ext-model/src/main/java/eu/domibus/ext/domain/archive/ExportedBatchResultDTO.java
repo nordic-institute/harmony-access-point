@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class ExportedBatchResultDTO {
 
-    PaginationDTO pagination;
-    ExportedBatchFilterDTO filter;
-    List<ExportedBatchDTO> exportedBatches;
+    protected PaginationDTO pagination;
+    protected ExportedBatchFilterDTO filter;
+    protected List<ExportedBatchDTO> exportedBatches;
 
     public ExportedBatchResultDTO() {
     }
@@ -21,9 +21,8 @@ public class ExportedBatchResultDTO {
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 
-
-    public ExportedBatchResultDTO(Long messageStartDate, Long messageEndDate, ExportedBatchStatusTypeParameter status, Boolean reExport, Integer pageStart, Integer pageSize) {
-        this.filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, status, reExport);
+    public ExportedBatchResultDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, List<BatchRequestType> requestTypes, Integer pageStart, Integer pageSize) {
+        this.filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, requestTypes);
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 

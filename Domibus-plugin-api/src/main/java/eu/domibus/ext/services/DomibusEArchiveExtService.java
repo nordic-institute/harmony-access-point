@@ -1,13 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.archive.*;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,7 +32,9 @@ public interface DomibusEArchiveExtService {
 
     BatchStatusDTO reExportBatch(String batchId);
 
-    BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus);
+    BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus, String message);
 
-    List<String>  getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
+    List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize);
+
+    Long getNotArchivedMessageCount(NotArchivedMessagesFilterDTO filter);
 }

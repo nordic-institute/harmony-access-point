@@ -1,8 +1,8 @@
 package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
@@ -160,9 +160,9 @@ public class EArchiveListenerTest {
             result = new Date();
 
             eArchiveBatch.getRequestType();
-            result = RequestType.CONTINUOUS;
+            result = EArchiveRequestType.CONTINUOUS;
 
-            eArchiveBatch.geteArchiveBatchStatus();
+            eArchiveBatch.getEArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<UserMessageDTO>) any);

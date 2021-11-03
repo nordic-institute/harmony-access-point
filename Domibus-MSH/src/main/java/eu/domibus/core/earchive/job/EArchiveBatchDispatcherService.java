@@ -13,6 +13,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -94,7 +95,13 @@ public class EArchiveBatchDispatcherService {
 
 
     /**
-     * @return null if no messages found
+     * Create a new batch and enqueue it
+     *
+     * @param lastEntityIdProcessed
+     * @param batchSize
+     * @param maxEntityIdToArchived
+     * @param domain
+     * @return
      */
     private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
         ListUserMessageDto userMessageToBeArchived = userMessageLogDao.findMessagesForArchivingDesc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
@@ -107,19 +114,22 @@ public class EArchiveBatchDispatcherService {
         EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
 
         enqueueEArchive(eArchiveBatch, domain);
-
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_REEXPORT, eArchiveBatch.getBatchId());
         return eArchiveBatch;
     }
 
     /**
-     * Method creates a batch copy/ re-export existing batch with new Batch ID.
+     * updates the data for batchId  and send it to EArchive queue for reexport
      *
-     * @return null if no messages found
+     * @param batchId the batch id
+     * @param domain
+     * @return reexported batch entity
      */
-    public EArchiveBatchEntity createBatchCopyAndEnqueue(final String batchId, Domain domain) {
-        // create a copy
+    public EArchiveBatchEntity reExportBatchAndEnqueue(final String batchId, Domain domain) {
+        LOG.debug("Re-Export [{}] the batch and submit it to queue!", batchId);
         EArchiveBatchEntity eArchiveBatch = eArchivingJobService.reExportEArchiveBatch(batchId);
         enqueueEArchive(eArchiveBatch, domain);
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_REEXPORT, batchId);
         return eArchiveBatch;
     }
 

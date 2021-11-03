@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.MessageDaoTestUtil;
@@ -75,7 +76,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
         batch1 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
-                RequestType.CONTINUOUS,
+                EArchiveRequestType.CONTINUOUS,
                 EArchiveBatchStatus.STARTED,
                 DateUtils.addDays(currentDate, -30),
                 uml1.getEntityId(),
@@ -90,7 +91,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
         batch2 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
-                RequestType.CONTINUOUS,
+                EArchiveRequestType.CONTINUOUS,
                 EArchiveBatchStatus.FAILED,
                 DateUtils.addDays(currentDate, -5),
                 2110100000000011L,
@@ -105,7 +106,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
         batch3 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 batch2.getBatchId(),
-                RequestType.MANUAL,
+                EArchiveRequestType.MANUAL,
                 EArchiveBatchStatus.EXPORTED,
                 DateUtils.addDays(currentDate, 0),
                 2110100000000021L,
@@ -189,7 +190,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void getBatchListFilterStatus() {
-        EArchiveBatchFilter filter = new EArchiveBatchFilter(RequestType.CONTINUOUS.name(), null, null, null, null);
+        EArchiveBatchFilter filter = new EArchiveBatchFilter(Collections.singletonList(EArchiveRequestType.CONTINUOUS), null, null, null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // second batch2 with only one message
         Assert.assertEquals(2, batchRequestsCount.size());

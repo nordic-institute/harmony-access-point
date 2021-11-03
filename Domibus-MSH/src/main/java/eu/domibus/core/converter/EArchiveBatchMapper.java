@@ -26,7 +26,7 @@ public abstract class EArchiveBatchMapper {
 
     @Mapping(ignore = true, target = "manifestChecksum")
     @Mapping(ignore = true, target = "version")
-    @Mapping(source = "eArchiveBatchStatus", target = "status")
+    @Mapping(source = "EArchiveBatchStatus", target = "status")
     @Mapping(source = "errorMessage", target = "errorDescription")
     @Mapping(source = "dateRequested", target = "timestamp")
     @Mapping(source = "lastPkUserMessage", target = "messageEndId")

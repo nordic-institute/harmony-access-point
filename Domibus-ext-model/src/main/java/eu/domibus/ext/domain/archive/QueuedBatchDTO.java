@@ -9,12 +9,12 @@ import java.util.List;
  */
 public class QueuedBatchDTO {
 
-    String batchId;
-    BatchRequestType requestType;
-    Date enqueuedTimestamp;
-    Long messageStartDate;
-    Long messageEndDate;
-    List<String> messages;
+    protected String batchId;
+    protected BatchRequestType requestType;
+    protected Date enqueuedTimestamp;
+    protected Long messageStartDate;
+    protected Long messageEndDate;
+    protected List<String> messages;
 
     public String getBatchId() {
         return batchId;

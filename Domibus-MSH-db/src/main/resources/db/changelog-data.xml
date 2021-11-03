@@ -83,6 +83,29 @@
             <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
+
+
+    <changeSet id="insert_ws_default_auth" author="rihtajo" dbms="h2">
+        <insert tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="USERNAME" value="admin"/>
+            <column name="PASSWD" value="$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36"/>
+            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
+        </insert>
+        <insert tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="USERNAME" value="user"/>
+            <column name="PASSWD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
+            <column name="AUTH_ROLES" value="ROLE_USER"/>
+            <column name="ORIGINAL_USER" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
+        </insert>
+        <insert tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="CERTIFICATE_ID" value="CN=blue_gw,O=eDelivery,C=BE:10370035830817850458"/>
+            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
+        </insert>
+    </changeSet>
     
     <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
         <insert tableName="TB_EARCHIVE_START">

@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class EArchiveBatchFilter {
 
-    String requestType;
+    List<EArchiveRequestType> requestTypes;
     Date startDate;
     Date endDate;
     Long messageStartId;
@@ -22,12 +22,12 @@ public class EArchiveBatchFilter {
     public EArchiveBatchFilter() {
     }
 
-    public EArchiveBatchFilter(String requestType, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
-        this(new ArrayList<>(), requestType, startDate, endDate, null, null, pageStart, pageSize);
+    public EArchiveBatchFilter(List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
+        this(new ArrayList<>(), requestTypes, startDate, endDate, null, null, pageStart, pageSize);
     }
 
-    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, String requestType, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Integer pageStart, Integer pageSize) {
-        this.requestType = requestType;
+    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Integer pageStart, Integer pageSize) {
+        this.requestTypes = requestTypes;
         this.startDate = startDate;
         this.endDate = endDate;
         this.messageStartId = messageStartId;
@@ -37,12 +37,11 @@ public class EArchiveBatchFilter {
         this.statusList = statusList;
     }
 
-    public String getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
+    public List<EArchiveRequestType> getRequestTypes() {
+        if (requestTypes ==null){
+            requestTypes = new ArrayList<>();
+        }
+        return requestTypes;
     }
 
     public Date getStartDate() {
@@ -103,11 +102,11 @@ public class EArchiveBatchFilter {
     @Override
     public String toString() {
         return "EArchiveBatchFilter{" +
-                "requestType='" + requestType + '\'' +
+                "requestTypes=" + requestTypes +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", messageStartDate=" + messageStartId +
-                ", messageEndDate=" + messageEndId +
+                ", messageStartId=" + messageStartId +
+                ", messageEndId=" + messageEndId +
                 ", pageStart=" + pageStart +
                 ", pageSize=" + pageSize +
                 ", statusList=" + statusList +

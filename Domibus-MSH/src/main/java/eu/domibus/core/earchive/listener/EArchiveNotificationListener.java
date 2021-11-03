@@ -7,6 +7,7 @@ import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -58,11 +59,13 @@ public class EArchiveNotificationListener implements MessageListener {
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatchByBatchId);
             // TODO: François Gautier 28-10-21 notification failed
+            LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatchByBatchId.getBatchId() );
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
             LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatchByBatchId);
             // TODO: François Gautier 28-10-21 notification exported
+            LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatchByBatchId.getBatchId() );
         }
     }
 

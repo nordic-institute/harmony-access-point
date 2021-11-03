@@ -1,7 +1,6 @@
 package eu.domibus.ext.domain.archive;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,12 +9,12 @@ import java.util.List;
  */
 public class NotArchivedMessagesResultDTO {
 
-    NotArchivedMessagesFilterDTO filter;
-    PaginationDTO pagination;
-    List<String> messages;
+    protected NotArchivedMessagesFilterDTO filter;
+    protected PaginationDTO pagination;
+    protected List<String> messages;
 
-    public NotArchivedMessagesResultDTO(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
-        this.filter = new NotArchivedMessagesFilterDTO(messageStartDate, messageEndDate);
+    public NotArchivedMessagesResultDTO(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
+        this.filter = filter;
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 
@@ -28,6 +27,9 @@ public class NotArchivedMessagesResultDTO {
     }
 
     public List<String> getMessages() {
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
         return messages;
     }
 

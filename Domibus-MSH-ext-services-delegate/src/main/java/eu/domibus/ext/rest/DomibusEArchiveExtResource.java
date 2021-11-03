@@ -60,11 +60,11 @@ public class DomibusEArchiveExtResource {
      * Domibus. It can be used for monitoring purposes.
      *
      * @param lastCountRequests return last N enqueued batch export requests - if this parameter is given all others are ignored*
-     * @param requestType       return batch types  (values  ALL, CONTINUOUS, MANUAL)
+     * @param requestTypes      return batches for given batch types
      * @param startDate         start day-time  of batches enqueued
      * @param endDate           end day-time  of batches enqueued
-     * @param pageStart: the offset from which the message IDs export will start
-     * @param pageSize:  maximum number of records in the page
+     * @param pageStart:        the offset from which the message IDs export will start
+     * @param pageSize:         maximum number of records in the page
      * @return the list of queued batches
      */
     @Operation(summary = "List batch export requests that are queued",
@@ -74,24 +74,28 @@ public class DomibusEArchiveExtResource {
     @GetMapping(path = "batches/queued", produces = {MediaType.APPLICATION_JSON_VALUE})
     public QueuedBatchResultDTO getQueuedBatchRequests(
             @Parameter(description = "Return last N enqueued batch export requests. If this parameter is given all others are ignored.") @RequestParam(value = "lastCountRequests", required = false) Integer lastCountRequests,
-            @Parameter(description = "Filter by batch type") @RequestParam(value = "requestType", defaultValue = "ALL") BatchRequestTypeParameter requestType,
+            @Parameter(description = "Filter by batch type") @RequestParam(value = "requestType", required = false) List<BatchRequestType> requestTypes,
             @Parameter(description = "Start date-time of batches enqueued") @RequestParam(value = "startDate", required = false) Date startDate,
             @Parameter(description = "End date-time of batches enqueued") @RequestParam(value = "endDate", required = false) Date endDate,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
 
     ) {
-        QueuedBatchFilterDTO filter = new QueuedBatchFilterDTO(lastCountRequests, requestType, startDate, endDate);
+
+        QueuedBatchFilterDTO filter = new QueuedBatchFilterDTO(lastCountRequests, requestTypes, startDate, endDate);
         QueuedBatchResultDTO resultDTO = new QueuedBatchResultDTO(filter, pageStart, pageSize);
+        LOG.info("Return queued batches with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
         Long total = domibusEArchiveExtService.getQueuedBatchRequestsCount(filter);
 
-        if (total==null || total.longValue() < 1L ){
+        if (total == null || total.longValue() < 1L) {
+            LOG.trace("No results found found!");
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
         }
         resultDTO.getPagination().setTotal(total.intValue());
-        List<QueuedBatchDTO> batches =  domibusEArchiveExtService.getQueuedBatchRequests(filter, pageStart, pageSize);
+        List<QueuedBatchDTO> batches = domibusEArchiveExtService.getQueuedBatchRequests(filter, pageStart, pageSize);
         resultDTO.getQueuedBatches().addAll(batches);
+        LOG.trace("Return [{}] results of total: [{}].", batches.size(), total);
         return resultDTO;
     }
 
@@ -118,17 +122,19 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Maximum number of returned records/page size.") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
         ExportedBatchMessagesResultDTO resultDTO = new ExportedBatchMessagesResultDTO(batchId, pageStart, pageSize);
+        LOG.info("Return batch messages with batch id [{}] for page: [{}] and page size: [{}].", batchId, pageStart, pageSize);
         Long total = domibusEArchiveExtService.getBatchMessageCount(batchId);
-        if (total==null || total.longValue() < 1L ){
+        if (total == null || total.longValue() < 1L) {
+            LOG.trace("No results found found!");
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
         }
         resultDTO.getPagination().setTotal(total.intValue());
         List<String> messagePage = domibusEArchiveExtService.getBatchMessageIds(batchId, pageStart, pageSize);
         resultDTO.getMessages().addAll(messagePage);
+        LOG.trace("Return [{}] results of total: [{}].", messagePage.size(), total);
         return resultDTO;
     }
-
 
     /**
      * History of the exported batches
@@ -138,8 +144,8 @@ public class DomibusEArchiveExtResource {
      *
      * @param messageStartDate: start date and hour of the exported messages in the batch yyMMddHH
      * @param messageEndDate:   end date  of the exported messages included in the batch,
-     * @param status:           batch status,
-     * @param reExport:         batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
+     * @param statuses:         Filter by list of batch statues
+     * @param requestTypes:     Filter by batch type (Re-exported batches has MANUAL type)
      * @param pageStart:        the offset/page from which the message IDs export will start. List is sorted by batch request date
      * @param pageSize:         maximum number of records in the page
      * @return list of the exported batches
@@ -153,24 +159,27 @@ public class DomibusEArchiveExtResource {
             // message start date-hour in format yyMMddHH
             @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate,
             @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageEndDate") Long messageEndDate,
-            @Parameter(description = "Filter batches by status") @RequestParam(value = "status", defaultValue = "ALL") ExportedBatchStatusTypeParameter status,
-            @Parameter(description = "Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "reExport", defaultValue = "true") Boolean reExport,
+            @Parameter(description = "Filter batches for statuses") @RequestParam(value = "statuses", required = false) List<ExportedBatchStatusType> statuses,
+            @Parameter(description = "Filter by batch type (Re-exported batches has MANUAL type)") @RequestParam(value = "requestType", required = false) List<BatchRequestType> requestTypes,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
 
-        ExportedBatchFilterDTO filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, status, reExport);
+        ExportedBatchFilterDTO filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, requestTypes);
         ExportedBatchResultDTO resultDTO = new ExportedBatchResultDTO(filter, pageStart, pageSize);
+        LOG.info("Return exported batches with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
 
         Long total = domibusEArchiveExtService.getExportedBatchRequestsCount(filter);
 
-        if (total==null || total.longValue() < 1L ){
+        if (total == null || total.longValue() < 1L) {
+            LOG.trace("No results found found!");
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
         }
         resultDTO.getPagination().setTotal(total.intValue());
-        List<ExportedBatchDTO> batches =  domibusEArchiveExtService.getExportedBatchRequests(filter, pageStart, pageSize);
+        List<ExportedBatchDTO> batches = domibusEArchiveExtService.getExportedBatchRequests(filter, pageStart, pageSize);
         resultDTO.getExportedBatches().addAll(batches);
+        LOG.trace("Return [{}] results of total: [{}].", batches.size(), total);
         return resultDTO;
     }
 
@@ -197,6 +206,7 @@ public class DomibusEArchiveExtResource {
     public BatchStatusDTO reExportBatch(
             @PathVariable(name = "batchId") String batchId
     ) {
+        LOG.info("ReExport batch with ID: [{}].", batchId);
         return domibusEArchiveExtService.reExportBatch(batchId);
     }
 
@@ -212,7 +222,7 @@ public class DomibusEArchiveExtResource {
      * Therefore, this REST endpoint only confirms to the client that it has acknowledged the notification
      * and it does not mean that the batch messages are already marked as archived.
      *
-     * @param batchId: The batch id that has been extracted, for instance, from the history of batch  requests
+     * @param batchId:     The batch id that has been extracted, for instance, from the history of batch  requests
      * @param batchStatus: Status of the batch ARCHIVED if successfully archived or  FAILED if archival system fail to archive it
      * @return status of the queued export request
      */
@@ -226,9 +236,10 @@ public class DomibusEArchiveExtResource {
     @PutMapping(path = "/batches/exported/{batchId:.+}/close", produces = {MediaType.APPLICATION_JSON_VALUE})
     public BatchStatusDTO setBatchClientStatus(
             @Parameter(description = "The batch Id.") @PathVariable(name = "batchId") String batchId,
-            @Parameter(description = "Set the batch archive status.") @RequestParam("status") BatchArchiveStatusType batchStatus) {
-
-        return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus);
+            @Parameter(description = "Set the batch archive status.") @RequestParam("status") BatchArchiveStatusType batchStatus,
+            @Parameter(description = "Set the batch message/error - reason.") @RequestParam(value = "message", required = false) String message) {
+        LOG.info("Set client's final status [{}] for batch with ID: [{}] and message [{}].", batchStatus, batchId, message);
+        return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus, message);
     }
 
     /**
@@ -255,8 +266,21 @@ public class DomibusEArchiveExtResource {
                                                             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
                                                             @Parameter(description = "Maximum number of returned records/page size.") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
-        NotArchivedMessagesResultDTO messagesDTO = new NotArchivedMessagesResultDTO(messageStartDate, messageEndDate, pageSize, pageSize);
-        messagesDTO.getMessages().addAll(domibusEArchiveExtService.getNotArchivedMessages(messageStartDate, messageEndDate, pageStart, pageSize));
+        NotArchivedMessagesFilterDTO filter = new NotArchivedMessagesFilterDTO(messageStartDate, messageEndDate);
+        LOG.info("Return not archived messagesIds with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
+        NotArchivedMessagesResultDTO messagesDTO = new NotArchivedMessagesResultDTO(filter, pageSize, pageSize);
+
+
+        Long total = domibusEArchiveExtService.getNotArchivedMessageCount(filter);
+        if (total == null || total.longValue() < 1L) {
+            LOG.trace("No results found found!");
+            messagesDTO.getPagination().setTotal(0);
+            return messagesDTO;
+        }
+        messagesDTO.getPagination().setTotal(total.intValue());
+        List<String> messageIds = domibusEArchiveExtService.getNotArchivedMessages(filter, pageStart, pageSize);
+        LOG.trace("Return [{}] results of total: [{}].", messageIds.size(), total);
+        messagesDTO.getMessages().addAll(messageIds);
         return messagesDTO;
     }
 

@@ -1,19 +1,16 @@
 package eu.domibus.ext.delegate.services.earchive;
 
-import eu.domibus.api.earchive.DomibusEArchiveService;
-import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER;
@@ -24,7 +21,7 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
  */
 @Service
 public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService {
-
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveServiceDelegate.class);
     private final DomibusEArchiveService domibusEArchiveService;
     private final EArchiveExtMapper eArchiveExtMapper;
 
@@ -101,7 +98,6 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         EArchiveBatchFilter archiveBatchFilter = convertExportFilter(filter, pageStart, pageSize);
         List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
         return result.stream().map(eArchiveBatchDTO -> eArchiveExtMapper.archiveBatchToExportBatch(eArchiveBatchDTO)).collect(Collectors.toList());
-
     }
 
     @Override
@@ -128,16 +124,21 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     }
 
     @Override
-    public BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus) {
+    public BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus, String message) {
         EArchiveBatchStatus status = EArchiveBatchStatus.valueOf(batchStatus.name());
-        EArchiveBatchRequestDTO batchDTO = domibusEArchiveService.setBatchClientStatus(batchId, status);
+        EArchiveBatchRequestDTO batchDTO = domibusEArchiveService.setBatchClientStatus(batchId, status, message);
         return eArchiveExtMapper.archiveBatchToBatchStatus(batchDTO);
     }
 
     @Override
-    public List<String> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
-        ListUserMessageDto list = domibusEArchiveService.getNotArchivedMessages(messageStartDate, messageEndDate, pageStart, pageSize);
+    public List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
+        ListUserMessageDto list = domibusEArchiveService.getNotArchivedMessages(filter.getMessageStartDate(), filter.getMessageEndDate(), pageStart, pageSize);
         return list.getUserMessageDtos().stream().map(um -> um.getMessageId()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getNotArchivedMessageCount(NotArchivedMessagesFilterDTO filter) {
+        return domibusEArchiveService.getNotArchivedMessagesCount(filter.getMessageStartDate(), filter.getMessageEndDate());
     }
 
     /**
@@ -149,18 +150,22 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * @return genera archive batch filter for searching the queued bathes
      */
     protected EArchiveBatchFilter convertQueuedFilter(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        LOG.trace("Create batch filter from the Queued filter [{}]!", filter);
         EArchiveBatchFilter archiveBatchFilter = new EArchiveBatchFilter();
         // return  only QUEUED batches
+        LOG.trace("Always return only batches in status QUEUED!");
         archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.QUEUED);
         // set filter
         if (filter.getLastCountRequests() != null || filter.getLastCountRequests() > 0) {
+            // Explained behaviour: if last count is given then ignore all other filters.
+            LOG.trace("Return last count request and ignore all other filters");
             archiveBatchFilter.setPageSize(filter.getLastCountRequests());
         } else {
-            // ignore all other filters and return last count
-            archiveBatchFilter.setRequestType(Objects.equals(filter.getRequestType(), BatchRequestTypeParameter.ALL) ? null : filter.getRequestType().name());
+
+            filter.getRequestTypes().forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
             archiveBatchFilter.setStartDate(filter.getStartDate());
             archiveBatchFilter.setEndDate(filter.getEndDate());
-            archiveBatchFilter.setRequestType(filter.getRequestType().name());
+
         }
         // set pagination
         archiveBatchFilter.setPageSize(pageSize);
@@ -177,23 +182,17 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * @return internal archive batch filter for searching the bathes
      */
     protected EArchiveBatchFilter convertExportFilter(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+        LOG.trace("Create batch filter from the export filter [{}]!", filter);
         EArchiveBatchFilter archiveBatchFilter = new EArchiveBatchFilter();
         // return  only EXPORTED batches
-        if (filter.getStatus() == null) {
+        if (filter.getStatuses().isEmpty()) {
+            LOG.trace("Add default batch status filter: EXPORTED");
             archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPORTED);
-        } else if (filter.getStatus().equals(ExportedBatchStatusTypeParameter.ALL)) {
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPORTED);
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.ARCHIVED);
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.ARCHIVE_FAILED);
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.EXPIRED);
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.DELETED);
         } else {
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(filter.getStatus().name()));
+            filter.getStatuses().forEach(requestedStatusType -> archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(requestedStatusType.name())));
         }
-
-        if (filter.getReExport()) {
-            archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.REEXPORTED);
-        }
+        // set filter for all
+        filter.getRequestTypes().forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
 
         // set filter
         archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
@@ -202,6 +201,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         // set pagination
         archiveBatchFilter.setPageSize(pageSize);
         archiveBatchFilter.setPageStart(pageStart);
+        LOG.trace("Converted export filter: [{}].", archiveBatchFilter);
         return archiveBatchFilter;
     }
 

@@ -1,13 +1,14 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 
 import java.util.Date;
 
 public class EArchiveTestUtils {
 
     public static EArchiveBatchEntity createEArchiveBatchEntity(final String batchIdq,
-                                                                final RequestType requestType,
+                                                                final EArchiveRequestType requestType,
                                                                 final EArchiveBatchStatus eArchiveBatchStatus,
                                                                 final Date dateRequested,
                                                                 final Long firstPkUserMessage,

@@ -61,9 +61,6 @@ public class DomibusEArchiveExtResourceIT {
     @Autowired
     private DomibusEArchiveExtResource testInstance;
 
-    @Autowired
-    private WebApplicationContext webAppContext;
-
     private static final DomibusEArchiveService mockDomibusEArchiveService = mock(DomibusEArchiveService.class);
 
     private MockMvc mockMvc;

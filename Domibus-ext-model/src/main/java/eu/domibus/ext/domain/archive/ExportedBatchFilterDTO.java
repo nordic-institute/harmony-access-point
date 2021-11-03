@@ -1,24 +1,27 @@
 package eu.domibus.ext.domain.archive;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Joze Rihtarsic
  * @since 5.0
  */
 public class ExportedBatchFilterDTO {
 
-    Long messageStartDate;
-    Long messageEndDate;
-    ExportedBatchStatusTypeParameter status;
-    Boolean reExport;
+    protected Long messageStartDate;
+    protected Long messageEndDate;
+    protected List<ExportedBatchStatusType> statuses;
+    protected List<BatchRequestType> requestTypes;
 
     public ExportedBatchFilterDTO() {
     }
 
-    public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, ExportedBatchStatusTypeParameter status, Boolean reExport) {
+    public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, List<BatchRequestType> requestTypes) {
         this.messageStartDate = messageStartDate;
         this.messageEndDate = messageEndDate;
-        this.status = status;
-        this.reExport = reExport;
+        this.statuses = statuses;
+        this.requestTypes = requestTypes;
     }
 
     public Long getMessageStartDate() {
@@ -37,19 +40,27 @@ public class ExportedBatchFilterDTO {
         this.messageEndDate = messageEndDate;
     }
 
-    public ExportedBatchStatusTypeParameter getStatus() {
-        return status;
+    public List<ExportedBatchStatusType> getStatuses() {
+        if (statuses ==null) {
+            statuses = new ArrayList<>();
+        }
+        return statuses;
     }
 
-    public void setStatus(ExportedBatchStatusTypeParameter status) {
-        this.status = status;
+    public List<BatchRequestType> getRequestTypes() {
+        if (requestTypes ==null) {
+            requestTypes = new ArrayList<>();
+        }
+        return requestTypes;
     }
 
-    public Boolean getReExport() {
-        return reExport;
-    }
-
-    public void setReExport(Boolean reExport) {
-        this.reExport = reExport;
+    @Override
+    public String toString() {
+        return "ExportedBatchFilterDTO{" +
+                "messageStartDate=" + messageStartDate +
+                ", messageEndDate=" + messageEndDate +
+                ", statuses=" + statuses +
+                ", requestTypes=" + requestTypes +
+                '}';
     }
 }

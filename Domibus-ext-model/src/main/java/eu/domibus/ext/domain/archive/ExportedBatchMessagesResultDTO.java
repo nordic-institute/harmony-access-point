@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class ExportedBatchMessagesResultDTO {
 
-    String batchId;
-    PaginationDTO pagination;
-    List<String> messages;
+    protected String batchId;
+    protected PaginationDTO pagination;
+    protected List<String> messages;
 
     public ExportedBatchMessagesResultDTO(String batchId, Integer pageStart, Integer pageSize) {
         this.batchId = batchId;
@@ -35,7 +35,7 @@ public class ExportedBatchMessagesResultDTO {
     }
 
     public List<String> getMessages() {
-        if (messages ==null){
+        if (messages == null) {
             messages = new ArrayList<>();
         }
         return messages;
