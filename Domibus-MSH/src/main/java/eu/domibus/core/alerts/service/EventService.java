@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
@@ -74,6 +75,14 @@ public interface EventService {
      * @param expirationDate the expiration date.
      */
     void enqueueCertificateExpiredEvent(String accessPoint, String alias, Date expirationDate);
+
+    /**
+     * Will create an earchiving notification failed event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param batchId       the id of the batch that could not be notified to the e-archiving client
+     * @param batchStatus   the status of the batch that could not be notified to the e-archiving client
+     */
+    void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus);
 
     /**
      * Save an event.

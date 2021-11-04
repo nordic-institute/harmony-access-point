@@ -102,8 +102,8 @@ public class EArchiveListener implements MessageListener {
                         .requestType(eArchiveBatchByBatchId.getRequestType().name())
                         .status(eArchiveBatchByBatchId.getEArchiveBatchStatus().name())
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
-                        .messageEndId("" + userMessageDtos.get(0))
+                        .messageStartId("" + userMessageDtos.get(0).getEntityId())
+                        .messageEndId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
                         .messages(getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
                 userMessageDtos)) {

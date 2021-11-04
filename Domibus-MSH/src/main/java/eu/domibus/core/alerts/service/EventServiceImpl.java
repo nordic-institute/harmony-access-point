@@ -10,6 +10,7 @@ import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -185,6 +186,17 @@ public class EventServiceImpl implements EventService {
      * {@inheritDoc}
      */
     @Override
+    public void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus) {
+        Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
+        event.addStringKeyValue(ArchivingEventProperties.BATCH_ID.name(), batchId);
+        event.addStringKeyValue(ArchivingEventProperties.BATCH_STATUS.name(), batchStatus.name());
+        enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED.name(), event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public eu.domibus.core.alerts.model.persist.Event persistEvent(final Event event) {
         final eu.domibus.core.alerts.model.persist.Event eventEntity = eventMapper.eventServiceToEventPersist(event);
         LOG.debug("Converting jms event [{}] to persistent event [{}]", event, eventEntity);
@@ -286,7 +298,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, int frequency) {
 
-        if(entity == null) {
+        if (entity == null) {
             LOG.debug("Should create alert because the event was not previously persisted");
             return true;
         }
