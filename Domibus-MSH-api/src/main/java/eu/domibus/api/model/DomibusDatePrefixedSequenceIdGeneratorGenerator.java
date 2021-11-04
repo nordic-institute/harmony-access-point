@@ -15,6 +15,7 @@ import java.util.Locale;
 
 /**
  * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) incremen
+ *
  * @author François Gautier
  * @since 5.0
  */
@@ -22,8 +23,6 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
 
     String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
     long MAX_DATETIME_NUMBER = 99999999L;
-
-    String NUMBER_FORMAT_DEFAULT = "%010d";
 
     String MAX = "9999999999";
     long MAX_INCREMENT_NUMBER = 9999999999L;
@@ -43,11 +42,11 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
         String seqStr = now.format(dtf);
         String paddedSequence = MIN + this.generate(session, object);
         // add 10 right digits to the date
-        seqStr += paddedSequence.substring(paddedSequence.length()-MIN.length());
+        seqStr += paddedSequence.substring(paddedSequence.length() - MIN.length());
         return NumberUtils.toLong(seqStr);
     }
 
-    default LocalDateTime getCurrentDate(){
+    default LocalDateTime getCurrentDate() {
         return LocalDateTime.now(zoneId);
     }
 }

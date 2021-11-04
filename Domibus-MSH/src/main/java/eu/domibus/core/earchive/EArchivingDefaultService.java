@@ -168,9 +168,9 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
         DomibusMessageCode messageCode;
-        if (Objects.equals(batchStatus,EArchiveBatchStatus.ARCHIVED)) {
+        if (batchStatus == EArchiveBatchStatus.ARCHIVED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED_NOTIFICATION_RECEIVED;
-        } else if (Objects.equals(batchStatus,EArchiveBatchStatus.ARCHIVE_FAILED)){
+        } else if (batchStatus == EArchiveBatchStatus.ARCHIVE_FAILED){
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ERROR_NOTIFICATION_RECEIVED;
         } else {
             throw new DomibusEArchiveException("Client submitted invalid batch status ["+batchStatus+"] for batchId: [" + batchId + "]. " +
