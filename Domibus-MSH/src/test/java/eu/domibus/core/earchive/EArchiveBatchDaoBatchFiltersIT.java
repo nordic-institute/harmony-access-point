@@ -205,7 +205,7 @@ public class EArchiveBatchDaoBatchFiltersIT {
         batch.setFirstPkUserMessage(firstPkUserMessage);
         batch.setLastPkUserMessage(lastPkUserMessage);
         batch.setRequestType(continuous);
-        batch.seteArchiveBatchStatus(status);
+        batch.setEArchiveBatchStatus(status);
         batch.setMessageIdsJson("{\"messageId\":\"" + UUID.randomUUID().toString() + "\"}");
         return eArchiveBatchDao.merge(batch);
     }

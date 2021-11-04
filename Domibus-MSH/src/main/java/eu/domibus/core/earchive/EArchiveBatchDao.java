@@ -3,9 +3,9 @@ package eu.domibus.core.earchive;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.dao.BasicDao;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
-import static eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -66,11 +66,10 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     @Transactional
-    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status,String error) {
-        eArchiveBatchByBatchId.seteArchiveBatchStatus(status);
-        if(StringUtils.isNotBlank(error)) {
-            eArchiveBatchByBatchId.setErrorMessage(error);
-        }
+    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
+        eArchiveBatchByBatchId.setEArchiveBatchStatus(status);
+        eArchiveBatchByBatchId.setErrorMessage(error);
+        eArchiveBatchByBatchId.setErrorCode(errorCode);
         return merge(eArchiveBatchByBatchId);
     }
 
@@ -89,27 +88,23 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public List<UserMessageDTO> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
-        TypedQuery<UserMessageDTO> query = em.createNamedQuery("EArchiveBatchRequest.getNotArchivedMessagesForPeriod", UserMessageDTO.class);
-        query.setParameter("FROM_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("TO_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
+        query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("STATUSES", MessageStatus.getFinalStates());
         setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();
     }
 
     public Long getNotArchivedMessageCountForPeriod(Date messageStartDate, Date messageEndDate) {
-        TypedQuery<Long> query = em.createNamedQuery("EArchiveBatchRequest.getNotArchivedMessagesCountForPeriod", Long.class);
-        query.setParameter("FROM_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("TO_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesForArchiving", Long.class);
+        query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("STATUSES", MessageStatus.getFinalStates());
         return query.getSingleResult();
     }
 
     public List<UserMessageDTO> getBatchMessageList(String batchId, Integer pageStart, Integer pageSize) {
-
-        /*
-        TODO: test what is faster: retrieving user messages directly from DB or getting CLOB and parsing it to UserMessageDTO
-        EArchiveBatchEntity batch = findEArchiveBatchByBatchId(batchId)
-        List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(batch).getUserMessageDtos();
-         */
         TypedQuery<UserMessageDTO> query = em.createNamedQuery("EArchiveBatchRequest.getMessagesForBatchId", UserMessageDTO.class);
         query.setParameter("batchId", batchId);
         setPaginationParametersToQuery(query, pageStart, pageSize);

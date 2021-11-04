@@ -18,15 +18,6 @@ import java.util.Arrays;
         query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
 
 @SqlResultSetMapping(
-        name = "EArchiveBatchRequestDTOCountMapping",
-        classes = @ConstructorResult(
-                targetClass = Long.class,
-                columns = {
-                        @ColumnResult(name = "CNT", type = Long.class),
-                }
-        )
-)
-@SqlResultSetMapping(
         name = "EArchiveBatchUserMessageMapping",
         classes = @ConstructorResult(
                 targetClass = UserMessageDTO.class,
@@ -50,30 +41,6 @@ import java.util.Arrays;
                 " ORDER BY msgMap.FK_USER_MESSAGE_ID ASC"
 )
 
-@NamedNativeQuery(name = "EArchiveBatchRequest.getNotArchivedMessagesForPeriod",
-        resultSetMapping = "EArchiveBatchUserMessageMapping",
-        query = "select uml.ID_PK as FK_USER_MESSAGE_ID, um.MESSAGE_ID as MESSAGE_ID " +
-                " FROM TB_USER_MESSAGE_LOG uml " +
-                " INNER JOIN TB_USER_MESSAGE um " +
-                "   ON uml.ID_PK = um.ID_PK " +
-                " WHERE uml.ID_PK >= :FROM_ENTITY_ID " +
-                "  AND uml.ID_PK < :TO_ENTITY_ID " +
-                "  AND uml.DELETED IS NULL " +
-                "  AND uml.ARCHIVED IS NULL " +
-                " ORDER BY uml.ID_PK asc"
-)
-@NamedNativeQuery(name = "EArchiveBatchRequest.getNotArchivedMessagesCountForPeriod",
-        resultSetMapping = "EArchiveBatchRequestDTOCountMapping",
-        query = "select count(um.ID_PK) as cnt " +
-                " FROM TB_USER_MESSAGE_LOG uml " +
-                " INNER JOIN TB_USER_MESSAGE um " +
-                "   ON uml.ID_PK = um.ID_PK " +
-                " WHERE uml.ID_PK >= :FROM_ENTITY_ID " +
-                "  AND uml.ID_PK < :TO_ENTITY_ID " +
-                "  AND uml.DELETED IS NULL " +
-                "  AND uml.ARCHIVED IS NULL " +
-                " ORDER BY uml.ID_PK asc"
-)
 public class EArchiveBatchEntity extends EArchiveBatchBaseEntity {
 
     @Lob

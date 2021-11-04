@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES;
@@ -161,13 +162,22 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     @Override
     @Transactional
     public EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus,String message) {
-        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_RECEIVED, batchId,batchStatus.name(), message );
+        LOG.debug("Got status notification with status: [{}] and message: [{}] for batchId: [{}]",batchStatus.name(), message,batchId);
         EArchiveBatchEntity eArchiveBatchEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (eArchiveBatchEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        EArchiveBatchEntity result = eArchiveBatchDao.setStatus(eArchiveBatchEntity, batchStatus, message);
-        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_RECEIVED, batchId,batchStatus.name(), message );
+        DomibusMessageCode messageCode;
+        if (Objects.equals(batchStatus,EArchiveBatchStatus.ARCHIVED)) {
+            messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED_NOTIFICATION_RECEIVED;
+        } else if (Objects.equals(batchStatus,EArchiveBatchStatus.ARCHIVE_FAILED)){
+            messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ERROR_NOTIFICATION_RECEIVED;
+        } else {
+            throw new DomibusEArchiveException("Client submitted invalid batch status ["+batchStatus+"] for batchId: [" + batchId + "]. " +
+                    "Only ARCHIVED and ARCHIVE_FAILED are allowed!");
+        }
+        EArchiveBatchEntity result = eArchiveBatchDao.setStatus(eArchiveBatchEntity, batchStatus, message, messageCode.getCode());
+        LOG.businessInfo(messageCode, batchId, message );
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(result);
     }
 
@@ -181,11 +191,11 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
-        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, null);
+        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, null, null);
     }
 
-    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error) {
-        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, error);
+    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
+        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, error, errorCode);
     }
 
     public void sendToNotificationQueue(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus type) {
@@ -199,14 +209,9 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Transactional
     public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<UserMessageDTO> userMessageDtos) {
-        userMessageLogDefaultService.updateStatusToArchived(getEntityIds(userMessageDtos));
+        userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(),eArchiveBatchByBatchId.getStorageLocation() );
         sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
-    }
-
-
-    private List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
     }
 }

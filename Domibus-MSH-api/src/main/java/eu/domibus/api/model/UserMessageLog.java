@@ -120,6 +120,14 @@ import java.util.List;
                         "  and uml.deleted IS NULL " +
                         "  and uml.archived IS NULL " +
                         "order by uml.entityId asc"),
+        @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
+                query = "select new java.lang.Long(count(uml.entityId)) " +
+                        "from UserMessageLog uml " +
+                        "where uml.entityId > :LAST_ENTITY_ID " +
+                        "  and uml.entityId < :MAX_ENTITY_ID " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.deleted IS NULL " +
+                        "  and uml.archived IS NULL "),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
                 "UPDATE UserMessageLog uml " +

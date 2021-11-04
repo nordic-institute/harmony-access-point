@@ -94,7 +94,7 @@ public class EArchivingJobService {
         // reuse the same entity to reduce the need for insert "UserMessage mappings to the "TB_EARCHIVEBATCH_UM"
         // update the time
         originEntity.setDateRequested(Calendar.getInstance().getTime());
-        originEntity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
+        originEntity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         originEntity.setRequestType(EArchiveRequestType.MANUAL); // rexported batch is set to manual
         originEntity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         return originEntity;
@@ -109,7 +109,7 @@ public class EArchivingJobService {
         entity.setMessageIdsJson(eArchiveBatchUtils.getRawJson(userMessageToBeArchived));
         entity.setFirstPkUserMessage(userMessageToBeArchived.getUserMessageDtos().isEmpty()?null:userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId());
         entity.setLastPkUserMessage(lastEntity);
-        entity.seteArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
+        entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
         eArchiveBatchDao.create(entity);
         return entity;

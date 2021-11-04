@@ -65,14 +65,14 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
 
-        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml2 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml3 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml4 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml5 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml6 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml7_not_archived = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
-        uml8_not_archived = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
+        uml1 = messageDaoTestUtil.createUserMessageLog("uml1-"+UUID.randomUUID().toString(), currentDate);
+        uml2 = messageDaoTestUtil.createUserMessageLog("uml2-"+UUID.randomUUID().toString(), currentDate);
+        uml3 = messageDaoTestUtil.createUserMessageLog("uml3-"+UUID.randomUUID().toString(), currentDate);
+        uml4 = messageDaoTestUtil.createUserMessageLog("uml4-"+UUID.randomUUID().toString(), currentDate);
+        uml5 = messageDaoTestUtil.createUserMessageLog("uml5-"+UUID.randomUUID().toString(), currentDate);
+        uml6 = messageDaoTestUtil.createUserMessageLog("uml6-"+UUID.randomUUID().toString(), currentDate);
+        uml7_not_archived = messageDaoTestUtil.createUserMessageLog("uml7-"+UUID.randomUUID().toString(), currentDate);
+        uml8_not_archived = messageDaoTestUtil.createUserMessageLog("uml8-"+UUID.randomUUID().toString(), currentDate);
 
         batch1 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
@@ -212,9 +212,11 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         ListUserMessageDto listUserMessageDto = eArchivingService.getNotArchivedMessages(DateUtils.addDays(currentDate, -30),
                 DateUtils.addDays(currentDate, 1), null, null);
 
-        Assert.assertEquals(2, listUserMessageDto.getUserMessageDtos().size());
-        Assert.assertEquals(uml7_not_archived.getEntityId(), listUserMessageDto.getUserMessageDtos().get(0).getEntityId());
-        Assert.assertEquals(uml8_not_archived.getEntityId(), listUserMessageDto.getUserMessageDtos().get(1).getEntityId());
+        // According to the discussion service must return all messages which does not have set archive date!
+        int expectedCount = 8;
+        Assert.assertEquals(expectedCount, listUserMessageDto.getUserMessageDtos().size());
+        Assert.assertEquals(uml1.getUserMessage().getMessageId(), listUserMessageDto.getUserMessageDtos().get(0).getMessageId());
+        Assert.assertEquals(uml8_not_archived.getUserMessage().getMessageId(), listUserMessageDto.getUserMessageDtos().get(expectedCount-1).getMessageId());
     }
 
 }

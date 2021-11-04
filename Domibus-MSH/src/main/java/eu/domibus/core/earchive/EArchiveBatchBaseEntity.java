@@ -109,7 +109,7 @@ public class EArchiveBatchBaseEntity extends AbstractBaseEntity {
         return eArchiveBatchStatus;
     }
 
-    public void seteArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
+    public void setEArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
         this.eArchiveBatchStatus = eArchiveBatchStatus;
     }
 
@@ -127,5 +127,21 @@ public class EArchiveBatchBaseEntity extends AbstractBaseEntity {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public String toString() {
+        return "EArchiveBatchBaseEntity{" +
+                "batchId='" + batchId + '\'' +
+                ", requestType=" + requestType +
+                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
+                ", dateRequested=" + dateRequested +
+                ", lastPkUserMessage=" + lastPkUserMessage +
+                ", batchSize=" + batchSize +
+                ", errorCode='" + errorCode + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", storageLocation='" + storageLocation + '\'' +
+                ", firstPkUserMessage=" + firstPkUserMessage +
+                '}';
     }
 }

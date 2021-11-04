@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * The complete rest endpoint integration tests
  */
 @Transactional
-public class DomibusEArchiveExtResourceIT extends AbstractIT {
+public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";

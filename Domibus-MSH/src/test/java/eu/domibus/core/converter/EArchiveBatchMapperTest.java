@@ -41,7 +41,7 @@ public class EArchiveBatchMapperTest {
         testEntity.setBatchId(UUID.randomUUID().toString());
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
-        testEntity.seteArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
+        testEntity.setEArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
         testEntity.setErrorCode("DOM10");
         testEntity.setErrorMessage("Error message: " + UUID.randomUUID().toString());
         testEntity.setFirstPkUserMessage(10l);
@@ -74,7 +74,7 @@ public class EArchiveBatchMapperTest {
         testEntity.setBatchId(UUID.randomUUID().toString());
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
-        testEntity.seteArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
+        testEntity.setEArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
         testEntity.setErrorCode("DOM10");
         testEntity.setErrorMessage("Error message: " + UUID.randomUUID().toString());
         testEntity.setFirstPkUserMessage(10l);

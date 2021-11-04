@@ -20,7 +20,7 @@ public class EArchiveTestUtils {
         EArchiveBatchEntity instance = new EArchiveBatchEntity();
         instance.setBatchId(batchIdq);
         instance.setRequestType(requestType);
-        instance.seteArchiveBatchStatus(eArchiveBatchStatus);
+        instance.setEArchiveBatchStatus(eArchiveBatchStatus);
         instance.setDateRequested(dateRequested);
         instance.setFirstPkUserMessage(firstPkUserMessage);
         instance.setLastPkUserMessage(lastPkUserMessage);

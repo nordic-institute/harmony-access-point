@@ -73,7 +73,7 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     @Test
     public void findLastEntityIdArchived_notFound() {
         em.createQuery("delete from EArchiveBatchEntity batch " +
-                "where batch.requestType = eu.domibus.core.earchive.EArchiveRequestType.CONTINUOUS")
+                "where batch.requestType = eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS")
                 .executeUpdate();
 
         Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();
