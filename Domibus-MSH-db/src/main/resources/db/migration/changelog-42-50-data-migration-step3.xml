@@ -217,6 +217,9 @@
         <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ACKNOWLEDGED"/>
         </createIndex>
+        <createIndex indexName="IDX_MSG_PROCESSING_TYPE" tableName="TB_USER_MESSAGE_LOG">
+            <column name="PROCESSING_TYPE"/>
+        </createIndex>
 
         <!-- TB_SIGNAL_MESSAGE_LOG -->
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
