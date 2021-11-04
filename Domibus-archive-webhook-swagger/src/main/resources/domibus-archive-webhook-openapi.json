@@ -107,7 +107,7 @@
           },
           "status" : {
             "type" : "string",
-            "enum" : [ "EXPORTED", "ARCHIVED", "ARCHIVE_FAILED", "EXPIRED", "DELETED" ]
+            "enum" : [ "QUEUED", "STARTED", "RETRIED", "FAILED", "EXPORTED", "EXPIRED", "ARCHIVED", "ARCHIVE_FAILED", "DELETED" ]
           },
           "timestamp" : {
             "type" : "string",

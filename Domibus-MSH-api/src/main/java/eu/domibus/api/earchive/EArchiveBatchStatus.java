@@ -1,4 +1,4 @@
-package eu.domibus.core.earchive;
+package eu.domibus.api.earchive;
 
 /**
  * @author François Gautier
