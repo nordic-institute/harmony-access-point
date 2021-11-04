@@ -124,7 +124,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-data.xml
+                               src/test/resources/db/changelog-data.xml
                            </changeLogFile>
                            <url>
                                offline:h2?version=1.3&amp;caseSensitive=true&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data.h2

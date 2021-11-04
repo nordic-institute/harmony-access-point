@@ -39,10 +39,15 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
      */
     default Serializable generateDomibus(SharedSessionContractImplementor session,
                                          Object object) throws HibernateException {
-        LocalDateTime now = LocalDateTime.now(zoneId);
+        LocalDateTime now = getCurrentDate();
         String seqStr = now.format(dtf);
-
-        seqStr += String.format(NUMBER_FORMAT_DEFAULT, this.generate(session, object));
+        String paddedSequence = MIN + this.generate(session, object);
+        // add 10 right digits to the date
+        seqStr += paddedSequence.substring(paddedSequence.length()-MIN.length());
         return NumberUtils.toLong(seqStr);
+    }
+
+    default LocalDateTime getCurrentDate(){
+        return LocalDateTime.now(zoneId);
     }
 }

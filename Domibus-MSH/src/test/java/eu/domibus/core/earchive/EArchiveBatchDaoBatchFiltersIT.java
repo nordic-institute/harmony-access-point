@@ -140,14 +140,11 @@ public class EArchiveBatchDaoBatchFiltersIT {
             return transactionManager;
         }
     }
-
-
+    // test data
     private static final String BATCH_ID_01 = "BATCH_ID_01@"+UUID.randomUUID().toString();
-
     private static final String BATCH_ID_02 = "BATCH_ID_02@"+UUID.randomUUID().toString();
     private static final String BATCH_ID_03 = "BATCH_ID_03@"+UUID.randomUUID().toString();
     private static final String BATCH_ID_04 = "BATCH_ID_04@"+UUID.randomUUID().toString();
-
 
     @Parameterized.Parameters(name = "{index}: {0}")
     // test desc. result batchIds, filter

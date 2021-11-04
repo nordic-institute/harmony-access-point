@@ -1,0 +1,11 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!-- this file contains properties for changelog scripts
+        to be used in column definitions -->
+    <property name="now" value="CURRENT_TIMESTAMP" dbms="h2"/>
+    <property name="current_db_user" value="'SA'" dbms="h2"/>
+    <property name="default_id_pk" value="19700101" />
+</databaseChangeLog>
