@@ -1,7 +1,8 @@
 package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
@@ -49,6 +50,9 @@ public class EArchiveListenerTest {
 
     @Injectable
     private ObjectMapper jsonMapper;
+
+    @Injectable
+    private EArchiveBatchUtils eArchiveBatchUtils;
 
     private String batchId;
 
@@ -121,10 +125,6 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
-
-            eArchiveBatch.getMessageIdsJson();
-            result = new Gson().toJson(new ListUserMessageDto(null), ListUserMessageDto.class).getBytes(StandardCharsets.UTF_8);
-
         }};
 
         eArchiveListener.onMessage(message);
@@ -153,17 +153,14 @@ public class EArchiveListenerTest {
             eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
 
-            eArchiveBatch.getMessageIdsJson();
-            result = bytes;
-
-            jsonMapper.readValue(anyString, (Class) any);
+            eArchiveBatchUtils.getUserMessageDtoFromJson((EArchiveBatchEntity)any);
             result = objectMapper.readValue(new String(bytes,StandardCharsets.UTF_8), ListUserMessageDto.class);
 
             eArchiveBatch.getDateRequested();
             result = new Date();
 
             eArchiveBatch.getRequestType();
-            result = RequestType.CONTINUOUS;
+            result = EArchiveRequestType.CONTINUOUS;
 
             eArchiveBatch.getEArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
@@ -183,6 +180,9 @@ public class EArchiveListenerTest {
             times = 1;
 
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<UserMessageDTO>) any);
+            times = 1;
+
+            eArchiveBatchUtils.getMessageIds((List<UserMessageDTO>) any);
             times = 1;
 
             fileObject.close();

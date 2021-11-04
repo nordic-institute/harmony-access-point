@@ -1,8 +1,8 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;

@@ -83,18 +83,4 @@
             <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
-    
-    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
-        <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="1"/>
-            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
-            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
-        </insert>
-        <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="2"/>
-            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
-            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
-        </insert>
-    </changeSet>
-
 </databaseChangeLog>

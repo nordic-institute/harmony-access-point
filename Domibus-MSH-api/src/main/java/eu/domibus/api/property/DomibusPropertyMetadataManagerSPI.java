@@ -346,5 +346,5 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";
     String DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT = "domibus.earchive.batch.retryTimeOut";
     String DOMIBUS_EARCHIVE_BATCH_MPCS = "domibus.earchive.batch.mpcs";
-
+    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
 }

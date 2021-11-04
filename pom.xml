@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
+        <module>Domibus-archive-webhook-swagger</module>
         <module>Domibus-MSH</module>
         <module>Domibus-MSH-api</module>
         <module>Domibus-MSH-ext-services-delegate</module>
@@ -32,7 +33,7 @@
         <spring.security.version>5.4.7</spring.security.version>
         <spring.session.core.version>2.5.2</spring.session.core.version>
         <spring.session.jdbc.version>2.5.2</spring.session.jdbc.version>
-        <springdoc.version>1.5.10</springdoc.version>
+        <springdoc.version>1.5.12</springdoc.version>
         <io.swagger.core.v3.version>2.1.10</io.swagger.core.v3.version>
         <swagger-ui.version>3.52.3</swagger-ui.version>
         <hibernate.version>5.5.7.Final</hibernate.version>
@@ -78,7 +79,8 @@
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>5.0.0</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
-        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0
+        </com.oracle.css.weblogic.security.wls_7.0.0.0.version>
 
 
         <!-- Sonar properties -->
@@ -120,7 +122,8 @@
         <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
-        <guava.version>29.0-jre</guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
+        <guava.version>29.0-jre
+        </guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
         <opencsv.version>5.2</opencsv.version>
         <gson.version>2.8.6</gson.version><!-- to be removed EDELIVERY-8617-->
         <javaee-api.version>8.0.1</javaee-api.version>
@@ -1231,6 +1234,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
@@ -1509,7 +1517,6 @@
             <id>swagger</id>
             <modules>
                 <module>Domibus-MSH-swagger</module>
-                <module>Domibus-archive-webhook-swagger</module>
             </modules>
         </profile>
         <profile>
@@ -1550,7 +1557,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>enforce-versions</id>
@@ -1588,7 +1594,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>enforce-versions</id>
