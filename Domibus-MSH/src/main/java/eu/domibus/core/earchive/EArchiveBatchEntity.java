@@ -1,11 +1,10 @@
 package eu.domibus.core.earchive;
 
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.UserMessageDTO;
 
 import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Date;
 
 /**
  * @author François Gautier
@@ -13,37 +12,36 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
-@NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
+@NamedQuery(name = "EArchiveBatchEntity.findByEntityId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
+@NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.batchId = :BATCH_ID")
 @NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived",
         query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
-public class EArchiveBatchEntity extends AbstractBaseEntity {
 
-    @Column(name = "BATCH_ID")
-    private String batchId;
+@SqlResultSetMapping(
+        name = "EArchiveBatchUserMessageMapping",
+        classes = @ConstructorResult(
+                targetClass = UserMessageDTO.class,
+                columns = {
+                        @ColumnResult(name = "FK_USER_MESSAGE_ID", type = Long.class),
+                        @ColumnResult(name = "MESSAGE_ID", type = String.class),
+                }
+        )
+)
 
-    @Column(name = "REQUEST_TYPE")
-    @Enumerated(EnumType.STRING)
-    private RequestType requestType;
+// UserMessageDTO
+@NamedNativeQuery(name = "EArchiveBatchRequest.getMessagesForBatchId",
+        resultSetMapping = "EArchiveBatchUserMessageMapping",
+        query = "select msgMap.FK_USER_MESSAGE_ID, userMessage.MESSAGE_ID " +
+                " FROM TB_EARCHIVE_BATCH batch" +
+                " INNER JOIN TB_EARCHIVEBATCH_UM msgMap " +
+                "   ON batch.ID_PK = msgMap.FK_EARCHIVE_BATCH_ID " +
+                " INNER JOIN TB_USER_MESSAGE userMessage " +
+                "   ON msgMap.FK_USER_MESSAGE_ID = userMessage.ID_PK " +
+                " WHERE batch.BATCH_ID = :batchId " +
+                " ORDER BY msgMap.FK_USER_MESSAGE_ID ASC"
+)
 
-    @Column(name = "BATCH_STATUS")
-    @Enumerated(EnumType.STRING)
-    private EArchiveBatchStatus eArchiveBatchStatus;
-
-    @Column(name = "DATE_REQUESTED")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateRequested;
-
-    @Column(name = "LAST_PK_USER_MESSAGE")
-    private Long lastPkUserMessage;
-
-    @Column(name = "BATCH_SIZE")
-    private Integer batchSize;
-
-    @Column(name = "STORAGE_LOCATION")
-    private String storageLocation;
-
-    @Column(name = "ERROR")
-    private String error;
+public class EArchiveBatchEntity extends EArchiveBatchBaseEntity {
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
@@ -55,72 +53,12 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.messageIdsJson = bytes;
     }
 
+    public void setMessageIdsJson(byte[] bytes) {
+        this.messageIdsJson = bytes;
+    }
+
     public byte[] getMessageIdsJson() {
         return messageIdsJson;
-    }
-
-    public String getBatchId() {
-        return batchId;
-    }
-
-    public void setBatchId(String batchId) {
-        this.batchId = batchId;
-    }
-
-    public RequestType getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(RequestType requestType) {
-        this.requestType = requestType;
-    }
-
-    public Date getDateRequested() {
-        return dateRequested;
-    }
-
-    public void setDateRequested(Date dateRequested) {
-        this.dateRequested = dateRequested;
-    }
-
-    public Long getLastPkUserMessage() {
-        return lastPkUserMessage;
-    }
-
-    public void setLastPkUserMessage(Long lastPkUserMessage) {
-        this.lastPkUserMessage = lastPkUserMessage;
-    }
-
-    public Integer getBatchSize() {
-        return batchSize;
-    }
-
-    public void setBatchSize(Integer size) {
-        this.batchSize = size;
-    }
-
-    public String getStorageLocation() {
-        return storageLocation;
-    }
-
-    public void setStorageLocation(String storageLocation) {
-        this.storageLocation = storageLocation;
-    }
-
-    public EArchiveBatchStatus getEArchiveBatchStatus() {
-        return eArchiveBatchStatus;
-    }
-
-    public void setEArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
-        this.eArchiveBatchStatus = eArchiveBatchStatus;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
     }
 
     @Override
@@ -132,6 +70,8 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 ", dateRequested=" + dateRequested +
                 ", lastPkUserMessage=" + lastPkUserMessage +
                 ", batchSize=" + batchSize +
+                ", errorCode='" + errorCode + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
                 ", storageLocation='" + storageLocation + '\'' +
                 ", error='" + error + '\'' +
                 "} " + super.toString();

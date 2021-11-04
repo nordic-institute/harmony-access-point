@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.job;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
@@ -52,7 +53,7 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
     public void setup() {
         eArchiveBatch = new EArchiveBatchEntity();
         eArchiveBatch.setBatchId(UUID.randomUUID().toString());
-        eArchiveBatch.setRequestType(RequestType.CONTINUOUS);
+        eArchiveBatch.setRequestType(EArchiveRequestType.CONTINUOUS);
         eArchiveBatch.setCreationTime(dateUtil.getUtcDate());
         eArchiveBatch.setCreatedBy("test");
         eArchiveBatchDao.create(eArchiveBatch);

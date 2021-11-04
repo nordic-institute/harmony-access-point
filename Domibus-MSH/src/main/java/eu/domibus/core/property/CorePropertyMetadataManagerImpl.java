@@ -238,6 +238,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_NOTIFICATION_URL, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME, Type.STRING, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD, Type.PASSWORD, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY, Type.CONCURRENCY),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_EARCHIVE_NOTIFICATION_QUEUE_CONCURRENCY, Type.CONCURRENCY),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_EARCHIVE_NOTIFICATION_DLQ_CONCURRENCY, Type.CONCURRENCY),

@@ -1,16 +1,17 @@
 package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import gen.eu.domibus.archive.client.api.ArchiveWebhookApi;
 import gen.eu.domibus.archive.client.model.BatchNotification;
@@ -73,18 +74,20 @@ public class EArchiveNotificationListener implements MessageListener {
         EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId);
 
         if (notificationType == EArchiveBatchStatus.FAILED) {
-            LOG.info("Notification to the earchive client for batch FAILED [{}] ", eArchiveBatch);
+            LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatch);
             ArchiveWebhookApi earchivingClientApi = initializeEarchivingClientApi();
             if (earchivingClientApi != null) {
                 earchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
+                LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
             }
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
-            LOG.info("Notification to the earchive client for batch EXPORTED [{}] ", eArchiveBatch);
+            LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatch);
             ArchiveWebhookApi earchivingClientApi = initializeEarchivingClientApi();
             if (earchivingClientApi != null) {
                 earchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
+                LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
             }
         }
     }
@@ -114,7 +117,8 @@ public class EArchiveNotificationListener implements MessageListener {
     protected BatchNotification buildBatchNotification(EArchiveBatchEntity eArchiveBatch) {
         BatchNotification batchNotification = new BatchNotification();
         batchNotification.setBatchId(eArchiveBatch.getBatchId());
-        batchNotification.setErrorDescription(eArchiveBatch.getError());
+        batchNotification.setErrorCode(eArchiveBatch.getErrorCode());
+        batchNotification.setErrorDescription(eArchiveBatch.getErrorMessage());
         batchNotification.setStatus(BatchNotification.StatusEnum.valueOf(eArchiveBatch.getEArchiveBatchStatus().name()));
         batchNotification.setRequestType(BatchNotification.RequestTypeEnum.valueOf(eArchiveBatch.getRequestType().name()));
         batchNotification.setTimestamp(OffsetDateTime.ofInstant(eArchiveBatch.getDateRequested().toInstant(), ZoneOffset.UTC));
