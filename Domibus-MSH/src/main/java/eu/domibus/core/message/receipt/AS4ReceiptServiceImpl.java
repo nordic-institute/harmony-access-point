@@ -160,8 +160,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             LOG.debug("Generating receipt for incoming message");
             try {
                 responseMessage = xmlUtil.getMessageFactorySoap12().createMessage();
-
-
                 String messageId;
                 String timestamp;
 
@@ -179,7 +177,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     requestMessage = request.getSOAPPart().getContent();
                 }
 
-
                 final Transformer transformer = getTemplates().newTransformer();
                 transformer.setParameter("messageid", messageId);
                 transformer.setParameter("timestamp", timestamp);
@@ -190,10 +187,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 responseMessage.getSOAPPart().setContent(new DOMSource(domResult.getNode()));
 
                 setMessagingId(responseMessage, userMessage);
-
-                if (!duplicate) {
-                    saveResponse(responseMessage, userMessage, selfSendingFlag);
-                }
 
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
             } catch (TransformerConfigurationException | SOAPException | IOException e) {
@@ -214,18 +207,17 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
     /**
-     * save response in the DB before sending it back
      *
      * @param responseMessage SOAP response message
      * @param selfSendingFlag indicates that the message is sent to the same Domibus instance
      */
-    protected void saveResponse(final SOAPMessage responseMessage, UserMessage userMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
+    @Override
+    public SignalMessageResult generateResponse(final SOAPMessage responseMessage, UserMessage userMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
         Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(responseMessage);
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-        final ReceiptEntity receiptEntity = signalMessageResult.getReceiptEntity();
 
         if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity
@@ -234,28 +226,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             signalMessage.setRefToMessageId(signalMessage.getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
             signalMessage.setSignalMessageId(signalMessage.getSignalMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
         }
-        signalMessage.setUserMessage(userMessage);
-
-
-        LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getSignalMessageId(), signalMessage.getRefToMessageId());
-        // Stores the signal message
-        signalMessageDao.create(signalMessage);
-        //stores the receipt
-        receiptDao.create(receiptEntity);
-
-        MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.ACKNOWLEDGED);
-        MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
-
-        // Builds the signal message log
-        SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setSignalMessage(signalMessage)
-                .setMessageStatus(messageStatus)
-                .setMshRole(role);
-        // Saves an entry of the signal message log
-        SignalMessageLog signalMessageLog = smlBuilder.build();
-        signalMessageLogDao.create(signalMessageLog);
-
-        uiReplicationSignalService.signalMessageSubmitted(signalMessage.getSignalMessageId());
+        return signalMessageResult;
     }
 
 

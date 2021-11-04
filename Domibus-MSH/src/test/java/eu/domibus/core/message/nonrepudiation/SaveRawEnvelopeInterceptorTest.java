@@ -1,5 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -30,7 +31,7 @@ public class SaveRawEnvelopeInterceptorTest {
             message.getContent(SOAPMessage.class);
             result = jaxwsMessage;
 
-            message.getExchange().get(DispatchClientDefaultProvider.EBMS_MESSAGE_ID);
+            message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
             result = userMessageId;
         }};
 

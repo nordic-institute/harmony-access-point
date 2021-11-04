@@ -186,9 +186,6 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
             transformer.transform(withAny(messageToReceiptTransform), withAny(domResult));
             times = 1;
 
-            as4ReceiptService.saveResponse(withAny(soapResponseMessage), userMessage, false);
-            times = 1;
-
             soapPart.setContent((Source) any);
             times = 1;
 
@@ -291,7 +288,7 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
             result = "MESSAGE_ID";
         }};
 
-        as4ReceiptService.saveResponse(soapResponseMessage, userMessage, false);
+        as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
 
         new Verifications() {{
             signalMessageDao.create(signalMessage);
@@ -333,7 +330,7 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
             result = "MESSAGE_ID";
         }};
 
-        as4ReceiptService.saveResponse(soapResponseMessage, userMessage, false);
+        as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
 
         new Verifications() {{
             signalMessageDao.create(signalMessage);
@@ -375,7 +372,7 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
         }};
 
         try {
-            as4ReceiptService.saveResponse(soapResponseMessage, userMessage, false);
+            as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
             fail();
         } catch (SOAPException e) {
             assertEquals(e.getMessage(), "TEST");
@@ -423,7 +420,7 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
 
         }};
 
-        as4ReceiptService.saveResponse(soapResponseMessage, userMessage, true);
+        as4ReceiptService.generateResponse(soapResponseMessage, userMessage, true);
 
         new Verifications() {{
             messageInfo.setRefToMessageId(anyString);

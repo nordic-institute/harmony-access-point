@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.common.ErrorCode;
@@ -76,6 +77,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
             LOG.warn("Error processing message!");
             throw new WebServiceException(e);
         }
+
         return soapMessage;
 
     }

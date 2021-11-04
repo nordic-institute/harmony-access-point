@@ -74,6 +74,14 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
+    public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
+        String rawXMLMessage = soapUtil.getRawXMLMessage(request);
+        UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
+        rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+        return rawEnvelopeLog;
+    }
+
+    @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
             LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data.");

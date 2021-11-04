@@ -2,8 +2,10 @@ package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageRaw;
 
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.TransformerException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -16,6 +18,8 @@ import java.util.Map;
 public interface NonRepudiationService {
 
     void saveRawEnvelope(String rawXMLMessage, UserMessage userMessage);
+
+    UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException;
 
     void saveRequest(SOAPMessage request, UserMessage userMessage);
 
