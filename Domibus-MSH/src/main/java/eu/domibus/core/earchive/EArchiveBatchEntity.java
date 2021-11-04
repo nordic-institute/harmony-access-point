@@ -133,7 +133,7 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 ", lastPkUserMessage=" + lastPkUserMessage +
                 ", batchSize=" + batchSize +
                 ", storageLocation='" + storageLocation + '\'' +
-                ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
+                ", error='" + error + '\'' +
                 "} " + super.toString();
     }
 }
