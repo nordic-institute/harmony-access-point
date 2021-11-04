@@ -14,8 +14,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * Manages the reading of e-archiving notification failures alert alert configuration
@@ -59,7 +58,8 @@ public class ArchivingNotificationFailedConfigurationManager
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
             final Boolean alertsActive = alertConfigurationService.isAlertModuleEnabled();
-            if (BooleanUtils.isFalse(alertsActive)) {
+            final Boolean earchiveAlertsActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE);
+            if (BooleanUtils.isNotTrue(alertsActive) || BooleanUtils.isNotTrue(earchiveAlertsActive)) {
                 return new ArchivingNotificationFailedModuleConfiguration();
             }
             final AlertLevel alertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL));
