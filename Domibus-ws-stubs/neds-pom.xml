@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <groupId>org.niis</groupId>
+        <artifactId>harmony</artifactId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
 
-    <artifactId>domibus-ws-stubs</artifactId>
-    <name>Domibus MSH Default WS Plugin Stubs</name>
+    <artifactId>harmony-ws-stubs</artifactId>
+    <name>Harmony MSH Default WS Plugin Stubs</name>
 
     <dependencies>
 

@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <groupId>org.niis</groupId>
+        <artifactId>harmony</artifactId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
-    <artifactId>domibus-taskexecutor-tomcat</artifactId>
+    <artifactId>harmony-taskexecutor-tomcat</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH TaskExecutor for Tomcat</name>
+	<name>Harmony MSH TaskExecutor for Tomcat</name>
  
 
     <build>
@@ -41,12 +41,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <groupId>org.niis</groupId>
+        <artifactId>harmony</artifactId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
-    <artifactId>domibus-jms-spi</artifactId>
+    <artifactId>harmony-jms-spi</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH JMS SPI</name>
+	<name>Harmony MSH JMS SPI</name>
 
     <build>
         <plugins>

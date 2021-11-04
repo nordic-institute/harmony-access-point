@@ -3,22 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>domibus</artifactId>
-        <groupId>eu.domibus</groupId>
-        <version>4.2.4</version>
+        <artifactId>harmony</artifactId>
+        <groupId>org.niis</groupId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>domibus-iam-spi</artifactId>
+    <artifactId>harmony-iam-spi</artifactId>
 
-    <name>Domibus iam spi</name>
+    <name>Harmony iam spi</name>
 
     <dependencies>
-        <!--Domibus dependencies-->
+        <!--harmony dependencies-->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
