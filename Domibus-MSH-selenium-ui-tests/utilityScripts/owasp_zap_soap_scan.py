@@ -100,6 +100,11 @@ while (progress<100):
 
 log.info("Scan complete")
 
+
+log.info("remove auth rule")
+zap.replacer.remove_rule(description="authh", apikey=apiKey)
+
+
 # print html report to file
 log.info("Printing HTML report to file")
 with open('../zap_soap_scan_report.html', "w") as myfile:
