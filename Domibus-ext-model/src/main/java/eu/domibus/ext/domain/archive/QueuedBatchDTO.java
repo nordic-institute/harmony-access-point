@@ -9,12 +9,12 @@ import java.util.List;
  */
 public class QueuedBatchDTO {
 
-    String batchId;
-    String requestType;
-    Date enqueuedTimestamp;
-    Date messageStartDate;
-    Date messageEndDate;
-    List<String> messages;
+    protected String batchId;
+    protected BatchRequestType requestType;
+    protected Date enqueuedTimestamp;
+    protected Long messageStartDate;
+    protected Long messageEndDate;
+    protected List<String> messages;
 
     public String getBatchId() {
         return batchId;
@@ -24,11 +24,11 @@ public class QueuedBatchDTO {
         this.batchId = batchId;
     }
 
-    public String getRequestType() {
+    public BatchRequestType getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(String requestType) {
+    public void setRequestType(BatchRequestType requestType) {
         this.requestType = requestType;
     }
 
@@ -40,19 +40,19 @@ public class QueuedBatchDTO {
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 
-    public Date getMessageStartDate() {
+    public Long getMessageStartDate() {
         return messageStartDate;
     }
 
-    public void setMessageStartDate(Date messageStartDate) {
+    public void setMessageStartDate(Long messageStartDate) {
         this.messageStartDate = messageStartDate;
     }
 
-    public Date getMessageEndDate() {
+    public Long getMessageEndDate() {
         return messageEndDate;
     }
 
-    public void setMessageEndDate(Date messageEndDate) {
+    public void setMessageEndDate(Long messageEndDate) {
         this.messageEndDate = messageEndDate;
     }
 

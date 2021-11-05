@@ -15,16 +15,17 @@ import java.util.Locale;
 
 /**
  * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) incremen
+ *
  * @author François Gautier
  * @since 5.0
  */
 public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends IdentifierGenerator, PersistentIdentifierGenerator, Configurable {
 
     String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
-
-    String NUMBER_FORMAT_DEFAULT = "%010d";
+    long MAX_DATETIME_NUMBER = 99999999L;
 
     String MAX = "9999999999";
+    long MAX_INCREMENT_NUMBER = 9999999999L;
 
     String MIN = "0000000000";
 
@@ -33,18 +34,19 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
     ZoneId zoneId = ZoneId.of("UTC");
 
     /**
-     *
      * @return id of the shape: yyMMddHHDDDDDDDDDD ex: 210809150000000050
-     *
      */
     default Serializable generateDomibus(SharedSessionContractImplementor session,
                                          Object object) throws HibernateException {
-
-        LocalDateTime now = LocalDateTime.now(zoneId);
+        LocalDateTime now = getCurrentDate();
         String seqStr = now.format(dtf);
-
-        seqStr += String.format(NUMBER_FORMAT_DEFAULT, this.generate(session, object));;
-
+        String paddedSequence = MIN + this.generate(session, object);
+        // add 10 right digits to the date
+        seqStr += paddedSequence.substring(paddedSequence.length() - MIN.length());
         return NumberUtils.toLong(seqStr);
+    }
+
+    default LocalDateTime getCurrentDate() {
+        return LocalDateTime.now(zoneId);
     }
 }

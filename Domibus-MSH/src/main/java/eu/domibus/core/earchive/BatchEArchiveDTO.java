@@ -30,9 +30,25 @@ public class BatchEArchiveDTO {
 
     List<String> messages;
 
+
     public BatchEArchiveDTO(String batchId, String requestType) {
         this.batchId = batchId;
         this.requestType = requestType;
+    }
+
+    public BatchEArchiveDTO(String batchId,
+                            String requestType,
+                            String status,
+                            String timestamp,
+                            String messageStartId,
+                            String messageEndId
+                            ) {
+        this.batchId = batchId;
+        this.requestType = requestType;
+        this.status = status;
+        this.timestamp = timestamp;
+        this.messageStartId = messageStartId;
+        this.messageEndId = messageEndId;
     }
 
     public String getVersion() {

@@ -8,6 +8,7 @@ import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchStartDao;
 import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
+import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
@@ -53,6 +54,8 @@ public class EArchivingJobServiceTest {
     private NoArgGenerator uuidGenerator;
     @Injectable
     private ObjectMapper domibusJsonMapper;
+    @Injectable
+    private EArchiveBatchUtils eArchiveBatchUtils;
 
     @Test
     public void getMpcs() {
