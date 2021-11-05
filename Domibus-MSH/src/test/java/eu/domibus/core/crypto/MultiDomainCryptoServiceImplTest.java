@@ -115,7 +115,7 @@ public class MultiDomainCryptoServiceImplTest {
         String password = "test123";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoServiceTrustStore(domain);
             result = cryptoService;
             cryptoService.getTrustStoreType();
             result = "jks";
