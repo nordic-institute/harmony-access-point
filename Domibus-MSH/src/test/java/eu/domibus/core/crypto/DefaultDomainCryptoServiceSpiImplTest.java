@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -25,6 +26,7 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
 
 /**
@@ -196,5 +198,35 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 //            signalService.signalTrustStoreUpdate(domain);
 //        }};
 //    }
+
+    @Test(expected = ConfigurationException.class)
+    public void initTruststore(@Injectable Properties properties, @Injectable Merlin merlin) throws WSSecurityException, IOException {
+
+        new Expectations() {{
+            domainCryptoService.getTrustStoreProperties();
+            result = properties;
+
+        }};
+        domainCryptoService.initTruststore();
+
+        new Verifications() {{
+            merlin.loadProperties(properties, Merlin.class.getClassLoader(), null);
+        }};
+
+
+    }
+
+    @Test
+    public void replaceTrustStore() {
+
+        byte[] store = "cert content".getBytes();
+        String password = "test123";
+
+        domainCryptoService.replaceTrustStore(store, password);
+
+        new Verifications() {{
+            certificateService.replaceTrustStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
+        }};
+    }
 
 }
