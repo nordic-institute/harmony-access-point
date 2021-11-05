@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <groupId>org.niis</groupId>
+        <artifactId>harmony</artifactId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
-    <artifactId>domibus-jms-spi-helper</artifactId>
+    <artifactId>harmony-jms-spi-helper</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH JMS SPI Helper</name>
+	<name>Harmony MSH JMS SPI Helper</name>
 
     <build>
         <plugins>
@@ -30,8 +30,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-spi</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -50,8 +50,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>javax</groupId>

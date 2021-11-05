@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <groupId>org.niis</groupId>
+        <artifactId>harmony</artifactId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
-    <artifactId>domibus-soapui-tests</artifactId>
+    <artifactId>harmony-soapui-tests</artifactId>
     <packaging>jar</packaging>
-    <name>Domibus MSH SoapUI</name>
+    <name>Harmony MSH SoapUI</name>
 
     <properties>
         <!-- the soap ui specific dependencies -->

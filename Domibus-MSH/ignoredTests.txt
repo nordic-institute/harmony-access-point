@@ -2,3 +2,4 @@
 **/StorageTest.java
 **/PasswordEncryptionServiceImplTest.java
 **/ObjectBlacklistValidatorTest.java
+**/DomibusPropertiesServiceTest.java

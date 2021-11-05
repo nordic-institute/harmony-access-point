@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.domibus</groupId>
-    <artifactId>domibus</artifactId>
-    <version>4.2.4</version>
+    <groupId>org.niis</groupId>
+    <artifactId>harmony</artifactId>
+    <version>0.0.1</version>
     <packaging>pom</packaging>
-    <name>Domibus MSH</name>
+    <name>Harmony MSH</name>
     <modules>
         <module>Domibus-MSH/neds-pom.xml</module>
         <module>Domibus-MSH-api/neds-pom.xml</module>
@@ -186,14 +186,14 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Domibus modules -->
+            <!-- Harmony modules -->
             <dependency>
-                <groupId>eu.domibus</groupId>
-                <artifactId>domibus-logging</artifactId>
+                <groupId>org.niis</groupId>
+                <artifactId>harmony-logging</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <!-- End Domibus modules -->
+            <!-- End Harmony modules -->
 
             <!-- MapStruct  -->
             <dependency>
@@ -1239,15 +1239,6 @@
             </activation>
             <modules>
                 <module>Domibus-MSH-db/neds-pom.xml</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>distribution</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Domibus-MSH-distribution/neds-pom.xml</module>
             </modules>
         </profile>
         <profile>

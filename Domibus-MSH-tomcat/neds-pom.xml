@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <groupId>org.niis</groupId>
+        <artifactId>harmony</artifactId>
+        <version>0.0.1</version>
         <relativePath>../neds-pom.xml</relativePath>
     </parent>
 
-    <artifactId>domibus-MSH-tomcat</artifactId>
+    <artifactId>harmony-MSH-tomcat</artifactId>
     <packaging>war</packaging>
-    <name>Domibus MSH Tomcat</name>
+    <name>Harmony MSH Tomcat</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -28,58 +28,58 @@
     </properties>
 
     <dependencies>
-        <!-- Domibus modules -->
+        <!-- harmony modules -->
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-MSH</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-MSH</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-angular</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-angular</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-services-delegate</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-services-delegate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-taskexecutor-tomcat</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-taskexecutor-tomcat</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-activemq</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-jms-activemq</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-model</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-ext-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-spi</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-logging</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- End Domibus modules -->
+        <!-- End harmony modules -->
 
         <!-- Spring -->
         <dependency>
@@ -307,20 +307,20 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-ws-plugin</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-default-ws-plugin</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-default-jms-plugin</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-default-jms-plugin</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test</artifactId>
+            <groupId>org.niis</groupId>
+            <artifactId>harmony-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
