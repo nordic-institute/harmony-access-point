@@ -95,6 +95,22 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
+    public void initTruststore() {
+        LOG.debug("Initializing the truststore certificate provider for domain [{}]", domain);
+        try {
+            super.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
+        }
+
+        domainTaskExecutor.submit(() -> {
+            KeyStore trustStore = loadTrustStore();
+            super.setTrustStore(trustStore);
+        }, domain);
+
+        LOG.debug("Finished initializing the truststore certificate provider for domain [{}]", domain);
+    }
+
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
         return (X509Certificate) getKeyStore().getCertificate(alias);
@@ -189,7 +205,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String keystoreType = getKeystoreType();
         final String keystorePassword = getKeystorePassword();
         final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
-
+        LOG.debug("keystore property values for domain [{}]: keystoreType=[{}], keystorePassword=[{}], privateKeyAlias=[{}]",
+                domain, keystoreType, keystorePassword, privateKeyAlias);
         if (StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias)) {
             LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword, privateKeyAlias=[{}]",
                     domain, keystoreType, privateKeyAlias);

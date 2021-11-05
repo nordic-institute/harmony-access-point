@@ -135,7 +135,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        final DomainCryptoService domainCertificateProvider = getDomainTruststoreCertificateProvider(domain);
         certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
@@ -259,6 +259,20 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
                 if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
                     LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
                     DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain);
+                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
+                }
+            }
+        }
+        return domainCertificateProviderMap.get(domain);
+    }
+
+    protected DomainCryptoService getDomainTruststoreCertificateProvider(Domain domain) {
+        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
+        if (domainCertificateProviderMap.get(domain) == null) {
+            synchronized (domainCertificateProviderMap) {
+                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
+                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
+                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoServiceTrustStore(domain);
                     domainCertificateProviderMap.put(domain, domainCertificateProvider);
                 }
             }

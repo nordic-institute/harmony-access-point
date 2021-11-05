@@ -95,6 +95,35 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
     }
 
+    public void initTrustStore() {
+        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
+        if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
+            LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
+                    DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
+        }
+        final List<DomainCryptoServiceSpi> providerList = domainCryptoServiceSpiList.stream().
+                filter(domainCryptoServiceSpi -> spiIdentifier.equals(domainCryptoServiceSpi.getIdentifier())).
+                collect(Collectors.toList());
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Authentication spi:");
+            providerList.forEach(domainCryptoServiceSpi -> LOG.debug(" identifier:[{}] for class:[{}]", domainCryptoServiceSpi.getIdentifier(), domainCryptoServiceSpi.getClass()));
+        }
+
+        if (providerList.size() > 1) {
+            throw new IllegalStateException(String.format("More than one authentication service provider for identifier:[%s]", spiIdentifier));
+        }
+        if (providerList.isEmpty()) {
+            throw new IllegalStateException(String.format("No authentication service provider found for given identifier:[%s]", spiIdentifier));
+        }
+
+        iamProvider = providerList.get(0);
+        iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
+        iamProvider.initTruststore();
+
+        LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
+    }
+
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
         return iamProvider.getCertificateFromKeyStore(alias);
