@@ -1,9 +1,9 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
