@@ -35,6 +35,9 @@ public class NonRepudiationDefaultServiceTest {
     NonRepudiationDefaultService nonRepudiationService;
 
     @Injectable
+    SignalMessageRawService signalMessageRawService;
+
+    @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
