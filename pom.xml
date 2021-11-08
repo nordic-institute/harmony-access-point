@@ -77,7 +77,7 @@
         <dropwizard.metrics.version>4.2.4</dropwizard.metrics.version>
         <owasp.dependency.check.version>6.4.1</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-        <hikaricp.version>4.0.3</hikaricp.version>
+        <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0
         </com.oracle.css.weblogic.security.wls_7.0.0.0.version>
