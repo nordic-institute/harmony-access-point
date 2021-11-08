@@ -96,7 +96,7 @@ public class EArchiveNotificationListener implements MessageListener {
         }
     }
 
-    private ArchiveWebhookApi initializeEarchivingClientApi() {
+    protected ArchiveWebhookApi initializeEarchivingClientApi() {
         String restUrl = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL);
         if (StringUtils.isBlank(restUrl)) {
             throw new DomibusEArchiveException("eArchive client endpoint not configured");
