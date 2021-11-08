@@ -38,7 +38,6 @@ public class ArchivingNotificationFailedConfigurationManager
     public ArchivingNotificationFailedConfigurationManager(DomibusPropertyProvider domibusPropertyProvider,
                                                            DomainContextProvider domainContextProvider,
                                                            AlertConfigurationService alertConfigurationService) {
-        super();
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainContextProvider = domainContextProvider;
         this.alertConfigurationService = alertConfigurationService;

@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
@@ -46,6 +48,8 @@ public class EArchiveNotificationListener implements MessageListener {
     private final JmsUtil jmsUtil;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
+
+    private SimpleDateFormat dateParser = new SimpleDateFormat("yyMMddHH");
 
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
@@ -139,7 +143,11 @@ public class EArchiveNotificationListener implements MessageListener {
     }
 
     private Date dateFromLongDate(Long dateAsLong) {
-        return new Date(dateAsLong);
+        try {
+            return dateParser.parse(dateAsLong.toString());
+        } catch (ParseException ex) {
+            throw new DomibusEArchiveException("Invalid date: " + dateAsLong, ex);
+        }
     }
 
 }
