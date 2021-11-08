@@ -25,7 +25,8 @@ public class SaveRawEnvelopeInterceptorTest {
 
     @Test
     public void testHandleMessage(@Mocked SoapMessage message, @Mocked SOAPMessage jaxwsMessage) {
-        Long userMessageId = 123L;
+        Long userMessageEntityId = 123L;
+        String userMessageId = "456";
 
         new Expectations() {{
             message.getContent(SOAPMessage.class);
@@ -33,12 +34,15 @@ public class SaveRawEnvelopeInterceptorTest {
 
             message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
             result = userMessageId;
+
+            message.getExchange().get(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY);
+            result = String.valueOf(userMessageEntityId);
         }};
 
         saveRawEnvelopeInterceptor.handleMessage(message);
 
         new Verifications() {{
-            nonRepudiationService.saveResponse(jaxwsMessage, userMessageId);
+            nonRepudiationService.saveResponse(jaxwsMessage, userMessageEntityId);
         }};
     }
 }
