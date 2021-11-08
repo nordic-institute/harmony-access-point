@@ -23,9 +23,7 @@ public interface NonRepudiationService {
 
     void saveRequest(SOAPMessage request, UserMessage userMessage);
 
-    void saveResponse(SOAPMessage response, SignalMessage signalMessage);
-
-    void saveResponse(SOAPMessage response, String userMessageId);
+    void saveResponse(SOAPMessage response, Long userMessageEntityId);
 
     /**
      * Retrieves the user message envelope xml

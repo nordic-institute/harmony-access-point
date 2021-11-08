@@ -46,6 +46,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DispatchClientDefaultProvider.class);
 
     public static final String MESSAGING_KEY_CONTEXT_PROPERTY = "MESSAGING_KEY_CONTEXT_PROPERTY";
+
     public static final String ASYMMETRIC_SIG_ALGO_PROPERTY = "ASYMMETRIC_SIG_ALGO_PROPERTY";
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final String NAMESPACE_URI = "http://domibus.eu";

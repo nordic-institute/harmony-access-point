@@ -77,6 +77,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
             LOG.warn("Error processing message!");
             throw new WebServiceException(e);
         }
+        setUserMessageEntityIdOnContext();
 
         return soapMessage;
 
@@ -90,6 +91,11 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         } catch (SOAPException se) {
             throw new DomainTaskException("Could not get current domain from request header " + DomainContextProvider.HEADER_DOMIBUS_DOMAIN, se);
         }
+    }
+
+    protected void setUserMessageEntityIdOnContext() {
+        final String userMessageEntityId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+        PhaseInterceptorChain.getCurrentMessage().getExchange().put(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY, userMessageEntityId);
     }
 
     protected Ebms3Messaging getMessaging() {

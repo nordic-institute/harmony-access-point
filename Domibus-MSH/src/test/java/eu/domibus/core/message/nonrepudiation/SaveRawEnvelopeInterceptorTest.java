@@ -25,7 +25,7 @@ public class SaveRawEnvelopeInterceptorTest {
 
     @Test
     public void testHandleMessage(@Mocked SoapMessage message, @Mocked SOAPMessage jaxwsMessage) {
-        String userMessageId = "mess123";
+        Long userMessageId = 123L;
 
         new Expectations() {{
             message.getContent(SOAPMessage.class);
