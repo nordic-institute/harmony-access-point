@@ -27,43 +27,42 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.4.4</cxf.version>
-        <wss4j-ws-security.version>2.3.2</wss4j-ws-security.version>
+        <cxf.version>3.4.5</cxf.version>
+        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
         <spring.version>5.2.16.RELEASE</spring.version>
         <spring.security.version>5.4.7</spring.security.version>
-        <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
-        <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
+        <spring.session.core.version>2.5.2</spring.session.core.version>
+        <spring.session.jdbc.version>2.5.2</spring.session.jdbc.version>
         <springdoc.version>1.5.12</springdoc.version>
         <io.swagger.core.v3.version>2.1.10</io.swagger.core.v3.version>
         <swagger-ui.version>3.52.3</swagger-ui.version>
-        <hibernate.version>5.4.27.Final</hibernate.version>
-        <activemq.version>5.16.1</activemq.version>
+        <hibernate.version>5.5.7.Final</hibernate.version>
+        <activemq.version>5.16.3</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <slf4j.version>1.7.30</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.6</logback.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
-        <commons-io.version>2.8.0</commons-io.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.67</bouncycastle.version>
+        <bouncycastle.version>1.69</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-        <c3p0.version>0.9.5.5</c3p0.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
-        <freemarker.version>2.3.30</freemarker.version>
+        <freemarker.version>2.3.31</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <jaxb-impl.version>2.3.3</jaxb-impl.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>1.26</tika.version>
+        <tika.version>2.1.0</tika.version>
         <peppol.version>1.1.4</peppol.version>
         <dynamic.discovery.client.version>1.13-SNAPSHOT</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
@@ -72,13 +71,13 @@
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.200</h2.version>
-        <liquibase.version>4.3.5</liquibase.version>
-        <mysql.connector.java.version>8.0.22</mysql.connector.java.version>
+        <liquibase.version>4.5.0</liquibase.version>
+        <mysql.connector.java.version>8.0.27</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
-        <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
-        <dependency.check.version>6.2.2</dependency.check.version>
+        <dropwizard.metrics.version>4.2.4</dropwizard.metrics.version>
+        <owasp.dependency.check.version>6.4.1</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-        <hikaricp.version>4.0.3</hikaricp.version>
+        <hikaricp.version>5.0.0</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0
         </com.oracle.css.weblogic.security.wls_7.0.0.0.version>
@@ -123,8 +122,7 @@
         <nimbus-jose-jwt.version>8.2</nimbus-jose-jwt.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
-        <guava.version>29.0-jre
-        </guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
+        <guava.version>29.0-jre</guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
         <opencsv.version>5.2</opencsv.version>
         <gson.version>2.8.6</gson.version><!-- to be removed EDELIVERY-8617-->
         <javaee-api.version>8.0.1</javaee-api.version>
@@ -505,11 +503,6 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-envers</artifactId>
                 <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mchange</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>${c3p0.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -1532,7 +1525,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>${dependency.check.version}</version>
+                        <version>${owasp.dependency.check.version}</version>
                         <inherited>false</inherited>
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
