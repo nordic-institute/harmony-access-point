@@ -363,6 +363,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 to = createNewParty(userMessage.getMpcValue());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
+                //To be removed with the old ws plugin.
+                checkSubmissionFromOldWSPlugin(submission,userMessage);
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
                 final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
                 messageStatus = messageStatusEntity.getMessageStatus();
@@ -437,6 +439,30 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
+    }
+
+    /**
+     * This method is a temporary method for the time of the old ws plugin lifecycle. It will find the processing type that is not submitted by the
+     * old WS plugin.
+     */
+    private void checkSubmissionFromOldWSPlugin(final Submission submission,final UserMessage userMessage) throws EbMS3Exception {
+        if(submission.getProcessingType()==null){
+            ProcessingType processingType;
+            try {
+                processingType = ProcessingType.PULL;
+                pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, processingType);
+                submission.setProcessingType(processingType);
+            } catch (EbMS3Exception e) {
+                try {
+                    processingType = ProcessingType.PUSH;
+                    pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, processingType);
+                    submission.setProcessingType(processingType);
+                } catch (EbMS3Exception ex) {
+                    throw  ex;
+                }
+            }
+        }
+
     }
 
     private void populateMessageIdIfNotPresent(UserMessage userMessage) {

@@ -3,8 +3,13 @@ package eu.domibus.plugin.ws.connector;
 import eu.domibus.common.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.AbstractBackendConnector;
+import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.exception.TransformationException;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
@@ -70,6 +75,30 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
            wsPluginBackendService.send(event, RECEIVE_SUCCESS);
        }
     }
+
+    /**
+     * This method is a temporary method for the time of the old ws plugin lifecycle. It will remove the processing type set
+     * per default as there is not processing type in the old plugin.
+     */
+    public String submitFromOldPlugin(final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging message) throws MessagingProcessingException {
+        try {
+            final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
+            messageData.setProcessingType(null);
+            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
+            return messageId;
+        } catch (IllegalArgumentException iaEx) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, iaEx);
+            throw new TransformationException(iaEx);
+        } catch (IllegalStateException ise) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, ise);
+            throw new PModeMismatchException(ise);
+        } catch (MessagingProcessingException mpEx) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, mpEx);
+            throw mpEx;
+        }
+    }
+
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
