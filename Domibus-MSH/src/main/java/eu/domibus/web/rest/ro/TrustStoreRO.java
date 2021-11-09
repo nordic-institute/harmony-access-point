@@ -17,6 +17,7 @@ public class TrustStoreRO {
     private Date validFrom;
     private Date validUntil;
     private String fingerprints;
+    private int certificateExpiryAlertDays;
 
     public String getName() {
         return name;
@@ -64,6 +65,14 @@ public class TrustStoreRO {
 
     public void setFingerprints(String fingerprints) {
         this.fingerprints = fingerprints;
+    }
+
+    public int getCertificateExpiryAlertDays() {
+        return certificateExpiryAlertDays;
+    }
+
+    public void setCertificateExpiryAlertDays(int certificateExpiryAlertDays) {
+        this.certificateExpiryAlertDays = certificateExpiryAlertDays;
     }
 
     @Override
