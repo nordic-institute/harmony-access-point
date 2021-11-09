@@ -6,9 +6,13 @@ package eu.domibus.api.model;
  */
 public class UserMessageDTO {
 
-    final long entityId;
+    long entityId;
 
-    final String messageId;
+    String messageId;
+
+    public UserMessageDTO() {
+        this(-1, null);
+    }
 
     public UserMessageDTO(long entityId, String messageId) {
         this.entityId = entityId;

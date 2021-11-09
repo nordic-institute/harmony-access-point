@@ -81,7 +81,7 @@ public class PModeFileExtResource {
 
     @Operation(summary="Upload a PMode file", description="Upload the PMode file",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @PostMapping(consumes = {"multipart/form-data", "application/x-www-form-urlencoded"})
+    @PostMapping(consumes = {"multipart/form-data"})
     public ValidationResponseDTO uploadPMode(
             @RequestPart("file") MultipartFile pmode,
             @RequestParam("description") @Valid @NotEmpty String pModeDescription) {

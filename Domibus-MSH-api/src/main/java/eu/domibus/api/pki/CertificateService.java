@@ -5,13 +5,13 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
-import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -103,10 +103,10 @@ public interface CertificateService {
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
      *
-     * @param fileName the file name representing the trust
-     * @param fileContent the trust content
+     * @param fileName     the file name representing the trust
+     * @param fileContent  the trust content
      * @param filePassword the password of the trust
-     * @param trustName the location of the trust on disc
+     * @param trustName    the location of the trust on disc
      * @throws CryptoException
      */
     void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
@@ -114,7 +114,7 @@ public interface CertificateService {
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
      *
-     * @param fileContent the trust content
+     * @param fileContent  the trust content
      * @param filePassword the password of the trust
      * @throws CryptoException
      */
@@ -139,10 +139,10 @@ public interface CertificateService {
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *
-     * @param trustName the location of the trust on disc
+     * @param trustName          the location of the trust on disc
      * @param certificateContent the content of the certificate
-     * @param alias the name of the certificate
-     * @param overwrite if overwrite an existing certificate
+     * @param alias              the name of the certificate
+     * @param overwrite          if overwrite an existing certificate
      * @return
      */
     boolean addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
@@ -150,9 +150,9 @@ public interface CertificateService {
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
      *
-     * @param trustName the location of the trust on disc
+     * @param trustName    the location of the trust on disc
      * @param certificates the list of certificate entries( name and value)
-     * @param overwrite if overwrite an existing certificate
+     * @param overwrite    if overwrite an existing certificate
      * @return true if at least one was added
      */
     boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite);
@@ -161,7 +161,7 @@ public interface CertificateService {
      * Removes the specified certificate from the truststore pointed by the parameters
      *
      * @param trustName the location of the trust on disc
-     * @param alias the certificate name
+     * @param alias     the certificate name
      * @return true is at least one was deleted
      */
     boolean removeCertificate(String trustName, String alias);
@@ -170,13 +170,12 @@ public interface CertificateService {
      * Removes the specified certificates from the truststore pointed by the parameters
      *
      * @param trustName the location of the trust on disc
-     * @param aliases the list of certificate names
+     * @param aliases   the list of certificate names
      * @return true is at least one was deleted
      */
     boolean removeCertificates(String trustName, List<String> aliases);
 
     byte[] getTruststoreContent(String trustName);
 
-    void persistTruststoresIfApplicable(final String name, Supplier<String> filePathSupplier, Supplier<String> typeSupplier,
-                                        Supplier<String> passwordSupplier, final List<Domain> domains);
+    void persistTruststoresIfApplicable(final String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
 }

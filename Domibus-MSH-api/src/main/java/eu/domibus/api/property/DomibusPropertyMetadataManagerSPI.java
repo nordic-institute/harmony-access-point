@@ -286,6 +286,8 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     String DOMIBUS_JMS_QUEUE_EARCHIVE = "domibus.jms.queue.earchive";
     String DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY = "domibus.earchive.queue.concurrency";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_QUEUE_CONCURRENCY = "domibus.earchive.notification.queue.concurrency";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_DLQ_CONCURRENCY = "domibus.earchive.notification.dlq.concurrency";
 
     String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
     String DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT = "domibus.mshTaskExecutor.threadCount";
@@ -344,5 +346,5 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";
     String DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT = "domibus.earchive.batch.retryTimeOut";
     String DOMIBUS_EARCHIVE_BATCH_MPCS = "domibus.earchive.batch.mpcs";
-
+    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
 }

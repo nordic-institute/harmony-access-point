@@ -23,8 +23,8 @@ public class ServiceDaoIT extends AbstractIT {
     public void testFindPropertyByNameValueAndType() {
         final String value = "value1";
         final String type = "string";
-        ServiceEntity property = buildProperty(value, type);
-        serviceDao.create(property);
+
+        final ServiceEntity property = serviceDao.findOrCreateService(value, type);
 
         final ServiceEntity foundProperty = serviceDao.findOrCreateService(value, type);
         assertNotNull(foundProperty);
@@ -42,8 +42,7 @@ public class ServiceDaoIT extends AbstractIT {
     public void testFindPropertyByNameAndValue() {
         final String value = "value1";
         final String type = null;
-        ServiceEntity property = buildProperty(value, type);
-        serviceDao.create(property);
+        final ServiceEntity property = serviceDao.findOrCreateService(value, type);
 
         final ServiceEntity foundProperty = serviceDao.findOrCreateService(value, type);
         assertNotNull(foundProperty);
@@ -78,10 +77,4 @@ public class ServiceDaoIT extends AbstractIT {
         Assert.assertNotEquals(foundEntity1.getEntityId(), foundEntity4.getEntityId());
     }
 
-    private ServiceEntity buildProperty(String value, String type) {
-        ServiceEntity property = new ServiceEntity();
-        property.setValue(value);
-        property.setType(type);
-        return property;
-    }
 }

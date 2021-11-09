@@ -217,6 +217,9 @@
         <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ACKNOWLEDGED"/>
         </createIndex>
+        <createIndex indexName="IDX_MSG_PROCESSING_TYPE" tableName="TB_USER_MESSAGE_LOG">
+            <column name="PROCESSING_TYPE"/>
+        </createIndex>
 
         <!-- TB_SIGNAL_MESSAGE_LOG -->
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
@@ -439,6 +442,12 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
     </changeSet>
 
+    <changeSet author="Francois Gautier" id="EDELIVERY-8450-MIGRATION">
+        <addForeignKeyConstraint baseColumnNames="FK_USER_MESSAGE_ID" baseTableName="TB_EARCHIVEBATCH_UM"
+                                 constraintName="FK_USER_MESSAGE_ID_FTR" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
+    </changeSet>
     <!-- alter Oracle sequence -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence">
         <sql dbms="oracle">

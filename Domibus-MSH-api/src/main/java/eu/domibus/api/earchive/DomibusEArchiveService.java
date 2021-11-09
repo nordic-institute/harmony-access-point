@@ -1,6 +1,9 @@
 package eu.domibus.api.earchive;
 
+import eu.domibus.api.model.ListUserMessageDto;
+
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -8,11 +11,27 @@ import java.util.Date;
  */
 public interface DomibusEArchiveService {
 
-    void updateStartDateContinuousArchive(Date startDate);
+    void updateStartDateContinuousArchive(Long startDate);
 
-    void updateStartDateSanityArchive(Date startDate);
+    void updateStartDateSanityArchive(Long startDate);
 
-    Date getStartDateContinuousArchive();
+    Long getStartDateContinuousArchive();
 
-    Date getStartDateSanityArchive();
+    Long getStartDateSanityArchive();
+
+    List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter);
+
+    Long getBatchRequestListCount(EArchiveBatchFilter filter);
+
+    ListUserMessageDto getBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize);
+
+    Long getBatchUserMessageListCount(String batchId);
+
+    ListUserMessageDto getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
+
+    Long getNotArchivedMessagesCount(Date messageStartDate, Date messageEndDate);
+
+    EArchiveBatchRequestDTO reExportBatch(String batchId);
+
+    EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus, String message);
 }

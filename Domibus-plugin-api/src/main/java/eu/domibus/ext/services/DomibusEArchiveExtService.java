@@ -1,6 +1,8 @@
 package eu.domibus.ext.services;
 
-import java.util.Date;
+import eu.domibus.ext.domain.archive.*;
+
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -8,12 +10,31 @@ import java.util.Date;
  */
 public interface DomibusEArchiveExtService {
 
-    void updateStartDateContinuousArchive(Date startDate);
+    void updateStartDateContinuousArchive(Long startDate);
 
-    Date getStartDateContinuousArchive();
+    Long getStartDateContinuousArchive();
 
-    void updateStartDateSanityArchive(Date startDate);
+    void updateStartDateSanityArchive(Long startDate);
 
-    Date getStartDateSanityArchive();
+    Long getStartDateSanityArchive();
 
+    Long getQueuedBatchRequestsCount(QueuedBatchFilterDTO filter);
+
+    List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
+
+    Long getExportedBatchRequestsCount(ExportedBatchFilterDTO filter);
+
+    List<ExportedBatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
+
+    Long getBatchMessageCount(String batchId);
+
+    List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize);
+
+    BatchStatusDTO reExportBatch(String batchId);
+
+    BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus, String message);
+
+    List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize);
+
+    Long getNotArchivedMessageCount(NotArchivedMessagesFilterDTO filter);
 }

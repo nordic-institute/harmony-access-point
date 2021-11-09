@@ -24,8 +24,7 @@ public class PartPropertyDaoIT extends AbstractIT {
         final String name = "prop1";
         final String value = "value1";
         final String type = "string";
-        PartProperty property = buildProperty(name, value, type);
-        propertyDao.create(property);
+        final PartProperty property = propertyDao.findOrCreateProperty(name, value, type);
 
         final PartProperty foundProperty = propertyDao.findOrCreateProperty(name, value, type);
         assertNotNull(foundProperty);
@@ -45,8 +44,7 @@ public class PartPropertyDaoIT extends AbstractIT {
         final String name = "prop1";
         final String value = "value1";
         final String type = null;
-        PartProperty property = buildProperty(name, value, type);
-        propertyDao.create(property);
+        final PartProperty property = propertyDao.findOrCreateProperty(name, value, type);
 
         final PartProperty foundProperty = propertyDao.findOrCreateProperty(name, value, type);
         assertNotNull(foundProperty);
@@ -83,11 +81,4 @@ public class PartPropertyDaoIT extends AbstractIT {
         Assert.assertNotEquals(foundEntity1.getEntityId(), foundEntity4.getEntityId());
     }
 
-    private PartProperty buildProperty(String name, String value, String type) {
-        PartProperty property = new PartProperty();
-        property.setName(name);
-        property.setValue(value);
-        property.setType(type);
-        return property;
-    }
 }

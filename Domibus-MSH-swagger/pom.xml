@@ -24,6 +24,12 @@
         <!-- import dependency with the REST API definitions-->
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ext-model</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-ext-services-delegate</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

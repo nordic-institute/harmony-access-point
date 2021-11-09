@@ -8,10 +8,10 @@ import java.util.Date;
  */
 public class BatchStatusDTO {
 
-    String batchId;
-    Date timestamp;
-    String status;
-    String message;
+    protected String batchId;
+    protected Date timestamp;
+    protected ExportedBatchStatusType status;
+    protected String message;
 
     public String getBatchId() {
         return batchId;
@@ -29,11 +29,11 @@ public class BatchStatusDTO {
         this.timestamp = timestamp;
     }
 
-    public String getStatus() {
+    public ExportedBatchStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ExportedBatchStatusType status) {
         this.status = status;
     }
 

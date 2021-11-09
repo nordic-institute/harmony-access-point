@@ -23,8 +23,8 @@ public class AgreementDaoIT extends AbstractIT {
     public void testFindByValueAndType() {
         final String value = "value1";
         final String type = "string";
-        AgreementRefEntity entity = buildEntity(value, type);
-        agreementDao.create(entity);
+        final AgreementRefEntity entity = agreementDao.findOrCreateAgreement(value, type);
+
 
         final AgreementRefEntity foundAgreement = agreementDao.findOrCreateAgreement(value, type);
         assertNotNull(foundAgreement);
@@ -40,10 +40,9 @@ public class AgreementDaoIT extends AbstractIT {
 
     @Test
     public void testFindByValue() {
-        final String value = "value1";
+        final String value = "agreement1";
         final String type = null;
-        AgreementRefEntity entity = buildEntity(value, type);
-        agreementDao.create(entity);
+        final AgreementRefEntity entity = agreementDao.findOrCreateAgreement(value, type);
 
         final AgreementRefEntity foundAgreement = agreementDao.findOrCreateAgreement(value, type);
         assertNotNull(foundAgreement);
@@ -78,10 +77,4 @@ public class AgreementDaoIT extends AbstractIT {
         Assert.assertNotEquals(foundAgreement1.getEntityId(), foundAgreement4.getEntityId());
     }
 
-    private AgreementRefEntity buildEntity(String value, String type) {
-        AgreementRefEntity property = new AgreementRefEntity();
-        property.setValue(value);
-        property.setType(type);
-        return property;
-    }
 }

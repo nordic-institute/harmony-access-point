@@ -96,7 +96,10 @@
                     <exclude name="verifyHeaders"></exclude>
                     <!--                    bug EDELIVERY-8466    -->
                     <exclude name="checkProcessed"></exclude>
-
+<!--                    inconsistent behaviour-->
+                    <exclude name="userLoginFailureAlert"/>
+                    <exclude name="pluginUserLoginFailure"/>
+                    <exclude name="pluginUserDisabled"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.ChangePasswordPgTest"/>

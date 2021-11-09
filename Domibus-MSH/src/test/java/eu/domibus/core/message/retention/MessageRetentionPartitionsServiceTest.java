@@ -3,6 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
@@ -52,6 +53,15 @@ public class MessageRetentionPartitionsServiceTest {
 
     @Injectable
     EventService eventService;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DomainService domainService;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Test
     public void deleteExpiredMessagesTest() {
