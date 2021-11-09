@@ -54,7 +54,7 @@ class Domibus{
 	static def MSG_STATUS_MAX_WAIT_TIME = 120_000 // Maximum time to wait to check the message status.
 	static def MSG_STATUS_MAX_WAIT_TIME_EXT = 180_000 // Maximum time to wait to check the message status extended.
 	static def MSG_STATUS_STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
-	static def CLUSTER_WAIT_TIME=5000	// Time to wait for property changes to be propagated accross clusters
+	static def CLUSTER_WAIT_TIME=15000	// Time to wait for property changes to be propagated accross clusters
 	
     static def CLEAR_CACHE_COMMAND_TOMCAT = $/rmdir /S /Q ..\work & rmdir /S /Q ..\logs & del /S /Q ..\temp\* & FOR /D %p IN ("..\temp\*.*") DO rmdir /s /q "%p"  & rmdir /S /Q ..\webapps\domibus & rmdir /S /Q ..\conf\domibus\work/$
 
@@ -2712,9 +2712,9 @@ class Domibus{
 
             if(message == "successfully"){
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change property at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-				isClustered=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, "Default", authenticationUser, authenticationPwd)
+				isClustered=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, "Default", authenticationUser, authenticationPwd) ? : "false"
 				if(isClustered.toLowerCase().equals("true")){
-					log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for 5 seconds ..."
+					log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for few seconds ..."
 					sleep(CLUSTER_WAIT_TIME)
 				}
                 log.info "  changePropertyAtRuntime  [][]  Property value was changed"
