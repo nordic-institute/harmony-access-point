@@ -163,10 +163,7 @@ public class EArchiveNotificationListener implements MessageListener {
                 .map(um -> um.getMessageId()).collect(Collectors.toList());
         batchNotification.setMessages(messageIds);
 
-        Long firstPkUserMessage = messageListDto.getUserMessageDtos().stream()
-                .map(um -> um.getEntityId()).reduce(Long::min).orElse(null);
-
-        Date messageStartDate = dateFromLongDate(eArchiveBatchUtils.extractDateFromPKUserMessageId(firstPkUserMessage));
+        Date messageStartDate = dateFromLongDate(eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatch.getFirstPkUserMessage()));
         Date messageEndDate = dateFromLongDate(eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatch.getLastPkUserMessage()));
         batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
         batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));
