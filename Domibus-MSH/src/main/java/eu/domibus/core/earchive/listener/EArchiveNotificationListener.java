@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -20,7 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -55,6 +58,8 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
+    private final ObjectMapper objectMapper;
+
     private SimpleDateFormat dateParser = new SimpleDateFormat("yyMMddHH");
 
     public EArchiveNotificationListener(
@@ -62,12 +67,14 @@ public class EArchiveNotificationListener implements MessageListener {
             EArchivingDefaultService eArchiveService,
             EArchiveBatchUtils eArchiveBatchUtils,
             JmsUtil jmsUtil,
-            DomibusPropertyProvider domibusPropertyProvider) {
+            DomibusPropertyProvider domibusPropertyProvider,
+            @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.jmsUtil = jmsUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -121,6 +128,11 @@ public class EArchiveNotificationListener implements MessageListener {
                 .setDefaultRequestConfig(config)
                 .build();
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(client));
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(objectMapper);
+        restTemplate.getMessageConverters().add(0, converter);
+
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(restUrl);
 
