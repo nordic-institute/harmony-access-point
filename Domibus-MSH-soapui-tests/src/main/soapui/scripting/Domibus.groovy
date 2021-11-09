@@ -2712,7 +2712,7 @@ class Domibus{
 
             if(message == "successfully"){
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change property at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-				isClustered=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, "Default", authenticationUser, authenticationPwd) ? : "false"
+				isClustered=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, "Default", authenticationUser, authenticationPwd) ?: "false"
 				if(isClustered.toLowerCase().equals("true")){
 					log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for few seconds ..."
 					sleep(CLUSTER_WAIT_TIME)
