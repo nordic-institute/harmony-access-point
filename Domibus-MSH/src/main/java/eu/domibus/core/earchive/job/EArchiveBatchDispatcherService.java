@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.job;
 
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.model.ListUserMessageDto;
@@ -56,14 +57,14 @@ public class EArchiveBatchDispatcherService {
 
     @Timer(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     @Counter(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
-    public void startBatch(Domain domain) {
+    public void startBatch(Domain domain, EArchiveRequestType eArchiveRequestType) {
         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
-            return;
+            return ;
         }
-        Long lastEntityIdProcessed = eArchivingJobService.getLastEntityIdArchived();
+        Long lastEntityIdProcessed = eArchivingJobService.getLastEntityIdArchived(eArchiveRequestType);
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
-        long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived();
+        long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType);
         int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
         LOG.trace("Start eArchive batch lastEntityIdProcessed [{}], " +
@@ -76,7 +77,7 @@ public class EArchiveBatchDispatcherService {
                 maxNumberOfBatchesCreated);
 
         for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
-            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain);
+            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain, eArchiveRequestType);
             if (batchAndEnqueue == null) {
                 break;
             }
@@ -84,7 +85,7 @@ public class EArchiveBatchDispatcherService {
             LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
         if (batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
-            eArchivingJobService.updateLastEntityIdExported(newLastEntityIdProcessed);
+            eArchivingJobService.updateLastEntityIdExported(newLastEntityIdProcessed, eArchiveRequestType);
             LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
         }
     }
@@ -96,14 +97,8 @@ public class EArchiveBatchDispatcherService {
 
     /**
      * Create a new batch and enqueue it
-     *
-     * @param lastEntityIdProcessed
-     * @param batchSize
-     * @param maxEntityIdToArchived
-     * @param domain
-     * @return
      */
-    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain) {
+    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
         ListUserMessageDto userMessageToBeArchived = userMessageLogDao.findMessagesForArchivingDesc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
         if (CollectionUtils.isEmpty(userMessageToBeArchived.getUserMessageDtos())) {
             LOG.debug("No message to archive");
@@ -111,7 +106,7 @@ public class EArchiveBatchDispatcherService {
         }
         long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(userMessageToBeArchived.getUserMessageDtos().size() - 1).getEntityId();
 
-        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived);
+        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived, requestType);
 
         enqueueEArchive(eArchiveBatch, domain);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_REEXPORT, eArchiveBatch.getBatchId());
@@ -122,7 +117,6 @@ public class EArchiveBatchDispatcherService {
      * updates the data for batchId  and send it to EArchive queue for reexport
      *
      * @param batchId the batch id
-     * @param domain
      * @return reexported batch entity
      */
     public EArchiveBatchEntity reExportBatchAndEnqueue(final String batchId, Domain domain) {

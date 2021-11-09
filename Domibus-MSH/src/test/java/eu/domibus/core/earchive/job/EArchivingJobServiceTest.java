@@ -2,13 +2,11 @@ package eu.domibus.core.earchive.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchStartDao;
-import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.core.earchive.*;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
@@ -117,5 +115,22 @@ public class EArchivingJobServiceTest {
         assertEquals(3, mpc1);
         new FullVerifications() {
         };
+    }
+
+    @Test
+    public void getId_CONTINUOUS() {
+        int id = eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.CONTINUOUS);
+        assertEquals(1, id);
+    }
+
+    @Test
+    public void getId_SANITY() {
+        int id = eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.SANITIZER);
+        assertEquals(2, id);
+    }
+
+    @Test(expected = DomibusEArchiveException.class)
+    public void getId_MANUAL() {
+        eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.MANUAL);
     }
 }

@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.job;
 
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
@@ -12,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 5.0
  */
 @DisallowConcurrentExecution
-public class EArchivingJob extends DomibusQuartzJobBean {
+public class EArchivingContinuousJob extends DomibusQuartzJobBean {
 
     @Autowired
     protected EArchiveBatchDispatcherService eArchiveBatchService;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        eArchiveBatchService.startBatch(domain);
+        eArchiveBatchService.startBatch(domain, EArchiveRequestType.CONTINUOUS);
     }
 
 }
