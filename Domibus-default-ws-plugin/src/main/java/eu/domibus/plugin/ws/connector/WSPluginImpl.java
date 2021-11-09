@@ -16,9 +16,9 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
-import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
+import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Date;
@@ -70,10 +70,10 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
         wsMessageLogService.create(wsMessageLogEntity);
 
-       boolean submitMessageSent =  wsPluginBackendService.send(event, SUBMIT_MESSAGE);
-       if(BooleanUtils.isNotTrue(submitMessageSent)) {
-           wsPluginBackendService.send(event, RECEIVE_SUCCESS);
-       }
+        boolean submitMessageSent = wsPluginBackendService.send(event, SUBMIT_MESSAGE);
+        if (BooleanUtils.isNotTrue(submitMessageSent)) {
+            wsPluginBackendService.send(event, RECEIVE_SUCCESS);
+        }
     }
 
     /**
@@ -81,6 +81,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
      * per default as there is no processing type in the old plugin WSDL.
      * see EDELIVERY-8610
      */
+    @Deprecated
     public String submitFromOldPlugin(final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);

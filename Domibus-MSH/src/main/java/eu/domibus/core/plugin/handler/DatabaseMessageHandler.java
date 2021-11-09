@@ -364,7 +364,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
                 //To be removed with the old ws plugin.
-                checkSubmissionFromOldWSPlugin(submission,userMessage);
+                checkSubmissionFromOldWSPlugin(submission, userMessage);
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
                 final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
                 messageStatus = messageStatusEntity.getMessageStatus();
@@ -446,24 +446,30 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
      * old WS plugin.
      * see EDELIVERY-8610
      */
-    private void checkSubmissionFromOldWSPlugin(final Submission submission,final UserMessage userMessage) throws EbMS3Exception {
-        if(submission.getProcessingType()==null){
-            ProcessingType processingType;
+    private void checkSubmissionFromOldWSPlugin(final Submission submission, final UserMessage userMessage) throws EbMS3Exception {
+        if (submission.getProcessingType() != null) {
+            return;
+        }
+        LOG.debug("Submission processing type is empty,  checking processing type from PMODE");
+        ProcessingType processingType;
+        try {
+            processingType = ProcessingType.PULL;
+            setSubmissionProcessingType(submission, userMessage, processingType);
+        } catch (EbMS3Exception e) {
             try {
-                processingType = ProcessingType.PULL;
-                pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, processingType);
-                submission.setProcessingType(processingType);
-            } catch (EbMS3Exception e) {
-                try {
-                    processingType = ProcessingType.PUSH;
-                    pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, processingType);
-                    submission.setProcessingType(processingType);
-                } catch (EbMS3Exception ex) {
-                    throw  ex;
-                }
+                processingType = ProcessingType.PUSH;
+                setSubmissionProcessingType(submission, userMessage, processingType);
+            } catch (EbMS3Exception ex) {
+                LOG.error("No processing type found from PMODE for the Submission", ex);
+                throw ex;
             }
         }
+    }
 
+    private void setSubmissionProcessingType(Submission submission, UserMessage userMessage, ProcessingType processingType) throws EbMS3Exception {
+        pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, processingType);
+        submission.setProcessingType(processingType);
+        LOG.debug("Processing type is:[{}]", processingType);
     }
 
     private void populateMessageIdIfNotPresent(UserMessage userMessage) {
