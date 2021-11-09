@@ -2,8 +2,8 @@ package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.alerts.configuration.earchive.ArchivingNotificationFailedConfigurationManager;
-import eu.domibus.core.alerts.configuration.earchive.ArchivingNotificationFailedModuleConfiguration;
+import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedConfigurationManager;
+import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;

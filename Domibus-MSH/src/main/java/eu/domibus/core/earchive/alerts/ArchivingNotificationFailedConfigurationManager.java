@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.configuration.earchive;
+package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.multitenancy.Domain;

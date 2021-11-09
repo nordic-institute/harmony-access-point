@@ -1,4 +1,4 @@
-package eu.domibus.core.alerts.listener;
+package eu.domibus.core.earchive.alerts;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.alerts.model.service.Alert;
