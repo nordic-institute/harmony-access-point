@@ -1,10 +1,12 @@
 package eu.domibus.core.earchive.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.earchive.EArchivingDefaultService;
+import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,8 +20,6 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Message;
 import java.util.UUID;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_NOTIFICATION_URL;
 
 /**
  * @author François Gautier
@@ -46,7 +46,13 @@ public class EArchiveNotificationListenerTest {
     private JmsUtil jmsUtil;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private DomibusProxyService domibusProxyService;
+
+    @Injectable
+    private ObjectMapper objectMapper;
 
     private final long entityId = 1L;
 
