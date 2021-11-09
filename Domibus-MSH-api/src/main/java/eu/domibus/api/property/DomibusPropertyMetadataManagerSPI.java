@@ -353,6 +353,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_BATCH_MPCS = "domibus.earchive.batch.mpcs";
     String DOMIBUS_EARCHIVE_NOTIFICATION_URL = "domibus.earchive.notification.url";
     String DOMIBUS_EARCHIVE_NOTIFICATION_TIMEOUT = "domibus.earchive.notification.timeout";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_USEPROXY = "domibus.earchive.notification.useProxy";
     String DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME = "domibus.earchive.notification.username";
     String DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD = "domibus.earchive.notification.password"; //NOSONAR
     String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
