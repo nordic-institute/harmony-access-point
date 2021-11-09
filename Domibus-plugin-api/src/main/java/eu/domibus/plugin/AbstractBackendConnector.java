@@ -80,7 +80,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
     }
 
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
