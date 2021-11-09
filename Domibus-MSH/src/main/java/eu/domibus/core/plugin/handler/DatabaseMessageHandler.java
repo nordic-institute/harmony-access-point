@@ -444,6 +444,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     /**
      * This method is a temporary method for the time of the old ws plugin lifecycle. It will find the processing type that is not submitted by the
      * old WS plugin.
+     * see EDELIVERY-8610
      */
     private void checkSubmissionFromOldWSPlugin(final Submission submission,final UserMessage userMessage) throws EbMS3Exception {
         if(submission.getProcessingType()==null){

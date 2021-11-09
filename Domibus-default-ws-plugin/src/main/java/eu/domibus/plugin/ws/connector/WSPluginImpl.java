@@ -78,7 +78,8 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     /**
      * This method is a temporary method for the time of the old ws plugin lifecycle. It will remove the processing type set
-     * per default as there is not processing type in the old plugin.
+     * per default as there is no processing type in the old plugin WSDL.
+     * see EDELIVERY-8610
      */
     public String submitFromOldPlugin(final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging message) throws MessagingProcessingException {
         try {
