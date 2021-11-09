@@ -14,9 +14,15 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import gen.eu.domibus.archive.client.api.ArchiveWebhookApi;
+import gen.eu.domibus.archive.client.invoker.ApiClient;
 import gen.eu.domibus.archive.client.model.BatchNotification;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -104,8 +110,22 @@ public class EArchiveNotificationListener implements MessageListener {
 
         LOG.debug("Initializing eArchive client api with endpoint [{}]...", restUrl);
 
+        int timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_NOTIFICATION_TIMEOUT);
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
+                .setSocketTimeout(timeout)
+                .build();
+        CloseableHttpClient client = HttpClientBuilder
+                .create()
+                .setDefaultRequestConfig(config)
+                .build();
+        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(client));
+        ApiClient apiClient = new ApiClient(restTemplate);
+        apiClient.setBasePath(restUrl);
+
         ArchiveWebhookApi earchivingClientApi = new ArchiveWebhookApi();
-        earchivingClientApi.getApiClient().setBasePath(restUrl);
+        earchivingClientApi.setApiClient(apiClient);
 
         String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
         String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
