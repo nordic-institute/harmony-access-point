@@ -117,4 +117,11 @@ public interface EventService {
      */
     boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event event, int frequency);
 
+    /**
+     * Will create an earchiving messages non-final event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param messageId     the messageId of the message with a status not final
+     * @param status        the status of the message that is not final
+     */
+    void enqueueEArchivingMessageNonFinalEvent(String messageId, MessageStatus status);
 }

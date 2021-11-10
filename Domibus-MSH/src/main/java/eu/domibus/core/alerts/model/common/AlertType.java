@@ -26,6 +26,7 @@ public enum AlertType {
     PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired"),
     PLUGIN("plugin.ftl", null, "Plugin Alert"),
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl"),
+    ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl"),
     PARTITION_EXPIRATION("partition_expiration.ftl", DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX, "Partition could not be deleted.");
 
     private final String template;

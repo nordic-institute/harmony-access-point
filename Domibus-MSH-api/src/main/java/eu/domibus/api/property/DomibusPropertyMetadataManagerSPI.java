@@ -347,6 +347,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_ACTIVE = "domibus.earchive.active";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
+    String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";
     String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";
     String DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT = "domibus.earchive.batch.retryTimeOut";
@@ -357,4 +358,10 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME = "domibus.earchive.notification.username";
     String DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD = "domibus.earchive.notification.password"; //NOSONAR
     String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
+
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".level";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".mail.subject";
+
 }
