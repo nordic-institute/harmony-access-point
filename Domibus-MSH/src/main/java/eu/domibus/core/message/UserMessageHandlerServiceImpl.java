@@ -242,7 +242,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, false, testMessage, signalMessageResult);
             return responseMessage;
         } catch (DataIntegrityViolationException e) { //TODO check if it's correct
-            LOG.warn("Message [{}] is a duplicate", e);
+            LOG.warn("Message is a duplicate", e);
             duplicate = true;
         }
 
