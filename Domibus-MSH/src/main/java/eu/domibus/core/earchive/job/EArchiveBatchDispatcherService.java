@@ -60,7 +60,8 @@ public class EArchiveBatchDispatcherService {
     public void startBatch(Domain domain, EArchiveRequestType eArchiveRequestType) {
         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
-            return ;
+            LOG.debug("eArchiving is not enabled");
+            return;
         }
         Long lastEntityIdProcessed = eArchivingJobService.getLastEntityIdArchived(eArchiveRequestType);
         Long newLastEntityIdProcessed = lastEntityIdProcessed;

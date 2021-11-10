@@ -34,6 +34,7 @@ public enum EventType {
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
     PLUGIN(AlertType.PLUGIN, "PLUGIN_EVENT", null,
             DomibusMessageCode.PLUGIN_DEFAULT),
+    ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, "ARCHIVING_NOTIFICATION_FAILED", ArchivingEventProperties.class),
     PARTITION_EXPIRATION(AlertType.PARTITION_EXPIRATION, "PARTITION_EXPIRATION",  PartitionExpirationEvent.class);
 
 

@@ -93,11 +93,11 @@ public class EArchiveListener implements MessageListener {
         try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
-                        .requestType(eArchiveBatchByBatchId.getRequestType()!=null? eArchiveBatchByBatchId.getRequestType().name():null)
-                        .status(eArchiveBatchByBatchId.getEArchiveBatchStatus()!=null?eArchiveBatchByBatchId.getEArchiveBatchStatus().name():null)
+                        .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
+                        .status(eArchiveBatchByBatchId.getEArchiveBatchStatus() != null ? eArchiveBatchByBatchId.getEArchiveBatchStatus().name() : null)
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
-                        .messageEndId("" + userMessageDtos.get(0))
+                        .messageStartId("" + userMessageDtos.get(0).getEntityId())
+                        .messageEndId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
                         .messages(eArchiveBatchUtils.getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
                 userMessageDtos)) {

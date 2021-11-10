@@ -73,7 +73,6 @@ public class EArchiveBatchEntity extends EArchiveBatchBaseEntity {
                 ", errorCode='" + errorCode + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 ", storageLocation='" + storageLocation + '\'' +
-                ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
                 "} " + super.toString();
     }
 }
