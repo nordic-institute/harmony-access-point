@@ -88,7 +88,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public List<UserMessageDTO> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
-        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
+        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", UserMessageDTO.class);
         query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         query.setParameter("STATUSES", MessageStatus.getFinalStates());

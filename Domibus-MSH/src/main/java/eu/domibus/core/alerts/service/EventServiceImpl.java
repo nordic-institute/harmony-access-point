@@ -354,4 +354,16 @@ public class EventServiceImpl implements EventService {
         return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enqueueEArchivingMessageNonFinalEvent(final String messageId,
+                                                      final MessageStatus status) {
+        Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
+        event.addStringKeyValue(OLD_STATUS.name(), status.name());
+        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
+        enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
+    }
+
 }

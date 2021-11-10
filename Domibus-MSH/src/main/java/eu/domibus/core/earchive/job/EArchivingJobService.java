@@ -4,9 +4,13 @@ import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.ListUserMessageDto;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.alerts.EArchivingEventService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -50,6 +54,9 @@ public class EArchivingJobService {
 
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
+    private final UserMessageLogDao userMessageLogDao;
+    private final EArchivingEventService eArchivingEventService;
+
 
     public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                 DomibusPropertyProvider domibusPropertyProvider,
@@ -57,7 +64,9 @@ public class EArchivingJobService {
                                 EArchiveBatchDao eArchiveBatchDao,
                                 EArchiveBatchStartDao eArchiveBatchStartDao,
                                 NoArgGenerator uuidGenerator,
-                                EArchiveBatchUtils eArchiveBatchUtils) {
+                                EArchiveBatchUtils eArchiveBatchUtils,
+                                UserMessageLogDao userMessageLogDao,
+                                EArchivingEventService eArchivingEventService) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
@@ -65,6 +74,8 @@ public class EArchivingJobService {
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
         this.uuidGenerator = uuidGenerator;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
+        this.userMessageLogDao = userMessageLogDao;
+        this.eArchivingEventService = eArchivingEventService;
     }
 
     @Transactional(readOnly = true)
@@ -182,5 +193,19 @@ public class EArchivingJobService {
             return new ArrayList<>();
         }
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
+    }
+
+    public ListUserMessageDto findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+        return userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, size);
+    }
+
+    public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
+        ListUserMessageDto messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
+
+        for (UserMessageDTO userMessageDto : messagesNotFinalAsc.getUserMessageDtos()) {
+            MessageStatus messageStatus = userMessageLogDao.getMessageStatus(userMessageDto.getMessageId());
+            LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), messageStatus);
+            eArchivingEventService.sendEvent(userMessageDto.getMessageId(), messageStatus);
+        }
     }
 }

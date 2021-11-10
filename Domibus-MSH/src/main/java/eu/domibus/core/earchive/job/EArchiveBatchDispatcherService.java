@@ -8,7 +8,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSConstants;
@@ -37,18 +36,15 @@ public class EArchiveBatchDispatcherService {
     private final JMSManager jmsManager;
 
     private final Queue eArchiveQueue;
-    private final UserMessageLogDao userMessageLogDao;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
     private final EArchivingJobService eArchivingJobService;
 
-    public EArchiveBatchDispatcherService(UserMessageLogDao userMessageLogDao,
-                                          JMSManager jmsManager,
+    public EArchiveBatchDispatcherService(JMSManager jmsManager,
                                           @Qualifier(InternalJMSConstants.EARCHIVE_QUEUE) Queue eArchiveQueue,
                                           DomibusPropertyProvider domibusPropertyProvider,
                                           EArchivingJobService eArchivingJobService) {
-        this.userMessageLogDao = userMessageLogDao;
         this.jmsManager = jmsManager;
         this.eArchiveQueue = eArchiveQueue;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -85,6 +81,9 @@ public class EArchiveBatchDispatcherService {
             newLastEntityIdProcessed = batchAndEnqueue.getLastPkUserMessage();
             LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
+        if(eArchiveRequestType == EArchiveRequestType.SANITIZER){
+            eArchivingJobService.createEventOnNonFinalMessages(lastEntityIdProcessed, maxEntityIdToArchived);
+        }
         if (batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
             eArchivingJobService.updateLastEntityIdExported(newLastEntityIdProcessed, eArchiveRequestType);
             LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
@@ -100,7 +99,7 @@ public class EArchiveBatchDispatcherService {
      * Create a new batch and enqueue it
      */
     private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
-        ListUserMessageDto userMessageToBeArchived = userMessageLogDao.findMessagesForArchivingDesc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
+        ListUserMessageDto userMessageToBeArchived = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
         if (CollectionUtils.isEmpty(userMessageToBeArchived.getUserMessageDtos())) {
             LOG.debug("No message to archive");
             return null;
