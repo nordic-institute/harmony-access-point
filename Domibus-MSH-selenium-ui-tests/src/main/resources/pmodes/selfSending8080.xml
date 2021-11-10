@@ -1,80 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw">
-
-	<mpcs>
-		<mpc name="defaultMpc"
-			 qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"
-			 enabled="true"
-			 default="true"
-			 retention_downloaded="0"
-			 retention_undownloaded="14400"/>
-	</mpcs>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:configuration xmlns:ns2="http://domibus.eu/configuration" party="blue_gw">
 	<businessProcesses>
 		<roles>
-			<role name="defaultInitiatorRole"
-				  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
-			<role name="defaultResponderRole"
-				  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+			<role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
 		</roles>
 		<parties>
 			<partyIdTypes>
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
-			<party name="red_gw"
-				   endpoint="http://docker_local_wildfly:8080/domibus/services/msh">
+			<party name="red_gw" endpoint="http://c2-dev-wf-mt-wildfly:8080/domibus/services/msh">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
-			<party name="blue_gw"
-				   endpoint="http://docker_local_wildfly:8080/domibus/services/msh">
+			<party name="blue_gw" endpoint="http://c2-dev-wf-mt-wildfly:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
 		<meps>
-			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
-			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay" legs="0"/>
+			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay" legs="0"/>
 			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-			<binding name="pushAndPush"
-					 value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
 		</meps>
 		<properties>
-			<property name="originalSenderProperty"
-					  key="originalSender"
-					  datatype="string"
-					  required="true"/>
-			<property name="finalRecipientProperty"
-					  key="finalRecipient"
-					  datatype="string"
-					  required="true"/>
+			<property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+			<property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
 			<propertySet name="eDeliveryPropertySet">
 				<propertyRef property="finalRecipientProperty"/>
 				<propertyRef property="originalSenderProperty"/>
 			</propertySet>
 		</properties>
 		<payloadProfiles>
-			<payload name="businessContentPayload"
-					 cid="cid:message"
-					 required="true"
-					 mimeType="text/xml"/>
-			<payload name="businessContentAttachment"
-					 cid="cid:attachment"
-					 required="false"
-					 mimeType="application/octet-stream"/>
-			<payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
+			<payload name="businessContentPayload" cid="cid:message" mimeType="text/xml" maxSize="0" required="true" inBody="false"/>
+			<payload name="businessContentAttachment" cid="cid:attachment" mimeType="application/octet-stream" maxSize="0" required="false" inBody="false"/>
+			<payloadProfile name="MessageProfile" maxSize="40894464">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
 		</payloadProfiles>
 		<securities>
-			<security name="eDeliveryAS4Policy"
-					  policy="eDeliveryAS4Policy.xml"
-					  signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
 		</securities>
 		<errorHandlings>
-			<errorHandling name="demoErrorHandling"
-						   errorAsResponse="true"
-						   businessErrorNotifyProducer="true"
-						   businessErrorNotifyConsumer="true"
-						   deliveryFailureNotifyProducer="true"/>
+			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="true" businessErrorNotifyConsumer="true" deliveryFailureNotifyProducer="true"/>
 		</errorHandlings>
 		<agreements>
 			<agreement name="agreement1" value="A1" type="T1"/>
@@ -89,47 +57,16 @@
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="0;0;CONSTANT" duplicateDetection="true"/>
-			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+			<reliability name="AS4Reliability" replyPattern="response" nonRepudiation="true"/>
 		</as4>
 		<splittingConfigurations>
-			<splitting name="default"
-					   fragmentSize="500"
-					   compression="true"
-					   joinInterval="1440"/>
+			<splitting name="default" fragmentSize="500" compression="true" joinInterval="1440"/>
 		</splittingConfigurations>
 		<legConfigurations>
-			<!--
-			Please add the attribute "splitting"(pointing to a splitting configuration)
-			to a specific leg in case you want to activate splitAndJoin feature
-			-->
-			<legConfiguration name="pushTestcase1tc1Action"
-							  service="testService1"
-							  action="tc1Action"
-							  defaultMpc="defaultMpc"
-							  reliability="AS4Reliability"
-							  security="eDeliveryAS4Policy"
-							  receptionAwareness="receptionAwareness"
-							  propertySet="eDeliveryPropertySet"
-							  payloadProfile="MessageProfile"
-							  errorHandling="demoErrorHandling"
-							  compressPayloads="true"/>
-			<legConfiguration name="testServiceCase"
-							  service="testService"
-							  action="testAction"
-							  defaultMpc="defaultMpc"
-							  reliability="AS4Reliability"
-							  security="eDeliveryAS4Policy"
-							  receptionAwareness="receptionAwareness"
-							  propertySet="eDeliveryPropertySet"
-							  payloadProfile="MessageProfile"
-							  errorHandling="demoErrorHandling"
-							  compressPayloads="true"/>
+			<legConfiguration name="pushTestcase1tc1Action" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" service="testService1" action="tc1Action" defaultMpc="defaultMpc" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="testServiceCase" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" service="testService" action="testAction" defaultMpc="defaultMpc" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 		</legConfigurations>
-		<process name="tc1Process"
-				 mep="oneway"
-				 binding="push"
-				 initiatorRole="defaultInitiatorRole"
-				 responderRole="defaultResponderRole">
+		<process name="tc1Process" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole" mep="oneway" binding="push">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
 				<initiatorParty name="red_gw"/>
@@ -144,4 +81,7 @@
 			</legs>
 		</process>
 	</businessProcesses>
-</db:configuration>
+	<mpcs>
+		<mpc name="defaultMpc" retention_downloaded="0" retention_undownloaded="14400" retention_sent="-1" delete_message_metadata="false" max_batch_delete="-1" default="true" enabled="true" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
+	</mpcs>
+</ns2:configuration>

@@ -1,0 +1,376 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="SmokeSuite">
+
+
+    <test name="SmokeTest">
+
+        <groups>
+            <run>
+                <exclude name="TlsConfig"></exclude>
+                <include name="multiTenancy"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="domibus.ui.functional.AccessRightsTest">
+                <methods>
+                    <include name="userRights"/>
+                    <include name="userAccessDomainSwitch"/>
+                    <include name="adminRights"/>
+                    <include name="adminDomainSwitch"/>
+                    <include name="superAdminRights"/>
+                    <include name="userResendMessage"/>
+                    <include name="adminAccessLoggingPage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.AlertPgTest">
+                <methods>
+                    <include name="openAlertsPage"/>
+                    <include name="searchBasicFilters"/>
+                    <include name="searchAdvanceFilters"/>
+                    <include name="showDomainAlert"/>
+                    <include name="showDomainAlertCheckedForSecDomain"/>
+                    <include name="doubleClickAlertRow"/>
+                    <include name="changeDomain"/>
+                    <include name="superAdminrecordAbsenceForAdmin"/>
+                    <include name="checkProcessed"/>
+                    <include name="checkAditionalFilters"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.AuditPgTest">
+                <methods>
+                    <include name="changeDomain"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.ChangePasswordPgTest">
+                <methods>
+                    <include name="changePassword"/>
+                    <include name="newPasswordAmongLast5"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.ConnectionMonitorTest">
+                <methods>
+                    <include name="openWindow"/>
+                    <include name="openWindowNoPmode"/>
+                    <include name="partyNotTested"/>
+                    <include name="sendTestMsg"/>
+                    <include name="checkUpdateFeature"/>
+                    <include name="checkRefreshFeature"/>
+                    <include name="checkSendFeature"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.ErrorLogPgTest">
+                <methods>
+                    <include name="openErrorLogPage"/>
+                    <include name="errorLogForFailedMsg"/>
+                    <include name="checkNoOFErrorsPerMessage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.JMSMessPgTest">
+                <methods>
+                    <include name="deleteJMSMessage"/>
+                    <include name="moveMessage"/>
+                    <include name="adminOpenJMSMessagesPage"/>
+                    <include name="jmsMsgDelOnDomainChange"/>
+                    <include name="queueMsgCountOnInputFilter"/>
+                    <include name="queueMsgCountOnMovePopUp"/>
+                    <include name="queueMsgCountForSuperAdmin"/>
+                    <include name="msgCountOnMoveForSuperAdmin"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.LoggingPgTest">
+                <methods>
+                    <include name="accessRights"/>
+                    <include name="verifyCheckbox"/>
+                    <include name="verifyReset"/>
+                    <include name="modifyLevelForPackageAndSubpackage"/>
+                    <include name="modifyLevelForPackage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.LoginPgTest">
+                <methods>
+                    <include name="validLogin"/>
+                    <include name="invalidUsername"/>
+                    <include name="invalidPassword"/>
+                    <include name="blockUserAccountTest"/>
+                    <include name="unblockedAccountCanLogin"/>
+                    <include name="lockedUserAccountCantLogin"/>
+                    <include name="deactivatedUserAccountCantLogin"/>
+                    <include name="deletedUserAccountCantLogin"/>
+                    <include name="deletedSuperUserCantLogin"/>
+                    <include name="deactivatedSuperUserCantLogin"/>
+                    <include name="lockedSuperUserCantLogin"/>
+                    <include name="unlockedSuperUserLogin"/>
+                    <include name="reactivatedSuperUserLogin"/>
+                    <include name="reactivatedDomainUserLogin"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessageFilter2PgTest">
+                <methods>
+                    <include name="doubleClickRow"/>
+                    <include name="duplicateEmptyFilter"/>
+                    <include name="duplicateFilter"/>
+                    <include name="editToDuplicate"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessageFilterPgTest">
+                <methods>
+                    <include name="openMessagesFilterPage"/>
+                    <include name="newFilterCancel"/>
+                    <include name="newFilterSave"/>
+                    <include name="shuffleAndSave"/>
+                    <include name="editAndCancel"/>
+                    <include name="editAndSave"/>
+                    <include name="deleteAndCancel"/>
+                    <include name="deleteAndSave"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessagesPgTest">
+                <methods>
+                    <include name="doubleclickMessageRow"/>
+                    <include name="filterUsingBasicFilters"/>
+                    <include name="filterMessagesAdvancedFilters"/>
+                    <include name="downloadMessage"/>
+                    <include name="resendMessage"/>
+                    <include name="messagesSegregatedByDomain"/>
+                    <include name="superSelectMessageChangeDomain"/>
+                    <include name="checkMsgEnvXML"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PluginUsersPgTest">
+                <methods>
+                    <include name="newUserCancel"/>
+                    <include name="newUserSave"/>
+                    <include name="editAndCancel"/>
+                    <include name="editAndSave"/>
+                    <include name="deleteAndCancel"/>
+                    <include name="deleteAndSave"/>
+                    <include name="createCertificatePluginUserSave"/>
+                    <include name="createCertificatePluginUserCancel"/>
+                    <include name="duplicatePluginUsersDifferentDomain"/>
+                    <include name="sameUsernameAsUserOnSameDomain"/>
+                    <include name="sameUsernameAsUserOnDifferentDomain"/>
+                    <include name="inactivePLUSendMess"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PModeCurrentPgTests">
+                <methods>
+                    <include name="openPModeCurrentWindow"/>
+                    <include name="uploadPmode"/>
+                    <include name="uploadInvalidPmode"/>
+                    <include name="editPModeInvalidXML"/>
+                    <include name="domainSegregationPMode"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PmodeParties2PgTest">
+                <methods>
+                    <include name="responderInitiatorAdditionOnPartiesPage"/>
+                    <include name="initiatorResponderRemovalCurrentPmode"/>
+                    <include name="initiatorResponderAdditionCurrentPmode"/>
+                    <include name="deleteCurrentSystemParty"/>
+                    <include name="newIdentifierDuplicatePartyId"/>
+                    <include name="multipleIdentifiers"/>
+                    <include name="duplicatePartyName"/>
+                    <include name="partyIdValueDuplicate"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PmodePartiesPgTest">
+                <methods>
+                    <include name="filterParties"/>
+                    <include name="doubleClickRow"/>
+                    <include name="deleteParty"/>
+                    <include name="createParty"/>
+                    <include name="editParty"/>
+                    <include name="editPartyAndCancel"/>
+                    <include name="domainSegregation"/>
+                    <include name="partyAdditionCurrentPmode"/>
+                    <include name="partyRemovalCurrentPmode"/>
+                    <include name="partyAdditionOnPartiesPage"/>
+                    <include name="partyRemovalFromPartiesPage"/>
+                    <include name="responderInitiatorRemovalFromPartiesPage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PModeValidationsTest">
+                <methods>
+                    <include name="invalidCharacters"/>
+                    <include name="invalidURLs"/>
+                    <include name="integerAttributesValidations"/>
+                    <include name="validationsBooleans"/>
+                    <include name="currentPmodeNoCurrentParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.Properties2PgTest">
+                <methods>
+                    <include name="adminAccessToProperties"/>
+                    <include name="supportTeamData"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PropertiesPgTest">
+                <methods>
+                    <include name="pageAvailability"/>
+                    <include name="openPageSuper"/>
+                    <include name="openPageAdmin"/>
+                    <include name="filterProperties"/>
+                    <include name="changeDomain"/>
+                    <include name="updateAndSave"/>
+                    <include name="updateInvalidValue"/>
+                    <include name="updateAndRevert"/>
+                </methods>
+            </class>
+<!--            <class name="domibus.ui.functional.TlsTrustStorePgTest">-->
+<!--                <methods>-->
+<!--                    <include name="uploadCertificate"/>-->
+<!--                    <include name="uploadCert"/>-->
+<!--                    <include name="removeCert"/>-->
+<!--                    <include name="removeAllCert"/>-->
+<!--                    <include name="uploadCertfterRemove"/>-->
+<!--                </methods>-->
+<!--            </class>-->
+            <class name="domibus.ui.functional.TruststorePgTest">
+                <methods>
+                    <include name="uploadValidFile"/>
+                    <include name="uploadJksWithNoAliasPass"/>
+                    <include name="uploadJksWithPassProAlias"/>
+                    <include name="uploadFileWithoutPassword"/>
+                    <include name="expiredCertificate"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.UsersPgTest">
+                <methods>
+                    <include name="deleteUserAndSave"/>
+                    <include name="deleteUserAndCancel"/>
+                    <include name="availableRoles"/>
+                    <include name="newUserCancel"/>
+                    <include name="newUserSave"/>
+                    <include name="editUserAndCancel"/>
+                    <include name="editUserAndSave"/>
+                    <include name="adminDeactivatesUser"/>
+                    <include name="adminChangesUserPassword"/>
+                    <include name="editUserRoleAndCheckPrivileges"/>
+                    <include name="duplicateUsername"/>
+                    <include name="duplicateUsernameOnAnotherDomain"/>
+                    <include name="duplicateUserVSPluginUser"/>
+                    <include name="duplicateUserVSPluginUserOtherDomain"/>
+                    <include name="changePassOtherSuperUsr"/>
+                    <include name="superDelUpdateSelf"/>
+                    <include name="superDelUpdateOtherSuper"/>
+                    <include name="deactivateAllAdmin"/>
+                    <include name="deleteAllAdmin"/>
+                    <include name="addUserWNoDomainAdmin"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.AlertPgUXTest">
+                <methods>
+                    <include name="delDomainAlertbySuperAdmin"/>
+                    <include name="delSuperAlert"/>
+                    <include name="delDomainAlertByAdmin"/>
+                    <include name="markDomainAlrtProcessed"/>
+                    <include name="changeDomain"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.AuditPgUXTest">
+                <methods>
+                    <include name="openAuditPage"/>
+                    <include name="basicFilter"/>
+                    <include name="filterWAdvancedFilters"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.ChangePasswordPgUXTest">
+                <methods>
+                    <include name="navigateToChangePassword"/>
+                    <include name="unchangedPasswordOnNavigation"/>
+                    <include name="differentPasswordsValidData"/>
+                    <include name="sameInvalidData"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.ErrorLogPgUXTest">
+                <methods>
+                    <include name="openErrorLogPage"/>
+                    <include name="doubleClickErr"/>
+                    <include name="filterErrorLog"/>
+                    <include name="filterUsingAdvancedFilters"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.JMSMessPgUXTest">
+                <methods>
+                    <include name="openJMSMessagesPage"/>
+                    <include name="doubleClickMessage"/>
+                    <include name="filterMessages"/>
+                    <include name="filterMessagesBySelector"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.LoggingPgUXTest">
+                <methods>
+                    <include name="openPage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.MessagesPgUXTest">
+                <methods>
+                    <include name="openMessagesPage"/>
+                    <include name="resendMsg"/>
+                    <include name="checkMsgEnvPresence"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PluginUsersPg2UXTest">
+                <methods>
+                    <include name="editCertificateUsr"/>
+                    <include name="delCertificateUsr"/>
+                    <include name="originalUserOnAddEdit"/>
+                    <include name="originalUserOnRoleChange"/>
+                    <include name="originalUserOnAddEditBasic"/>
+                    <include name="originalUserOnRoleChangeBasic"/>
+                    <include name="duplicatCertUserDiffDomain"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PluginUsersPgUXTest">
+                <methods>
+                    <include name="openWindow"/>
+                    <include name="doubleclickRow"/>
+                    <include name="editPassErrMess"/>
+                    <include name="filterPluginUserList"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PModeArchiveUXTest">
+                <methods>
+                    <include name="openPmodeArchivePage"/>
+                    <include name="restoreOrDeleteCurrentPMode"/>
+                    <include name="doubleclickCurrentPMode"/>
+                    <include name="restoreOldFile"/>
+                    <include name="deleteOldFile"/>
+                    <include name="doubleClickRow"/>
+                    <include name="domainSegregation"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PmodePartiesPgUXTest">
+                <methods>
+                    <include name="openPModePartiesPage"/>
+                    <include name="updateParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.TlsTruststoreUXTest">
+                <methods>
+                    <include name="openTlsTrustorePg"/>
+                    <include name="openPage"/>
+                    <include name="openPageForSuperAdmin"/>
+                    <include name="openPageSuperAdmin"/>
+                    <include name="downloadCert"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.TruststorePgUXTest">
+                <methods>
+                    <include name="openTrustorePage"/>
+                    <include name="csvFileDownload"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.UsersPgUXTest">
+                <methods>
+                    <include name="openWindow"/>
+                    <include name="openDoubleClickModal"/>
+                    <include name="doubleclickDeletedUser"/>
+                    <include name="searchAllUsers"/>
+                    <include name="searchDeletedUser"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
