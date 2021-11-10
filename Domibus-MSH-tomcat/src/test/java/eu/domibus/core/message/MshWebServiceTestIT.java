@@ -6,15 +6,20 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
@@ -32,6 +36,8 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.Assert.*;
 
 public class MshWebServiceTestIT extends AbstractIT {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);
 
     @Configuration
     static class ContextConfiguration {
@@ -80,6 +86,12 @@ public class MshWebServiceTestIT extends AbstractIT {
 
     @Autowired
     protected ReceiptDao receiptDao;
+
+    @Autowired
+    NonRepudiationService nonRepudiationService;
+
+    @Autowired
+    protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -138,5 +150,27 @@ public class MshWebServiceTestIT extends AbstractIT {
 
         final String expectedReceivedRawXml = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("dataset/as4/mshwebserviceit-soapenvelope.xml"), StandardCharsets.UTF_8);
         assertEquals(expectedReceivedRawXml, receivedUserMessageRawXml);
+
+        nonRepudiationService.saveResponse(soapResponse, userMessage.getEntityId());
+        final SignalMessageRaw signalMessageRaw = signalMessageRawEnvelopeDao.read(userMessage.getEntityId());
+        assertNotNull(signalMessageRaw);
+        final String signalMessageRawString = new String(signalMessageRaw.getRawXML());
+        LOG.info("signalMessageRawString [{}]", signalMessageRawString);
+
+
+        final String expectedResponseRawXml = getExpectedResponseXml(signalMessageRawString);
+        assertEquals(expectedResponseRawXml, signalMessageRawString);
+    }
+
+    protected String getExpectedResponseXml(final String signalMessageRawString) throws IOException {
+        final String expectedResponseRawXml = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("dataset/as4/mshwebserviceit-soapenvelope-response.xml"), StandardCharsets.UTF_8);
+
+        final String startString = "<eb3:Timestamp>";
+        final String endString = "</eb3:MessageId>";
+        final int startIndex = StringUtils.indexOf(signalMessageRawString, startString);
+        final int endIndex = StringUtils.indexOf(signalMessageRawString, endString) + endString.length();
+
+        final String toReplace = StringUtils.substring(signalMessageRawString, startIndex, endIndex);
+        return StringUtils.replace(expectedResponseRawXml, "PLACEHOLDER_TIMESTAMP_MESSAGEID", toReplace);
     }
 }

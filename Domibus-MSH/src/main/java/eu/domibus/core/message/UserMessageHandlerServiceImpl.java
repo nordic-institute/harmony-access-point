@@ -27,7 +27,6 @@ import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
-import eu.domibus.core.message.receipt.AS4ReceiptServiceImpl;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
@@ -55,6 +54,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Node;
@@ -214,22 +214,18 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = pModeProvider.checkSelfSending(pmodeKey);
-        //TODO insert into DB instead of finding
-        final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(userMessage);
 
         final SOAPMessage responseMessage = as4ReceiptService.generateReceipt(
                 request,
                 userMessage,
                 legConfiguration.getReliability().getReplyPattern(),
                 legConfiguration.getReliability().isNonRepudiation(),
-                messageExists,
+                false,
                 selfSendingFlag);
 
         SignalMessageResult signalMessageResult = null;
         try {
-            if (!messageExists) {
-                signalMessageResult = as4ReceiptService.generateResponse(responseMessage, userMessage, selfSendingFlag);
-            }
+            signalMessageResult = as4ReceiptService.generateResponse(responseMessage, userMessage, selfSendingFlag);
         } catch (final SOAPException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -240,10 +236,37 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .mshRole(MSHRole.RECEIVING)
                     .build();
         }
-        handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, messageExists, testMessage, signalMessageResult);
 
+        boolean duplicate;
+        try {
+            handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, false, testMessage, signalMessageResult);
+            return responseMessage;
+        } catch (DataIntegrityViolationException e) { //TODO check if it's correct
+            LOG.warn("Message [{}] is a duplicate", e);
+            duplicate = true;
+        }
 
-        return responseMessage;
+        String errorMessage = "Could not receive message";
+        if (duplicate) {
+            errorMessage = "Duplicate message";
+
+            final boolean duplicateDetectionActive = legConfiguration.getReceptionAwareness().getDuplicateDetection();
+            if (duplicateDetectionActive) {
+                return as4ReceiptService.generateReceipt(
+                        request,
+                        userMessage,
+                        legConfiguration.getReliability().getReplyPattern(),
+                        legConfiguration.getReliability().isNonRepudiation(),
+                        true,
+                        selfSendingFlag);
+            }
+        }
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                .message(errorMessage)
+                .refToMessageId(userMessage.getMessageId())
+                .mshRole(MSHRole.RECEIVING)
+                .build();
     }
 
     @Transactional
