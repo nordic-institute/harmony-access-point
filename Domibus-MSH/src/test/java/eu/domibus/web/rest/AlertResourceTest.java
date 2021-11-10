@@ -386,7 +386,7 @@ public class AlertResourceTest {
         }};
 
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(16, alertTypesAsStrings.size());
+        assertEquals(17, alertTypesAsStrings.size());
         assertTrue(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 
@@ -398,7 +398,7 @@ public class AlertResourceTest {
         }};
 
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(11, alertTypesAsStrings.size());
+        assertEquals(12, alertTypesAsStrings.size());
         assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 
