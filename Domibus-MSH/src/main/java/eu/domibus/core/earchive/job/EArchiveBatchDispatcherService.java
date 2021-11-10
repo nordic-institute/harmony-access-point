@@ -59,6 +59,7 @@ public class EArchiveBatchDispatcherService {
     public void startBatch(Domain domain) {
         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
+            LOG.debug("eArchiving is not enabled");
             return;
         }
         Long lastEntityIdProcessed = eArchivingJobService.getLastEntityIdArchived();

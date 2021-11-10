@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -67,6 +68,7 @@ interface DomibusEArchiveWebhookResource {
     )
     @PUT
     @Path("/{batch_id:.+}/export-notification")
+    @Consumes("application/json")
     void putExportNotification(@PathParam("batch_id") final String batchId,
                                @Parameter(description = "Notification message on export event for the batch", required = true) final BatchNotification batchNotification);
 
@@ -88,6 +90,7 @@ interface DomibusEArchiveWebhookResource {
     )
     @PUT
     @Path("/{batch_id:.+}/stale-notification")
+    @Consumes("application/json")
     void putStaleNotification(@PathParam("batch_id") final String batchId,
                               @Parameter(description = "Notification message on delete for expired batch", required = true) final BatchNotification batchNotification);
 
