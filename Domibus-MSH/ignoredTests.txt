@@ -3,3 +3,5 @@
 **/PasswordEncryptionServiceImplTest.java
 **/ObjectBlacklistValidatorTest.java
 **/DomibusPropertiesServiceTest.java
+**/CsvServiceImplTest.java
+**/CsvServiceImplTest.java
