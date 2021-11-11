@@ -1,6 +1,6 @@
 import logging as log
 import time
-
+import os
 from zapv2 import ZAPv2
 import requests
 
