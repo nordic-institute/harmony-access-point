@@ -2,7 +2,6 @@ package eu.domibus.core.earchive.job;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
@@ -52,7 +51,6 @@ public class EArchivingRetentionService {
         eArchiveBatchDao.expireBatches(limitDate);
     }
 
-    @Transactional
     public void cleanStoredBatches() {
         final Integer maxBatchesToDelete = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX);
 
@@ -69,10 +67,9 @@ public class EArchivingRetentionService {
 
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId())) {
             batchDirectory.deleteAll();
+            batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
         } catch (Exception e) {
-            throw new DomibusEArchiveException("Could not delete earchive batch [" + batch.getBatchId() + "]", e);
+            LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
         }
-
-        batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
     }
 }
