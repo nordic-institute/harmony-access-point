@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
@@ -185,7 +186,11 @@ public class EArchiveNotificationListener implements MessageListener {
         batchNotification.setErrorCode(eArchiveBatch.getErrorCode());
         batchNotification.setErrorDescription(eArchiveBatch.getErrorMessage());
         batchNotification.setStatus(BatchNotification.StatusEnum.valueOf(eArchiveBatch.getEArchiveBatchStatus().name()));
-        batchNotification.setRequestType(BatchNotification.RequestTypeEnum.valueOf(eArchiveBatch.getRequestType().name()));
+        if (eArchiveBatch.getRequestType() == EArchiveRequestType.CONTINUOUS || eArchiveBatch.getRequestType() == EArchiveRequestType.SANITIZER) {
+            batchNotification.setRequestType(BatchNotification.RequestTypeEnum.CONTINUOUS);
+        } else if (eArchiveBatch.getRequestType() == EArchiveRequestType.MANUAL) {
+            batchNotification.setRequestType(BatchNotification.RequestTypeEnum.MANUAL);
+        }
         batchNotification.setTimestamp(OffsetDateTime.ofInstant(eArchiveBatch.getDateRequested().toInstant(), ZoneOffset.UTC));
 
         ListUserMessageDto messageListDto = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatch);
