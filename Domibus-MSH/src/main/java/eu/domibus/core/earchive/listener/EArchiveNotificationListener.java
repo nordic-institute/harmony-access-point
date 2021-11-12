@@ -36,11 +36,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -193,20 +191,7 @@ public class EArchiveNotificationListener implements MessageListener {
         ListUserMessageDto messageListDto = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatch);
         batchNotification.setMessages(eArchiveBatchUtils.getMessageIds(messageListDto.getUserMessageDtos()));
 
-        Date messageStartDate = dateFromLongDate(eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatch.getFirstPkUserMessage()));
-        Date messageEndDate = dateFromLongDate(eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatch.getLastPkUserMessage()));
-        batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
-        batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));
-
         return batchNotification;
-    }
-
-    private Date dateFromLongDate(Long dateAsLong) {
-        try {
-            return dateParser.parse(dateAsLong.toString());
-        } catch (ParseException ex) {
-            throw new DomibusEArchiveException("Invalid date: " + dateAsLong, ex);
-        }
     }
 
 }
