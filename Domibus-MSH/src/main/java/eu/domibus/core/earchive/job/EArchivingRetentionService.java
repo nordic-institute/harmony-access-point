@@ -54,7 +54,11 @@ public class EArchivingRetentionService {
     public void cleanStoredBatches() {
         final Integer maxBatchesToDelete = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX);
 
-        List<EArchiveBatchStatus> eligibleStatuses = Arrays.asList(EArchiveBatchStatus.EXPIRED, EArchiveBatchStatus.ARCHIVED, EArchiveBatchStatus.ARCHIVE_FAILED);
+        List<EArchiveBatchStatus> eligibleStatuses = Arrays.asList(
+                EArchiveBatchStatus.EXPIRED,
+                EArchiveBatchStatus.ARCHIVED,
+                EArchiveBatchStatus.ARCHIVE_FAILED,
+                EArchiveBatchStatus.FAILED);
         List<EArchiveBatchEntity> batches = eArchiveBatchDao.findBatchesByStatus(eligibleStatuses, maxBatchesToDelete);
 
         LOG.debug("[{}] batches eligible for deletion found", batches.size());
