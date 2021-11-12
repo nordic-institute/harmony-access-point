@@ -4,6 +4,7 @@ from zapv2 import ZAPv2
 import os
 import logging as log
 import time
+import requests
 
 log.basicConfig(level=log.DEBUG)
 
