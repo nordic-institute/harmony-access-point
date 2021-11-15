@@ -7,7 +7,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -33,14 +32,10 @@ public class ArchivingMessagesNonFinalStatusConfigurationManager
 
     protected DomainContextProvider domainContextProvider;
 
-    protected AlertConfigurationService alertConfigurationService;
-
     public ArchivingMessagesNonFinalStatusConfigurationManager(DomibusPropertyProvider domibusPropertyProvider,
-                                                               DomainContextProvider domainContextProvider,
-                                                               AlertConfigurationService alertConfigurationService) {
+                                                               DomainContextProvider domainContextProvider) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainContextProvider = domainContextProvider;
-        this.alertConfigurationService = alertConfigurationService;
     }
 
     @Override
@@ -56,7 +51,7 @@ public class ArchivingMessagesNonFinalStatusConfigurationManager
     protected ArchivingMessagesNonFinalModuleConfiguration readConfiguration() {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
-            final Boolean alertsActive = alertConfigurationService.isAlertModuleEnabled();
+            final Boolean alertsActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
             final Boolean earchiveAlertsActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE);
             if (BooleanUtils.isNotTrue(alertsActive) || BooleanUtils.isNotTrue(earchiveAlertsActive)) {
                 return new ArchivingMessagesNonFinalModuleConfiguration();
