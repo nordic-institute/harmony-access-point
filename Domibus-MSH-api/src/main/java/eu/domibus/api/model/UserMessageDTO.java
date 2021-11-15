@@ -11,6 +11,7 @@ public class UserMessageDTO {
     String messageId;
 
     public UserMessageDTO() {
+        this(-1, null);
     }
 
     public UserMessageDTO(long entityId, String messageId) {

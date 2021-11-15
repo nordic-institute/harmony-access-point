@@ -1,8 +1,11 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedConfigurationManager;
+import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedModuleConfiguration;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -29,13 +32,19 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
+    private final ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager;
+
+    private final EventService eventService;
+
     public EArchiveNotificationDlqListener(
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchiveService,
-            JmsUtil jmsUtil) {
+            JmsUtil jmsUtil, ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager, EventService eventService) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
+        this.archivingNotificationFailedConfigurationManager = archivingNotificationFailedConfigurationManager;
+        this.eventService = eventService;
     }
 
     @Override
@@ -51,11 +60,16 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         }
         jmsUtil.setDomain(message);
 
+        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
+        if (!alertConfiguration.isActive()) {
+            LOG.debug("E-Archiving notification failed alerts module is not enabled, no alert will be created");
+            return;
+        }
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
-
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId);
-        // TODO: François Gautier 28-10-21 create an alert
-        LOG.info("Create Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
+
+        LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
+        eventService.enqueueEArchivingEvent(batchId, notificationType);
     }
 
 }

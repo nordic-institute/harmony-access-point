@@ -75,16 +75,30 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
-        LOG.debug("UserMessageLog.findMessagesForArchivingDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
+    public ListUserMessageDto findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+        LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
                 lastUserMessageLogId,
                 maxEntityIdToArchived,
                 size);
-        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
+        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", UserMessageDTO.class);
+
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
         query.setMaxResults(size);
+
+        return new ListUserMessageDto(query.getResultList());
+    }
+
+    public ListUserMessageDto findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
+        LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
+                lastUserMessageLogId,
+                maxEntityIdToArchived);
+        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", UserMessageDTO.class);
+
+        query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
+        query.setParameter("STATUSES", MessageStatus.getNotFinalStates());
 
         return new ListUserMessageDto(query.getResultList());
     }
@@ -305,7 +319,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         sqlString = sqlString.replace("$PARTITION", partitionName);
         sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
 
-        LOG.trace("sqlString to find non expired messages: " + sqlString);
+        LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         countQuery.setParameter("MPC", mpc);
         countQuery.setParameter("STARTDATE", startDate);

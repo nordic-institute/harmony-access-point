@@ -1,12 +1,18 @@
 package eu.domibus.core.earchive.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.earchive.EArchivingDefaultService;
+import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import gen.eu.domibus.archive.client.api.ArchiveWebhookApi;
+import gen.eu.domibus.archive.client.model.BatchNotification;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -25,10 +31,13 @@ public class EArchiveNotificationListenerTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListenerTest.class);
 
     @Tested
-    private EArchiveNotificationDlqListener eArchiveNotificationDlqListener;
+    private EArchiveNotificationListener eArchiveNotificationListener;
 
     @Injectable
     private EArchivingDefaultService eArchivingDefaultService;
+
+    @Injectable
+    private EArchiveBatchUtils eArchiveBatchUtils;
 
     @Injectable
     private DatabaseUtil databaseUtil;
@@ -36,17 +45,28 @@ public class EArchiveNotificationListenerTest {
     @Injectable
     private JmsUtil jmsUtil;
 
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private DomibusProxyService domibusProxyService;
+
+    @Injectable
+    private ObjectMapper objectMapper;
+
     private final long entityId = 1L;
 
     private final String batchId = UUID.randomUUID().toString();
 
     @Test
     public void onMessageExported_ok(final @Mocked Message message,
-                                  @Injectable EArchiveBatchEntity eArchiveBatch) {
+                                     @Injectable EArchiveBatchEntity eArchiveBatch,
+                                     @Injectable BatchNotification batchNotification,
+                                     @Injectable ArchiveWebhookApi apiClient) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
-        new Expectations() {{
+        new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
             result = "test";
 
@@ -61,14 +81,20 @@ public class EArchiveNotificationListenerTest {
 
             eArchivingDefaultService.getEArchiveBatch(entityId);
             result = eArchiveBatch;
+
+            eArchiveNotificationListener.buildBatchNotification(eArchiveBatch);
+            result = batchNotification;
+
+            eArchiveNotificationListener.initializeEarchivingClientApi();
+            result = apiClient;
         }};
 
-        eArchiveNotificationDlqListener.onMessage(message);
+        eArchiveNotificationListener.onMessage(message);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void onMessageExported_NotificationTypeUnknown(final @Mocked Message message,
-                                  @Injectable EArchiveBatchEntity eArchiveBatch) {
+                                                          @Injectable EArchiveBatchEntity eArchiveBatch) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
@@ -87,7 +113,7 @@ public class EArchiveNotificationListenerTest {
 
         }};
 
-        eArchiveNotificationDlqListener.onMessage(message);
+        eArchiveNotificationListener.onMessage(message);
 
         new FullVerifications() {{
 

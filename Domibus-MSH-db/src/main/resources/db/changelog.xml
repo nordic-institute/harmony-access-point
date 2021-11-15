@@ -2825,9 +2825,11 @@
             <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
             <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="FIRST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
             <column name="BATCH_SIZE" type="INT"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
-            <column name="ERROR" type="VARCHAR(255)"/>
             <column name="MESSAGEIDS_JSON" type="LONGBLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -3346,6 +3348,19 @@
         <insert tableName="TB_LOCK">
             <column name="ID_PK" value="1" type="BIGINT"/>
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="1"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
+        </insert>
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="2"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
         </insert>
     </changeSet>
 

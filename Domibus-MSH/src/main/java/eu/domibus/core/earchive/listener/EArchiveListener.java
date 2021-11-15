@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.domibus.api.model.ListUserMessageDto;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
@@ -15,18 +14,14 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author François Gautier
@@ -45,26 +40,25 @@ public class EArchiveListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
-    private final ObjectMapper jsonMapper;
+    private final EArchiveBatchUtils eArchiveBatchUtils;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
+            EArchiveBatchUtils eArchiveBatchUtils,
             EArchivingDefaultService eArchivingDefaultService,
-            JmsUtil jmsUtil,
-            @Qualifier("domibusJsonMapper") ObjectMapper jsonMapper) {
+            JmsUtil jmsUtil) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
         this.jmsUtil = jmsUtil;
-        this.jsonMapper = jsonMapper;
+        this.eArchiveBatchUtils = eArchiveBatchUtils;
     }
 
     @Override
     @Timer(clazz = EArchiveListener.class, value = "process_1_batch_earchive")
     @Counter(clazz = EArchiveListener.class, value = "process_1_batch_earchive")
     public void onMessage(Message message) {
-
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
@@ -80,7 +74,7 @@ public class EArchiveListener implements MessageListener {
 
         eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
 
-        List<UserMessageDTO> userMessageDtos = getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
+        List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
 
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
@@ -99,12 +93,12 @@ public class EArchiveListener implements MessageListener {
         try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
-                        .requestType(eArchiveBatchByBatchId.getRequestType().name())
-                        .status(eArchiveBatchByBatchId.getEArchiveBatchStatus().name())
+                        .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
+                        .status(eArchiveBatchByBatchId.getEArchiveBatchStatus() != null ? eArchiveBatchByBatchId.getEArchiveBatchStatus().name() : null)
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
-                        .messageEndId("" + userMessageDtos.get(0))
-                        .messages(getMessageIds(userMessageDtos))
+                        .messageStartId("" + userMessageDtos.get(0).getEntityId())
+                        .messageEndId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
+                        .messages(eArchiveBatchUtils.getMessageIds(userMessageDtos))
                         .createBatchEArchiveDTO(),
                 userMessageDtos)) {
             if (LOG.isDebugEnabled()) {
@@ -112,19 +106,6 @@ public class EArchiveListener implements MessageListener {
             }
         } catch (FileSystemException e) {
             throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
-        }
-    }
-
-    private List<String> getMessageIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getMessageId).collect(Collectors.toList());
-    }
-
-    private ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatchEntity eArchiveBatchByBatchId) {
-        String content = new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8);
-        try {
-            return jsonMapper.readValue(content, ListUserMessageDto.class);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not convert [" + content + "] to ListUserMessageDto", e);
         }
     }
 }

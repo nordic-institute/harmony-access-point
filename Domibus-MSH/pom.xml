@@ -317,11 +317,6 @@
             <artifactId>javax.el</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-        </dependency>
         <!-- End Hibernate -->
 
         <dependency>
@@ -561,6 +556,12 @@
             </testResource>
             <testResource>
                 <directory>src/main/conf/domibus</directory>
+                <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <!-- set h2 DDL scripts for integration tests -->
+                <directory>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</directory>
+                <targetPath>config/database</targetPath>
                 <filtering>true</filtering>
             </testResource>
         </testResources>

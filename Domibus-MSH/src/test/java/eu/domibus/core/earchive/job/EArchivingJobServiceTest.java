@@ -2,12 +2,16 @@ package eu.domibus.core.earchive.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
+import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.ListUserMessageDto;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchStartDao;
-import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
+import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.alerts.EArchivingEventService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
@@ -53,6 +57,12 @@ public class EArchivingJobServiceTest {
     private NoArgGenerator uuidGenerator;
     @Injectable
     private ObjectMapper domibusJsonMapper;
+    @Injectable
+    private EArchiveBatchUtils eArchiveBatchUtils;
+    @Injectable
+    private UserMessageLogDao userMessageLogDao;
+    @Injectable
+    private EArchivingEventService eArchivingEventService;
 
     @Test
     public void getMpcs() {
@@ -114,5 +124,42 @@ public class EArchivingJobServiceTest {
         assertEquals(3, mpc1);
         new FullVerifications() {
         };
+    }
+
+    @Test
+    public void getId_CONTINUOUS() {
+        int id = eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.CONTINUOUS);
+        assertEquals(1, id);
+    }
+
+    @Test
+    public void getId_SANITY() {
+        int id = eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.SANITIZER);
+        assertEquals(2, id);
+    }
+
+    @Test(expected = DomibusEArchiveException.class)
+    public void getId_MANUAL() {
+        eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.MANUAL);
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages(@Injectable  UserMessageDTO userMessageDTO) {
+        new Expectations(){{
+            userMessageLogDao.findMessagesNotFinalAsc(0L, 1L);
+            result =  new ListUserMessageDto(asList(userMessageDTO));
+
+            userMessageDTO.getMessageId();
+            result = "messageId";
+
+            userMessageLogDao.getMessageStatus("messageId");
+            result = MessageStatus.NOT_FOUND;
+        }};
+        eArchivingJobService.createEventOnNonFinalMessages(0L, 1L);
+
+        new FullVerifications(){{
+            eArchivingEventService.sendEvent("messageId", MessageStatus.NOT_FOUND);
+            times = 1;
+        }};
     }
 }

@@ -19,6 +19,7 @@ public class ConMonGrid extends DGrid {
 	@FindBy(css = "div[class=\"connection-status ng-star-inserted\"] >span >mat-icon")
 	public List<WebElement> connectionStatusIcons;
 
+	By spinner = By.tagName("mat-progress-spinner");
 
 	public ConMonGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
@@ -26,113 +27,122 @@ public class ConMonGrid extends DGrid {
 
 		this.container = container;
 	}
-	
+
 	public void enableMonitoringForParty(String partyName) throws Exception {
 		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
+
+		if (rowIndex < 0) {
 			throw new Exception("Party name not found in grid");
 		}
-		
+
 		WebElement toggle = gridRows.get(rowIndex).findElements(cellSelector).get(1).findElement(By.tagName("mat-slide-toggle"));
-		
+
 		toggle.click();
 		wait.forXMillis(500);
 	}
-	
+
 	public boolean isMonitoringEnabled(String partyName) throws Exception {
 		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
+
+		if (rowIndex < 0) {
 			throw new Exception("Party name not found in grid");
 		}
-		
+
 		WebElement input = gridRows.get(rowIndex).findElements(cellSelector).get(1).findElement(By.cssSelector("mat-slide-toggle input"));
 		boolean isChecked = Boolean.valueOf(input.getAttribute("aria-checked"));
 		return isChecked;
 	}
-	
+
 	public String getLastSent(String partyName) throws Exception {
 		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
+
+		if (rowIndex < 0) {
 			throw new Exception("Party name not found in grid");
 		}
-		
+
 		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(2).findElement(By.cssSelector("div > div > div:nth-child(2) > span"));
-		
+
 		return new DObject(driver, lsEl).getText();
 	}
-	
+
 	public String getLastReceived(String partyName) throws Exception {
 		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
+
+		if (rowIndex < 0) {
 			throw new Exception("Party name not found in grid");
 		}
-		
+
 		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(2).findElement(By.cssSelector("div > div > div:nth-child(3) > span"));
-		
+
 		return new DObject(driver, lsEl).getText();
 	}
-	
+
 	public DButton openDetails(String partyName) throws Exception {
 		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
+
+		if (rowIndex < 0) {
 			throw new Exception("Party name not found in grid");
 		}
-		
+
 		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"Details\"]"));
-		
-		return new DButton(driver, lsEl);
-	}
-	
-	public DButton refreshData(String partyName) throws Exception {
-		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
-			throw new Exception("Party name not found in grid");
-		}
-		
-		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"Refresh\"]"));
-		
-		return new DButton(driver, lsEl);
-	}
-	
-	public DButton sendTestMessage(String partyName) throws Exception {
-		int rowIndex = scrollTo("Party", partyName);
-		
-		if(rowIndex <0){
-			throw new Exception("Party name not found in grid");
-		}
-		
-		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"Send\"]"));
-		
+
 		return new DButton(driver, lsEl);
 	}
 
-	public DButton getActionButton(String buttonName,int i){
+	public DButton refreshData(String partyName) throws Exception {
+		int rowIndex = scrollTo("Party", partyName);
+
+		if (rowIndex < 0) {
+			throw new Exception("Party name not found in grid");
+		}
+
+		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"Refresh\"]"));
+
+		return new DButton(driver, lsEl);
+	}
+
+	public DButton sendTestMessage(String partyName) throws Exception {
+		int rowIndex = scrollTo("Party", partyName);
+
+		if (rowIndex < 0) {
+			throw new Exception("Party name not found in grid");
+		}
+
+		WebElement lsEl = gridRows.get(rowIndex).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"Send\"]"));
+
+		return new DButton(driver, lsEl);
+	}
+
+	public DButton getActionButton(String buttonName, int i) {
 		WebElement actionIcon;
 		try {
 			actionIcon = gridRows.get(i).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"" + buttonName + "\"]"));
-		}catch(Exception e){
-			return null ;
+		} catch (Exception e) {
+			return null;
 		}
 		return new DButton(driver, actionIcon);
 	}
 
 	public String getSendRecStatus(String process, int rowIndex) throws Exception {
-		if(process.equals("Send")){
-			return sentRecvStatusDetail.get(2*rowIndex).getText();
+		if (process.equals("Send")) {
+			return sentRecvStatusDetail.get(2 * rowIndex).getText();
+		} else if (process.equalsIgnoreCase("Receive")) {
+			return sentRecvStatusDetail.get(2 * rowIndex + 1).getText();
 		}
-		else if(process.equalsIgnoreCase("Receive")){
-			return sentRecvStatusDetail.get(2 * rowIndex+1).getText();
-
-		}
-			throw new Exception("Other than send or receive status is demanded");
+		throw new Exception("Other than send or receive status is demanded");
 	}
 
+	public void waitForStatus(String party, STATUS status) throws Exception {
 
+		int index = getIndexOf("Party", party);
+		wait.forElementToBeGone(spinner);
+
+		wait.forAttributeToContain(connectionStatusIcons.get(index), "style", status.getColor(), true);
+	}
+
+	public void waitForSpinnerToStop() {
+		wait.forElementToBeGone(spinner);
+	}
 
 }
+
