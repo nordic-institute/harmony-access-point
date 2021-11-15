@@ -36,6 +36,7 @@ import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
@@ -178,6 +179,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected UserMessagePersistenceService userMessagePersistenceService;
 
+    @Autowired
+    protected SubmissionValidatorService submissionValidatorService;
+
     @Transactional
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
@@ -305,6 +309,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
+            submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
             String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
@@ -358,6 +363,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
+                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
                 try {
