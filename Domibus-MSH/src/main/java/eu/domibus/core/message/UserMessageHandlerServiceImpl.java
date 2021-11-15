@@ -237,29 +237,25 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     .build();
         }
 
-        boolean duplicate;
         try {
             handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, false, testMessage, signalMessageResult);
             return responseMessage;
         } catch (DataIntegrityViolationException e) {
             LOG.warn("Message is a duplicate", e);
-            duplicate = true;
         }
 
-        String errorMessage = "Could not receive message";
-        if (duplicate) {
-            errorMessage = "Duplicate message";
+        final boolean duplicateDetectionActive = legConfiguration.getReceptionAwareness().getDuplicateDetection();
 
-            final boolean duplicateDetectionActive = legConfiguration.getReceptionAwareness().getDuplicateDetection();
-            if (duplicateDetectionActive) {
-                return as4ReceiptService.generateReceipt(
-                        request,
-                        userMessage,
-                        legConfiguration.getReliability().getReplyPattern(),
-                        legConfiguration.getReliability().isNonRepudiation(),
-                        true,
-                        selfSendingFlag);
-            }
+        String errorMessage = "Duplicate message";
+        if (duplicateDetectionActive) {
+            return as4ReceiptService.generateReceipt(
+                    request,
+                    userMessage,
+                    legConfiguration.getReliability().getReplyPattern(),
+                    legConfiguration.getReliability().isNonRepudiation(),
+                    true,
+                    selfSendingFlag);
+
         }
         throw EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
