@@ -38,6 +38,7 @@ import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
@@ -79,6 +80,8 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class UserMessageHandlerServiceImplTest {
 
+    @Injectable
+    SubmissionValidatorService submissionValidatorService;
 
     @Injectable
     XMLUtil xmlUtil;
