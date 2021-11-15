@@ -95,7 +95,7 @@ public class ObjectBlacklistValidatorTest {
         Thread t2 = new Thread(() -> {
             boolean actualValid2 = blacklistValidator.isValid(ro2);
             String mess2 = blacklistValidator.getErrorMessage();
-            Assert.assertEquals("Forbidden character detected in property root->routingCriterias[1]->name", mess2);
+            Assert.assertEquals("Forbidden character detected in property routingCriterias[1]->name", mess2);
         });
 
 
@@ -103,6 +103,6 @@ public class ObjectBlacklistValidatorTest {
         t2.start();
         Thread.currentThread().sleep(1000);
         String mess1 = blacklistValidator.getErrorMessage();
-        Assert.assertEquals("Forbidden character detected in property root->routingCriterias[1]->expression", mess1);
+        Assert.assertEquals("Forbidden character detected in property routingCriterias[1]->expression", mess1);
     }
 }
