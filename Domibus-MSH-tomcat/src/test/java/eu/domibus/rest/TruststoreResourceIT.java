@@ -9,16 +9,14 @@ import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.util.MultiPartFileUtilImpl;
 import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class TruststoreResourceIT extends AbstractIT {
@@ -42,13 +40,14 @@ public class TruststoreResourceIT extends AbstractIT {
     private TruststoreDao truststoreDao;
 
     @Test
-    public void testTruststoreEntries_ok() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+    public void testTruststoreEntries_ok() throws IOException, URISyntaxException {
 
         eu.domibus.core.crypto.TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
         domibusTruststoreEntity.setName("domibus.truststore");
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
-        byte[] trustStoreBytes = Files.readAllBytes(Paths.get("src/test/resources/keystores/gateway_truststore.jks"));
+        File truststoreFile = new File(this.getClass().getClassLoader().getResource("keystores/gateway_truststore.jks").toURI());
+        byte[] trustStoreBytes = FileUtils.readFileToByteArray(truststoreFile);
         domibusTruststoreEntity.setContent(trustStoreBytes);
 
         truststoreDao.create(domibusTruststoreEntity);
