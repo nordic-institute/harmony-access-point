@@ -39,7 +39,7 @@ public enum EArchiveBatchStatus {
      */
     ARCHIVE_FAILED,
     /**
-     * Deleted by the Domibus if the batch is expired, or ARCHIVED or failed to archived by client
+     * Deleted by the Domibus if the batch is EXPIRED, or ARCHIVED or failed to archived by client
      *
      * Deletes only filesystem data!
      */
