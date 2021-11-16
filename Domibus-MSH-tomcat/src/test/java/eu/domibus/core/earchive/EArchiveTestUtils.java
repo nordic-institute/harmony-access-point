@@ -14,8 +14,7 @@ public class EArchiveTestUtils {
                                                                 final Long firstPkUserMessage,
                                                                 final Long lastPkUserMessage,
                                                                 final Integer batchSize,
-                                                                final String storageLocation,
-                                                                final String rawJson
+                                                                final String storageLocation
                                                                 ) {
         EArchiveBatchEntity instance = new EArchiveBatchEntity();
         instance.setBatchId(batchIdq);
@@ -26,7 +25,6 @@ public class EArchiveTestUtils {
         instance.setLastPkUserMessage(lastPkUserMessage);
         instance.setBatchSize(batchSize);
         instance.setStorageLocation(storageLocation);
-        instance.setMessageIdsJson(rawJson);
         return instance;
     }
 }

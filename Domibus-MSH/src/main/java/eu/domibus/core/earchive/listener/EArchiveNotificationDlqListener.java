@@ -66,7 +66,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
             return;
         }
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId);
+        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveService.getEArchiveBatch(entityId, false);
 
         LOG.debug("Creating Alert for batch [{}] [{}]", notificationType, eArchiveBatchByBatchId);
         eventService.enqueueEArchivingEvent(batchId, notificationType);

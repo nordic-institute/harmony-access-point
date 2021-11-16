@@ -1,10 +1,14 @@
 package eu.domibus.core.earchive;
 
-import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.AbstractBaseEntity;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -16,63 +20,147 @@ import java.util.Arrays;
 @NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.batchId = :BATCH_ID")
 @NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived",
         query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
+public class EArchiveBatchEntity extends AbstractBaseEntity {
 
-@SqlResultSetMapping(
-        name = "EArchiveBatchUserMessageMapping",
-        classes = @ConstructorResult(
-                targetClass = UserMessageDTO.class,
-                columns = {
-                        @ColumnResult(name = "FK_USER_MESSAGE_ID", type = Long.class),
-                        @ColumnResult(name = "MESSAGE_ID", type = String.class),
-                }
-        )
-)
+    @Column(name = "BATCH_ID")
+    protected String batchId;
 
-// UserMessageDTO
-@NamedNativeQuery(name = "EArchiveBatchRequest.getMessagesForBatchId",
-        resultSetMapping = "EArchiveBatchUserMessageMapping",
-        query = "select msgMap.FK_USER_MESSAGE_ID, userMessage.MESSAGE_ID " +
-                " FROM TB_EARCHIVE_BATCH batch" +
-                " INNER JOIN TB_EARCHIVEBATCH_UM msgMap " +
-                "   ON batch.ID_PK = msgMap.FK_EARCHIVE_BATCH_ID " +
-                " INNER JOIN TB_USER_MESSAGE userMessage " +
-                "   ON msgMap.FK_USER_MESSAGE_ID = userMessage.ID_PK " +
-                " WHERE batch.BATCH_ID = :batchId " +
-                " ORDER BY msgMap.FK_USER_MESSAGE_ID ASC"
-)
+    @Column(name = "REQUEST_TYPE")
+    @Enumerated(EnumType.STRING)
+    protected EArchiveRequestType requestType;
 
-public class EArchiveBatchEntity extends EArchiveBatchBaseEntity {
+    @Column(name = "BATCH_STATUS")
+    @Enumerated(EnumType.STRING)
+    protected EArchiveBatchStatus eArchiveBatchStatus;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "MESSAGEIDS_JSON")
-    protected byte[] messageIdsJson;
+    @Column(name = "DATE_REQUESTED")
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Date dateRequested;
 
-    public void setMessageIdsJson(String rawJson) {
-        byte[] bytes = rawJson.getBytes(StandardCharsets.UTF_8);
-        this.messageIdsJson = bytes;
+    @Column(name = "LAST_PK_USER_MESSAGE")
+    protected Long lastPkUserMessage;
+
+    @Column(name = "BATCH_SIZE")
+    protected Integer batchSize;
+
+    @Column(name = "ERROR_CODE")
+    protected String errorCode;
+
+    @Column(name = "ERROR_DETAIL")
+    protected String errorMessage;
+
+    @Column(name = "STORAGE_LOCATION")
+    protected String storageLocation;
+
+    @Column(name = "FIRST_PK_USER_MESSAGE")
+    private Long firstPkUserMessage;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "FK_EARCHIVE_BATCH_ID")
+    private List<EArchiveBatchUserMessage> eArchiveBatchUserMessages;
+
+    public String getBatchId() {
+        return batchId;
     }
 
-    public void setMessageIdsJson(byte[] bytes) {
-        this.messageIdsJson = bytes;
+    public void setBatchId(String batchId) {
+        this.batchId = batchId;
     }
 
-    public byte[] getMessageIdsJson() {
-        return messageIdsJson;
+    public EArchiveRequestType getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(EArchiveRequestType requestType) {
+        this.requestType = requestType;
+    }
+
+    public Date getDateRequested() {
+        return dateRequested;
+    }
+
+    public void setDateRequested(Date dateRequested) {
+        this.dateRequested = dateRequested;
+    }
+
+    public Long getLastPkUserMessage() {
+        return lastPkUserMessage;
+    }
+
+    public void setLastPkUserMessage(Long lastPkUserMessage) {
+        this.lastPkUserMessage = lastPkUserMessage;
+    }
+
+    public Long getFirstPkUserMessage() {
+        return firstPkUserMessage;
+    }
+
+    public void setFirstPkUserMessage(Long firstPkUserMessage) {
+        this.firstPkUserMessage = firstPkUserMessage;
+    }
+
+    public Integer getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(Integer size) {
+        this.batchSize = size;
+    }
+
+    public String getStorageLocation() {
+        return storageLocation;
+    }
+
+    public void setStorageLocation(String storageLocation) {
+        this.storageLocation = storageLocation;
+    }
+
+    public EArchiveBatchStatus getEArchiveBatchStatus() {
+        return eArchiveBatchStatus;
+    }
+
+    public void setEArchiveBatchStatus(EArchiveBatchStatus eArchiveBatchStatus) {
+        this.eArchiveBatchStatus = eArchiveBatchStatus;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public List<EArchiveBatchUserMessage> geteArchiveBatchUserMessages() {
+        return eArchiveBatchUserMessages;
+    }
+
+    public void seteArchiveBatchUserMessages(List<EArchiveBatchUserMessage> eArchiveBatchUserMessages) {
+        this.eArchiveBatchUserMessages = eArchiveBatchUserMessages;
     }
 
     @Override
-    public String toString() {
-        return "EArchiveBatchEntity{" +
-                "batchId='" + batchId + '\'' +
-                ", requestType=" + requestType +
-                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
-                ", dateRequested=" + dateRequested +
-                ", lastPkUserMessage=" + lastPkUserMessage +
-                ", batchSize=" + batchSize +
-                ", errorCode='" + errorCode + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
-                ", storageLocation='" + storageLocation + '\'' +
-                "} " + super.toString();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EArchiveBatchEntity that = (EArchiveBatchEntity) o;
+
+        return new EqualsBuilder().appendSuper(super.equals(o)).append(batchId, that.batchId).append(requestType, that.requestType).append(eArchiveBatchStatus, that.eArchiveBatchStatus).append(dateRequested, that.dateRequested).append(lastPkUserMessage, that.lastPkUserMessage).append(batchSize, that.batchSize).append(errorCode, that.errorCode).append(errorMessage, that.errorMessage).append(storageLocation, that.storageLocation).append(firstPkUserMessage, that.firstPkUserMessage).append(eArchiveBatchUserMessages, that.eArchiveBatchUserMessages).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(batchId).append(requestType).append(eArchiveBatchStatus).append(dateRequested).append(lastPkUserMessage).append(batchSize).append(errorCode).append(errorMessage).append(storageLocation).append(firstPkUserMessage).append(eArchiveBatchUserMessages).toHashCode();
     }
 }
+
