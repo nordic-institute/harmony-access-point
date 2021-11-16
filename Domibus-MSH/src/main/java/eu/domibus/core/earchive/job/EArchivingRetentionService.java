@@ -41,7 +41,7 @@ public class EArchivingRetentionService {
         this.storageProvider = storageProvider;
     }
 
-    @Transactional
+    @Transactional(timeout = 120) // 2 minutes
     public void expireBatches() {
         final Integer retentionInDays = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_RETENTION_DAYS);
         final Date limitDate = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusDays(retentionInDays).toInstant());
