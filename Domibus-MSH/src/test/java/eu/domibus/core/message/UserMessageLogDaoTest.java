@@ -63,7 +63,7 @@ public class UserMessageLogDaoTest {
     public void testFindRetryMessages(@Injectable TypedQuery<String> query, @Injectable List<String> retryMessages) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+            em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
             result = query;
             query.getResultList();
             result = retryMessages;
@@ -80,7 +80,7 @@ public class UserMessageLogDaoTest {
     public void testFindRetryMessages_finalRecipient(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+            em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
             result = query;
         }};
 

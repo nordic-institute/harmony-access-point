@@ -913,7 +913,7 @@ public class DatabaseMessageHandlerTest {
 
             userMessageService.getByMessageId(MESS_ID);
             result = userMessage;
-            userMessageLogService.findByMessageId(MESS_ID);
+            userMessageLogService.findById(anyLong);
             result = userMessageLog;
 
         }};
@@ -936,7 +936,7 @@ public class DatabaseMessageHandlerTest {
             userMessageService.getByMessageId(MESS_ID);
             result = userMessage;
 
-            userMessageLogService.findByMessageId(MESS_ID);
+            userMessageLogService.findById(anyLong);
             result = messageLog;
 
         }};

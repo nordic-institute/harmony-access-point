@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.pmode.ConfigurationDAO;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -48,6 +49,9 @@ public class SendRetryWorkerTest {
     @Injectable
     DatabaseUtil databaseUtil;
 
+    @Injectable
+    ConfigurationDAO configurationDAO;
+
 
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) throws Exception {
@@ -57,6 +61,9 @@ public class SendRetryWorkerTest {
             result = QUEUED_MESSAGEIDS;
 
             retryService.enqueueMessage(anyLong);
+
+            configurationDAO.configurationExists();
+            result = true;
         }};
 
         sendRetryWorker.executeJob(context, domain);
