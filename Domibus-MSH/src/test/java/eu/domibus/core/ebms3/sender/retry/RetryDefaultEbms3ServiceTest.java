@@ -101,11 +101,11 @@ public class RetryDefaultEbms3ServiceTest {
         List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
 
         new NonStrictExpectations(retryService) {{
-            userMessageLogDao.findRetryMessages();
+            userMessageLogDao.findRetryMessages(123, 789);
             result = new ArrayList<>(retryMessageIds);
         }};
 
-        List<String> result = retryService.getMessagesNotAlreadyScheduled();
+        List<Long> result = retryService.getMessagesNotAlreadyScheduled();
         assertEquals(3, result.size());
 
         assertEquals(result, retryMessageIds);
@@ -132,7 +132,7 @@ public class RetryDefaultEbms3ServiceTest {
             result = true;
         }};
 
-        retryService.doEnqueueMessage(messageId);
+        retryService.doEnqueueMessage(123);
 
         new FullVerifications() {{
             userMessageService.scheduleSending(userMessage, userMessageLog);
@@ -163,7 +163,7 @@ public class RetryDefaultEbms3ServiceTest {
             result = userMessageLog;
         }};
 
-        retryService.doEnqueueMessage(messageId);
+        retryService.doEnqueueMessage(123);
 
         new FullVerifications() {{
             userMessageService.scheduleSending(userMessage, userMessageLog);

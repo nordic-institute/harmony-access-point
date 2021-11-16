@@ -32,9 +32,10 @@ public class PluginMessageStatusChangeNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(BackendConnector<?, ?> backendConnector, long messageEntityId, String messageId, Map<String, String> properties) {
         MessageStatusChangeEvent event = new MessageStatusChangeEvent(properties);
         event.setMessageId(messageId);
+        event.setMessageEntityId(messageEntityId);
 
         final String fromStatus = properties.get(MessageConstants.STATUS_FROM);
         if (StringUtils.isNotEmpty(fromStatus)) {

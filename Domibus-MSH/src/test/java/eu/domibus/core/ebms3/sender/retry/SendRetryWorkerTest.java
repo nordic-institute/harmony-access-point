@@ -24,11 +24,11 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class SendRetryWorkerTest {
 
-    public static final String MESSAGE_ID_1 = "queued123@domibus.eu";
-    public static final String MESSAGE_ID_2 = "queued456@domibus.eu";
-    public static final String MESSAGE_ID_3 = "queued789@domibus.eu";
+    public static final long MESSAGE_ID_1 = 123;
+    public static final long MESSAGE_ID_2 = 456;
+    public static final long MESSAGE_ID_3 = 789;
 
-    private static List<String> QUEUED_MESSAGEIDS = Arrays.asList(MESSAGE_ID_1, MESSAGE_ID_2, MESSAGE_ID_3);
+    private static List<Long> QUEUED_MESSAGEIDS = Arrays.asList(MESSAGE_ID_1, MESSAGE_ID_2, MESSAGE_ID_3);
 
     @Tested
     SendRetryWorker sendRetryWorker;
@@ -56,7 +56,7 @@ public class SendRetryWorkerTest {
             retryService.getMessagesNotAlreadyScheduled();
             result = QUEUED_MESSAGEIDS;
 
-            retryService.enqueueMessage(anyString);
+            retryService.enqueueMessage(anyLong);
         }};
 
         sendRetryWorker.executeJob(context, domain);

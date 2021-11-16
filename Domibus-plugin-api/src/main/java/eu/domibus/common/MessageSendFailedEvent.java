@@ -17,13 +17,23 @@ import java.util.Map;
 public class MessageSendFailedEvent implements Serializable, MessageEvent {
 
     protected String messageId;
-
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    protected long messageEntityId;
 
     public MessageSendFailedEvent(String messageId) {
         this.messageId = messageId;
     }
 
+    @Override
+    public long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(long messageEntityId) {
+        this.messageEntityId = messageEntityId;
+    }
+
+    @Override
     public String getMessageId() {
         return messageId;
     }

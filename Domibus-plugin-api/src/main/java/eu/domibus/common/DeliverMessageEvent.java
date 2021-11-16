@@ -16,16 +16,26 @@ import java.util.Map;
 public class DeliverMessageEvent implements Serializable, MessageEvent {
 
     protected String messageId;
-
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    protected long messageEntityId;
 
     public DeliverMessageEvent(String messageId) {
         this.messageId = messageId;
     }
 
-    public DeliverMessageEvent(String messageId, Map<String, String> properties) {
+    public DeliverMessageEvent(long messageEntityId, String messageId, Map<String, String> properties) {
+        this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.properties = properties;
+    }
+
+    @Override
+    public long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(long messageEntityId) {
+        this.messageEntityId = messageEntityId;
     }
 
     @Override
@@ -50,6 +60,7 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("messageEntityId", messageEntityId)
                 .append("messageId", messageId)
                 .append("properties", properties)
                 .toString();

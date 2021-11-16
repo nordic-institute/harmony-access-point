@@ -15,13 +15,14 @@ import java.util.List;
 @Table(name = "TB_USER_MESSAGE_LOG")
 @NamedQueries({
         @NamedQuery(name = "UserMessageLog.findRetryMessages",
-                query = "select um.messageId " +
-                        "from UserMessageLog userMessageLog join userMessageLog.userMessage um " +
-                        "where userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
+                query = "select userMessageLog.entityId " +
+                        "from UserMessageLog userMessageLog " +
+                        "where userMessageLog.entityId > :MIN_ENTITY_ID " +
+                        "and userMessageLog.entityId < :MAX_ENTITY_ID " +
+                        "and userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
                         "and 1 <= userMessageLog.sendAttempts " +
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
-                        "and (um.sourceMessage is null or um.sourceMessage=false)" +
                         "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false)"),
         @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT um.messageId, um.timestamp FROM UserMessageLog as ml join ml.userMessage um where ml.messageStatus.messageStatus=eu.domibus.api.model.MessageStatus.READY_TO_PULL order by um.timestamp desc"),
         @NamedQuery(name = "UserMessageLog.getMessageStatus", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),

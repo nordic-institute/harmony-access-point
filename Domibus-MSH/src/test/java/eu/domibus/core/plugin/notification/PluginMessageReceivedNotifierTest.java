@@ -42,7 +42,7 @@ public class PluginMessageReceivedNotifierTest {
         Map<String, String> properties = new HashMap<>();
 
 
-        pluginMessageReceivedNotifier.notifyPlugin(backendConnector, messageId, properties);
+        pluginMessageReceivedNotifier.notifyPlugin(backendConnector, 123, messageId, properties);
 
         new Verifications() {{
             DeliverMessageEvent event = null;

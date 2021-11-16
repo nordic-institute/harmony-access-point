@@ -227,7 +227,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.debug("Got retention value [{}] for mpc [{}] and messageStatus [{}] is [{}]", retention, mpc, messageStatus);
         return retention;
     }
-
     protected int getMaxRetention() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         int maxRetention = -1;
@@ -254,5 +253,4 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.debug("Got max retention [{}]", maxRetention);
         return maxRetention;
     }
-
 }

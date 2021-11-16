@@ -141,7 +141,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         final UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
-        final UserMessageLog messageLog = userMessageLogService.findByMessageId(messageId);
+        final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", messageId);
             return messagingService.getSubmission(userMessage);
@@ -161,6 +161,39 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.info("Browsing message with id [{}]", messageId);
 
         UserMessage userMessage = userMessageService.getByMessageId(messageId);
+
+        checkMessageAuthorization(userMessage);
+        return messagingService.getSubmission(userMessage);
+
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Submission downloadMessage(final long messageEntityId) throws MessageNotFoundException {
+        LOG.info("Downloading message with entity id [{}]", messageEntityId);
+
+        final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
+
+        final UserMessageLog messageLog = userMessageLogService.findById(messageEntityId);
+        if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
+            LOG.debug("Message with entity id [{}] is already downloaded", messageEntityId);
+            return messagingService.getSubmission(userMessage);
+        }
+
+        checkMessageAuthorization(userMessage);
+
+        List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
+
+        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
+
+        return transformer.transformFromMessaging(userMessage, partInfos);
+    }
+
+    @Override
+    public Submission browseMessage(final long messageEntityId) {
+        LOG.info("Browsing message with entity id [{}]", messageEntityId);
+
+        UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
         checkMessageAuthorization(userMessage);
         return messagingService.getSubmission(userMessage);

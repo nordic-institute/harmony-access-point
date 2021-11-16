@@ -68,8 +68,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         this.reprogrammableService = reprogrammableService;
     }
 
-    public List<String> findRetryMessages() {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
+        TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
+        query.setParameter("MIN_ENTITY_ID", minEntityId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
@@ -173,6 +175,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         initializeChildren(userMessageLog);
 
         return userMessageLog;
+    }
+
+    @Transactional(readOnly = true)
+    public UserMessageLog findByEntityIdSafely(Long entityId) {
+        try {
+            final UserMessageLog userMessageLog = findByEntityId(entityId);
+            initializeChildren(userMessageLog);
+            return userMessageLog;
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with entityId [" + entityId + "]");
+            return null;
+        }
     }
 
     public UserMessageLog findByMessageId(String messageId) {

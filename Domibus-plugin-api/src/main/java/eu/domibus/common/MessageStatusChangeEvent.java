@@ -20,8 +20,8 @@ public class MessageStatusChangeEvent implements Serializable, MessageEvent {
     protected MessageStatus fromStatus;
     protected MessageStatus toStatus;
     protected Timestamp changeTimestamp;
-
-    private final Map<String, String> properties;
+    protected final Map<String, String> properties;
+    protected long messageEntityId;
 
     public MessageStatusChangeEvent() {
         properties = new HashMap<>();
@@ -29,6 +29,15 @@ public class MessageStatusChangeEvent implements Serializable, MessageEvent {
 
     public MessageStatusChangeEvent(Map<String, String> properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(long messageEntityId) {
+        this.messageEntityId = messageEntityId;
     }
 
     @Override

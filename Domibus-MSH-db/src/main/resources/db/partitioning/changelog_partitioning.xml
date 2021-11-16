@@ -40,6 +40,11 @@
         </sql>
 
         <sql>
+            ALTER TABLE TB_EARCHIVEBATCH_UM MODIFY
+            PARTITION BY REFERENCE ( FK_USER_MESSAGE_ID_FTR );
+        </sql>
+
+        <sql>
             ALTER TABLE TB_PART_INFO MODIFY
             PARTITION BY REFERENCE ( FK_PART_INFO_USER_MSG );
         </sql>

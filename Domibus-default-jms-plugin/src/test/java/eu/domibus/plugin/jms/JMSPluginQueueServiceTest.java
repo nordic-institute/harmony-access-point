@@ -62,7 +62,7 @@ public class JMSPluginQueueServiceTest {
             JMSPluginQueueService.getJMSQueue((QueueContext) any, anyString, anyString);
         }};
 
-        JMSPluginQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        JMSPluginQueueService.getJMSQueue(123, messageId, defaultQueueProperty, routingQueuePrefixProperty);
 
         new Verifications() {{
             QueueContext queueContext = null;

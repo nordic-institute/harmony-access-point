@@ -9,6 +9,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -18,8 +19,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -57,63 +66,73 @@ public class RetryDefaultService implements RetryService {
 
 
     /**
-     * Tries to enqueue a message to be retried. Sets the message id on the MDC context and cleans it afterwards
+     * Tries to enqueue a message to be retried.
      *
-     * @param messageId The message id to be enqueued for retrial
+     * @param messageEntityId The id_pk to be enqueued for retrial
      */
     @Override
     @Transactional
-    public void enqueueMessage(String messageId) {
+    public void enqueueMessage(long messageEntityId) {
         try {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            doEnqueueMessage(messageId);
+            doEnqueueMessage(messageEntityId);
         } catch (RuntimeException e) {
-            LOG.warn("Could not enqueue message [{}]", messageId, e);
-        } finally {
-            LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
+            LOG.warn("Could not enqueue message with entityId [{}]", messageEntityId, e);
         }
-
     }
 
     /**
      * Tries to enqueue a message to be retried.
      *
-     * @param messageId The message id to be enqueued for retrial
+     * @param messageEntityId The message entity id to be enqueued for retrial
      */
-    protected void doEnqueueMessage(String messageId) {
-        LOG.trace("Enqueueing message for retrial [{}]", messageId);
+    protected void doEnqueueMessage(long messageEntityId) {
+        LOG.trace("Enqueueing message for retrial with entityId [{}]", messageEntityId);
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
+        if(userMessage.isSourceMessage()) {
+            LOG.debug("Source message [{}] not scheduled for retry.", userMessage.getMessageId());
+            return;
+        }
+        LOG.trace("Enqueueing message for retrial [{}]", userMessage.getMessageId());
 
         final LegConfiguration legConfiguration  = updateRetryLoggingService.getLegConfiguration(userMessage);
 
         boolean invalidConfig = updateRetryLoggingService.failIfInvalidConfig(userMessage, legConfiguration);
         if (invalidConfig) {
-            LOG.warn("Message was not enqueued: invalid LegConfiguration for message [{}]", messageId);
+            LOG.warn("Message was not enqueued: invalid LegConfiguration for message [{}]", userMessage.getMessageId());
             return;
         }
 
         boolean setAsExpired = updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
         if (setAsExpired) {
-            LOG.debug("Message [{}] was marked as expired", messageId);
+            LOG.debug("Message [{}] was marked as expired", userMessage.getMessageId());
             return;
         }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(messageEntityId);
         userMessageService.scheduleSending(userMessage, userMessageLog);
     }
 
     @Override
-    public List<String> getMessagesNotAlreadyScheduled() {
-        List<String> result = new ArrayList<>();
+    public List<Long> getMessagesNotAlreadyScheduled() {
+        List<Long> result = new ArrayList<>();
 
-        final List<String> messageIdsToSend = userMessageLogDao.findRetryMessages();
-        if (messageIdsToSend.isEmpty()) {
+        int maxRetryTimeout = getMaxRetryTimeout();
+        int retryTimeoutDelay = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MSH_RETRY_TIMEOUT_DELAY);
+
+        LOG.trace("maxRetryTimeout [{}] retryTimeoutDelay [{}]", maxRetryTimeout, retryTimeoutDelay);
+        long minEntityId = createMinEntityId(maxRetryTimeout + retryTimeoutDelay);
+        long maxEntityId = getCurrentTimeMaxEntityId();
+
+
+        LOG.trace("minEntityId [{}] maxEntityId [{}]", minEntityId, maxEntityId);
+        final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId);
+        if (messageEntityIdsToSend.isEmpty()) {
             LOG.trace("No message found to be resend");
             return result;
         }
-        LOG.trace("Found messages to be send [{}]", messageIdsToSend);
+        LOG.trace("Found messages to be send [{}]", messageEntityIdsToSend);
 
-        return messageIdsToSend;
+        return messageEntityIdsToSend;
     }
 
     /**
@@ -155,5 +174,39 @@ public class RetryDefaultService implements RetryService {
         }
     }
 
+    protected int getMaxRetryTimeout() {
+        final LegConfigurationPerMpc legConfigurationPerMpc = pModeProvider.getAllLegConfigurations();
+        int maxRetry = -1;
+        List<LegConfiguration> legConfigurations = new ArrayList<>();
+        legConfigurationPerMpc.entrySet().stream().forEach(r -> legConfigurations.addAll(r.getValue()));
+
+        for(LegConfiguration legConfiguration : legConfigurations) {
+            int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
+            if(maxRetry < retryTimeout) {
+                maxRetry = retryTimeout;
+            }
+        }
+
+        LOG.debug("Got max retryTimeout [{}]", maxRetry);
+        return maxRetry;
+    }
+
+    protected long createMaxEntityId(int delay) {
+        return Long.parseLong(ZonedDateTime
+                .now(ZoneOffset.UTC)
+                .minusMinutes(delay)
+                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+    }
+
+    protected long createMinEntityId(int delay) {
+        return Long.parseLong(ZonedDateTime
+                .now(ZoneOffset.UTC)
+                .minusMinutes(delay)
+                .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
+    }
+
+    protected long getCurrentTimeMaxEntityId() {
+        return createMaxEntityId(0);
+    }
 
 }

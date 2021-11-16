@@ -79,6 +79,7 @@ public class UserMessageDefaultService implements UserMessageService {
     static final String DOES_NOT_EXIST = "] does not exist";
 
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
+    private static final String MESSAGE_WITH_ENTITY_ID_STR = "Message with entity id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
@@ -685,6 +686,15 @@ public class UserMessageDefaultService implements UserMessageService {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+        }
+        return userMessage;
+    }
+
+    @Override
+    public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
+        final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(MESSAGE_WITH_ENTITY_ID_STR + messageEntityId + WAS_NOT_FOUND_STR);
         }
         return userMessage;
     }

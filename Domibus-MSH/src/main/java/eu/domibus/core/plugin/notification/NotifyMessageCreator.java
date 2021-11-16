@@ -12,11 +12,13 @@ import java.util.Map;
  */
 public class NotifyMessageCreator {
 
+    private final long messageEntityId;
     private final String messageId;
     private NotificationType notificationType;
     private Map<String, String> properties;
 
-    public NotifyMessageCreator(final String messageId, final NotificationType notificationType, final Map<String, String> properties) {
+    public NotifyMessageCreator(final long messageEntityId, final String messageId, final NotificationType notificationType, final Map<String, String> properties) {
+        this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;
@@ -27,10 +29,15 @@ public class NotifyMessageCreator {
         if (properties != null) {
             jmsMessageBuilder.properties(properties);
         }
+        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, ""+messageEntityId);
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
 
         return jmsMessageBuilder.build();
+    }
+
+    public long getMessageEntityId() {
+        return messageEntityId;
     }
 
     public String getMessageId() {

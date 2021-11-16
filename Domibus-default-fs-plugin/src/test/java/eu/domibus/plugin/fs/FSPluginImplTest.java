@@ -123,7 +123,7 @@ public class FSPluginImplTest {
     private final String location = "ram:///BackendFSImplTest";
     private final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
     private final String finalRecipientFolder = "urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
-    private DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, new HashMap<>());
+    private DeliverMessageEvent messageEvent = new DeliverMessageEvent(123, messageId, new HashMap<>());
     private final String messageIdFolder = messageId;
 
     @Before
@@ -153,7 +153,7 @@ public class FSPluginImplTest {
 
         final HashMap<String, String> properties = new HashMap<>();
         properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipientFolder);
-        messageEvent = new DeliverMessageEvent(messageId, properties);
+        messageEvent = new DeliverMessageEvent(123, messageId, properties);
     }
 
     @After

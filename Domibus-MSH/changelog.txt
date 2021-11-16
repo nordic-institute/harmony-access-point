@@ -1,4 +1,5 @@
 Domibus 5.0
+- Update retry mechanism to consider the retry timeout
 - Add alert when expired partition cannot be deleted
 - New RetentionWorker to delete entire expired partition
 - Add message tables partitioning sql scripts

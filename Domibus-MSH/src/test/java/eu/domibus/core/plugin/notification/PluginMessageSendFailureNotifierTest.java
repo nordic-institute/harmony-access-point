@@ -41,7 +41,7 @@ public class PluginMessageSendFailureNotifierTest {
         Map<String, String> properties = new HashMap<>();
 
 
-        pluginMessageSendFailureNotifier.notifyPlugin(backendConnector, messageId, properties);
+        pluginMessageSendFailureNotifier.notifyPlugin(backendConnector, 123, messageId, properties);
 
         new Verifications() {{
             MessageSendFailedEvent event = null;

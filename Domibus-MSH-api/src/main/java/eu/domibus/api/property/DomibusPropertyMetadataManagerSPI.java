@@ -80,6 +80,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE = "domibus.payload.encryption.active";
     String DOMIBUS_MSH_MESSAGEID_SUFFIX = "domibus.msh.messageid.suffix";
     String DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY = "domibus.msh.retry.messageExpirationDelay";
+    String DOMIBUS_MSH_RETRY_TIMEOUT_DELAY = "domibus.msh.retry.timeoutDelay";
     String DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY = "domibus.dynamicdiscovery.useDynamicDiscovery";
     String DOMIBUS_SMLZONE = "domibus.smlzone";
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION = "domibus.dynamicdiscovery.client.specification";

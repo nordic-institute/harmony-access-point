@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
 
@@ -36,8 +37,6 @@ import static java.util.Locale.ENGLISH;
  */
 @RunWith(JMockit.class)
 public class UserMessageLogDaoTest {
-
-    public static final String MAX = "9999999999";
 
     @Tested
     private UserMessageLogDao userMessageLogDao;
@@ -71,7 +70,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<String> result = userMessageLogDao.findRetryMessages();
+        List<Long> result = userMessageLogDao.findRetryMessages(123, 789);
 
         // THEN
         Assert.assertSame("Should have correctly returned the retry messages", retryMessages, result);
@@ -86,7 +85,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        userMessageLogDao.findRetryMessages();
+        userMessageLogDao.findRetryMessages(123, 789);
 
         // THEN
         new VerificationsInOrder() {{

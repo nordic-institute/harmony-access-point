@@ -69,7 +69,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         // Prepare the request to the backend
         String messageId = "invalid@e-delivery.eu";
 
-        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageId, new HashMap<>());
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(123, messageId, new HashMap<>());
         backendJms.deliverMessage(deliverMessageEvent);
 
         Assert.fail("DownloadMessageFault was expected but was not raised");

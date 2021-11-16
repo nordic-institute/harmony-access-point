@@ -80,12 +80,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
     }
 
-
-    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
-        LOG.debug("Downloading message [{}]", messageId);
+    protected T downloadMessage(final long messageEntityId, final String messageId, final T target) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}] [{}]", messageId, messageEntityId);
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
@@ -100,8 +98,14 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 LOG.debug("Message with id [{}] was already downloaded", messageId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
             }
+            Submission submission;
+            if(messageEntityId > 0) {
+                submission = messageRetriever.downloadMessage(messageEntityId);
+            } else {
+                submission = messageRetriever.downloadMessage(messageId);
+            }
 
-            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             removeFromPending(messageId);
 
@@ -112,6 +116,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
+        return downloadMessage(-1, messageId, target);
     }
 
     protected void removeFromPending(String messageId) throws MessageNotFoundException {
