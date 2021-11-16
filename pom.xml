@@ -79,8 +79,7 @@
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version>
-        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0
-        </com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
 
 
         <!-- Sonar properties -->
@@ -156,6 +155,9 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <commons-text.version>1.8</commons-text.version>
+        <swagger-maven-plugin.version>2.1.11</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.27</swagger-codegen-maven-plugin.version>
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -1371,17 +1373,17 @@
                 <plugin>
                     <groupId>io.swagger.core.v3</groupId>
                     <artifactId>swagger-maven-plugin</artifactId>
-                    <version>2.1.11</version>
+                    <version>${swagger-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>io.swagger.codegen.v3</groupId>
                     <artifactId>swagger-codegen-maven-plugin</artifactId>
-                    <version>3.0.27</version>
+                    <version>${swagger-codegen-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.0.0</version>
+                    <version>${license-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
