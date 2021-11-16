@@ -20,18 +20,15 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyEncryptionListener.class);
 
     protected PasswordEncryptionExtService passwordEncryptionService;
-//    protected DssConfiguration dssConfiguration;
-    protected DssExtensionPropertyManager propertyProvider; 
+    protected DssExtensionPropertyManager propertyProvider;
     protected DomibusConfigurationExtService domibusConfigurationExtService;
     protected DomainExtService domainExtService;
 
     public DssPropertyEncryptionListener(PasswordEncryptionExtService passwordEncryptionService,
-//                                         DssConfiguration dssConfiguration,
                                          DomibusConfigurationExtService domibusConfigurationExtService,
                                          DomainExtService domainExtService,
                                          DssExtensionPropertyManager propertyProvider) {
         this.passwordEncryptionService = passwordEncryptionService;
-//        this.dssConfiguration = dssConfiguration;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.domainExtService = domainExtService;
         this.propertyProvider = propertyProvider;
@@ -41,15 +38,16 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
 
     @Override
     public void encryptPasswords() {
-        final boolean passwordEncryptionActive = propertyProvider.isPasswordEncryptionActive();
-        LOG.debug("Encrypting passwords is active in DSS configuration? [{}]", passwordEncryptionActive);
-
-        if (!passwordEncryptionActive) {
-            LOG.debug("No password encryption will be performed for DSS");
-            return;
-        }
+//        final boolean passwordEncryptionActive = propertyProvider.isPasswordEncryptionActive();
+//        LOG.debug("Encrypting passwords is active in DSS configuration? [{}]", passwordEncryptionActive);
+//
+//        if (!passwordEncryptionActive) {
+//            LOG.debug("No password encryption will be performed for DSS");
+//            return;
+//        }
 
         LOG.debug("Encrypting passwords");
+
 
         //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between DSS properties per domain
         final DomainDTO domainDTO = domainExtService.getDomain("default");

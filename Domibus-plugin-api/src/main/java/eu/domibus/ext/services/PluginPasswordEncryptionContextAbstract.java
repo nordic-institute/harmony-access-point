@@ -9,11 +9,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * @author Cosmin Baciu
- * @since 4.1.1
+ * @author Ion Perpegel
+ * @since 5.0
  */
 public abstract class PluginPasswordEncryptionContextAbstract implements PluginPasswordEncryptionContext {
 
@@ -45,12 +46,17 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
 
     @Override
     public File getConfigurationFile() {
-        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + propertyProvider.getConfigurationFileName();
-//        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + PLUGINS_CONFIG_HOME + File.separator + PLUGIN_PROPERTIES_FILE_NAME;
+        Optional<String> configurationFileName = getConfigurationFileName();
+        if (!configurationFileName.isPresent()) {
+            return null;
+        }
+        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + configurationFileName;
         final File configurationFile = new File(filePath);
         LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
         return configurationFile;
     }
+
+    protected abstract Optional<String> getConfigurationFileName();
 
     @Override
     public List<String> getPropertiesToEncrypt() {

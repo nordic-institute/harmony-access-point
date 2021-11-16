@@ -2,12 +2,16 @@ package eu.domibus.plugin.fs.property.encryption;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
+import org.apache.commons.lang3.BooleanUtils;
+
+import java.util.Optional;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES;
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.PASSWORD_ENCRYPTION_ACTIVE;
 
 /**
- * @author Cosmin Baciu
- * @since 4.1.1
+ * @author Ion Perpegel
+ * @since 5.0
  */
 public class FSPluginGlobalPasswordEncryptionContext extends PluginPasswordEncryptionContextAbstract implements PluginPasswordEncryptionContext {
 
@@ -32,4 +36,14 @@ public class FSPluginGlobalPasswordEncryptionContext extends PluginPasswordEncry
         return FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES;
     }
 
+    @Override
+    protected Optional<String> getConfigurationFileName() {
+        return Optional.of(propertyProvider.getConfigurationFileName());
+    }
+
+    @Override
+    public boolean isEncryptionActive() {
+        final String passwordEncryptionActive = propertyProvider.getKnownPropertyValue(PASSWORD_ENCRYPTION_ACTIVE);
+        return BooleanUtils.toBoolean(passwordEncryptionActive);
+    }
 }
