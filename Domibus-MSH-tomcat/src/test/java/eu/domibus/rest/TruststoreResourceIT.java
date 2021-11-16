@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,8 +43,6 @@ public class TruststoreResourceIT extends AbstractIT {
 
     @Test
     public void testTruststoreEntries_ok() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        //Overriding the config location in AbstractIT
-        System.setProperty("domibus.config.location", new File("src/test/resources").getAbsolutePath());
 
         eu.domibus.core.crypto.TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
         domibusTruststoreEntity.setName("domibus.truststore");
@@ -65,6 +62,7 @@ public class TruststoreResourceIT extends AbstractIT {
             Assert.assertNotNull("Certificate validity until should be populated in TrustStoreRO:", trustStoreRO.getValidUntil());
             Assert.assertNotNull("Certificate fingerprints should be populated in TrustStoreRO:", trustStoreRO.getFingerprints());
             Assert.assertNotNull("Certificate imminent expiry alert days should be populated in TrustStoreRO:", trustStoreRO.getCertificateExpiryAlertDays());
+            Assert.assertEquals("Certificate imminent expiry alert days should be populated in TrustStoreRO:", 60, trustStoreRO.getCertificateExpiryAlertDays());
         }
     }
 }
