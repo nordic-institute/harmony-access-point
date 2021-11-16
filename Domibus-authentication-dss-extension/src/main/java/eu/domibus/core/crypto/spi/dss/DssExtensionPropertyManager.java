@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -119,5 +120,10 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public Optional<String> getConfigurationFileName(DomainDTO domain) {
         // intentionally return null as there is no property file for a domain
         return Optional.empty();
+    }
+
+    public boolean isPasswordEncryptionActive() {
+        final String passwordEncryptionActive = getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
+        return BooleanUtils.toBoolean(passwordEncryptionActive);
     }
 }

@@ -1,15 +1,13 @@
 package eu.domibus.core.crypto.spi.dss.listeners.encryption;
 
-import eu.domibus.core.crypto.spi.dss.DssConfiguration;
+import eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.encryption.PluginPropertyEncryptionListener;
-import org.springframework.stereotype.Service;
 
 /**
  * @author Soumya Chandran
@@ -22,23 +20,28 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyEncryptionListener.class);
 
     protected PasswordEncryptionExtService passwordEncryptionService;
-    protected DssConfiguration dssConfiguration;
+//    protected DssConfiguration dssConfiguration;
+    protected DssExtensionPropertyManager propertyProvider; 
     protected DomibusConfigurationExtService domibusConfigurationExtService;
     protected DomainExtService domainExtService;
 
-    public DssPropertyEncryptionListener(PasswordEncryptionExtService passwordEncryptionService, DssConfiguration dssConfiguration,
-                                         DomibusConfigurationExtService domibusConfigurationExtService, DomainExtService domainExtService) {
+    public DssPropertyEncryptionListener(PasswordEncryptionExtService passwordEncryptionService,
+//                                         DssConfiguration dssConfiguration,
+                                         DomibusConfigurationExtService domibusConfigurationExtService,
+                                         DomainExtService domainExtService,
+                                         DssExtensionPropertyManager propertyProvider) {
         this.passwordEncryptionService = passwordEncryptionService;
-        this.dssConfiguration = dssConfiguration;
+//        this.dssConfiguration = dssConfiguration;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.domainExtService = domainExtService;
+        this.propertyProvider = propertyProvider;
         LOG.debug("In DssPropertyEncryptionListener constructor. ");
     }
 
 
     @Override
     public void encryptPasswords() {
-        final boolean passwordEncryptionActive = dssConfiguration.isPasswordEncryptionActive();
+        final boolean passwordEncryptionActive = propertyProvider.isPasswordEncryptionActive();
         LOG.debug("Encrypting passwords is active in DSS configuration? [{}]", passwordEncryptionActive);
 
         if (!passwordEncryptionActive) {
@@ -49,10 +52,10 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
         LOG.debug("Encrypting passwords");
 
         //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between DSS properties per domain
-        final DomainDTO domainDTO = domainExtService.getDomain(dssConfiguration.DEFAULT_DOMAIN);
-        final DssPropertyPasswordEncryptionContext passwordEncryptionContext =
-                new DssPropertyPasswordEncryptionContext(
-                        dssConfiguration,
+        final DomainDTO domainDTO = domainExtService.getDomain("default");
+        final DssDomainPasswordEncryptionContext passwordEncryptionContext =
+                new DssDomainPasswordEncryptionContext(
+                        propertyProvider,
                         domibusConfigurationExtService,
                         passwordEncryptionService,
                         domainDTO);

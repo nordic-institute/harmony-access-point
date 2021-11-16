@@ -11,14 +11,10 @@ import eu.domibus.api.property.encryption.PasswordEncryptionService;
  */
 public class PasswordEncryptionContextDefault extends PasswordEncryptionContextAbstract {
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,
                                             DomibusPropertyProvider domibusPropertyProvider,
                                             DomibusConfigurationService domibusConfigurationService) {
-        super(passwordEncryptionService, domibusConfigurationService);
-        this.domibusPropertyProvider = domibusPropertyProvider;
-        this.domibusConfigurationService = domibusConfigurationService;
+        super(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService);
     }
 
     @Override

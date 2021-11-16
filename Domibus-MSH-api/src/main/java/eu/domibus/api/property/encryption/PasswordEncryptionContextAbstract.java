@@ -1,6 +1,7 @@
 package eu.domibus.api.property.encryption;
 
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -26,10 +27,13 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
     protected PasswordEncryptionService passwordEncryptionService;
     protected DomibusConfigurationService domibusConfigurationService;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     public PasswordEncryptionContextAbstract(PasswordEncryptionService passwordEncryptionService,
+                                             DomibusPropertyProvider domibusPropertyProvider,
                                              DomibusConfigurationService domibusConfigurationService) {
         this.passwordEncryptionService = passwordEncryptionService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
     }
 

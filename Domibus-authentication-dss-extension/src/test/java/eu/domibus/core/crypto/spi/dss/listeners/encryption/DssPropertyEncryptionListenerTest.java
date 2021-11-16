@@ -4,6 +4,7 @@ import eu.domibus.core.crypto.spi.dss.DssConfiguration;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -29,20 +30,23 @@ public class DssPropertyEncryptionListenerTest {
     @Injectable
     protected DomainExtService domainExtService;
 
+    @Injectable
+    DomibusPropertyManagerExt propertyProvider;
+
     @Tested
     DssPropertyEncryptionListener dssPropertyEncryptionListener;
 
     @Test
     public void encryptPasswords(@Injectable DomainDTO domainDTO,
-                                 @Mocked DssPropertyPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
+                                 @Mocked DssDomainPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
         new Expectations() {{
-            dssConfiguration.isPasswordEncryptionActive();
-            result = true;
+//            propertyProvider.isPasswordEncryptionActive();
+//            result = true;
 
             domainExtService.getDomain(dssConfiguration.DEFAULT_DOMAIN);
             result = domainDTO;
 
-            new DssPropertyPasswordEncryptionContext(dssConfiguration, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
+            new DssDomainPasswordEncryptionContext(propertyProvider, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
             result = dssPropertyPasswordEncryptionContext;
         }};
 

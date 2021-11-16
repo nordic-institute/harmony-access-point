@@ -49,8 +49,8 @@ public class FSPluginPropertyEncryptionListener implements PluginPropertyEncrypt
 
         //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between FS Plugin properties per domain
         final DomainDTO domainDTO = domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
-        final FSPluginPasswordEncryptionContext passwordEncryptionContext =
-                new FSPluginPasswordEncryptionContext(
+        final FSPluginDomainPasswordEncryptionContext passwordEncryptionContext =
+                new FSPluginDomainPasswordEncryptionContext(
                         fsPluginProperties,
                         domibusConfigurationExtService,
                         pluginPasswordEncryptionService,

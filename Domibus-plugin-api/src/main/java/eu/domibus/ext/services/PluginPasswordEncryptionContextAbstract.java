@@ -1,11 +1,6 @@
-package eu.domibus.core.crypto.spi.dss.listeners.encryption;
+package eu.domibus.ext.services;
 
-import eu.domibus.core.crypto.spi.dss.DssConfiguration;
-import eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
-import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -16,56 +11,50 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.DSS_EXTENSION_PROPERTIES;
-import static eu.domibus.ext.services.DomibusPropertyManagerExt.EXTENSIONS_CONFIG_HOME;
-
 /**
- * @author Soumya Chandran
- * @since 5.0
+ * @author Cosmin Baciu
+ * @since 4.1.1
  */
-public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncryptionContext {
+public abstract class PluginPasswordEncryptionContextAbstract implements PluginPasswordEncryptionContext {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyPasswordEncryptionContext.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionContextAbstract.class);
 
-    protected DssConfiguration dssConfiguration;
+    protected DomibusPropertyManagerExt propertyProvider;
 
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
 
-    protected DomainDTO domain;
-
-    public DssPropertyPasswordEncryptionContext(DssConfiguration dssConfiguration,
-                                                DomibusConfigurationExtService domibusConfigurationExtService,
-                                                PasswordEncryptionExtService pluginPasswordEncryptionService,
-                                                DomainDTO domain) {
-        this.dssConfiguration = dssConfiguration;
+    public PluginPasswordEncryptionContextAbstract(DomibusPropertyManagerExt propertyProvider,
+                                                   DomibusConfigurationExtService domibusConfigurationExtService,
+                                                   PasswordEncryptionExtService pluginPasswordEncryptionService) {
+        this.propertyProvider = propertyProvider;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.pluginPasswordEncryptionService = pluginPasswordEncryptionService;
-        this.domain = domain;
     }
 
     @Override
-    public DomainDTO getDomain() {
-        return domain;
-    }
+    public abstract DomainDTO getDomain();
+
+    protected abstract String getEncryptedPropertyNames();
 
     @Override
     public String getProperty(String propertyName) {
-        return dssConfiguration.getDomainProperty(domain.getCode(), propertyName);
+        return propertyProvider.getKnownPropertyValue(propertyName);
     }
 
     @Override
     public File getConfigurationFile() {
-        final File configurationFile = new File(domibusConfigurationExtService.getConfigLocation()
-                + File.separator + EXTENSIONS_CONFIG_HOME + File.separator + DSS_EXTENSION_PROPERTIES);
-        LOG.debug("Using DSS configuration file [{}]", configurationFile);
+        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + propertyProvider.getConfigurationFileName();
+//        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + PLUGINS_CONFIG_HOME + File.separator + PLUGIN_PROPERTIES_FILE_NAME;
+        final File configurationFile = new File(filePath);
+        LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
         return configurationFile;
     }
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        final String propertiesToEncryptString = dssConfiguration.getDomainProperty(domain.getCode(), DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_PROPERTIES);
+        final String propertiesToEncryptString = propertyProvider.getKnownPropertyValue(getEncryptedPropertyNames());
 
         if (StringUtils.isEmpty(propertiesToEncryptString)) {
             LOG.debug("No properties to encrypt");
@@ -93,4 +82,5 @@ public class DssPropertyPasswordEncryptionContext implements PluginPasswordEncry
 
         return result;
     }
+
 }
