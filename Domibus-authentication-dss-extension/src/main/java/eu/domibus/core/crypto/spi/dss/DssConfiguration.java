@@ -413,10 +413,10 @@ public class DssConfiguration {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
-    @Bean
-    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
-        return new DssPropertyEncryptionListener(passwordEncryptionService, domibusConfigurationExtService, domainExtService, propertyManager);
-    }
+//    @Bean
+//    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
+//        return new DssPropertyEncryptionListener(passwordEncryptionService, domibusConfigurationExtService, domainExtService, propertyManager);
+//    }
 
     /**
      * @return True if password encryption is active
