@@ -52,7 +52,8 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
             {DOMIBUS_MONITORING_CONNECTION_CRON, "connectionMonitoringJob"},
             {DOMIBUS_ERRORLOG_CLEANER_CRON, "errorLogCleanerJob"},
-            {DOMIBUS_EARCHIVE_CRON, "eArchiveJob"}
+            {DOMIBUS_EARCHIVE_CRON, "eArchiveContinuousJob"},
+            {DOMIBUS_EARCHIVE_RETENTION_CRON, "eArchivingCleanupJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override
