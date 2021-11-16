@@ -39,7 +39,7 @@
         "requestBody" : {
           "description" : "Notification message on export event for the batch",
           "content" : {
-            "*/*" : {
+            "application/json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/BatchNotification"
               }
@@ -74,7 +74,7 @@
         "requestBody" : {
           "description" : "Notification message on delete for expired batch",
           "content" : {
-            "*/*" : {
+            "application/json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/BatchNotification"
               }

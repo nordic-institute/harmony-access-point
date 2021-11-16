@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.job;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
@@ -54,14 +55,17 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     private Domain domain;
 
     private boolean jmsManagerTriggered = false;
+    private String messageId1;
+    private String messageId2;
 
     @Before
     public void setUp() throws Exception {
         domain = new Domain("default", "default");
         uploadPmode(SERVICE_PORT);
 
-        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", UUID.randomUUID().toString()));
-        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", UUID.randomUUID().toString()));
+        messageId1 = UUID.randomUUID().toString();
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", messageId1));
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", messageId2));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_BATCH_SIZE, "1");
@@ -77,10 +81,19 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     public void startBatch() {
         ReflectionTestUtils.setField(eArchiveBatchDispatcherService, "jmsManager", jmsManager);
 
-        eArchiveBatchDispatcherService.startBatch(domain);
+        eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.CONTINUOUS);
         Assert.assertTrue(jmsManagerTriggered);
 
-        Assert.assertEquals(2, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
-        Assert.assertEquals(2, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
+        jmsManagerTriggered=false;
+
+        int i = em.createQuery("update UserMessageLog u set u.archived = null")
+                .executeUpdate();
+        //All UserMessageLog are now available for archiving again
+        eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.SANITIZER);
+        Assert.assertTrue(jmsManagerTriggered);
+
+        //Only 1 new batch created because START_DATE of continous forbid the sanitizer to pick up the last message
+        Assert.assertEquals(3, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
+        Assert.assertEquals(3, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
     }
 }

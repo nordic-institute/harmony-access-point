@@ -1,8 +1,10 @@
 import logging as log
 import time
-
+import os
 from zapv2 import ZAPv2
 import requests
+import shutil
+
 
 log.basicConfig(level=log.DEBUG)
 
@@ -111,12 +113,11 @@ log.info("Printing PDF report to file")
 params = {"apikey": apiKey,
           "title": "SOAP Zap Scan Report",
           "template": "traditional-pdf",
-          "description": "Scan of the SOAP endpoints for Web service plugins",
           "contexts": "Default Context",
           "reportFileName": "soap_zap_scan_report",
-          "reportDir": os.getcwd()}
+          "reportDir" : os.getcwd()}
 
 resp = requests.get(zap_url + "/JSON/reports/action/generate/", params=params)
 if resp.status_code != 200:
 	log.critical("CREATE PDF REPORT OPTERATION FAILED: ", resp)
-	sys.exit(-1)
+	exit(-1)

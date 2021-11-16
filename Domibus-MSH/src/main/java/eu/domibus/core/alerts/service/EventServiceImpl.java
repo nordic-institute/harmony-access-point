@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -185,6 +186,17 @@ public class EventServiceImpl implements EventService {
      * {@inheritDoc}
      */
     @Override
+    public void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus) {
+        Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
+        event.addStringKeyValue(ArchivingEventProperties.BATCH_ID.name(), batchId);
+        event.addStringKeyValue(ArchivingEventProperties.BATCH_STATUS.name(), batchStatus.name());
+        enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED.name(), event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public eu.domibus.core.alerts.model.persist.Event persistEvent(final Event event) {
         final eu.domibus.core.alerts.model.persist.Event eventEntity = eventMapper.eventServiceToEventPersist(event);
         LOG.debug("Converting jms event [{}] to persistent event [{}]", event, eventEntity);
@@ -286,7 +298,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, int frequency) {
 
-        if(entity == null) {
+        if (entity == null) {
             LOG.debug("Should create alert because the event was not previously persisted");
             return true;
         }
@@ -340,6 +352,18 @@ public class EventServiceImpl implements EventService {
 
     private String getUniqueIdentifier(UserEntityBase user) {
         return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enqueueEArchivingMessageNonFinalEvent(final String messageId,
+                                                      final MessageStatus status) {
+        Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
+        event.addStringKeyValue(OLD_STATUS.name(), status.name());
+        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
+        enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
     }
 
 }

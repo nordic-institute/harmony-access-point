@@ -139,8 +139,6 @@
             <class name="domibus.ui.functional.PmodePartiesPgTest"/>
             <class name="domibus.ui.functional.PmodeParties2PgTest">
                 <methods>
-                    <!-- disabled due to XML error, needs more investigating-->
-                    <exclude name="initiatorResponderAdditionCurrentPmode"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilterPgTest">

@@ -86,12 +86,26 @@ public enum MessageStatus {
 
         public static List<MessageStatus> getFinalStates(){
                 return Arrays.asList(
-                        MessageStatus.ACKNOWLEDGED,
-                        MessageStatus.ACKNOWLEDGED_WITH_WARNING,
-                        MessageStatus.RECEIVED,
-                        MessageStatus.RECEIVED_WITH_WARNINGS,
-                        MessageStatus.DOWNLOADED,
-                        MessageStatus.DELETED);
+                        ACKNOWLEDGED,
+                        ACKNOWLEDGED_WITH_WARNING,
+                        RECEIVED,
+                        RECEIVED_WITH_WARNINGS,
+                        DOWNLOADED,
+                        DELETED);
+        }
+
+        public static List<MessageStatus> getNotFinalStates(){
+                return Arrays.asList(
+                        READY_TO_SEND,
+                        READY_TO_PULL,
+                        BEING_PULLED,
+                        SEND_ENQUEUED,
+                        SEND_IN_PROGRESS,
+                        WAITING_FOR_RECEIPT,
+                        SEND_ATTEMPT_FAILED,
+                        SEND_FAILURE,
+                        NOT_FOUND,
+                        WAITING_FOR_RETRY);
         }
 
         public static List<String> getFinalStatesAsString(){

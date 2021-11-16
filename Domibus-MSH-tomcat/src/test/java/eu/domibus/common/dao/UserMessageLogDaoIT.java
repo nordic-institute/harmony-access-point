@@ -314,7 +314,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_oldest() {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(0L, maxEntityId, 100);
+        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
         Assert.assertEquals(7, messagesForArchiving.getUserMessageDtos().size());
         Assert.assertEquals(msg.getEntityId(), messagesForArchiving.getUserMessageDtos().get(messagesForArchiving.getUserMessageDtos().size() - 1).getEntityId());
     }
@@ -324,7 +324,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_rest() {
         UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(msg1.getEntityId(), maxEntityId, 20);
+        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
         Assert.assertEquals(6, messagesForArchiving.getUserMessageDtos().size());
     }
 
