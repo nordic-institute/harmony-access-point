@@ -116,7 +116,6 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
                 .setParameter("batchId", batchId)
                 .getResultList()
                 .get(0);
-        List<EArchiveBatchUserMessage> select_batch_from_eArchiveBatchUserMessage_batch = em.createQuery("select batch from EArchiveBatchUserMessage batch", EArchiveBatchUserMessage.class).getResultList();
 
         List<EArchiveBatchUserMessage> eArchiveBatchUserMessages = new ArrayList<>();
         for (int i = firstPkUserMessage.intValue(); i < lastPkUserMessage; i++) {
@@ -126,10 +125,6 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
             eArchiveBatchUserMessages.add(merge1);
         }
 
-        List<EArchiveBatchUserMessage> result = em.createQuery("select batch from EArchiveBatchUserMessage batch", EArchiveBatchUserMessage.class).getResultList();
-
-
-        List<EArchiveBatchUserMessage> end = em.createQuery("select batch from EArchiveBatchUserMessage batch", EArchiveBatchUserMessage.class).getResultList();
         merge.seteArchiveBatchUserMessages(eArchiveBatchUserMessages);
         eArchiveBatchDao.update(merge);
     }

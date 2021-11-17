@@ -45,7 +45,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     EArchiveBatchEntity batch1;
     EArchiveBatchEntity batch2;
-    EArchiveBatchEntity batch3;
     UserMessageLog uml1;
     UserMessageLog uml2;
     UserMessageLog uml3;
@@ -102,18 +101,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
                 new EArchiveBatchUserMessage(uml5.getEntityId(), uml5.getUserMessage().getMessageId())
         ));
 
-        batch3 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
-                batch2.getBatchId(),
-                EArchiveRequestType.MANUAL,
-                EArchiveBatchStatus.EXPORTED,
-                DateUtils.addDays(currentDate, 0),
-                2110100000000021L,
-                2110110000000001L,
-                1,
-                "/tmp/batch")); // is copy from 2
-        eArchiveBatchUserMessageDao.create(batch3, Collections.singletonList(
-                new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
-
     }
 
     @Test
@@ -158,7 +145,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Transactional
     public void getBatchCount() {
         Long batchRequestsCount = eArchivingService.getBatchRequestListCount(new EArchiveBatchFilter());
-        Assert.assertEquals(3, batchRequestsCount.longValue());
+        Assert.assertEquals(2, batchRequestsCount.longValue());
     }
 
     @Test
@@ -166,7 +153,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getBatchListDefaultFilter() {
         EArchiveBatchFilter filter = new EArchiveBatchFilter();
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
-        Assert.assertEquals(3, batchRequestsCount.size());
+        Assert.assertEquals(2, batchRequestsCount.size());
         // descending order
         // the batch 1 is last in list
         Assert.assertEquals(batch1.getBatchId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getBatchId());
