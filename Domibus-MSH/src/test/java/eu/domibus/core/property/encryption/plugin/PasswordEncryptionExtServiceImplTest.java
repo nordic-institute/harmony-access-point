@@ -40,6 +40,12 @@ public class PasswordEncryptionExtServiceImplTest {
                                        @Injectable PasswordEncryptionContext passwordEncryptionContext,
                                        @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
         new Expectations() {{
+            pluginPasswordEncryptionContext.isEncryptionActive();
+            result = true;
+
+            pluginPasswordEncryptionContext.getConfigurationFile();
+            result = "conf.properties";
+
             coreMapper.domainDTOToDomain(pluginPasswordEncryptionContext.getDomain());
             result = domain;
 
@@ -52,7 +58,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
 
-        new FullVerifications() {{
+        new Verifications() {{
             passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
         }};
     }

@@ -41,12 +41,12 @@ public abstract class PluginPropertyEncryptionListenerAbstract implements Plugin
     public void encryptPasswords() {
         LOG.debug("Encrypting passwords");
 
-        // global context
+        // operate on the global context, without a current domain
         domainContextProvider.clearCurrentDomain();
         final PluginPasswordEncryptionContext passwordEncryptionContext = getGlobalPasswordEncryptionContext();
         pluginPasswordEncryptionService.encryptPasswordsInFile(passwordEncryptionContext);
 
-        // domain context
+        // operate on each domain context
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             final List<DomainDTO> domains = domainsExtService.getDomains();
             for (DomainDTO domain : domains) {

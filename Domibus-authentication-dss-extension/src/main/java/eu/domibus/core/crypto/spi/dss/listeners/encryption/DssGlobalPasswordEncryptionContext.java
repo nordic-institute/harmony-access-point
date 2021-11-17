@@ -13,7 +13,8 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.AUTHENT
  * @author Ion Perpegel
  * @since 5.0
  */
-public class DssGlobalPasswordEncryptionContext extends PluginPasswordEncryptionContextAbstract implements PluginPasswordEncryptionContext {
+public class DssGlobalPasswordEncryptionContext extends PluginPasswordEncryptionContextAbstract
+        implements PluginPasswordEncryptionContext {
 
     public DssGlobalPasswordEncryptionContext(DomibusPropertyManagerExt propertyProvider,
                                               DomibusConfigurationExtService domibusConfigurationExtService,

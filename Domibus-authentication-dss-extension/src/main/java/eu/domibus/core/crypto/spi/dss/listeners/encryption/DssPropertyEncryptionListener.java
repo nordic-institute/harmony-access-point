@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 public class DssPropertyEncryptionListener extends PluginPropertyEncryptionListenerAbstract
         implements PluginPropertyEncryptionListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssPropertyEncryptionListener.class);
-
     protected DssExtensionPropertyManager propertyProvider;
 
     public DssPropertyEncryptionListener(DssExtensionPropertyManager propertyProvider,
@@ -40,29 +38,4 @@ public class DssPropertyEncryptionListener extends PluginPropertyEncryptionListe
         return new DssGlobalPasswordEncryptionContext(propertyProvider, domibusConfigurationExtService, pluginPasswordEncryptionService);
     }
 
-//    @Override
-//    public void encryptPasswords() {
-////        final boolean passwordEncryptionActive = propertyProvider.isPasswordEncryptionActive();
-////        LOG.debug("Encrypting passwords is active in DSS configuration? [{}]", passwordEncryptionActive);
-////
-////        if (!passwordEncryptionActive) {
-////            LOG.debug("No password encryption will be performed for DSS");
-////            return;
-////        }
-//
-//        LOG.debug("Encrypting passwords");
-//
-//
-//        //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between DSS properties per domain
-//        final DomainDTO domainDTO = domainExtService.getDomain("default");
-//        final DssDomainPasswordEncryptionContext passwordEncryptionContext =
-//                new DssDomainPasswordEncryptionContext(
-//                        propertyProvider,
-//                        domibusConfigurationExtService,
-//                        passwordEncryptionService,
-//                        domainDTO);
-//        passwordEncryptionService.encryptPasswordsInFile(passwordEncryptionContext);
-//
-//        LOG.debug("Finished encrypting passwords");
-//    }
 }

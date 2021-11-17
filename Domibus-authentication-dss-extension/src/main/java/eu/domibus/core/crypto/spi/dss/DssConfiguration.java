@@ -418,29 +418,6 @@ public class DssConfiguration {
 //        return new DssPropertyEncryptionListener(passwordEncryptionService, domibusConfigurationExtService, domainExtService, propertyManager);
 //    }
 
-    /**
-     * @return True if password encryption is active
-     */
-//    public boolean isPasswordEncryptionActive() {
-//        final String passwordEncryptionActive = propertyManager.getKnownPropertyValue(DEFAULT_DOMAIN, DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-//        return BooleanUtils.toBoolean(passwordEncryptionActive);
-//    }
-
-//    /**
-//     * get the base (mapped to default) and other domains property
-//     *
-//     * @param domain
-//     * @param propertyName
-//     * @return
-//     */
-//    public String getDomainProperty(String domain, String propertyName) {
-//        if (domibusConfigurationExtService.isMultiTenantAware()) {
-//            DomainDTO domainDTO = domainExtService.getDomain(domain);
-//            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
-//        }
-//        return domibusPropertyExtService.getProperty(propertyName);
-//    }
-
     @Bean
     public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner) {
         TLValidationJob job = new TLValidationJob();

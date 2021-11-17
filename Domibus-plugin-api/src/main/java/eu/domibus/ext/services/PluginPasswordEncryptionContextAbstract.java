@@ -34,10 +34,12 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
         this.pluginPasswordEncryptionService = pluginPasswordEncryptionService;
     }
 
+    protected abstract String getEncryptedPropertyNames();
+
+    protected abstract Optional<String> getConfigurationFileName();
+
     @Override
     public abstract DomainDTO getDomain();
-
-    protected abstract String getEncryptedPropertyNames();
 
     @Override
     public String getProperty(String propertyName) {
@@ -55,8 +57,6 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
         LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
         return configurationFile;
     }
-
-    protected abstract Optional<String> getConfigurationFileName();
 
     @Override
     public List<String> getPropertiesToEncrypt() {
