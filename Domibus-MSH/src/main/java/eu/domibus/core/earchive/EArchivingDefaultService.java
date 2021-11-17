@@ -17,7 +17,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.BooleanUtils;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -133,7 +132,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         List<EArchiveBatchEntity> requestDTOList = eArchiveBatchDao.getBatchRequestList(filter);
         if (BooleanUtils.isTrue(returnMessages)) {
             for (EArchiveBatchEntity eArchiveBatchEntity : requestDTOList) {
-                Hibernate.initialize(eArchiveBatchEntity.geteArchiveBatchUserMessages());
+                eArchiveBatchEntity.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatchEntity.batchId, null, null));
             }
         }
         return requestDTOList.stream()
@@ -202,7 +201,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
             throw new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
         }
         if (fetchEarchiveBatchUm) {
-            Hibernate.initialize(eArchiveBatchByBatchId.geteArchiveBatchUserMessages());
+            eArchiveBatchByBatchId.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatchByBatchId.batchId, null, null));
         }
         return eArchiveBatchByBatchId;
     }

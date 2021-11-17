@@ -57,8 +57,7 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     @Column(name = "FIRST_PK_USER_MESSAGE")
     private Long firstPkUserMessage;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "FK_EARCHIVE_BATCH_ID")
+    @Transient
     private List<EArchiveBatchUserMessage> eArchiveBatchUserMessages;
 
     public String getBatchId() {
@@ -157,12 +156,12 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
 
         EArchiveBatchEntity that = (EArchiveBatchEntity) o;
 
-        return new EqualsBuilder().appendSuper(super.equals(o)).append(batchId, that.batchId).append(requestType, that.requestType).append(eArchiveBatchStatus, that.eArchiveBatchStatus).append(dateRequested, that.dateRequested).append(lastPkUserMessage, that.lastPkUserMessage).append(batchSize, that.batchSize).append(errorCode, that.errorCode).append(errorMessage, that.errorMessage).append(storageLocation, that.storageLocation).append(firstPkUserMessage, that.firstPkUserMessage).append(eArchiveBatchUserMessages, that.eArchiveBatchUserMessages).isEquals();
+        return new EqualsBuilder().appendSuper(super.equals(o)).append(batchId, that.batchId).append(requestType, that.requestType).append(eArchiveBatchStatus, that.eArchiveBatchStatus).append(dateRequested, that.dateRequested).append(lastPkUserMessage, that.lastPkUserMessage).append(batchSize, that.batchSize).append(errorCode, that.errorCode).append(errorMessage, that.errorMessage).append(storageLocation, that.storageLocation).append(firstPkUserMessage, that.firstPkUserMessage).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(batchId).append(requestType).append(eArchiveBatchStatus).append(dateRequested).append(lastPkUserMessage).append(batchSize).append(errorCode).append(errorMessage).append(storageLocation).append(firstPkUserMessage).append(eArchiveBatchUserMessages).toHashCode();
+        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(batchId).append(requestType).append(eArchiveBatchStatus).append(dateRequested).append(lastPkUserMessage).append(batchSize).append(errorCode).append(errorMessage).append(storageLocation).append(firstPkUserMessage).toHashCode();
     }
 }
 
