@@ -9,12 +9,11 @@ import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.util.MultiPartFileUtilImpl;
 import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -46,8 +45,7 @@ public class TruststoreResourceIT extends AbstractIT {
         domibusTruststoreEntity.setName("domibus.truststore");
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
-        File truststoreFile = new File(this.getClass().getClassLoader().getResource("keystores/gateway_truststore.jks").toURI());
-        byte[] trustStoreBytes = FileUtils.readFileToByteArray(truststoreFile);
+        byte[] trustStoreBytes = IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks"));
         domibusTruststoreEntity.setContent(trustStoreBytes);
 
         truststoreDao.create(domibusTruststoreEntity);
