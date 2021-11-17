@@ -156,13 +156,13 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         LOG.trace("Always return only batches in status QUEUED!");
         archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.QUEUED);
         // set filter
-        if (filter.getLastCountRequests() != null || filter.getLastCountRequests() > 0) {
+        if (filter.getLastCountRequests() != null && filter.getLastCountRequests() > 0) {
             // Explained behaviour: if last count is given then ignore all other filters.
             LOG.trace("Return last count request and ignore all other filters");
             archiveBatchFilter.setPageSize(filter.getLastCountRequests());
         } else {
 
-            filter.getRequestTypes().forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
+            setBatchStatus(archiveBatchFilter, filter.getRequestTypes());
             archiveBatchFilter.setStartDate(filter.getStartDate());
             archiveBatchFilter.setEndDate(filter.getEndDate());
 
@@ -192,7 +192,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
             filter.getStatuses().forEach(requestedStatusType -> archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(requestedStatusType.name())));
         }
         // set filter for all
-        filter.getRequestTypes().forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
+        setBatchStatus(archiveBatchFilter, filter.getRequestTypes());
 
         // set filter
         archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
@@ -203,6 +203,13 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         archiveBatchFilter.setPageStart(pageStart);
         LOG.trace("Converted export filter: [{}].", archiveBatchFilter);
         return archiveBatchFilter;
+    }
+
+    private void setBatchStatus(EArchiveBatchFilter archiveBatchFilter, List<BatchRequestType> requestTypes) {
+        requestTypes.forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
+        if(archiveBatchFilter.getRequestTypes().contains(EArchiveRequestType.CONTINUOUS)) {
+            archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.SANITIZER);
+        }
     }
 
     protected Long dateToPKUserMessageId(Long pkUserMessageDate) {
