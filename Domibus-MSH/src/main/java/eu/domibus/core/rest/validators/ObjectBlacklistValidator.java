@@ -28,6 +28,7 @@ import java.util.Map;
 @Component
 public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhiteListed, Object> {
 
+    public static final String ROOT = "root";
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
 
     private static ThreadLocal<String> messageHolder = ThreadLocal.withInitial(() -> ObjectWhiteListed.MESSAGE);
@@ -41,7 +42,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
     public boolean isValid(Object obj, CustomWhiteListed customAnnotation) {
         LOG.debug("Validating recursively the object properties [{}]", obj);
         try {
-            doValidate(obj, "root", customAnnotation);
+            doValidate(obj, ROOT, customAnnotation);
             LOG.debug("All object properties [{}] are valid.", obj);
             return true;
         } catch (ValidationException ex) {
@@ -88,7 +89,7 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
                             field.setAccessible(true); //NOSONAR the accessibility level is restored after the validation
                         }
                         Object value = ReflectionUtils.getField(field, obj);
-                        doValidate(value, path + "->" + field.getName(), field.getAnnotation(CustomWhiteListed.class));
+                        doValidate(value, ROOT.equals(path) ? field.getName() : path + "->" + field.getName(), field.getAnnotation(CustomWhiteListed.class));
                         if (inaccessibleField) {
                             field.setAccessible(false); //NOSONAR restore original accessibility level
                         }
@@ -108,4 +109,5 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
         Class<?> cls = obj.getClass();
         return cls.equals(Date.class) || cls.equals(Timestamp.class) || cls.equals(LocalDate.class) || cls.equals(LocalDateTime.class);
     }
+
 }

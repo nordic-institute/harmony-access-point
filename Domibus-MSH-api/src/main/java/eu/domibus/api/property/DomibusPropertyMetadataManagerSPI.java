@@ -358,7 +358,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME = "domibus.earchive.notification.username";
     String DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD = "domibus.earchive.notification.password"; //NOSONAR
     String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
-
+    String DOMIBUS_EARCHIVE_RETENTION_DAYS = "domibus.earchive.retention.days";
+    String DOMIBUS_EARCHIVE_RETENTION_CRON = "domibus.earchive.retention.cron";
+    String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".level";
