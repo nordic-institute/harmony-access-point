@@ -37,7 +37,7 @@ public interface EArchiveExtMapper {
     BatchStatusDTO archiveBatchToBatchStatus(EArchiveBatchRequestDTO archiveBatchDTO);
 
     @Named("stringToBatchRequestType")
-    default BatchRequestType messageIdToMessageDateHour(String requestType) {
+    default BatchRequestType stringToBatchRequestType(String requestType) {
         if (Arrays.stream(BatchRequestType.values()).anyMatch(batchRequestType -> StringUtils.equalsIgnoreCase(requestType, batchRequestType.name()))) {
             return BatchRequestType.valueOf(requestType);
         }
