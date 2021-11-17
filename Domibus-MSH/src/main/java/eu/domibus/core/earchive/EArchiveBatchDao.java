@@ -9,11 +9,13 @@ import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +75,23 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         return merge(eArchiveBatchByBatchId);
     }
 
+    @Transactional
+    public void expireBatches(final Date limitDate) {
+        final Query query = em.createNamedQuery("EArchiveBatchEntity.updateStatusByDate");
+        query.setParameter("LIMIT_DATE", limitDate);
+        query.setParameter("STATUSES", Arrays.asList(
+                EArchiveBatchStatus.EXPORTED));
+        query.setParameter("NEW_STATUS", EArchiveBatchStatus.EXPIRED);
+        query.executeUpdate();
+    }
+
+    public List<EArchiveBatchEntity> findBatchesByStatus(List<EArchiveBatchStatus> statuses, Integer pageSize) {
+        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByStatus", EArchiveBatchEntity.class);
+        query.setParameter("STATUSES", statuses);
+        setPaginationParametersToQuery(query, 0, pageSize);
+        return query.getResultList();
+    }
+
     public <T extends EArchiveBatchBaseEntity> List<T> getBatchRequestList(EArchiveBatchFilter filter, Class<T> clazzProjection) {
 
         CriteriaQuery<T> batchCriteriaQuery = getEArchiveBatchCriteriaQuery(filter, false, clazzProjection);
@@ -88,7 +107,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public List<UserMessageDTO> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
-        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
+        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", UserMessageDTO.class);
         query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
@@ -118,7 +137,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
      * @param pageStart
      * @param pageSize
      */
-    public <T> void setPaginationParametersToQuery(TypedQuery<T> query, Integer pageStart, Integer pageSize) {
+    protected <T> void setPaginationParametersToQuery(TypedQuery<T> query, Integer pageStart, Integer pageSize) {
 
         // if page is not set start with the fist page
         int iMaxResults = pageSize == null || pageSize < 0 ? 0 : pageSize;

@@ -51,7 +51,7 @@ public class EArchiveBatchUtils {
         }
     }
 
-    Long extractDateFromPKUserMessageId(Long pkUserMessage) {
+    public Long extractDateFromPKUserMessageId(Long pkUserMessage) {
         if (pkUserMessage == null) {
             return null;
         }

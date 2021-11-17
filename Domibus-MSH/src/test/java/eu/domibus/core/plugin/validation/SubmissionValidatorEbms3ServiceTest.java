@@ -1,8 +1,7 @@
 package eu.domibus.core.plugin.validation;
 
-import eu.domibus.common.NotificationType;
-import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidator;
@@ -37,16 +36,6 @@ public class SubmissionValidatorEbms3ServiceTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void testValidateSubmissionForUnsupportedNotificationType(@Injectable final Submission submission,
-                                                                     @Injectable final UserMessage userMessage) {
-        final String backendName = "customPlugin";
-        submissionValidatorService.validateSubmission(userMessage, null, backendName, NotificationType.MESSAGE_RECEIVED_FAILURE);
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void testValidateSubmissionWhenFirstValidatorThrowsException(@Injectable final Submission submission,
                                                                         @Injectable final UserMessage userMessage,
                                                                         @Injectable final SubmissionValidatorList submissionValidatorList,
@@ -65,7 +54,7 @@ public class SubmissionValidatorEbms3ServiceTest {
         }};
 
         thrown.expect(SubmissionValidationException.class);
-        submissionValidatorService.validateSubmission(userMessage, null, backendName, NotificationType.MESSAGE_RECEIVED);
+        submissionValidatorService.validateSubmission(userMessage, null, backendName);
 
         new FullVerifications() {
         };
@@ -87,7 +76,7 @@ public class SubmissionValidatorEbms3ServiceTest {
             result = new SubmissionValidator[]{validator1, validator2};
         }};
 
-        submissionValidatorService.validateSubmission(userMessage, null, backendName, NotificationType.MESSAGE_RECEIVED);
+        submissionValidatorService.validateSubmission(userMessage, null, backendName);
 
         new FullVerifications() {{
             validator1.validate(submission);
@@ -109,7 +98,7 @@ public class SubmissionValidatorEbms3ServiceTest {
             result = null;
         }};
 
-        submissionValidatorService.validateSubmission(userMessage,null, backendName, NotificationType.MESSAGE_RECEIVED);
+        submissionValidatorService.validateSubmission(userMessage,null, backendName);
 
         new FullVerifications() {
         };

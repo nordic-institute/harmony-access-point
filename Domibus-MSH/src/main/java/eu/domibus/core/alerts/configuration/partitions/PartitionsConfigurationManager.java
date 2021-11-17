@@ -24,10 +24,10 @@ import java.util.stream.IntStream;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
- * Manages the reading of messaging alert configuration
+ * Manages the reading of partition alerts configuration
  *
- * @author Ion Perpegel
- * @since 4.2
+ * @author idragusa
+ * @since 5.0
  */
 @Service
 public class PartitionsConfigurationManager

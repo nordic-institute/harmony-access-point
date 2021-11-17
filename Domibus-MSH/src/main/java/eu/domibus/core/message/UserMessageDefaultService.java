@@ -41,6 +41,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -801,4 +802,5 @@ public class UserMessageDefaultService implements UserMessageService {
         propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
         return properties;
     }
+
 }

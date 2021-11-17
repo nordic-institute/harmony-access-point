@@ -69,7 +69,8 @@ public class BaseTest {
 		}
 		
 		waitForErrors();
-		
+		generateAlerts();
+
 		log.info("DONE GENERATING TEST DATA");
 	}
 	
@@ -105,5 +106,33 @@ public class BaseTest {
 			}
 		}
 	}
-	
+
+
+	private void generateAlerts() {
+		try {
+			String superName = rest.getUsername(null, DRoles.SUPER, true, false, true);
+			rest.login(superName, "veryVeryWrong");
+
+			superName = rest.getUsername(null, DRoles.SUPER, true, false, true);
+			rest.login(superName, "veryVeryWrong");
+
+			String adminName = rest.getUsername(null, DRoles.ADMIN, true, false, false);
+			rest.login(adminName, "veryVeryWrong");
+
+			String userName = rest.getUsername(null, DRoles.USER, true, false, false);
+			rest.login(userName, "veryVeryWrong");
+
+			String pluginUsername = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+			messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+
+			pluginUsername = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, true).getString("userName");
+			messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+	}
+
 }

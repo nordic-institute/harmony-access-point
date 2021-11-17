@@ -1,5 +1,6 @@
 package ddsl.dobjects;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -85,6 +86,20 @@ public class DWait {
 	public void forElementToBeGone(WebElement element) {
 		forXMillis(500);
 	}
+
+	public void forElementToBeGone(By selector) {
+		int c = 0;
+
+		while(c<10){
+			forXMillis(500);
+			c++;
+			try {
+				driver.findElement(selector);
+			} catch (Exception e) {
+				break;
+			}
+		}
+	}
 	
 	public void forElementToBe(WebElement element) {
 		
@@ -110,6 +125,15 @@ public class DWait {
 
 	public void forAttributeToContain(WebElement element, String attributeName, String value) {
 		defaultWait.until(ExpectedConditions.attributeContains(element, attributeName, value));
+	}
+
+	public void forAttributeToContain(WebElement element, String attributeName, String value, boolean waitLonger) {
+
+		WebDriverWait myWait = defaultWait;
+		if(waitLonger){
+			myWait = longWait;
+		}
+		myWait.until(ExpectedConditions.attributeContains(element, attributeName, value));
 	}
 	
 	public void forElementToHaveText(WebElement element) {

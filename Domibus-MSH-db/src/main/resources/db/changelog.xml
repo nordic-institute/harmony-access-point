@@ -2841,6 +2841,13 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <createIndex indexName="IDX_EARCHIVE_BATCH_UNIQUE_ID" tableName="TB_EARCHIVE_BATCH" unique="true">
+            <column name="BATCH_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_EARCHIVE_BATCH_STATUS" tableName="TB_EARCHIVE_BATCH">
+            <column name="BATCH_STATUS"/>
+        </createIndex>
+
         <createTable tableName="TB_EARCHIVEBATCH_UM">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVEBATCH_UML"/>
@@ -3348,6 +3355,19 @@
         <insert tableName="TB_LOCK">
             <column name="ID_PK" value="1" type="BIGINT"/>
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="1"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
+        </insert>
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="2"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
         </insert>
     </changeSet>
 
