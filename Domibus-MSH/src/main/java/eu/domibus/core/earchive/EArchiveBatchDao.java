@@ -9,11 +9,13 @@ import eu.domibus.core.util.QueryUtil;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -76,6 +78,23 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         return merge(eArchiveBatchByBatchId);
     }
 
+    @Transactional
+    public void expireBatches(final Date limitDate) {
+        final Query query = em.createNamedQuery("EArchiveBatchEntity.updateStatusByDate");
+        query.setParameter("LIMIT_DATE", limitDate);
+        query.setParameter("STATUSES", Arrays.asList(
+                EArchiveBatchStatus.EXPORTED));
+        query.setParameter("NEW_STATUS", EArchiveBatchStatus.EXPIRED);
+        query.executeUpdate();
+    }
+
+    public List<EArchiveBatchEntity> findBatchesByStatus(List<EArchiveBatchStatus> statuses, Integer pageSize) {
+        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByStatus", EArchiveBatchEntity.class);
+        query.setParameter("STATUSES", statuses);
+        setPaginationParametersToQuery(query, 0, pageSize);
+        return query.getResultList();
+    }
+
     public List<EArchiveBatchEntity> getBatchRequestList(EArchiveBatchFilter filter) {
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -83,7 +102,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         CriteriaQuery<EArchiveBatchEntity> criteria = builder.createQuery(EArchiveBatchEntity.class);
 
         final Root<EArchiveBatchEntity> eArchiveBatchRoot = criteria.from(EArchiveBatchEntity.class);
-        
+
         criteria.orderBy(builder.desc(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested)));
 
         List<Predicate> predicates = getPredicates(filter, builder, eArchiveBatchRoot);
@@ -129,6 +148,76 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     private List<Predicate> getPredicates(EArchiveBatchFilter filter, CriteriaBuilder builder, Root<EArchiveBatchEntity> eArchiveBatchRoot) {
+        List<Predicate> predicates = new ArrayList<>();
+        // filter by batch request date
+        if (filter.getStartDate() != null) {
+            predicates.add(builder.greaterThanOrEqualTo(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested), filter.getStartDate()));
+        }
+        if (filter.getEndDate() != null) {
+            predicates.add(builder.lessThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested), filter.getEndDate()));
+        }
+        // the "batch MessageSId" is a range. Check if start and end message Id falls into the range
+        if (filter.getMessageStarId() != null) {
+            predicates.add(builder.greaterThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.lastPkUserMessage), filter.getMessageStarId()));
+        }
+        if (filter.getMessageEndId() != null) {
+            predicates.add(builder.lessThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.firstPkUserMessage), filter.getMessageEndId()));
+        }
+
+        // filter by type
+        if (filter.getRequestTypes() != null && !filter.getRequestTypes().isEmpty()) {
+            Expression<EArchiveRequestType> statusExpression = eArchiveBatchRoot.get(EArchiveBatchEntity_.requestType);
+            predicates.add(statusExpression.in(filter.getRequestTypes()));
+        }
+
+        // filter by batch status list.
+        if (filter.getStatusList() != null && !filter.getStatusList().isEmpty()) {
+            Expression<EArchiveBatchStatus> statusExpression = eArchiveBatchRoot.get(EArchiveBatchEntity_.eArchiveBatchStatus);
+            predicates.add(statusExpression.in(filter.getStatusList()));
+        }
+        return predicates;
+    }
+
+    public List<UserMessageDTO> getBatchMessageList(String batchId, Integer pageStart, Integer pageSize) {
+        TypedQuery<UserMessageDTO> query = em.createNamedQuery("EArchiveBatchRequest.getMessagesForBatchId", UserMessageDTO.class);
+        query.setParameter("batchId", batchId);
+        setPaginationParametersToQuery(query, pageStart, pageSize);
+        return query.getResultList();
+    }
+
+    /**
+     * Set pagination values to query
+     *
+     * @param query
+     * @param pageStart
+     * @param pageSize
+     */
+    protected <T> void setPaginationParametersToQuery(TypedQuery<T> query, Integer pageStart, Integer pageSize) {
+
+        // if page is not set start with the fist page
+        int iMaxResults = pageSize == null || pageSize < 0 ? 0 : pageSize;
+        int startingAt = (pageStart == null || pageStart < 0 ? 0 : pageStart) * iMaxResults;
+        if (startingAt > 0) {
+            query.setFirstResult(startingAt);
+        }
+        if (iMaxResults > 0) {
+            query.setMaxResults(iMaxResults);
+        }
+    }
+
+    /**
+     * Returns criteria builder for filter.
+     *
+     * @param filter
+     * @param queryProjectionForCount - if true then result is count of the results, else query returns list of entities
+     * @return
+     */
+    protected <T extends EArchiveBatchBaseEntity> CriteriaQuery getEArchiveBatchCriteriaQuery(EArchiveBatchFilter filter, boolean queryProjectionForCount, Class<T> clazzProjection) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+
+        CriteriaQuery criteria = queryProjectionForCount ? builder.createQuery(Long.class) : builder.createQuery(clazzProjection);
+
+        final Root<T> eArchiveBatchRoot = criteria.from(clazzProjection);
         List<Predicate> predicates = new ArrayList<>();
         // filter by batch request date
         if (filter.getStartDate() != null) {

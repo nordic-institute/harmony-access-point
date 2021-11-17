@@ -302,8 +302,6 @@ public class BackendNotificationService {
     protected void validateAndNotify(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType, Map<String, String> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageId(), notificationType);
 
-        submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName, notificationType);
-
         notify(userMessage, backendName, notificationType, properties);
     }
 

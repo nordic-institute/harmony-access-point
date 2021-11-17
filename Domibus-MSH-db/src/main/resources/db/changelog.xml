@@ -2840,6 +2840,13 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <createIndex indexName="IDX_EARCHIVE_BATCH_UNIQUE_ID" tableName="TB_EARCHIVE_BATCH" unique="true">
+            <column name="BATCH_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_EARCHIVE_BATCH_STATUS" tableName="TB_EARCHIVE_BATCH">
+            <column name="BATCH_STATUS"/>
+        </createIndex>
+
         <createTable tableName="TB_EARCHIVEBATCH_UM">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVEBATCH_UML"/>

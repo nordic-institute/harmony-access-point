@@ -20,6 +20,8 @@ import java.util.List;
 @NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.batchId = :BATCH_ID")
 @NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived",
         query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
+@NamedQuery(name = "EArchiveBatchEntity.findByStatus", query = "FROM EArchiveBatchEntity b where b.eArchiveBatchStatus in :STATUSES order by b.entityId asc")
+@NamedQuery(name = "EArchiveBatchEntity.updateStatusByDate", query = "UPDATE EArchiveBatchEntity b set b.eArchiveBatchStatus=:NEW_STATUS where b.eArchiveBatchStatus in :STATUSES and b.dateRequested < :LIMIT_DATE")
 public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")

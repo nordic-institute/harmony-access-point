@@ -79,8 +79,7 @@
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version>
-        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0
-        </com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
 
 
         <!-- Sonar properties -->
@@ -156,6 +155,9 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <commons-text.version>1.8</commons-text.version>
+        <swagger-maven-plugin.version>2.1.11</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.27</swagger-codegen-maven-plugin.version>
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -1371,12 +1373,17 @@
                 <plugin>
                     <groupId>io.swagger.core.v3</groupId>
                     <artifactId>swagger-maven-plugin</artifactId>
-                    <version>2.1.11</version>
+                    <version>${swagger-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>io.swagger.codegen.v3</groupId>
                     <artifactId>swagger-codegen-maven-plugin</artifactId>
-                    <version>3.0.27</version>
+                    <version>${swagger-codegen-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>${license-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1548,7 +1555,114 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>dependency-license-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>download-licenses</id>
+                                <goals>
+                                    <goal>aggregate-download-licenses</goal>
+                                    <goal>aggregate-add-third-party</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <licenseMerges>
+                                <licenseMerge>Apache License, Version 2.0
+                                    |Apache Software Licenses
+                                    |Apache Software License - Version 2.0
+                                    |Apache License 2.0
+                                    |Apache 2.0
+                                    |Apache-2.0
+                                    |Similar to Apache License but with the acknowledgment clause removed
+                                    |Apache License|The Apache Software License, Version 2.0
+                                    |Apache Public License 2.0|Apache 2|Apache License, version 2.0
+                                    |The Apache License, Version 2.0</licenseMerge>
+                                <!--  Common Public License Version 1.0|CPL was replaced by Eclipse Public License -->
+                                <licenseMerge>Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)
+                                    |Eclipse Public License 1.0 (EPL-1.0)
+                                    |Eclipse Public License, Version 1.0
+                                    |EPL 2.0
+                                    |Eclipse Distribution License v. 1.0
+                                    |Eclipse Public License (EPL) v1.0
+                                    |Eclipse Public License - v 1.0
+                                    |Eclipse Distribution License - v 1.0
+                                    |Eclipse Public License 1.0
+                                    |EDL 1.0
+                                    |Common Public License Version 1.0
+                                    |CPL
+                                    |MPL 2.0 or EPL 1.0</licenseMerge>
+                                <licenseMerge>The MIT License|MIT License</licenseMerge>
+                                <!-- jaxen  - jaxen:jaxen:1.1.4 from the page is noted BSD license -->
+                                <licenseMerge>BSD license (all versions)
+                                    |http://jaxen.codehaus.org/license.html
+                                    |BSD-2-Clause|The BSD 3-Clause License
+                                    |BSD
+                                    |The New BSD License
+                                    |BSD License
+                                    |The BSD License
+                                    |BSD 3-clause New License
+                                    |BSD Licence 3
+                                    |3-Clause BSD License
+                                    |BSD-Style License
+                                    |BSD-3-Clause
+                                    |New BSD License</licenseMerge>
+                                <licenseMerge>Dual license consisting of the CDDL v1.1 and GPL v2
+                                    |CDDL+GPLv2
+                                    |CDDL + GPLv2 with classpath exception
+                                    |CDDL/GPLv2+CE
+                                    |CDDL+GPL License</licenseMerge>
+                                <licenseMerge>Common Development and Distribution License (CDDL) (all versions)
+                                    |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
+                                    |Common Development and Distribution License (CDDL) v1.0
+                                    |Common Development and Distribution License (CDDL)
+                                    |Common Development and Distribution License
+                                    |Common Development and Distribution
+                                    |CDDL 1.1|</licenseMerge>
+                                <!-- https://hibernate.org/community/license/ - hibernate label it as GNU Library General Public License v2.1 == GNU Lesser General Public License version 2.1  -->
+                                <licenseMerge>GNU Lesser General Public License
+                                    |GNU Lesser General Public License, version 2.1
+                                    |GNU Library General Public License v2.1 or later
+                                    |LGPL-2.1
+                                    |LGPL</licenseMerge>
+                            </licenseMerges>
+                            <failOnMissing>true</failOnMissing>
+                            <failOnBlacklist>true</failOnBlacklist>
+                            <!-- 'No Copyright' used by 1 dependencies:
+                                -bagit-java (gov.loc:bagit:4.12.2 - https://github.com/LibraryOfCongress/bagit-java -->
+                            <includedLicenses>
+                                Apache License, Version 2.0|
+                                Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)|
+                                The MIT License|
+                                BSD license (all versions)|
+                                European Union Public Licence (EUPL v.1.1)|
+                                Dual license consisting of the CDDL v1.1 and GPL v2|
+                                Common Development and Distribution License (CDDL) (all versions)|
+                                GNU Lesser General Public License|
+                                Bouncy Castle Licence|
+                                Mozilla Public License Version 2.0|
+                                No Copyright|
+                            </includedLicenses>
+                            <!-- license validation scope  -->
+                            <excludedGroups>^eu.domibus.*</excludedGroups>
+                            <!--
+                            dom4j:dom4j:1.6.1 -  BSD licence
+                            javax.servlet:servlet-api:2.4  - CDDL
+                            javax.xml.soap:saaj-api:1.3.1 - CDDL
+                            org.roda-project:commons-ip2:2.0.0-alpha1 - LGPL (https://github.com/keeps/commons-ip)
+                            -->
+                            <excludedArtifacts>servlet-api|dom4j|saaj-api|commons-ip2</excludedArtifacts>
+                            <excludedScopes>system,test,provided,runtime</excludedScopes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>enforce</id>
             <build>
