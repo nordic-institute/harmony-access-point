@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class TruststoreResourceIT extends AbstractIT {
@@ -39,7 +38,7 @@ public class TruststoreResourceIT extends AbstractIT {
     private TruststoreDao truststoreDao;
 
     @Test
-    public void testTruststoreEntries_ok() throws IOException, URISyntaxException {
+    public void testTruststoreEntries_ok() throws IOException {
 
         eu.domibus.core.crypto.TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
         domibusTruststoreEntity.setName("domibus.truststore");
