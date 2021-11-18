@@ -55,7 +55,7 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
         }
 
         if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
-            LOG.info("Configuration file is null in the [{}] context for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
+            LOG.info("No configuration file in the [{}] context for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
             return;
         }
 
