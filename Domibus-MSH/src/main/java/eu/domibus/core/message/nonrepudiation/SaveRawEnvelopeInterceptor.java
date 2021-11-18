@@ -1,5 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -41,11 +42,13 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
 
         final SOAPMessage jaxwsMessage = message.getContent(SOAPMessage.class);
 
-        String userMessageId = (String) message.getExchange().get(DispatchClientDefaultProvider.EBMS_MESSAGE_ID);
+        String userMessageId = (String) message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
+        String userMessageEntityIdValue = (String) message.getExchange().get(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY);
 
-        if (userMessageId != null) {
-            nonRepudiationService.saveResponse(jaxwsMessage, userMessageId);
-            LOG.debug("Saved the signal message envelope for user message id [{}]", userMessageId);
+        if (userMessageEntityIdValue != null) {
+            Long userMessageEntityId = Long.valueOf(userMessageEntityIdValue);
+            nonRepudiationService.saveResponse(jaxwsMessage, userMessageEntityId);
+            LOG.debug("Saved the signal message envelope for user message id [{}], entity id [{}]", userMessageId, userMessageEntityIdValue);
         }
     }
 

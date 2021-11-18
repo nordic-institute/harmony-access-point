@@ -15,6 +15,7 @@ public class TrustStoreEntry {
     private Date validFrom;
     private Date validUntil;
     private String fingerprints;
+    private int certificateExpiryAlertDays;
 
     public TrustStoreEntry(String name, String subject, String issuer, Date validFrom, Date validUntil) {
         this.name = name;
@@ -71,5 +72,13 @@ public class TrustStoreEntry {
 
     public void setValidUntil(Date validUntil) {
         this.validUntil = validUntil;
+    }
+
+    public int getCertificateExpiryAlertDays() {
+        return certificateExpiryAlertDays;
+    }
+
+    public void setCertificateExpiryAlertDays(int certificateExpiryAlertDays) {
+        this.certificateExpiryAlertDays = certificateExpiryAlertDays;
     }
 }

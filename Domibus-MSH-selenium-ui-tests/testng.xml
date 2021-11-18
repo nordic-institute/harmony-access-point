@@ -106,6 +106,7 @@
             <class name="domibus.ui.functional.ConnectionMonitorTest">
                 <methods>
                     <exclude name="recPartyInactive"/>
+                    <exclude name="checkSendFeature"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.JMSMessPgTest">

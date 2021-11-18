@@ -56,28 +56,10 @@ public class EArchiveBatchDaoIT extends AbstractIT {
         Assert.assertNotNull(third);
     }
 
-    @Test
-    @Transactional
-    public void findLastEntityIdArchived() {
-        Long result = eArchiveBatchDao.findLastEntityIdArchived();
-        Assert.assertEquals(20L, (long) result);
-    }
-
-
     private void create(EArchiveBatchEntity eArchiveBatch, Long lastPkUserMessage, EArchiveRequestType continuous) {
         eArchiveBatch.setLastPkUserMessage(lastPkUserMessage);
         eArchiveBatch.setRequestType(continuous);
         eArchiveBatchDao.create(eArchiveBatch);
     }
 
-    @Test
-    public void findLastEntityIdArchived_notFound() {
-        em.createQuery("delete from EArchiveBatchEntity batch " +
-                "where batch.requestType = eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS")
-                .executeUpdate();
-
-        Long lastEntityIdArchived = eArchiveBatchDao.findLastEntityIdArchived();
-
-        Assert.assertNull(lastEntityIdArchived);
-    }
 }

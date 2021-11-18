@@ -9,15 +9,16 @@ import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -55,22 +56,29 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         return resultList.get(0);
     }
 
-    public Long findLastEntityIdArchived() {
-        TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatchEntity.findLastEntityIdArchived", Long.class);
-        query.setParameter("REQUEST_TYPE", CONTINUOUS);
-        List<Long> resultList = query.getResultList();
-        if (isEmpty(resultList)) {
-            return null;
-        }
-        return resultList.get(0);
-    }
-
     @Transactional
     public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
         eArchiveBatchByBatchId.setEArchiveBatchStatus(status);
         eArchiveBatchByBatchId.setErrorMessage(error);
         eArchiveBatchByBatchId.setErrorCode(errorCode);
         return merge(eArchiveBatchByBatchId);
+    }
+
+    @Transactional
+    public void expireBatches(final Date limitDate) {
+        final Query query = em.createNamedQuery("EArchiveBatchEntity.updateStatusByDate");
+        query.setParameter("LIMIT_DATE", limitDate);
+        query.setParameter("STATUSES", Arrays.asList(
+                EArchiveBatchStatus.EXPORTED));
+        query.setParameter("NEW_STATUS", EArchiveBatchStatus.EXPIRED);
+        query.executeUpdate();
+    }
+
+    public List<EArchiveBatchEntity> findBatchesByStatus(List<EArchiveBatchStatus> statuses, Integer pageSize) {
+        TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByStatus", EArchiveBatchEntity.class);
+        query.setParameter("STATUSES", statuses);
+        setPaginationParametersToQuery(query, 0, pageSize);
+        return query.getResultList();
     }
 
     public <T extends EArchiveBatchBaseEntity> List<T> getBatchRequestList(EArchiveBatchFilter filter, Class<T> clazzProjection) {
@@ -118,7 +126,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
      * @param pageStart
      * @param pageSize
      */
-    public <T> void setPaginationParametersToQuery(TypedQuery<T> query, Integer pageStart, Integer pageSize) {
+    protected <T> void setPaginationParametersToQuery(TypedQuery<T> query, Integer pageStart, Integer pageSize) {
 
         // if page is not set start with the fist page
         int iMaxResults = pageSize == null || pageSize < 0 ? 0 : pageSize;

@@ -1,6 +1,5 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
-import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.property.DomibusVersionService;
