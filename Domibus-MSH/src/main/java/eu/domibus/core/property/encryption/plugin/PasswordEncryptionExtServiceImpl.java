@@ -15,6 +15,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.function.Function;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
@@ -79,5 +82,10 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
         final Domain domain = coreMapper.domainDTOToDomain(domainDTO);
         final PasswordEncryptionResult passwordEncryptionResult = passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
         return coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO(passwordEncryptionResult);
+    }
+
+    @Override
+    public List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn) {
+        return passwordEncryptionService.getPropertiesToEncrypt(encryptedProperties, getPropertyFn);
     }
 }

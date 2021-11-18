@@ -4,13 +4,9 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
@@ -39,31 +35,7 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        final String propertiesToEncryptString = getProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES);
-        if (StringUtils.isEmpty(propertiesToEncryptString)) {
-            LOG.debug("No properties to encrypt");
-            return new ArrayList<>();
-        }
-        final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
-        LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
-
-        List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
-            propertyName = StringUtils.trim(propertyName);
-            final String propertyValue = getProperty(propertyName);
-            if (StringUtils.isBlank(propertyValue)) {
-                return false;
-            }
-
-            if (!passwordEncryptionService.isValueEncrypted(propertyValue)) {
-                return true;
-            }
-            return false;
-        }).collect(Collectors.toList());
-
-
-        LOG.debug("The following properties are not encrypted [{}]", result);
-
-        return result;
+        return passwordEncryptionService.getPropertiesToEncrypt(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES, this::getProperty);
     }
 
     @Override
@@ -78,7 +50,6 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
     public File getEncryptedKeyFile() {
         final String encryptionKeyLocation = getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
         LOG.debug("Configured encryptionKeyLocation [{}]", encryptionKeyLocation);
-
         return new File(encryptionKeyLocation, ENCRYPTED_KEY);
     }
 

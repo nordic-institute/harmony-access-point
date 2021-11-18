@@ -59,33 +59,7 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        final String propertiesToEncryptString = propertyProvider.getKnownPropertyValue(getEncryptedPropertyNames());
-
-        if (StringUtils.isEmpty(propertiesToEncryptString)) {
-            LOG.debug("No properties to encrypt");
-            return new ArrayList<>();
-        }
-        final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
-        LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
-
-        List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
-            propertyName = StringUtils.trim(propertyName);
-            final String propertyValue = getProperty(propertyName);
-            if (StringUtils.isBlank(propertyValue)) {
-                return false;
-            }
-
-            if (!pluginPasswordEncryptionService.isValueEncrypted(propertyValue)) {
-                LOG.debug("Property [{}] is not encrypted", propertyName);
-                return true;
-            }
-            LOG.debug("Property [{}] is already encrypted", propertyName);
-            return false;
-        }).collect(Collectors.toList());
-
-        LOG.debug("The following properties are not encrypted [{}]", result);
-
-        return result;
+        return pluginPasswordEncryptionService.getPropertiesToEncrypt(getEncryptedPropertyNames(), this::getProperty);
     }
 
 }
