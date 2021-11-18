@@ -9,5 +9,7 @@ export class TrustStoreEntry {
   validFrom: string;
   validUntil: string;
   isExpired: boolean;
+  isAboutToExpire: boolean;
+  certificateExpiryAlertDays: number;
 }
 
