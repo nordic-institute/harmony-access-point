@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * @author Ion Perpegel
- * @since 5.0
+ * @author Cosmin Baciu
+ * @since 4.1.1
  */
 public abstract class PluginPasswordEncryptionContextAbstract implements PluginPasswordEncryptionContext {
 
