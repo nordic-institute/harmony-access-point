@@ -5,7 +5,6 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Arrays;
 import java.util.List;
