@@ -57,7 +57,7 @@ public class DomainExtServiceDelegate implements DomainExtService {
     public List<DomainDTO> getDomains() {
         List<Domain> domains = domainService.getDomains();
         return domains.stream()
-                .map(domain -> domibusExtMapper.domainToDomainDTO(domain))
+                .map(domibusExtMapper::domainToDomainDTO)
                 .collect(Collectors.toList());
     }
 }

@@ -49,13 +49,20 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
     @Override
     public File getConfigurationFile() {
         Optional<String> configurationFileName = getConfigurationFileName();
-        if (!configurationFileName.isPresent()) {
-            return null;
-        }
-        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + configurationFileName;
-        final File configurationFile = new File(filePath);
-        LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
-        return configurationFile;
+        return configurationFileName.map(fileName -> {
+            String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + fileName;
+            final File configurationFile = new File(filePath);
+            LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
+            return configurationFile;
+        }).orElse(null);
+
+//        if (!configurationFileName.isPresent()) {
+//            return null;
+//        }
+//        String filePath = domibusConfigurationExtService.getConfigLocation() + File.separator + configurationFileName.get();
+//        final File configurationFile = new File(filePath);
+//        LOG.debug("Using FS Plugin configuration file [{}]", configurationFile);
+//        return configurationFile;
     }
 
     @Override

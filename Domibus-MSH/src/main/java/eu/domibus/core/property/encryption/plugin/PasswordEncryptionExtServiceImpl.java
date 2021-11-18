@@ -47,20 +47,20 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     public void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext) {
         LOG.debug("Encrypting passwords in file");
 
-        if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
-            LOG.info("Configuration file is null in [{}] for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
+        final boolean encryptionActive = pluginPasswordEncryptionContext.isEncryptionActive();
+        LOG.debug("Encrypting passwords is active in the [{}] context", pluginPasswordEncryptionContext);
+        if (!encryptionActive) {
+            LOG.info("No password encryption will be performed in the [{}] context", pluginPasswordEncryptionContext);
             return;
         }
 
-        final boolean encryptionActive = pluginPasswordEncryptionContext.isEncryptionActive();
-        LOG.debug("Encrypting passwords is active in the FS Plugin? [{}]", encryptionActive);
-        if (!encryptionActive) {
-            LOG.info("No password encryption will be performed for FSPlugin");
+        if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
+            LOG.info("Configuration file is null in the [{}] context for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
             return;
         }
 
         final Domain domain = coreMapper.domainDTOToDomain(pluginPasswordEncryptionContext.getDomain());
-        LOG.debug("Using domain [{}]", domain);
+        LOG.debug("Using domain [{}] for password encryption.", domain);
 
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
         PasswordEncryptionContext encryptionContext = new PluginPasswordEncryptionContextDelegate(pluginPasswordEncryptionContext, passwordEncryptionContext);
