@@ -57,6 +57,7 @@ public class TruststoreResourceTest {
     public void replaceTruststore(@Mocked Domain domain, @Mocked KeyStore trustStore, @Mocked KeyStore keyStore) {
         final byte[] fileContent = new byte[]{1, 0, 1};
         String filename = "filename";
+        String INIT_VALUE_TRUSTSTORE = "truststore";
 
         new Expectations() {{
             domainProvider.getCurrentDomain();
@@ -72,7 +73,7 @@ public class TruststoreResourceTest {
         truststoreResource.doReplaceTrustStore(fileContent, filename, pass);
 
         new Verifications() {{
-            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass);
+            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass, INIT_VALUE_TRUSTSTORE);
             certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
         }};
     }

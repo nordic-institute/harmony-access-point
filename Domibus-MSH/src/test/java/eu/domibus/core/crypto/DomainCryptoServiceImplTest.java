@@ -52,10 +52,11 @@ public class DomainCryptoServiceImplTest {
         when(domain.getName()).thenReturn("DEFAULT");
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi,dssSpi));
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-        domainCryptoService.init();
+        domainCryptoService.init(null);
         verify(dssSpi,times(1)).setDomain(new DomainSpi("DEF","DEFAULT"));
-        verify(dssSpi,times(1)).init();
+        verify(dssSpi,times(1)).init(null);
     }
+
 
     @Test(expected = IllegalStateException.class)
     public void initTooManyProviderForGivenIdentifier() {
@@ -66,7 +67,7 @@ public class DomainCryptoServiceImplTest {
         when(dssSpi.getIdentifier()).thenReturn(dss);
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi,dssSpi));
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-        domainCryptoService.init();
+        domainCryptoService.init(null);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -78,7 +79,24 @@ public class DomainCryptoServiceImplTest {
         when(dssSpi.getIdentifier()).thenReturn(dss);
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList());
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-        domainCryptoService.init();
+        domainCryptoService.init(null);
+    }
+
+    @Test
+    public void initTrustStore() {
+        final String dss = "DSS";
+        final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
+        final String initVale = "truststore";
+        when(defaultSpi.getIdentifier()).thenReturn("DEFAULT");
+        when(dssSpi.getIdentifier()).thenReturn(dss);
+        when(domain.getCode()).thenReturn("DEF");
+        when(domain.getName()).thenReturn("DEFAULT");
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi,dssSpi));
+        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
+        domainCryptoService.init(initVale);
+        verify(dssSpi,times(1)).setDomain(new DomainSpi("DEF","DEFAULT"));
+        verify(dssSpi,times(1)).init(initVale);
     }
 }
 

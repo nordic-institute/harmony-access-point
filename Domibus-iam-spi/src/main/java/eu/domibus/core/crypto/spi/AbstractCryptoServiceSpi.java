@@ -143,8 +143,8 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     }
 
     @Override
-    public void init() {
-        defaultDomainCryptoService.init();
+    public void init(String initValue) {
+        defaultDomainCryptoService.init(initValue);
     }
 
 

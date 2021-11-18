@@ -38,6 +38,8 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     private final CertificateService certificateService;
 
+    public static final String INIT_VALUE_TRUSTSTORE = "truststore";
+
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
@@ -75,8 +77,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password, INIT_VALUE_TRUSTSTORE);
 
         // trigger update certificate table
         final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);

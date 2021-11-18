@@ -2,7 +2,6 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
@@ -39,6 +38,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
     public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
+    public final static String INTI_TRUSTSTORE_NAME = "truststore";
+    public final static String INTI_KEYSTORE_NAME = "keystore";
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
@@ -134,8 +135,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
-        final DomainCryptoService domainCertificateProvider = getDomainTruststoreCertificateProvider(domain);
+    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password, String initValue) throws CryptoException {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, initValue);
         certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
@@ -252,13 +253,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         );
     }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain, String initValue) {
         LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
         if (domainCertificateProviderMap.get(domain) == null) {
             synchronized (domainCertificateProviderMap) {
                 if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
                     LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain);
+                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain, initValue);
                     domainCertificateProviderMap.put(domain, domainCertificateProvider);
                 }
             }
@@ -266,17 +267,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return domainCertificateProviderMap.get(domain);
     }
 
-    protected DomainCryptoService getDomainTruststoreCertificateProvider(Domain domain) {
-        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
-        if (domainCertificateProviderMap.get(domain) == null) {
-            synchronized (domainCertificateProviderMap) {
-                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
-                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoServiceTrustStore(domain);
-                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
-                }
-            }
-        }
-        return domainCertificateProviderMap.get(domain);
+
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
+        return getDomainCertificateProvider(domain, null);
     }
 }

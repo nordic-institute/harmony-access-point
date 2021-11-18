@@ -113,15 +113,16 @@ public class MultiDomainCryptoServiceImplTest {
         String storeFileName = "storefile.jks";
         byte[] store = "cert content".getBytes();
         String password = "test123";
+        String INIT_VALUE_TRUSTSTORE_OR_KEYSTORE = "truststore";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoServiceTrustStore(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain);
             result = cryptoService;
             cryptoService.getTrustStoreType();
             result = "jks";
         }};
 
-        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
+        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password, INIT_VALUE_TRUSTSTORE_OR_KEYSTORE);
 
         new Verifications() {{
             cryptoService.replaceTrustStore(store, password);

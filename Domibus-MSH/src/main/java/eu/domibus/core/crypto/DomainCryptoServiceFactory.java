@@ -40,22 +40,18 @@ public class DomainCryptoServiceFactory {
 
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
+    public DomainCryptoServiceImpl domainCryptoService(Domain domain, String initValue) {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 
         final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);
-        bean.init();
+        bean.init(initValue);
         return bean;
     }
 
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomainCryptoServiceImpl domainCryptoServiceTrustStore(Domain domain) {
-        LOG.debug("Instantiating the truststore certificate provider for domain [{}]", domain);
-
-        final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);
-        bean.initTrustStore();
-        return bean;
+    public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
+        return domainCryptoService(domain, null);
     }
 
 }

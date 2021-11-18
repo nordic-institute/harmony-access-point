@@ -67,7 +67,7 @@ public interface DomainCryptoServiceSpi {
 
     void setDomain(DomainSpi domain);
 
-    void init();
+    void init(String initValue);
 
-    void initTruststore();
+    void init();
 }

@@ -207,7 +207,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = properties;
 
         }};
-        domainCryptoService.initTruststore();
+        domainCryptoService.init();
 
         new Verifications() {{
             merlin.loadProperties(properties, Merlin.class.getClassLoader(), null);

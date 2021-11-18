@@ -32,8 +32,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.*;
 
 /**
  * @author Cosmin Baciu
@@ -74,28 +73,23 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
-
-        final Properties allProperties = new Properties();
-        allProperties.putAll(getKeystoreProperties());
-        allProperties.putAll(getTrustStoreProperties());
-        try {
-            super.loadProperties(allProperties, Merlin.class.getClassLoader(), null);
-        } catch (WSSecurityException | IOException e) {
-            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore/KeyStore: " + e.getMessage(), e);
-        }
-
-        domainTaskExecutor.submit(() -> {
-            KeyStore trustStore = loadTrustStore();
-            super.setTrustStore(trustStore);
-
-            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
-            super.setKeyStore(keyStore);
-        }, domain);
-
+        loadTrustStoreProperties();
+        loadKeyStoreProperties();
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
-    public void initTruststore() {
+    public void init(String initValue) {
+        if (initValue != null && initValue.equals(INTI_TRUSTSTORE_NAME)) {
+            loadTrustStoreProperties();
+        } else if (initValue != null && initValue.equals(INTI_KEYSTORE_NAME)) {
+            loadKeyStoreProperties();
+        } else {
+            init();
+        }
+
+    }
+
+    protected void loadTrustStoreProperties() {
         LOG.debug("Initializing the truststore certificate provider for domain [{}]", domain);
         try {
             super.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
@@ -110,6 +104,23 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         LOG.debug("Finished initializing the truststore certificate provider for domain [{}]", domain);
     }
+
+    protected void loadKeyStoreProperties() {
+        LOG.debug("Initializing the keystore certificate provider for domain [{}]", domain);
+        try {
+            super.loadProperties(getKeystoreProperties(), Merlin.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
+        }
+
+        domainTaskExecutor.submit(() -> {
+            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+            super.setKeyStore(keyStore);
+        }, domain);
+
+        LOG.debug("Finished initializing the keyStore certificate provider for domain [{}]", domain);
+    }
+
 
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
