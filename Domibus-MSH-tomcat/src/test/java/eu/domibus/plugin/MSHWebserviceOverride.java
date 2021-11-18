@@ -37,4 +37,9 @@ public class MSHWebserviceOverride extends MSHWebservice {
         }
         return super.invoke(request);
     }
+
+    @Override
+    protected void setUserMessageEntityIdOnContext() {
+
+    }
 }

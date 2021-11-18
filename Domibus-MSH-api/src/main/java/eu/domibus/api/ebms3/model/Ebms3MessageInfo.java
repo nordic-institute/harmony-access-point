@@ -33,8 +33,6 @@ import java.util.Date;
 @XmlType(name = "MessageInfo", propOrder = {"timestamp", "messageId", "refToMessageId"})
 public class Ebms3MessageInfo {
 
-    public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";
-
     @XmlElement(name = "Timestamp", required = true)
     @XmlSchemaType(name = "dateTime")
     @XmlJavaTypeAdapter(XMLGregorianCalendarAdapter.class)

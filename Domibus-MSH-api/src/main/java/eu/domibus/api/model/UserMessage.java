@@ -38,6 +38,8 @@ public class UserMessage extends AbstractBaseEntity {
     public static final String TB_USER_MESSAGE = "TB_USER_MESSAGE";
 
     public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";
+    public static final String USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY = "USER_MESSAGE_ENTITY_KEY_CONTEXT_PROPERTY";
+
     public static final long DEFAULT_USER_MESSAGE_ID_PK = 19700101; // 1st of January 1970
 
     @Column(name = "MESSAGE_ID", nullable = false, unique = true, updatable = false)

@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.earchive.EArchiveRequestType.CONTINUOUS;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -51,16 +50,6 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
 
     protected <T> T getFirstResult(TypedQuery<T> query) {
         List<T> resultList = query.getResultList();
-        if (isEmpty(resultList)) {
-            return null;
-        }
-        return resultList.get(0);
-    }
-
-    public Long findLastEntityIdArchived() {
-        TypedQuery<Long> query = this.em.createNamedQuery("EArchiveBatchEntity.findLastEntityIdArchived", Long.class);
-        query.setParameter("REQUEST_TYPE", CONTINUOUS);
-        List<Long> resultList = query.getResultList();
         if (isEmpty(resultList)) {
             return null;
         }

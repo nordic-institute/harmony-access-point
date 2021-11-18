@@ -50,11 +50,12 @@ public class SignalMessageRawEnvelopeDao extends BasicDao<SignalMessageRaw> {
         return result;
     }
 
-    /**
-     * Delete all the raw entries related to a given UserMessage id.
-     *
-     * @param messageId the id of the message.
-     */
+
+        /**
+         * Delete all the raw entries related to a given UserMessage id.
+         *
+         * @param messageId the id of the message.
+         */
     public void deleteUserMessageRawEnvelope(final String messageId) {
         /*Query query = em.createNamedQuery("Raw.deleteByMessageID");
         query.setParameter(MESSAGE_ID, messageId);
