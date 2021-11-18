@@ -112,7 +112,7 @@ import java.util.List;
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findMessagesForArchivingAsc",
-                query = "select new eu.domibus.api.model.UserMessageDTO(uml.entityId, uml.userMessage.messageId) " +
+                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId) " +
                         "from UserMessageLog uml " +
                         "where uml.entityId > :LAST_ENTITY_ID " +
                         "  and uml.entityId < :MAX_ENTITY_ID " +

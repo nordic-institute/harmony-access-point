@@ -5,6 +5,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -314,9 +315,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_oldest() {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
-        Assert.assertEquals(7, messagesForArchiving.getUserMessageDtos().size());
-        Assert.assertEquals(msg.getEntityId(), messagesForArchiving.getUserMessageDtos().get(messagesForArchiving.getUserMessageDtos().size() - 1).getEntityId());
+        List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
+        Assert.assertEquals(7, messagesForArchiving.size());
+        Assert.assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
     }
 
     @Test
@@ -324,8 +325,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_rest() {
         UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
-        Assert.assertEquals(6, messagesForArchiving.getUserMessageDtos().size());
+        List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
+        Assert.assertEquals(6, messagesForArchiving.size());
     }
 
     @Test

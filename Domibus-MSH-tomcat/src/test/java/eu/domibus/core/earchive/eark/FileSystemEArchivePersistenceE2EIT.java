@@ -2,11 +2,11 @@ package eu.domibus.core.earchive.eark;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.message.UserMessageDao;
@@ -114,7 +114,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     public void createEArkSipStructure() {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
 
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new UserMessageDTO(byMessageId.getEntityId(), messageId)));
+        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
 
         File[] files = temp.listFiles();
         File batchFolder = files[0];

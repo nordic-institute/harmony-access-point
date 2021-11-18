@@ -36,7 +36,7 @@ public class EArchiveErrorHandler implements ErrorHandler {
         long entityId = Long.parseLong(LOG.getMDC(DomibusLogger.MDC_BATCH_ENTITY_ID));
         LOG.warn("Handling dispatch error for batch entityId [{}] ", entityId, t);
 
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId);
+        EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, false);
         eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED, t.getMessage(), DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED.getCode());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED, eArchiveBatchByBatchId.getBatchId(), t.getMessage() );
         eArchivingDefaultService.sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED);

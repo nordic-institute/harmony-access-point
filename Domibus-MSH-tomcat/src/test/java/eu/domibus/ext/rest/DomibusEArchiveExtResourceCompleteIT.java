@@ -8,10 +8,7 @@ import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
-import eu.domibus.core.earchive.EArchiveTestUtils;
+import eu.domibus.core.earchive.*;
 import eu.domibus.ext.domain.archive.ExportedBatchDTO;
 import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
 import eu.domibus.ext.domain.archive.QueuedBatchDTO;
@@ -116,12 +113,11 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 uml1.getEntityId(),
                 uml3.getEntityId(),
                 1,
-                "/tmp/batch",
-                "{\"2110100000000001\"}"));
+                "/tmp/batch"));
         eArchiveBatchUserMessageDao.create(batch1, Arrays.asList(
-                uml1.getEntityId(),
-                uml2.getEntityId(),
-                uml3.getEntityId()));
+                new EArchiveBatchUserMessage(uml1.getEntityId(), uml1.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml2.getEntityId(), uml2.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml3.getEntityId(), uml3.getUserMessage().getMessageId())));
 
         batch2 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
@@ -131,11 +127,11 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 2110100000000011L,
                 2110100000000020L,
                 1,
-                "/tmp/batch",
-                "{\"2110100000000003\"}"));
+                "/tmp/batch"));
 
         eArchiveBatchUserMessageDao.create(batch2, Arrays.asList(
-                uml4.getEntityId(), uml5.getEntityId()
+                new EArchiveBatchUserMessage(uml4.getEntityId(), uml4.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml5.getEntityId(), uml5.getUserMessage().getMessageId())
         ));
 
         batch3 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
@@ -146,18 +142,16 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 2110100000000021L,
                 2110110000000001L,
                 1,
-                "/tmp/batch",
-                "{\"2110100000000004\"}")); // is copy from 2
-        eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(
-                uml6.getEntityId()));
+                "/tmp/batch")); // is copy from 2
+        eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
     }
 
     @Test
     public void testGetSanityArchivingStartDate() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_SANITY_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
@@ -171,16 +165,16 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         long resultDate = 21101500L;
         // when
         mockMvc.perform(put(TEST_ENDPOINT_SANITY_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("messageStartDate", resultDate + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageStartDate", resultDate + "")
+                )
                 .andExpect(status().is2xxSuccessful());
 
         // then
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_SANITY_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
@@ -191,8 +185,8 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     public void testGetStartDateContinuousArchive() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_CONTINUOUS_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
@@ -206,16 +200,16 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         long resultDate = 21101500L;
         // when
         mockMvc.perform(put(TEST_ENDPOINT_CONTINUOUS_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("messageStartDate", resultDate + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageStartDate", resultDate + "")
+                )
                 .andExpect(status().is2xxSuccessful());
 
         // then
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_CONTINUOUS_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
@@ -228,10 +222,10 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         Integer lastCountRequests = 10;
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("lastCountRequests", lastCountRequests + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("lastCountRequests", lastCountRequests + "")
+                )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
@@ -261,11 +255,11 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_EXPORTED)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("messageStartDate", messageStartDate + "")
-                .param("messageEndDate", messageEndDate + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageStartDate", messageStartDate + "")
+                        .param("messageEndDate", messageEndDate + "")
+                )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
