@@ -164,6 +164,11 @@ public class UserMessageLogDefaultService {
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
+    public eu.domibus.common.MessageStatus getMessageStatus(final Long messageEntityId) {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageEntityId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStatusToArchived(List<Long> entityIds) {
         userMessageLogDao.updateArchived(entityIds);

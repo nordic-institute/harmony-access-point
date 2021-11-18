@@ -41,6 +41,8 @@ import static java.util.Locale.ENGLISH;
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+    private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
+
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
 
     private final DateUtil dateUtil;
@@ -181,8 +183,19 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    public MessageStatus getMessageStatus(final Long messageEntityId) {
+        try {
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByEntityId", MessageStatusEntity.class);
+            query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
+            return query.getSingleResult().getMessageStatus();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with entity id [" + messageEntityId + "]");
+            return MessageStatus.NOT_FOUND;
+        }
+    }
+
     @Transactional(readOnly = true)
-    public UserMessageLog findByEntityId(Long entityId) {
+    public UserMessageLog findByEntityId(final Long entityId) {
         final UserMessageLog userMessageLog = super.read(entityId);
 
         initializeChildren(userMessageLog);
@@ -191,7 +204,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     @Transactional(readOnly = true)
-    public UserMessageLog findByEntityIdSafely(Long entityId) {
+    public UserMessageLog findByEntityIdSafely(final Long entityId) {
         try {
             final UserMessageLog userMessageLog = findByEntityId(entityId);
             initializeChildren(userMessageLog);

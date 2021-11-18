@@ -875,7 +875,7 @@ public class DatabaseMessageHandlerTest {
             result = originalUser;
         }};
 
-        databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
+        databaseMessageHandler.validateOriginalUser(userMessage);
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -887,7 +887,7 @@ public class DatabaseMessageHandlerTest {
         List<String> recipients = new ArrayList<>();
         recipients.add(MessageConstants.ORIGINAL_SENDER);
 
-        databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
+        databaseMessageHandler.validateOriginalUser(userMessage);
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -900,7 +900,7 @@ public class DatabaseMessageHandlerTest {
         recipients.add(MessageConstants.ORIGINAL_SENDER);
         recipients.add(MessageConstants.FINAL_RECIPIENT);
 
-        databaseMessageHandler.validateOriginalUser(userMessage, originalUser, recipients);
+        databaseMessageHandler.validateOriginalUser(userMessage);
     }
 
     @Test
@@ -1071,7 +1071,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            databaseMessageHandler.validateOriginalUser((UserMessage) any, anyString, (List<String>) any);
+            databaseMessageHandler.validateOriginalUser((UserMessage) any);
             result = new AccessDeniedException("");
         }};
 

@@ -391,7 +391,6 @@ public class BackendNotificationService {
         notify(userMessage, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
 
-        // TODO Ioana Do we still replicate? - should we change messageId in here too?
         uiReplicationSignalService.messageChange(messageId);
     }
 

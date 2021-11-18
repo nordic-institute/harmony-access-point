@@ -4,7 +4,6 @@ import eu.domibus.common.*;
 import eu.domibus.ext.services.*;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
@@ -56,9 +55,6 @@ public class FSPluginImplTest {
 
     @Injectable
     protected MessagePuller messagePuller;
-
-    @Injectable
-    private MessageLister lister;
 
     @Injectable
     private FSFilesManager fsFilesManager;

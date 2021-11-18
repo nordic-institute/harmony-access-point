@@ -199,8 +199,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public MapMessage downloadMessage(long messageEntityId, String messageId, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message [{}]", messageId);
+    public MapMessage downloadMessage(final Long messageEntityId, MapMessage target) throws MessageNotFoundException {
+        LOG.debug("Downloading message with entity id [{}]", messageEntityId);
         try {
             Submission submission = messageRetriever.downloadMessage(messageEntityId);
             MapMessage result = getMessageRetrievalTransformer().transformFromSubmission(submission, target);
@@ -228,7 +228,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
-                downloadMessage(messageEntityId, messageId, mapMessage);
+                downloadMessage(messageEntityId, mapMessage);
             } catch (final MessageNotFoundException e) {
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }
