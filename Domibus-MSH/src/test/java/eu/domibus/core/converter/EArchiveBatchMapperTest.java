@@ -1,13 +1,10 @@
 package eu.domibus.core.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchSummaryEntity;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.util.JsonFormatterConfiguration;
 import org.junit.Assert;
@@ -19,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,15 +35,15 @@ public class EArchiveBatchMapperTest {
     @Test
     public void testEArchiveBatchSummaryEntityToDto() {
         // given
-        EArchiveBatchSummaryEntity testEntity = new EArchiveBatchSummaryEntity();
+        EArchiveBatchEntity testEntity = new EArchiveBatchEntity();
         testEntity.setBatchId(UUID.randomUUID().toString());
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
         testEntity.setEArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
         testEntity.setErrorCode("DOM10");
-        testEntity.setErrorMessage("Error message: " + UUID.randomUUID().toString());
-        testEntity.setFirstPkUserMessage(10l);
-        testEntity.setLastPkUserMessage(20l);
+        testEntity.setErrorMessage("Error message: " + UUID.randomUUID());
+        testEntity.setFirstPkUserMessage(10L);
+        testEntity.setLastPkUserMessage(20L);
         testEntity.setStorageLocation("/test");
         //when
         EArchiveBatchRequestDTO result = testInstance.eArchiveBatchRequestEntityToDto(testEntity);
@@ -63,24 +61,23 @@ public class EArchiveBatchMapperTest {
     }
 
     @Test
-    public void testEArchiveBatchEntityToDto() throws JsonProcessingException {
+    public void testEArchiveBatchEntityToDto() {
 
         // given
-        ListUserMessageDto listUserMessageDto = new ListUserMessageDto(Arrays.asList(new UserMessageDTO(1, UUID.randomUUID().toString()),
-                new UserMessageDTO(2, UUID.randomUUID().toString()),
-                new UserMessageDTO(3, UUID.randomUUID().toString())
-        ));
+        List<EArchiveBatchUserMessage> batchUserMessages = Arrays.asList(new EArchiveBatchUserMessage(1L, UUID.randomUUID().toString()),
+                new EArchiveBatchUserMessage(2L, UUID.randomUUID().toString()),
+                new EArchiveBatchUserMessage(3L, UUID.randomUUID().toString()));
         EArchiveBatchEntity testEntity = new EArchiveBatchEntity();
         testEntity.setBatchId(UUID.randomUUID().toString());
         testEntity.setBatchSize(1123);
         testEntity.setDateRequested(Calendar.getInstance().getTime());
         testEntity.setEArchiveBatchStatus(EArchiveBatchStatus.EXPORTED);
         testEntity.setErrorCode("DOM10");
-        testEntity.setErrorMessage("Error message: " + UUID.randomUUID().toString());
-        testEntity.setFirstPkUserMessage(10l);
-        testEntity.setLastPkUserMessage(20l);
+        testEntity.setErrorMessage("Error message: " + UUID.randomUUID());
+        testEntity.setFirstPkUserMessage(10L);
+        testEntity.setLastPkUserMessage(20L);
         testEntity.setStorageLocation("/test");
-        testEntity.setMessageIdsJson(objectMapper.writeValueAsString(listUserMessageDto));
+        testEntity.seteArchiveBatchUserMessages(batchUserMessages);
         // when
         EArchiveBatchRequestDTO result = testInstance.eArchiveBatchRequestEntityToDto(testEntity);
         // then
@@ -93,9 +90,9 @@ public class EArchiveBatchMapperTest {
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
         Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
         // test list messages
-        Assert.assertEquals(listUserMessageDto.getUserMessageDtos().size(), result.getMessages().size());
+        Assert.assertEquals(batchUserMessages.size(), result.getMessages().size());
         Assert.assertArrayEquals(
-                listUserMessageDto.getUserMessageDtos().stream().map(userMessageDTO -> userMessageDTO.getMessageId()).collect(Collectors.toList()).toArray(new String[]{}),
+                batchUserMessages.stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toList()).toArray(new String[]{}),
                 result.getMessages().toArray(new String[]{}));
 
     }

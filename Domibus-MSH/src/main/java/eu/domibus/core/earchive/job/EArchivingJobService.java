@@ -3,9 +3,7 @@ package eu.domibus.core.earchive.job;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
@@ -52,11 +50,9 @@ public class EArchivingJobService {
 
     private final NoArgGenerator uuidGenerator;
 
-    private final EArchiveBatchUtils eArchiveBatchUtils;
-
     private final UserMessageLogDao userMessageLogDao;
-    private final EArchivingEventService eArchivingEventService;
 
+    private final EArchivingEventService eArchivingEventService;
 
     public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                 DomibusPropertyProvider domibusPropertyProvider,
@@ -64,7 +60,6 @@ public class EArchivingJobService {
                                 EArchiveBatchDao eArchiveBatchDao,
                                 EArchiveBatchStartDao eArchiveBatchStartDao,
                                 NoArgGenerator uuidGenerator,
-                                EArchiveBatchUtils eArchiveBatchUtils,
                                 UserMessageLogDao userMessageLogDao,
                                 EArchivingEventService eArchivingEventService) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
@@ -73,7 +68,6 @@ public class EArchivingJobService {
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
         this.uuidGenerator = uuidGenerator;
-        this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.userMessageLogDao = userMessageLogDao;
         this.eArchivingEventService = eArchivingEventService;
     }
@@ -89,10 +83,10 @@ public class EArchivingJobService {
     }
 
     @Transactional
-    public EArchiveBatchEntity createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, ListUserMessageDto userMessageToBeArchived, EArchiveRequestType requestType) {
+    public EArchiveBatchEntity createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
         EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed, requestType);
 
-        eArchiveBatchUserMessageDao.create(eArchiveBatch, eArchiveBatchUtils.getEntityIds(userMessageToBeArchived.getUserMessageDtos()));
+        eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
         return eArchiveBatch;
     }
 
@@ -121,14 +115,13 @@ public class EArchivingJobService {
         throw new DomibusEArchiveException("BatchRequestType [" + requestType + "] doesn't have a startDate saved in database");
     }
 
-    private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity, EArchiveRequestType requestType) {
+    private EArchiveBatchEntity createEArchiveBatch(List<EArchiveBatchUserMessage> userMessageToBeArchived, int batchSize, long lastEntity, EArchiveRequestType requestType) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
         entity.setBatchSize(batchSize);
         entity.setRequestType(requestType);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
-        entity.setMessageIdsJson(eArchiveBatchUtils.getRawJson(userMessageToBeArchived));
-        entity.setFirstPkUserMessage(userMessageToBeArchived.getUserMessageDtos().isEmpty() ? null : userMessageToBeArchived.getUserMessageDtos().get(0).getEntityId());
+        entity.setFirstPkUserMessage(userMessageToBeArchived.isEmpty() ? null : userMessageToBeArchived.get(0).getUserMessageEntityId());
         entity.setLastPkUserMessage(lastEntity);
         entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
@@ -195,14 +188,14 @@ public class EArchivingJobService {
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
-    public ListUserMessageDto findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
         return userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, size);
     }
 
     public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
-        ListUserMessageDto messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
+        List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
 
-        for (UserMessageDTO userMessageDto : messagesNotFinalAsc.getUserMessageDtos()) {
+        for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
             MessageStatus messageStatus = userMessageLogDao.getMessageStatus(userMessageDto.getMessageId());
             LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), messageStatus);
             eArchivingEventService.sendEvent(userMessageDto.getMessageId(), messageStatus);
