@@ -69,6 +69,9 @@ public class PasswordEncryptionExtServiceImplTest {
                                              @Injectable PasswordEncryptionContext passwordEncryptionContext,
                                              @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
         new Expectations() {{
+            pluginPasswordEncryptionContext.isEncryptionActive();
+            result = true;
+
             pluginPasswordEncryptionContext.getConfigurationFile();
             result = null;
         }};
@@ -87,9 +90,6 @@ public class PasswordEncryptionExtServiceImplTest {
                                                 @Injectable PasswordEncryptionContext passwordEncryptionContext,
                                                 @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
         new Expectations() {{
-            pluginPasswordEncryptionContext.getConfigurationFile();
-            result = "conf.properties";
-
             pluginPasswordEncryptionContext.isEncryptionActive();
             result = false;
         }};
