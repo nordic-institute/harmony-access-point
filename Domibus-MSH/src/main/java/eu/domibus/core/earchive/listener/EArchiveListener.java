@@ -61,7 +61,6 @@ public class EArchiveListener implements MessageListener {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
-        String statusTo = jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
         Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
         if (StringUtils.isBlank(batchId) || entityId == null) {
@@ -72,11 +71,11 @@ public class EArchiveListener implements MessageListener {
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
-        // export if status-to is not set as "Archived"
-        if (StringUtils.isBlank(statusTo) || !StringUtils.equals(statusTo, EArchiveBatchStatus.ARCHIVED.name())) {
-            onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
-        } else {
+
+        if (jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name())) {
             onMessageArchiveBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else {
+            onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
         }
     }
 

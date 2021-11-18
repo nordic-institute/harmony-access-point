@@ -80,8 +80,6 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = null;
 
-            jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
-            result = null;
         }};
         eArchiveListener.onMessage(message);
 
@@ -100,9 +98,6 @@ public class EArchiveListenerTest {
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
-
-            jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
-            result = null;
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = new DomibusEArchiveException("EArchive batch not found for batchId: [" + entityId + "]");
@@ -127,8 +122,8 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
-            result = null;
+            jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name());
+            result=false;
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = eArchiveBatch;
@@ -152,8 +147,8 @@ public class EArchiveListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
-            result = null;
+            jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name());
+            result=false;
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
@@ -211,8 +206,8 @@ public class EArchiveListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
-            result = BatchArchiveStatusType.ARCHIVED.name();
+            jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name());
+            result=true;
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;

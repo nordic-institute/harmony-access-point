@@ -90,7 +90,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsManager = jmsManager;
         this.eArchiveNotificationQueue = eArchiveNotificationQueue;
-        this.eArchiveQueue=eArchiveQueue;
+        this.eArchiveQueue = eArchiveQueue;
     }
 
     @Override
@@ -186,13 +186,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         DomibusMessageCode messageCode;
         if (batchStatus == EArchiveBatchStatus.ARCHIVED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED_NOTIFICATION_RECEIVED;
-            // submit event to update bath messages to "archived"
-            jmsManager.sendMessageToQueue(JMSMessageBuilder
-                    .create()
-                    .property(MessageConstants.BATCH_ID, eArchiveBatchEntity.getBatchId())
-                    .property(MessageConstants.BATCH_ENTITY_ID, "" + eArchiveBatchEntity.getEntityId())
-                    .property(MessageConstants.STATUS_TO, EArchiveBatchStatus.ARCHIVED.name())
-                    .build(), eArchiveQueue);
+            // submit jms message to update bath messages to "archived"
+            eArchiveBatchDispatcherService.enqueueEArchive(eArchiveBatchEntity,domainContextProvider.getCurrentDomain(), EArchiveBatchStatus.ARCHIVED.name());
         } else if (batchStatus == EArchiveBatchStatus.ARCHIVE_FAILED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ERROR_NOTIFICATION_RECEIVED;
         } else {
@@ -230,7 +225,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         jmsManager.sendMessageToQueue(JMSMessageBuilder
                 .create()
                 .property(MessageConstants.BATCH_ID, eArchiveBatchByBatchId.getBatchId())
-                .property(MessageConstants.BATCH_ENTITY_ID, "" + eArchiveBatchByBatchId.getEntityId())
+                .property(MessageConstants.BATCH_ENTITY_ID, String.valueOf(eArchiveBatchByBatchId.getEntityId()))
                 .property(MessageConstants.NOTIFICATION_TYPE, type.name())
                 .build(), eArchiveNotificationQueue);
     }
@@ -248,6 +243,6 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
                 eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
-                userMessageDtos.get(userMessageDtos.size()-1),userMessageDtos.get(0));
+                userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));
     }
 }
