@@ -3,11 +3,11 @@ package eu.domibus.core.earchive.job;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSConstants;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
+import java.util.List;
 import java.util.Objects;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -54,7 +55,7 @@ public class EArchiveBatchDispatcherService {
     @Timer(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     @Counter(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     public void startBatch(Domain domain, EArchiveRequestType eArchiveRequestType) {
-        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             LOG.debug("eArchiving is not enabled");
             return;
@@ -99,17 +100,17 @@ public class EArchiveBatchDispatcherService {
      * Create a new batch and enqueue it
      */
     private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
-        ListUserMessageDto userMessageToBeArchived = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
-        if (CollectionUtils.isEmpty(userMessageToBeArchived.getUserMessageDtos())) {
+        List<EArchiveBatchUserMessage> messagesForArchivingAsc = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
+        if (CollectionUtils.isEmpty(messagesForArchivingAsc)) {
             LOG.debug("No message to archive");
             return null;
         }
-        long lastEntityIdTreated = userMessageToBeArchived.getUserMessageDtos().get(userMessageToBeArchived.getUserMessageDtos().size() - 1).getEntityId();
+        long lastEntityIdTreated = messagesForArchivingAsc.get(messagesForArchivingAsc.size() - 1).getUserMessageEntityId();
 
-        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatch(lastEntityIdTreated, batchSize, userMessageToBeArchived, requestType);
+        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatch(lastEntityIdTreated, batchSize, messagesForArchivingAsc, requestType);
 
         enqueueEArchive(eArchiveBatch, domain);
-        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_REEXPORT, eArchiveBatch.getBatchId());
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_CREATE, eArchiveBatch.getBatchId());
         return eArchiveBatch;
     }
 

@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -75,32 +76,32 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public ListUserMessageDto findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
         LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
                 lastUserMessageLogId,
                 maxEntityIdToArchived,
                 size);
-        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", UserMessageDTO.class);
+        TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
         query.setMaxResults(size);
 
-        return new ListUserMessageDto(query.getResultList());
+        return query.getResultList();
     }
 
-    public ListUserMessageDto findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
+    public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
         LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
                 lastUserMessageLogId,
                 maxEntityIdToArchived);
-        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", UserMessageDTO.class);
+        TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getNotFinalStates());
 
-        return new ListUserMessageDto(query.getResultList());
+        return query.getResultList();
     }
 
     public List<String> findFailedMessages(String finalRecipient) {

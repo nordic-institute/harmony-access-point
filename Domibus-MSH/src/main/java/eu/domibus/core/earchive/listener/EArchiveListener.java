@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
@@ -70,11 +69,11 @@ public class EArchiveListener implements MessageListener {
         }
         jmsUtil.setDomain(message);
 
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId);
+        EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
 
         eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
 
-        List<UserMessageDTO> userMessageDtos = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatchByBatchId).getUserMessageDtos();
+        List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
 
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
@@ -89,18 +88,18 @@ public class EArchiveListener implements MessageListener {
         eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId, userMessageDtos);
     }
 
-    private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<UserMessageDTO> userMessageDtos) {
+    private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
         try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                         .status(eArchiveBatchByBatchId.getEArchiveBatchStatus() != null ? eArchiveBatchByBatchId.getEArchiveBatchStatus().name() : null)
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId("" + userMessageDtos.get(0).getEntityId())
-                        .messageEndId("" + userMessageDtos.get(userMessageDtos.size() - 1).getEntityId())
-                        .messages(eArchiveBatchUtils.getMessageIds(userMessageDtos))
+                        .messageStartId("" + batchUserMessages.get(0).getUserMessageEntityId())
+                        .messageEndId("" + batchUserMessages.get(batchUserMessages.size() - 1).getUserMessageEntityId())
+                        .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
-                userMessageDtos)) {
+                batchUserMessages)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
             }

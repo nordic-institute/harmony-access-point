@@ -1,8 +1,8 @@
 package eu.domibus.core.earchive.eark;
 
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.DomibusEArchiveException;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
@@ -51,7 +51,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     @Override
-    public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) {
+    public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchEArchiveDTO.getBatchId(), userMessageEntityIds.size());
 
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatchId())) {
@@ -72,21 +72,21 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
-    protected void addRepresentation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO, List<UserMessageDTO> userMessageEntityIds) throws IPException {
+    protected void addRepresentation1(SIP sip, BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) throws IPException {
         IPRepresentation representation1 = new IPRepresentation("representation1");
         sip.addRepresentation(representation1);
 
         LOG.debug("Add batch.json");
         InputStream batchFileJson = eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
         representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON));
-        for (UserMessageDTO messageId : userMessageEntityIds) {
+        for (EArchiveBatchUserMessage messageId : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", messageId);
             addUserMessage(representation1, messageId);
         }
     }
 
-    private void addUserMessage(IPRepresentation representation1, UserMessageDTO messageId) {
-        Map<String, InputStream> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getEntityId());
+    private void addUserMessage(IPRepresentation representation1, EArchiveBatchUserMessage messageId) {
+        Map<String, InputStream> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getUserMessageEntityId());
 
         for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());

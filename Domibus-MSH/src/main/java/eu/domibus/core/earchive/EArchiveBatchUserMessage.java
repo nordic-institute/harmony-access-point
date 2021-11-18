@@ -12,6 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_EARCHIVEBATCH_UM")
+@NamedQuery(name = "EArchiveBatchUserMessage.findByBatchEntityId", query = "FROM EArchiveBatchUserMessage batchUms where batchUms.eArchiveBatch.batchId = :batchId")
 public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Id
@@ -28,6 +29,17 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Column(name = "FK_USER_MESSAGE_ID")
     private Long userMessageEntityId;
+
+    @Column(name = "MESSAGE_ID")
+    private String messageId;
+
+    public EArchiveBatchUserMessage() {
+    }
+
+    public EArchiveBatchUserMessage(Long userMessageEntityId, String messageId) {
+        this.userMessageEntityId = userMessageEntityId;
+        this.messageId = messageId;
+    }
 
     public long getEntityId() {
         return entityId;
@@ -51,5 +63,13 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     public void setUserMessageEntityId(Long userMessageEntityId) {
         this.userMessageEntityId = userMessageEntityId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String userMessageId) {
+        this.messageId = userMessageId;
     }
 }

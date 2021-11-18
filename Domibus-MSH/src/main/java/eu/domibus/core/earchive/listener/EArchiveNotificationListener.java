@@ -3,12 +3,11 @@ package eu.domibus.core.earchive.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
@@ -20,6 +19,7 @@ import eu.domibus.messaging.MessageConstants;
 import gen.eu.domibus.archive.client.api.ArchiveWebhookApi;
 import gen.eu.domibus.archive.client.invoker.ApiClient;
 import gen.eu.domibus.archive.client.model.BatchNotification;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -37,9 +37,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -56,8 +56,6 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final EArchivingDefaultService eArchiveService;
 
-    private final EArchiveBatchUtils eArchiveBatchUtils;
-
     private final JmsUtil jmsUtil;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
@@ -66,19 +64,15 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final ObjectMapper objectMapper;
 
-    private SimpleDateFormat dateParser = new SimpleDateFormat("yyMMddHH");
-
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchiveService,
-            EArchiveBatchUtils eArchiveBatchUtils,
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider,
             DomibusProxyService domibusProxyService,
             @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
-        this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.jmsUtil = jmsUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusProxyService = domibusProxyService;
@@ -100,7 +94,7 @@ public class EArchiveNotificationListener implements MessageListener {
 
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
 
-        EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId);
+        EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
 
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatch);
@@ -159,7 +153,7 @@ public class EArchiveNotificationListener implements MessageListener {
             LOG.debug("Using proxy at [{}:{}] to notify e-archiving client", domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort());
             clientBuilder.setProxy(new HttpHost(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort()));
 
-            if (domibusProxyService.isProxyUserSet()) {
+            if (BooleanUtils.isTrue(domibusProxyService.isProxyUserSet())) {
                 CredentialsProvider credsProvider = new BasicCredentialsProvider();
                 credsProvider.setCredentials(
                         new AuthScope(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort()),
@@ -193,8 +187,7 @@ public class EArchiveNotificationListener implements MessageListener {
         }
         batchNotification.setTimestamp(OffsetDateTime.ofInstant(eArchiveBatch.getDateRequested().toInstant(), ZoneOffset.UTC));
 
-        ListUserMessageDto messageListDto = eArchiveBatchUtils.getUserMessageDtoFromJson(eArchiveBatch);
-        batchNotification.setMessages(eArchiveBatchUtils.getMessageIds(messageListDto.getUserMessageDtos()));
+        batchNotification.setMessages(eArchiveBatch.geteArchiveBatchUserMessages().stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toList()));
 
         return batchNotification;
     }

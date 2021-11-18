@@ -3,9 +3,7 @@ package eu.domibus.core.earchive.job;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.earchive.EArchiveRequestType;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
@@ -144,12 +142,12 @@ public class EArchivingJobServiceTest {
     }
 
     @Test
-    public void createEventOnNonFinalMessages(@Injectable  UserMessageDTO userMessageDTO) {
+    public void createEventOnNonFinalMessages(@Injectable  EArchiveBatchUserMessage batchUserMessage) {
         new Expectations(){{
             userMessageLogDao.findMessagesNotFinalAsc(0L, 1L);
-            result =  new ListUserMessageDto(asList(userMessageDTO));
+            result =  asList(batchUserMessage);
 
-            userMessageDTO.getMessageId();
+            batchUserMessage.getMessageId();
             result = "messageId";
 
             userMessageLogDao.getMessageStatus("messageId");

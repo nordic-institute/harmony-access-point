@@ -79,7 +79,7 @@ public class EArchiveNotificationListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE);
             result = "EXPORTED";
 
-            eArchivingDefaultService.getEArchiveBatch(entityId);
+            eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = eArchiveBatch;
 
             eArchiveNotificationListener.buildBatchNotification(eArchiveBatch);
@@ -115,9 +115,7 @@ public class EArchiveNotificationListenerTest {
 
         eArchiveNotificationListener.onMessage(message);
 
-        new FullVerifications() {{
-
-        }};
+        new FullVerifications() {};
 
     }
 }

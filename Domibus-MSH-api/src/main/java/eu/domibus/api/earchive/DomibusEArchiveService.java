@@ -1,7 +1,5 @@
 package eu.domibus.api.earchive;
 
-import eu.domibus.api.model.ListUserMessageDto;
-
 import java.util.Date;
 import java.util.List;
 
@@ -23,11 +21,11 @@ public interface DomibusEArchiveService {
 
     Long getBatchRequestListCount(EArchiveBatchFilter filter);
 
-    ListUserMessageDto getBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize);
+    List<String> getBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize);
 
     Long getBatchUserMessageListCount(String batchId);
 
-    ListUserMessageDto getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
+    List<String> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
 
     Long getNotArchivedMessagesCount(Date messageStartDate, Date messageEndDate);
 

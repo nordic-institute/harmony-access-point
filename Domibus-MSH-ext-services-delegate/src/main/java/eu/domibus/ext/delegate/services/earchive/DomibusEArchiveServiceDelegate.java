@@ -1,13 +1,13 @@
 package eu.domibus.ext.delegate.services.earchive;
 
 import eu.domibus.api.earchive.*;
-import eu.domibus.api.model.ListUserMessageDto;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,9 +52,6 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns count of Queued batches in database for given search filter
-     *
-     * @param filter
-     * @return
      */
     @Override
     public Long getQueuedBatchRequestsCount(QueuedBatchFilterDTO filter) {
@@ -64,22 +61,16 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns Queued batches in database for given search filter and page
-     *
-     * @param filter
-     * @return
      */
     @Override
     public List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         EArchiveBatchFilter archiveBatchFilter = convertQueuedFilter(filter, pageStart, pageSize);
         List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
-        return result.stream().map(eArchiveBatchDTO -> eArchiveExtMapper.archiveBatchToQueuedBatch(eArchiveBatchDTO)).collect(Collectors.toList());
+        return result.stream().map(eArchiveExtMapper::archiveBatchToQueuedBatch).collect(Collectors.toList());
     }
 
     /**
      * Method returns count of Exported batches in database for given search filter
-     *
-     * @param filter
-     * @return
      */
     @Override
     public Long getExportedBatchRequestsCount(ExportedBatchFilterDTO filter) {
@@ -89,15 +80,12 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     /**
      * Method returns Exported batches in database for given search filter and page
-     *
-     * @param filter
-     * @return
      */
     @Override
     public List<ExportedBatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         EArchiveBatchFilter archiveBatchFilter = convertExportFilter(filter, pageStart, pageSize);
         List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
-        return result.stream().map(eArchiveBatchDTO -> eArchiveExtMapper.archiveBatchToExportBatch(eArchiveBatchDTO)).collect(Collectors.toList());
+        return result.stream().map(eArchiveExtMapper::archiveBatchToExportBatch).collect(Collectors.toList());
     }
 
     @Override
@@ -107,14 +95,11 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     @Override
     public List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize) {
-        ListUserMessageDto batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId, pageStart, pageSize);
-        if (batchMessageList == null
-                || batchMessageList.getUserMessageDtos() == null
-                || batchMessageList.getUserMessageDtos().isEmpty()) {
+        List<String> batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId, pageStart, pageSize);
+        if (CollectionUtils.isEmpty(batchMessageList)) {
             return Collections.emptyList();
         }
-        return batchMessageList.getUserMessageDtos().stream()
-                .map(userMessageDTO -> userMessageDTO.getMessageId()).collect(Collectors.toList());
+        return batchMessageList;
     }
 
     @Override
@@ -132,8 +117,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     @Override
     public List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
-        ListUserMessageDto list = domibusEArchiveService.getNotArchivedMessages(filter.getMessageStartDate(), filter.getMessageEndDate(), pageStart, pageSize);
-        return list.getUserMessageDtos().stream().map(um -> um.getMessageId()).collect(Collectors.toList());
+        return domibusEArchiveService.getNotArchivedMessages(filter.getMessageStartDate(), filter.getMessageEndDate(), pageStart, pageSize);
     }
 
     @Override
