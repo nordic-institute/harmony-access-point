@@ -216,8 +216,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String keystoreType = getKeystoreType();
         final String keystorePassword = getKeystorePassword();
         final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
-        LOG.debug("keystore property values for domain [{}]: keystoreType=[{}], keystorePassword=[{}], privateKeyAlias=[{}]",
-                domain, keystoreType, keystorePassword, privateKeyAlias);
+
         if (StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias)) {
             LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword, privateKeyAlias=[{}]",
                     domain, keystoreType, privateKeyAlias);
