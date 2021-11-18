@@ -61,6 +61,7 @@ public class EArchiveListener implements MessageListener {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
+        String statusTo = jmsUtil.getStringPropertySafely(message, MessageConstants.STATUS_TO);
         Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
         if (StringUtils.isBlank(batchId) || entityId == null) {
@@ -70,11 +71,17 @@ public class EArchiveListener implements MessageListener {
         jmsUtil.setDomain(message);
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
-
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
-
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
+        // export if status-to is not set as "Archived"
+        if (StringUtils.isBlank(statusTo) || !StringUtils.equals(statusTo, EArchiveBatchStatus.ARCHIVED.name())) {
+            onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else {
+            onMessageArchiveBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        }
+    }
 
+    protected void onMessageExportBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
         }
@@ -84,8 +91,16 @@ public class EArchiveListener implements MessageListener {
                 userMessageDtos.get(0));
 
         exportInFileSystem(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId);
+    }
 
-        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId, userMessageDtos);
+    protected void onMessageArchiveBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        LOG.debug("Set batchId [{}] archived starting userMessageLog from [{}] to [{}]",
+                batchId,
+                userMessageDtos.get(userMessageDtos.size() - 1),
+                userMessageDtos.get(0));
+
+        eArchivingDefaultService.executeBatchIsArchived(eArchiveBatchByBatchId, userMessageDtos);
     }
 
     private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
