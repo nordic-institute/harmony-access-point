@@ -413,11 +413,6 @@ public class DssConfiguration {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
-//    @Bean
-//    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
-//        return new DssPropertyEncryptionListener(passwordEncryptionService, domibusConfigurationExtService, domainExtService, propertyManager);
-//    }
-
     @Bean
     public TLValidationJob job(LOTLSource europeanLOTL, CommonsDataLoader dataLoader, CacheCleaner cacheCleaner) {
         TLValidationJob job = new TLValidationJob();

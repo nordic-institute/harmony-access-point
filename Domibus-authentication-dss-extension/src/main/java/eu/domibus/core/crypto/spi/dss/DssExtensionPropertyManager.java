@@ -122,8 +122,4 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
         return Optional.empty();
     }
 
-//    public boolean isPasswordEncryptionActive() {
-//        final String passwordEncryptionActive = getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-//        return BooleanUtils.toBoolean(passwordEncryptionActive);
-//    }
 }

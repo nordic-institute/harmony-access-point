@@ -47,7 +47,7 @@ public class DssDomainPasswordEncryptionContext extends PluginPasswordEncryption
 
     @Override
     public boolean isEncryptionActive() {
-        final String passwordEncryptionActive = propertyProvider.getKnownPropertyValue(domain.getCode(), AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-        return BooleanUtils.toBoolean(passwordEncryptionActive);
+        // encrypt password active property is global now so we cannot call get property value on a domain
+        return false;
     }
 }

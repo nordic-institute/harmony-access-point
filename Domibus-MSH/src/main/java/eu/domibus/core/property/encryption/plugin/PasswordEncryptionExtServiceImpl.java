@@ -47,15 +47,15 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     public void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext) {
         LOG.debug("Encrypting passwords in file");
 
+        if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
+            LOG.info("Configuration file is null in [{}] for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
+            return;
+        }
+
         final boolean encryptionActive = pluginPasswordEncryptionContext.isEncryptionActive();
         LOG.debug("Encrypting passwords is active in the FS Plugin? [{}]", encryptionActive);
         if (!encryptionActive) {
             LOG.info("No password encryption will be performed for FSPlugin");
-            return;
-        }
-
-        if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
-            LOG.info("Configuration file is null in [{}] for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
             return;
         }
 
