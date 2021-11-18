@@ -41,22 +41,33 @@ public abstract class PluginPropertyEncryptionListenerAbstract implements Plugin
     public void encryptPasswords() {
         LOG.debug("Encrypting passwords");
 
+        encryptGlobalProperties();
+
+        encryptDomainProperties();
+
+        LOG.debug("Finished encrypting passwords");
+    }
+
+    public void encryptGlobalProperties() {
         // operate on the global context, without a current domain
         domainContextProvider.clearCurrentDomain();
         final PluginPasswordEncryptionContext passwordEncryptionContext = getGlobalPasswordEncryptionContext();
         pluginPasswordEncryptionService.encryptPasswordsInFile(passwordEncryptionContext);
+    }
 
+    public void encryptDomainProperties() {
         // operate on each domain context
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            final List<DomainDTO> domains = domainsExtService.getDomains();
-            for (DomainDTO domain : domains) {
-                domainContextProvider.setCurrentDomain(domain);
-                PluginPasswordEncryptionContext passwordEncryptionContextDomain = getDomainPasswordEncryptionContextDomain(domain);
-                pluginPasswordEncryptionService.encryptPasswordsInFile(passwordEncryptionContextDomain);
-                domainContextProvider.clearCurrentDomain();
-            }
+        if (!domibusConfigurationExtService.isMultiTenantAware()) {
+            return;
         }
 
-        LOG.debug("Finished encrypting passwords");
+        final List<DomainDTO> domains = domainsExtService.getDomains();
+        for (DomainDTO domain : domains) {
+            domainContextProvider.setCurrentDomain(domain);
+            PluginPasswordEncryptionContext passwordEncryptionContextDomain = getDomainPasswordEncryptionContextDomain(domain);
+            pluginPasswordEncryptionService.encryptPasswordsInFile(passwordEncryptionContextDomain);
+            domainContextProvider.clearCurrentDomain();
+        }
     }
+
 }

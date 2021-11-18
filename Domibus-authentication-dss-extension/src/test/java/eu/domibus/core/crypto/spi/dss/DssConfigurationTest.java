@@ -140,26 +140,4 @@ public class DssConfigurationTest {
         dssConfiguration.loadCacertTrustStore();
     }
 
-//    @Test
-//    public void isPasswordEncryptionActive() {
-//
-//        new Expectations(dssConfiguration) {{
-//            dssConfiguration.getDomainProperty("default", DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-//            result = "true";
-//        }};
-//        assertTrue(dssConfiguration.isPasswordEncryptionActive());
-//    }
-
-//    @Test
-//    public void getDomainProperty() {
-//
-//        new Expectations(dssConfiguration) {{
-//            domibusConfigurationExtService.isMultiTenantAware();
-//            result = false;
-//            domibusPropertyExtService.getProperty("domibus.authentication.dss.password.encryption.active");
-//            result = "true";
-//        }};
-//        final String passwordEncryptionActive = dssConfiguration.getDomainProperty("default", DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-//        assertEquals(passwordEncryptionActive, "true");
-//    }
 }

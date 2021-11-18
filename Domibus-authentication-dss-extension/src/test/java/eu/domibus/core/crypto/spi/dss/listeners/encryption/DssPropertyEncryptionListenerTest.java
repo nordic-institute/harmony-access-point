@@ -1,15 +1,18 @@
 package eu.domibus.core.crypto.spi.dss.listeners.encryption;
 
 import eu.domibus.core.crypto.spi.dss.DssConfiguration;
+import eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager;
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 
 /**
  * @author Soumya Chandran
@@ -28,25 +31,46 @@ public class DssPropertyEncryptionListenerTest {
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    protected DomainExtService domainExtService;
+    protected DomainExtService domainsExtService;
 
     @Injectable
-    DomibusPropertyManagerExt propertyProvider;
+    DssExtensionPropertyManager propertyProvider;
+
+    @Injectable
+    DomainContextExtService domainContextProvider;
 
     @Tested
     DssPropertyEncryptionListener dssPropertyEncryptionListener;
 
     @Test
-    public void encryptPasswords(@Injectable DomainDTO domainDTO,
-                                 @Mocked DssDomainPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
+    public void encryptGlobalProperties(@Mocked DssGlobalPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
         new Expectations() {{
-//            propertyProvider.isPasswordEncryptionActive();
-//            result = true;
+            domainContextProvider.clearCurrentDomain();
 
-            domainExtService.getDomain(dssConfiguration.DEFAULT_DOMAIN);
-            result = domainDTO;
+            new DssGlobalPasswordEncryptionContext(propertyProvider, domibusConfigurationExtService, pluginPasswordEncryptionService);
+            result = dssPropertyPasswordEncryptionContext;
+        }};
 
-            new DssDomainPasswordEncryptionContext(propertyProvider, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
+        dssPropertyEncryptionListener.encryptGlobalProperties();
+
+        new Verifications() {{
+            pluginPasswordEncryptionService.encryptPasswordsInFile(dssPropertyPasswordEncryptionContext);
+        }};
+    }
+    
+    @Test
+    public void encryptDomainProperties(@Injectable DomainDTO domain,
+                                         @Mocked DssDomainPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
+        new Expectations() {{
+            domibusConfigurationExtService.isMultiTenantAware();
+            result = true;
+
+            domainsExtService.getDomains();
+            result = Arrays.asList(domain);
+
+            domainContextProvider.setCurrentDomain(domain);
+
+            new DssDomainPasswordEncryptionContext(propertyProvider, domibusConfigurationExtService, pluginPasswordEncryptionService, domain);
             result = dssPropertyPasswordEncryptionContext;
         }};
 
@@ -56,5 +80,4 @@ public class DssPropertyEncryptionListenerTest {
             pluginPasswordEncryptionService.encryptPasswordsInFile(dssPropertyPasswordEncryptionContext);
         }};
     }
-
 }
