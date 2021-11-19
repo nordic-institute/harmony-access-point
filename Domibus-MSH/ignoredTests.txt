@@ -5,3 +5,4 @@
 **/DomibusPropertiesServiceTest.java
 **/CsvServiceImplTest.java
 **/CsvServiceImplTest.java
+**/AlertResourceTest.java
