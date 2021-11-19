@@ -35,11 +35,17 @@ public class PasswordEncryptionExtServiceImplTest {
     protected DomibusCoreMapper coreMapper;
 
     @Test
-    public void encryptPasswordsInFile(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
-                                       @Injectable Domain domain,
-                                       @Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                       @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
+    public void encryptPasswordsInFilePositive(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
+                                               @Injectable Domain domain,
+                                               @Injectable PasswordEncryptionContext passwordEncryptionContext,
+                                               @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
         new Expectations() {{
+            pluginPasswordEncryptionContext.isEncryptionActive();
+            result = true;
+
+            pluginPasswordEncryptionContext.getConfigurationFile();
+            result = "conf.properties";
+
             coreMapper.domainDTOToDomain(pluginPasswordEncryptionContext.getDomain());
             result = domain;
 
@@ -52,8 +58,47 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
 
-        new FullVerifications() {{
+        new Verifications() {{
             passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
+        }};
+    }
+
+    @Test
+    public void encryptPasswordsInFileNoFile(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
+                                             @Injectable Domain domain,
+                                             @Injectable PasswordEncryptionContext passwordEncryptionContext,
+                                             @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
+        new Expectations() {{
+            pluginPasswordEncryptionContext.isEncryptionActive();
+            result = true;
+
+            pluginPasswordEncryptionContext.getConfigurationFile();
+            result = null;
+        }};
+
+        passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
+
+        new Verifications() {{
+            passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void encryptPasswordsInFileNotActive(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
+                                                @Injectable Domain domain,
+                                                @Injectable PasswordEncryptionContext passwordEncryptionContext,
+                                                @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
+        new Expectations() {{
+            pluginPasswordEncryptionContext.isEncryptionActive();
+            result = false;
+        }};
+
+        passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
+
+        new Verifications() {{
+            passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
+            times = 0;
         }};
     }
 

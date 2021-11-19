@@ -36,7 +36,7 @@ public class FSPluginPropertyEncryptionListenerTest {
 
     @Test
     public void encryptPasswords(@Injectable DomainDTO domainDTO,
-                                 @Mocked FSPluginPasswordEncryptionContext fsPluginPasswordEncryptionContext) {
+                                 @Mocked FSPluginDomainPasswordEncryptionContext fsPluginPasswordEncryptionContext) {
         new Expectations() {{
             fsPluginProperties.isPasswordEncryptionActive();
             result = true;
@@ -44,7 +44,7 @@ public class FSPluginPropertyEncryptionListenerTest {
             domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
             result = domainDTO;
 
-            new FSPluginPasswordEncryptionContext(fsPluginProperties, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
+            new FSPluginDomainPasswordEncryptionContext(fsPluginProperties, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
             result = fsPluginPasswordEncryptionContext;
         }};
 
