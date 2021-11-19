@@ -866,12 +866,11 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testValidateOriginalUserOK(@Injectable final UserMessage userMessage) {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-        List<String> recipients = new ArrayList<>();
-        recipients.add(MessageConstants.ORIGINAL_SENDER);
-        recipients.add(MessageConstants.FINAL_RECIPIENT);
 
         new Expectations() {{
             userMessageServiceHelper.getOriginalUser(userMessage, MessageConstants.ORIGINAL_SENDER);
+            result = originalUser;
+            authUtils.getOriginalUserFromSecurityContext();
             result = originalUser;
         }};
 
@@ -883,9 +882,10 @@ public class DatabaseMessageHandlerTest {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
 
         final UserMessage userMessage = createUserMessage();
-
-        List<String> recipients = new ArrayList<>();
-        recipients.add(MessageConstants.ORIGINAL_SENDER);
+        new Expectations() {{
+            authUtils.getOriginalUserFromSecurityContext();
+            result = originalUser;
+        }};
 
         databaseMessageHandler.validateOriginalUser(userMessage);
     }
@@ -893,12 +893,12 @@ public class DatabaseMessageHandlerTest {
     @Test(expected = AccessDeniedException.class)
     public void testValidateOriginalUserNoMatch() {
         String originalUser = "nobodywho";
+        new Expectations() {{
+            authUtils.getOriginalUserFromSecurityContext();
+            result = originalUser;
+        }};
 
         final UserMessage userMessage = createUserMessage();
-
-        List<String> recipients = new ArrayList<>();
-        recipients.add(MessageConstants.ORIGINAL_SENDER);
-        recipients.add(MessageConstants.FINAL_RECIPIENT);
 
         databaseMessageHandler.validateOriginalUser(userMessage);
     }
