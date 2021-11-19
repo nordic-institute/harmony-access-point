@@ -51,11 +51,11 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
         LOG.debug("Encrypting passwords in file");
 
         final boolean encryptionActive = pluginPasswordEncryptionContext.isEncryptionActive();
-        LOG.debug("Encrypting passwords is active in the [{}] context", pluginPasswordEncryptionContext);
         if (!encryptionActive) {
             LOG.info("No password encryption will be performed in the [{}] context", pluginPasswordEncryptionContext);
             return;
         }
+        LOG.debug("Encrypting passwords is active in the [{}] context", pluginPasswordEncryptionContext);
 
         if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
             LOG.info("No configuration file in the [{}] context for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
