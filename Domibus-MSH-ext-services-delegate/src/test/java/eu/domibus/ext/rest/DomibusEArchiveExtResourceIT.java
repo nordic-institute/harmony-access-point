@@ -3,7 +3,9 @@ package eu.domibus.ext.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import eu.domibus.api.earchive.DomibusEArchiveService;
+import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.delegate.mapper.TestMapperContextConfiguration;
 import eu.domibus.ext.delegate.services.earchive.DomibusEArchiveServiceDelegate;
@@ -15,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -209,12 +211,14 @@ public class DomibusEArchiveExtResourceIT {
 
     @Test
     public void testHistoryOfTheExportedBatches() throws Exception {
-// given
+        // given
         Long messageStartDate = 211005L;
         Long messageEndDate = 211015L;
+        ArgumentCaptor<EArchiveBatchFilter> filterCaptor = ArgumentCaptor.forClass(EArchiveBatchFilter.class);
+        ArgumentCaptor<EArchiveBatchFilter> filterCaptorCount = ArgumentCaptor.forClass(EArchiveBatchFilter.class);
 
-        when(mockDomibusEArchiveService.getBatchRequestListCount(any())).thenReturn(2L);
-        when(mockDomibusEArchiveService.getBatchRequestList(any())).thenReturn(Arrays.asList(
+        when(mockDomibusEArchiveService.getBatchRequestListCount(filterCaptorCount.capture())).thenReturn(2L);
+        when(mockDomibusEArchiveService.getBatchRequestList(filterCaptor.capture())).thenReturn(Arrays.asList(
                 new EArchiveBatchRequestDTO() {{
                     setBatchId("Batch1");
                 }},
@@ -240,9 +244,81 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
         assertEquals(2, response.getExportedBatches().size());
-        assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
+        assertEquals(response.getPagination().getPageSize(), filterCaptor.getValue().getPageSize());
+        assertEquals(response.getPagination().getPageStart(), filterCaptor.getValue().getPageStart());
+        assertNull(filterCaptorCount.getValue().getPageSize());
+        assertNull(filterCaptorCount.getValue().getPageStart());
+        assertEquals(0, response.getFilter().getStatuses().size());
+        assertEquals(1, filterCaptor.getValue().getStatusList().size());
+        assertEquals(1, filterCaptorCount.getValue().getStatusList().size());
+        // the default status
+        assertEquals(EArchiveBatchStatus.EXPORTED, filterCaptor.getValue().getStatusList().get(0));
+        assertEquals(EArchiveBatchStatus.EXPORTED, filterCaptorCount.getValue().getStatusList().get(0));
+
         assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
         assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
+        // false by default
+        assertEquals(Boolean.FALSE, response.getFilter().getReturnReExportedBatches());
+        assertEquals(Boolean.FALSE, filterCaptor.getValue().getReturnReExportedBatches());
+        assertEquals(Boolean.FALSE, filterCaptorCount.getValue().getReturnReExportedBatches());
     }
+    @Test
+    public void testHistoryOfTheExportedBatches2() throws Exception {
+        // given
 
+        ArgumentCaptor<EArchiveBatchFilter> filterCaptor = ArgumentCaptor.forClass(EArchiveBatchFilter.class);
+        ArgumentCaptor<EArchiveBatchFilter> filterCaptorCount = ArgumentCaptor.forClass(EArchiveBatchFilter.class);
+
+        when(mockDomibusEArchiveService.getBatchRequestListCount(filterCaptorCount.capture())).thenReturn(2L);
+        when(mockDomibusEArchiveService.getBatchRequestList(filterCaptor.capture())).thenReturn(Arrays.asList(
+                new EArchiveBatchRequestDTO() {{
+                    setBatchId("Batch1");
+                }},
+                new EArchiveBatchRequestDTO() {{
+                    setBatchId("Batch2");
+                }}
+        ));
+
+        Long messageStartDate = 211005L;
+        Long messageEndDate = 211015L;
+        int pageStart=2;
+        int pageSize=10;
+        Boolean reExported = Boolean.TRUE;
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_EXPORTED)
+                .param("messageStartDate", messageStartDate + "")
+                .param("messageEndDate", messageEndDate + "")
+                .param("statuses", "EXPORTED,ARCHIVED,ARCHIVE_FAILED,EXPIRED,DELETED")
+                .param("reExport",  reExported.toString())
+                .param("pageStart",  pageStart+"")
+                .param("pageSize",  pageSize+"")
+
+        )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        ExportedBatchResultDTO response = objectMapper.readValue(content, ExportedBatchResultDTO.class);
+
+        verify(mockDomibusEArchiveService, times(1)).getBatchRequestListCount(any());
+        verify(mockDomibusEArchiveService, times(1)).getBatchRequestList(any());
+
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
+        assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
+        assertEquals(2, response.getExportedBatches().size());
+        assertEquals(Integer.valueOf(pageSize), response.getPagination().getPageSize());
+        assertEquals(Integer.valueOf(pageStart), response.getPagination().getPageStart());
+        assertEquals(response.getPagination().getPageSize(), filterCaptor.getValue().getPageSize());
+        assertEquals(response.getPagination().getPageStart(), filterCaptor.getValue().getPageStart());
+        assertNull(filterCaptorCount.getValue().getPageSize());
+        assertNull(filterCaptorCount.getValue().getPageStart());
+
+        assertEquals(5, response.getFilter().getStatuses().size());
+        assertEquals(5, filterCaptor.getValue().getStatusList().size());
+        assertEquals(5, filterCaptorCount.getValue().getRequestTypes().size());
+        assertEquals(reExported, filterCaptor.getValue().getReturnReExportedBatches());
+        assertEquals(reExported, filterCaptorCount.getValue().getReturnReExportedBatches());
+        assertEquals(reExported, response.getFilter().getReturnReExportedBatches());
+    }
 }

@@ -18,15 +18,16 @@ public class EArchiveBatchFilter {
     Integer pageStart;
     Integer pageSize;
     List<EArchiveBatchStatus> statusList;
+    Boolean returnReExportedBatches;
 
     public EArchiveBatchFilter() {
     }
 
     public EArchiveBatchFilter(List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
-        this(new ArrayList<>(), requestTypes, startDate, endDate, null, null, pageStart, pageSize);
+        this(new ArrayList<>(), requestTypes, startDate, endDate, null, null, null, pageStart, pageSize);
     }
 
-    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Integer pageStart, Integer pageSize) {
+    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Boolean returnReExportedBatches,Integer pageStart, Integer pageSize) {
         this.requestTypes = requestTypes;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -35,6 +36,15 @@ public class EArchiveBatchFilter {
         this.pageStart = pageStart;
         this.pageSize = pageSize;
         this.statusList = statusList;
+        this.returnReExportedBatches = returnReExportedBatches;
+    }
+
+    public Boolean getReturnReExportedBatches() {
+        return returnReExportedBatches;
+    }
+
+    public void setReturnReExportedBatches(Boolean returnReExportedBatches) {
+        this.returnReExportedBatches = returnReExportedBatches;
     }
 
     public List<EArchiveRequestType> getRequestTypes() {
@@ -110,6 +120,7 @@ public class EArchiveBatchFilter {
                 ", pageStart=" + pageStart +
                 ", pageSize=" + pageSize +
                 ", statusList=" + statusList +
+                ", returnReExportedBatches=" + returnReExportedBatches +
                 '}';
     }
 }

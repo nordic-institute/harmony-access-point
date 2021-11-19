@@ -12,16 +12,24 @@ public class ExportedBatchFilterDTO {
     protected Long messageStartDate;
     protected Long messageEndDate;
     protected List<ExportedBatchStatusType> statuses;
-    protected List<BatchRequestType> requestTypes;
+    Boolean returnReExportedBatches;
 
     public ExportedBatchFilterDTO() {
     }
 
-    public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, List<BatchRequestType> requestTypes) {
+    public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, Boolean returnReExportedBatches) {
         this.messageStartDate = messageStartDate;
         this.messageEndDate = messageEndDate;
         this.statuses = statuses;
-        this.requestTypes = requestTypes;
+        this.returnReExportedBatches = returnReExportedBatches;
+    }
+
+    public Boolean getReturnReExportedBatches() {
+        return returnReExportedBatches;
+    }
+
+    public void setReturnReExportedBatches(Boolean returnReExportedBatches) {
+        this.returnReExportedBatches = returnReExportedBatches;
     }
 
     public Long getMessageStartDate() {
@@ -47,12 +55,7 @@ public class ExportedBatchFilterDTO {
         return statuses;
     }
 
-    public List<BatchRequestType> getRequestTypes() {
-        if (requestTypes ==null) {
-            requestTypes = new ArrayList<>();
-        }
-        return requestTypes;
-    }
+
 
     @Override
     public String toString() {
@@ -60,7 +63,7 @@ public class ExportedBatchFilterDTO {
                 "messageStartDate=" + messageStartDate +
                 ", messageEndDate=" + messageEndDate +
                 ", statuses=" + statuses +
-                ", requestTypes=" + requestTypes +
+                ", returnReExportedBatches=" + returnReExportedBatches +
                 '}';
     }
 }

@@ -38,6 +38,8 @@ import static java.util.Collections.singletonList;
 @Transactional
 public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
     // test data
+    private static final String BATCH_ID_00 = "BATCH_ID_00@" + UUID.randomUUID();
+
     private static final String BATCH_ID_01 = "BATCH_ID_01@" + UUID.randomUUID();
 
     private static final String BATCH_ID_02 = "BATCH_ID_02@" + UUID.randomUUID();
@@ -45,6 +47,7 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
     private static final String BATCH_ID_03 = "BATCH_ID_03@" + UUID.randomUUID();
 
     private static final String BATCH_ID_04 = "BATCH_ID_04@" + UUID.randomUUID();
+
     private UserMessageLog uml1;
 
 
@@ -52,15 +55,15 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
     // test desc. result batchIds, filter
     public static Collection<Object[]> data() {
         return asList(new Object[][]{
-                {"With filter status queued ", singletonList(BATCH_ID_04), 1L, new EArchiveBatchFilter(singletonList(QUEUED), null, null, null, null, null, null, null)},
-                {"With filter status exported ", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, null, null)},
-                {"With filter status exported and reexported ", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, null, null)},
-                {"With filter by type", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), singletonList(EArchiveRequestType.MANUAL), null, null, null, null, null, null)},
+                {"With filter status queued ", singletonList(BATCH_ID_04), 1L, new EArchiveBatchFilter(singletonList(QUEUED), null, null, null, null, null,null,  null, null)},
+                {"With filter status exported ", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, null, null, null)},
+                {"With filter status exported and reexported ", asList(BATCH_ID_02, BATCH_ID_00 ), 2L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, Boolean.TRUE, null, null)},
+                {"With filter by type", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), singletonList(EArchiveRequestType.MANUAL), null, null, null, null, null, null, null)},
                 // Note batches are ordered from latest to oldest
-                {"With filter: request date", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null)},
-                {"With filter: get All ", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null)},
-                {"With filter: test page size", asList(BATCH_ID_04, BATCH_ID_03), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 2)},
-                {"With filter: test page start", asList(BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, 1, 2)},
+                {"With filter: request date", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null, null)},
+                {"With filter: get All ", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null, null)},
+                {"With filter: test page size", asList(BATCH_ID_04, BATCH_ID_03), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null, 2 )},
+                {"With filter: test page start", asList(BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 1, 2)},
         });
     }
 
@@ -96,15 +99,20 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
         Date currentDate = Calendar.getInstance().getTime();
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
         // prepare database -> create batches
-        create(BATCH_ID_01, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, ARCHIVED);
-        create(BATCH_ID_02, DateUtils.addDays(currentDate, -25), 11L, 20L, EArchiveRequestType.MANUAL, EXPORTED);
-        create(BATCH_ID_03, DateUtils.addDays(currentDate, -22), 21L, 30L, EArchiveRequestType.MANUAL, EXPIRED);
-        create(BATCH_ID_04, DateUtils.addDays(currentDate, -15), 31L, 40L, EArchiveRequestType.CONTINUOUS, QUEUED);
+        // reexported can be null or false
+        create(BATCH_ID_00, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, EXPORTED, Boolean.TRUE, null);
+        create(BATCH_ID_01, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, ARCHIVED, Boolean.FALSE, null);
+        create(BATCH_ID_02, DateUtils.addDays(currentDate, -25), 11L, 20L, EArchiveRequestType.MANUAL, EXPORTED, null, BATCH_ID_00);
+        create(BATCH_ID_03, DateUtils.addDays(currentDate, -22), 21L, 30L, EArchiveRequestType.MANUAL, EXPIRED,null,null);
+        create(BATCH_ID_04, DateUtils.addDays(currentDate, -15), 31L, 40L, EArchiveRequestType.CONTINUOUS, QUEUED,null,null);
     }
 
-    private void create(String batchId, Date dateRequested, Long firstPkUserMessage, Long lastPkUserMessage, EArchiveRequestType continuous, EArchiveBatchStatus status) {
+    private void create(String batchId, Date dateRequested, Long firstPkUserMessage, Long lastPkUserMessage, EArchiveRequestType continuous, EArchiveBatchStatus status, Boolean reexported, String origin) {
         EArchiveBatchEntity batch = new EArchiveBatchEntity();
+
         batch.setBatchId(batchId);
+        batch.setReExported(reexported);
+        batch.setOriginalBatchId(origin);
         batch.setDateRequested(dateRequested);
         batch.setFirstPkUserMessage(firstPkUserMessage);
         batch.setLastPkUserMessage(lastPkUserMessage);

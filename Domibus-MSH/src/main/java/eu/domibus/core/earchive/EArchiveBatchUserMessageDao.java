@@ -38,7 +38,7 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
     }
 
     public List<EArchiveBatchUserMessage> getBatchMessageList(String batchId, Integer pageStart, Integer pageSize) {
-        TypedQuery<EArchiveBatchUserMessage> query = em.createNamedQuery("EArchiveBatchUserMessage.findByBatchEntityId", EArchiveBatchUserMessage.class);
+        TypedQuery<EArchiveBatchUserMessage> query = em.createNamedQuery("EArchiveBatchUserMessage.findByArchiveBatchId", EArchiveBatchUserMessage.class);
         query.setParameter("batchId", batchId);
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();

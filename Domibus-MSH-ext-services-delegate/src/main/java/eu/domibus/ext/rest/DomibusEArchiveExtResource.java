@@ -145,7 +145,7 @@ public class DomibusEArchiveExtResource {
      * @param messageStartDate: start date and hour of the exported messages in the batch yyMMddHH
      * @param messageEndDate:   end date  of the exported messages included in the batch,
      * @param statuses:         Filter by list of batch statues
-     * @param requestTypes:     Filter by batch type (Re-exported batches has MANUAL type)
+     * @param returnReExportedBatches:     Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
      * @param pageStart:        the offset/page from which the message IDs export will start. List is sorted by batch request date
      * @param pageSize:         maximum number of records in the page
      * @return list of the exported batches
@@ -160,12 +160,12 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate,
             @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageEndDate") Long messageEndDate,
             @Parameter(description = "Filter batches for statuses") @RequestParam(value = "statuses", required = false) List<ExportedBatchStatusType> statuses,
-            @Parameter(description = "Filter by batch type (Re-exported batches has MANUAL type)") @RequestParam(value = "requestType", required = false) List<BatchRequestType> requestTypes,
+            @Parameter(description = "Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "reExport", defaultValue = "false") Boolean returnReExportedBatches,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
 
-        ExportedBatchFilterDTO filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, requestTypes);
+        ExportedBatchFilterDTO filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, returnReExportedBatches);
         ExportedBatchResultDTO resultDTO = new ExportedBatchResultDTO(filter, pageStart, pageSize);
         LOG.info("Return exported batches with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
 

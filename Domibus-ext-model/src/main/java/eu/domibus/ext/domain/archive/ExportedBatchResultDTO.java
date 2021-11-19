@@ -21,8 +21,8 @@ public class ExportedBatchResultDTO {
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 
-    public ExportedBatchResultDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, List<BatchRequestType> requestTypes, Integer pageStart, Integer pageSize) {
-        this.filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, requestTypes);
+    public ExportedBatchResultDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, Boolean returnReExportedBatches, Integer pageStart, Integer pageSize) {
+        this.filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, returnReExportedBatches);
         this.pagination = new PaginationDTO(pageStart, pageSize);
     }
 

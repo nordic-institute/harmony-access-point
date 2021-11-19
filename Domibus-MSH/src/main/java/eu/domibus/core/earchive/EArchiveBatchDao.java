@@ -89,13 +89,9 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
 
         CriteriaQuery<EArchiveBatchEntity> criteria = builder.createQuery(EArchiveBatchEntity.class);
-
         final Root<EArchiveBatchEntity> eArchiveBatchRoot = criteria.from(EArchiveBatchEntity.class);
-
         criteria.orderBy(builder.desc(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested)));
-
         List<Predicate> predicates = getPredicates(filter, builder, eArchiveBatchRoot);
-
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
         TypedQuery<EArchiveBatchEntity> batchQuery = em.createQuery(criteria);
 
@@ -108,13 +104,9 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
 
         CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
-
         Root<EArchiveBatchEntity> eArchiveBatchRoot = criteria.from(EArchiveBatchEntity.class);
-
         criteria.select(builder.count(eArchiveBatchRoot));
-
         List<Predicate> predicates = getPredicates(filter, builder, eArchiveBatchRoot);
-
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
         return em.createQuery(criteria).getSingleResult();
     }
@@ -163,6 +155,14 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         if (filter.getStatusList() != null && !filter.getStatusList().isEmpty()) {
             Expression<EArchiveBatchStatus> statusExpression = eArchiveBatchRoot.get(EArchiveBatchEntity_.eArchiveBatchStatus);
             predicates.add(statusExpression.in(filter.getStatusList()));
+        }
+
+        // by default (null) or if values is false return all batches which do not have exported set to true
+        // for returnReExportedBatches return all batches - do not set condition
+        if (filter.getReturnReExportedBatches() == null || !filter.getReturnReExportedBatches())  {
+            // Note: SQL not equal does not return NULL results
+            Expression<Boolean> expression = eArchiveBatchRoot.get(EArchiveBatchEntity_.reExported);
+            predicates.add(builder.or(expression.isNull(), builder.equal(expression, Boolean.FALSE)));
         }
         return predicates;
     }

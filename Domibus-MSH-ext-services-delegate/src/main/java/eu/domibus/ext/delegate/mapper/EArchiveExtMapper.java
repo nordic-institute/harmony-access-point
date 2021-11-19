@@ -11,8 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-
 import java.util.Arrays;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author Joze Rihtarsic
@@ -38,6 +39,9 @@ public interface EArchiveExtMapper {
 
     @Named("stringToBatchRequestType")
     default BatchRequestType stringToBatchRequestType(String requestType) {
+        if (isNull(requestType)) {
+            return null;
+        }
         if (Arrays.stream(BatchRequestType.values()).anyMatch(batchRequestType -> StringUtils.equalsIgnoreCase(requestType, batchRequestType.name()))) {
             return BatchRequestType.valueOf(requestType);
         }
