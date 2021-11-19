@@ -217,6 +217,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public UserMessageLog findByMessageId(String messageId) {
+
+        // TODO REMOVE THIS AFTER RUNNING IN BAMBOO
+        LOG.warn("\n\nIn findByMessageId [{}]\n\n", Thread.currentThread().getStackTrace());
+
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);

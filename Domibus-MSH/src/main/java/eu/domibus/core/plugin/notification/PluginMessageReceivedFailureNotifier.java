@@ -39,6 +39,7 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
 
         MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
         event.setMessageId(messageId);
+        event.setMessageEntityId(messageEntityId);
         String service = properties.get(MessageConstants.SERVICE);
         event.setService(service);
 
