@@ -213,7 +213,6 @@ public class Party extends AbstractBaseEntity {
                 .appendSuper(super.equals(o))
                 .appendSuper(equalIdentifiers(identifiers, party.identifiers))
                 .append(name, party.name)
-                .append(endpoint, party.endpoint)
                 .isEquals();
     }
 
@@ -252,7 +251,6 @@ public class Party extends AbstractBaseEntity {
                 .appendSuper(super.hashCode())
                 .append(identifiers)
                 .append(name)
-                .append(endpoint)
                 .toHashCode();
     }
 }
