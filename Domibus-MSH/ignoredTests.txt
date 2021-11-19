@@ -1,8 +1,7 @@
-**/DateUtilImplTest.java
-**/StorageTest.java
-**/PasswordEncryptionServiceImplTest.java
-**/ObjectBlacklistValidatorTest.java
-**/DomibusPropertiesServiceTest.java
-**/CsvServiceImplTest.java
-**/CsvServiceImplTest.java
-**/AlertResourceTest.java
+DateUtilImplTest
+StorageTest
+PasswordEncryptionServiceImplTest
+ObjectBlacklistValidatorTest
+DomibusPropertiesServiceTest
+CsvServiceImplTest
+AlertResourceTest
