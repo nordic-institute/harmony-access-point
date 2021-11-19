@@ -65,15 +65,12 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final Queue eArchiveNotificationQueue;
 
-    private final Queue eArchiveQueue;
-
     public EArchivingDefaultService(EArchiveBatchStartDao eArchiveBatchStartDao,
                                     @Lazy UserMessageLogDefaultService userMessageLogDefaultService,
                                     EArchiveBatchDao eArchiveBatchDao,
                                     EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                     JMSManager jmsManager,
                                     @Qualifier(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE) Queue eArchiveNotificationQueue,
-                                    @Qualifier(InternalJMSConstants.EARCHIVE_QUEUE) Queue eArchiveQueue,
                                     EArchiveBatchMapper eArchiveBatchMapper,
                                     EArchiveBatchDispatcherService eArchiveBatchDispatcherService,
                                     EArchiveBatchUtils eArchiveBatchUtils,
@@ -90,7 +87,6 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsManager = jmsManager;
         this.eArchiveNotificationQueue = eArchiveNotificationQueue;
-        this.eArchiveQueue = eArchiveQueue;
     }
 
     @Override

@@ -122,8 +122,8 @@ public class EArchiveListenerTest {
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
 
-            jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name());
-            result=false;
+            jmsUtil.getMessageTypeSafely(message);
+            result=EArchiveBatchStatus.EXPORTED.name();
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = eArchiveBatch;
@@ -147,8 +147,8 @@ public class EArchiveListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name());
-            result=false;
+            jmsUtil.getMessageTypeSafely(message);
+            result=EArchiveBatchStatus.EXPORTED.name();
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
@@ -206,8 +206,8 @@ public class EArchiveListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
             result = batchId;
 
-            jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name());
-            result=true;
+            jmsUtil.getMessageTypeSafely(message);
+            result=EArchiveBatchStatus.ARCHIVED.name();
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;

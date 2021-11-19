@@ -72,10 +72,17 @@ public class EArchiveListener implements MessageListener {
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
 
-        if (jmsUtil.isMessageTypeSafely(message, EArchiveBatchStatus.ARCHIVED.name())) {
+        String batchMessageType = jmsUtil.getMessageTypeSafely(message);
+        if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
             onMessageArchiveBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
-        } else {
+        } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType))  {
             onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else {
+            LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
+                    batchMessageType, batchId, entityId);
+            // If this happen then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
+            // make sure to add also the processing of new message type
+            throw new IllegalArgumentException( "Invalid JMS message type ["+batchMessageType+"] for the eArchive processing of the batchId ["+batchId+"]!");
         }
     }
 
