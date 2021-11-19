@@ -19,14 +19,14 @@ public class MessageReceiveFailureEvent implements MessageEvent {
     protected String action;
     protected ErrorResult errorResult;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
-    protected long messageEntityId;
+    protected Long messageEntityId;
 
     @Override
-    public long getMessageEntityId() {
+    public Long getMessageEntityId() {
         return messageEntityId;
     }
 
-    public void setMessageEntityId(long messageEntityId) {
+    public void setMessageEntityId(Long messageEntityId) {
         this.messageEntityId = messageEntityId;
     }
 

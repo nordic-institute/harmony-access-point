@@ -50,7 +50,7 @@ public class PluginMessageReceivedFailureNotifierTest {
         properties.put(MessageConstants.ACTION, action);
         properties.put(MessageConstants.ENDPOINT, endpoint);
 
-        pluginMessageReceivedFailureNotifier.notifyPlugin(backendConnector, 123, messageId, properties);
+        pluginMessageReceivedFailureNotifier.notifyPlugin(backendConnector, 123L, messageId, properties);
 
         new Verifications() {{
             MessageReceiveFailureEvent event = null;

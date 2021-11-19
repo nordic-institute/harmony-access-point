@@ -90,7 +90,7 @@ public class WSPluginBackendServiceTest {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
         }
         properties.put(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
-        return new MessageSendSuccessEvent(MESSAGE_ID, properties);
+        return new MessageSendSuccessEvent(123L, MESSAGE_ID, properties);
     }
 
     private void testSend(String knownProperty) {

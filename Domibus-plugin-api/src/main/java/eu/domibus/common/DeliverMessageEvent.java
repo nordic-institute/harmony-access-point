@@ -30,7 +30,7 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
     }
 
     @Override
-    public long getMessageEntityId() {
+    public Long getMessageEntityId() {
         return messageEntityId;
     }
 

@@ -18,18 +18,19 @@ public class MessageSendFailedEvent implements Serializable, MessageEvent {
 
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
-    protected long messageEntityId;
+    protected Long messageEntityId;
 
-    public MessageSendFailedEvent(String messageId) {
+    public MessageSendFailedEvent(Long messageEntityId, String messageId) {
+        this.messageEntityId = messageEntityId;
         this.messageId = messageId;
     }
 
     @Override
-    public long getMessageEntityId() {
+    public Long getMessageEntityId() {
         return messageEntityId;
     }
 
-    public void setMessageEntityId(long messageEntityId) {
+    public void setMessageEntityId(Long messageEntityId) {
         this.messageEntityId = messageEntityId;
     }
 

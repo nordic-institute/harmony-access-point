@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class NotifyMessageCreator {
 
-    private final long messageEntityId;
+    private final Long messageEntityId;
     private final String messageId;
     private NotificationType notificationType;
     private Map<String, String> properties;
@@ -36,7 +36,7 @@ public class NotifyMessageCreator {
         return jmsMessageBuilder.build();
     }
 
-    public long getMessageEntityId() {
+    public Long getMessageEntityId() {
         return messageEntityId;
     }
 
