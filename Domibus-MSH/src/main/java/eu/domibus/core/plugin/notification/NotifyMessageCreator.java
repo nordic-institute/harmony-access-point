@@ -29,7 +29,7 @@ public class NotifyMessageCreator {
         if (properties != null) {
             jmsMessageBuilder.properties(properties);
         }
-        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, ""+messageEntityId);
+        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
 
