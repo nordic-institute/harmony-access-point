@@ -29,7 +29,6 @@ import java.util.Map;
 @Transactional
 public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
-    private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
 
