@@ -67,7 +67,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         this.certificateService = certificateService;
     }
 
-    public void init(String initValue) {
+    public void init(List<Enum> initValue) {
         String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
@@ -232,6 +232,11 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     protected void setDomainCryptoServiceSpiList(List<DomainCryptoServiceSpi> domainCryptoServiceSpiList) {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
+    }
+
+    @Override
+    public void reset(List<Enum> initValue) {
+        this.init(initValue);
     }
 
     @Override

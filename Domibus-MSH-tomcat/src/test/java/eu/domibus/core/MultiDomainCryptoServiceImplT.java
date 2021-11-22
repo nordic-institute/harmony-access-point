@@ -3,6 +3,7 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.crypto.DefaultDomainCryptoServiceSpiImpl;
 import eu.domibus.core.crypto.DomainCryptoServiceFactory;
@@ -14,6 +15,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
@@ -57,11 +60,10 @@ public class MultiDomainCryptoServiceImplT extends AbstractIT {
     public void replaceTrustStore() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String password = "test123";
-        final String INIT_VALUE_TRUSTSTORE = "truststore";
         multiDomainCryptoService.persistTruststoresIfApplicable();
         byte[] store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_FILE_NAME, store, password, INIT_VALUE_TRUSTSTORE);
+        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_FILE_NAME, store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }

@@ -40,7 +40,7 @@ public class DomainCryptoServiceFactory {
 
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomainCryptoServiceImpl domainCryptoService(Domain domain, String initValue) {
+    public DomainCryptoServiceImpl domainCryptoService(Domain domain,  List<Enum> initValue) {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 
         final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);

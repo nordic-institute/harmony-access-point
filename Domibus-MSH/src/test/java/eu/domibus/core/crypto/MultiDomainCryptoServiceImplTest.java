@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
@@ -122,7 +123,7 @@ public class MultiDomainCryptoServiceImplTest {
             result = "jks";
         }};
 
-        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password, INIT_VALUE_TRUSTSTORE_OR_KEYSTORE);
+        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
 
         new Verifications() {{
             cryptoService.replaceTrustStore(store, password);
@@ -236,7 +237,7 @@ public class MultiDomainCryptoServiceImplTest {
         String alias = "blue_gw";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain,null);
             result = cryptoService;
         }};
 

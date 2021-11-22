@@ -38,8 +38,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
     public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
-    public final static String INTI_TRUSTSTORE_NAME = "truststore";
-    public final static String INTI_KEYSTORE_NAME = "keystore";
+    public final static String INTI_TRUSTSTORE_NAME = "TRUSTSTORE";
+    public final static String INTI_KEYSTORE_NAME = "KEYSTORE";
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
@@ -135,7 +135,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password, String initValue) throws CryptoException {
+    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password, List<Enum> initValue) throws CryptoException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, initValue);
         certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
@@ -203,7 +203,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void reset(Domain domain) {
+    public void reset(List<Enum> initValue) {
+        domainCertificateProviderMap.values().stream().forEach(service -> service.reset(initValue));
+    }
+
+    @Override
+    public void reset(Domain domain, List<Enum> initValue) {
         if (domain == null) {
             throw new InvalidParameterException("Domain is null.");
         }
@@ -213,7 +218,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
             throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
         }
 
-        domainCertificateProvider.reset();
+        domainCertificateProvider.reset(initValue);
     }
 
     @Override
@@ -253,7 +258,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         );
     }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain, String initValue) {
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain,  List<Enum> initValue) {
         LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
         if (domainCertificateProviderMap.get(domain) == null) {
             synchronized (domainCertificateProviderMap) {

@@ -70,5 +70,7 @@ public interface DomainCryptoService {
 
     void reset();
 
+    void reset(List<Enum> initValue);
+
     byte[] getTruststoreContent();
 }
