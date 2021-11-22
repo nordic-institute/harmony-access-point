@@ -1,15 +1,17 @@
 package eu.domibus.plugin.fs.property.encryption;
 
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
-import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 
 /**
  * @author Cosmin Baciu
@@ -30,28 +32,36 @@ public class FSPluginPropertyEncryptionListenerTest {
     @Injectable
     protected DomainExtService domainExtService;
 
+    @Injectable
+    protected DomainContextExtService domainContextProvider;
+
     @Tested
     FSPluginPropertyEncryptionListener fsPluginPropertyEncryptionListener;
 
 
     @Test
     public void encryptPasswords(@Injectable DomainDTO domainDTO,
-                                 @Mocked FSPluginDomainPasswordEncryptionContext fsPluginPasswordEncryptionContext) {
-        new Expectations() {{
-            fsPluginProperties.isPasswordEncryptionActive();
+                                 @Mocked FSPluginDomainPasswordEncryptionContext globalPasswordEncryptionContext,
+                                 @Mocked FSPluginDomainPasswordEncryptionContext domainPasswordEncryptionContext) {
+        new Expectations(fsPluginPropertyEncryptionListener) {{
+            domibusConfigurationExtService.isMultiTenantAware();
             result = true;
 
-            domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
-            result = domainDTO;
+            domainExtService.getDomains();
+            result = Arrays.asList(domainDTO);
 
-            new FSPluginDomainPasswordEncryptionContext(fsPluginProperties, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
-            result = fsPluginPasswordEncryptionContext;
+            fsPluginPropertyEncryptionListener.getGlobalPasswordEncryptionContext();
+            result = globalPasswordEncryptionContext;
+
+            fsPluginPropertyEncryptionListener.getDomainPasswordEncryptionContextDomain(domainDTO);
+            result = domainPasswordEncryptionContext;
         }};
 
         fsPluginPropertyEncryptionListener.encryptPasswords();
 
         new Verifications() {{
-            pluginPasswordEncryptionService.encryptPasswordsInFile(fsPluginPasswordEncryptionContext);
+            pluginPasswordEncryptionService.encryptPasswordsInFile(globalPasswordEncryptionContext);
+            pluginPasswordEncryptionService.encryptPasswordsInFile(domainPasswordEncryptionContext);
         }};
     }
 }

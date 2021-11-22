@@ -7,10 +7,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.validation.constraints.AssertTrue;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -19,8 +17,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-
-import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
 public class DssConfigurationTest {
@@ -54,6 +50,9 @@ public class DssConfigurationTest {
 
     @Injectable
     private PasswordEncryptionExtService passwordEncryptionService;
+
+    @Injectable
+    private DssExtensionPropertyManager propertyManager;
 
     @Tested
     private DssConfiguration dssConfiguration;
@@ -106,26 +105,26 @@ public class DssConfigurationTest {
 
 
     @Test
-    public void loadCacertTrustStoreFromDefaultLocation(@Mocked KeyStore keyStore){
+    public void loadCacertTrustStoreFromDefaultLocation(@Mocked KeyStore keyStore) {
         final String cacertPath = "";
-        Deencapsulation.setField(dssConfiguration,"cacertPath",cacertPath);
+        Deencapsulation.setField(dssConfiguration, "cacertPath", cacertPath);
         final String cacertType = "cacertType";
         Deencapsulation.setField(dssConfiguration, cacertType, cacertType);
         final String cacertPassword = "cacertPassword";
         Deencapsulation.setField(dssConfiguration, cacertPassword, cacertPassword);
 
-        new Expectations(dssConfiguration){{
+        new Expectations(dssConfiguration) {{
             dssConfiguration.getJavaHome();
-            result="\\home";
+            result = "\\home";
             dssConfiguration.loadKeystore(anyString, cacertType, cacertPassword);times=1;
-            result=keyStore;
+            result = keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();
 
     }
 
     @Test
-    public void loadCacertTrustStoreFromCustomLocation(@Mocked KeyStore keyStore){
+    public void loadCacertTrustStoreFromCustomLocation(@Mocked KeyStore keyStore) {
 
         final String cacertPath = "cacertPath";
         ReflectionTestUtils.setField(dssConfiguration, cacertPath, cacertPath);
@@ -133,9 +132,9 @@ public class DssConfigurationTest {
         ReflectionTestUtils.setField(dssConfiguration, cacertType, cacertType);
         final String cacertPassword = "cacertPassword";
         ReflectionTestUtils.setField(dssConfiguration, cacertPassword, cacertPassword);
-        new Expectations(dssConfiguration){{
+        new Expectations(dssConfiguration) {{
             dssConfiguration.loadKeystore(cacertPath, cacertType, cacertPassword);times=1;
-            result=keyStore;
+            result = keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();
     }
