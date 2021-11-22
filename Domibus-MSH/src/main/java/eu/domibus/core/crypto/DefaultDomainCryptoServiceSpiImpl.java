@@ -79,7 +79,12 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     public void init(String initValue) {
-        if (initValue != null && initValue.equals(INTI_TRUSTSTORE_NAME)) {
+        if (initValue != null) {
+LOG.debug("")
+return;
+}
+
+if(StringUtils.equals(initValue,INTI_TRUSTSTORE_NAME)){
             loadTrustStoreProperties();
         } else if (initValue != null && initValue.equals(INTI_KEYSTORE_NAME)) {
             loadKeyStoreProperties();
