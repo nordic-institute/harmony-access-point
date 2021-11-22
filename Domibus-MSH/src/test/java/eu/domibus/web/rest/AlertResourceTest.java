@@ -18,6 +18,7 @@ import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
 import mockit.*;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.bind.ValidationException;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class AlertResourceTest {
     @Tested
     AlertResource alertResource;
