@@ -9,11 +9,14 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -95,7 +98,11 @@ public class DomainDaoImpl implements DomainDao {
             LOG.warn("Invalid domains path: [{}]", confDirectory);
             return null;
         }
-        return Arrays.stream(domainHomes).map(File::getName).sorted().collect(Collectors.toList());
+        LOG.debug("Domain directories identified:[{}]", Arrays.stream(domainHomes).map(File::getName).collect(Collectors.toList()));
+        //filter the domain home directories that contain files with name '-domibus.properties' only
+        List<String> filteredDomainHomes = Arrays.stream(domainHomes).filter(domainDir -> domainDir.listFiles((FilenameFilter) FileFilterUtils.suffixFileFilter("-domibus.properties", IOCase.INSENSITIVE)).length > 0).map(File::getName).sorted().collect(Collectors.toList());
+        LOG.debug("Filtered Domain Homes with property files:"+filteredDomainHomes);
+        return filteredDomainHomes;
     }
 
     protected void checkValidDomain(List<Domain> domains, String domainCode) {
