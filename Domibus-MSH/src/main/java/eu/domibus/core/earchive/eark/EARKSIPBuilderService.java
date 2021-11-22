@@ -29,6 +29,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
@@ -45,8 +46,9 @@ public class EARKSIPBuilderService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EARKSIPBuilderService.class);
 
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
+    public static final String SHA_256 = "sha256:";
 
-    public FileObject build(DomibusEARKSIP domibusEARKSIP, final FileObject destinationDirectory) throws IPException {
+    public DomibusEARKSIPResult build(DomibusEARKSIP domibusEARKSIP, final FileObject destinationDirectory) throws IPException {
         MetsWrapper mainMETSWrapper = EARKMETSUtils.generateMETS(StringUtils.join(
                         domibusEARKSIP.getIds(), " "),
                 domibusEARKSIP.getDescription(),
@@ -63,9 +65,15 @@ public class EARKSIPBuilderService {
 
         addRepresentationsToFolderAndMETS(domibusEARKSIP.getRepresentations(), mainMETSWrapper, destinationDirectory);
 
-        addMetsFileToFolder(destinationDirectory, mainMETSWrapper);
+        return new DomibusEARKSIPResult(destinationDirectory.getPath(), getCheckSum(addMetsFileToFolder(destinationDirectory, mainMETSWrapper)));
+    }
 
-        return destinationDirectory;
+    private String getCheckSum(Path path) {
+        try {
+            return SHA_256 + DigestUtils.sha256Hex(FileUtils.readFileToByteArray(path.toFile()));
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Could not calculate the checksum of the manifest", e);
+        }
     }
 
     private void setMetsDocumentID(DomibusEARKSIP domibusEARKSIP, MetsWrapper mainMETSWrapper) {
@@ -74,9 +82,9 @@ public class EARKSIPBuilderService {
         mainMETSWrapper.getMets().getMetsHdr().setMetsDocumentID(value);
     }
 
-    protected void addMetsFileToFolder(FileObject destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
+    protected Path addMetsFileToFolder(FileObject destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
         try {
-            METSUtils.marshallMETS(mainMETSWrapper.getMets(), destinationDirectory.resolveFile(IPConstants.METS_FILE).getPath(), true);
+            return METSUtils.marshallMETS(mainMETSWrapper.getMets(), destinationDirectory.resolveFile(IPConstants.METS_FILE).getPath(), true);
         } catch (JAXBException | IOException e) {
             throw new DomibusEArchiveException("Could not create METS.xml to [" + destinationDirectory.getName() + "]", e);
         }
@@ -111,31 +119,34 @@ public class EARKSIPBuilderService {
             FileObject destinationDirectory) {
         if (CollectionUtils.isNotEmpty(representation.getData())) {
             for (IPFile file : representation.getData()) {
-                String pathFromData = IPConstants.DATA_FOLDER + ModelUtils.getFoldersFromList(file.getRelativeFolders())
-                        + file.getFileName();
 
                 String pathFromRepresentation = IPConstants.REPRESENTATIONS_FOLDER + representationId + IPConstants.ZIP_PATH_SEPARATOR
-                        + pathFromData;
+                        + getPathFromData(file);
                 try (FileObject fileObject = destinationDirectory.resolveFile(pathFromRepresentation)) {
                     addFileToFolder((DomibusIPFile) file, fileObject);
-                    addDataFileToMETS(representationMETSWrapper, pathFromData, fileObject);
+                    addDataFileToMETS(representationMETSWrapper, (DomibusIPFile) file, fileObject);
                 } catch (FileSystemException e) {
-                    throw new DomibusEArchiveException("Could not access to the folder [" + destinationDirectory + "] and file [" + pathFromData + "]");
+                    throw new DomibusEArchiveException("Could not access to the folder [" + destinationDirectory + "] and file [" + getPathFromData(file) + "]");
                 }
 
             }
         }
     }
 
-    protected void addDataFileToMETS(MetsWrapper representationMETS, String dataFilePath, FileObject dataFile) {
+    private String getPathFromData(IPFile file) {
+        return IPConstants.DATA_FOLDER + ModelUtils.getFoldersFromList(file.getRelativeFolders())
+                + file.getFileName();
+    }
+
+    protected void addDataFileToMETS(MetsWrapper representationMETS, DomibusIPFile domibusIPFile, FileObject dataFile) {
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());
 
         // set mimetype, date creation, etc.
-        setFileBasicInformation(dataFile, file);
+        setFileBasicInformation(domibusIPFile, dataFile, file);
 
         // add to file section
-        FileType.FLocat fileLocation = METSUtils.createFileLocation(dataFilePath);
+        FileType.FLocat fileLocation = METSUtils.createFileLocation(getPathFromData(domibusIPFile));
         file.getFLocat().add(fileLocation);
         representationMETS.getDataFileGroup().getFile().add(file);
 
@@ -147,24 +158,14 @@ public class EARKSIPBuilderService {
         }
     }
 
-    public void setFileBasicInformation(FileObject file, FileType fileType) {
-        // mimetype info.
-        try {
-            LOG.debug("Setting mimetype [{}]", file);
-            fileType.setMIMETYPE(getFileMimetype(file));
-            LOG.debug("Done setting mimetype");
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Error probing content-type [" + file.getName() + "]", e);
-        }
+    public void setFileBasicInformation(DomibusIPFile domibusIPFile, FileObject file, FileType fileType) {
+        initMimeTypeInfo(file, fileType);
+        initDateCreation(file, fileType);
+        initSizeInfo(file, fileType);
+        initChecksum(domibusIPFile, file, fileType);
+    }
 
-        // date creation info.
-        try {
-            fileType.setCREATED(getDatatypeFactory().newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
-        } catch (DatatypeConfigurationException e) {
-            throw new DomibusEArchiveException("Error getting curent calendar [" + file.getName() + "]", e);
-        }
-
-        // size info.
+    private void initSizeInfo(FileObject file, FileType fileType) {
         try {
             LOG.debug("Setting file size [{}]", file);
             fileType.setSIZE(file.getContent().getSize());
@@ -172,16 +173,41 @@ public class EARKSIPBuilderService {
         } catch (IOException e) {
             throw new DomibusEArchiveException("Error getting file size [" + file.getName() + "]", e);
         }
+    }
 
-        // checksum
-        String checksumSHA256;
+    private void initDateCreation(FileObject file, FileType fileType) {
         try {
-            checksumSHA256 = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file.getPath().toFile()));
-            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.getName());
-            fileType.setCHECKSUM(checksumSHA256);
-            fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
+            fileType.setCREATED(getDatatypeFactory().newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now(ZoneOffset.UTC))));
+        } catch (DatatypeConfigurationException e) {
+            throw new DomibusEArchiveException("Error getting curent calendar [" + file.getName() + "]", e);
+        }
+    }
+
+    private void initMimeTypeInfo(FileObject file, FileType fileType) {
+        try {
+            LOG.debug("Setting mimetype [{}]", file);
+            fileType.setMIMETYPE(getFileMimetype(file));
+            LOG.debug("Done setting mimetype");
         } catch (IOException e) {
-            LOG.error("Exception while calculating [{}] hash", SHA256_CHECKSUMTYPE, e);
+            throw new DomibusEArchiveException("Error probing content-type [" + file.getName() + "]", e);
+        }
+    }
+
+    private void initChecksum(DomibusIPFile domibusIPFile, FileObject file, FileType fileType) {
+        if (domibusIPFile.writeCheckSum()) {
+            // checksum
+            String checksumSHA256;
+            try {
+                checksumSHA256 = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file.getPath().toFile()));
+                LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.getName());
+                fileType.setCHECKSUM(checksumSHA256);
+                fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
+            } catch (IOException e) {
+                fileType.setCHECKSUM("ERROR");
+                LOG.error("Exception while calculating [{}] hash", SHA256_CHECKSUMTYPE, e);
+            }
+        } else {
+            LOG.debug("no checkSum for file [{}]", domibusIPFile.getFileName());
         }
     }
 

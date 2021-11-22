@@ -2,7 +2,6 @@ package eu.domibus.core.earchive.eark;
 
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
-import org.apache.commons.vfs2.FileObject;
 
 import java.util.List;
 
@@ -12,6 +11,6 @@ import java.util.List;
  */
 public interface EArchivePersistence {
 
-    FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds);
+    DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds);
 
 }

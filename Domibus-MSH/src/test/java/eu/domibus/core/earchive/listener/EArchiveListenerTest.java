@@ -5,6 +5,7 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.eark.DomibusEARKSIPResult;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
@@ -13,13 +14,11 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.vfs2.FileObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Message;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -133,8 +132,8 @@ public class EArchiveListenerTest {
 
     @Test
     public void onMessage_ok(@Injectable Message message,
-                                     @Injectable EArchiveBatchEntity eArchiveBatch,
-                                     @Injectable FileObject fileObject) throws IOException {
+                             @Injectable EArchiveBatchEntity eArchiveBatch,
+                             @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -160,8 +159,11 @@ public class EArchiveListenerTest {
             eArchiveBatch.getEArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
+            domibusEARKSIPResult.getmanifestchecksum();
+            result = "sha256:test";
+
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<EArchiveBatchUserMessage>) any);
-            result = fileObject;
+            result = domibusEARKSIPResult;
 
             eArchiveBatch.getBatchId();
             result = batchId;
@@ -180,7 +182,8 @@ public class EArchiveListenerTest {
             eArchiveBatchUtils.getMessageIds((List<EArchiveBatchUserMessage>) any);
             times = 1;
 
-            fileObject.close();
+            eArchiveBatch.setManifestChecksum("sha256:test");
+            times = 1;
 
             eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;

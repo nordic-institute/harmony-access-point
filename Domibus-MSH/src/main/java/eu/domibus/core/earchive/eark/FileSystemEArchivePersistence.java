@@ -51,7 +51,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     @Override
-    public FileObject createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
+    public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchEArchiveDTO.getBatchId(), userMessageEntityIds.size());
 
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batchEArchiveDTO.getBatchId())) {
@@ -78,7 +78,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
         LOG.debug("Add batch.json");
         InputStream batchFileJson = eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
-        representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON));
+        representation1.addFile(new DomibusIPFile(batchFileJson, BATCH_JSON, false));
         for (EArchiveBatchUserMessage messageId : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", messageId);
             addUserMessage(representation1, messageId);
