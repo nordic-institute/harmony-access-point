@@ -101,7 +101,7 @@ public class DomainDaoImpl implements DomainDao {
         LOG.debug("Domain directories identified:[{}]", Arrays.stream(domainHomes).map(File::getName).collect(Collectors.toList()));
         //filter the domain home directories that contain files with name '-domibus.properties' only
         List<String> filteredDomainHomes = Arrays.stream(domainHomes).filter(domainDir -> domainDir.listFiles((FilenameFilter) FileFilterUtils.suffixFileFilter("-domibus.properties", IOCase.INSENSITIVE)).length > 0).map(File::getName).sorted().collect(Collectors.toList());
-        LOG.debug("Filtered Domain Homes with property files:"+filteredDomainHomes);
+        LOG.debug("Filtered Domain Homes with property files:" + filteredDomainHomes);
         return filteredDomainHomes;
     }
 
