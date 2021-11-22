@@ -120,4 +120,5 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
         // intentionally return null as there is no property file for a domain
         return Optional.empty();
     }
+
 }

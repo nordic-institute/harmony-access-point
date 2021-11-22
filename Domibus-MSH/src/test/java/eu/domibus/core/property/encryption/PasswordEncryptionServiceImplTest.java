@@ -29,8 +29,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.junit.Assert.*;
 
 /**
@@ -829,5 +831,32 @@ public class PasswordEncryptionServiceImplTest {
 
         new FullVerifications() {
         };
+    }
+
+    @Test
+    public void getPropertiesToEncrypt(@Mocked Function<String, String> getPropertyFn) {
+        String propertyName1 = "property1";
+        String value1 = "value1";
+
+        String propertyName2 = "property2";
+        String value2 = "value2";
+
+        String encryptedProperties = propertyName1 + "," + propertyName2;
+
+        new Expectations() {{
+            getPropertyFn.apply(encryptedProperties);
+            result = encryptedProperties;
+
+            getPropertyFn.apply(propertyName1);
+            result = value1;
+
+            getPropertyFn.apply(propertyName2);
+            result = value2;
+        }};
+
+        final List<String> propertiesToEncrypt = passwordEncryptionService.getPropertiesToEncrypt(encryptedProperties, getPropertyFn);
+        assertEquals(2, propertiesToEncrypt.size());
+        Assert.assertTrue(propertiesToEncrypt.contains(propertyName1));
+        Assert.assertTrue(propertiesToEncrypt.contains(propertyName2));
     }
 }

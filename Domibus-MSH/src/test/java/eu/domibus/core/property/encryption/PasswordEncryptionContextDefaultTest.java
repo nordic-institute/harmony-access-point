@@ -84,29 +84,5 @@ public class PasswordEncryptionContextDefaultTest {
         final File encryptedKeyFile = passwordEncryptionContextDefault.getEncryptedKeyFile();
         assertEquals(PasswordEncryptionContextAbstract.ENCRYPTED_KEY, encryptedKeyFile.getName());
     }
-
-    @Test
-    public void getPropertiesToEncrypt() {
-        String propertyName1 = "property1";
-        String value1 = "value1";
-
-        String propertyName2 = "property2";
-        String value2 = "value2";
-
-        new Expectations(passwordEncryptionContextDefault) {{
-            passwordEncryptionContextDefault.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES);
-            result = propertyName1 + "," + propertyName2;
-
-            passwordEncryptionContextDefault.getProperty(propertyName1);
-            result = value1;
-
-            passwordEncryptionContextDefault.getProperty(propertyName2);
-            result = value2;
-        }};
-
-        final List<String> propertiesToEncrypt = passwordEncryptionContextDefault.getPropertiesToEncrypt();
-        assertEquals(2, propertiesToEncrypt.size());
-        Assert.assertTrue(propertiesToEncrypt.contains(propertyName1));
-        Assert.assertTrue(propertiesToEncrypt.contains(propertyName2));
-    }
+    
 }
