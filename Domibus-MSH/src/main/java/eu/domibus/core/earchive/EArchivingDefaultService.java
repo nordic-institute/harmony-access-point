@@ -182,7 +182,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         DomibusMessageCode messageCode;
         if (batchStatus == EArchiveBatchStatus.ARCHIVED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED_NOTIFICATION_RECEIVED;
-            // submit jms message to update bath messages to "archived"
+            // submit jms message to update batch messages to "archived"
             eArchiveBatchDispatcherService.enqueueEArchive(eArchiveBatchEntity,domainContextProvider.getCurrentDomain(), EArchiveBatchStatus.ARCHIVED.name());
         } else if (batchStatus == EArchiveBatchStatus.ARCHIVE_FAILED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ERROR_NOTIFICATION_RECEIVED;
