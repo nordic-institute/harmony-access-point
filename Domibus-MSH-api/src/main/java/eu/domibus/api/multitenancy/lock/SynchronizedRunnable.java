@@ -34,6 +34,9 @@ public class SynchronizedRunnable implements Runnable {
     public void run() {
         LOG.trace("Trying to lock [{}]", lockKey);
 
+        String threadName = Thread.currentThread().getName();
+        Thread.currentThread().setName(lockKey);
+
         try {
             // if this blocks, it means that another process has a write lock on the db record
             synchronizationService.acquireLock(lockKey);
@@ -49,5 +52,7 @@ public class SynchronizedRunnable implements Runnable {
         } catch (Exception ex) {
             LOG.error("Error while running synchronized task.", ex);
         }
+
+        Thread.currentThread().setName(threadName);
     }
 }
