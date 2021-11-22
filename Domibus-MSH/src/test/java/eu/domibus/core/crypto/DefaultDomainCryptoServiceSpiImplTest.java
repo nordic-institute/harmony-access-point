@@ -96,7 +96,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     public void throwsExceptionWhenFailingToLoadMerlinProperties_WSSecurityException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
+        thrown.expectMessage("Error occurred when loading the properties of TrustStore");
 
         new Expectations() {{
             merlin.loadProperties((Properties) any, (ClassLoader) any, null);
@@ -111,7 +111,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
+        thrown.expectMessage("Error occurred when loading the properties of TrustStore");
 
         new Expectations() {{
             merlin.loadProperties((Properties) any, (ClassLoader) any, null);
