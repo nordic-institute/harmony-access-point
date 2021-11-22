@@ -23,6 +23,7 @@ import java.util.UUID;
  * @author François Gautier
  * @since 5.0
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class EArchiveNotificationDlqListenerTest {
 
@@ -73,7 +74,7 @@ public class EArchiveNotificationDlqListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE);
             result = "EXPORTED";
 
-            eArchivingDefaultService.getEArchiveBatch(entityId);
+            eArchivingDefaultService.getEArchiveBatch(entityId, false);
             result = eArchiveBatch;
 
             archivingNotificationFailedConfigurationManager.getConfiguration();

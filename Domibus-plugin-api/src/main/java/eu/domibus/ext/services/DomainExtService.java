@@ -2,6 +2,8 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 
+import java.util.List;
+
 /**
  * Service used for operations related with domains.
  *
@@ -24,4 +26,6 @@ public interface DomainExtService {
      * @return the domain for the provided scheduler
      */
     DomainDTO getDomain(String code);
+
+    List<DomainDTO> getDomains();
 }

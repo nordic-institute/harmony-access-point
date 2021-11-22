@@ -3,6 +3,9 @@ package eu.domibus.ext.services;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 
+import java.util.List;
+import java.util.function.Function;
+
 /**
  * An interface containing utility operations for encrypting passwords.
  *
@@ -35,4 +38,6 @@ public interface PasswordEncryptionExtService {
      * @return The encrypted property result
      */
     PasswordEncryptionResultDTO encryptProperty(DomainDTO domain, String propertyName, String propertyValue);
+
+    List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn);
 }

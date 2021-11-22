@@ -10,6 +10,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author Tiago Miguel
  * @since 4.0
@@ -48,5 +51,13 @@ public class DomainExtServiceDelegate implements DomainExtService {
         }
         LOG.trace("No domain with code [{}] found", code);
         return null;
+    }
+
+    @Override
+    public List<DomainDTO> getDomains() {
+        List<Domain> domains = domainService.getDomains();
+        return domains.stream()
+                .map(domibusExtMapper::domainToDomainDTO)
+                .collect(Collectors.toList());
     }
 }
