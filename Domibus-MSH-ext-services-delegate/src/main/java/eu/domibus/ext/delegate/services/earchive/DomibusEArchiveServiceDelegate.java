@@ -131,7 +131,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * @param filter    request filter data
      * @param pageStart pagination data
      * @param pageSize  pagination size
-     * @return genera archive batch filter for searching the queued bathes
+     * @return genera archive batch filter for searching the queued batches
      */
     protected EArchiveBatchFilter convertQueuedFilter(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         LOG.trace("Create batch filter from the Queued filter [{}]!", filter);
@@ -163,7 +163,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * @param filter    request filter data
      * @param pageStart pagination data
      * @param pageSize  pagination size
-     * @return internal archive batch filter for searching the bathes
+     * @return internal archive batch filter for searching the batches
      */
     protected EArchiveBatchFilter convertExportFilter(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         LOG.trace("Create batch filter from the export filter [{}]!", filter);

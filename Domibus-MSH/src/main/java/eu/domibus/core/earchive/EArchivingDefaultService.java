@@ -182,12 +182,15 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         DomibusMessageCode messageCode;
         if (batchStatus == EArchiveBatchStatus.ARCHIVED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED_NOTIFICATION_RECEIVED;
+            // submit jms message to update batch messages to "archived"
+            eArchiveBatchDispatcherService.enqueueEArchive(eArchiveBatchEntity, domainContextProvider.getCurrentDomain(), EArchiveBatchStatus.ARCHIVED.name());
         } else if (batchStatus == EArchiveBatchStatus.ARCHIVE_FAILED) {
             messageCode = DomibusMessageCode.BUS_ARCHIVE_BATCH_ERROR_NOTIFICATION_RECEIVED;
         } else {
             throw new DomibusEArchiveException("Client submitted invalid batch status [" + batchStatus + "] for batchId: [" + batchId + "]. " +
                     "Only ARCHIVED and ARCHIVE_FAILED are allowed!");
         }
+
         EArchiveBatchEntity result = eArchiveBatchDao.setStatus(eArchiveBatchEntity, batchStatus, message, messageCode.getCode());
         LOG.businessInfo(messageCode, batchId, message);
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(result);
@@ -218,16 +221,24 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         jmsManager.sendMessageToQueue(JMSMessageBuilder
                 .create()
                 .property(MessageConstants.BATCH_ID, eArchiveBatchByBatchId.getBatchId())
-                .property(MessageConstants.BATCH_ENTITY_ID, "" + eArchiveBatchByBatchId.getEntityId())
+                .property(MessageConstants.BATCH_ENTITY_ID, String.valueOf(eArchiveBatchByBatchId.getEntityId()))
                 .property(MessageConstants.NOTIFICATION_TYPE, type.name())
                 .build(), eArchiveNotificationQueue);
     }
 
     @Transactional
-    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
-        userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId) {
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation());
         sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
+    }
+
+    @Transactional
+    public void executeBatchIsArchived(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+        setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
+        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
+                eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
+                userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));
     }
 }

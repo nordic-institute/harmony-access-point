@@ -70,11 +70,24 @@ public class EArchiveListener implements MessageListener {
         jmsUtil.setDomain(message);
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
-
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
-
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
 
+        String batchMessageType = jmsUtil.getMessageTypeSafely(message);
+        if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
+            onMessageArchiveBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType))  {
+            onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else {
+            LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
+                    batchMessageType, batchId, entityId);
+            // If this happen then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
+            // make sure to add also the processing of new message type
+            throw new IllegalArgumentException( "Invalid JMS message type ["+batchMessageType+"] for the eArchive processing of the batchId ["+batchId+"]!");
+        }
+    }
+
+    protected void onMessageExportBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
         }
@@ -84,8 +97,16 @@ public class EArchiveListener implements MessageListener {
                 userMessageDtos.get(0));
 
         exportInFileSystem(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId);
+    }
 
-        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId, userMessageDtos);
+    protected void onMessageArchiveBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        LOG.debug("Set batchId [{}] archived starting userMessageLog from [{}] to [{}]",
+                batchId,
+                userMessageDtos.get(userMessageDtos.size() - 1),
+                userMessageDtos.get(0));
+
+        eArchivingDefaultService.executeBatchIsArchived(eArchiveBatchByBatchId, userMessageDtos);
     }
 
     private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
