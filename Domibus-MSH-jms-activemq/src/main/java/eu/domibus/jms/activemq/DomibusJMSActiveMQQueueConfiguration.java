@@ -52,6 +52,21 @@ public class DomibusJMSActiveMQQueueConfiguration {
         return new ActiveMQQueue("domibus.internal.alert.queue");
     }
 
+    @Bean(InternalJMSConstants.EARCHIVE_QUEUE)
+    public ActiveMQQueue eArchiveQueue() {
+        return new ActiveMQQueue("domibus.internal.earchive.queue");
+    }
+
+    @Bean(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE)
+    public ActiveMQQueue eArchiveNotificationQueue() {
+        return new ActiveMQQueue("domibus.internal.earchive.notification.queue");
+    }
+
+    @Bean(InternalJMSConstants.EARCHIVE_NOTIFICATION_DLQ)
+    public ActiveMQQueue eArchiveNotificationDLQ() {
+        return new ActiveMQQueue("domibus.internal.earchive.notification.dlq");
+    }
+
     @Bean(InternalJMSConstants.UI_REPLICATION_QUEUE)
     public ActiveMQQueue uiReplicationQueue() {
         return new ActiveMQQueue("domibus.internal.ui.replication.queue");

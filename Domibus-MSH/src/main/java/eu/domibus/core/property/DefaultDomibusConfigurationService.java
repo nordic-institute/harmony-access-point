@@ -107,28 +107,21 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public String getConfigurationFileName(Domain domain) {
-        String propertyFileName = null;
-        if (DomainService.DEFAULT_DOMAIN.equals(domain)) {
-            String defaultDomainConfigFile = getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
-            final String configurationFile = getConfigLocation() + File.separator + defaultDomainConfigFile;
-            LOG.debug("Checking if file [{}] exists", configurationFile);
-            if (new File(configurationFile).exists()) {
-                LOG.debug("File [{}] exists. Using property file [{}]", configurationFile, defaultDomainConfigFile);
-                propertyFileName = defaultDomainConfigFile;
-            } else {
-                LOG.debug("File [{}] does not exists, using [{}]", configurationFile, DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE);
-                propertyFileName = DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
-            }
+        String propertyFileName;
+
+        if (isSingleTenantAware()) {
+            propertyFileName = getConfigurationFileName();
         } else {
             propertyFileName = getDomainConfigurationFileName(domain);
-            LOG.debug("Using property file [{}]", propertyFileName);
         }
+        LOG.debug("Using property file [{}]", propertyFileName);
 
         return propertyFileName;
     }
 
     public String getDomainConfigurationFileName(Domain domain) {
-        return domain.getCode() + "-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+        return DomainService.DOMAINS_HOME + File.separator + domain.getCode() +
+                File.separator + domain.getCode() + '-' + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
 
     protected Boolean getBooleanProperty(Domain domain, String propertyName) {

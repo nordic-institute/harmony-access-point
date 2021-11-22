@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -11,10 +10,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -48,6 +49,9 @@ public class UserMessageLogDefaultService {
     @Autowired
     protected NotificationStatusDao notificationStatusDao;
 
+    public UserMessageLog findById(Long entityId) {
+        return userMessageLogDao.findById(entityId);
+    }
 
     private UserMessageLog createUserMessageLog(UserMessage userMessage, String messageStatus, String notificationStatus, String mshRole, Integer maxAttempts, String backendName) {
         UserMessageLog userMessageLog = new UserMessageLog();
@@ -103,7 +107,6 @@ public class UserMessageLogDefaultService {
     /**
      * Find the {@link SignalMessageLog} and set to {@link MessageStatus#DELETED}
      * Propagate the change to the UiReplication
-     *
      */
     public boolean setSignalMessageAsDeleted(final SignalMessage signalMessage) {
 
@@ -114,7 +117,7 @@ public class UserMessageLogDefaultService {
         if (isBlank(signalMessage.getSignalMessageId())) {
             LOG.debug("Could not delete SignalMessage: received messageId is empty [{}",
                     signalMessage
-                    );
+            );
             return false;
         }
 
@@ -159,5 +162,10 @@ public class UserMessageLogDefaultService {
     public eu.domibus.common.MessageStatus getMessageStatus(String messageId) {
         MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateStatusToArchived(List<Long> entityIds) {
+        userMessageLogDao.updateArchived(entityIds);
     }
 }

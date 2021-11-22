@@ -27,6 +27,7 @@ import {ConnectionsComponent} from './testservice/connections.component';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
+import {DomainsComponent} from './domains/domains.component';
 
 export const appRoutes: Routes = [
   {
@@ -193,6 +194,17 @@ export const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'ConnectionMonitoring'
+    },
+    runGuardsAndResolvers: 'always'
+  },
+  {
+    path: 'domains',
+    component: DomainsComponent,
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      isDomainIndependent: true,
+      checkRoles: [SecurityService.ROLE_AP_ADMIN],
+      helpPage: 'DomainsMonitoring'
     },
     runGuardsAndResolvers: 'always'
   },

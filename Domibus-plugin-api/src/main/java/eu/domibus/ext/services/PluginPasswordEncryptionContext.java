@@ -40,4 +40,6 @@ public interface PluginPasswordEncryptionContext {
      * @return The property list
      */
     List<String> getPropertiesToEncrypt();
+
+    boolean isEncryptionActive();
 }

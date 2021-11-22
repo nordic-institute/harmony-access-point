@@ -83,5 +83,4 @@
             <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
-
 </databaseChangeLog>

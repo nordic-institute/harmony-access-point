@@ -21,6 +21,8 @@ public interface DomibusCacheService {
 
     void clearCache(String refreshCacheName);
 
+    void evict(String cacheName, String propertyName);
+
     void clearAllCaches() throws DomibusCoreException;
 
     void clear2LCCaches() throws DomibusCoreException;

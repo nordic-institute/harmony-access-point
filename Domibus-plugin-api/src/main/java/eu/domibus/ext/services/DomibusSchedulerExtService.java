@@ -28,4 +28,11 @@ public interface DomibusSchedulerExtService {
      * @param newRepeatInterval the new repeat interval
      */
     void rescheduleJob(String domainCode, String jobNameToReschedule, Integer newRepeatInterval);
+
+    /**
+     * Marks a Quartz jobs for deletion (once all domains schedulers where initialised)
+     * @param domainCode
+     * @param jobNameToDelete
+     */
+    void markJobForDeletion(String domainCode, String jobNameToDelete);
 }

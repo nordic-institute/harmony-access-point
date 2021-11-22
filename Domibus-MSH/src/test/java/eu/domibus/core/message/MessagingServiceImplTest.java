@@ -126,9 +126,13 @@ public class MessagingServiceImplTest {
                                                @Injectable String backendName) {
 
         String messageId = "123";
+        Long messageEntityId = 1L;
         new Expectations(messagingService) {{
             userMessage.getMessageId();
             result = messageId;
+
+            userMessage.getEntityId();
+            result = messageEntityId;
 
             messagingService.storePayloads(userMessage,null, mshRole, legConfiguration, backendName);
         }};
@@ -136,7 +140,7 @@ public class MessagingServiceImplTest {
         messagingService.storeSourceMessagePayloads(userMessage,null, mshRole, legConfiguration, backendName);
 
         new Verifications() {{
-            userMessageService.scheduleSourceMessageSending(messageId);
+            userMessageService.scheduleSourceMessageSending(messageId, messageEntityId);
         }};
     }
 

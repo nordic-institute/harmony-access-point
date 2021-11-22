@@ -10,7 +10,10 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -40,7 +43,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
@@ -299,14 +302,19 @@ public class BackendNotificationService {
     protected void validateAndNotify(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType, Map<String, String> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageId(), notificationType);
 
-        submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName, notificationType);
-
         notify(userMessage, backendName, notificationType, properties);
     }
 
     protected void notify(UserMessage userMessage, String backendName, NotificationType notificationType) {
-        Map<String, String> properties = userMessageService.getProperties(userMessage.getEntityId());
+        Map<String, String> properties = getPropertiesAsMap(userMessage);
         notify(userMessage, backendName, notificationType, properties);
+    }
+
+    protected Map<String, String> getPropertiesAsMap(UserMessage userMessage) {
+        HashMap<String, String> properties = new HashMap<>();
+        final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
+        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
+        return properties;
     }
 
     protected void notify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, String> properties) {

@@ -131,6 +131,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
 
+    @Autowired
+    protected UserMessageHandlerServiceImpl userMessageHandlerService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -147,33 +150,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         checkMessageAuthorization(userMessage);
 
         List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
-        boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage, partInfos);
-        if (shouldDeleteDownloadedMessage) {
-            partInfoService.clearPayloadData(userMessage.getEntityId());
 
-            // Sets the message log status to DELETED
-            userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
-            // Sets the log status to deleted also for the signal messages (if present).
+        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
 
-            final SignalMessage signalMessage = signalMessageDao.read(userMessage.getEntityId());
-            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
-        } else {
-            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-        }
         return transformer.transformFromMessaging(userMessage, partInfos);
-    }
-
-    protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage, List<PartInfo> partInfos) {
-        // Deleting the message and signal message if the retention download is zero and the payload is not stored on the file system.
-        return (userMessage != null && 0 == pModeProvider.getRetentionDownloadedByMpcURI(userMessage.getMpcValue()) && !isPayloadOnFileSystem(partInfos));
-    }
-
-    protected boolean isPayloadOnFileSystem(List<PartInfo> partInfos) {
-        for (PartInfo partInfo : partInfos) {
-            if (StringUtils.isNotEmpty(partInfo.getFileName()))
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -336,7 +316,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
@@ -372,20 +351,25 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
+
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
             MessageStatus messageStatus = null;
-            if (ProcessingType.PULL.equals(submission.getProcessingType()) && messageExchangeService.forcePullOnMpc(userMessage)) {
+            if (messageExchangeService.forcePullOnMpc(userMessage)) {
+                submission.setProcessingType(ProcessingType.PULL);
                 // UserMesages submited with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, submission.getProcessingType());
                 to = createNewParty(userMessage.getMpcValue());
                 messageStatus = MessageStatus.READY_TO_PULL;
             } else {
-                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+                //To be removed with the old ws plugin.
+                checkSubmissionFromOldWSPlugin(submission, userMessage);
+                userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, submission.getProcessingType());
+                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
+                messageStatus = messageStatusEntity.getMessageStatus();
             }
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-
             if (to == null) {
                 //TODO validation should not return a business value
                 to = messageValidations(userMessage, partInfos, pModeKey, backendName);
@@ -414,7 +398,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             try {
                 messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+
+                userMessageHandlerService.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
@@ -439,24 +424,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                         .mshRole(MSHRole.SENDING)
                         .build();
             }
-
-            if (messageStatus == null) {
-                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, submission.getProcessingType());
-                messageStatus = messageStatusEntity.getMessageStatus();
-            }
-            final boolean sourceMessage = userMessage.isSourceMessage();
-            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-                    backendName);
-
-            if (!sourceMessage) {
-                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
-            }
-
-            userMessageLogService.replicationUserMessageSubmitted(messageId);
             LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
-
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
             errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, null);
@@ -470,6 +439,37 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
+    }
+
+    /**
+     * This method is a temporary method for the time of the old ws plugin lifecycle. It will find the processing type that is not submitted by the
+     * old WS plugin.
+     * see EDELIVERY-8610
+     */
+    private void checkSubmissionFromOldWSPlugin(final Submission submission, final UserMessage userMessage) throws EbMS3Exception {
+        if (submission.getProcessingType() != null) {
+            return;
+        }
+        LOG.debug("Submission processing type is empty,  checking processing type from PMODE");
+        ProcessingType processingType;
+        try {
+            processingType = ProcessingType.PULL;
+            setSubmissionProcessingType(submission, userMessage, processingType);
+        } catch (EbMS3Exception e) {
+            try {
+                processingType = ProcessingType.PUSH;
+                setSubmissionProcessingType(submission, userMessage, processingType);
+            } catch (EbMS3Exception ex) {
+                LOG.error("No processing type found from PMODE for the Submission", ex);
+                throw ex;
+            }
+        }
+    }
+
+    private void setSubmissionProcessingType(Submission submission, UserMessage userMessage, ProcessingType processingType) throws EbMS3Exception {
+        pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, processingType);
+        submission.setProcessingType(processingType);
+        LOG.debug("Processing type is:[{}]", processingType);
     }
 
     private void populateMessageIdIfNotPresent(UserMessage userMessage) {

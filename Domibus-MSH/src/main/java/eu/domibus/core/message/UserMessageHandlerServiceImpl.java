@@ -12,7 +12,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
@@ -26,6 +25,7 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -36,6 +36,8 @@ import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.plugin.validation.SubmissionValidatorService;
+import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
@@ -53,8 +55,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Node;
 
@@ -97,6 +99,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private PModeProvider pModeProvider;
 
     @Autowired
+    protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
     private CompressionService compressionService;
 
     @Autowired
@@ -133,7 +138,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected MessageGroupDao messageGroupDao;
 
     @Autowired
-    protected UserMessageService userMessageService;
+    protected UserMessageDefaultService userMessageService;
 
     @Autowired
     protected AS4ReceiptService as4ReceiptService;
@@ -168,24 +173,100 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected MessageFragmentDao messageFragmentDao;
 
+    @Autowired
+    private PullMessageService pullMessageService;
+
+    @Autowired
+    protected UserMessagePersistenceService userMessagePersistenceService;
+
+    @Autowired
+    protected SubmissionValidatorService submissionValidatorService;
+
+    @Transactional
+    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
+    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
+    public void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
+        messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+
+        final boolean sourceMessage = userMessage.isSourceMessage();
+        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                backendName);
+        if (!sourceMessage) {
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
+        }
+        userMessageLogService.replicationUserMessageSubmitted(userMessage.getMessageId());
+    }
+
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
+        if (MessageStatus.READY_TO_PULL != messageStatus) {
+            // Sends message to the proper queue if not a message to be pulled.
+            userMessageService.scheduleSending(userMessage, userMessageLog);
+        } else {
+            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
+            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
+        }
+    }
+
+    private int getMaxAttempts(LegConfiguration legConfiguration) {
+        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
+    }
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, List<PartInfo> partInfoList, boolean testMessage) throws EbMS3Exception, TransformerException, IOException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = pModeProvider.checkSelfSending(pmodeKey);
-        final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(userMessage);
 
-        handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, messageExists, testMessage);
-
-        return as4ReceiptService.generateReceipt(
+        final SOAPMessage responseMessage = as4ReceiptService.generateReceipt(
                 request,
                 userMessage,
                 legConfiguration.getReliability().getReplyPattern(),
                 legConfiguration.getReliability().isNonRepudiation(),
-                messageExists,
+                false,
                 selfSendingFlag);
+
+        SignalMessageResult signalMessageResult = null;
+        try {
+            signalMessageResult = as4ReceiptService.generateResponse(responseMessage, userMessage, selfSendingFlag);
+        } catch (final SOAPException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0201)
+                    .message("Could not generate Receipt. Check security header and non-repudiation settings")
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(e)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        try {
+            handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, ebms3MessageFragmentType, partInfoList, selfSendingFlag, false, testMessage, signalMessageResult);
+            return responseMessage;
+        } catch (DataIntegrityViolationException e) {
+            LOG.warn("Message is a duplicate", e);
+        }
+
+        final boolean duplicateDetectionActive = legConfiguration.getReceptionAwareness().getDuplicateDetection();
+
+        String errorMessage = "Duplicate message";
+        if (duplicateDetectionActive) {
+            return as4ReceiptService.generateReceipt(
+                    request,
+                    userMessage,
+                    legConfiguration.getReliability().getReplyPattern(),
+                    legConfiguration.getReliability().isNonRepudiation(),
+                    true,
+                    selfSendingFlag);
+
+        }
+        throw EbMS3ExceptionBuilder.getInstance()
+                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                .message(errorMessage)
+                .refToMessageId(userMessage.getMessageId())
+                .mshRole(MSHRole.RECEIVING)
+                .build();
     }
 
     @Transactional
@@ -222,13 +303,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         if (testMessage) {
             // ping messages are only stored and not notified to the plugins
-            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, null, userMessage, partInfoList);
+            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, null, userMessage, partInfoList, null);
             LOG.debug("Test source message saved: [{}]", messageInfoId);
         } else {
             final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList);
+            submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
+            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
@@ -256,7 +338,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             List<PartInfo> partInfoList,
             boolean selfSending,
             boolean messageExists,
-            boolean testMessage)
+            boolean testMessage,
+            SignalMessageResult signalMessageResult)
             throws IOException, TransformerException, EbMS3Exception {
         soapUtil.logMessage(request);
 
@@ -275,12 +358,13 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         if (!messageExists) {
             if (testMessage) {
                 // ping messages are only stored and not notified to the plugins
-                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, null, null);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, null, null, signalMessageResult);
             } else {
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName);
+                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
                 try {
                     backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
@@ -351,7 +435,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final UserMessage userMessage,
             List<PartInfo> partInfoList,
             Ebms3MessageFragmentType ebms3MessageFragmentType,
-            final String backendName)
+            final String backendName,
+            SignalMessageResult signalMessageResult)
             throws EbMS3Exception {
 
         //add messageId to MDC map
@@ -362,7 +447,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         boolean compressed = compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageId(), compressed);
-        final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList);
+        final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
 
         if (ebms3MessageFragmentType != null) {
             handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
@@ -373,14 +458,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     /**
      * Persists the incoming SourceMessage
      */
-    protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, final String backendName, UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
+    protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, final String backendName, UserMessage userMessage, List<PartInfo> partInfoList, SignalMessageResult signalMessageResult) throws EbMS3Exception {
         LOG.info("Persisting received SourceMessage");
         userMessage.setSourceMessage(true);
 
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList);
+        return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
     }
 
-    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, String backendName, UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
+    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, String backendName, UserMessage userMessage, List<PartInfo> partInfoList, SignalMessageResult signalMessageResult) throws EbMS3Exception {
         //skip payload and property profile validations for message fragments
         if (ebms3MessageFragmentType == null) {
             try {
@@ -394,7 +479,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         try {
             messagingService.storeMessagePayloads(userMessage, partInfoList, MSHRole.RECEIVING, legConfiguration, backendName);
-            messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
         } catch (CompressionException exc) {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
@@ -423,23 +507,24 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         NotificationStatus notificationStatus = (legConfiguration.getErrorHandling() != null && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) ? NotificationStatus.REQUIRED : NotificationStatus.NOT_REQUIRED;
         LOG.debug("NotificationStatus [{}]", notificationStatus);
 
-        userMessageLogService.save(
-                userMessage,
-                MessageStatus.RECEIVED.toString(),
-                notificationStatus.toString(),
-                MSHRole.RECEIVING.toString(),
-                0,
-                backendName);
+        UserMessageRaw userMessageRaw = null;
+        try {
+            userMessageRaw = nonRepudiationService.createUserMessageRaw(request);
+        } catch (TransformerException e) {
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .message(e.getMessage())
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(e)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        userMessagePersistenceService.saveIncomingMessage(userMessage, partInfoList, notificationStatus, backendName, userMessageRaw, signalMessageResult);
 
         uiReplicationSignalService.userMessageReceived(userMessage.getMessageId());
-
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PERSISTED);
-
-        nonRepudiationService.saveRequest(request, userMessage);
-
         return userMessage.getMessageId();
     }
-
 
     protected void handleMessageFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
         MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(ebms3MessageFragmentType.getGroupId());

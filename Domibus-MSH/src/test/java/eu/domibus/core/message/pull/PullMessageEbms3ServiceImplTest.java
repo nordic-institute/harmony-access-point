@@ -199,7 +199,7 @@ public class PullMessageEbms3ServiceImplTest {
 //            messageLog.getMpc();
 //            result = mpc;
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
-            result =  EbMS3ExceptionBuilder.getInstance()
+            result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
                     .message("")
                     .refToMessageId("")

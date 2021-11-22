@@ -54,28 +54,27 @@ public class AlertFilters extends FilterArea {
 	public WebElement roleInput;
 	@FindBy(id = "DESCRIPTION_id")
 	public WebElement descriptionInput;
-	
+
 	@FindBy(id = "searchbutton_id")
 	public WebElement searchButton;
-	
+
 	@FindBy(id = "advancedlink_id")
 	public WebElement advancedLink;
-	
-	@FindBy(css="mat-error.mat-error")
+
+	@FindBy(css = "mat-error.mat-error")
 	public WebElement alertIdValidation;
-	
+
 //	------------------ Selectors for extra filters
 
-	@FindBy(css="div.selectionCriteria div form div.panel.ng-star-inserted")
+	@FindBy(css = "div.selectionCriteria div form div.panel.ng-star-inserted")
 	public WebElement extraFiltersContainer;
 
 
+	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED", "");
+	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED", "PLUGIN", "PARTITION_EXPIRATION");
+	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS", "FAILED", "RETRY", "");
+	List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW", "MEDIUM", "");
 
-	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED","");
-	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED", "PLUGIN");
-	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS","FAILED","RETRY","");
-	List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW","MEDIUM","");
-	
 	public boolean isAlertIdValidationMessageVisible() throws Exception {
 		try {
 			return weToDobject(alertIdValidation).isVisible();
@@ -83,10 +82,11 @@ public class AlertFilters extends FilterArea {
 			return false;
 		}
 	}
+
 	public String getAlertValidationMess() throws Exception {
 		return weToDobject(alertIdValidation).getText();
 	}
-	
+
 	public AlertFilters(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -108,25 +108,26 @@ public class AlertFilters extends FilterArea {
 		log.debug("CreationFromDate = " + creationFromDate);
 		log.debug("CreationToDate = " + creationToDate);
 
-		weToSelect(processedContainer).selectOptionByText(processedStatus);
-		weToSelect(alertTypeContainer).selectOptionByText(alertType);
-		weToSelect(alertStatusContainer).selectOptionByText(alertStatus);
-		weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
-		weToDatePicker(creationFromContainer).selectDate(creationFromDate);
-		weToDatePicker(creationToContainer).selectDate(creationToDate);
+		if (StringUtils.isNotEmpty(processedStatus)) weToSelect(processedContainer).selectOptionByText(processedStatus);
+		if (StringUtils.isNotEmpty(alertType)) weToSelect(alertTypeContainer).selectOptionByText(alertType);
+		if (StringUtils.isNotEmpty(alertStatus)) weToSelect(alertStatusContainer).selectOptionByText(alertStatus);
+		if (StringUtils.isNotEmpty(alertLevel)) weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
+		if (StringUtils.isNotEmpty(creationFromDate))
+			weToDatePicker(creationFromContainer).selectDate(creationFromDate);
+		if (StringUtils.isNotEmpty(creationToDate)) weToDatePicker(creationToContainer).selectDate(creationToDate);
 
 		clickSearch();
 	}
 
 	public void advancedFilterBy(String processedStatus,
-	                             String alertType,
-	                             String alertStatus,
-	                             String alertId,
-	                             String alertLevel,
-	                             String creationFromDate,
-	                             String creationToDate,
-	                             String reportingFromDate,
-	                             String reportingToDate) throws Exception {
+								 String alertType,
+								 String alertStatus,
+								 String alertId,
+								 String alertLevel,
+								 String creationFromDate,
+								 String creationToDate,
+								 String reportingFromDate,
+								 String reportingToDate) throws Exception {
 		log.debug("processedStatus = " + processedStatus);
 		log.debug("alertType = " + alertType);
 		log.debug("alertStatus = " + alertStatus);
@@ -161,11 +162,11 @@ public class AlertFilters extends FilterArea {
 	public DInput getMsgIdInput() {
 		return weToDInput(msgIdInput);
 	}
-	
+
 	public boolean verifyDropdownValues(String fieldLabel) throws Exception {
 		List<String> valuesOnPage = new ArrayList<>();
 		List<String> expectedValues = new ArrayList<>();
-		switch (fieldLabel){
+		switch (fieldLabel) {
 			case "Processed":
 				expectedValues = processedFilterData;
 				valuesOnPage = weToSelect(processedContainer).getOptionsTexts();
@@ -186,43 +187,44 @@ public class AlertFilters extends FilterArea {
 				throw new Exception(fieldLabel + " is not in the expected list of dropdown labels");
 		}
 		clickVoidSpace();
-		return CollectionUtils.isEqualCollection(valuesOnPage,expectedValues);
+		return CollectionUtils.isEqualCollection(valuesOnPage, expectedValues);
 	}
-	
+
 	public DLink getAdvancedLink() {
 		return weToDLink(advancedLink);
 	}
-	
+
 	public DInput getAlertIdInput() {
 		return weToDInput(alertIdInput);
 	}
-	
+
 	public Select getProcessedSelect() {
 		return weToSelect(processedContainer);
 	}
 
-	public boolean isXFiltersSectionVisible(){
+	public boolean isXFiltersSectionVisible() {
 		boolean areXFiltersVisible = false;
 
 		try {
 			areXFiltersVisible = weToDobject(extraFiltersContainer).isVisible();
-		} catch (Exception e) { }
+		} catch (Exception e) {
+		}
 
 		return areXFiltersVisible;
 	}
 
 	public String getXFilterSectionName() throws Exception {
 
-		if(!isXFiltersSectionVisible()){
+		if (!isXFiltersSectionVisible()) {
 			return null;
 		}
 		return weToDobject(extraFiltersContainer.findElement(By.tagName("mat-card-title"))).getText();
 	}
 
-		public List<String> getXFilterNames() throws Exception{
+	public List<String> getXFilterNames() throws Exception {
 		List<String> filterNames = new ArrayList<String>();
 
-		if(!isXFiltersSectionVisible()){
+		if (!isXFiltersSectionVisible()) {
 			return filterNames;
 		}
 
@@ -231,7 +233,7 @@ public class AlertFilters extends FilterArea {
 		for (WebElement filterInput : filterInputs) {
 			String placeHolder = weToDobject(filterInput).getAttribute("placeholder");
 
-			if(!StringUtils.isEmpty(placeHolder)){
+			if (!StringUtils.isEmpty(placeHolder)) {
 				filterNames.add(placeHolder);
 			}
 		}
@@ -239,7 +241,7 @@ public class AlertFilters extends FilterArea {
 		for (WebElement element : filterDatePick) {
 			String name = weToDobject(element).getAttribute("aria-label");
 
-			if(!StringUtils.isEmpty(name)){
+			if (!StringUtils.isEmpty(name)) {
 				filterNames.add(name);
 			}
 		}
@@ -247,7 +249,7 @@ public class AlertFilters extends FilterArea {
 		return filterNames;
 	}
 
-	public Select getAlertTypeSelect(){
+	public Select getAlertTypeSelect() {
 		return weToSelect(alertTypeContainer);
 	}
 

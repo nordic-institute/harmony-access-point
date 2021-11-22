@@ -20,6 +20,8 @@ public class DomibusLogger extends CategoryLogger {
 
     public static final String MDC_USER = "user";
     public static final String MDC_MESSAGE_ID = "messageId";
+    public static final String MDC_MESSAGE_ENTITY_ID = "messageEntityId";
+    public static final String MDC_BATCH_ENTITY_ID = "batchEntityId";
     public static final String MDC_DOMAIN = "domain";
     public static final String MDC_FROM = "from";
     public static final String MDC_TO = "to";

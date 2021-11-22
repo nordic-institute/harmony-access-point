@@ -25,6 +25,9 @@ public final class InternalJMSConstants {
    public static final String SEND_PULL_RECEIPT_QUEUE = "sendPullReceiptQueue";
    public static final String RETENTION_MESSAGE_QUEUE = "retentionMessageQueue";
    public static final String ALERT_MESSAGE_QUEUE = "alertMessageQueue";
+   public static final String EARCHIVE_QUEUE = "eArchiveQueue";
+   public static final String EARCHIVE_NOTIFICATION_QUEUE = "eArchiveNotificationQueue";
+   public static final String EARCHIVE_NOTIFICATION_DLQ = "eArchiveNotificationDLQ";
    public static final String UI_REPLICATION_QUEUE = "uiReplicationQueue";
    public static final String NOTIFY_BACKEND_QUEUE = "notifyBackendQueue";
    public static final String UNKNOWN_RECEIVER_QUEUE = "unknownReceiverQueue";

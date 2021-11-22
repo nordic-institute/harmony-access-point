@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -7,10 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
-import eu.domibus.core.alerts.model.common.AccountEventKey;
-import eu.domibus.core.alerts.model.common.CertificateEvent;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.model.common.PasswordExpirationEventProperties;
+import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -65,6 +63,8 @@ public class EventServiceImpl implements EventService {
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
+
+    public static final String PARTITION_EXPIRATION = "PARTITION_EXPIRATION";
 
     @Autowired
     private EventDao eventDao;
@@ -167,9 +167,30 @@ public class EventServiceImpl implements EventService {
      * {@inheritDoc}
      */
     @Override
+    public void enqueuePartitionExpirationEvent(String partitionName) {
+        Event event = new Event(EventType.PARTITION_EXPIRATION);
+        event.addStringKeyValue(PartitionExpirationEvent.PARTITION_NAME.name(), partitionName);
+        enqueueEvent(PARTITION_EXPIRATION, event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_EXPIRED;
         enqueueEvent(CERTIFICATE_EXPIRED, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus) {
+        Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
+        event.addStringKeyValue(ArchivingEventProperties.BATCH_ID.name(), batchId);
+        event.addStringKeyValue(ArchivingEventProperties.BATCH_STATUS.name(), batchStatus.name());
+        enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED.name(), event);
     }
 
     /**
@@ -260,7 +281,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event);
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
 
         if (!shouldCreateAlert(entity, alertConfiguration)) {
             return;
@@ -274,9 +295,34 @@ public class EventServiceImpl implements EventService {
         LOG.securityInfo(eventType.getSecurityMessageCode(), user.getUserName(), event.findOptionalProperty(PasswordExpirationEventProperties.EXPIRATION_DATE.name()));
     }
 
-    private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event) {
-        String id = event.findStringProperty(EVENT_IDENTIFIER).orElse("");
-        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), EVENT_IDENTIFIER, id);
+    @Override
+    public boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, int frequency) {
+
+        if (entity == null) {
+            LOG.debug("Should create alert because the event was not previously persisted");
+            return true;
+        }
+
+        LocalDate lastAlertDate = entity.getLastAlertDate();
+        LocalDate notificationDate = LocalDate.now().minusDays(frequency);
+
+        if (lastAlertDate == null) {
+            LOG.debug("Should create alert for event [{}] because lastAlertDate == null", entity.getType());
+            return true;
+        }
+
+        if (lastAlertDate.isBefore(notificationDate)) {
+            LOG.debug("Should create alert for event [{}] because lastAlertDate is old enough [{}]", entity.getType(), entity.getLastAlertDate());
+            return true; // last alert is old enough to send another one
+        }
+
+        LOG.debug("Should NOT create alert for event [{}] because lastAlertDate is not old enough [{}]", entity.getType(), entity.getLastAlertDate());
+        return false;
+    }
+
+    private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event, String identifier) {
+        String id = event.findStringProperty(identifier).orElse("");
+        eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), identifier, id);
 
         if (entity == null) {
             entity = this.persistEvent(event);
@@ -287,22 +333,7 @@ public class EventServiceImpl implements EventService {
 
     protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         int frequency = alertConfiguration.getEventFrequency();
-
-        LocalDate lastAlertDate = entity.getLastAlertDate();
-        LocalDate notificationDate = LocalDate.now().minusDays(frequency);
-
-        if (lastAlertDate == null) {
-            LOG.debug("Should create alert for event [{}] because lastAlertDate == null", entity);
-            return true;
-        }
-
-        if (lastAlertDate.isBefore(notificationDate)) {
-            LOG.debug("Should create alert for event [{}] because lastAlertDate is old enough", entity);
-            return true; // last alert is old enough to send another one
-        }
-
-        LOG.debug("Should NOT create alert for event [{}] because lastAlertDate is not old enough", entity);
-        return false;
+        return shouldCreateAlert(entity, frequency);
     }
 
     private Event preparePasswordEvent(UserEntityBase user, EventType eventType, Integer maxPasswordAgeInDays) {
@@ -321,6 +352,18 @@ public class EventServiceImpl implements EventService {
 
     private String getUniqueIdentifier(UserEntityBase user) {
         return user.getType().getCode() + "/" + user.getEntityId() + "/" + user.getPasswordChangeDate().toLocalDate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enqueueEArchivingMessageNonFinalEvent(final String messageId,
+                                                      final MessageStatus status) {
+        Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
+        event.addStringKeyValue(OLD_STATUS.name(), status.name());
+        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
+        enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
     }
 
 }

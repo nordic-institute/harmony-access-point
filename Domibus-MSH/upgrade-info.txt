@@ -1,14 +1,96 @@
 Domibus 5.0 (from 4.2.3)
+                [Multitenancy only]
+                    - Create a folder named "domains" in "conf/domibus" and, inside it, create a new folder for every domain (e.g. conf/domibus/domains/domain1)
+                    - Move the super-domibus.properties file into "conf/domibus/domains"
+                    - For each domain, move its properties file into the domain folder (e.g. move domain1-domibus.properties into conf/domibus/domains/domain1/)
+                    - For each domain, move its logback file into the domain folder (e.g. move domain1-logback.xml into conf/domibus/domains/domain1/)
+                      and then update the reference to the domain logback file in the main logback.xml file, in the multitenancy section
+                    - For each domain, move domain_name_clientauthentication.xml file into the domain folder (e.g. move conf/domibus/domain1_clientauthentication.xml
+                      into conf/domibus/domains/domain1/domain1_clientauthentication.xml)
+                    - For each domain, create a "keystores" folder (e.g. conf/domibus/domains/domain1/keystores) and move inside it the keystores used by that domain;
+                      update the "domibus.security.keystore.location", "domibus.security.truststore.location" and "domibus.security.truststore.backup.location" paths
+                      in the domain properties file
+                    - Plugins:
+                        * Create a folder named "domains" in "conf/domibus/plugins/config" and, inside it, create a new folder for every domain (e.g. conf/domibus/plugins/config/domains/domain1)
+                        * FS-Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
+                        to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-fs-plugin.properties)
+                        * WS-Plugin multitenancy installation: move any domain specific properties from ws-plugin.properties
+                        to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-ws-plugin.properties)
+                        * JMS-Plugin multitenancy installation: move any domain specific properties from jms-plugin.properties
+                        to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-jms-plugin.properties)
+                    Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
+                - [Tomcat only]
+                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
+                             - in the policies section add the following:
+                              .............................
+                                            <policyEntries>
+                                             .............................
+                                                 <policyEntry queue="domibus.internal.earchive.notification.queue">
+                                                     <deadLetterStrategy>
+                                                         <!--<individualDeadLetterStrategy queuePrefix="DLQ."/>-->
+                                                         <sharedDeadLetterStrategy processExpired="false">
+                                                             <deadLetterQueue>
+                                                                 <queue physicalName="domibus.internal.earchive.notification.dlq"/>
+                                                             </deadLetterQueue>
+                                                         </sharedDeadLetterStrategy>
+                                                     </deadLetterStrategy>
+                                                     <dispatchPolicy>
+                                                         <priorityDispatchPolicy/>
+                                                     </dispatchPolicy>
+                                                 </policyEntry>
+                             - in the destinations section add the following queues:
+                                        .............................
+                                        <destinations>
+                                            .............................
+                                             <queue id="eArchiveQueue" physicalName="domibus.internal.earchive.queue"/>
+                                             <queue id="eArchiveNotificationQueue" physicalName="domibus.internal.earchive.notification.queue"/>
+                                             <queue id="eArchiveNotificationDLQ" physicalName="domibus.internal.earchive.notification.dlq"/>
+                              -  in the redeliveryPolicyEntries section add the following entries:
+                                             .............................
+                                             <redeliveryPolicyEntries>
+                                                 .............................
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.notification.queue" maximumRedeliveries="6" redeliveryDelay="1800000"/>/>
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.notification.dlq" maximumRedeliveries="0"/>
+                              -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
+                                            - original:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
+                                            -new configuration:
+                                                <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue domibus.internal.earchive.notification.dlq" reportInterval="10000"/>
+                - [Wildfly only]
+                         o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
+                          - add the following queues in the destination section
+                                      .............................
+                                      <jms-destinations>
+                                          .............................
+                                           <jms-queue name="DomibusEArchiveQueue" entries="java:/jms/domibus.internal.earchive.queue java:/jms/queue/DomibusEArchiveQueue" durable="true"/>
+                                           <jms-queue name="DomibusEArchiveNotificationQueue" entries="java:/jms/domibus.internal.earchive.notification.queue java:/jms/queue/DomibusEArchiveNotificationQueue" durable="true"/>
+                                           <jms-queue name="DomibusEArchiveNotificationDLQ" entries="java:/jms/domibus.internal.earchive.notification.dlq java:/jms/queue/DomibusEArchiveNotificationDLQ" durable="true"/>
+                                          .............................
+                                      </jms-destinations>
+                                      .............................
+                           -  in the address-settings section
+                                   o add the following address-setting configurations:
+                                          .............................
+                                          <address-settings>
+                                              .............................
+                                              <address-setting name="jms.queue.DomibusEArchiveQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
+                                              <address-setting name="jms.queue.DomibusEArchiveNotificationQueue" expiry-address="jms.queue.DomibusEArchiveNotificationDLQ" max-delivery-attempts="3"/>
+                                              <address-setting name="jms.queue.DomibusEArchiveNotificationDLQ" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
+                                              .............................
+                                          </address-settings>
+                                          .............................
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
+                - Rename conf/domibus/default_clientauthentication.xml to conf/domibus/clientauthentication.xml
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Run the appropriate DB migration script(mysql-4.2.3-to-5.0-migration.ddl for MySQL or oracle-4.2.3-to-5.0-migration.ddl for Oracle)
                 - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.
                 - To execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) use the current 'TIMEZONE' value as IN parameter for mysql and oracle DB.
                   The current 'TIMEZONE' value should be the timezone in which the date time values have been previously saved (e.g. 'Europe/Brussels').
                 - Data migration scripts should be run in order to migrate data from old tables to the new tables:
-                    - o [Oracle only]
+                    o [Oracle only]
                         Domibus application (.war) should be stopped while running these:
                         - step 1: oracle-4.2.3-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
                         - step 2: oracle-4.2.3-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
@@ -38,9 +120,9 @@ Domibus 5.0 (from 4.2.3)
                                             <expiry>
                                                 <ttl>3600</ttl>
                                             </expiry>
-                                            <heap unit="MB">5</heap>
+                                            <heap unit="entries">5000</heap>
                                         </cache>
-                        Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
+                        Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5000"/> if you want to reuse cache-template "ttl-3600-heap-5000" already defined by Domibus
                     - If you don't use custom caches just replace the old file with the new file version
                     - [WebLogic only]
                         o execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment

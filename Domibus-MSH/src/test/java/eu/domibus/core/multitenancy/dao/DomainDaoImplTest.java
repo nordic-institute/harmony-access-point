@@ -9,18 +9,15 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(JMockit.class)
 public class DomainDaoImplTest {
@@ -36,20 +33,17 @@ public class DomainDaoImplTest {
 
     @Test
     public void findAll() {
-        File f1 = new File("zdomain-domibus.properties");
-        File f2 = new File("adomain-domibus.properties");
-
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
-            domibusConfigurationService.getConfigLocation();
-            result = ".";
             domibusPropertyProvider.getProperty((Domain) any, anyString);
             returns("zzzdomain", "aaadomain");
         }};
-        new Expectations(FileUtils.class) {{
-            FileUtils.listFiles((File) any, (String[]) any, false);
-            result = Arrays.asList(f1, f2);
+
+        new Expectations(domainDao) {{
+            domainDao.findAllDomainCodes();
+            result = Arrays.asList("zdomain", "adomain");
+            domainDao.checkValidDomain((List<Domain>) any, anyString);
         }};
 
         List<Domain> domains = domainDao.findAll();
@@ -60,13 +54,27 @@ public class DomainDaoImplTest {
     }
 
     @Test
+    public void findAllDomainCodes() {
+        new Expectations() {{
+            domibusConfigurationService.getConfigLocation();
+            result = "src/test/resources/config";
+        }};
+
+        List<String> domainCodes = domainDao.findAllDomainCodes();
+
+        assertEquals(2, domainCodes.size());
+        assertEquals("default", domainCodes.get(0));
+        assertEquals("domain_name", domainCodes.get(1));
+    }
+
+    @Test
     public void testValidateDomain_InvalidDomain(@Injectable Domain domain) {
 
         final String domainCode = "Domain&7";
         List<Domain> domains = new ArrayList<>();
 
         try {
-            domainDao.isValidDomain(domains, domainCode);
+            domainDao.checkValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
@@ -83,7 +91,7 @@ public class DomainDaoImplTest {
         Domain domain1 = new Domain(domainCode1, null);
         domains.add(domain1);
         try {
-            domainDao.isValidDomain(domains, domainCode);
+            domainDao.checkValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
@@ -92,11 +100,16 @@ public class DomainDaoImplTest {
     }
 
     @Test
-    public void testValidateDomain_ValidDomain(@Injectable Domain domain) {
+    public void testValidateDomain_ValidDomain() {
 
         final String domainCode = "domain1";
         List<Domain> domains = new ArrayList<>();
-       assertTrue(domainDao.isValidDomain(domains, domainCode));
+
+        new Expectations(domainDao) {{
+            domainDao.checkConfigFile(domainCode);
+        }};
+
+        domainDao.checkValidDomain(domains, domainCode);
     }
 
 
@@ -107,7 +120,7 @@ public class DomainDaoImplTest {
         List<Domain> domains = new ArrayList<>();
 
         try {
-            domainDao.isValidDomain(domains, domainCode);
+            domainDao.checkValidDomain(domains, domainCode);
             Assert.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);

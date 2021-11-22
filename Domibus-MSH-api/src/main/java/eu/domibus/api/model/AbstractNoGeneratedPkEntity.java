@@ -5,7 +5,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public class AbstractNoGeneratedPkEntity extends AbstractBaseAuditEntity {
+public class AbstractNoGeneratedPkEntity extends AbstractBaseAuditEntity implements DomibusBaseEntity {
 
     @Id
     @Column(name = "ID_PK")

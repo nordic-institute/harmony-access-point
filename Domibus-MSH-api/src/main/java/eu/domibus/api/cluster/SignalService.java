@@ -67,4 +67,9 @@ public interface SignalService {
      * Signals the change of the TLS truststore
      */
     void signalTLSTrustStoreUpdate(Domain currentDomain);
+
+    /**
+     * signals that domains were added to other servers in the cluster
+     */
+    void signalDomainsAdded(String domainCode);
 }

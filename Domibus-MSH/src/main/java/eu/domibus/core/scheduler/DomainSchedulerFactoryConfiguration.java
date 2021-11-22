@@ -12,6 +12,9 @@ import eu.domibus.core.alerts.job.AlertRetryJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertCleanerSuperJob;
 import eu.domibus.core.alerts.job.multitenancy.AlertRetrySuperJob;
 import eu.domibus.core.certificate.SaveCertificateAndLogRevocationJob;
+import eu.domibus.core.earchive.job.EArchivingCleanupJob;
+import eu.domibus.core.earchive.job.EArchivingContinuousJob;
+import eu.domibus.core.earchive.job.EArchivingSanitizerJob;
 import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.error.ErrorLogCleanerJob;
 import eu.domibus.core.message.pull.MessagePullerJob;
@@ -467,6 +470,71 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(errorLogCleanerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ERRORLOG_CLEANER_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean eArchiveContinuousJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(EArchivingContinuousJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean eArchiveContinuousTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(eArchiveContinuousJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean eArchiveSanitizerJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(EArchivingSanitizerJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean eArchiveSanitizerTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(eArchiveSanitizerJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_SANITY_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean eArchivingCleanupJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(EArchivingCleanupJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean eArchivingCleanupTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(eArchivingCleanupJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_RETENTION_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }

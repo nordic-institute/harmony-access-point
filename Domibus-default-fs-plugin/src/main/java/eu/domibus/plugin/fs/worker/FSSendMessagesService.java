@@ -91,14 +91,14 @@ public class FSSendMessagesService {
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void sendMessages() {
-        LOG.debug("Sending file system messages...");
-
         final String domain = fsDomainService.getFSPluginDomain();
 
         if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
+
+        LOG.debug("Sending file system messages...");
 
         sendMessagesSafely(domain);
 
@@ -119,7 +119,7 @@ public class FSSendMessagesService {
 
     protected void sendMessages(final String domain) {
         if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.warn("Domain [{}] is disabled for FSPlugin", domain);
+            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
 

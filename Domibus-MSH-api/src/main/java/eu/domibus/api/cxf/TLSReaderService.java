@@ -3,6 +3,8 @@ package eu.domibus.api.cxf;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 
+import java.util.Optional;
+
 /**
  * Retrieves tls truststore itself and its parameters from clientauthentication.xml gived a domain
  *
@@ -23,7 +25,7 @@ public interface TLSReaderService {
      * @param domainCode
      * @return
      */
-    TLSClientParametersType getTlsClientParametersType(String domainCode);
+    Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode);
 
     /**
      * Dismisses the TLS data from the cache forcing a fresh reload on the next use

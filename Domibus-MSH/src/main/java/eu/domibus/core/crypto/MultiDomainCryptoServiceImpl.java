@@ -2,18 +2,21 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,8 @@ import java.security.*;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.regex.Pattern;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu
@@ -32,16 +37,40 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImpl.class);
 
+    public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
+    public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
+
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
-    @Autowired
-    DomainCryptoServiceFactory domainCertificateProviderFactory;
+    protected final DomainCryptoServiceFactory domainCryptoServiceFactory;
 
-    @Autowired
-    private DomibusCacheService domibusCacheService;
+    protected DomibusCacheService domibusCacheService;
 
-    @Autowired
-    private CertificateHelper certificateHelper;
+    protected CertificateHelper certificateHelper;
+
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    protected CertificateService certificateService;
+
+    final protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+
+    protected final DomainService domainService;
+
+    public MultiDomainCryptoServiceImpl(DomainCryptoServiceFactory domainCryptoServiceFactory,
+                                        DomibusCacheService domibusCacheService,
+                                        CertificateHelper certificateHelper,
+                                        DomibusPropertyProvider domibusPropertyProvider,
+                                        CertificateService certificateService,
+                                        DomibusRawPropertyProvider domibusRawPropertyProvider,
+                                        DomainService domainService) {
+        this.domainCryptoServiceFactory = domainCryptoServiceFactory;
+        this.domibusCacheService = domibusCacheService;
+        this.certificateHelper = certificateHelper;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.certificateService = certificateService;
+        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
+        this.domainService = domainService;
+    }
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
@@ -167,20 +196,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.removeCertificate(aliases);
     }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
-        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
-        if (domainCertificateProviderMap.get(domain) == null) {
-            synchronized (domainCertificateProviderMap) {
-                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
-                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCertificateProviderFactory.createDomainCryptoService(domain);
-                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
-                }
-            }
-        }
-        return domainCertificateProviderMap.get(domain);
-    }
-
     @Override
     public void reset() {
         domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
@@ -204,5 +219,50 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     public byte[] getTruststoreContent(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getTruststoreContent();
+    }
+
+    @Override
+    public void persistTruststoresIfApplicable() {
+        final List<Domain> domains = domainService.getDomains();
+        persistTruststoresIfApplicable(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    protected void persistTruststoresIfApplicable(List<Domain> domains) {
+        certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME, false,
+                () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION)),
+                () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE),
+                () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD),
+                domains
+        );
+
+        certificateService.persistTruststoresIfApplicable(DOMIBUS_KEYSTORE_NAME, false,
+                () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION)),
+                () -> domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE),
+                () -> domibusRawPropertyProvider.getRawPropertyValue(DOMIBUS_SECURITY_KEYSTORE_PASSWORD),
+                domains
+        );
+    }
+
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
+        LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
+        if (domainCertificateProviderMap.get(domain) == null) {
+            synchronized (domainCertificateProviderMap) {
+                if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
+                    LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
+                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain);
+                    domainCertificateProviderMap.put(domain, domainCertificateProvider);
+                }
+            }
+        }
+        return domainCertificateProviderMap.get(domain);
     }
 }

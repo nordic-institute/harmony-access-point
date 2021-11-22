@@ -1,8 +1,10 @@
 package eu.domibus.core.user;
 
 import com.google.common.collect.Collections2;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
@@ -61,6 +63,12 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     @Autowired
     AuthenticationService authenticationService;
 
+    @Autowired
+    protected DomainContextProvider domainContextProvider; //NOSONAR: not necessary to be transient or serializable
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateUsers(List<eu.domibus.api.user.User> users) {
@@ -99,6 +107,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void updateUser(boolean withPasswordChange, eu.domibus.api.user.User user) {
+        setUserDomainForMultiTenancy(user);
         User existing = userDao.loadUserByUsername(user.getUserName());
 
         checkCanUpdateIfCurrentUser(user, existing);
@@ -118,6 +127,13 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
         if (user.getAuthorities() != null && user.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name())) {
             userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
+        }
+    }
+
+    private void setUserDomainForMultiTenancy(eu.domibus.api.user.User user) {
+        if (StringUtils.isNotEmpty(user.getDomain()) && domibusConfigurationService.isMultiTenantAware() && (domainContextProvider.getCurrentDomainSafely() != null)) {
+            LOG.debug("Setting current domain:[{}]", user.getDomain());
+            domainContextProvider.setCurrentDomain(user.getDomain());
         }
     }
 
@@ -178,6 +194,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         }
 
         for (eu.domibus.api.user.User user : newUsers) {
+            setUserDomainForMultiTenancy(user);
             securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
 
             User userEntity = authCoreMapper.userApiToUserSecurity(user);
@@ -195,13 +212,14 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void deleteUsers(List<eu.domibus.api.user.User> usersToDelete) {
-        List<User> users = usersToDelete.stream()
-                .map(user -> userDao.loadUserByUsername(user.getUserName()))
-                .filter(user -> user != null)
-                .collect(Collectors.toList());
-        userDao.delete(users);
-
-        usersToDelete.forEach(user -> userSessionsService.invalidateSessions(user));
+        for (eu.domibus.api.user.User userToDelete :usersToDelete) {
+            setUserDomainForMultiTenancy(userToDelete);
+            User user = userDao.loadUserByUsername(userToDelete.getUserName());
+            if(user != null){
+                userDao.delete(user);
+                userSessionsService.invalidateSessions(user);
+            }
+        }
     }
 
     protected void addRoleToUser(List<String> authorities, User userEntity) {

@@ -64,6 +64,11 @@ public class PartInfoServiceImpl implements PartInfoService {
         return partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
     }
 
+    @Override
+    public List<PartInfo> findPartInfo(long entityId) {
+        return partInfoDao.findPartInfoByUserMessageEntityId(entityId);
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void clearPayloadData(long entityId) {

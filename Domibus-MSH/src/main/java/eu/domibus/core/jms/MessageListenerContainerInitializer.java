@@ -2,6 +2,8 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
@@ -13,6 +15,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,17 +30,18 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONCURENCY;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 
 /**
  * @author Ion Perpegel
  * @author Cosmin Baciu
  * @since 4.0
- *
+ * <p>
  * Class that manages the creation, reset and destruction of message listener containers
  * The instances are kept so that they can be recreated on property changes at runtime and also stoped at shutdown
  */
 @Service
-public class MessageListenerContainerInitializer {
+public class MessageListenerContainerInitializer implements DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializer.class);
     public static final String JMS_PRIORITY = "JMSPriority";
@@ -47,6 +51,9 @@ public class MessageListenerContainerInitializer {
 
     @Autowired
     protected DomainMessageListenerContainerFactory messageListenerContainerFactory;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
     protected DomainService domainService;
@@ -62,16 +69,34 @@ public class MessageListenerContainerInitializer {
     @PostConstruct
     public void init() {
         final List<Domain> domains = domainService.getDomains();
-        for (Domain domain : domains) {
-            createSendMessageListenerContainers(domain);
-            createSendLargeMessageListenerContainer(domain);
-            createSplitAndJoinListenerContainer(domain);
-            createPullReceiptListenerContainer(domain);
-            createPullMessageListenerContainer(domain);
-            createRetentionListenerContainer(domain);
+        createListenerContainers(domains);
+    }
 
-            createMessageListenersForPlugins(domain);
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        createListenerContainers(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void createListenerContainers(List<Domain> domains) {
+        for (Domain domain : domains) {
+            createListenerContainers(domain);
         }
+    }
+
+    private void createListenerContainers(Domain domain) {
+        createSendMessageListenerContainers(domain);
+        createSendLargeMessageListenerContainer(domain);
+        createSplitAndJoinListenerContainer(domain);
+        createPullReceiptListenerContainer(domain);
+        createPullMessageListenerContainer(domain);
+        createEArchiveMessageListenerContainer(domain);
+        createRetentionListenerContainer(domain);
+
+        createMessageListenersForPlugins(domain);
     }
 
     @PreDestroy
@@ -94,7 +119,7 @@ public class MessageListenerContainerInitializer {
         instances.forEach(instance -> {
             try {
                 LOG.info("Shutting down MessageListenerContainer instance: {}", instance);
-                ((AbstractMessageListenerContainer)instance).shutdown();
+                ((AbstractMessageListenerContainer) instance).shutdown();
             } catch (Exception e) {
                 LOG.error("Error while shutting down MessageListenerContainer", e);
             }
@@ -228,13 +253,30 @@ public class MessageListenerContainerInitializer {
         LOG.info("PullListenerContainer initialized for domain [{}]", domain);
     }
 
+    protected void createEArchiveMessageListenerContainer(Domain domain) {
+        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+        if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
+            return;
+        }
+        DomainMessageListenerContainer instance = messageListenerContainerFactory.createEArchiveMessageListenerContainer(domain);
+        instance.start();
+        DomainMessageListenerContainer instance1 = messageListenerContainerFactory.createEArchiveNotificationListenerContainer(domain);
+        instance1.start();
+        DomainMessageListenerContainer instance2 = messageListenerContainerFactory.createEArchiveNotificationDlqListenerContainer(domain);
+        instance2.start();
+        instances.add(instance);
+        instances.add(instance1);
+        instances.add(instance2);
+        LOG.info("EArchiveListenerContainer initialized for domain [{}]", domain);
+    }
+
     public void setConcurrency(Domain domain, String beanName, String concurrency) {
         DomainMessageListenerContainer oldInstance = instances.stream()
-                                                              .filter(instance -> instance instanceof DomainMessageListenerContainer)
-                                                              .map(instance -> (DomainMessageListenerContainer) instance)
-                                                              .filter(instance -> domain.equals(instance.getDomain()))
-                                                              .filter(instance -> beanName.equals(instance.getName()))
-                                                              .findFirst().orElse(null);
+                .filter(instance -> instance instanceof DomainMessageListenerContainer)
+                .map(instance -> (DomainMessageListenerContainer) instance)
+                .filter(instance -> domain.equals(instance.getDomain()))
+                .filter(instance -> beanName.equals(instance.getName()))
+                .findFirst().orElse(null);
         if (oldInstance != null) {
             oldInstance.setConcurrency(concurrency);
         }

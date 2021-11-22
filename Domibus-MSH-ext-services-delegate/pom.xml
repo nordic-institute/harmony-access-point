@@ -182,14 +182,30 @@
             <artifactId>spring-security-config</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Jackson for mockMVC tests -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
         <!-- End Test dependencies -->
 
         <!--Swagger-->
         <dependency>
-            <groupId>io.swagger</groupId>
+            <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <scope>provided</scope>
-            <version>1.5.3</version>
         </dependency>
         <!--End Swagger-->
     </dependencies>

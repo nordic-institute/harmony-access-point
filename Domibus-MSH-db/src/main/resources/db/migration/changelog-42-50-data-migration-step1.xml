@@ -1281,6 +1281,8 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="DELETED" type="TIMESTAMP"/>
+            <column name="ARCHIVED" type="TIMESTAMP"/>
+            <column name="ACKNOWLEDGED" type="TIMESTAMP"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
             <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
             <column name="SEND_ATTEMPTS" type="INT"/>
@@ -1303,6 +1305,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             </column>
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="PROCESSING_TYPE" type="VARCHAR(255)"/>
         </createTable>
 
         <!-- TB_SIGNAL_MESSAGE_LOG -->

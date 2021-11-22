@@ -37,7 +37,7 @@ class Domibus{
 
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
-    static def FS_DEF_MAP = [FS_DEF_SENDER:"domibus-blue",FS_DEF_P_TYPE:"urn:oasis:names:tc:ebcore:partyid-type:unregistered",FS_DEF_S_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",FS_DEF_RECEIVER:"domibus-red",FS_DEF_R_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"]
+    static def FS_DEF_MAP = [FS_DEF_SENDER:"domibus-blue",FS_DEF_P_TYPE:"urn:oasis:names:tc:ebcore:partyid-type:unregistered",FS_DEF_S_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",FS_DEF_RECEIVER:"domibus-red",FS_DEF_R_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4",FS_DEF_PROC_TYPE:"PUSH"]
 
 
 
@@ -54,6 +54,8 @@ class Domibus{
 	static def MSG_STATUS_MAX_WAIT_TIME = 120_000 // Maximum time to wait to check the message status.
 	static def MSG_STATUS_MAX_WAIT_TIME_EXT = 180_000 // Maximum time to wait to check the message status extended.
 	static def MSG_STATUS_STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
+	static def CLUSTER_WAIT_TIME=15000	// Time to wait for property changes to be propagated accross clusters
+	
     static def CLEAR_CACHE_COMMAND_TOMCAT = $/rmdir /S /Q ..\work & rmdir /S /Q ..\logs & del /S /Q ..\temp\* & FOR /D %p IN ("..\temp\*.*") DO rmdir /s /q "%p"  & rmdir /S /Q ..\webapps\domibus & rmdir /S /Q ..\conf\domibus\work/$
 
     // Short constructor of the Domibus Class
@@ -2690,6 +2692,7 @@ class Domibus{
     static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null,message = "successfully"){
         def authenticationUser = authUser
         def authenticationPwd = authPwd
+		def isClustered="false"
 
         debugLog("  ====  Calling \"changePropertyAtRuntime\".", log)
         log.info "  changePropertyAtRuntime  [][]  Start procedure to change property at runtime for Domibus \"" + side + "\"."
@@ -2709,6 +2712,11 @@ class Domibus{
 
             if(message == "successfully"){
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change property at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
+				isClustered=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, "Default", authenticationUser, authenticationPwd) ?: "false"
+				if(isClustered.toLowerCase().equals("true")){
+					log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for few seconds ..."
+					sleep(CLUSTER_WAIT_TIME)
+				}
                 log.info "  changePropertyAtRuntime  [][]  Property value was changed"
             }else{
                 assert(commandResult[0].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: string $message not found in returned value."
@@ -3094,14 +3102,24 @@ class Domibus{
         def i = 0
         def found = false
         def jsonSlurper = new JsonSlurper()
+		def returnedMessage=null
+		def queueTypeList=["replyQueue","outQueue","errorNotifyConsumer","errorNotifyProducer","inQueue","DLQ"]
+		def queueType="";
 
         def jmsMessagesMap = jsonSlurper.parseText(browseJmsQueue(side,context,log,queueName,domainValue,authUser,authPwd))
         debugLog("  SearchMessageJmsQueue  [][]  jmsMessagesMap:" + jmsMessagesMap, log)
         assert(jmsMessagesMap != null),"Error:SearchMessageJmsQueue: Not able to get the jms queue details."
         log.info ("jmsMessagesMap size = " + jmsMessagesMap.size())
 
-        switch(queueName.toLowerCase()){
-            case "domibus.backend.jms.replyqueue":
+		for(item in queueTypeList){
+			if(queueName.toLowerCase().contains(item.toLowerCase())){
+				queueType=item
+				break
+			}
+		}
+		
+        switch(queueType){
+            case "replyQueue":
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3123,7 +3141,7 @@ class Domibus{
                     i++
                 }
                 break
-            case "domibus.backend.jms.errornotifyconsumer":
+            case "errorNotifyConsumer":
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3146,6 +3164,21 @@ class Domibus{
                 }
                 break
 
+			case "outQueue":
+                while ((i < jmsMessagesMap.messages.size())&&(!found)) {
+                    assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
+                    if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
+                        if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
+                            debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId + "\".", log)
+							found=true
+                        }
+                    }
+                    else{
+                        log.error "  SearchMessageJmsQueue  [][]  jmsMessagesMap.messages[i] has a null message ID: not possible to use this entry ..."
+                    }
+                    i++
+                }
+                break
         // Put here other cases (queues ...)
         // ...
 
@@ -3153,12 +3186,19 @@ class Domibus{
                 log.error "Unknown queue \"$queueName\""
         }
 
+		
+		if(pattern==null){
+			returnedMessage="Message with key \"$searchKey\""
+		}else{
+			returnedMessage="Message with key \"$searchKey\" and pattern \"$pattern\""
+		}
+		
         if(outcome){
-            assert(found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" not found in queue \"$queueName\"."
-            log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was found in queue \"$queueName\".")
+            assert(found),"Error:SearchMessageJmsQueue: $returnedMessage not found in queue \"$queueName\"."
+            log.info("  SearchMessageJmsQueue  [][]  Success: $returnedMessage was found in queue \"$queueName\".")
         }else{
-            assert(!found),"Error:SearchMessageJmsQueue: Message with key \"$searchKey\" and pattern \"$pattern\" found in queue \"$queueName\"."
-            log.info("  SearchMessageJmsQueue  [][]  Success: Message with key \"$searchKey\" and pattern \"$pattern\" was not found in queue \"$queueName\".")
+            assert(!found),"Error:SearchMessageJmsQueue: $returnedMessage found in queue \"$queueName\"."
+            log.info("  SearchMessageJmsQueue  [][]  Success: $returnedMessage was not found in queue \"$queueName\".")
         }
     }
 
@@ -3670,7 +3710,7 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
     // Copy metadata + payload files to submit fs plugin messages
     // parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
-    def static submitFSmessage(String side, context, log, testRunner, String configuration = "standard", String domain = "default",parametersMap = [], boolean twoFiles = true, String subFolder = ""){
+    def static submitFSmessage(String side, context, log, testRunner, String configuration = "standard", String domain = "default",parametersMap = [], boolean twoFiles = true, String destSuffix="", String subFolder = ""){
         debugLog("  ====  Calling \"submitFSmessage\".", log)
         def messageMetadata = null
         def fspluginPath
@@ -3679,10 +3719,10 @@ class Domibus{
         def metadataFile
         def messageLocationPropertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPropertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
 
         // Extract the suitable template for metadata.xml file
         switch (configuration.toLowerCase()) {
@@ -3694,6 +3734,9 @@ class Domibus{
                 break
             case "withpname":
                 messageMetadata = getProjectCustProp("fsMetadataWithPayloadName",context,log,testRunner)
+                break
+            case "withptype":
+                messageMetadata = getProjectCustProp("fsMetadataWithProcessingType",context,log,testRunner)
                 break
             default:
                 log.warn "Unknown type of configuration: assume standard ..."
@@ -3717,13 +3760,13 @@ class Domibus{
 
         // Copy the file
         source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml")
-        dest = fspluginPath + "Test_file.xml"
+        dest = fspluginPath + "Test_file"+destSuffix+".xml"
         copyFile(source,dest,log)
 
         // Copy a second file in case needed
         if(twoFiles){
             source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf")
-            dest = fspluginPath + "fileSmall.pdf"
+            dest = fspluginPath + "fileSmall"+destSuffix+".pdf"
             copyFile(source,dest,log)
         }
 
@@ -3744,10 +3787,11 @@ class Domibus{
         def testFile
         def messageLocationPrpertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPrpertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         fsPayloadPath = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain) + "/IN/" + finalRecipient + "/" + messageID + "/"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
@@ -3773,10 +3817,11 @@ class Domibus{
         def STEP_TIME = 1_000 // Time to wait before re-checking.
         def messageLocationPrpertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPrpertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         def fsPayloadPath = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain) + "/OUT"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
@@ -3801,10 +3846,11 @@ class Domibus{
         def STEP_TIME = 1_000 // Time to wait before re-checking.
         def messageLocationPropertyName = "fsplugin.messages.location"
 
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPropertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         def fsPayloadPath = getPropertyAtRuntime(side, messageLocationPropertyName, context, log, domain) + "/FAILED"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
@@ -3829,10 +3875,11 @@ class Domibus{
         debugLog("  ====  Calling \"cleanFSPluginFolders\".", log)
 
         def messageLocationPrpertyName = "fsplugin.messages.location"
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
-            messageLocationPrpertyName = "fsplugin.domains." + domain + ".messages.location"
-        }
+            messageLocationPropertyName = domain + ".fsplugin.messages.location"
+        }*/
+
 
         def fsPayloadPathBase = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)
 

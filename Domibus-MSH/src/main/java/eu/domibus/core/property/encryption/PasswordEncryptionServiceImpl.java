@@ -28,11 +28,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -100,17 +103,34 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
-            for (Domain domain : domains) {
-                domainContextProvider.setCurrentDomain(domain);
-                final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
-                encryptPasswords(passwordEncryptionContextDomain);
-                domainContextProvider.clearCurrentDomain();
-            }
+            encryptPasswords(domains);
         }
 
         domibusPropertyEncryptionListenerDelegate.signalEncryptPasswords();
 
         LOG.debug("Finished encrypting passwords");
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        encryptPasswords(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void encryptPasswords(List<Domain> domains) {
+        for (Domain domain : domains) {
+            encryptPasswords(domain);
+        }
+    }
+
+    private void encryptPasswords(Domain domain) {
+        domainContextProvider.setCurrentDomain(domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+        encryptPasswords(passwordEncryptionContextDomain);
+        domainContextProvider.clearCurrentDomain();
     }
 
     @Override
@@ -304,4 +324,31 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return StringUtils.contains(filePropertyName, encryptionResult.getPropertyName());
     }
 
+    public List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn) {
+        final String propertiesToEncryptString = getPropertyFn.apply(encryptedProperties);
+        if (StringUtils.isEmpty(propertiesToEncryptString)) {
+            LOG.debug("No properties to encrypt");
+            return new ArrayList<>();
+        }
+
+        final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
+        LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
+
+        List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
+            propertyName = StringUtils.trim(propertyName);
+            final String propertyValue = getPropertyFn.apply(propertyName);
+            if (StringUtils.isBlank(propertyValue)) {
+                return false;
+            }
+
+            if (!isValueEncrypted(propertyValue)) {
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+        LOG.debug("The following properties are not encrypted [{}]", result);
+
+        return result;
+    }
 }

@@ -18,7 +18,6 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.error.ErrorLogService;
-import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
@@ -53,6 +52,7 @@ import javax.persistence.EntityManager;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -342,12 +342,16 @@ public class UserMessageDefaultServiceTest {
                                     @Injectable UserMessageLog userMessageLog,
                                     @Injectable UserMessage userMessage) {
         final String messageId = "1";
+        Long messageEntityId = 1L;
 
         new Expectations(userMessageDefaultService) {{
             userMessage.getMessageId();
             result = messageId;
 
-            new DispatchMessageCreator(messageId);
+            userMessage.getEntityId();
+            result = messageEntityId;
+
+            new DispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
@@ -656,34 +660,6 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    @Test
-    public void scheduleSendingWithDelayTest(@Injectable final JmsMessage jmsMessage,
-                                             @Mocked DelayedDispatchMessageCreator delayedDispatchMessageCreator,
-                                             @Injectable UserMessageLog userMessageLog,
-                                             @Injectable UserMessage userMessage) {
-        final String messageId = UUID.randomUUID().toString();
-        Long delay = 1L;
-        boolean isSplitAndJoin = false;
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
-            result = userMessageLog;
-
-            new DelayedDispatchMessageCreator(messageId, delay);
-            result = delayedDispatchMessageCreator;
-
-            delayedDispatchMessageCreator.createMessage();
-            result = jmsMessage;
-
-        }};
-
-        userMessageDefaultService.scheduleSending(messageId, delay);
-
-        new Verifications() {{
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
-            times = 1;
-        }};
-    }
 
     @Test
     public void scheduleSendingWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
@@ -691,6 +667,7 @@ public class UserMessageDefaultServiceTest {
                                                   @Mocked DispatchMessageCreator dispatchMessageCreator,
                                                   @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
+        Long messageEntityId = 1L;
 
         int retryCount = 3;
 
@@ -698,19 +675,22 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getEntityId();
             result = 10L;
 
+            userMessage.getEntityId();
+            result = messageEntityId;
+
             userMessageDao.read(10L);
             result = userMessage;
 
             userMessage.getMessageId();
             result = messageId;
 
-            new DispatchMessageCreator(messageId);
+            new DispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage(retryCount);
             result = jmsMessage;
 
-            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
+            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId, messageEntityId).createMessage(retryCount));
             times = 1;
         }};
 
@@ -833,16 +813,17 @@ public class UserMessageDefaultServiceTest {
     public void scheduleSourceMessageSendingTest(@Injectable final JmsMessage jmsMessage,
                                                  @Mocked DispatchMessageCreator dispatchMessageCreator) {
         final String messageId = UUID.randomUUID().toString();
+        Long messageEntityId = 1L;
 
         new Expectations() {{
-            new DispatchMessageCreator(messageId);
+            new DispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
             result = jmsMessage;
         }};
 
-        userMessageDefaultService.scheduleSourceMessageSending(messageId);
+        userMessageDefaultService.scheduleSourceMessageSending(messageId, messageEntityId);
 
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, sendLargeMessageQueue);
@@ -850,15 +831,29 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testPayloadName(@Mocked final PartInfo partInfoWithBodyload, @Mocked final PartInfo partInfoWithPayload) {
+    public void testPayloadName(@Injectable final PartInfo partInfoWithBodyload, @Injectable final PartInfo partInfoWithPayload,
+                                @Injectable final PartInfo partInfoWithPartProperties, @Injectable PartProperty partProperty) {
+
+        Set<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
         new Expectations() {{
             partInfoWithBodyload.getHref();
             result = null;
             partInfoWithPayload.getHref();
             result = "cid:1234";
+            partInfoWithPartProperties.getHref();
+            result = "cid:1234";
+            partInfoWithPartProperties.getPartProperties();
+            result = partProperties;
+            partProperty.getName();
+            result = PAYLOAD_NAME;
+            partProperty.getValue();
+            result = "test.txt";
         }};
+
         Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
         Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
+        Assert.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
     }
 
     @Test
@@ -890,5 +885,81 @@ public class UserMessageDefaultServiceTest {
             times = 0;
         }};
     }
+
+    @Test
+    public void getMessageInFinalStatus(@Injectable final UserMessageLog userMessageLog) {
+        final String messageId = "1";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+            result = null;
+        }};
+        try {
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            Assert.fail();
+        } catch (UserMessageException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
+        }
+
+    }
+
+    @Test
+    public void getMessageNotInFinalStatus(@Injectable final UserMessageLog userMessageLog) {
+        final String messageId = "1";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+            result = userMessageLog;
+        }};
+
+        final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+        Assert.assertNotNull(message);
+    }
+
+    @Test
+    public void deleteMessageNotInFinalStatus() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            times = 1;
+            userMessageDefaultService.deleteMessage(messageId);
+            times = 1;
+        }};
+
+        userMessageDefaultService.deleteMessageNotInFinalStatus(messageId);
+
+        new FullVerificationsInOrder(userMessageDefaultService) {{
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            userMessageDefaultService.deleteMessage(messageId);
+        }};
+    }
+
+    @Test
+    public void deleteMessagesDuringPeriod() {
+        final Date startDate = new Date();
+        final Date endDate = new Date();
+        final String messageId = "1";
+        final List<String> messagesToDelete = new ArrayList<>();
+        messagesToDelete.add(messageId);
+
+        final String originalUserFromSecurityContext = "C4";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
+            result = messagesToDelete;
+            userMessageDefaultService.deleteMessage(messageId);
+            times = 1;
+        }};
+
+        userMessageDefaultService.deleteMessagesDuringPeriod(startDate, endDate, originalUserFromSecurityContext);
+
+        new FullVerificationsInOrder(userMessageDefaultService) {{
+            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
+            userMessageDefaultService.deleteMessage(messageId);
+            times = 1;
+        }};
+    }
+
 
 }

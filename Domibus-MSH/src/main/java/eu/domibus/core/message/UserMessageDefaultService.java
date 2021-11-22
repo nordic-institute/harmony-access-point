@@ -21,7 +21,6 @@ import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.error.ErrorLogService;
-import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
@@ -42,6 +41,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -82,6 +82,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
+    static final String PAYLOAD_NAME = "PayloadName";
 
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
@@ -312,19 +313,13 @@ public class UserMessageDefaultService implements UserMessageService {
 
 
     public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
-        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId()).createMessage());
+        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage());
     }
 
-    @Override
-    public void scheduleSending(String messageId, Long delay) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
-    }
-
+    @Transactional
     public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
         UserMessage userMessage = userMessageDao.read(userMessageLog.getEntityId());
-        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId()).createMessage(retryCount));
+        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage(retryCount));
     }
 
     /**
@@ -354,9 +349,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSourceMessageSending(String messageId) {
+    public void scheduleSourceMessageSending(String messageId, Long messageEntityId) {
         LOG.debug("Sending message to sendLargeMessageQueue");
-        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
+        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId, messageEntityId).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 
@@ -515,6 +510,13 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteMessage(messageId);
     }
 
+    @Transactional
+    @Override
+    public void deleteMessageNotInFinalStatus(String messageId) {
+        getMessageNotInFinalStatus(messageId);
+        deleteMessage(messageId);
+    }
+
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
@@ -524,6 +526,40 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
         }
         return userMessageLog;
+    }
+
+    protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
+        final UserMessageLog messageToDelete = userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+        if (messageToDelete == null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+        }
+        return messageToDelete;
+    }
+
+
+    @Transactional
+    @Override
+    public List<String> deleteMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+        if (messagesToDelete.isEmpty() || messagesToDelete == null) {
+            LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            return Collections.emptyList();
+        }
+        LOG.debug("Found messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+
+        final List<String> deletedMessages = new ArrayList<>();
+        for (String messageId : messagesToDelete) {
+            try {
+                deleteMessage(messageId);
+                deletedMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to delete message [" + messageId + "]", e);
+            }
+        }
+
+        LOG.debug("Deleted messages [{}] using start date [{}], end date [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+
+        return deletedMessages;
     }
 
     @Override
@@ -719,7 +755,12 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
             return info.getHref();
         }
-
+        for (PartProperty property : info.getPartProperties()) {
+            if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
+                LOG.debug("Payload Name exists [{}]", property.getName());
+                return property.getValue();
+            }
+        }
         return info.getHref().replace("cid:", "");
     }
 
@@ -751,4 +792,5 @@ public class UserMessageDefaultService implements UserMessageService {
         propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
         return properties;
     }
+
 }

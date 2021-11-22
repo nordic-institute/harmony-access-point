@@ -94,11 +94,13 @@ public class ResponseHandler {
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-        signalMessage.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
-        nonRepudiationService.saveResponse(response, signalMessage);
+
 
         // Stores the signal message
+        signalMessage.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
         signalMessageDao.create(signalMessage);
+
+        nonRepudiationService.saveResponse(response, signalMessage.getEntityId());
 
         // Builds the signal message log
         // Updating the reference to the signal message

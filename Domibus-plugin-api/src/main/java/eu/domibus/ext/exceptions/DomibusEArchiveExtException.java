@@ -34,4 +34,13 @@ public class DomibusEArchiveExtException extends DomibusServiceExtException {
     public DomibusEArchiveExtException(Throwable cause) {
         super(DomibusErrorCode.DOM_001, cause.getMessage(), cause);
     }
+
+    /**
+     * Constructs a new instance with a specific cause.
+     *
+     * @param message the message detail.
+     */
+    public DomibusEArchiveExtException(String message) {
+        super(DomibusErrorCode.DOM_001, message);
+    }
 }

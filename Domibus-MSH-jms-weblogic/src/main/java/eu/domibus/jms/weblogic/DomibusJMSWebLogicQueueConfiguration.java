@@ -106,6 +106,30 @@ public class DomibusJMSWebLogicQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
+    @Bean(EARCHIVE_QUEUE)
+    public JndiObjectFactoryBean eArchiveQueue() {
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setJndiName("jms/domibus.internal.earchive.queue");
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
+    }
+
+    @Bean(EARCHIVE_NOTIFICATION_QUEUE)
+    public JndiObjectFactoryBean eArchiveNotificationQueue() {
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setJndiName("jms/domibus.internal.earchive.notification.queue");
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
+    }
+
+    @Bean(EARCHIVE_NOTIFICATION_DLQ)
+    public JndiObjectFactoryBean eArchiveNotificationDLQ() {
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+        jndiObjectFactoryBean.setJndiName("jms/domibus.internal.earchive.notification.dlq");
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
+    }
+
     @Bean(UI_REPLICATION_QUEUE)
     public JndiObjectFactoryBean uiReplicationQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();

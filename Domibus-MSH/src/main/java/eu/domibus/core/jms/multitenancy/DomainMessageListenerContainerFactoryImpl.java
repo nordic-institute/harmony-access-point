@@ -7,12 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.DISPATCH_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.PULL_MESSAGE_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.PULL_RECEIPT_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.RETENTION_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.SEND_LARGE_MESSAGE_CONTAINER;
-import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.SPLIT_AND_JOIN_CONTAINER;
+import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration.*;
+
 /**
  * @author Ion Perpegel
  * @since 4.0
@@ -61,6 +57,22 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     public DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
         return (DomainMessageListenerContainer) applicationContext.getBean(PULL_MESSAGE_CONTAINER, domain);
+    }
+
+    @Override
+    public DomainMessageListenerContainer createEArchiveMessageListenerContainer(Domain domain) {
+        LOG.debug("Creating the EArchiveMessageListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_CONTAINER, domain);
+    }
+    @Override
+    public DomainMessageListenerContainer createEArchiveNotificationListenerContainer(Domain domain) {
+        LOG.debug("Creating the EArchiveNotificationListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_NOTIF_CONTAINER, domain);
+    }
+    @Override
+    public DomainMessageListenerContainer createEArchiveNotificationDlqListenerContainer(Domain domain) {
+        LOG.debug("Creating the EArchiveNotificationDlqListenerContainer for domain [{}]", domain);
+        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_NOTIF_DLQ_CONTAINER, domain);
     }
 
 }

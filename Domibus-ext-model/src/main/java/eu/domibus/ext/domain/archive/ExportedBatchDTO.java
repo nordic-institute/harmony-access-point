@@ -9,16 +9,17 @@ import java.util.List;
  */
 public class ExportedBatchDTO {
 
-    String batchId;
-    BatchRequestType requestType;
-    String errorCode;
-    String errorDescription;
-    Date enqueuedTimestamp;
-    Date messageStartDate;
-    Date messageEndDate;
-    String manifestChecksum;
-
-    List<String> messages;
+    protected String batchId;
+    protected BatchRequestType requestType;
+    protected ExportedBatchStatusType status;
+    protected String errorCode;
+    protected String errorDescription;
+    protected Date enqueuedTimestamp;
+    // Same as message parameter max and min:  yyMMddHH
+    protected Long messageStartDate;
+    protected Long messageEndDate;
+    protected String manifestChecksum;
+    protected List<String> messages;
 
     public String getBatchId() {
         return batchId;
@@ -34,6 +35,14 @@ public class ExportedBatchDTO {
 
     public void setRequestType(BatchRequestType requestType) {
         this.requestType = requestType;
+    }
+
+    public ExportedBatchStatusType getStatus() {
+        return status;
+    }
+
+    public void setStatus(ExportedBatchStatusType status) {
+        this.status = status;
     }
 
     public String getErrorCode() {
@@ -60,19 +69,19 @@ public class ExportedBatchDTO {
         this.enqueuedTimestamp = enqueuedTimestamp;
     }
 
-    public Date getMessageStartDate() {
+    public Long getMessageStartDate() {
         return messageStartDate;
     }
 
-    public void setMessageStartDate(Date messageStartDate) {
+    public void setMessageStartDate(Long messageStartDate) {
         this.messageStartDate = messageStartDate;
     }
 
-    public Date getMessageEndDate() {
+    public Long getMessageEndDate() {
         return messageEndDate;
     }
 
-    public void setMessageEndDate(Date messageEndDate) {
+    public void setMessageEndDate(Long messageEndDate) {
         this.messageEndDate = messageEndDate;
     }
 

@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
@@ -33,6 +34,13 @@ public interface EventService {
      * @param accountDisabled whether the account has been disable or not.
      */
     void enqueueLoginFailureEvent(UserEntityBase.Type type, String userName, Date loginTime, boolean accountDisabled);
+
+    /**
+     * Will create partition expiration event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param partitionName   the partition name that could not be deleted
+     */
+    void enqueuePartitionExpirationEvent(String partitionName);
 
     /**
      * Will create a account disabled event and enqueue it to the alert/event monitoring queue.
@@ -69,6 +77,14 @@ public interface EventService {
     void enqueueCertificateExpiredEvent(String accessPoint, String alias, Date expirationDate);
 
     /**
+     * Will create an earchiving notification failed event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param batchId       the id of the batch that could not be notified to the e-archiving client
+     * @param batchStatus   the status of the batch that could not be notified to the e-archiving client
+     */
+    void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus);
+
+    /**
      * Save an event.
      *
      * @param event the event to save.
@@ -91,4 +107,21 @@ public interface EventService {
      */
     void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration);
 
+
+    /**
+     * Verifies if an alert should be created based on the last alert and frequency
+     *
+     * @param event the event for which the alert should be or not created
+     * @param frequency the period in days to send another alert
+     * @return true if the previous alert is older than the specified frequency
+     */
+    boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event event, int frequency);
+
+    /**
+     * Will create an earchiving messages non-final event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param messageId     the messageId of the message with a status not final
+     * @param status        the status of the message that is not final
+     */
+    void enqueueEArchivingMessageNonFinalEvent(String messageId, MessageStatus status);
 }

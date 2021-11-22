@@ -4,6 +4,10 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
+import eu.domibus.core.earchive.listener.EArchiveErrorHandler;
+import eu.domibus.core.earchive.listener.EArchiveListener;
+import eu.domibus.core.earchive.listener.EArchiveNotificationDlqListener;
+import eu.domibus.core.earchive.listener.EArchiveNotificationListener;
 import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
@@ -53,6 +57,10 @@ public class MessageListenerContainerConfiguration {
     public static final String PULL_RECEIPT_CONTAINER = "pullReceiptContainer";
     public static final String RETENTION_CONTAINER = "retentionContainer";
     public static final String PULL_MESSAGE_CONTAINER = "pullMessageContainer";
+    public static final String EARCHIVE_CONTAINER = "eArchiveContainer";
+    public static final String EARCHIVE_NOTIF_CONTAINER = "eArchiveNotificationContainer";
+
+    public static final String EARCHIVE_NOTIF_DLQ_CONTAINER = "eArchiveNotificationDlqContainer";
 
     @Autowired
     @Qualifier(SEND_MESSAGE_QUEUE)
@@ -61,6 +69,18 @@ public class MessageListenerContainerConfiguration {
     @Autowired
     @Qualifier(SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
+
+    @Autowired
+    @Qualifier(EARCHIVE_QUEUE)
+    private Queue eArchiveQueue;
+
+    @Autowired
+    @Qualifier(EARCHIVE_NOTIFICATION_QUEUE)
+    private Queue eArchiveNotificationQueue;
+
+    @Autowired
+    @Qualifier(EARCHIVE_NOTIFICATION_DLQ)
+    private Queue eArchiveNotificationDlqQueue;
 
     @Autowired
     @Qualifier(PULL_MESSAGE_QUEUE)
@@ -89,6 +109,19 @@ public class MessageListenerContainerConfiguration {
 
     @Autowired
     private PullReceiptListener pullReceiptListener;
+
+    @Autowired
+    private EArchiveListener eArchiveListener;
+
+    @Autowired
+    @Qualifier("eArchiveErrorHandler")
+    private EArchiveErrorHandler eArchiveErrorHandler;
+
+    @Autowired
+    private EArchiveNotificationListener eArchiveNotificationListener;
+
+    @Autowired
+    private EArchiveNotificationDlqListener eArchiveNotificationDlqListener;
 
     @Autowired
     private RetentionListener retentionListener;
@@ -161,6 +194,35 @@ public class MessageListenerContainerConfiguration {
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, sendPullReceiptQueue,
                 pullReceiptListener, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY
+        );
+    }
+
+    @Bean(name = EARCHIVE_CONTAINER)
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultMessageListenerContainer createEArchiveListener(Domain domain) {
+        LOG.debug("Instantiating the createEArchiveListener for domain [{}]", domain);
+        DefaultMessageListenerContainer defaultMessageListenerContainer =
+                createDefaultMessageListenerContainer(domain, connectionFactory, eArchiveQueue, eArchiveListener, DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY
+                );
+        defaultMessageListenerContainer.setErrorHandler(eArchiveErrorHandler);
+        return defaultMessageListenerContainer;
+    }
+
+    @Bean(name = EARCHIVE_NOTIF_CONTAINER)
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultMessageListenerContainer createEArchiveNotificationListener(Domain domain) {
+        LOG.debug("Instantiating the createEArchiveNotificationListener for domain [{}]", domain);
+        return createDefaultMessageListenerContainer(domain, connectionFactory, eArchiveNotificationQueue,
+                eArchiveNotificationListener, DOMIBUS_EARCHIVE_NOTIFICATION_QUEUE_CONCURRENCY
+        );
+    }
+
+    @Bean(name = EARCHIVE_NOTIF_DLQ_CONTAINER)
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultMessageListenerContainer createEArchiveNotificationDlqListener(Domain domain) {
+        LOG.debug("Instantiating the createEArchiveNotificationDlqListener for domain [{}]", domain);
+        return createDefaultMessageListenerContainer(domain, connectionFactory, eArchiveNotificationDlqQueue,
+                eArchiveNotificationDlqListener, DOMIBUS_EARCHIVE_NOTIFICATION_DLQ_CONCURRENCY
         );
     }
 

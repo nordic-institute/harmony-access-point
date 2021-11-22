@@ -1,0 +1,27 @@
+.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
+  width: 100% !important;
+}
+
+.mat-form-field, mat-select {
+  width: 80% !important;
+}
+.connection-status mat-icon {
+  font-size: 36px;
+}
+.connection-status > span {
+  float:left;
+  display:inline-block;
+  vertical-align: middle;
+  margin-right: 12px;
+  margin-top: 6px;
+  height: 50px;
+  width: 40px;
+}
+.connection-monitor-status {
+  display: inline-block;
+  height: 58px;
+  line-height: 50px;
+}
+.connection-monitor-status mat-slide-toggle {
+  margin-top: 12px;
+}

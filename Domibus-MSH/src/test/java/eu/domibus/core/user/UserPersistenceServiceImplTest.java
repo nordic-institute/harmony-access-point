@@ -1,8 +1,10 @@
 package eu.domibus.core.user;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
@@ -70,6 +72,12 @@ public class UserPersistenceServiceImplTest {
 
     @Injectable
     AuthenticationService authenticationService;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     @Tested
     private UserPersistenceServiceImpl userPersistenceService;
@@ -169,6 +177,141 @@ public class UserPersistenceServiceImplTest {
         }};
 
         userPersistenceService.insertNewUsers(addedUsers);
+    }
+
+    @Test
+    public void insertNewUsersMultiTenantTest() {
+        eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
+            setUserName("addedUserName");
+            setActive(true);
+            setStatus(UserState.NEW.name());
+            setDomain("Domain2");
+        }};
+        User addedUserEntity = new User() {{
+            setPassword("password1");
+        }};
+        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+
+            authCoreMapper.userApiToUserSecurity(addedUser);
+            result = addedUserEntity;
+        }};
+
+        userPersistenceService.insertNewUsers(addedUsers);
+
+        new Verifications() {{
+            domainContextProvider.setCurrentDomain(addedUser.getDomain());
+            times = 1;
+            userDao.create(addedUserEntity);
+            times = 1;
+            userDomainService.setDomainForUser(addedUser.getUserName(), addedUser.getDomain());
+            times = 1;
+            userDomainService.setPreferredDomainForUser(addedUser.getUserName(), addedUser.getDomain());
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void insertNewSuperUsersMultiTenantTest() {
+        eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
+            setUserName("super1");
+            setActive(true);
+            setStatus(UserState.NEW.name());
+            setDomain("default");
+            setAuthorities(Arrays.asList("ROLE_AP_ADMIN"));
+        }};
+        User addedUserEntity = new User() {{
+            setPassword("password1");
+        }};
+        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+
+        new Expectations(userPersistenceService) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            domainContextProvider.getCurrentDomainSafely();
+            result = null;
+            authCoreMapper.userApiToUserSecurity(addedUser);
+            result = addedUserEntity;
+            userPersistenceService.addRoleToUser(addedUser.getAuthorities(), addedUserEntity);
+        }};
+
+        userPersistenceService.insertNewUsers(addedUsers);
+
+        new Verifications() {{
+            userDao.create(addedUserEntity);
+            times = 1;
+            userDomainService.setDomainForUser(addedUser.getUserName(), addedUser.getDomain());
+            times = 0;
+            userDomainService.setPreferredDomainForUser(addedUser.getUserName(), addedUser.getDomain());
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void deleteUsersMultiTenantTest() {
+        eu.domibus.api.user.User deletedUser = new eu.domibus.api.user.User() {{
+            setUserName("deletedUserName");
+            setActive(true);
+            setStatus(UserState.REMOVED.name());
+            setDomain("domain2");
+        }};
+        List<eu.domibus.api.user.User> deletedUsers = Arrays.asList(deletedUser);
+        User deletedUserEntity = new User() {{
+            setPassword("password1");
+        }};
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            userDao.loadUserByUsername(deletedUser.getUserName());
+            result = deletedUserEntity;
+        }};
+
+        userPersistenceService.deleteUsers(deletedUsers);
+
+        new Verifications() {{
+            domainContextProvider.setCurrentDomain(deletedUser.getDomain());
+            times = 1;
+            userDao.delete(deletedUserEntity);
+            times = 1;
+            userSessionsService.invalidateSessions(deletedUserEntity);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void updatedUsersMultiTenantTest() {
+        eu.domibus.api.user.User modifiedUser = new eu.domibus.api.user.User() {{
+            setUserName("modifiedUserName");
+            setActive(true);
+            setStatus(UserState.UPDATED.name());
+            setDomain("domain2");
+        }};
+        List<eu.domibus.api.user.User> modifiedUsers = Arrays.asList(modifiedUser);
+        User updatedUserEntity = new User() {{
+            setPassword("password1");
+        }};
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            userDao.loadUserByUsername(modifiedUser.getUserName());
+            result = updatedUserEntity;
+        }};
+
+        userPersistenceService.updateUsers(modifiedUsers, false);
+
+        new Verifications() {{
+            domainContextProvider.setCurrentDomain(modifiedUser.getDomain());
+            times = 1;
+            securityPolicyManager.applyLockingPolicyOnUpdate(modifiedUser, updatedUserEntity);
+            times=1;
+            userDao.update(updatedUserEntity);
+            times = 1;
+        }};
     }
 
     @Test

@@ -20,16 +20,24 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
 public class UserMessageLogDaoTest {
+
+    public static final String MAX = "9999999999";
 
     @Tested
     private UserMessageLogDao userMessageLogDao;
@@ -896,6 +904,45 @@ public class UserMessageLogDaoTest {
         // THEN
         new Verifications() {{
             Assert.assertNull("Should have returned null for the message identifier when the last user test message is not found", result);
+        }};
+    }
+
+    @Test
+    public void findMessagesToDelete(@Injectable TypedQuery<UserMessageLog> query) {
+        final Date startDate = new Date();
+        final Date endDate = new Date();
+        final String finalRecipient = "finalRecipient";
+
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+            result = query;
+        }};
+
+        userMessageLogDao.findMessagesToDelete(finalRecipient, startDate, endDate);
+
+        new VerificationsInOrder() {{
+            query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+            query.setParameter("FINAL_RECIPIENT", finalRecipient);
+            query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+
+            query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        }};
+    }
+
+    @Test
+    public void findMessageToDeleteNotInFinalStatus(@Injectable TypedQuery<UserMessageLog> query) {
+        final String messageId = "messageId";
+
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
+            result = query;
+        }};
+
+        userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+
+        new VerificationsInOrder() {{
+            query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+            query.setParameter("MESSAGE_ID", messageId);
         }};
     }
 }

@@ -5,7 +5,9 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.logging.DomibusLogger;
@@ -14,7 +16,9 @@ import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Ion Perpegel
@@ -24,6 +28,8 @@ import java.util.List;
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
 
+    public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
+
     private final TLSReaderService tlsReaderService;
 
     private final CertificateService certificateService;
@@ -32,42 +38,42 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     private final SignalService signalService;
 
-    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService, CertificateService certificateService,
-                                     DomainContextProvider domainProvider, SignalService signalService) {
+    private final DomibusConfigurationService domibusConfigurationService;
 
+    protected final DomainService domainService;
+
+    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
+                                     CertificateService certificateService,
+                                     DomainContextProvider domainProvider,
+                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService,
+                                     DomainService domainService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.domainService = domainService;
     }
 
     @Override
-    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustStoreBackupLocation) throws CryptoException {
-        KeyStoreType trustStore = getTruststoreParams();
-
-        certificateService.replaceTrustStore(fileName, fileContent, filePassword,
-                trustStore.getType(), trustStore.getFile(), trustStore.getPassword(), trustStoreBackupLocation);
-
+    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
+        certificateService.replaceTrustStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
         resetTLSTruststore();
     }
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        KeyStoreType trustStore = getTruststoreParams();
-
-        return certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
+        return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
     public byte[] getTruststoreContent() {
-        KeyStoreType trustStore = getTruststoreParams();
-        return certificateService.getTruststoreContent(trustStore.getFile());
+        return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
-    public synchronized boolean addCertificate(byte[] certificateData, String alias, String trustStoreBackupLocation) {
-        KeyStoreType trustStore = getTruststoreParams();
-        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, trustStoreBackupLocation);
+    public synchronized boolean addCertificate(byte[] certificateData, String alias) {
+        boolean added = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -76,9 +82,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public synchronized boolean removeCertificate(String alias, String trustStoreBackupLocation) {
-        KeyStoreType trustStore = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, trustStoreBackupLocation);
+    public synchronized boolean removeCertificate(String alias) {
+        boolean deleted = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -86,13 +91,56 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         return deleted;
     }
 
-    protected KeyStoreType getTruststoreParams() {
-        Domain domain = domainProvider.getCurrentDomain();
-        String domainCode = domain != null ? domain.getCode() : null;
-        TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
-        KeyStoreType result = params.getTrustManagers().getKeyStore();
-        LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
-        return result;
+    @Override
+    public void persistTruststoresIfApplicable() {
+        final List<Domain> domains = domainService.getDomains();
+        persistTruststoresIfApplicable(domains);
+    }
+
+    @Override
+    public void onDomainAdded(final Domain domain) {
+        persistTruststoresIfApplicable(Arrays.asList(domain));
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+    }
+
+    private void persistTruststoresIfApplicable(List<Domain> domains) {
+        certificateService.persistTruststoresIfApplicable(TLS_TRUSTSTORE_NAME, true,
+                () -> getTrustFileLocation(), () -> getTrustType(), () -> getTrustPassword(),
+                domains);
+    }
+
+    private Optional<String> getTrustFileLocation() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.map(k -> Optional.of(k.getFile())).orElse(Optional.empty());
+    }
+
+    private String getTrustType() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.map(k -> k.getType()).orElse(null);
+    }
+
+    private String getTrustPassword() {
+        Optional<KeyStoreType> params = getTruststoreParams();
+        return params.map(k -> k.getPassword()).orElse(null);
+    }
+
+    protected Optional<KeyStoreType> getTruststoreParams() {
+        final String domainCode;
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            domainCode = null;
+        } else {
+            Domain domain = domainProvider.getCurrentDomain();
+            domainCode = domain != null ? domain.getCode() : null;
+        }
+        Optional<TLSClientParametersType> params = tlsReaderService.getTlsClientParametersType(domainCode);
+        return params.map(k -> {
+            KeyStoreType result = k.getTrustManagers().getKeyStore();
+            LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
+            return Optional.of(result);
+        }).orElse(Optional.empty());
     }
 
     protected void resetTLSTruststore() {
@@ -101,4 +149,5 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         tlsReaderService.reset(domainCode);
         signalService.signalTLSTrustStoreUpdate(domain);
     }
+
 }

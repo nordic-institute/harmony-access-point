@@ -17,7 +17,7 @@ public class CsvSerializerMap implements CsvSerializer {
         return fieldValue instanceof Map;
     }
 
-    @Override
+    @Override // TODO: François Gautier 29-10-21 GSon to be removed EDELIVERY-8617
     public String serialize(Object fieldValue) {
         return new GsonBuilder()
                 .serializeNulls()

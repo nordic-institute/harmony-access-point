@@ -7,14 +7,16 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.PartInfoService;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -106,16 +108,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
-        String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
         if (messageRetentionDownloaded < 0) {
             LOG.trace("Retention of downloaded messages is not active.");
-            return;
-        }
-
-        final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-        if (!isDeleteMessageMetadata && (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))) {
-            LOG.trace("Retention of downloaded messages performed immediately after download.");
             return;
         }
 

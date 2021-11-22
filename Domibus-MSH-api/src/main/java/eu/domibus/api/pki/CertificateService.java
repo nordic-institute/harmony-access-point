@@ -1,16 +1,18 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
-import java.io.ByteArrayInputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author Cosmin Baciu
@@ -33,29 +35,12 @@ public interface CertificateService {
     String extractCommonName(final X509Certificate certificate) throws InvalidNameException;
 
     /**
-     * Return the detail of the truststore entries.
-     *
-     * @param trustStore the trust store from where to retrieve the certificates
-     * @return a list of certificate
-     */
-    List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore);
-
-    /**
      * Save certificate data in the database, and use this data to display a revocation warning when needed.
      *
      * @param trustStore trustStore entries
      * @param keyStore   keyStore entries
      */
     void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore);
-
-    /**
-     * Validates that the bytes represent a valid truststore
-     *
-     * @param newTrustStoreBytes the content
-     * @param password           the password to open the truststore
-     * @param type               the type of the truststore: jks, PKCS12
-     */
-    void validateLoadOperation(ByteArrayInputStream newTrustStoreBytes, String password, String type);
 
     /**
      * Check if alerts need to be send for expired or soon expired certificate. Send if true.
@@ -116,107 +101,81 @@ public interface CertificateService {
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
     /**
-     * Get the truststore content from the location as byte array
+     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
      *
-     * @param location the location of the trust file
-     * @return the trust content
+     * @param fileName     the file name representing the trust
+     * @param fileContent  the trust content
+     * @param filePassword the password of the trust
+     * @param trustName    the location of the trust on disc
+     * @throws CryptoException
      */
-    byte[] getTruststoreContent(String location);
+    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
      *
-     * @param fileName the file name representing the trust
-     * @param fileContent the trust content
+     * @param fileContent  the trust content
      * @param filePassword the password of the trust
-     * @param trustType the type of the trust
-     * @param trustLocation the location of the trust on disc
-     * @param trustPassword the password of the trust file
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @throws CryptoException
      */
-    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
-
-    /**
-     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
-     *
-     * @param fileContent the trust content
-     * @param filePassword the password of the trust
-     * @param trustType the type of the trust
-     * @param trustLocation the location of the trust on disc
-     * @param trustPassword the password of the trust file
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
-     * @throws CryptoException
-     */
-    void replaceTrustStore(byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
+    void replaceTrustStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
     /**
      * Returns the truststore pointed by the location/password parameters
      *
-     * @param trustStorePassword the password of the trust file
-     * @param trustStoreLocation the location of the trust on disc
+     * @param trustName the location of the trust on disc
      * @return the truststore object
      */
-    KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword);
+    KeyStore getTrustStore(String trustName);
 
     /**
      * Returns the truststore pointed by the location/password parameters as a list of certificate entries
      *
-     * @param trustStorePassword the password of the trust file
-     * @param trustStoreLocation the location of the trust on disc
+     * @param trustName the name of the trust in DB
      * @return the list of cewrtificates and their names
      */
-    List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword);
+    List<TrustStoreEntry> getTrustStoreEntries(String trustName);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *
-     * @param trustStorePassword the password of the trust file
-     * @param trustStoreLocation the location of the trust on disc
+     * @param trustName          the location of the trust on disc
      * @param certificateContent the content of the certificate
-     * @param alias the name of the certificate
-     * @param overwrite if overwrite an existing certificate
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
+     * @param alias              the name of the certificate
+     * @param overwrite          if overwrite an existing certificate
      * @return
      */
-    boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite, String trustStoreBackupLocation);
+    boolean addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
      *
-     * @param trustStore the truststore object reference itself
-     * @param trustStorePassword the password of the trust file
-     * @param trustStoreLocation the location of the trust on disc
+     * @param trustName    the location of the trust on disc
      * @param certificates the list of certificate entries( name and value)
-     * @param overwrite if overwrite an existing certificate
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
+     * @param overwrite    if overwrite an existing certificate
      * @return true if at least one was added
      */
-    boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite, String trustStoreBackupLocation);
+    boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
      *
-     * @param trustStorePassword the password of the trust file
-     * @param trustStoreLocation the location of the trust on disc
-     * @param alias the certificate name
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
+     * @param trustName the location of the trust on disc
+     * @param alias     the certificate name
      * @return true is at least one was deleted
      */
-    boolean removeCertificate(String trustStorePassword, String trustStoreLocation, String alias, String trustStoreBackupLocation);
+    boolean removeCertificate(String trustName, String alias);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
      *
-     * @param trustStore the truststore object reference itself
-     * @param trustStorePassword the password of the trust file
-     * @param trustStoreLocation the location of the trust on disc
-     * @param aliases the list of certificate names
-     * @param trustStoreBackupLocation the location of the truststore backup on disc
+     * @param trustName the location of the trust on disc
+     * @param aliases   the list of certificate names
      * @return true is at least one was deleted
      */
-    boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation);
+    boolean removeCertificates(String trustName, List<String> aliases);
 
+    byte[] getTruststoreContent(String trustName);
+
+    void persistTruststoresIfApplicable(final String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
 }

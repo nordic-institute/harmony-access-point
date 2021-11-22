@@ -1,6 +1,7 @@
-export class Domain { 
+export class Domain {
   code: string;
-  name: string; 
+  name: string;
+  active: boolean;
 
   constructor(code: string, name: string) {
   }

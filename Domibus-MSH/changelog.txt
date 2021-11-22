@@ -1,4 +1,9 @@
 Domibus 5.0
+- Add alert when expired partition cannot be deleted
+- New RetentionWorker to delete entire expired partition
+- Add message tables partitioning sql scripts
+- EARCHIVING: allows archiving messages sent / received
+- ProcessingType allowing to specify if the message should be pushed or pulled has been added in all the domibus plugins.
 - new sequence for id generation (in Oracle: sequence, in mysql H2: Table) of the format: yyMMddHHDDDDDDDDDD (ex: 210809150000000050)
 - Switch to using UTC to save timestamp values.
 - All date time values missing a timezone offset received from Domibus clients are considered to be in UTC offset; all

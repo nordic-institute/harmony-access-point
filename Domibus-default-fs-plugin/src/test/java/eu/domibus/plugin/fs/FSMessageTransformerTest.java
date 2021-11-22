@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.ext.services.FileUtilExtService;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.fs.ebms3.*;
 import eu.domibus.plugin.fs.exception.FSPluginException;
@@ -90,6 +91,7 @@ public class FSMessageTransformerTest {
         submission.setFromRole(INITIATOR_ROLE);
         submission.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);
         submission.setToRole(RESPONDER_ROLE);
+        submission.setProcessingType(ProcessingType.PUSH);
 
         submission.setServiceType(SERVICE_TYPE_TC1);
         submission.setService(SERVICE_NOPROCESS);

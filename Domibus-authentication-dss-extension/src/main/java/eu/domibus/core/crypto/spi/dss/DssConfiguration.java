@@ -66,6 +66,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.DSS_EXTENSION_PROPERTIES;
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.EXTENSIONS_CONFIG_HOME;
 import static java.util.Arrays.asList;
 
 
@@ -77,7 +79,7 @@ import static java.util.Arrays.asList;
  */
 @Configuration
 @PropertySource(value = "classpath:authentication-dss-extension-default.properties")
-@PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/extensions/config/authentication-dss-extension.properties")
+@PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/" + EXTENSIONS_CONFIG_HOME + "/" + DSS_EXTENSION_PROPERTIES)
 public class DssConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssConfiguration.class);
@@ -148,6 +150,8 @@ public class DssConfiguration {
     @Autowired
     private PasswordEncryptionExtService passwordEncryptionService;
 
+    @Autowired
+    private DssExtensionPropertyManager propertyManager;
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -407,34 +411,6 @@ public class DssConfiguration {
     @Bean
     public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
         return new TriggerChangeListener(domibusSchedulerExtService);
-    }
-
-    @Bean
-    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
-        return new DssPropertyEncryptionListener(passwordEncryptionService, this, domibusConfigurationExtService, domainExtService);
-    }
-
-    /**
-     * @return True if password encryption is active
-     */
-    public boolean isPasswordEncryptionActive() {
-        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-        return BooleanUtils.toBoolean(passwordEncryptionActive);
-    }
-
-    /**
-     * get the base (mapped to default) and other domains property
-     *
-     * @param domain
-     * @param propertyName
-     * @return
-     */
-    public String getDomainProperty(String domain, String propertyName) {
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            DomainDTO domainDTO = domainExtService.getDomain(domain);
-            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
-        }
-        return domibusPropertyExtService.getProperty(propertyName);
     }
 
     @Bean

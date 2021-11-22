@@ -31,6 +31,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.DOMAINS_HOME;
+
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Ion Perpegel
@@ -60,7 +62,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
-            LOG.warn("Could not load TLS Client parameters for domain [{}] since theere is no clientauthentication.xml file", domainCode);
+            LOG.info("Could not load TLS Client parameters for domain [{}] since theere is no clientauthentication.xml file", domainCode);
             return null;
         }
         try {
@@ -80,14 +82,15 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     }
 
     @Override
-    public TLSClientParametersType getTlsClientParametersType(String domainCode) {
+    public Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
-            throw new DomibusCertificateException("Could not find client authentication file for domain [" + domainCode + "]");
+            return Optional.empty();
         }
         try {
             String fileContent = getFileContent(path);
-            return getTLSParameters(fileContent);
+            TLSClientParametersType params = getTLSParameters(fileContent);
+            return Optional.of(params);
         } catch (Exception e) {
             throw new DomibusCertificateException("Could not process client authentication file for domain [" + domainCode + "]", e);
         }
@@ -112,12 +115,14 @@ public class TLSReaderServiceImpl implements TLSReaderService {
      * {@code Optional} path.
      */
     private Optional<Path> getClientAuthenticationPath(String domainCode) {
-        String domainSpecificFileName = StringUtils.stripToEmpty(domainCode) + "_" + CLIENT_AUTHENTICATION_XML;
-        Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), domainSpecificFileName);
-        boolean domainSpecificPathExists = Files.exists(domainSpecificPath);
-        LOG.debug("Client authentication file [{}] at the domain specific path [{}] exists [{}]", domainSpecificFileName, domainSpecificPath, domainSpecificPathExists);
-        if (domainSpecificPathExists) {
-            return Optional.of(domainSpecificPath);
+        if (domainCode != null) {
+            String domainSpecificFileName = StringUtils.stripToEmpty(domainCode) + "_" + CLIENT_AUTHENTICATION_XML;
+            Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), DOMAINS_HOME, domainCode, domainSpecificFileName);
+            boolean domainSpecificPathExists = Files.exists(domainSpecificPath);
+            LOG.debug("Client authentication file [{}] at the domain specific path [{}] exists [{}]", domainSpecificFileName, domainSpecificPath, domainSpecificPathExists);
+            if (domainSpecificPathExists) {
+                return Optional.of(domainSpecificPath);
+            }
         }
 
         Path defaultPath = Paths.get(domibusConfigurationService.getConfigLocation(), CLIENT_AUTHENTICATION_XML);

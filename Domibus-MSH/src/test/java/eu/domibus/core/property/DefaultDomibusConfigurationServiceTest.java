@@ -17,6 +17,7 @@ import org.slf4j.ext.LoggerWrapper;
 import java.io.File;
 
 import static eu.domibus.api.property.DomibusConfigurationService.PASSWORD_ENCRYPTION_ACTIVE_PROPERTY;
+import static eu.domibus.ext.services.DomibusPropertyManagerExt.DOMAINS_HOME;
 
 /**
  * @author Cosmin Baciu
@@ -67,21 +68,15 @@ public class DefaultDomibusConfigurationServiceTest {
     }
 
     @Test
-    public void getConfigurationFileNameDefaultDomain(@Mocked File file) {
-        String defaultConfigLocation = "/home";
+    public void getConfigurationFileNameDefaultDomain() {
         String domainConfigFile = "default.key";
 
         new Expectations(defaultDomibusConfigurationService) {{
-            defaultDomibusConfigurationService.getConfigLocation();
-            result = defaultConfigLocation;
+            defaultDomibusConfigurationService.isSingleTenantAware();
+            result = false;
 
             defaultDomibusConfigurationService.getDomainConfigurationFileName(DomainService.DEFAULT_DOMAIN);
             result = domainConfigFile;
-
-
-            new File(anyString).exists();
-            result = true;
-
         }};
 
         final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(DomainService.DEFAULT_DOMAIN);
@@ -96,6 +91,8 @@ public class DefaultDomibusConfigurationServiceTest {
         String domainConfigFile = "/homecustom.key";
 
         new Expectations(defaultDomibusConfigurationService) {{
+            defaultDomibusConfigurationService.isSingleTenantAware();
+            result = false;
             defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
             result = domainConfigFile;
         }};
@@ -113,6 +110,6 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String domainConfigurationFileName = defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
-        Assert.assertEquals("myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
+        Assert.assertEquals(DOMAINS_HOME + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
     }
 }
