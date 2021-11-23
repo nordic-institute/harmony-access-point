@@ -12,7 +12,7 @@
     <changeSet author="thomas dussart" id="EDELIVERY-2144">
         <comment>inserts</comment>
         <insert tableName="TB_USER">
-            <column name="ID_PK" value="1" type="INT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
             <column name="USER_NAME" value="admin"/>
             <column name="USER_PASSWORD" value="$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36"/>
             <column name="USER_ENABLED" valueBoolean="true"/>
@@ -20,7 +20,7 @@
             <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
         </insert>
         <insert tableName="TB_USER">
-            <column name="ID_PK" value="2" type="INT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="INT"/>
             <column name="USER_NAME" value="user"/>
             <column name="USER_PASSWORD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
             <column name="USER_ENABLED" valueBoolean="true"/>
@@ -28,12 +28,12 @@
             <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
         </insert>
         <insert tableName="TB_USER_ROLES">
-            <column name="USER_ID" value="1" type="INT"/>
-            <column name="ROLE_ID" value="1" type="INT"/>
+            <column name="USER_ID" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="ROLE_ID" value="${default_id_pk}0000000001" type="INT"/>
         </insert>
         <insert tableName="TB_USER_ROLES">
-            <column name="USER_ID" value="2" type="INT"/>
-            <column name="ROLE_ID" value="2" type="INT"/>
+            <column name="USER_ID" value="${default_id_pk}0000000002" type="INT"/>
+            <column name="ROLE_ID" value="${default_id_pk}0000000002" type="INT"/>
         </insert>
     </changeSet>
 
@@ -83,4 +83,34 @@
             <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
+
+    <changeSet author="idragusa" id="EDELIVERY-7836-insert">
+        <insert tableName="TB_USER_MESSAGE">
+            <column name="ID_PK" value="${default_id_pk}" type="BIGINT"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="${default_id_pk}0000000001"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
+        </insert>
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="${default_id_pk}0000000002"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
+        </insert>
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-data.xml or changelog-multi-tenancy-data.xml -->
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
