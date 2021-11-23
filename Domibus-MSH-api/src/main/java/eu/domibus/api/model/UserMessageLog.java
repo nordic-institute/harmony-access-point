@@ -17,7 +17,7 @@ import java.util.List;
         @NamedQuery(name = "UserMessageLog.findRetryMessages",
                 query = "select userMessageLog.entityId " +
                         "from UserMessageLog userMessageLog " +
-                        "where userMessageLog.entityId > :MIN_ENTITY_ID " +
+                        "where userMessageLog.entityId >= :MIN_ENTITY_ID " +
                         "and userMessageLog.entityId < :MAX_ENTITY_ID " +
                         "and userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
