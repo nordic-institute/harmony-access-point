@@ -62,6 +62,8 @@ public class PluginAsyncNotificationListener implements MessageListener {
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
+            final long messageEntityId = message.getLongProperty(MessageConstants.MESSAGE_ENTITY_ID);
+
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing message ID [{}] for domain [{}]", messageId, domainCode);
             domainContextProvider.setCurrentDomain(domainCode);
@@ -76,7 +78,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
                 return;
             }
             Map<String, String> messageProperties = getMessageProperties(message);
-            pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());

@@ -13,6 +13,8 @@ public interface MessageEvent {
 
     String getMessageId();
 
+    Long getMessageEntityId();
+
     Map<String, String> getProps() ;
 
     void addProperty(String key, String value);

@@ -144,9 +144,9 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         String messageId = event.getMessageId();
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
-        final String queueValue = jmsPluginQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+        final String queueValue = jmsPluginQueueService.getJMSQueue(event.getMessageEntityId(), messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId, queueValue));
+        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), messageId, queueValue));
     }
 
     @Override
@@ -163,14 +163,14 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     public void messageSendFailed(final MessageSendFailedEvent event) {
         List<ErrorResult> errors = super.getErrorsForMessage(event.getMessageId());
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errors.get(errors.size() - 1), null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
-        sendJmsMessage(jmsMessageDTO, event.getMessageId(), JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
+        sendJmsMessage(jmsMessageDTO, event.getMessageEntityId(), event.getMessageId(), JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
     }
 
     @Override
     public void messageSendSuccess(MessageSendSuccessEvent event) {
         LOG.debug("Handling messageSendSuccess");
-        final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
-        sendJmsMessage(jmsMessageDTO, event.getMessageId(), JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
+        final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageEntityId(), event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
+        sendJmsMessage(jmsMessageDTO, event.getMessageEntityId(), event.getMessageId(), JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
     @Override
@@ -183,8 +183,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         LOG.info("Message delete event [{}]", event.getMessageId());
     }
 
-    protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        String queueValue = jmsPluginQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+    protected void sendJmsMessage(JmsMessageDTO message, long messageEntityId, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
+        String queueValue = jmsPluginQueueService.getJMSQueue(messageEntityId, messageId, defaultQueueProperty, routingQueuePrefixProperty);
 
         LOG.info("Sending message [{}] to queue [{}]", message, queueValue);
         jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
@@ -199,10 +199,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public MapMessage downloadMessage(String messageId, MapMessage target) throws MessageNotFoundException {
-        LOG.debug("Downloading message [{}]", messageId);
+    public MapMessage downloadMessage(final Long messageEntityId, MapMessage target) throws MessageNotFoundException {
+        LOG.debug("Downloading message with entity id [{}]", messageEntityId);
         try {
-            Submission submission = messageRetriever.downloadMessage(messageId);
+            Submission submission = messageRetriever.downloadMessage(messageEntityId);
             MapMessage result = getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -216,9 +216,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     private class DownloadMessageCreator implements MessageCreator {
         private String messageId;
         private String destination;
+        private long messageEntityId;
 
-        public DownloadMessageCreator(final String messageId, String destination) {
-
+        public DownloadMessageCreator(final long messageEntityId, final String messageId, String destination) {
+            this.messageEntityId = messageEntityId;
             this.messageId = messageId;
             this.destination = destination;
         }
@@ -227,7 +228,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
-                downloadMessage(messageId, mapMessage);
+                downloadMessage(messageEntityId, mapMessage);
             } catch (final MessageNotFoundException e) {
                 throw new DefaultJmsPluginException("Unable to create push message", e);
             }

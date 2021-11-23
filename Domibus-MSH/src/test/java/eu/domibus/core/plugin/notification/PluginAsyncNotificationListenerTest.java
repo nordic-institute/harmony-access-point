@@ -70,7 +70,7 @@ public class PluginAsyncNotificationListenerTest {
         pluginAsyncNotificationListener.doOnMessage(message);
 
         new Verifications() {{
-            pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), anyLong, messageId, messageProperties);
             times = 1;
         }};
     }

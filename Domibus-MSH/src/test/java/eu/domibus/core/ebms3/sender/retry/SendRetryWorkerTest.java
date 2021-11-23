@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.pmode.ConfigurationDAO;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -24,11 +25,11 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class SendRetryWorkerTest {
 
-    public static final String MESSAGE_ID_1 = "queued123@domibus.eu";
-    public static final String MESSAGE_ID_2 = "queued456@domibus.eu";
-    public static final String MESSAGE_ID_3 = "queued789@domibus.eu";
+    public static final long MESSAGE_ID_1 = 123;
+    public static final long MESSAGE_ID_2 = 456;
+    public static final long MESSAGE_ID_3 = 789;
 
-    private static List<String> QUEUED_MESSAGEIDS = Arrays.asList(MESSAGE_ID_1, MESSAGE_ID_2, MESSAGE_ID_3);
+    private static List<Long> QUEUED_MESSAGEIDS = Arrays.asList(MESSAGE_ID_1, MESSAGE_ID_2, MESSAGE_ID_3);
 
     @Tested
     SendRetryWorker sendRetryWorker;
@@ -48,6 +49,9 @@ public class SendRetryWorkerTest {
     @Injectable
     DatabaseUtil databaseUtil;
 
+    @Injectable
+    ConfigurationDAO configurationDAO;
+
 
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) throws Exception {
@@ -56,7 +60,10 @@ public class SendRetryWorkerTest {
             retryService.getMessagesNotAlreadyScheduled();
             result = QUEUED_MESSAGEIDS;
 
-            retryService.enqueueMessage(anyString);
+            retryService.enqueueMessage(anyLong);
+
+            configurationDAO.configurationExists();
+            result = true;
         }};
 
         sendRetryWorker.executeJob(context, domain);

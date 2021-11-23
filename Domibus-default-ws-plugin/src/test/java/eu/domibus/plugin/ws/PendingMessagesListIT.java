@@ -34,7 +34,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         messageIds.add("2bbc05d8-b603-4742-a118-137898a81de3@domibus.eu");
 
         for (String messageId : messageIds) {
-            final JmsMessage message = new NotifyMessageCreator(messageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
+            final JmsMessage message = new NotifyMessageCreator(123, messageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 

@@ -47,18 +47,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Autowired
     protected MessageExtService messageExtService;
 
-    protected MessageLister lister;
-
     public AbstractBackendConnector(final String name) {
         this.name = name;
-    }
-
-    public void setLister(final MessageLister lister) {
-        this.lister = lister;
-    }
-
-    public MessageLister getLister() {
-        return lister;
     }
 
     @Override
@@ -77,6 +67,36 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         } catch (MessagingProcessingException mpEx) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_SUBMIT_FAILED, mpEx);
             throw mpEx;
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", messageEntityId);
+        if (messageEntityId != null) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
+        }
+
+        try {
+            MessageStatus status = messageRetriever.getStatus(messageEntityId);
+            if (MessageStatus.NOT_FOUND == status) {
+                LOG.debug("Message with id [{}] was not found", messageEntityId);
+                throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageEntityId));
+            }
+            if (MessageStatus.DOWNLOADED == status) {
+                LOG.debug("Message with id [{}] was already downloaded", messageEntityId);
+                throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageEntityId));
+            }
+
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageEntityId), target);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
+            return t;
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
         }
     }
 
@@ -102,23 +122,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
 
-            removeFromPending(messageId);
-
-
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
         }
-    }
-
-    protected void removeFromPending(String messageId) throws MessageNotFoundException {
-        if (lister == null) {
-            LOG.debug("No pending message removed: messageLister is not configured for plugin [{}]", getName());
-            return;
-        }
-        lister.removeFromPending(messageId);
     }
 
     @Override
@@ -130,16 +139,21 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public Collection<String> listPendingMessages() {
-        if (lister == null) {
-            throw new UnsupportedOperationException("MessageLister is not defined for plugin [" + getName() + "]");
-        }
-        return lister.listPendingMessages();
+    public T browseMessage(final Long messageEntityId, T target) throws MessageNotFoundException {
+        LOG.debug("Browsing message [{}]", messageEntityId);
+
+        final Submission submission = messageRetriever.browseMessage(messageEntityId);
+        return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
     }
 
     @Override
     public MessageStatus getStatus(final String messageId) {
         return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId));
+    }
+
+    @Override
+    public MessageStatus getStatus(final Long messageEntityId) {
+        return this.messageRetriever.getStatus(messageEntityId);
     }
 
     @Override

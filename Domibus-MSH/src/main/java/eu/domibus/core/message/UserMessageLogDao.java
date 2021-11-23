@@ -42,6 +42,8 @@ import static java.util.Locale.ENGLISH;
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+    private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
+
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
 
     private final DateUtil dateUtil;
@@ -69,8 +71,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         this.reprogrammableService = reprogrammableService;
     }
 
-    public List<String> findRetryMessages() {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
+        TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
+        query.setParameter("MIN_ENTITY_ID", minEntityId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
@@ -157,7 +161,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             initializeChildren(userMessageLog);
             return userMessageLog;
         } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any result for message with id [" + messageId + "]");
+            LOG.debug("Could not find any result for message with id {[]}", messageId);
             return null;
         }
     }
@@ -175,13 +179,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             query.setParameter(STR_MESSAGE_ID, messageId);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id [" + messageId + "]");
+            LOG.debug("No result for message with id {[]}", messageId);
+            return MessageStatus.NOT_FOUND;
+        }
+    }
+
+    public MessageStatus getMessageStatus(final Long messageEntityId) {
+        try {
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByEntityId", MessageStatusEntity.class);
+            query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
+            return query.getSingleResult().getMessageStatus();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with entity id {[]}", messageEntityId);
             return MessageStatus.NOT_FOUND;
         }
     }
 
     @Transactional(readOnly = true)
-    public UserMessageLog findByEntityId(Long entityId) {
+    public UserMessageLog findByEntityId(final Long entityId) {
         final UserMessageLog userMessageLog = super.read(entityId);
 
         initializeChildren(userMessageLog);
@@ -189,7 +204,23 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLog;
     }
 
+    @Transactional(readOnly = true)
+    public UserMessageLog findByEntityIdSafely(final Long entityId) {
+        try {
+            final UserMessageLog userMessageLog = findByEntityId(entityId);
+            initializeChildren(userMessageLog);
+            return userMessageLog;
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with entityId {[]}", entityId);
+            return null;
+        }
+    }
+
     public UserMessageLog findByMessageId(String messageId) {
+
+        // TODO REMOVE THIS AFTER RUNNING IN BAMBOO
+        LOG.warn("\n\nIn findByMessageId [{}]\n\n", new Exception("Exception to check trace"));
+
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);

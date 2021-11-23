@@ -5,7 +5,6 @@ import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
@@ -149,8 +148,7 @@ public class WebServicePluginImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheMessageByItsIdentifier(@Injectable RetrieveMessageRequest retrieveMessageRequest,
                                                                                     @Injectable RetrieveMessageResponse retrieveMessageResponse,
-                                                                                    @Injectable Messaging ebMSHeaderInfo,
-                                                                                    @Injectable MessageLister lister) throws RetrieveMessageFault {
+                                                                                    @Injectable Messaging ebMSHeaderInfo) throws RetrieveMessageFault {
         new Expectations(webServicePlugin) {{
             retrieveMessageRequest.getMessageID();
             result = "-Dom137--";
