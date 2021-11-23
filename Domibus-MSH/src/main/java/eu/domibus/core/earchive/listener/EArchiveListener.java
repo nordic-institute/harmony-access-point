@@ -82,8 +82,8 @@ public class EArchiveListener implements MessageListener {
                 userMessageDtos.get(userMessageDtos.size() - 1),
                 userMessageDtos.get(0));
 
-        String manifestCheckSum = exportInFileSystem(eArchiveBatchByBatchId, userMessageDtos);
-        eArchiveBatchByBatchId.setManifestChecksum(manifestCheckSum);
+        String manifestChecksum = exportInFileSystem(eArchiveBatchByBatchId, userMessageDtos);
+        eArchiveBatchByBatchId.setManifestChecksum(manifestChecksum);
         eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId, userMessageDtos);
     }
 
@@ -102,6 +102,6 @@ public class EArchiveListener implements MessageListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
-        return eArkSipStructure.getmanifestchecksum();
+        return eArkSipStructure.getManifestChecksum();
     }
 }

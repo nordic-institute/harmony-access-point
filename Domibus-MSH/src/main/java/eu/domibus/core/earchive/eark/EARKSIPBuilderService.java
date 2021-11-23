@@ -1,11 +1,11 @@
 package eu.domibus.core.earchive.eark;
 
+import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -29,6 +29,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -48,6 +49,12 @@ public class EARKSIPBuilderService {
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
     public static final String SHA_256 = "sha256:";
 
+    private final EArchivingFileService eArchivingFileService;
+
+    public EARKSIPBuilderService(EArchivingFileService eArchivingFileService) {
+        this.eArchivingFileService = eArchivingFileService;
+    }
+
     public DomibusEARKSIPResult build(DomibusEARKSIP domibusEARKSIP, final FileObject destinationDirectory) throws IPException {
         MetsWrapper mainMETSWrapper = EARKMETSUtils.generateMETS(StringUtils.join(
                         domibusEARKSIP.getIds(), " "),
@@ -65,12 +72,52 @@ public class EARKSIPBuilderService {
 
         addRepresentationsToFolderAndMETS(domibusEARKSIP.getRepresentations(), mainMETSWrapper, destinationDirectory);
 
-        return new DomibusEARKSIPResult(destinationDirectory.getPath(), getCheckSum(addMetsFileToFolder(destinationDirectory, mainMETSWrapper)));
+        String checksum = getChecksum(addMetsFileToFolder(destinationDirectory, mainMETSWrapper));
+        updateBatchJson(domibusEARKSIP.getRepresentations(), destinationDirectory, checksum);
+        return new DomibusEARKSIPResult(destinationDirectory.getPath(), checksum);
     }
 
-    private String getCheckSum(Path path) {
+    private void updateBatchJson(List<IPRepresentation> representations, FileObject destinationDirectory, String checksum) {
+        for (IPRepresentation representation : representations) {
+            for (IPFile file : representation.getData()) {
+                updateBatchJson(destinationDirectory, checksum, representation, file);
+            }
+        }
+    }
+
+    private void updateBatchJson(FileObject destinationDirectory, String checksum, IPRepresentation representation, IPFile file) {
+        if (StringUtils.equalsIgnoreCase(file.getFileName(), FileSystemEArchivePersistence.BATCH_JSON)) {
+            String pathBatchJason = IPConstants.REPRESENTATIONS_FOLDER + representation.getObjectID() + IPConstants.ZIP_PATH_SEPARATOR
+                    + getPathFromData(file);
+            try (FileObject fileObject = destinationDirectory.resolveFile(pathBatchJason)) {
+                insertChecksum(fileObject, checksum);
+            } catch (FileSystemException e) {
+                throw new DomibusEArchiveException("Batch.json not found for insert manifest checksum", e);
+            }
+        }
+    }
+
+    private void insertChecksum(FileObject file, String checksum) {
+        BatchEArchiveDTO batchEArchiveDTO = getBatchEArchiveDTO(file);
+        batchEArchiveDTO.setManifestChecksum(checksum);
+        try (OutputStream fileOS = file.getContent().getOutputStream(false)) {
+            IOUtils.copy(eArchivingFileService.getBatchFileJson(batchEArchiveDTO), fileOS);
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Could not write new checksum in batch.json in file [" + file.getName() + "]", e);
+        }
+    }
+
+    private BatchEArchiveDTO getBatchEArchiveDTO(FileObject file) {
         try {
-            return SHA_256 + DigestUtils.sha256Hex(FileUtils.readFileToByteArray(path.toFile()));
+            return eArchivingFileService.getBatchEArchiveDTO(file.getContent().getInputStream());
+        } catch (FileSystemException e) {
+            throw new DomibusEArchiveException("Could not parse BatchEArchiveDTO from file [" + file.getName() + "]", e);
+        }
+    }
+
+    private String getChecksum(Path path) {
+        try {
+            return SHA_256 + getChecksumSHA256(path);
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not calculate the checksum of the manifest", e);
         }
@@ -194,11 +241,12 @@ public class EARKSIPBuilderService {
     }
 
     private void initChecksum(DomibusIPFile domibusIPFile, FileObject file, FileType fileType) {
-        if (domibusIPFile.writeCheckSum()) {
+        if (domibusIPFile.writeChecksum()) {
             // checksum
             String checksumSHA256;
             try {
-                checksumSHA256 = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file.getPath().toFile()));
+                Path path = file.getPath();
+                checksumSHA256 = getChecksumSHA256(path);
                 LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.getName());
                 fileType.setCHECKSUM(checksumSHA256);
                 fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
@@ -209,6 +257,10 @@ public class EARKSIPBuilderService {
         } else {
             LOG.debug("no checkSum for file [{}]", domibusIPFile.getFileName());
         }
+    }
+
+    private String getChecksumSHA256(Path path) throws IOException {
+        return DigestUtils.sha256Hex(Files.newInputStream(path));
     }
 
     private DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException {

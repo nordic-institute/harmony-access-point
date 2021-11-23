@@ -159,7 +159,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.getEArchiveBatchStatus();
             result = EArchiveBatchStatus.STARTED;
 
-            domibusEARKSIPResult.getmanifestchecksum();
+            domibusEARKSIPResult.getManifestChecksum();
             result = "sha256:test";
 
             fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<EArchiveBatchUserMessage>) any);

@@ -25,7 +25,7 @@ public class DomibusEARKSIPResult {
         this.directory = directory;
     }
 
-    public String getmanifestchecksum() {
+    public String getManifestChecksum() {
         return manifestChecksum;
     }
 

@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainService;
@@ -36,6 +37,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author François Gautier
@@ -111,7 +113,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void createEArkSipStructure() {
+    public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
 
         fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
@@ -133,6 +135,10 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
             if (StringUtils.contains(file.getName(), ".json")) {
                 LOG.info("StringUtils.containsAny(file.getName(), \".json\") : [{}]", file.getName());
                 assertEquals("batch.json", file.getName());
+                BatchEArchiveDTO batchEArchiveDTO = new ObjectMapper().readValue(file, BatchEArchiveDTO.class);
+                assertNotNull(batchEArchiveDTO.getManifestChecksum());
+                assertEquals(byMessageId.getMessageId(), batchEArchiveDTO.getMessages().get(0));
+                assertEquals(batchEArchiveDTO.getBatchId(), batchEArchiveDTO.getBatchId());
             }
             if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
                 List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());

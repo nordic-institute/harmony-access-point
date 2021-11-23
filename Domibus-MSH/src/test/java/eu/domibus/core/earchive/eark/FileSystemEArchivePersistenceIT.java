@@ -106,7 +106,7 @@ public class FileSystemEArchivePersistenceIT {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
-        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPBuilderService());
+        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPBuilderService(eArchivingFileService));
 
         Map<String, InputStream> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");
@@ -140,7 +140,6 @@ public class FileSystemEArchivePersistenceIT {
             eArchiveFileStorage.getStorageDirectory();
             result = temp;
         }};
-
 
         fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
 
