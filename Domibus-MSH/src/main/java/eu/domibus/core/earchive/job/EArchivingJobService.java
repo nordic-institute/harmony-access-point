@@ -91,7 +91,7 @@ public class EArchivingJobService {
 
     @Transactional
     public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
-        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, userMessageToBeArchived, batchSize, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
+        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, batchSize, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
         eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
         return eArchiveBatch;
     }
@@ -133,14 +133,14 @@ public class EArchivingJobService {
         throw new DomibusEArchiveException("BatchRequestType [" + requestType + "] doesn't have a startDate saved in database");
     }
 
-    private EArchiveBatchEntity createEArchiveBatch(String originalBatchId, List<EArchiveBatchUserMessage> userMessageToBeArchived, int batchSize, long firstEntity, long lastEntity, EArchiveRequestType requestType) {
+    private EArchiveBatchEntity createEArchiveBatch(String originalBatchId, int batchSize, Long firstEntity, Long lastEntity, EArchiveRequestType requestType) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
         entity.setOriginalBatchId(originalBatchId);
         entity.setBatchSize(batchSize);
         entity.setRequestType(requestType);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
-        entity.setFirstPkUserMessage(userMessageToBeArchived.isEmpty() ? null : userMessageToBeArchived.get(0).getUserMessageEntityId());
+        entity.setFirstPkUserMessage(firstEntity);
         entity.setLastPkUserMessage(lastEntity);
         entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
