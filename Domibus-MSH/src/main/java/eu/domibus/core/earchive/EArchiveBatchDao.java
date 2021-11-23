@@ -14,14 +14,12 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Collections.singletonList;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
@@ -71,8 +69,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     public void expireBatches(final Date limitDate) {
         final Query query = em.createNamedQuery("EArchiveBatchEntity.updateStatusByDate");
         query.setParameter("LIMIT_DATE", limitDate);
-        query.setParameter("STATUSES", Arrays.asList(
-                EArchiveBatchStatus.EXPORTED));
+        query.setParameter("STATUSES", singletonList(EArchiveBatchStatus.EXPORTED));
         query.setParameter("NEW_STATUS", EArchiveBatchStatus.EXPIRED);
         query.executeUpdate();
     }
@@ -92,7 +89,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         final Root<EArchiveBatchEntity> eArchiveBatchRoot = criteria.from(EArchiveBatchEntity.class);
         criteria.orderBy(builder.desc(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested)));
         List<Predicate> predicates = getPredicates(filter, builder, eArchiveBatchRoot);
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+        criteria.where(predicates.toArray(new Predicate[0]));
         TypedQuery<EArchiveBatchEntity> batchQuery = em.createQuery(criteria);
 
         queryUtil.setPaginationParametersToQuery(batchQuery, filter.getPageStart(), filter.getPageSize());
@@ -107,7 +104,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         Root<EArchiveBatchEntity> eArchiveBatchRoot = criteria.from(EArchiveBatchEntity.class);
         criteria.select(builder.count(eArchiveBatchRoot));
         List<Predicate> predicates = getPredicates(filter, builder, eArchiveBatchRoot);
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+        criteria.where(predicates.toArray(new Predicate[0]));
         return em.createQuery(criteria).getSingleResult();
     }
 
@@ -159,10 +156,10 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
 
         // by default (null) or if values is false return all batches which do not have exported set to true
         // for returnReExportedBatches return all batches - do not set condition
-        if (filter.getReturnReExportedBatches() == null || !filter.getReturnReExportedBatches())  {
-            // Note: SQL not equal does not return NULL results
+        if (filter.getIncludeReExportedBatches() == null || !filter.getIncludeReExportedBatches())  {
+            // Note: reExported column is false by default and it should not be null
             Expression<Boolean> expression = eArchiveBatchRoot.get(EArchiveBatchEntity_.reExported);
-            predicates.add(builder.or(expression.isNull(), builder.equal(expression, Boolean.FALSE)));
+            predicates.add(builder.equal(expression, Boolean.FALSE));
         }
         return predicates;
     }

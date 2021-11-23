@@ -179,7 +179,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         // set filter
         archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
         archiveBatchFilter.setMessageEndId(dateToPKUserMessageId(filter.getMessageEndDate()));
-        archiveBatchFilter.setReturnReExportedBatches(filter.getReturnReExportedBatches());
+        archiveBatchFilter.setIncludeReExportedBatches(filter.getIncludeReExportedBatches());
 
         // set pagination
         archiveBatchFilter.setPageSize(pageSize);

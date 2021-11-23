@@ -29,7 +29,7 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     protected String originalBatchId;
 
     @Column(name = "REEXPORTED")
-    protected Boolean reExported;
+    protected Boolean reExported = Boolean.FALSE;
 
     @Column(name = "REQUEST_TYPE")
     @Enumerated(EnumType.STRING)

@@ -506,7 +506,9 @@
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
             <column name="ORIGINAL_BATCH_ID" type="VARCHAR(255)" remarks="The original BATCH_ID from which this batch was generated/re-exported"/>
-            <column name="REEXPORTED" type="BOOLEAN" remarks="true if this batch messages were re-exported by a new batch"/>
+            <column name="REEXPORTED" type="BOOLEAN" defaultValueBoolean="false" remarks="true if this batch messages were re-exported by a new batch">
+                <constraints nullable="false"/>
+            </column>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
             <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>

@@ -46,11 +46,11 @@ public class DomibusEArchiveExtResource {
      * Handling EArchive exceptions
      *
      * @return ErrorDTO object.
-     * @param: Rest Exception response
+     * @param extException Rest Exception response
      */
     @ExceptionHandler(DomibusEArchiveExtException.class)
-    public ResponseEntity<ErrorDTO> handleEArchiveExtException(DomibusEArchiveExtException e) {
-        return extExceptionHelper.handleExtException(e);
+    public ResponseEntity<ErrorDTO> handleEArchiveExtException(DomibusEArchiveExtException extException) {
+        return extExceptionHelper.handleExtException(extException);
     }
 
     /**
@@ -87,7 +87,7 @@ public class DomibusEArchiveExtResource {
         LOG.info("Return queued batches with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
         Long total = domibusEArchiveExtService.getQueuedBatchRequestsCount(filter);
 
-        if (total == null || total.longValue() < 1L) {
+        if (total == null || total < 1L) {
             LOG.trace("No results found found!");
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
@@ -124,7 +124,7 @@ public class DomibusEArchiveExtResource {
         ExportedBatchMessagesResultDTO resultDTO = new ExportedBatchMessagesResultDTO(batchId, pageStart, pageSize);
         LOG.info("Return batch messages with batch id [{}] for page: [{}] and page size: [{}].", batchId, pageStart, pageSize);
         Long total = domibusEArchiveExtService.getBatchMessageCount(batchId);
-        if (total == null || total.longValue() < 1L) {
+        if (total == null || total < 1L) {
             LOG.trace("No results found found!");
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
@@ -145,7 +145,7 @@ public class DomibusEArchiveExtResource {
      * @param messageStartDate: start date and hour of the exported messages in the batch yyMMddHH
      * @param messageEndDate:   end date  of the exported messages included in the batch,
      * @param statuses:         Filter by list of batch statues
-     * @param returnReExportedBatches:     Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
+     * @param includeReExportedBatches:     Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
      * @param pageStart:        the offset/page from which the message IDs export will start. List is sorted by batch request date
      * @param pageSize:         maximum number of records in the page
      * @return list of the exported batches
@@ -160,18 +160,18 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate,
             @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageEndDate") Long messageEndDate,
             @Parameter(description = "Filter batches for statuses") @RequestParam(value = "statuses", required = false) List<ExportedBatchStatusType> statuses,
-            @Parameter(description = "Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "reExport", defaultValue = "false") Boolean returnReExportedBatches,
+            @Parameter(description = "Include ReExported Batches (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "reExport", defaultValue = "false") Boolean includeReExportedBatches,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
 
-        ExportedBatchFilterDTO filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, returnReExportedBatches);
+        ExportedBatchFilterDTO filter = new ExportedBatchFilterDTO(messageStartDate, messageEndDate, statuses, includeReExportedBatches);
         ExportedBatchResultDTO resultDTO = new ExportedBatchResultDTO(filter, pageStart, pageSize);
         LOG.info("Return exported batches with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
 
         Long total = domibusEArchiveExtService.getExportedBatchRequestsCount(filter);
 
-        if (total == null || total.longValue() < 1L) {
+        if (total == null || total < 1L) {
             LOG.trace("No results found found!");
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
@@ -272,7 +272,7 @@ public class DomibusEArchiveExtResource {
 
 
         Long total = domibusEArchiveExtService.getNotArchivedMessageCount(filter);
-        if (total == null || total.longValue() < 1L) {
+        if (total == null || total < 1L) {
             LOG.trace("No results found found!");
             messagesDTO.getPagination().setTotal(0);
             return messagesDTO;

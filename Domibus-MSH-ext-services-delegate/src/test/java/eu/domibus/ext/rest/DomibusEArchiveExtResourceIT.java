@@ -258,9 +258,9 @@ public class DomibusEArchiveExtResourceIT {
         assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
         assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
         // false by default
-        assertEquals(Boolean.FALSE, response.getFilter().getReturnReExportedBatches());
-        assertEquals(Boolean.FALSE, filterCaptor.getValue().getReturnReExportedBatches());
-        assertEquals(Boolean.FALSE, filterCaptorCount.getValue().getReturnReExportedBatches());
+        assertEquals(Boolean.FALSE, response.getFilter().getIncludeReExportedBatches());
+        assertEquals(Boolean.FALSE, filterCaptor.getValue().getIncludeReExportedBatches());
+        assertEquals(Boolean.FALSE, filterCaptorCount.getValue().getIncludeReExportedBatches());
     }
     @Test
     public void testHistoryOfTheExportedBatches2() throws Exception {
@@ -317,8 +317,8 @@ public class DomibusEArchiveExtResourceIT {
         assertEquals(5, response.getFilter().getStatuses().size());
         assertEquals(5, filterCaptor.getValue().getStatusList().size());
         assertEquals(5, filterCaptorCount.getValue().getRequestTypes().size());
-        assertEquals(reExported, filterCaptor.getValue().getReturnReExportedBatches());
-        assertEquals(reExported, filterCaptorCount.getValue().getReturnReExportedBatches());
-        assertEquals(reExported, response.getFilter().getReturnReExportedBatches());
+        assertEquals(reExported, filterCaptor.getValue().getIncludeReExportedBatches());
+        assertEquals(reExported, filterCaptorCount.getValue().getIncludeReExportedBatches());
+        assertEquals(reExported, response.getFilter().getIncludeReExportedBatches());
     }
 }

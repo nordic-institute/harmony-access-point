@@ -12,24 +12,24 @@ public class ExportedBatchFilterDTO {
     protected Long messageStartDate;
     protected Long messageEndDate;
     protected List<ExportedBatchStatusType> statuses;
-    Boolean returnReExportedBatches;
+    Boolean includeReExportedBatches;
 
     public ExportedBatchFilterDTO() {
     }
 
-    public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, Boolean returnReExportedBatches) {
+    public ExportedBatchFilterDTO(Long messageStartDate, Long messageEndDate, List<ExportedBatchStatusType> statuses, Boolean includeReExportedBatches) {
         this.messageStartDate = messageStartDate;
         this.messageEndDate = messageEndDate;
         this.statuses = statuses;
-        this.returnReExportedBatches = returnReExportedBatches;
+        this.includeReExportedBatches = includeReExportedBatches;
     }
 
-    public Boolean getReturnReExportedBatches() {
-        return returnReExportedBatches;
+    public Boolean getIncludeReExportedBatches() {
+        return includeReExportedBatches;
     }
 
-    public void setReturnReExportedBatches(Boolean returnReExportedBatches) {
-        this.returnReExportedBatches = returnReExportedBatches;
+    public void setIncludeReExportedBatches(Boolean returnReExportedBatches) {
+        this.includeReExportedBatches = returnReExportedBatches;
     }
 
     public Long getMessageStartDate() {
@@ -63,7 +63,7 @@ public class ExportedBatchFilterDTO {
                 "messageStartDate=" + messageStartDate +
                 ", messageEndDate=" + messageEndDate +
                 ", statuses=" + statuses +
-                ", returnReExportedBatches=" + returnReExportedBatches +
+                ", includeReExportedBatches=" + includeReExportedBatches +
                 '}';
     }
 }
