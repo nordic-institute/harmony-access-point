@@ -8,7 +8,6 @@ import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.DomibusEARKSIPResult;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.util.JmsUtil;
-import eu.domibus.ext.domain.archive.BatchArchiveStatusType;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -200,8 +199,7 @@ public class EArchiveListenerTest {
 
     @Test
     public void onMessage_ArchiveOK(@Injectable Message message,
-                                   @Injectable EArchiveBatchEntity eArchiveBatch,
-                                   @Injectable FileObject fileObject){
+                                   @Injectable EArchiveBatchEntity eArchiveBatch){
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";

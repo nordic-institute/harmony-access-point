@@ -139,6 +139,9 @@ public class FileSystemEArchivePersistenceIT {
 
             eArchiveFileStorage.getStorageDirectory();
             result = temp;
+
+            eArchivingFileService.getBatchEArchiveDTO((InputStream) any);
+            result = batchEArchiveDTO;
         }};
 
         fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
