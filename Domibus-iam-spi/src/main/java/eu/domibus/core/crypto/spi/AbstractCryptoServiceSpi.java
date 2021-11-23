@@ -143,9 +143,13 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     }
 
     @Override
+    public void init(List<Enum> initValue) {
+        defaultDomainCryptoService.init(initValue);
+    }
+
+    @Override
     public void init() {
         defaultDomainCryptoService.init();
     }
-
 
 }

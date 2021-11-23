@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
@@ -60,7 +61,7 @@ public class MultiDomainCryptoServiceImplTest {
         X509Certificate[] certs = null;
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -80,7 +81,7 @@ public class MultiDomainCryptoServiceImplTest {
         String privateKeyAlias = "blue_gw";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -96,7 +97,7 @@ public class MultiDomainCryptoServiceImplTest {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -115,13 +116,13 @@ public class MultiDomainCryptoServiceImplTest {
         String password = "test123";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
             result = cryptoService;
             cryptoService.getTrustStoreType();
             result = "jks";
         }};
 
-        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
+        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
 
         new Verifications() {{
             cryptoService.replaceTrustStore(store, password);
@@ -133,7 +134,7 @@ public class MultiDomainCryptoServiceImplTest {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -149,7 +150,7 @@ public class MultiDomainCryptoServiceImplTest {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -166,7 +167,7 @@ public class MultiDomainCryptoServiceImplTest {
         String alias = "blue_gw";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -183,7 +184,7 @@ public class MultiDomainCryptoServiceImplTest {
         String alias = "blue_gw";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -201,7 +202,7 @@ public class MultiDomainCryptoServiceImplTest {
         boolean overwrite = true;
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -218,7 +219,7 @@ public class MultiDomainCryptoServiceImplTest {
         boolean overwrite = true;
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -235,7 +236,7 @@ public class MultiDomainCryptoServiceImplTest {
         String alias = "blue_gw";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain,null);
             result = cryptoService;
         }};
 
@@ -252,7 +253,7 @@ public class MultiDomainCryptoServiceImplTest {
         String alias = "blue_gw";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
@@ -269,7 +270,7 @@ public class MultiDomainCryptoServiceImplTest {
         List<String> aliases = Arrays.asList("blue_gw", "red_gw");
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain);
+            domainCertificateProviderFactory.domainCryptoService(domain, null);
             result = cryptoService;
         }};
 
