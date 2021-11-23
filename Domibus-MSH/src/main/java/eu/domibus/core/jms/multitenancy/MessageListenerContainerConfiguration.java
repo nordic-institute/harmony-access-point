@@ -307,6 +307,13 @@ public class MessageListenerContainerConfiguration {
         }
 
         LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
+        messageListenerContainer.setErrorHandler(t -> LOG.error("messageListenerContainer in error | " +
+                        "DOMAIN: [{}] " +
+                        "DESTINATION: [{}] " +
+                        "SELECTOR: [{}]",
+                domain,
+                destination,
+                selector));
         return messageListenerContainer;
     }
 
