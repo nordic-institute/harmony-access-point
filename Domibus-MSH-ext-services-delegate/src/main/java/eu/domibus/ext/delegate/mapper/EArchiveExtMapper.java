@@ -13,7 +13,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import java.util.Arrays;
 
-import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * @author Joze Rihtarsic
@@ -39,7 +39,7 @@ public interface EArchiveExtMapper {
 
     @Named("stringToBatchRequestType")
     default BatchRequestType stringToBatchRequestType(String requestType) {
-        if (isNull(requestType)) {
+        if (isEmpty(requestType)) {
             return null;
         }
         if (Arrays.stream(BatchRequestType.values()).anyMatch(batchRequestType -> StringUtils.equalsIgnoreCase(requestType, batchRequestType.name()))) {
