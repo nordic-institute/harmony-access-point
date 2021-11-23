@@ -55,4 +55,19 @@ public class JmsUtil {
             domainContextProvider.clearCurrentDomain();
         }
     }
+
+    public String getMessageTypeSafely(Message message) {
+        String type;
+        try {
+            type = message.getJMSType();
+        } catch (JMSException e) {
+            LOG.debug("Could not get the message type!", e);
+            type = null;
+        }
+        return type;
+    }
+
+    public boolean isMessageTypeSafely(Message message, String type) {
+        return StringUtils.equals(type, getMessageTypeSafely(message));
+    }
 }

@@ -16,6 +16,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +28,10 @@ import javax.xml.ws.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,8 +39,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author François Gautier
@@ -88,7 +90,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 .messageEndId("")
                 .messages(singletonList(messageId))
                 .createBatchEArchiveDTO();
-        temp = Files.createTempDirectory("tmpDirPrefix").toFile();
+        temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
         uploadPmode(SERVICE_PORT);
@@ -116,19 +118,23 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
 
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
-
-        File[] files = temp.listFiles();
-        File batchFolder = files[0];
-        File representation = batchFolder.listFiles()[1];
-        File representation1 = representation.listFiles()[0];
-        File data = representation1.listFiles()[0];
+        FileObject fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
+        // must have more that one subfolder item
+        assertTrue(temp.listFiles().length > 0);
+        File batchFolder = getFileItem(fileObject.getName().getBaseName(), temp.listFiles(), true);
+        assertNotNull(batchFolder);
+        File representation = getFileItem("representations", batchFolder.listFiles(), true);
+        assertNotNull(representation);
+        File representation1 = getFileItem("representation1", representation.listFiles(), true);
+        assertNotNull(representation1);
+        File data = getFileItem(IPConstants.DATA, representation1.listFiles(), true);
+        assertNotNull(data);
+        File metsData = getFileItem(IPConstants.METS_FILE, batchFolder.listFiles(), false);
+        assertNotNull(metsData);
 
         assertEquals(batchId, batchFolder.getName());
-        assertEquals(IPConstants.METS_FILE, batchFolder.listFiles()[0].getName());
         assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
         assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
-        assertEquals(IPConstants.DATA, data.getName());
 
         File[] messageIDFiles = data.listFiles();
         for (File file : messageIDFiles) {
@@ -148,4 +154,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         }
     }
 
+    public File getFileItem(String name, File[] files, boolean isFolder) {
+        Optional<File> optFile = Arrays.stream(files).filter(file -> (isFolder ? file.isDirectory() : file.isFile()) && StringUtils.equals(file.getName(), name)).findFirst();
+        return optFile.isPresent() ? optFile.get() : null;
+
+    }
 }
