@@ -1677,8 +1677,8 @@
             rc.MODIFICATION_TYPE as ACTION_TYPE,
             ri.USER_NAME as USER_NAME ,
             ri.REVISION_DATE as AUDIT_DATE,
-            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
-            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
+            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
             FROM TB_REV_INFO ri, TB_REV_CHANGES rc
             WHERE ri.ID=rc.REV
             UNION
@@ -3339,37 +3339,6 @@
         </createTable>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
     </changeSet>
-
     <!-- End User Tables -->
-
-    <!-- inserts -->
-    <changeSet author="idragusa" id="EDELIVERY-7836-insert">
-        <insert tableName="TB_USER_MESSAGE">
-            <column name="ID_PK" value="${default_id_pk}" type="BIGINT"/>
-        </insert>
-    </changeSet>
-
-    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
-        <insert tableName="TB_LOCK">
-            <column name="ID_PK" value="1" type="BIGINT"/>
-            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
-        </insert>
-    </changeSet>
-
-    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
-        <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="1"/>
-            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
-            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
-        </insert>
-        <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="2"/>
-            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
-            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
-        </insert>
-    </changeSet>
-
-    <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
-    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

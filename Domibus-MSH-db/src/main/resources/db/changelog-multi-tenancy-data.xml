@@ -35,6 +35,7 @@
         </insert>
     </changeSet>
 
-    <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
+    <!-- this file must be included in every future changelog-data.xml or changelog-multi-tenancy-data.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

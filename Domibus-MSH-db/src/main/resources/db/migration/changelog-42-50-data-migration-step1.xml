@@ -18,283 +18,661 @@
         <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
 
         <sql endDelimiter="\n/" dbms="oracle">
-DROP TABLE MIGR_TB_USER_MESSAGE
-/
-
-DROP TABLE MIGR_TB_SIGNAL_MESSAGE
-/
-
-DROP TABLE MIGR_TB_SJ_MESSAGE_FRAGMENT
-/
-
-DROP TABLE MIGR_TB_SJ_MESSAGE_GROUP
-/
-
-DROP TABLE MIGR_TB_SJ_MESSAGE_HEADER
-/
-
-DROP TABLE MIGR_TB_USER_MESSAGE_LOG
-/
-
-DROP TABLE MIGR_TB_SIGNAL_MESSAGE_LOG
-/
-
-DROP TABLE MIGR_TB_USER_MESSAGE_RAW
-/
-
-DROP TABLE MIGR_TB_SIGNAL_MESSAGE_RAW
-/
-
-DROP TABLE MIGR_TB_RECEIPT
-/
-
-DROP TABLE MIGR_TB_MESSAGE_PROPERTIES
-/
-
-DROP TABLE MIGR_TB_PART_INFO
-/
-
-DROP TABLE MIGR_TB_PART_PROPERTIES
-/
-
-DROP TABLE MIGR_TB_ERROR_LOG
-/
-
-DROP TABLE MIGR_TB_MESSAGE_ACKNW
-/
-
-DROP TABLE MIGR_TB_SEND_ATTEMPT
-/
-
-DROP TABLE TB_D_MPC
-/
-
-DROP TABLE TB_D_ROLE
-/
-
-DROP TABLE TB_D_SERVICE
-/
-
-DROP TABLE TB_D_AGREEMENT
-/
-
-DROP TABLE TB_D_ACTION
-/
-
-DROP TABLE TB_D_PARTY
-/
-
-DROP TABLE TB_D_MESSAGE_STATUS
-/
-
-DROP TABLE TB_D_NOTIFICATION_STATUS
-/
-
-DROP TABLE TB_D_MESSAGE_PROPERTY
-/
-
-DROP TABLE TB_D_PART_PROPERTY
-/
-
-DROP TABLE TB_D_MSH_ROLE
-/
-
-DROP TABLE MIGR_TB_ACTION_AUDIT
-/
-
-DROP TABLE MIGR_TB_ALERT
-/
-
-DROP TABLE MIGR_TB_EVENT
-/
-
-DROP TABLE MIGR_TB_EVENT_ALERT
-/
-
-DROP TABLE MIGR_TB_EVENT_PROPERTY
-/
-
-DROP TABLE MIGR_TB_AUTHENTICATION_ENTRY
-/
-
-DROP TABLE MIGR_TB_PLUGIN_USR_PASSWD_HIST
-/
-
-DROP TABLE MIGR_TB_BACKEND_FILTER
-/
-
-DROP TABLE MIGR_TB_ROUTING_CRITERIA
-/
-
-DROP TABLE MIGR_TB_CERTIFICATE
-/
-
-DROP TABLE MIGR_TB_COMMAND
-/
-
-DROP TABLE MIGR_TB_COMMAND_PROPERTY
-/
-
-DROP TABLE MIGR_TB_ENCRYPTION_KEY
-/
-
-DROP TABLE MIGR_TB_MESSAGE_ACKNW_PROP
-/
-
-DROP TABLE MIGR_TB_MESSAGING_LOCK
-/
-
-DROP TABLE MIGR_TB_PM_BUSINESS_PROCESS
-/
-
-DROP TABLE MIGR_TB_PM_ACTION
-/
-
-DROP TABLE MIGR_TB_PM_AGREEMENT
-/
-
-DROP TABLE MIGR_TB_PM_ERROR_HANDLING
-/
-
-DROP TABLE MIGR_TB_PM_MEP
-/
-
-DROP TABLE MIGR_TB_PM_MEP_BINDING
-/
-
-DROP TABLE MIGR_TB_PM_MESSAGE_PROPERTY
-/
-
-DROP TABLE MIGR_TB_PM_MSG_PROPERTY_SET
-/
-
-DROP TABLE MIGR_TB_PM_JOIN_PROPERTY_SET
-/
-
-DROP TABLE MIGR_TB_PM_PARTY
-/
-
-DROP TABLE MIGR_TB_PM_CONFIGURATION
-/
-
-DROP TABLE MIGR_TB_PM_MPC
-/
-
-DROP TABLE MIGR_TB_PM_PARTY_ID_TYPE
-/
-
-DROP TABLE MIGR_TB_PM_PARTY_IDENTIFIER
-/
-
-DROP TABLE MIGR_TB_PM_PAYLOAD
-/
-
-DROP TABLE MIGR_TB_PM_PAYLOAD_PROFILE
-/
-
-DROP TABLE MIGR_TB_PM_JOIN_PAYLD_PROFILE
-/
-
-DROP TABLE MIGR_TB_PM_RECEPTION_AWARENESS
-/
-
-DROP TABLE MIGR_TB_PM_RELIABILITY
-/
-
-DROP TABLE MIGR_TB_PM_ROLE
-/
-
-DROP TABLE MIGR_TB_PM_SECURITY
-/
-
-DROP TABLE MIGR_TB_PM_SERVICE
-/
-
-DROP TABLE MIGR_TB_PM_SPLITTING
-/
-
-DROP TABLE MIGR_TB_PM_LEG
-/
-
-DROP TABLE MIGR_TB_PM_LEG_MPC
-/
-
-DROP TABLE MIGR_TB_PM_PROCESS
-/
-
-DROP TABLE MIGR_TB_PM_JOIN_PROC_INI_PARTY
-/
-
-DROP TABLE MIGR_TB_PM_JOIN_PROCESS_LEG
-/
-
-DROP TABLE MIGR_TB_PM_JOIN_PROC_RSP_PARTY
-/
-
-DROP TABLE MIGR_TB_PM_CONFIGURATION_RAW
-/
-
-DROP TABLE MIGR_TB_USER
-/
-
-DROP TABLE MIGR_TB_USER_MSG_DELETION_JOB
-/
-
-DROP TABLE MIGR_TB_USER_PASSWORD_HISTORY
-/
-
-DROP TABLE MIGR_TB_USER_ROLE
-/
-
-DROP TABLE MIGR_TB_USER_ROLES
-/
-
-DROP TABLE MIGR_WS_PLUGIN_TB_MESSAGE_LOG
-/
-
-DROP TABLE MIGR_TB_REV_INFO
-/
-
-DROP TABLE MIGR_TB_REV_CHANGES
-/
-
-DROP TABLE MIGR_TB_AUTH_ENTRY_AUD
-/
-
-DROP TABLE MIGR_TB_BACK_RCRITERIA_AUD
-/
-
-DROP TABLE MIGR_TB_BACKEND_FILTER_AUD
-/
-
-DROP TABLE MIGR_TB_CERTIFICATE_AUD
-/
-
-DROP TABLE MIGR_TB_PM_CONFIGURATION_AUD
-/
-
-DROP TABLE MIGR_TB_PM_CONF_RAW_AUD
-/
-
-DROP TABLE MIGR_TB_PM_PARTY_AUD
-/
-
-DROP TABLE MIGR_TB_PM_PARTY_ID_TYPE_AUD
-/
-
-DROP TABLE MIGR_TB_PM_PARTY_IDENTIF_AUD
-/
-
-DROP TABLE MIGR_TB_ROUTING_CRITERIA_AUD
-/
-
-DROP TABLE MIGR_TB_USER_AUD
-/
-
-DROP TABLE MIGR_TB_USER_ROLE_AUD
-/
-
-DROP TABLE MIGR_TB_USER_ROLES_AUD
+DECLARE
+    table_does_not_exist exception;
+    PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_MESSAGE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_MESSAGE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SIGNAL_MESSAGE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SIGNAL_MESSAGE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SJ_MESSAGE_FRAGMENT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SJ_MESSAGE_FRAGMENT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SJ_MESSAGE_GROUP';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SJ_MESSAGE_GROUP: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SJ_MESSAGE_HEADER';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SJ_MESSAGE_HEADER: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_MESSAGE_LOG';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_MESSAGE_LOG: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SIGNAL_MESSAGE_LOG';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SIGNAL_MESSAGE_LOG: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_MESSAGE_RAW';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_MESSAGE_RAW: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SIGNAL_MESSAGE_RAW';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SIGNAL_MESSAGE_RAW: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_RECEIPT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_RECEIPT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_MESSAGE_PROPERTIES';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_MESSAGE_PROPERTIES: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PART_INFO';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PART_INFO: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PART_PROPERTIES';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PART_PROPERTIES: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ERROR_LOG';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ERROR_LOG: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_MESSAGE_ACKNW';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_MESSAGE_ACKNW: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_SEND_ATTEMPT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_SEND_ATTEMPT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_MPC';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_MPC: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_SERVICE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_SERVICE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_AGREEMENT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_AGREEMENT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_ACTION';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_ACTION: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_PARTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_PARTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_MESSAGE_STATUS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_MESSAGE_STATUS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_NOTIFICATION_STATUS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_NOTIFICATION_STATUS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_MESSAGE_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_MESSAGE_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_PART_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_PART_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_D_MSH_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_D_MSH_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ACTION_AUDIT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ACTION_AUDIT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ALERT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ALERT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT_ALERT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT_ALERT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_AUTHENTICATION_ENTRY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_AUTHENTICATION_ENTRY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PLUGIN_USR_PASSWD_HIST';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PLUGIN_USR_PASSWD_HIST: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_BACKEND_FILTER';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_BACKEND_FILTER: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ROUTING_CRITERIA';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ROUTING_CRITERIA: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_CERTIFICATE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_CERTIFICATE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_COMMAND';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_COMMAND: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_COMMAND_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_COMMAND_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ENCRYPTION_KEY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ENCRYPTION_KEY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_MESSAGE_ACKNW_PROP';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_MESSAGE_ACKNW_PROP: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_MESSAGING_LOCK';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_MESSAGING_LOCK: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_BUSINESS_PROCESS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_BUSINESS_PROCESS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_ACTION';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_ACTION: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_AGREEMENT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_AGREEMENT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_ERROR_HANDLING';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_ERROR_HANDLING: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_MEP';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_MEP: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_MEP_BINDING';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_MEP_BINDING: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_MESSAGE_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_MESSAGE_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_MSG_PROPERTY_SET';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_MSG_PROPERTY_SET: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_JOIN_PROPERTY_SET';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_JOIN_PROPERTY_SET: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PARTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PARTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_CONFIGURATION';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_CONFIGURATION: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_MPC';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_MPC: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PARTY_ID_TYPE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PARTY_ID_TYPE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PARTY_IDENTIFIER';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PARTY_IDENTIFIER: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PAYLOAD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PAYLOAD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PAYLOAD_PROFILE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PAYLOAD_PROFILE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_JOIN_PAYLD_PROFILE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_JOIN_PAYLD_PROFILE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_RECEPTION_AWARENESS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_RECEPTION_AWARENESS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_RELIABILITY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_RELIABILITY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_SECURITY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_SECURITY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_SERVICE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_SERVICE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_SPLITTING';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_SPLITTING: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_LEG';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_LEG: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_LEG_MPC';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_LEG_MPC: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PROCESS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PROCESS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_JOIN_PROC_INI_PARTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_JOIN_PROC_INI_PARTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_JOIN_PROCESS_LEG';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_JOIN_PROCESS_LEG: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_JOIN_PROC_RSP_PARTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_JOIN_PROC_RSP_PARTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_CONFIGURATION_RAW';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_CONFIGURATION_RAW: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_MSG_DELETION_JOB';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_MSG_DELETION_JOB: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_PASSWORD_HISTORY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_PASSWORD_HISTORY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLES';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLES: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_WS_PLUGIN_TB_MESSAGE_LOG';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_WS_PLUGIN_TB_MESSAGE_LOG: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_REV_INFO';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_REV_INFO: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_REV_CHANGES';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_REV_CHANGES: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_AUTH_ENTRY_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_AUTH_ENTRY_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_BACK_RCRITERIA_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_BACK_RCRITERIA_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_BACKEND_FILTER_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_BACKEND_FILTER_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_CERTIFICATE_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_CERTIFICATE_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_CONFIGURATION_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_CONFIGURATION_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_CONF_RAW_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_CONF_RAW_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PARTY_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PARTY_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PARTY_ID_TYPE_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PARTY_ID_TYPE_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PM_PARTY_IDENTIF_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PM_PARTY_IDENTIF_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ROUTING_CRITERIA_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ROUTING_CRITERIA_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLE_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLE_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLES_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLES_AUD: table does not exist');
+    END;
+END;
 /
         </sql>
 
