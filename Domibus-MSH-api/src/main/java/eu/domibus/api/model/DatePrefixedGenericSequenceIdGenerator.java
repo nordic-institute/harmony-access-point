@@ -15,13 +15,7 @@ import org.hibernate.type.Type;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Properties;
-
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
-
 
 /**
  * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) increment.

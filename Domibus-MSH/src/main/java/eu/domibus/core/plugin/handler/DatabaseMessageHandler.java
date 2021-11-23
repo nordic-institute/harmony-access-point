@@ -221,7 +221,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 }
             }
             if (!found) {
-                LOG.debug("User [{}] is trying to submit/access a message having as final recipients: [{}]", authOriginalUser, recipients);
+                LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
                 throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
             }
         }
