@@ -12,14 +12,20 @@ import java.util.Map;
 public abstract class PayloadAbstractEvent implements Serializable, MessageEvent {
 
     protected String messageId;
-
     protected String cid;
-
     protected String mime;
-
     protected String fileName;
-
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    protected Long messageEntityId;
+
+    @Override
+    public Long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(Long messageEntityId) {
+        this.messageEntityId = messageEntityId;
+    }
 
     @Override
     public String getMessageId() {

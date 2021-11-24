@@ -34,11 +34,12 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
         ErrorResultImpl errorResult = getErrorResult(messageId, properties);
 
         MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
         event.setMessageId(messageId);
+        event.setMessageEntityId(messageEntityId);
         String service = properties.get(MessageConstants.SERVICE);
         event.setService(service);
 

@@ -28,8 +28,8 @@ public class PluginMessageReceivedNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, String messageId, Map<String, String> properties) {
-        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageId, properties);
+    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageEntityId, messageId, properties);
         backendConnectorDelegate.deliverMessage(backendConnector, deliverMessageEvent);
     }
 }

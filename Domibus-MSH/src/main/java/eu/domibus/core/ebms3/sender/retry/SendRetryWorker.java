@@ -4,6 +4,7 @@ package eu.domibus.core.ebms3.sender.retry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.ebms3.sender.MessageSenderService;
+import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,13 +33,23 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
     @Autowired
     protected AuthUtils authUtils;
 
+    @Autowired
+    private ConfigurationDAO configurationDAO;
+
     @Override
     protected void executeJob(final JobExecutionContext context, final Domain domain) throws JobExecutionException {
-        try {
-            final List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
+        if (!configurationDAO.configurationExists()) {
+            LOG.debug("Missing pMode configuration.");
+            return;
+        }
 
-            for (final String messageId : messagesNotAlreadyQueued) {
-                retryService.enqueueMessage(messageId);
+        try {
+            final List<Long> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
+
+            LOG.trace("There are [{}] retry messages", messagesNotAlreadyQueued.size());
+
+            for (final Long messageEntityId : messagesNotAlreadyQueued) {
+                retryService.enqueueMessage(messageEntityId);
             }
         } catch (Exception e) {
             LOG.error("Error while enqueueing messages.", e);

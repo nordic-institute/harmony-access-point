@@ -138,15 +138,27 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
-
         final UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
 
-        final UserMessageLog messageLog = userMessageLogService.findByMessageId(messageId);
+        return getSubmission(userMessage, messageLog);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Submission downloadMessage(final Long messageEntityId) throws MessageNotFoundException {
+        LOG.info("Downloading message with entity id [{}]", messageEntityId);
+        final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
+        final UserMessageLog messageLog = userMessageLogService.findById(messageEntityId);
+
+        return getSubmission(userMessage, messageLog);
+    }
+
+    protected Submission getSubmission(final UserMessage userMessage, final UserMessageLog messageLog) throws MessageNotFoundException{
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
-            LOG.debug("Message [{}] is already downloaded", messageId);
+            LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
             return messagingService.getSubmission(userMessage);
         }
-
         checkMessageAuthorization(userMessage);
 
         List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
@@ -161,6 +173,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.info("Browsing message with id [{}]", messageId);
 
         UserMessage userMessage = userMessageService.getByMessageId(messageId);
+
+        checkMessageAuthorization(userMessage);
+        return messagingService.getSubmission(userMessage);
+    }
+
+
+    @Override
+    public Submission browseMessage(final Long messageEntityId) {
+        LOG.info("Browsing message with entity id [{}]", messageEntityId);
+
+        UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
         checkMessageAuthorization(userMessage);
         return messagingService.getSubmission(userMessage);
@@ -180,7 +203,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
     }
 
-    protected void validateOriginalUser(UserMessage userMessage, String authOriginalUser, List<String> recipients) {
+    protected void validateOriginalUser(UserMessage userMessage) {
+        String authOriginalUser = authUtils.getOriginalUserFromSecurityContext();
+        List<String> recipients = new ArrayList<>();
+        recipients.add(MessageConstants.ORIGINAL_SENDER);
+        recipients.add(MessageConstants.FINAL_RECIPIENT);
+
         if (authOriginalUser != null) {
             LOG.debug("OriginalUser is [{}]", authOriginalUser);
             /* check the message belongs to the authenticated user */
@@ -193,7 +221,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 }
             }
             if (!found) {
-                LOG.debug("User [{}] is trying to submit/access a message having as final recipients: [{}]", authOriginalUser, recipients);
+                LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
                 throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
             }
         }
@@ -211,6 +239,16 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
+    protected void validateAccessToStatusAndErrors(final Long messageEntityId) {
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
+
+        // check if user can get the status/errors of that message (only admin or original users are authorized to do that)
+        UserMessage userMessage = userMessageService.findByEntityId(messageEntityId);
+        validateOriginalUser(userMessage);
+    }
+
     protected void validateAccessToStatusAndErrors(String messageId) {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
@@ -218,11 +256,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         // check if user can get the status/errors of that message (only admin or original users are authorized to do that)
         UserMessage userMessage = userMessageService.findByMessageId(messageId);
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
-        List<String> recipients = new ArrayList<>();
-        recipients.add(MessageConstants.ORIGINAL_SENDER);
-        recipients.add(MessageConstants.FINAL_RECIPIENT);
-        validateOriginalUser(userMessage, originalUser, recipients);
+        validateOriginalUser(userMessage);
     }
 
     @Override
@@ -230,6 +264,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         validateAccessToStatusAndErrors(messageId);
         return userMessageLogService.getMessageStatus(messageId);
     }
+
+    @Override
+    public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
+        validateAccessToStatusAndErrors(messageEntityId);
+        return userMessageLogService.getMessageStatus(messageEntityId);
+    }
+
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {

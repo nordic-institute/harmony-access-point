@@ -5,8 +5,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
 
-import static eu.domibus.plugin.jms.JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY;
-import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
+import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -15,10 +14,12 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 public class SignalMessageCreator  {
     private NotificationType notificationType;
     private String messageId;
+    private long messageEntityId;
 
-    public SignalMessageCreator(String messageId, NotificationType notificationType) {
+    public SignalMessageCreator(long messageEntityId, String messageId, NotificationType notificationType) {
         this.messageId = messageId;
         this.notificationType = notificationType;
+        this.messageEntityId = messageEntityId;
     }
 
 
@@ -30,6 +31,7 @@ public class SignalMessageCreator  {
         }
         jmsMessageBuilder.property(JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, messageType);
         jmsMessageBuilder.property(MESSAGE_ID, messageId);
+        jmsMessageBuilder.property(MESSAGE_ENTITY_ID, messageEntityId);
         return jmsMessageBuilder.build();
     }
 }

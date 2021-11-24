@@ -1,0 +1,41 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
+
+    <!-- properties - to be used in column definitions -->
+    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="EDELIVERY-4916" author="Catalin Enache">
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="${default_id_pk}0000000003" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_AP_ADMIN"/>
+        </insert>
+        <insert tableName="TB_USER">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="USER_NAME" value="super"/>
+            <column name="USER_PASSWORD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
+            <column name="USER_ENABLED" valueBoolean="true"/>
+            <column name="USER_DELETED" valueBoolean="false"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+        </insert>
+        <insert tableName="TB_USER_ROLES">
+            <column name="USER_ID" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="ROLE_ID" value="${default_id_pk}0000000003" type="INT"/>
+        </insert>
+        <insert tableName="TB_USER_DOMAIN">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="USER_NAME" value="super"/>
+            <column name="PREFERRED_DOMAIN" value="default"/>
+        </insert>
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-data.xml or changelog-multi-tenancy-data.xml -->
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

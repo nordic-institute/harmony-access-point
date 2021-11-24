@@ -28,6 +28,7 @@ import java.util.Map;
 @Repository
 @Transactional
 public class ErrorLogDao extends ListDao<ErrorLogEntry> {
+    private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
 
@@ -37,7 +38,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
 
     public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
-        query.setParameter("MESSAGE_ID", messageId);
+        query.setParameter(STR_MESSAGE_ID, messageId);
 
         return initializeChildren(query.getResultList());
     }
