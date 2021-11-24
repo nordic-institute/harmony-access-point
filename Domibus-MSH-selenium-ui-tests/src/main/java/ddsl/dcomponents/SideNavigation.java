@@ -104,6 +104,9 @@ public class SideNavigation extends DComponent {
 		} catch (Exception e) {
 			log.warn("Could not expand pmode: ", e);
 		}
+
+//		cannot be removed, links in unexpanded sections exist and are enabled and clickable,
+//		there is no event to wait for until expanding section animation is finished
 		wait.forXMillis(200);
 	}
 

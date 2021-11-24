@@ -61,7 +61,7 @@ public class AlertPgUXTest extends SeleniumTest {
 	// EDELIVERY-8455- jira issue reported for delete operation
 
 	/*  ALRT-35 - Delete domain alert as super  */
-	@Test(description = "ALRT-35", groups = {"multiTenancy"},enabled=false)
+	@Test(description = "ALRT-35", groups = {"multiTenancy"})
 	public void delDomainAlertbySuperAdmin() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
@@ -238,7 +238,7 @@ public class AlertPgUXTest extends SeleniumTest {
 		int noOfAlerts = page.grid().getPagination().getTotalItems();
 		log.info("Total number of records : " + noOfAlerts);
 
-		if(noOfAlerts <= 3){
+		if(noOfAlerts < 3){
 			throw new SkipException("not enough alerts to test");
 		}
 

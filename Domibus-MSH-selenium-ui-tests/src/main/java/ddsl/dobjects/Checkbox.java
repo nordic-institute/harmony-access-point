@@ -43,7 +43,7 @@ public class Checkbox extends DObject {
 		if (isChecked()) return;
 		if (isEnabled()) {
 			clickCheckbox();
-			wait.forXMillis(100);
+			wait.forAttributeToContain(this.element, "class", "mat-checkbox-checked");
 			return;
 		}
 		throw new Exception("Checkbox is not enabled");
@@ -53,6 +53,7 @@ public class Checkbox extends DObject {
 		if (!isChecked()) return;
 		if (isEnabled()) {
 			clickCheckbox();
+			wait.forAttributeToNOTContain(this.element, "class", "mat-checkbox-checked");
 			return;
 		}
 		throw new Exception("Checkbox is not enabled");

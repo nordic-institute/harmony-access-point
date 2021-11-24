@@ -49,7 +49,7 @@ public class SeleniumTest extends BaseTest {
 
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
-		generateTestData();
+//		generateTestData();
 	}
 
 	@AfterSuite(alwaysRun = true)

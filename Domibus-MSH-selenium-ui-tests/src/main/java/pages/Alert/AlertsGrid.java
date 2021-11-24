@@ -57,7 +57,7 @@ public class AlertsGrid extends DGrid {
 		List<WebElement> cells = gridRows.get(index).findElements(cellSelector);
 		
 		int chkIndex = columns.indexOf("Processed");
-		WebElement webElement = cells.get(chkIndex).findElement(By.cssSelector("label > div"));
+		WebElement webElement = cells.get(chkIndex).findElement(By.tagName("mat-checkbox"));
 		weToCheckbox(webElement).check();
 	}
 }
