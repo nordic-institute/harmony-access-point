@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,9 +64,11 @@ public class DomainDaoImplTest {
             result = "src/test/resources/config";
         }};
 
-        Files.createTempDirectory(Paths.get(domibusConfigurationService.getConfigLocation()), "emptyDomainDir");
+        Path emptyDomainDir = Files.createTempDirectory(Paths.get(domibusConfigurationService.getConfigLocation()), "emptyDomainDir");
 
         List<String> domainCodes = domainDao.findAllDomainCodes();
+
+        Files.deleteIfExists(emptyDomainDir);
 
         assertEquals(2, domainCodes.size());
         assertEquals("default", domainCodes.get(0));
