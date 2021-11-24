@@ -17,6 +17,7 @@ import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -91,7 +92,11 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
         iamProvider = providerList.get(0);
         iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
-        iamProvider.init(initValue);
+        if (CollectionUtils.isEmpty(initValue)) {
+            iamProvider.init();
+        } else {
+            iamProvider.init(initValue);
+        }
 
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
     }
