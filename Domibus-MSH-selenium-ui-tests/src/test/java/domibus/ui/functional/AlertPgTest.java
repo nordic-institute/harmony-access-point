@@ -979,7 +979,7 @@ public class AlertPgTest extends SeleniumTest {
 
     /* EDELIVERY-5471 - ALRT-23 - Check additional filters section for each alert type */
 	@Test(description = "ALRT-23", groups = {"multiTenancy", "singleTenancy"})
-	public void checkAditionalFilters() throws Exception {
+	public void checkAdditionalFilters() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		log.info("Navigating to Alerts page");

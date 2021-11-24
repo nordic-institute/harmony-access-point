@@ -118,8 +118,6 @@ public class DGrid extends DComponent {
 	}
 
 	public void doubleClickRow(int rowNumber) throws Exception {
-		
-
 		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
@@ -128,7 +126,7 @@ public class DGrid extends DComponent {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 
-		this.wait.forXMillis(200);
+//		this.wait.forXMillis(200);
 		Actions action = new Actions(driver);
 		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
 		weToDobject(element).scrollIntoView();
@@ -288,7 +286,7 @@ public class DGrid extends DComponent {
 		doubleClickRow(index);
 
 //		necessary wait if the method is to remain generic
-//		otherwise we need to know what modal is going to be opened so we know what to expect
+//		otherwise we need to know what modal is going to be opened, so we know what to expect
 		wait.forXMillis(300);
 		return index;
 	}

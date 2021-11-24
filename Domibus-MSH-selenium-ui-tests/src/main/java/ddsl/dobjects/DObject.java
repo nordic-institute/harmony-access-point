@@ -46,7 +46,6 @@ public class DObject {
 	public boolean isEnabled() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
-			wait.forXMillis(100);
 			return element.isEnabled();
 		}
 		throw new DObjectNotPresentException();

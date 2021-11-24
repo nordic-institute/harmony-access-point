@@ -90,7 +90,6 @@ public class Select extends DComponent {
 	private void contract() throws Exception {
 		try {
 			wait.forXMillis(200);
-
 			selectContainer.sendKeys(Keys.ESCAPE);
 			wait.forXMillis(200);
 
