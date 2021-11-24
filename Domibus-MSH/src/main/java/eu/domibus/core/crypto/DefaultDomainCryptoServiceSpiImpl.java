@@ -84,11 +84,11 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
             LOG.debug("No initializing value found for the certificate provider");
             return;
         }
-        if (initValue.contains(INTI_TRUSTSTORE_NAME) && initValue.contains(INTI_KEYSTORE_NAME)) {
+        if (initValue.contains(INIT_TRUSTSTORE_NAME) && initValue.contains(INIT_KEYSTORE_NAME)) {
             init();
-        } else if (initValue.contains(INTI_TRUSTSTORE_NAME)) {
+        } else if (initValue.contains(INIT_TRUSTSTORE_NAME)) {
             loadTrustStoreProperties();
-        } else if (initValue.contains(INTI_KEYSTORE_NAME)) {
+        } else if (initValue.contains(INIT_KEYSTORE_NAME)) {
             loadKeyStoreProperties();
         }
 
