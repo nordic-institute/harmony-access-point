@@ -1,5 +1,9 @@
 package eu.domibus.api.model;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -19,5 +23,14 @@ public class RawEnvelopeDto {
 
     public long getId() {
         return id;
+    }
+
+    public String getRawXmlMessage() {
+        final String rawXml = new String(rawMessage, StandardCharsets.UTF_8);
+        return rawXml;
+    }
+
+    public InputStream getRawXmlMessageAsStream() {
+        return new ByteArrayInputStream(rawMessage);
     }
 }
