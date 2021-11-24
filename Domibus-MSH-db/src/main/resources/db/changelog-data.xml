@@ -98,13 +98,14 @@
     </changeSet>
 
     <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
+        <!-- DO NOT CHANGE ID of entries the values 1 and 2 have special meaning in code! -->
         <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="${default_id_pk}0000000001"/>
+            <column name="ID_PK" value="1"/>
             <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
             <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
         </insert>
         <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="${default_id_pk}0000000002"/>
+            <column name="ID_PK" value="2"/>
             <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
             <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
         </insert>
