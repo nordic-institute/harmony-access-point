@@ -13,6 +13,7 @@ import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -79,10 +80,11 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     public void init(List<Enum> initValue) {
-        if (initValue.isEmpty()) {
+        if (CollectionUtils.isEmpty(initValue)) {
             LOG.debug("No initializing value found for the certificate provider");
             return;
-        } else if (initValue.contains(INTI_TRUSTSTORE_NAME) && initValue.contains(INTI_KEYSTORE_NAME)) {
+        }
+        if (initValue.contains(INTI_TRUSTSTORE_NAME) && initValue.contains(INTI_KEYSTORE_NAME)) {
             init();
         } else if (initValue.contains(INTI_TRUSTSTORE_NAME)) {
             loadTrustStoreProperties();
