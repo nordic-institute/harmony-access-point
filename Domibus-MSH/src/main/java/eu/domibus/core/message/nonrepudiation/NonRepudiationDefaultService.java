@@ -72,7 +72,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         LOG.debug("Persist raw XML envelope: [{}]", rawXMLMessage);
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
         rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
-        rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+        rawEnvelopeLog.setRawXML(rawXMLMessage);
         rawEnvelopeLogDao.create(rawEnvelopeLog);
     }
 
@@ -80,7 +80,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
         String rawXMLMessage = soapUtil.getRawXMLMessage(request);
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
-        rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+        rawEnvelopeLog.setRawXML(rawXMLMessage);
         return rawEnvelopeLog;
     }
 
@@ -98,7 +98,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             if (userMessage != null) {
                 rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
             }
-            rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+            rawEnvelopeLog.setRawXML(rawXMLMessage);
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
@@ -115,8 +115,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         try {
             String rawXMLMessage = soapUtil.getRawXMLMessage(response);
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
-            final byte[] signalMessageRaw = rawXMLMessage.getBytes(StandardCharsets.UTF_8);
-            signalMessageRawService.saveSignalMessageRawService(signalMessageRaw, signalMessageEntityId);
+            signalMessageRawService.saveSignalMessageRawService(rawXMLMessage, signalMessageEntityId);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
         }

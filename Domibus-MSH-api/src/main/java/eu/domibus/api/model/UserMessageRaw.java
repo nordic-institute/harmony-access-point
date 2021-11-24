@@ -63,7 +63,7 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
         }
     }
 
-    public void setRawXML(byte[] rawXML) {
+    protected void setRawXML(byte[] rawXML) {
         if (rawXML == null) {
             this.rawXML = null;
             return;

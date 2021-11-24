@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -37,6 +38,11 @@ public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
         this.signalMessage = signalMessage;
     }
 
+    public void setRawXML(String rawXML) {
+        byte[] bytes = rawXML.getBytes(StandardCharsets.UTF_8);
+        this.setRawXML(bytes);
+    }
+
     public byte[] getRawXML() {
         if (rawXML == null) {
             return null;
@@ -50,7 +56,7 @@ public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
         }
     }
 
-    public void setRawXML(byte[] rawXML) {
+    protected void setRawXML(byte[] rawXML) {
         if (rawXML == null) {
             this.rawXML = null;
             return;
