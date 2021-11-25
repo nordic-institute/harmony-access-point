@@ -21,7 +21,6 @@ public abstract class EArchiveBatchMapper {
     @Autowired
     protected EArchiveBatchUtils archiveBatchUtils;
 
-    @Mapping(ignore = true, target = "manifestChecksum")
     @Mapping(ignore = true, target = "version")
     @Mapping(source = "EArchiveBatchStatus", target = "status")
     @Mapping(source = "errorMessage", target = "errorDescription")

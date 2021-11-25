@@ -30,6 +30,8 @@ public class BatchEArchiveDTO {
 
     List<String> messages;
 
+    public BatchEArchiveDTO() {
+    }
 
     public BatchEArchiveDTO(String batchId, String requestType) {
         this.batchId = batchId;

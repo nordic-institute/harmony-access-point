@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainService;
@@ -16,6 +17,7 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.VFS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,37 +116,44 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void createEArkSipStructure() {
+    public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
 
-        FileObject fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
-        // must have more that one subfolder item
-        assertTrue(temp.listFiles().length > 0);
-        File batchFolder = getFileItem(fileObject.getName().getBaseName(), temp.listFiles(), true);
-        assertNotNull(batchFolder);
-        File representation = getFileItem("representations", batchFolder.listFiles(), true);
-        assertNotNull(representation);
-        File representation1 = getFileItem("representation1", representation.listFiles(), true);
-        assertNotNull(representation1);
-        File data = getFileItem(IPConstants.DATA, representation1.listFiles(), true);
-        assertNotNull(data);
-        File metsData = getFileItem(IPConstants.METS_FILE, batchFolder.listFiles(), false);
-        assertNotNull(metsData);
+        DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
+        try (FileObject batchDirectory = VFS.getManager().resolveFile(fileObject.getDirectory().toUri())) {
 
-        assertEquals(batchId, batchFolder.getName());
-        assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
-        assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
+            // must have more that one subfolder item
+            assertTrue(temp.listFiles().length > 0);
+            File batchFolder = getFileItem(batchDirectory.getName().getBaseName(), temp.listFiles(), true);
+            assertNotNull(batchFolder);
+            File representation = getFileItem("representations", batchFolder.listFiles(), true);
+            assertNotNull(representation);
+            File representation1 = getFileItem("representation1", representation.listFiles(), true);
+            assertNotNull(representation1);
+            File data = getFileItem(IPConstants.DATA, representation1.listFiles(), true);
+            assertNotNull(data);
+            File metsData = getFileItem(IPConstants.METS_FILE, batchFolder.listFiles(), false);
+            assertNotNull(metsData);
 
-        File[] messageIDFiles = data.listFiles();
-        for (File file : messageIDFiles) {
-            if (StringUtils.contains(file.getName(), ".json")) {
-                LOG.info("StringUtils.containsAny(file.getName(), \".json\") : [{}]", file.getName());
-                assertEquals("batch.json", file.getName());
-            }
-            if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
-                List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
-                assertEquals("message.attachment", collect.get(0).getName());
-                assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
+            assertEquals(batchId, batchFolder.getName());
+            assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
+            assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
+
+            File[] messageIDFiles = data.listFiles();
+            for (File file : messageIDFiles) {
+                if (StringUtils.contains(file.getName(), ".json")) {
+                    LOG.info("StringUtils.containsAny(file.getName(), \".json\") : [{}]", file.getName());
+                    assertEquals("batch.json", file.getName());
+                    BatchEArchiveDTO batchEArchiveDTO = new ObjectMapper().readValue(file, BatchEArchiveDTO.class);
+                    assertNotNull(batchEArchiveDTO.getManifestChecksum());
+                    assertEquals(byMessageId.getMessageId(), batchEArchiveDTO.getMessages().get(0));
+                    assertEquals(batchEArchiveDTO.getBatchId(), batchEArchiveDTO.getBatchId());
+                }
+                if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
+                    List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
+                    assertEquals("message.attachment", collect.get(0).getName());
+                    assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
+                }
             }
         }
     }

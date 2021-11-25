@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.listener;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.eark.DomibusEARKSIPResult;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -11,8 +12,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -93,10 +92,11 @@ public class EArchiveListener implements MessageListener {
         }
         LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
                 batchId,
-                userMessageDtos.get(userMessageDtos.size() - 1),
-                userMessageDtos.get(0));
+                userMessageDtos.get(0).getMessageId(),
+                userMessageDtos.get(userMessageDtos.size() - 1).getMessageId());
 
-        exportInFileSystem(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        String manifestChecksum = exportInFileSystem(eArchiveBatchByBatchId, userMessageDtos);
+        eArchiveBatchByBatchId.setManifestChecksum(manifestChecksum);
         eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId);
     }
 
@@ -109,8 +109,8 @@ public class EArchiveListener implements MessageListener {
         eArchivingDefaultService.executeBatchIsArchived(eArchiveBatchByBatchId, userMessageDtos);
     }
 
-    private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
-        try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
+    private String exportInFileSystem(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
+        DomibusEARKSIPResult eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
@@ -120,12 +120,10 @@ public class EArchiveListener implements MessageListener {
                         .messageEndId("" + batchUserMessages.get(batchUserMessages.size() - 1).getUserMessageEntityId())
                         .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
-                batchUserMessages)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
-            }
-        } catch (FileSystemException e) {
-            throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
+                batchUserMessages);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
+        return eArkSipStructure.getManifestChecksum();
     }
 }
