@@ -92,8 +92,8 @@ public class EArchiveListener implements MessageListener {
         }
         LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
                 batchId,
-                userMessageDtos.get(userMessageDtos.size() - 1),
-                userMessageDtos.get(0));
+                userMessageDtos.get(0).getMessageId(),
+                userMessageDtos.get(userMessageDtos.size() - 1).getMessageId());
 
         String manifestChecksum = exportInFileSystem(eArchiveBatchByBatchId, userMessageDtos);
         eArchiveBatchByBatchId.setManifestChecksum(manifestChecksum);
