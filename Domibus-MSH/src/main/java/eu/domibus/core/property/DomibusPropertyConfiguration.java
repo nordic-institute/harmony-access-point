@@ -28,6 +28,8 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.*;
 @Configuration("domibusPropertyConfiguration")
 public class DomibusPropertyConfiguration {
 
+    public static final String MULTITENANT_DOMIBUS_PROPERTIES_SUFFIX = "-domibus.properties";
+    public static final String SUPER_DOMIBUS_PROPERTIES = "super" + MULTITENANT_DOMIBUS_PROPERTIES_SUFFIX;
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyConfiguration.class);
 
     @Bean("domibusDefaultProperties")
@@ -60,13 +62,13 @@ public class DomibusPropertyConfiguration {
         Resource domibusProperties = resolver.getResource("file:///" + domibusConfigLocation + "/" + DOMIBUS_PROPERTY_FILE);
         resources.add(domibusProperties);
 
-        Resource superProperties = resolver.getResource("file:///" + domibusConfigLocation + File.separator + DOMAINS_HOME + "/super-domibus.properties");
+        Resource superProperties = resolver.getResource("file:///" + domibusConfigLocation + File.separator + DOMAINS_HOME + File.separator + SUPER_DOMIBUS_PROPERTIES);
         if (superProperties.exists()) {
             LOG.debug("Adding the super properties file [{}]", superProperties);
             resources.add(superProperties);
         }
 
-        Resource[] domainProperties = resolver.getResources("file:///" + domibusConfigLocation + File.separator + DOMAINS_HOME + "/*/*-domibus.properties");
+        Resource[] domainProperties = resolver.getResources("file:///" + domibusConfigLocation + File.separator + DOMAINS_HOME + "/*/*" + MULTITENANT_DOMIBUS_PROPERTIES_SUFFIX);
         LOG.debug("Adding the following domain properties files [{}]", domainProperties);
         resources.addAll(Arrays.asList(domainProperties));
 
