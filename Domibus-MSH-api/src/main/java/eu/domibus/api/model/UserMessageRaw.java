@@ -1,5 +1,7 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import org.apache.commons.io.IOUtils;
 
 import javax.persistence.*;
@@ -58,8 +60,7 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(rawXML))) {
             return IOUtils.toByteArray(unzipStream);
         } catch (IOException e) {
-            // TODO
-            return rawXML; // not compressed? return the raw data
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_008, "Decompression failed", e);
         }
     }
 
@@ -73,7 +74,7 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
         try (GZIPOutputStream zipStream = new GZIPOutputStream(byteStream)) {
             zipStream.write(rawXML);
         } catch (IOException e) {
-            // TODO
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_008, "Compression failed", e);
         }
 
         this.rawXML = byteStream.toByteArray();

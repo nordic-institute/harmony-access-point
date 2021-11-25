@@ -1,5 +1,7 @@
 package eu.domibus.api.model;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
@@ -13,6 +15,9 @@ import java.util.zip.GZIPInputStream;
  * @since 3.3
  */
 public class RawEnvelopeDto {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RawEnvelopeDto.class);
+
     final byte[] rawMessage;
     final long id;
 
@@ -42,8 +47,10 @@ public class RawEnvelopeDto {
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(getRawMessage()))) {
             return IOUtils.toByteArray(unzipStream);
         } catch (IOException e) {
-            // TODO
-            return getRawMessage(); // not compressed? return the raw data
+            LOG.warn("Failed to unzip raw envelope data with id [{}]", id, e);
+            // TODO decide how to handle older uncompressed envelopes from the database
+            // for now, we just try to decompress them and, if failing, return the raw data
+            return getRawMessage();
         }
     }
 
