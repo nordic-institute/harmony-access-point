@@ -3,11 +3,19 @@ package eu.domibus.core.message;
 import com.google.common.collect.Maps;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.TypedQuery;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
+
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * @author Tiago Miguel
@@ -15,6 +23,9 @@ import java.util.*;
  */
 public abstract class MessageLogInfoFilter {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
+
+    private static final String LOG_MESSAGE_ENTITY_ID = "log.entityId";
     private static final String LOG_MESSAGE_ID = "message.messageId";
     private static final String LOG_MSH_ROLE = "log.mshRole.role";
     private static final String LOG_MESSAGE_STATUS = "log.messageStatus.messageStatus";
@@ -59,6 +70,9 @@ public abstract class MessageLogInfoFilter {
             case "receivedFrom":
             case "receivedTo":
                 return LOG_RECEIVED;
+            case "minEntityId":
+            case "maxEntityId":
+                return LOG_MESSAGE_ENTITY_ID;
             case "sendAttempts":
                 return LOG_SEND_ATTEMPTS;
             case "sendAttemptsMax":
@@ -125,9 +139,9 @@ public abstract class MessageLogInfoFilter {
             } else {
                 if (!(filter.getValue().toString().isEmpty())) {
                     String s = filter.getKey();
-                    if (s.equals("receivedFrom")) {
+                    if (s.equals("receivedFrom") || s.equals("minEntityId")) {
                         result.append(tableName).append(" >= :").append(filter.getKey());
-                    } else if (s.equals("receivedTo")) {
+                    } else if (s.equals("receivedTo") || s.equals("maxEntityId")) {
                         result.append(tableName).append(" <= :").append(filter.getKey());
                     }
                 }
@@ -145,8 +159,28 @@ public abstract class MessageLogInfoFilter {
 
     public <E> TypedQuery<E> applyParameters(TypedQuery<E> query, Map<String, Object> filters) {
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
-            if (filter.getValue() != null) {
-                query.setParameter(filter.getKey(), filter.getValue());
+            if (filter.getValue() != null && !filter.getValue().toString().isEmpty()) {
+                if (filter.getValue() instanceof Date) {
+                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) filter.getValue()).toInstant(), ZoneOffset.UTC);
+                    LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
+                    switch (filter.getKey()) {
+                        case "minEntityId":
+                            Long minId = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
+                            LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), minId);
+                            query.setParameter(filter.getKey(), minId);
+                            break;
+                        case "maxEntityId":
+                            Long maxId = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+                            LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), maxId);
+                            query.setParameter(filter.getKey(),maxId);
+                            break;
+                        default:
+                            query.setParameter(filter.getKey(), filter.getValue());
+                            break;
+                    }
+                } else {
+                    query.setParameter(filter.getKey(), filter.getValue());
+                }
             }
         }
         return query;
