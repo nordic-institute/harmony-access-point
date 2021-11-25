@@ -112,12 +112,4 @@ public class EArchivingFileService {
             throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
         }
     }
-
-    public BatchEArchiveDTO getBatchEArchiveDTO(InputStream content) {
-        try {
-            return objectMapper.readValue(content, BatchEArchiveDTO.class);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not parse to BatchEArchiveDTO", e);
-        }
-    }
 }
