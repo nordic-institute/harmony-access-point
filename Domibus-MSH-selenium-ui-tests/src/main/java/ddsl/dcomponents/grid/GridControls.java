@@ -62,8 +62,8 @@ public class GridControls extends DComponent {
 	public void checkBoxWithLabel(String name) throws Exception {
 		boolean found = false;
 		for (WebElement chk : chkContainer) {
-			WebElement labelFor = chk.findElement(By.cssSelector("label"));
-			WebElement checkbox = chk.findElement(By.cssSelector("input"));
+			WebElement labelFor = chk.findElement(By.cssSelector("label > span"));
+			WebElement checkbox = chk.findElement(By.cssSelector("mat-checkbox"));
 			if (StringUtils.equalsIgnoreCase(new DObject(driver, labelFor).getText(), name)) {
 				new Checkbox(driver, checkbox, labelFor).check();
 				found = true;
