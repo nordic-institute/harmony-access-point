@@ -187,12 +187,41 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
 
         EArchiveBatchEntity that = (EArchiveBatchEntity) o;
 
-        return new EqualsBuilder().appendSuper(super.equals(o)).append(batchId, that.batchId).append(requestType, that.requestType).append(eArchiveBatchStatus, that.eArchiveBatchStatus).append(dateRequested, that.dateRequested).append(lastPkUserMessage, that.lastPkUserMessage).append(batchSize, that.batchSize).append(errorCode, that.errorCode).append(errorMessage, that.errorMessage).append(storageLocation, that.storageLocation).append(firstPkUserMessage, that.firstPkUserMessage).append(manifestChecksum, that.manifestChecksum).isEquals();
+        return new EqualsBuilder().appendSuper(super.equals(o))
+                .append(batchId, that.batchId)
+                .append(requestType, that.requestType)
+                .append(eArchiveBatchStatus, that.eArchiveBatchStatus)
+                .append(dateRequested, that.dateRequested)
+                .append(lastPkUserMessage, that.lastPkUserMessage)
+                .append(batchSize, that.batchSize)
+                .append(errorCode, that.errorCode)
+                .append(errorMessage, that.errorMessage)
+                .append(storageLocation, that.storageLocation)
+                .append(firstPkUserMessage, that.firstPkUserMessage)
+                .append(manifestChecksum, that.manifestChecksum)
+                .append(reExported, that.reExported)
+                .append(originalBatchId, that.originalBatchId)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(batchId).append(requestType).append(eArchiveBatchStatus).append(dateRequested).append(lastPkUserMessage).append(batchSize).append(errorCode).append(errorMessage).append(storageLocation).append(firstPkUserMessage).append(manifestChecksum).toHashCode();
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(batchId)
+                .append(requestType)
+                .append(eArchiveBatchStatus)
+                .append(dateRequested)
+                .append(lastPkUserMessage)
+                .append(batchSize)
+                .append(errorCode)
+                .append(errorMessage)
+                .append(storageLocation)
+                .append(firstPkUserMessage)
+                .append(manifestChecksum)
+                .append(reExported)
+                .append(originalBatchId)
+                .toHashCode();
     }
 }
 

@@ -28,8 +28,8 @@ public class ExportedBatchFilterDTO {
         return includeReExportedBatches;
     }
 
-    public void setIncludeReExportedBatches(Boolean returnReExportedBatches) {
-        this.includeReExportedBatches = returnReExportedBatches;
+    public void setIncludeReExportedBatches(Boolean includeReExportedBatches) {
+        this.includeReExportedBatches = includeReExportedBatches;
     }
 
     public Long getMessageStartDate() {
