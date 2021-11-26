@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 5.0
  */
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
     JMSManager jmsManager;
@@ -92,7 +94,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.SANITIZER);
         Assert.assertTrue(jmsManagerTriggered);
 
-        //Only 1 new batch created because START_DATE of continous forbid the sanitizer to pick up the last message
+        //Only 1 new batch created because START_DATE of continuous forbid the sanitizer to pick up the last message
         Assert.assertEquals(3, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
         Assert.assertEquals(3, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
     }

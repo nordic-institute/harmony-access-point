@@ -45,6 +45,7 @@ public class EArchiveBatchMapperTest {
         testEntity.setFirstPkUserMessage(10L);
         testEntity.setLastPkUserMessage(20L);
         testEntity.setStorageLocation("/test");
+        testEntity.setManifestChecksum("sha256:test");
         //when
         EArchiveBatchRequestDTO result = testInstance.eArchiveBatchRequestEntityToDto(testEntity);
         // then
@@ -56,6 +57,7 @@ public class EArchiveBatchMapperTest {
         Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
         Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
+        Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
 
         Assert.assertTrue(result.getMessages().isEmpty());
     }
@@ -77,6 +79,7 @@ public class EArchiveBatchMapperTest {
         testEntity.setFirstPkUserMessage(10L);
         testEntity.setLastPkUserMessage(20L);
         testEntity.setStorageLocation("/test");
+        testEntity.setManifestChecksum("sha256:test");
         testEntity.seteArchiveBatchUserMessages(batchUserMessages);
         // when
         EArchiveBatchRequestDTO result = testInstance.eArchiveBatchRequestEntityToDto(testEntity);
@@ -89,6 +92,7 @@ public class EArchiveBatchMapperTest {
         Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
         Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
         Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
+        Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
         // test list messages
         Assert.assertEquals(batchUserMessages.size(), result.getMessages().size());
         Assert.assertArrayEquals(

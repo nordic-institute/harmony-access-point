@@ -6,15 +6,11 @@ import ddsl.dcomponents.grid.Pagination;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
-import ddsl.dobjects.DObject;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import rest.RestServicePaths;
-import utils.Gen;
 
 public class PModeArchivePage extends DomibusPage {
 
@@ -44,13 +40,10 @@ public class PModeArchivePage extends DomibusPage {
 	private WebElement XmlTextArea;
 	@FindBy(css = ".mat-raised-button.mat-primary:last-child")
 	private WebElement OkButton;
+
 	public PModeArchivePage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
-	public DObject getDownloadCSV() {
-		return new DObject(driver, DownloadCurrentFile);
 	}
 
 	public DGrid grid() {
@@ -65,20 +58,8 @@ public class PModeArchivePage extends DomibusPage {
 		return new DButton(driver, saveButton);
 	}
 
-	public DButton getCDeleteIcon() {
-		return new DButton(driver, CRowDeleteIcon);
-	}
-
-	public DButton getCRestoreIcon() {
-		return new DButton(driver, CRowDeleteIcon);
-	}
-
 	public DButton getDeleteButton() {
 		return new DButton(driver, deleteButton);
-	}
-
-	public DButton getDownloadButton() {
-		return new DButton(driver, downloadButton);
 	}
 
 	public DButton getRestoreButton() {
@@ -95,19 +76,6 @@ public class PModeArchivePage extends DomibusPage {
 
 	public DInput getXml() {
 		return new DInput(driver, XmlTextArea);
-	}
-
-	public DButton getOkButton() {
-		return new DButton(driver, OkButton);
-	}
-
-
-	public boolean isArchiveGridEmpty() {
-		if (grid().getRowsNo() != 0) {
-			log.debug("Data is found in Archive grid");
-			return false;
-		}
-		return true;
 	}
 
 	public Boolean isLoaded() {
@@ -130,59 +98,10 @@ public class PModeArchivePage extends DomibusPage {
 		return true;
 	}
 
-	public Boolean getCurDescTxt() {
-		wait.forElementToBeVisible(cDescription);
-		if (!cDescription.isDisplayed()) {
-			return false;
-		}
-		return true;
-	}
 
-	public void pModeView() {
-		wait.forElementToBeVisible(pModeViewHeader);
-		if (!pModeViewHeader.isDisplayed()) {
-			log.debug("View pop up for pmode is opened");
-		}
-	}
 
-	public String getXpathOfPmodeViewPopUpHeader(String FieldName) {
-		return ".//*[@id='pmodeheader_id'][contains(text(),'" + FieldName + "')]";
-	}
 
-	public void DoubleClickRow() throws Exception {
-		int rIndex;
-		log.debug("Grid row count is: " + grid().getRowsNo());
-		if (grid().getRowsNo() > 10) {
-			log.debug("Generate random row count");
-			rIndex = Gen.randomNumber(10);
-		} else {
-			rIndex = Gen.randomNumber(grid().getRowsNo());
-		}
-		if (rIndex == 0) {
-			log.debug("Row number is zero");
-			log.debug("Double click 0th row ");
-			grid().doubleClickRow(rIndex);
-			log.debug("Validate View pop up ");
-			pModeView();
-			WebElement cRow = driver.findElement(By.xpath(getXpathOfPmodeViewPopUpHeader("Current PMode:")));
-			wait.forElementToBeVisible(cRow);
-			log.debug("View pop up is opened on double click:" + cRow.isDisplayed());
-		} else {
-			log.debug("Row number is :" + rIndex);
-			grid().doubleClickRow(rIndex);
-			log.debug("Validate View pop up ");
-			pModeView();
-			WebElement gRow = driver.findElement(By.xpath(getXpathOfPmodeViewPopUpHeader("Archive")));
-			wait.forElementToBeVisible(gRow);
-			log.debug("View pop up is opened on double click:" + gRow.isDisplayed());
 
-		}
-	}
-
-	public String getRestServicePath() throws Exception {
-		String restPath = RestServicePaths.PMODE_CURRENT_DOWNLOAD.concat(String.valueOf(getpagination().getTotalItems()));
-		return restPath;
-	}
 
 }
 

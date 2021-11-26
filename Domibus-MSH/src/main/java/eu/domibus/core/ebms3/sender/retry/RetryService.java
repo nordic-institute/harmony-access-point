@@ -8,9 +8,9 @@ import java.util.List;
  */
 public interface RetryService {
 
-    void enqueueMessage(String messageId);
+    void enqueueMessage(long messageEntityId);
 
-    List<String> getMessagesNotAlreadyScheduled();
+    List<Long> getMessagesNotAlreadyScheduled();
 
     void resetWaitingForReceiptPullMessages();
 

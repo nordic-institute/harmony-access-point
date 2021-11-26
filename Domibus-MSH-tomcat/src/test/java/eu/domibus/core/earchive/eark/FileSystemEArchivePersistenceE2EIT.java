@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainService;
@@ -15,6 +16,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.VFS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +29,10 @@ import javax.xml.ws.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,7 +40,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author François Gautier
@@ -86,7 +91,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 .messageEndId("")
                 .messages(singletonList(messageId))
                 .createBatchEArchiveDTO();
-        temp = Files.createTempDirectory("tmpDirPrefix").toFile();
+        temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
         uploadPmode(SERVICE_PORT);
@@ -111,35 +116,51 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void createEArkSipStructure() {
+    public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
 
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
+        DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
+        try (FileObject batchDirectory = VFS.getManager().resolveFile(fileObject.getDirectory().toUri())) {
 
-        File[] files = temp.listFiles();
-        File batchFolder = files[0];
-        File representation = batchFolder.listFiles()[1];
-        File representation1 = representation.listFiles()[0];
-        File data = representation1.listFiles()[0];
+            // must have more that one subfolder item
+            assertTrue(temp.listFiles().length > 0);
+            File batchFolder = getFileItem(batchDirectory.getName().getBaseName(), temp.listFiles(), true);
+            assertNotNull(batchFolder);
+            File representation = getFileItem("representations", batchFolder.listFiles(), true);
+            assertNotNull(representation);
+            File representation1 = getFileItem("representation1", representation.listFiles(), true);
+            assertNotNull(representation1);
+            File data = getFileItem(IPConstants.DATA, representation1.listFiles(), true);
+            assertNotNull(data);
+            File metsData = getFileItem(IPConstants.METS_FILE, batchFolder.listFiles(), false);
+            assertNotNull(metsData);
 
-        assertEquals(batchId, batchFolder.getName());
-        assertEquals(IPConstants.METS_FILE, batchFolder.listFiles()[0].getName());
-        assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
-        assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
-        assertEquals(IPConstants.DATA, data.getName());
+            assertEquals(batchId, batchFolder.getName());
+            assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
+            assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
 
-        File[] messageIDFiles = data.listFiles();
-        for (File file : messageIDFiles) {
-            if (StringUtils.contains(file.getName(), ".json")) {
-                LOG.info("StringUtils.containsAny(file.getName(), \".json\") : [{}]", file.getName());
-                assertEquals("batch.json", file.getName());
-            }
-            if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
-                List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
-                assertEquals("message.attachment", collect.get(0).getName());
-                assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
+            File[] messageIDFiles = data.listFiles();
+            for (File file : messageIDFiles) {
+                if (StringUtils.contains(file.getName(), ".json")) {
+                    LOG.info("StringUtils.containsAny(file.getName(), \".json\") : [{}]", file.getName());
+                    assertEquals("batch.json", file.getName());
+                    BatchEArchiveDTO batchEArchiveDTO = new ObjectMapper().readValue(file, BatchEArchiveDTO.class);
+                    assertNotNull(batchEArchiveDTO.getManifestChecksum());
+                    assertEquals(byMessageId.getMessageId(), batchEArchiveDTO.getMessages().get(0));
+                    assertEquals(batchEArchiveDTO.getBatchId(), batchEArchiveDTO.getBatchId());
+                }
+                if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
+                    List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
+                    assertEquals("message.attachment", collect.get(0).getName());
+                    assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
+                }
             }
         }
     }
 
+    public File getFileItem(String name, File[] files, boolean isFolder) {
+        Optional<File> optFile = Arrays.stream(files).filter(file -> (isFolder ? file.isDirectory() : file.isFile()) && StringUtils.equals(file.getName(), name)).findFirst();
+        return optFile.isPresent() ? optFile.get() : null;
+
+    }
 }

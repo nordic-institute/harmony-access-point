@@ -19,13 +19,11 @@
                         incrementBy="20" startValue="100" cacheSize="1000" cycle="false" ordered="false"/>
     </changeSet>
     <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
-        <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
-
     <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
             <column name="sequence_name" type="VARCHAR(255)">
                 <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
@@ -1679,8 +1677,8 @@
             rc.MODIFICATION_TYPE as ACTION_TYPE,
             ri.USER_NAME as USER_NAME ,
             ri.REVISION_DATE as AUDIT_DATE,
-            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
-            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
+            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
             FROM TB_REV_INFO ri, TB_REV_CHANGES rc
             WHERE ri.ID=rc.REV
             UNION
@@ -2523,8 +2521,6 @@
             <column name="SET_FK"/>
         </createIndex>
 
-
-
         <createTable tableName="TB_PM_LEG_MPC">
             <column name="LEGCONFIGURATION_ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
@@ -2832,6 +2828,7 @@
             <column name="FIRST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="ERROR_CODE" type="VARCHAR(255)"/>
             <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="MANIFEST_CHECK_SUM" type="VARCHAR(255)"/>
             <column name="BATCH_SIZE" type="INT"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -3290,11 +3287,11 @@
 
     <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
         <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="1" type="INT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_ADMIN"/>
         </insert>
         <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="2" type="INT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
@@ -3347,37 +3344,6 @@
         </createTable>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
     </changeSet>
-
     <!-- End User Tables -->
-
-    <!-- inserts -->
-    <changeSet author="idragusa" id="EDELIVERY-7836-insert">
-        <insert tableName="TB_USER_MESSAGE">
-            <column name="ID_PK" value="${default_id_pk}" type="BIGINT"/>
-        </insert>
-    </changeSet>
-
-    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
-        <insert tableName="TB_LOCK">
-            <column name="ID_PK" value="1" type="BIGINT"/>
-            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
-        </insert>
-    </changeSet>
-
-    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
-        <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="1"/>
-            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
-            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
-        </insert>
-        <insert tableName="TB_EARCHIVE_START">
-            <column name="ID_PK" value="2"/>
-            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
-            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
-        </insert>
-    </changeSet>
-
-    <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
-    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

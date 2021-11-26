@@ -10,13 +10,11 @@
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
-        <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
-
     <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
             <column name="sequence_name" type="VARCHAR(255)">
                 <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
@@ -517,6 +515,7 @@
             <column name="FIRST_PK_USER_MESSAGE" type="BIGINT"/>
             <column name="ERROR_CODE" type="VARCHAR(255)"/>
             <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="MANIFEST_CHECK_SUM" type="VARCHAR(255)"/>
             <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -527,7 +526,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        
+
         <createIndex indexName="IDX_EARCHIVE_BATCH_UNIQUE_ID" tableName="TB_EARCHIVE_BATCH" unique="true">
             <column name="BATCH_ID"/>
         </createIndex>
@@ -570,7 +569,34 @@
         </createTable>
     </changeSet>
     <!-- End EArchive Tables -->
-    <!-- this file must be included in every future changelog-xx-delta.xml -->
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8602-recreate-audit-views-with-rev-id-and-id-nullability-off">
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV
+            UNION
+            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
+            TB_ACTION_AUDIT aa
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

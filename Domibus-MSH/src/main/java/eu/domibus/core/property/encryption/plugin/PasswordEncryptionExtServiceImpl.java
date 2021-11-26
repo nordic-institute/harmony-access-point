@@ -15,6 +15,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.function.Function;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
@@ -47,8 +50,20 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     public void encryptPasswordsInFile(PluginPasswordEncryptionContext pluginPasswordEncryptionContext) {
         LOG.debug("Encrypting passwords in file");
 
+        final boolean encryptionActive = pluginPasswordEncryptionContext.isEncryptionActive();
+        if (!encryptionActive) {
+            LOG.info("No password encryption will be performed in the [{}] context", pluginPasswordEncryptionContext);
+            return;
+        }
+        LOG.debug("Encrypting passwords is active in the [{}] context", pluginPasswordEncryptionContext);
+
+        if (pluginPasswordEncryptionContext.getConfigurationFile() == null) {
+            LOG.info("No configuration file in the [{}] context for domain [{}]; exiting encryption", pluginPasswordEncryptionContext, pluginPasswordEncryptionContext.getDomain());
+            return;
+        }
+
         final Domain domain = coreMapper.domainDTOToDomain(pluginPasswordEncryptionContext.getDomain());
-        LOG.debug("Using domain [{}]", domain);
+        LOG.debug("Using domain [{}] for password encryption.", domain);
 
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
         PasswordEncryptionContext encryptionContext = new PluginPasswordEncryptionContextDelegate(pluginPasswordEncryptionContext, passwordEncryptionContext);
@@ -66,6 +81,11 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
 
         final Domain domain = coreMapper.domainDTOToDomain(domainDTO);
         final PasswordEncryptionResult passwordEncryptionResult = passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
-        return coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO (passwordEncryptionResult);
+        return coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO(passwordEncryptionResult);
+    }
+
+    @Override
+    public List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn) {
+        return passwordEncryptionService.getPropertiesToEncrypt(encryptedProperties, getPropertyFn);
     }
 }

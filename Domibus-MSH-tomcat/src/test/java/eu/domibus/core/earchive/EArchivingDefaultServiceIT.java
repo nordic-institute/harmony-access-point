@@ -6,14 +6,18 @@ import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.*;
 
 import static eu.domibus.core.earchive.EArchivingDefaultService.CONTINUOUS_ID;
@@ -23,6 +27,8 @@ import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
  * @author François Gautier
  * @since 5.0
  */
+
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
@@ -42,6 +48,10 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
+
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    protected EntityManager em;
+
 
     EArchiveBatchEntity batch1;
     EArchiveBatchEntity batch2;
@@ -185,7 +195,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Transactional
     public void getBatchUserMessageList() {
         List<String> messageList = eArchivingService.getBatchUserMessageList(batch1.getBatchId(), null, null);
-
         Assert.assertEquals(3, messageList.size());
     }
 
@@ -203,4 +212,44 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Assert.assertEquals(uml8_not_archived.getUserMessage().getMessageId(), messages.get(expectedCount - 1));
     }
 
+    @Test
+    @Transactional
+    public void testExecuteBatchIsArchived() {
+        // given
+        List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
+        Assert.assertEquals(3, messageList.size());
+        messageList.forEach(umlTest ->
+                Assert.assertNull(em.createQuery("select um.archived from UserMessageLog um where um.userMessage.entityId=:entityId")
+                        .setParameter("entityId", umlTest.getEntityId())
+                        .getSingleResult())
+        );
+        Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
+
+        // when
+        eArchivingService.executeBatchIsArchived(batch1, messageList);
+
+        //then
+        EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
+        // messages and
+        Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
+        messageList.forEach(umlTest ->
+                Assert.assertNotNull(em.createQuery("select um.archived from UserMessageLog um where um.userMessage.entityId=:entityId")
+                        .setParameter("entityId", umlTest.getEntityId())
+                        .getSingleResult())
+        );
+    }
+
+    @Test
+    @Transactional
+    public void testSetBatchClientStatusFail() {
+        // given
+        Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batch1.getEArchiveBatchStatus());
+        String message = UUID.randomUUID().toString();
+        // when
+        eArchivingService.setBatchClientStatus(batch1.getBatchId(), EArchiveBatchStatus.ARCHIVE_FAILED, message);
+        //then
+        EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
+        Assert.assertEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batchUpdated.getEArchiveBatchStatus());
+        Assert.assertEquals(message, batchUpdated.getErrorMessage());
+    }
 }

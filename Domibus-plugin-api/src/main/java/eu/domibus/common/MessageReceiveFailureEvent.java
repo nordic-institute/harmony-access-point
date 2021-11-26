@@ -18,8 +18,17 @@ public class MessageReceiveFailureEvent implements MessageEvent {
     protected String serviceType;
     protected String action;
     protected ErrorResult errorResult;
-
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    protected Long messageEntityId;
+
+    @Override
+    public Long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(Long messageEntityId) {
+        this.messageEntityId = messageEntityId;
+    }
 
     @Override
     public Map<String, String> getProps() {
@@ -31,6 +40,7 @@ public class MessageReceiveFailureEvent implements MessageEvent {
         properties.put(key, value);
     }
 
+    @Override
     public String getMessageId() {
         return messageId;
     }

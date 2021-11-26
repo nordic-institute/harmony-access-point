@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.job;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
@@ -95,7 +96,6 @@ public class EArchiveBatchDispatcherService {
         return !Objects.equals(newLastEntityIdProcessed, lastEntityIdProcessed);
     }
 
-
     /**
      * Create a new batch and enqueue it
      */
@@ -109,7 +109,7 @@ public class EArchiveBatchDispatcherService {
 
         EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated, batchSize, messagesForArchivingAsc, requestType);
 
-        enqueueEArchive(eArchiveBatch, domain);
+        enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_CREATE, eArchiveBatch.getBatchId());
         return eArchiveBatch;
     }
@@ -123,7 +123,7 @@ public class EArchiveBatchDispatcherService {
     public EArchiveBatchEntity reExportBatchAndEnqueue(final String batchId, Domain domain) {
         LOG.debug("Re-Export [{}] the batch and submit it to queue!", batchId);
         EArchiveBatchEntity eArchiveBatch = eArchivingJobService.reExportEArchiveBatch(batchId);
-        enqueueEArchive(eArchiveBatch, domain);
+        enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_REEXPORT, batchId);
         return eArchiveBatch;
     }
@@ -136,12 +136,14 @@ public class EArchiveBatchDispatcherService {
         return integerProperty;
     }
 
-    protected void enqueueEArchive(EArchiveBatchEntity eArchiveBatch, Domain domain) {
+    public void enqueueEArchive(EArchiveBatchEntity eArchiveBatch, Domain domain, String jmsType) {
+
         jmsManager.sendMessageToQueue(JMSMessageBuilder
                 .create()
                 .property(MessageConstants.BATCH_ID, eArchiveBatch.getBatchId())
-                .property(MessageConstants.BATCH_ENTITY_ID, "" + eArchiveBatch.getEntityId())
+                .property(MessageConstants.BATCH_ENTITY_ID, String.valueOf(eArchiveBatch.getEntityId()))
                 .property(MessageConstants.DOMAIN, getDomainCode(domain))
+                .type(jmsType)
                 .build(), eArchiveQueue);
     }
 

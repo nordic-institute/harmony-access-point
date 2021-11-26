@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.listener;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.eark.DomibusEARKSIPResult;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -11,8 +12,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -70,26 +69,48 @@ public class EArchiveListener implements MessageListener {
         jmsUtil.setDomain(message);
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, true);
-
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
-
         List<EArchiveBatchUserMessage> userMessageDtos = eArchiveBatchByBatchId.geteArchiveBatchUserMessages();
 
+        String batchMessageType = jmsUtil.getMessageTypeSafely(message);
+        if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
+            onMessageArchiveBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType))  {
+            onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+        } else {
+            LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
+                    batchMessageType, batchId, entityId);
+            // If this happen then this is programming flow miss-failure. Validate all JMS submission. And if new message type is added
+            // make sure to add also the processing of new message type
+            throw new IllegalArgumentException( "Invalid JMS message type ["+batchMessageType+"] for the eArchive processing of the batchId ["+batchId+"]!");
+        }
+    }
+
+    protected void onMessageExportBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
         }
         LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
                 batchId,
+                userMessageDtos.get(0).getMessageId(),
+                userMessageDtos.get(userMessageDtos.size() - 1).getMessageId());
+
+        String manifestChecksum = exportInFileSystem(eArchiveBatchByBatchId, userMessageDtos);
+        eArchiveBatchByBatchId.setManifestChecksum(manifestChecksum);
+        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId);
+    }
+
+    protected void onMessageArchiveBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+        LOG.debug("Set batchId [{}] archived starting userMessageLog from [{}] to [{}]",
+                batchId,
                 userMessageDtos.get(userMessageDtos.size() - 1),
                 userMessageDtos.get(0));
 
-        exportInFileSystem(batchId, eArchiveBatchByBatchId, userMessageDtos);
-
-        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId, userMessageDtos);
+        eArchivingDefaultService.executeBatchIsArchived(eArchiveBatchByBatchId, userMessageDtos);
     }
 
-    private void exportInFileSystem(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
-        try (FileObject eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
+    private String exportInFileSystem(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
+        DomibusEARKSIPResult eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
@@ -99,12 +120,10 @@ public class EArchiveListener implements MessageListener {
                         .messageEndId("" + batchUserMessages.get(batchUserMessages.size() - 1).getUserMessageEntityId())
                         .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
-                batchUserMessages)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getPath().toAbsolutePath().toString());
-            }
-        } catch (FileSystemException e) {
-            throw new DomibusEArchiveException("EArchive failed to persists the batch [" + batchId + "]", e);
+                batchUserMessages);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
+        return eArkSipStructure.getManifestChecksum();
     }
 }

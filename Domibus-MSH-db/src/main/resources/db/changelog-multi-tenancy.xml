@@ -15,13 +15,11 @@
     </changeSet>
 
     <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836-multitenancy">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
-        <sqlFile path="src/main/resources/db/common/oracle-sequence-functions.sql" endDelimiter="\n/"/>
     </changeSet>
-
     <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
-        <comment>create DOMIBUS_SCALABLE_SEQUENCE</comment>
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
         <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
             <column name="sequence_name" type="VARCHAR(255)">
                 <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
@@ -29,7 +27,6 @@
             <column name="next_val" type="bigint"/>
         </createTable>
     </changeSet>
-
 
     <!-- Quartz tables -->
     <include file="changelog-quartz.xml" relativeToChangelogFile="true"/>
@@ -488,36 +485,4 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_ROLE"/>
     </changeSet>
-
-    <!-- inserts -->
-    <changeSet id="EDELIVERY-4916" author="Catalin Enache">
-        <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="3" type="INT"/>
-            <column name="ROLE_NAME" value="ROLE_AP_ADMIN"/>
-        </insert>
-        <insert tableName="TB_USER">
-            <column name="ID_PK" value="1" type="INT"/>
-            <column name="USER_NAME" value="super"/>
-            <column name="USER_PASSWORD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
-            <column name="USER_ENABLED" valueBoolean="true"/>
-            <column name="USER_DELETED" valueBoolean="false"/>
-            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
-        </insert>
-        <insert tableName="TB_USER_ROLES">
-            <column name="USER_ID" value="1" type="INT"/>
-            <column name="ROLE_ID" value="3" type="INT"/>
-        </insert>
-        <insert tableName="TB_USER_DOMAIN">
-            <column name="ID_PK" value="1" type="INT"/>
-            <column name="USER_NAME" value="super"/>
-            <column name="PREFERRED_DOMAIN" value="default"/>
-        </insert>
-        <insert tableName="TB_LOCK">
-            <column name="ID_PK" value="1" type="BIGINT"/>
-            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
-        </insert>
-    </changeSet>
-
-    <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
-    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

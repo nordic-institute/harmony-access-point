@@ -61,6 +61,9 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     @Column(name = "FIRST_PK_USER_MESSAGE")
     private Long firstPkUserMessage;
 
+    @Column(name = "MANIFEST_CHECK_SUM")
+    protected String manifestChecksum;
+
     @Transient
     private List<EArchiveBatchUserMessage> eArchiveBatchUserMessages;
 
@@ -168,6 +171,14 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.eArchiveBatchUserMessages = eArchiveBatchUserMessages;
     }
 
+    public String getManifestChecksum() {
+        return manifestChecksum;
+    }
+
+    public void setManifestChecksum(String manifestChecksum) {
+        this.manifestChecksum = manifestChecksum;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -176,12 +187,12 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
 
         EArchiveBatchEntity that = (EArchiveBatchEntity) o;
 
-        return new EqualsBuilder().appendSuper(super.equals(o)).append(batchId, that.batchId).append(originalBatchId, that.originalBatchId).append(reExported, that.reExported).append(requestType, that.requestType).append(eArchiveBatchStatus, that.eArchiveBatchStatus).append(dateRequested, that.dateRequested).append(lastPkUserMessage, that.lastPkUserMessage).append(batchSize, that.batchSize).append(errorCode, that.errorCode).append(errorMessage, that.errorMessage).append(storageLocation, that.storageLocation).append(firstPkUserMessage, that.firstPkUserMessage).isEquals();
+        return new EqualsBuilder().appendSuper(super.equals(o)).append(batchId, that.batchId).append(requestType, that.requestType).append(eArchiveBatchStatus, that.eArchiveBatchStatus).append(dateRequested, that.dateRequested).append(lastPkUserMessage, that.lastPkUserMessage).append(batchSize, that.batchSize).append(errorCode, that.errorCode).append(errorMessage, that.errorMessage).append(storageLocation, that.storageLocation).append(firstPkUserMessage, that.firstPkUserMessage).append(manifestChecksum, that.manifestChecksum).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(batchId).append(originalBatchId).append(reExported).append(requestType).append(eArchiveBatchStatus).append(dateRequested).append(lastPkUserMessage).append(batchSize).append(errorCode).append(errorMessage).append(storageLocation).append(firstPkUserMessage).toHashCode();
+        return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(batchId).append(requestType).append(eArchiveBatchStatus).append(dateRequested).append(lastPkUserMessage).append(batchSize).append(errorCode).append(errorMessage).append(storageLocation).append(firstPkUserMessage).append(manifestChecksum).toHashCode();
     }
 }
 
