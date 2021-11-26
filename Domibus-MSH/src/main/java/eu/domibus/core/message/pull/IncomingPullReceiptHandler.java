@@ -170,8 +170,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         if (pullReceiptMatcher.matchReliableReceipt(legConfiguration.getReliability()) && legConfiguration.getReliability().isNonRepudiation()) {
             RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageId(messageId);
             try {
-                final byte[] rawMessage = rawEnvelopeDto.getRawMessage();
-                final String rawXml = new String(rawMessage, StandardCharsets.UTF_8);
+                final String rawXml = rawEnvelopeDto.getRawXmlMessage();
                 soapMessage = soapUtil.createSOAPMessage(rawXml);
             } catch (ParserConfigurationException | SOAPException | SAXException | IOException e) {
                 throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "Raw message found in db but impossible to restore it");

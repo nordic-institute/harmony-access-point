@@ -667,7 +667,7 @@ public class UserMessageDefaultService implements UserMessageService {
         try {
             return zipFiles(message);
         } catch (IOException e) {
-            LOG.warn("Could not zipp message envelopes with id [{}].", messageId);
+            LOG.warn("Could not zip message envelopes with id [{}].", messageId);
             return new byte[0];
         }
     }

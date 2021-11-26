@@ -18,7 +18,7 @@ public class SignalMessageRawService {
     }
 
     @Transactional
-    public void saveSignalMessageRawService(byte[] rawXml, Long signalMessageId) {
+    public void saveSignalMessageRawService(String rawXml, Long signalMessageId) {
         final SignalMessage signalMessage = signalMessageDao.findByReference(signalMessageId);
         SignalMessageRaw signalMessageRaw = new SignalMessageRaw();
         signalMessageRaw.setRawXML(rawXml);

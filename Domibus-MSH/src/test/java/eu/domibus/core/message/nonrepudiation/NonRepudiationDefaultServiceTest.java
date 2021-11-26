@@ -99,7 +99,6 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getUserMessageEnvelope_ok(@Mocked UserMessage userMessage, @Mocked RawEnvelopeDto rawEnvelopeDto) {
         String messageId = "msgid", envelopContent = "content";
 
@@ -110,7 +109,7 @@ public class NonRepudiationDefaultServiceTest {
             rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
             result = rawEnvelopeDto;
 
-            rawEnvelopeDto.getRawMessage();
+            rawEnvelopeDto.getRawXmlMessage();
             result = envelopContent;
         }};
 

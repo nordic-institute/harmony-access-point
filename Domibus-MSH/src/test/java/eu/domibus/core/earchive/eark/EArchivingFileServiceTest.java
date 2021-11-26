@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -128,8 +129,8 @@ public class EArchivingFileServiceTest {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
 
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
+            rawEnvelopeDto.getRawXmlMessageAsStream();
+            result = new ByteArrayInputStream(RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
@@ -167,8 +168,8 @@ public class EArchivingFileServiceTest {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
 
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
+            rawEnvelopeDto.getRawXmlMessageAsStream();
+            result = new ByteArrayInputStream(RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
@@ -205,8 +206,8 @@ public class EArchivingFileServiceTest {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
 
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
+            rawEnvelopeDto.getRawXmlMessageAsStream();
+            result = new ByteArrayInputStream(RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
