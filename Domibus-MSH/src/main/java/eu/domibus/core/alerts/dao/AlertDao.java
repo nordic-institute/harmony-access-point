@@ -7,6 +7,7 @@ import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -163,12 +164,6 @@ public class AlertDao extends BasicDao<Alert> {
 
     }
 
-    public List<Long> retrieveAlertsWithCreationDateSmallerThen(final Date alertLimitDate) {
-        final TypedQuery<Long> namedQuery = em.createNamedQuery("Alert.findAlertToClean", Long.class);
-        namedQuery.setParameter("ALERT_LIMIT_DATE", alertLimitDate);
-        return namedQuery.getResultList();
-    }
-
     public void updateAlertProcessed(final Long id, Boolean processed) {
         final Query namedQuery = em.createNamedQuery("Alert.updateProcess");
         namedQuery.setParameter("ALERT_ID", id);
@@ -201,9 +196,10 @@ public class AlertDao extends BasicDao<Alert> {
         return new QueryInfo(builder, criteria, root);
     }
 
-    public void deleteByAlertIds(final List<Long> AlertIds) {
-        Query query = em.createNamedQuery("Alert.deleteByAlertIds");
-        query.setParameter(ALERT_IDS, AlertIds);
+    @Transactional
+    public void deleteAlerts(final Date alertLimitDate) {
+        Query query = em.createNamedQuery("Alert.deleteAlerts");
+        query.setParameter("ALERT_LIMIT_DATE", alertLimitDate);
         query.executeUpdate();
     }
 

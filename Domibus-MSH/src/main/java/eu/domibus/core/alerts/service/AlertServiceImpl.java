@@ -52,8 +52,6 @@ public class AlertServiceImpl implements AlertService {
 
     static final String ALERT_SELECTOR = "alert";
 
-    public static final int ALERTS_CLEAN_LIMIT = 10000;
-
     @Autowired
     private EventDao eventDao;
 
@@ -238,19 +236,11 @@ public class AlertServiceImpl implements AlertService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
     public void cleanAlerts() {
         final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
         final Date alertLimitDate = org.joda.time.LocalDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
-        final List<Long> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
-        LOG.debug("Number of alerts cleaning : [{}]", alerts.size());
-        for (int i = 0; i < alerts.size(); i += ALERTS_CLEAN_LIMIT) {
-            List<Long> batchAlerts = alerts.subList(i, Math.min(alerts.size(), i + ALERTS_CLEAN_LIMIT));
-            alertDao.deleteByAlertIds(batchAlerts);
-
-        }
-        LOG.trace("[{}] old alerts deleted", alerts.size());
+        alertDao.deleteAlerts(alertLimitDate);
     }
 
     /**

@@ -329,19 +329,15 @@ public class AlertServiceImplTest {
         final int alertLifeTimeInDays = 10;
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
-        final List<Long> alerts = Lists.newArrayList(new Long(1));
         new Expectations() {{
             commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
             localDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
             result = alertLimitDate;
-            alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
-            result = alerts;
-
         }};
         alertService.cleanAlerts();
         new Verifications() {{
-            alertDao.deleteByAlertIds(alerts);
+            alertDao.deleteAlerts(alertLimitDate);
             times = 1;
         }};
     }
