@@ -48,7 +48,7 @@ public class RawEnvelopeDto {
             return IOUtils.toByteArray(unzipStream);
         } catch (IOException e) {
             LOG.warn("Failed to unzip raw envelope data with id [{}]", id, e);
-            // TODO decide how to handle older uncompressed envelopes from the database
+            // TODO EDELIVERY-8704 there will be no uncompressed envelopes in the database after migration
             // for now, we just try to decompress them and, if failing, return the raw data
             return getRawMessage();
         }
