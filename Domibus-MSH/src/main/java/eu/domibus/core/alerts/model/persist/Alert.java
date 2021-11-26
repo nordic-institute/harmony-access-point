@@ -23,8 +23,10 @@ import java.util.Set;
 @Table(name = "TB_ALERT")
 @NamedQueries({
         @NamedQuery(name = "Alert.findRetry", query = "SELECT a FROM Alert a where a.alertStatus='RETRY' and a.nextAttempt < CURRENT_TIMESTAMP()"),
-        @NamedQuery(name = "Alert.findAlertToClean", query = "SELECT a FROM Alert a where a.creationTime<:ALERT_LIMIT_DATE"),
-        @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID")
+        @NamedQuery(name = "Alert.findAlertToClean", query = "SELECT a.entityId FROM Alert a where a.creationTime<:ALERT_LIMIT_DATE"),
+        @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID"),
+        @NamedQuery(name = "Alert.deleteByAlertIds",
+                query = "DELETE FROM Alert a where a.entityId in :ALERT_IDS")
 })
 public class Alert extends AbstractBaseEntity{
 

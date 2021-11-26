@@ -25,6 +25,8 @@ public class AlertDao extends BasicDao<Alert> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertDao.class);
 
+    private static final String ALERT_IDS = "ALERT_IDS";
+
     public AlertDao() {
         super(Alert.class);
     }
@@ -161,8 +163,8 @@ public class AlertDao extends BasicDao<Alert> {
 
     }
 
-    public List<Alert> retrieveAlertsWithCreationDateSmallerThen(final Date alertLimitDate) {
-        final TypedQuery<Alert> namedQuery = em.createNamedQuery("Alert.findAlertToClean", Alert.class);
+    public List<Long> retrieveAlertsWithCreationDateSmallerThen(final Date alertLimitDate) {
+        final TypedQuery<Long> namedQuery = em.createNamedQuery("Alert.findAlertToClean", Long.class);
         namedQuery.setParameter("ALERT_LIMIT_DATE", alertLimitDate);
         return namedQuery.getResultList();
     }
@@ -197,6 +199,12 @@ public class AlertDao extends BasicDao<Alert> {
         criteria.where(root.get(Alert_.entityId).in(subQuery)).distinct(true);
 
         return new QueryInfo(builder, criteria, root);
+    }
+
+    public void deleteByAlertIds(final List<Long> AlertIds) {
+        Query query = em.createNamedQuery("Alert.deleteByAlertIds");
+        query.setParameter(ALERT_IDS, AlertIds);
+        query.executeUpdate();
     }
 
     class QueryInfo<T> {

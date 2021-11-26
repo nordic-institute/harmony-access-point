@@ -329,7 +329,7 @@ public class AlertServiceImplTest {
         final int alertLifeTimeInDays = 10;
         SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
-        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(new eu.domibus.core.alerts.model.persist.Alert());
+        final List<Long> alerts = Lists.newArrayList(new Long(1));
         new Expectations() {{
             commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
@@ -341,7 +341,7 @@ public class AlertServiceImplTest {
         }};
         alertService.cleanAlerts();
         new Verifications() {{
-            alertDao.deleteAll(alerts);
+            alertDao.deleteByAlertIds(alerts);
             times = 1;
         }};
     }
