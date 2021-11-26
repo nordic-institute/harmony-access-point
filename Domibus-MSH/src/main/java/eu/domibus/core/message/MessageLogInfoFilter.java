@@ -23,7 +23,7 @@ import static java.util.Locale.ENGLISH;
  */
 public abstract class MessageLogInfoFilter {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogInfoFilter.class);
 
     private static final String LOG_MESSAGE_ENTITY_ID = "log.entityId";
     private static final String LOG_MESSAGE_ID = "message.messageId";
@@ -137,11 +137,11 @@ public abstract class MessageLogInfoFilter {
                     result.append(tableName).append(" = :").append(filter.getKey());
                 }
             } else {
-                if (!(filter.getValue().toString().isEmpty())) {
+                if (StringUtils.isNotBlank(filter.getValue().toString())) {
                     String s = filter.getKey();
-                    if (s.equals("receivedFrom") || s.equals("minEntityId")) {
+                    if (StringUtils.equals(s, "receivedFrom") || StringUtils.equals(s, "minEntityId")) {
                         result.append(tableName).append(" >= :").append(filter.getKey());
-                    } else if (s.equals("receivedTo") || s.equals("maxEntityId")) {
+                    } else if (StringUtils.equals(s, "receivedTo") || StringUtils.equals(s, "maxEntityId")) {
                         result.append(tableName).append(" <= :").append(filter.getKey());
                     }
                 }
@@ -159,28 +159,25 @@ public abstract class MessageLogInfoFilter {
 
     public <E> TypedQuery<E> applyParameters(TypedQuery<E> query, Map<String, Object> filters) {
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
-            if (filter.getValue() != null && !filter.getValue().toString().isEmpty()) {
+            if (filter.getValue() != null && StringUtils.isNotBlank(filter.getValue().toString())) {
+                Object value = filter.getValue();
                 if (filter.getValue() instanceof Date) {
                     ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) filter.getValue()).toInstant(), ZoneOffset.UTC);
                     LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
                     switch (filter.getKey()) {
                         case "minEntityId":
-                            Long minId = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
-                            LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), minId);
-                            query.setParameter(filter.getKey(), minId);
+                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
+                            LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), (Long)value);
                             break;
                         case "maxEntityId":
-                            Long maxId = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-                            LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), maxId);
-                            query.setParameter(filter.getKey(),maxId);
+                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+                            LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), (Long)value);
                             break;
-                        default:
-                            query.setParameter(filter.getKey(), filter.getValue());
+                        default: // includes receivedFrom and receivedTo
                             break;
                     }
-                } else {
-                    query.setParameter(filter.getKey(), filter.getValue());
                 }
+                query.setParameter(filter.getKey(), value);
             }
         }
         return query;
