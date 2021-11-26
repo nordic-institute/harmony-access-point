@@ -288,7 +288,7 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED));
         try {
             partyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
-            classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
@@ -298,7 +298,7 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.SMLZONE_KEY));
         doReturn(true).when(domibusPropertyProvider).getBooleanProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         try {
-            classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ex.getErrorCode());
