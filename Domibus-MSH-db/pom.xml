@@ -176,6 +176,24 @@
                        </configuration>
                    </execution>
                    <execution>
+                       <id>generate-mysql-script-multi-tenancy-data</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-multi-tenancy-data.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-multi-tenancy-data.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-${project.version}-multi-tenancy-data.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
                        <id>generate-mysql-script-multi-tenancy</id>
                        <phase>generate-resources</phase>
                        <goals>
@@ -226,6 +244,24 @@
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/oracle-${project.version}-data.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-multi-tenancy-data</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-multi-tenancy-data.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-multi-tenancy-data.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-${project.version}-multi-tenancy-data.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
