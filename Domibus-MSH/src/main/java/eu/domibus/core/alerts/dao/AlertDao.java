@@ -26,8 +26,6 @@ public class AlertDao extends BasicDao<Alert> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertDao.class);
 
-    private static final String ALERT_IDS = "ALERT_IDS";
-
     public AlertDao() {
         super(Alert.class);
     }
