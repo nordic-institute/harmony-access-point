@@ -1,5 +1,7 @@
-Domibus 4.2.5
+Domibus 4.2.6
 - Upgraded BouncyCastle to 1.69
+Domibus 4.2.5
+- Valid certificate chain not validated by DSS extension
 Domibus 4.2.4
 - Fixed an issue when the primary key column reaches large values
 Domibus 4.2.3
