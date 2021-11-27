@@ -83,26 +83,44 @@ public class EArchivingJobService {
     }
 
     @Transactional
-    public EArchiveBatchEntity createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
-        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed, requestType);
+    public EArchiveBatchEntity createEArchiveBatchWithMessages(Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
+        return createEArchiveBatchWithMessages(null,
+                (userMessageToBeArchived.isEmpty() ? null : userMessageToBeArchived.get(0).getUserMessageEntityId()),
+                lastEntityIdProcessed, batchSize, userMessageToBeArchived, requestType);
+    }
 
+    @Transactional
+    public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
+        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, batchSize, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
         eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
         return eArchiveBatch;
     }
 
+    /**
+     *  Method creates a new (copy) batch from the batch for given batchId. Message ids
+     *  request date, storage location, and RequestType which is set as MANUAL.
+     *  The Original batch re-exported flag is set to true
+     *
+     * @param batchId
+     * @return new batch entry
+     */
     @Transactional
     public EArchiveBatchEntity reExportEArchiveBatch(String batchId) {
         EArchiveBatchEntity originEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (originEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        // reuse the same entity to reduce the need for insert "UserMessage mappings to the "TB_EARCHIVEBATCH_UM"
-        // update the time
-        originEntity.setDateRequested(Calendar.getInstance().getTime());
-        originEntity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
-        originEntity.setRequestType(EArchiveRequestType.MANUAL); // rexported batch is set to manual
-        originEntity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
-        return originEntity;
+        List<EArchiveBatchUserMessage> messages =  eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
+
+        EArchiveBatchEntity reExportedBatch = createEArchiveBatchWithMessages(originEntity.getBatchId(),
+                originEntity.getFirstPkUserMessage(),
+                originEntity.getLastPkUserMessage(),
+                originEntity.getBatchSize(),
+                messages,
+                EArchiveRequestType.MANUAL );// rexported batch is set to manual
+        // set original entity as re-exported
+        originEntity.setReExported(Boolean.TRUE);
+        return reExportedBatch;
     }
 
     protected int getEArchiveBatchStartId(EArchiveRequestType requestType) {
@@ -115,18 +133,18 @@ public class EArchivingJobService {
         throw new DomibusEArchiveException("BatchRequestType [" + requestType + "] doesn't have a startDate saved in database");
     }
 
-    private EArchiveBatchEntity createEArchiveBatch(List<EArchiveBatchUserMessage> userMessageToBeArchived, int batchSize, long lastEntity, EArchiveRequestType requestType) {
+    private EArchiveBatchEntity createEArchiveBatch(String originalBatchId, int batchSize, Long firstEntity, Long lastEntity, EArchiveRequestType requestType) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
+        entity.setOriginalBatchId(originalBatchId);
         entity.setBatchSize(batchSize);
         entity.setRequestType(requestType);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
-        entity.setFirstPkUserMessage(userMessageToBeArchived.isEmpty() ? null : userMessageToBeArchived.get(0).getUserMessageEntityId());
+        entity.setFirstPkUserMessage(firstEntity);
         entity.setLastPkUserMessage(lastEntity);
         entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
-        eArchiveBatchDao.create(entity);
-        return entity;
+        return eArchiveBatchDao.merge(entity);
     }
 
     @Transactional(readOnly = true)

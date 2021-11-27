@@ -107,7 +107,7 @@ public class EArchiveBatchDispatcherService {
         }
         long lastEntityIdTreated = messagesForArchivingAsc.get(messagesForArchivingAsc.size() - 1).getUserMessageEntityId();
 
-        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatch(lastEntityIdTreated, batchSize, messagesForArchivingAsc, requestType);
+        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated, batchSize, messagesForArchivingAsc, requestType);
 
         enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_CREATE, eArchiveBatch.getBatchId());

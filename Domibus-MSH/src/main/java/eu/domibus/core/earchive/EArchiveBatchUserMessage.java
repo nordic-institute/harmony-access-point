@@ -12,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_EARCHIVEBATCH_UM")
-@NamedQuery(name = "EArchiveBatchUserMessage.findByBatchEntityId", query = "FROM EArchiveBatchUserMessage batchUms where batchUms.eArchiveBatch.batchId = :batchId")
+@NamedQuery(name = "EArchiveBatchUserMessage.findByArchiveBatchId", query = "FROM EArchiveBatchUserMessage batchUms where batchUms.eArchiveBatch.batchId = :batchId ORDER BY batchUms.userMessageEntityId asc")
 public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Id
