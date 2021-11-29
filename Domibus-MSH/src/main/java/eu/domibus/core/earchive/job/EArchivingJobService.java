@@ -97,9 +97,9 @@ public class EArchivingJobService {
     }
 
     /**
-     *  Method creates a new (copy) batch from the batch for given batchId. Message ids
-     *  request date, storage location, and RequestType which is set as MANUAL.
-     *  The Original batch re-exported flag is set to true
+     * Method creates a new (copy) batch from the batch for given batchId. Message ids
+     * request date, storage location, and RequestType which is set as MANUAL.
+     * The Original batch re-exported flag is set to true
      *
      * @param batchId
      * @return new batch entry
@@ -110,14 +110,14 @@ public class EArchivingJobService {
         if (originEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        List<EArchiveBatchUserMessage> messages =  eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
+        List<EArchiveBatchUserMessage> messages = eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
 
         EArchiveBatchEntity reExportedBatch = createEArchiveBatchWithMessages(originEntity.getBatchId(),
                 originEntity.getFirstPkUserMessage(),
                 originEntity.getLastPkUserMessage(),
                 originEntity.getBatchSize(),
                 messages,
-                EArchiveRequestType.MANUAL );// rexported batch is set to manual
+                EArchiveRequestType.MANUAL);// rexported batch is set to manual
         // set original entity as re-exported
         originEntity.setReExported(Boolean.TRUE);
         return reExportedBatch;
@@ -154,8 +154,20 @@ public class EArchivingJobService {
         }
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
-                .minusMinutes(getRetryTimeOut())
+                .minusMinutes(rounding60min(getRetryTimeOut()))
                 .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+    }
+
+    /**
+     * The format of {@code DomibusDatePrefixedSequenceIdGeneratorGenerator#DATETIME_FORMAT_DEFAULT}
+     * does not allow a precision with minutes.
+     *
+     * @param retryTimeOut in minutes
+     * @return rounded per hour (60, 120, etc.)
+     */
+    protected long rounding60min(long retryTimeOut) {
+        long l = retryTimeOut / 60L;
+        return (l + 1) * 60;
     }
 
     protected long getRetryTimeOut() {

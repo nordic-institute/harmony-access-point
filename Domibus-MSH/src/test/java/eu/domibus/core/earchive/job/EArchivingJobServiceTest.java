@@ -160,4 +160,14 @@ public class EArchivingJobServiceTest {
             times = 1;
         }};
     }
+
+    @Test
+    public void rounding60min_10() {
+        assertEquals(60L, eArchivingJobService.rounding60min(10));
+    }
+
+    @Test
+    public void rounding60min_70() {
+        assertEquals(120L, eArchivingJobService.rounding60min(70));
+    }
 }
