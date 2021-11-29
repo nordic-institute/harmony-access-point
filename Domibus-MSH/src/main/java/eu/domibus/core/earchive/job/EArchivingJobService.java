@@ -166,8 +166,8 @@ public class EArchivingJobService {
      * @return rounded per hour (60, 120, etc.)
      */
     protected long rounding60min(long retryTimeOut) {
-        long l = retryTimeOut / 60L;
-        return (l + 1) * 60;
+        long hours = retryTimeOut / 60L;
+        return (hours + 1) * 60;
     }
 
     protected long getRetryTimeOut() {
