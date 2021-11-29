@@ -94,29 +94,10 @@ public class MessageLogResource extends BaseResource {
     public MessageLogResultRO getMessageLog(@Valid MessageLogFilterRequestRO request) {
         LOG.debug("Getting message log");
 
-        Date defaultFrom = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES).toInstant());
-        Date defaultTo = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());
-
         //creating the filters
         HashMap<String, Object> filters = createFilterMap(request);
 
-        //we just set default values for received column
-        // in order to improve pagination on large amount of data
-        Date from = dateUtil.fromString(request.getReceivedFrom());
-        if (from == null) {
-            from = defaultFrom;
-        }
-        Date to = dateUtil.fromString(request.getReceivedTo());
-        if (to == null) {
-            to = defaultTo;
-        }
-        filters.put(PROPERTY_RECEIVED_FROM, from);
-        filters.put(PROPERTY_RECEIVED_TO, to);
-
-        filters.put(PROPERTY_MIN_ENTITY_ID, from);
-        filters.put(PROPERTY_MAX_ENTITY_ID, to);
-
-        LOG.debug("using filters [{}]", filters);
+        setDefaultFilters(request, filters);
 
         MessageLogResultRO result;
         if (uiReplicationSignalService.isReplicationEnabled()) {
@@ -141,6 +122,29 @@ public class MessageLogResource extends BaseResource {
         result.setPageSize(request.getPageSize());
 
         return result;
+    }
+
+    private void setDefaultFilters(MessageLogFilterRequestRO request, HashMap<String, Object> filters) {
+        Date defaultFrom = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES).toInstant());
+        Date defaultTo = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());
+
+        //we just set default values for received column
+        // in order to improve pagination on large amount of data
+        Date from = dateUtil.fromString(request.getReceivedFrom());
+        if (from == null) {
+            from = defaultFrom;
+        }
+        Date to = dateUtil.fromString(request.getReceivedTo());
+        if (to == null) {
+            to = defaultTo;
+        }
+        filters.put(PROPERTY_RECEIVED_FROM, from);
+        filters.put(PROPERTY_RECEIVED_TO, to);
+
+        filters.put(PROPERTY_MIN_ENTITY_ID, from);
+        filters.put(PROPERTY_MAX_ENTITY_ID, to);
+
+        LOG.debug("using filters [{}]", filters);
     }
 
     /**

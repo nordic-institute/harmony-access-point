@@ -26,6 +26,33 @@
               <input matInput placeholder="To Party Id" name="toPartyId" [(ngModel)]="filter.toPartyId"
                      #toPartyId="ngModel" id="topartyid_id">
             </mat-form-field>
+            <mat-select placeholder="Message Interval" [(ngModel)]="messageInterval" name="messageInterval"
+                        id="messagesInterval_id">
+              <mat-option *ngFor="let val of messageIntervals" [value]="val">
+                {{val.text}}
+              </mat-option>
+            </mat-select>
+
+            <md2-datepicker placeholder="Received From:" appClearInvalid
+                            [(ngModel)]="filter.receivedFrom"
+                            name="receivedFrom"
+                            [type]="'datetime'"
+                            [max]="timestampFromMaxDate"
+                            (change)='onTimestampFromChange($event)'
+                            #timestampControl="ngModel" id="receivedfrom_id" *ngIf="advancedSearch"
+                            advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
+            <md2-datepicker placeholder="Received Up To:" appClearInvalid
+                            [(ngModel)]="filter.receivedTo"
+                            name="receivedTo"
+                            [min]="timestampToMinDate"
+                            [max]="timestampToMaxDate"
+                            (change)='onTimestampToChange($event)'
+                            [type]="'datetime'"
+                            #timestampControl="ngModel" id="receivedto_id" *ngIf="advancedSearch"
+                            advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
+
             <mat-form-field *ngIf="advancedSearch">
               <input matInput [readonly]="!searchUserMessages" placeholder="Conversation Id" name="conversationId"
                      [(ngModel)]="filter.conversationId"
@@ -71,25 +98,6 @@
                      #finalRecipient="ngModel" id="finalrecipient_id" advanced-filter-behaviour [parent]="this">
             </mat-form-field>
 
-            <md2-datepicker placeholder="Received From:" appClearInvalid
-                            [(ngModel)]="filter.receivedFrom"
-                            name="receivedFrom"
-                            [type]="'datetime'"
-                            [max]="timestampFromMaxDate"
-                            (change)='onTimestampFromChange($event)'
-                            #timestampControl="ngModel" id="receivedfrom_id" *ngIf="advancedSearch"
-                            advanced-filter-behaviour [parent]="this">
-            </md2-datepicker>
-            <md2-datepicker placeholder="Received Up To:" appClearInvalid
-                            [(ngModel)]="filter.receivedTo"
-                            name="receivedTo"
-                            [min]="timestampToMinDate"
-                            [max]="timestampToMaxDate"
-                            (change)='onTimestampToChange($event)'
-                            [type]="'datetime'"
-                            #timestampControl="ngModel" id="receivedto_id" *ngIf="advancedSearch"
-                            advanced-filter-behaviour [parent]="this">
-            </md2-datepicker>
             <ng-container *ngIf="advancedSearch">
               <mat-form-field>
                 <input matInput placeholder="Action" name="action" [(ngModel)]="filter.action"

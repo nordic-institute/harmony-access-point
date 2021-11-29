@@ -77,6 +77,36 @@ export class MessageLogComponent extends mix(BaseListComponent)
   totalRowsMessage: string;
   estimatedCount: boolean;
 
+  messageIntervals = [
+    {value: 30, text: 'Last 30 minutes'},
+    {value: 60, text: 'Last hour'},
+    {value: 4 * 60, text: 'Last 4 hours'},
+    {value: 12 * 60, text: 'Last 12 hours'},
+    {value: 24 * 60, text: 'Last 24 hours'},
+    {value: 2 * 24 * 60, text: 'Last 48 hours'},
+    {value: 3 * 24 * 60, text: 'Last 3 days'},
+    {value: 7 * 24 * 60, text: 'Last 7 days'},
+    {value: 30 * 24 * 60, text: 'Last 30 days'},
+    {value: 0, text: 'Custom'},
+  ];
+
+  MS_PER_MINUTE = 60000;
+  _messageInterval: DateInterval;
+  get messageInterval(): DateInterval {
+    return this._messageInterval;
+  }
+
+  set messageInterval(value: DateInterval) {
+    this._messageInterval = value;
+    if (this._messageInterval.value) {
+      this.filter.receivedFrom = new Date(this.filter.receivedTo - this._messageInterval.value * this.MS_PER_MINUTE);
+    } else {
+      this.filter.receivedFrom = null;
+      this.filter.receivedTo = null;
+      super.advancedSearch = true;
+    }
+  }
+
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
               private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
@@ -250,6 +280,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
     if (result.filter.receivedTo) {
       result.filter.receivedTo = new Date(result.filter.receivedTo);
+    }
+    if (result.filter.receivedFrom && result.filter.receivedTo) {
+      const diff = (result.filter.receivedTo.valueOf() - result.filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
+      this._messageInterval = this.messageIntervals.find(el => el.value == diff);
     }
 
     super.filter = result.filter;
@@ -454,4 +488,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   isCurrentUserAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
   }
+}
+
+interface DateInterval {
+  value: number
+  text: string
 }
