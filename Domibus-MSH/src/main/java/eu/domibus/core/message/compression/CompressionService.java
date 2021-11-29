@@ -123,11 +123,10 @@ public class CompressionService {
      * @return {@code true} if everything was decompressed without problems, {@code false} in case of disabled compression via pmode
      * @throws EbMS3Exception if an problem occurs during the de compression or the mimetype of a compressed payload was missing
      */
-    public boolean handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
+    public void handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
         for (final PartInfo partInfo : partInfoList) {
             handlePartInfoDecompression(userMessage.getMessageId(), partInfo);
         }
-        return true;
     }
 
     public void handlePartInfoDecompression(String messageId, PartInfo partInfo) throws EbMS3Exception {
