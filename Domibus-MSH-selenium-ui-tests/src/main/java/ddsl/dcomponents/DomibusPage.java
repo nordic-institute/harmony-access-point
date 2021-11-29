@@ -57,9 +57,7 @@ public class DomibusPage extends DComponent {
 		
 		driver.navigate().refresh();
 		try {
-			wait.forXMillis(100);
 			waitForPageToLoad();
-			wait.forXMillis(100);
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 		}
@@ -143,14 +141,13 @@ public class DomibusPage extends DComponent {
 		
 		log.info("Wait for download to complete");
 		
-		wait.forXMillis(3000);
+		wait.forFileToBeDownloaded(filePath);
 		
 		log.info("Check if file is downloaded at given location");
 		if(!DFileUtils.isFileDownloaded(filePath)){
 			throw new Exception("Could not find file");
 		}
 
-		
 		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
 	}
 	

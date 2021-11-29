@@ -17,6 +17,7 @@ import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -32,7 +33,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
@@ -66,7 +68,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         this.certificateService = certificateService;
     }
 
-    public void init() {
+    public void init(List<Enum> initValue) {
         String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
@@ -90,7 +92,11 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
         iamProvider = providerList.get(0);
         iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
-        iamProvider.init();
+        if (CollectionUtils.isEmpty(initValue)) {
+            iamProvider.init();
+        } else {
+            iamProvider.init(initValue);
+        }
 
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
     }
@@ -234,8 +240,13 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
+    public void reset(List<Enum> initValue) {
+        this.init(initValue);
+    }
+
+    @Override
     public void reset() {
-        this.init();
+        this.init(null);
     }
 
     @Override

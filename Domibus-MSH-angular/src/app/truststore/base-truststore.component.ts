@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {TrustStoreService} from './support/trustore.service';
@@ -14,7 +22,6 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {TrustStoreEntry} from './support/trustore.model';
 import {ComponentName} from '../common/component-name-decorator';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
-import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
 import {ComponentType} from 'angular-md2';
 
 @Component({
@@ -95,7 +102,16 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   async getTrustStoreEntries() {
     const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries(this.LIST_ENTRIES_URL);
 
-    trustStoreEntries.forEach(el => el.isExpired = new Date(el.validUntil) < new Date());
+    for (const el of trustStoreEntries) {
+      var dateDiffToExpiry = (new Date(el.validUntil).getTime() - new Date().getTime());
+      var certificateExpiryAlertDaysInMillis = (el.certificateExpiryAlertDays * 24 * 60 * 60 * 1000);
+      if ((dateDiffToExpiry > 0) && (dateDiffToExpiry < certificateExpiryAlertDaysInMillis)) {
+        el.isAboutToExpire = true;
+      }
+      else if(dateDiffToExpiry <= 0){
+        el.isExpired = true;
+      }
+    }
 
     super.rows = trustStoreEntries;
     super.count = trustStoreEntries ? trustStoreEntries.length : 0;
@@ -129,6 +145,11 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   getRowClass(row) {
+    if(row.isAboutToExpire){
+      return {
+        'warnNearExpiry': true
+      }
+    }
     return {
       'highlighted-row': row.isExpired
     };

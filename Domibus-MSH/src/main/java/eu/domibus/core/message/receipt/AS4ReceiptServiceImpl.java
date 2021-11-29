@@ -126,7 +126,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
         SOAPMessage request;
         try {
-            final String rawXml = new String(rawXmlByMessageId.getRawMessage(), StandardCharsets.UTF_8);
+            final String rawXml = rawXmlByMessageId.getRawXmlMessage();
             request = soapUtil.createSOAPMessage(rawXml);
         } catch (SOAPException | IOException | ParserConfigurationException | SAXException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
@@ -168,7 +168,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
                     messageId = existingSignalMessage.getSignalMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp(existingSignalMessage.getTimestamp());
-                    final String rawXml = new String(rawXmlByMessageId.getRawMessage(), StandardCharsets.UTF_8);
+                    final String rawXml = rawXmlByMessageId.getRawXmlMessage();
                     requestMessage = new StreamSource(new StringReader(rawXml));
                 } else {
                     messageId = messageIdGenerator.generateMessageId();

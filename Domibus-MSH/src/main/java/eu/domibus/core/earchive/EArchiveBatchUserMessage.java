@@ -12,13 +12,14 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_EARCHIVEBATCH_UM")
+@NamedQuery(name = "EArchiveBatchUserMessage.findByArchiveBatchId", query = "FROM EArchiveBatchUserMessage batchUms where batchUms.eArchiveBatch.batchId = :batchId ORDER BY batchUms.userMessageEntityId asc")
 public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
             name = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = "eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator")
+            strategy = JPAConstants.DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
     @Column(name = "ID_PK")
     private long entityId;
 
@@ -28,6 +29,17 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Column(name = "FK_USER_MESSAGE_ID")
     private Long userMessageEntityId;
+
+    @Column(name = "MESSAGE_ID")
+    private String messageId;
+
+    public EArchiveBatchUserMessage() {
+    }
+
+    public EArchiveBatchUserMessage(Long userMessageEntityId, String messageId) {
+        this.userMessageEntityId = userMessageEntityId;
+        this.messageId = messageId;
+    }
 
     public long getEntityId() {
         return entityId;
@@ -51,5 +63,13 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     public void setUserMessageEntityId(Long userMessageEntityId) {
         this.userMessageEntityId = userMessageEntityId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String userMessageId) {
+        this.messageId = userMessageId;
     }
 }

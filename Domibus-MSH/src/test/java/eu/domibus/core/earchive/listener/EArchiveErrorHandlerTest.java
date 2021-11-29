@@ -1,10 +1,11 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -37,16 +38,18 @@ public class EArchiveErrorHandlerTest {
 
         new Expectations() {{
 
-            eArchivingDefaultService.getEArchiveBatch(entityId);
+            eArchivingDefaultService.getEArchiveBatch(entityId, false);
             result = eArchiveBatch;
         }};
         RuntimeException error = new RuntimeException("ERROR");
         eArchiveErrorHandler.handleError(error);
 
         new FullVerifications(){{
-            eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.FAILED, error.getMessage());
+            eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.FAILED, error.getMessage(), DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED.getCode());
             times = 1;
             eArchivingDefaultService.sendToNotificationQueue(eArchiveBatch, EArchiveBatchStatus.FAILED);
+            times = 1;
+            eArchiveBatch.getBatchId();
             times = 1;
         }};
 

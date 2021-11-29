@@ -135,7 +135,7 @@ public class PmodeParties2PgTest extends SeleniumTest {
 		String pmodePath = "pmodes/Edelivery-blue.xml";
 		rest.pmode().uploadPMode(pmodePath, null);
 
-		PModeXMLUtils pModeXMLUtils = new PModeXMLUtils(getClass().getClassLoader().getResource(pmodePath).getFile());
+		PModeXMLUtils pModeXMLUtils = new PModeXMLUtils(rest.pmode().getCurrentPmode(null));
 		String mypartyName = pModeXMLUtils.addPartyToPmode();
 		pModeXMLUtils.addPartyToProcessInitiators(mypartyName, null);
 		pModeXMLUtils.addPartyToProcessResponders(mypartyName, null);

@@ -5,6 +5,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.NUMBER_FORMAT_DEFAULT;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
@@ -39,6 +39,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
     public static final String MPC = "UserMessageLogDaoITMpc";
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
+    private String NUMBER_FORMAT_DEFAULT = "%010d";
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
@@ -314,9 +315,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_oldest() {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(0L, maxEntityId, 100);
-        Assert.assertEquals(7, messagesForArchiving.getUserMessageDtos().size());
-        Assert.assertEquals(msg.getEntityId(), messagesForArchiving.getUserMessageDtos().get(messagesForArchiving.getUserMessageDtos().size()-1).getEntityId());
+        List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
+        Assert.assertEquals(7, messagesForArchiving.size());
+        Assert.assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
     }
 
     @Test
@@ -324,8 +325,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void testFindMessagesForArchiving_rest() {
         UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
 
-        ListUserMessageDto messagesForArchiving = userMessageLogDao.findMessagesForArchivingDesc(msg1.getEntityId(), maxEntityId, 20);
-        Assert.assertEquals(6, messagesForArchiving.getUserMessageDtos().size());
+        List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
+        Assert.assertEquals(6, messagesForArchiving.size());
     }
 
     @Test

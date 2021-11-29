@@ -1,4 +1,6 @@
 Domibus 5.0
+- On the Domibus Admin Console, the Messages page displays by default only messages exchanged in the past hour
+- Update retry mechanism to consider the retry timeout
 - Add alert when expired partition cannot be deleted
 - New RetentionWorker to delete entire expired partition
 - Add message tables partitioning sql scripts

@@ -18,6 +18,7 @@ import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,13 +157,13 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         return domibusPropertyProvider.getBooleanProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY);
     }
 
-    /* Method finds MessageExchangeConfiguration for given usermesage and role. If property domibus.smlzone
+    /* Method finds MessageExchangeConfiguration for given user mesage and role. If property domibus.smlzone
      * is not defined only static search is done else (if static search did not return result) also dynamic discovery is executed.
      */
     @Override
-    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
         try {
-            return super.findUserMessageExchangeContext(userMessage, mshRole);
+            return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
         } catch (final EbMS3Exception e) {
             if (useDynamicDiscovery()) {
                 LOG.info("PmodeKey not found, starting the dynamic discovery process");
@@ -173,7 +174,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             }
         }
         LOG.debug("Recalling findUserMessageExchangeContext after the dynamic discovery");
-        return super.findUserMessageExchangeContext(userMessage, mshRole);
+        return super.findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType);
     }
 
     protected void doDynamicDiscovery(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {

@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -41,6 +42,8 @@ import static java.util.Locale.ENGLISH;
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+    private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
+
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
 
     private final DateUtil dateUtil;
@@ -68,25 +71,41 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         this.reprogrammableService = reprogrammableService;
     }
 
-    public List<String> findRetryMessages() {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+    public List<Long> findRetryMessages(final long minEntityId, final long maxEntityId) {
+        TypedQuery<Long> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", Long.class);
+        query.setParameter("MIN_ENTITY_ID", minEntityId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityId);
         query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
     }
 
-    public ListUserMessageDto findMessagesForArchivingDesc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
-        LOG.debug("UserMessageLog.findMessagesForArchivingDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+        LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
                 lastUserMessageLogId,
                 maxEntityIdToArchived,
                 size);
-        TypedQuery<UserMessageDTO> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingDesc", UserMessageDTO.class);
+        TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
+
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
         query.setMaxResults(size);
 
-        return new ListUserMessageDto(query.getResultList());
+        return query.getResultList();
+    }
+
+    public List<EArchiveBatchUserMessage> findMessagesNotFinalAsc(long lastUserMessageLogId, long maxEntityIdToArchived) {
+        LOG.debug("UserMessageLog.findMessagesNotFinalDesc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}]",
+                lastUserMessageLogId,
+                maxEntityIdToArchived);
+        TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
+
+        query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
+        query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
+        query.setParameter("STATUSES", MessageStatus.getNotFinalStates());
+
+        return query.getResultList();
     }
 
     public List<String> findFailedMessages(String finalRecipient) {
@@ -142,7 +161,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             initializeChildren(userMessageLog);
             return userMessageLog;
         } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any result for message with id [" + messageId + "]");
+            LOG.debug("Could not find any result for message with id {[]}", messageId);
             return null;
         }
     }
@@ -160,13 +179,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             query.setParameter(STR_MESSAGE_ID, messageId);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id [" + messageId + "]");
+            LOG.debug("No result for message with id {[]}", messageId);
+            return MessageStatus.NOT_FOUND;
+        }
+    }
+
+    public MessageStatus getMessageStatus(final Long messageEntityId) {
+        try {
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByEntityId", MessageStatusEntity.class);
+            query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
+            return query.getSingleResult().getMessageStatus();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with entity id {[]}", messageEntityId);
             return MessageStatus.NOT_FOUND;
         }
     }
 
     @Transactional(readOnly = true)
-    public UserMessageLog findByEntityId(Long entityId) {
+    public UserMessageLog findByEntityId(final Long entityId) {
         final UserMessageLog userMessageLog = super.read(entityId);
 
         initializeChildren(userMessageLog);
@@ -174,7 +204,20 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLog;
     }
 
+    @Transactional(readOnly = true)
+    public UserMessageLog findByEntityIdSafely(final Long entityId) {
+        try {
+            final UserMessageLog userMessageLog = findByEntityId(entityId);
+            initializeChildren(userMessageLog);
+            return userMessageLog;
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with entityId {[]}", entityId);
+            return null;
+        }
+    }
+
     public UserMessageLog findByMessageId(String messageId) {
+
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
@@ -305,7 +348,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         sqlString = sqlString.replace("$PARTITION", partitionName);
         sqlString = sqlString.replace("$DATE_COLUMN", getDateColumn(messageStatus));
 
-        LOG.trace("sqlString to find non expired messages: " + sqlString);
+        LOG.trace("sqlString to find non expired messages: [{}]", sqlString);
         final Query countQuery = em.createNativeQuery(sqlString);
         countQuery.setParameter("MPC", mpc);
         countQuery.setParameter("STARTDATE", startDate);

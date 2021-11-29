@@ -55,9 +55,8 @@ public class EArchivingFileService {
 
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
         if (rawXmlByMessageId != null) {
-            files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
-        }
-        if (rawXmlByMessageId == null) {
+            files.put(SOAP_ENVELOPE_XML, rawXmlByMessageId.getRawXmlMessageAsStream());
+        } else {
             LOG.debug("No userMessageRaw found for entityId [{}]", entityId);
         }
 
@@ -110,6 +109,14 @@ public class EArchivingFileService {
             return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveDTO).getBytes(StandardCharsets.UTF_8));
         } catch (JsonProcessingException e) {
             throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
+        }
+    }
+
+    public BatchEArchiveDTO getBatchEArchiveDTO(InputStream content) {
+        try {
+            return objectMapper.readValue(content, BatchEArchiveDTO.class);
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Could not parse to BatchEArchiveDTO", e);
         }
     }
 }

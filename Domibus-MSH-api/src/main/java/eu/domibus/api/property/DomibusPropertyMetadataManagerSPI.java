@@ -80,6 +80,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_ENCRYPTION_ACTIVE = "domibus.payload.encryption.active";
     String DOMIBUS_MSH_MESSAGEID_SUFFIX = "domibus.msh.messageid.suffix";
     String DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY = "domibus.msh.retry.messageExpirationDelay";
+    String DOMIBUS_MSH_RETRY_TIMEOUT_DELAY = "domibus.msh.retry.timeoutDelay";
     String DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY = "domibus.dynamicdiscovery.useDynamicDiscovery";
     String DOMIBUS_SMLZONE = "domibus.smlzone";
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION = "domibus.dynamicdiscovery.client.specification";
@@ -234,6 +235,11 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_SUBJECT = DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_PREFIX + "subject";
     String DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX = "domibus.alert.partition.expiration";
     String DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX_FREQUENCY_DAYS = DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX + ".frequency_days";
+    String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX = "domibus.alert.earchive.notification";
+    String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".active";
+    String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".level";
+    String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".mail.subject";
+
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
     String DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME = "domibus.pull.request.frequency.recovery.time";
     String DOMIBUS_PULL_REQUEST_FREQUENCY_ERROR_COUNT = "domibus.pull.request.frequency.error.count";
@@ -342,9 +348,23 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_ACTIVE = "domibus.earchive.active";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
+    String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";
     String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";
     String DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT = "domibus.earchive.batch.retryTimeOut";
     String DOMIBUS_EARCHIVE_BATCH_MPCS = "domibus.earchive.batch.mpcs";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_URL = "domibus.earchive.notification.url";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_TIMEOUT = "domibus.earchive.notification.timeout";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_USEPROXY = "domibus.earchive.notification.useProxy";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME = "domibus.earchive.notification.username";
+    String DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD = "domibus.earchive.notification.password"; //NOSONAR
+    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
+    String DOMIBUS_EARCHIVE_RETENTION_DAYS = "domibus.earchive.retention.days";
+    String DOMIBUS_EARCHIVE_RETENTION_CRON = "domibus.earchive.retention.cron";
+    String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".level";
+    String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".mail.subject";
 
 }

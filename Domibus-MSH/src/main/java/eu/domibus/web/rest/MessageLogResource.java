@@ -23,10 +23,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import javax.validation.Valid;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +42,8 @@ public class MessageLogResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
 
+    public static final int DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES = 60;
+
     private static final String MODULE_NAME_MESSAGES = "messages";
 
     private static final String PROPERTY_CONVERSATION_ID = "conversationId";
@@ -59,6 +59,8 @@ public class MessageLogResource extends BaseResource {
     private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
     private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
     private static final String PROPERTY_RECEIVED_TO = "receivedTo";
+    private static final String PROPERTY_MIN_ENTITY_ID = "minEntityId";
+    private static final String PROPERTY_MAX_ENTITY_ID = "maxEntityId";
     private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
     private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
     private static final String PROPERTY_TO_PARTY_ID = "toPartyId";
@@ -79,9 +81,6 @@ public class MessageLogResource extends BaseResource {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    Date defaultFrom;
-    Date defaultTo;
-
     public MessageLogResource(TestService testService, DateUtil dateUtil, UIMessageService uiMessageService, MessagesLogService messagesLogService, UIReplicationSignalService uiReplicationSignalService, DomibusConfigurationService domibusConfigurationService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
@@ -91,20 +90,12 @@ public class MessageLogResource extends BaseResource {
         this.domibusConfigurationService = domibusConfigurationService;
     }
 
-    @PostConstruct
-    public void init() {
-        SimpleDateFormat ft = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        try {
-            defaultFrom = ft.parse("1970-01-01 23:59:00");
-            defaultTo = ft.parse("2977-10-25 23:59:00");
-        } catch (ParseException e) {
-            LOG.error("Impossible to initiate default dates");
-        }
-    }
-
     @GetMapping
     public MessageLogResultRO getMessageLog(@Valid MessageLogFilterRequestRO request) {
         LOG.debug("Getting message log");
+
+        Date defaultFrom = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES).toInstant());
+        Date defaultTo = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());
 
         //creating the filters
         HashMap<String, Object> filters = createFilterMap(request);
@@ -122,6 +113,9 @@ public class MessageLogResource extends BaseResource {
         filters.put(PROPERTY_RECEIVED_FROM, from);
         filters.put(PROPERTY_RECEIVED_TO, to);
 
+        filters.put(PROPERTY_MIN_ENTITY_ID, from);
+        filters.put(PROPERTY_MAX_ENTITY_ID, to);
+
         LOG.debug("using filters [{}]", filters);
 
         MessageLogResultRO result;
@@ -135,12 +129,6 @@ public class MessageLogResource extends BaseResource {
                     request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
         }
 
-        if (defaultFrom.equals(from)) {
-            filters.remove(PROPERTY_RECEIVED_FROM);
-        }
-        if (defaultTo.equals(to)) {
-            filters.remove(PROPERTY_RECEIVED_TO);
-        }
         // return also the current messageType to be shown in GUI
         filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 

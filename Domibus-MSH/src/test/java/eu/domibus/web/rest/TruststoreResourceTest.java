@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,6 +59,7 @@ public class TruststoreResourceTest {
     public void replaceTruststore(@Mocked Domain domain, @Mocked KeyStore trustStore, @Mocked KeyStore keyStore) {
         final byte[] fileContent = new byte[]{1, 0, 1};
         String filename = "filename";
+        String INIT_VALUE_TRUSTSTORE = "truststore";
 
         new Expectations() {{
             domainProvider.getCurrentDomain();
@@ -72,7 +75,7 @@ public class TruststoreResourceTest {
         truststoreResource.doReplaceTrustStore(fileContent, filename, pass);
 
         new Verifications() {{
-            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass);
+            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
             certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
         }};
     }

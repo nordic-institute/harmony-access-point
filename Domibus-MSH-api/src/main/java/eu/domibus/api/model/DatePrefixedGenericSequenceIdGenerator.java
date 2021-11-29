@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationContext;
 import java.io.Serializable;
 import java.util.Properties;
 
-
 /**
  * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) increment.
  *

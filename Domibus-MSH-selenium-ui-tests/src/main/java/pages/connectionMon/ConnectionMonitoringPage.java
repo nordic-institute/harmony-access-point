@@ -29,8 +29,7 @@ public class ConnectionMonitoringPage extends DomibusPage {
 	public ConMonGrid grid(){
 		return new ConMonGrid(driver, gridContainer);
 	}
-	
-	
+
 	public Boolean invalidConfigurationState() {
 		try {
 			return getAlertArea().getAlertMessage().equalsIgnoreCase(DMessages.CONN_MON_PMODE_CONFIG_ERR);
@@ -44,4 +43,10 @@ public class ConnectionMonitoringPage extends DomibusPage {
 		grid().waitForRowsToLoad();
 		return grid().isPresent();
 	}
+
+
+
+
+
+
 }

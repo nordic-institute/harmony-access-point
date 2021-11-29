@@ -2,10 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
-import {MatDialog} from '@angular/material';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
-import {DialogsService} from '../dialogs/dialogs.service';
 
 @Component({
   selector: 'domain-selector',
@@ -25,14 +23,9 @@ export class DomainSelectorComponent implements OnInit {
 
   constructor(private domainService: DomainService,
               private securityService: SecurityService,
-              private dialog: MatDialog,
-              private dialogsService: DialogsService,
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {
-    this.domainService.domains.subscribe(domains => {
-      this.domains = domains;
-    })
   }
 
   async ngOnInit() {
@@ -45,6 +38,10 @@ export class DomainSelectorComponent implements OnInit {
 
         this.domainService.getCurrentDomain().subscribe(domain => {
           this.domainCode = this.currentDomainCode = (domain ? domain.code : null);
+        });
+        
+        this.domainService.domains.subscribe(domains => {
+          this.domains = domains;
         });
       }
 

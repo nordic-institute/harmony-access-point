@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
+        <module>Domibus-archive-webhook-swagger</module>
         <module>Domibus-MSH</module>
         <module>Domibus-MSH-api</module>
         <module>Domibus-MSH-ext-services-delegate</module>
@@ -26,43 +27,42 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.4.4</cxf.version>
-        <wss4j-ws-security.version>2.3.2</wss4j-ws-security.version>
+        <cxf.version>3.4.5</cxf.version>
+        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
         <spring.version>5.2.16.RELEASE</spring.version>
         <spring.security.version>5.4.7</spring.security.version>
-        <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
-        <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
-        <springdoc.version>1.5.10</springdoc.version>
+        <spring.session.core.version>2.5.2</spring.session.core.version>
+        <spring.session.jdbc.version>2.5.2</spring.session.jdbc.version>
+        <springdoc.version>1.5.12</springdoc.version>
         <io.swagger.core.v3.version>2.1.10</io.swagger.core.v3.version>
         <swagger-ui.version>3.52.3</swagger-ui.version>
-        <hibernate.version>5.4.27.Final</hibernate.version>
-        <activemq.version>5.16.1</activemq.version>
+        <hibernate.version>5.5.7.Final</hibernate.version>
+        <activemq.version>5.16.3</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <slf4j.version>1.7.30</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.6</logback.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
-        <commons-io.version>2.8.0</commons-io.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.67</bouncycastle.version>
+        <bouncycastle.version>1.69</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-        <c3p0.version>0.9.5.5</c3p0.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
-        <freemarker.version>2.3.30</freemarker.version>
+        <freemarker.version>2.3.31</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-core.version>2.3.0.1</jaxb-core.version>
         <jaxb-impl.version>2.3.3</jaxb-impl.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>1.26</tika.version>
+        <tika.version>2.1.0</tika.version>
         <peppol.version>1.1.4</peppol.version>
         <dynamic.discovery.client.version>1.13-SNAPSHOT</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
@@ -71,13 +71,13 @@
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.200</h2.version>
-        <liquibase.version>4.3.5</liquibase.version>
-        <mysql.connector.java.version>8.0.22</mysql.connector.java.version>
+        <liquibase.version>4.5.0</liquibase.version>
+        <mysql.connector.java.version>8.0.27</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
-        <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
-        <dependency.check.version>6.2.2</dependency.check.version>
+        <dropwizard.metrics.version>4.2.4</dropwizard.metrics.version>
+        <owasp.dependency.check.version>6.4.1</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-        <hikaricp.version>4.0.3</hikaricp.version>
+        <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
 
@@ -155,6 +155,9 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <commons-text.version>1.8</commons-text.version>
+        <swagger-maven-plugin.version>2.1.11</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.27</swagger-codegen-maven-plugin.version>
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
@@ -502,11 +505,6 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-envers</artifactId>
                 <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.mchange</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>${c3p0.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -1237,6 +1235,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
@@ -1370,12 +1373,17 @@
                 <plugin>
                     <groupId>io.swagger.core.v3</groupId>
                     <artifactId>swagger-maven-plugin</artifactId>
-                    <version>2.1.11</version>
+                    <version>${swagger-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>io.swagger.codegen.v3</groupId>
                     <artifactId>swagger-codegen-maven-plugin</artifactId>
-                    <version>3.0.27</version>
+                    <version>${swagger-codegen-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>${license-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1515,7 +1523,6 @@
             <id>swagger</id>
             <modules>
                 <module>Domibus-MSH-swagger</module>
-                <module>Domibus-archive-webhook-swagger</module>
             </modules>
         </profile>
         <profile>
@@ -1525,7 +1532,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>${dependency.check.version}</version>
+                        <version>${owasp.dependency.check.version}</version>
                         <inherited>false</inherited>
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
@@ -1548,7 +1555,114 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>dependency-license-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>download-licenses</id>
+                                <goals>
+                                    <goal>aggregate-download-licenses</goal>
+                                    <goal>aggregate-add-third-party</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <licenseMerges>
+                                <licenseMerge>Apache License, Version 2.0
+                                    |Apache Software Licenses
+                                    |Apache Software License - Version 2.0
+                                    |Apache License 2.0
+                                    |Apache 2.0
+                                    |Apache-2.0
+                                    |Similar to Apache License but with the acknowledgment clause removed
+                                    |Apache License|The Apache Software License, Version 2.0
+                                    |Apache Public License 2.0|Apache 2|Apache License, version 2.0
+                                    |The Apache License, Version 2.0</licenseMerge>
+                                <!--  Common Public License Version 1.0|CPL was replaced by Eclipse Public License -->
+                                <licenseMerge>Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)
+                                    |Eclipse Public License 1.0 (EPL-1.0)
+                                    |Eclipse Public License, Version 1.0
+                                    |EPL 2.0
+                                    |Eclipse Distribution License v. 1.0
+                                    |Eclipse Public License (EPL) v1.0
+                                    |Eclipse Public License - v 1.0
+                                    |Eclipse Distribution License - v 1.0
+                                    |Eclipse Public License 1.0
+                                    |EDL 1.0
+                                    |Common Public License Version 1.0
+                                    |CPL
+                                    |MPL 2.0 or EPL 1.0</licenseMerge>
+                                <licenseMerge>The MIT License|MIT License</licenseMerge>
+                                <!-- jaxen  - jaxen:jaxen:1.1.4 from the page is noted BSD license -->
+                                <licenseMerge>BSD license (all versions)
+                                    |http://jaxen.codehaus.org/license.html
+                                    |BSD-2-Clause|The BSD 3-Clause License
+                                    |BSD
+                                    |The New BSD License
+                                    |BSD License
+                                    |The BSD License
+                                    |BSD 3-clause New License
+                                    |BSD Licence 3
+                                    |3-Clause BSD License
+                                    |BSD-Style License
+                                    |BSD-3-Clause
+                                    |New BSD License</licenseMerge>
+                                <licenseMerge>Dual license consisting of the CDDL v1.1 and GPL v2
+                                    |CDDL+GPLv2
+                                    |CDDL + GPLv2 with classpath exception
+                                    |CDDL/GPLv2+CE
+                                    |CDDL+GPL License</licenseMerge>
+                                <licenseMerge>Common Development and Distribution License (CDDL) (all versions)
+                                    |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
+                                    |Common Development and Distribution License (CDDL) v1.0
+                                    |Common Development and Distribution License (CDDL)
+                                    |Common Development and Distribution License
+                                    |Common Development and Distribution
+                                    |CDDL 1.1|</licenseMerge>
+                                <!-- https://hibernate.org/community/license/ - hibernate label it as GNU Library General Public License v2.1 == GNU Lesser General Public License version 2.1  -->
+                                <licenseMerge>GNU Lesser General Public License
+                                    |GNU Lesser General Public License, version 2.1
+                                    |GNU Library General Public License v2.1 or later
+                                    |LGPL-2.1
+                                    |LGPL</licenseMerge>
+                            </licenseMerges>
+                            <failOnMissing>true</failOnMissing>
+                            <failOnBlacklist>true</failOnBlacklist>
+                            <!-- 'No Copyright' used by 1 dependencies:
+                                -bagit-java (gov.loc:bagit:4.12.2 - https://github.com/LibraryOfCongress/bagit-java -->
+                            <includedLicenses>
+                                Apache License, Version 2.0|
+                                Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)|
+                                The MIT License|
+                                BSD license (all versions)|
+                                European Union Public Licence (EUPL v.1.1)|
+                                Dual license consisting of the CDDL v1.1 and GPL v2|
+                                Common Development and Distribution License (CDDL) (all versions)|
+                                GNU Lesser General Public License|
+                                Bouncy Castle Licence|
+                                Mozilla Public License Version 2.0|
+                                No Copyright|
+                            </includedLicenses>
+                            <!-- license validation scope  -->
+                            <excludedGroups>^eu.domibus.*</excludedGroups>
+                            <!--
+                            dom4j:dom4j:1.6.1 -  BSD licence
+                            javax.servlet:servlet-api:2.4  - CDDL
+                            javax.xml.soap:saaj-api:1.3.1 - CDDL
+                            org.roda-project:commons-ip2:2.0.0-alpha1 - LGPL (https://github.com/keeps/commons-ip)
+                            -->
+                            <excludedArtifacts>servlet-api|dom4j|saaj-api|commons-ip2</excludedArtifacts>
+                            <excludedScopes>system,test,provided,runtime</excludedScopes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>enforce</id>
             <build>
@@ -1556,7 +1670,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>enforce-versions</id>
@@ -1594,7 +1707,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>enforce-versions</id>

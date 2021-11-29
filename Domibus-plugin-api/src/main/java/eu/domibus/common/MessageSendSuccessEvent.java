@@ -16,16 +16,22 @@ import java.util.Map;
 public class MessageSendSuccessEvent implements Serializable, MessageEvent {
 
     protected String messageId;
-
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    protected Long messageEntityId;
 
-    public MessageSendSuccessEvent(String messageId) {
-        this.messageId = messageId;
-    }
-
-    public MessageSendSuccessEvent(String messageId, Map<String, String> properties) {
+    public MessageSendSuccessEvent(final Long messageEntityId, String messageId, Map<String, String> properties) {
+        this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.properties = properties;
+    }
+
+    @Override
+    public Long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(Long messageEntityId) {
+        this.messageEntityId = messageEntityId;
     }
 
     @Override

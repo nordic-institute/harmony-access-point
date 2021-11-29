@@ -31,9 +31,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -322,4 +324,31 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         return StringUtils.contains(filePropertyName, encryptionResult.getPropertyName());
     }
 
+    public List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn) {
+        final String propertiesToEncryptString = getPropertyFn.apply(encryptedProperties);
+        if (StringUtils.isEmpty(propertiesToEncryptString)) {
+            LOG.debug("No properties to encrypt");
+            return new ArrayList<>();
+        }
+
+        final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
+        LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
+
+        List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
+            propertyName = StringUtils.trim(propertyName);
+            final String propertyValue = getPropertyFn.apply(propertyName);
+            if (StringUtils.isBlank(propertyValue)) {
+                return false;
+            }
+
+            if (!isValueEncrypted(propertyValue)) {
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+        LOG.debug("The following properties are not encrypted [{}]", result);
+
+        return result;
+    }
 }

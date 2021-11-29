@@ -574,7 +574,6 @@ public class MessageFilter2PgTest extends SeleniumTest {
 
 			log.info("Click on Ok button");
 			popup.clickOK();
-//			page.wait.forXMillis(300);
 
 			log.info("Click on Save button");
 			page.saveAndConfirmChanges();

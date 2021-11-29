@@ -15,16 +15,18 @@ import java.util.List;
 @Table(name = "TB_USER_MESSAGE_LOG")
 @NamedQueries({
         @NamedQuery(name = "UserMessageLog.findRetryMessages",
-                query = "select um.messageId " +
-                        "from UserMessageLog userMessageLog join userMessageLog.userMessage um " +
-                        "where userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
+                query = "select userMessageLog.entityId " +
+                        "from UserMessageLog userMessageLog " +
+                        "where userMessageLog.entityId >= :MIN_ENTITY_ID " +
+                        "and userMessageLog.entityId < :MAX_ENTITY_ID " +
+                        "and userMessageLog.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.WAITING_FOR_RETRY " +
                         "and userMessageLog.nextAttempt < :CURRENT_TIMESTAMP " +
                         "and 1 <= userMessageLog.sendAttempts " +
                         "and userMessageLog.sendAttempts <= userMessageLog.sendAttemptsMax " +
-                        "and (um.sourceMessage is null or um.sourceMessage=false)" +
                         "and (userMessageLog.scheduled is null or userMessageLog.scheduled=false)"),
         @NamedQuery(name = "UserMessageLog.findReadyToPullMessages", query = "SELECT um.messageId, um.timestamp FROM UserMessageLog as ml join ml.userMessage um where ml.messageStatus.messageStatus=eu.domibus.api.model.MessageStatus.READY_TO_PULL order by um.timestamp desc"),
         @NamedQuery(name = "UserMessageLog.getMessageStatus", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UserMessageLog.getMessageStatusByEntityId", query = "select userMessageLog.messageStatus from UserMessageLog userMessageLog where userMessageLog.userMessage.entityId=:MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "UserMessageLog.findByMessageId", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findByMessageIdAndRole", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessageLog.findBackendForMessage", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID"),
@@ -111,8 +113,8 @@ import java.util.List;
                         "and um.mpc.value = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE                          "),
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
-        @NamedQuery(name = "UserMessageLog.findMessagesForArchivingDesc",
-                query = "select new eu.domibus.api.model.UserMessageDTO(uml.entityId, uml.userMessage.messageId) " +
+        @NamedQuery(name = "UserMessageLog.findMessagesForArchivingAsc",
+                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId) " +
                         "from UserMessageLog uml " +
                         "where uml.entityId > :LAST_ENTITY_ID " +
                         "  and uml.entityId < :MAX_ENTITY_ID " +
@@ -120,6 +122,14 @@ import java.util.List;
                         "  and uml.deleted IS NULL " +
                         "  and uml.archived IS NULL " +
                         "order by uml.entityId asc"),
+        @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
+                query = "select new java.lang.Long(count(uml.entityId)) " +
+                        "from UserMessageLog uml " +
+                        "where uml.entityId > :LAST_ENTITY_ID " +
+                        "  and uml.entityId < :MAX_ENTITY_ID " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.deleted IS NULL " +
+                        "  and uml.archived IS NULL "),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
                 "UPDATE UserMessageLog uml " +

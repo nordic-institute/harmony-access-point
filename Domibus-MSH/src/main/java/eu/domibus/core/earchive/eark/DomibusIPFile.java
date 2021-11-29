@@ -12,10 +12,17 @@ import java.nio.file.Paths;
 public class DomibusIPFile extends IPFile {
 
     private transient InputStream file;
+    private boolean writeChecksum;
+
+    public DomibusIPFile(InputStream file, String renameTo, boolean writeChecksum) {
+        this(file, renameTo);
+        this.writeChecksum = writeChecksum;
+    }
 
     public DomibusIPFile(InputStream file, String renameTo) {
         super(Paths.get(""), renameTo);
         this.file = file;
+        writeChecksum = true;
     }
 
     public InputStream getInputStream() {
@@ -24,5 +31,13 @@ public class DomibusIPFile extends IPFile {
 
     public void setFile(InputStream file) {
         this.file = file;
+    }
+
+    public boolean writeChecksum() {
+        return writeChecksum;
+    }
+
+    public void setWriteChecksum(boolean writeChecksum) {
+        this.writeChecksum = writeChecksum;
     }
 }

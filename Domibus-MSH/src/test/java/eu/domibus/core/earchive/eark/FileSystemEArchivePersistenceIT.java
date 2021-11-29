@@ -1,8 +1,8 @@
 package eu.domibus.core.earchive.eark;
 
-import eu.domibus.api.model.UserMessageDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
@@ -68,7 +68,7 @@ public class FileSystemEArchivePersistenceIT {
     private String msg2;
     private long entityId1;
     private long entityId2;
-    private List<UserMessageDTO> userMessageEntityIds;
+    private List<EArchiveBatchUserMessage> userMessageEntityIds;
 
     @Before
     public void setUp() throws Exception {
@@ -83,7 +83,7 @@ public class FileSystemEArchivePersistenceIT {
         Random random = new Random();
         entityId1 = random.nextLong();
         entityId2 = random.nextLong();
-        userMessageEntityIds = asList(new UserMessageDTO(entityId1, msg1), new UserMessageDTO(entityId2, msg2));
+        userMessageEntityIds = asList(new EArchiveBatchUserMessage(entityId1, msg1), new EArchiveBatchUserMessage(entityId2, msg2));
 
         temp = Files.createTempDirectory("tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
@@ -96,7 +96,6 @@ public class FileSystemEArchivePersistenceIT {
      * SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
      * mshWebserviceTest.invoke(soapMessage);
      *
-     * @throws IOException
      */
     @After
     public void tearDown() throws IOException {
@@ -107,7 +106,7 @@ public class FileSystemEArchivePersistenceIT {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
-        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPBuilderService());
+        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPBuilderService(eArchivingFileService));
 
         Map<String, InputStream> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");
@@ -140,8 +139,10 @@ public class FileSystemEArchivePersistenceIT {
 
             eArchiveFileStorage.getStorageDirectory();
             result = temp;
-        }};
 
+            eArchivingFileService.getBatchEArchiveDTO((InputStream) any);
+            result = batchEArchiveDTO;
+        }};
 
         fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
 

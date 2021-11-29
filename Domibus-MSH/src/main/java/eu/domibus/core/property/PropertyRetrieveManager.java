@@ -72,7 +72,6 @@ public class PropertyRetrieveManager {
         }
         LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
         return null;
-
     }
 
     public String getInternalProperty(Domain domain, String propertyName) {

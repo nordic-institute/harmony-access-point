@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
@@ -37,6 +39,8 @@ public class TruststoreResource extends TruststoreResourceBase {
     private final DomainContextProvider domainProvider;
 
     private final CertificateService certificateService;
+
+    public static final String INIT_VALUE_TRUSTSTORE = "truststore";
 
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
@@ -75,8 +79,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
 
         // trigger update certificate table
         final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);

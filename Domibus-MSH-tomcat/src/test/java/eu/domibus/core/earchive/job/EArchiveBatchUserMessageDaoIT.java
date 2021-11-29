@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive.job;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
@@ -52,7 +53,7 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
     public void setup() {
         eArchiveBatch = new EArchiveBatchEntity();
         eArchiveBatch.setBatchId(UUID.randomUUID().toString());
-        eArchiveBatch.setRequestType(RequestType.CONTINUOUS);
+        eArchiveBatch.setRequestType(EArchiveRequestType.CONTINUOUS);
         eArchiveBatch.setCreationTime(dateUtil.getUtcDate());
         eArchiveBatch.setCreatedBy("test");
         eArchiveBatchDao.create(eArchiveBatch);
@@ -67,9 +68,10 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void create() {
-        eArchiveBatchUserMessageDao.create(eArchiveBatch, Arrays.asList(msg1.getEntityId(),
-                msg2.getEntityId(),
-                msg3.getEntityId()));
+        eArchiveBatchUserMessageDao.create(eArchiveBatch, Arrays.asList(new EArchiveBatchUserMessage(msg1.getEntityId(), msg1.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(msg2.getEntityId(), msg2.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(msg3.getEntityId(), msg3.getUserMessage().getMessageId())
+        ));
 
         List<EArchiveBatchUserMessage> all = em.createQuery("SELECT eaum FROM EArchiveBatchUserMessage eaum", EArchiveBatchUserMessage.class)
                 .getResultList();

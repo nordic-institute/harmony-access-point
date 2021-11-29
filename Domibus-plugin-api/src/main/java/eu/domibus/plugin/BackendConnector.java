@@ -52,6 +52,18 @@ public interface BackendConnector<U, T> {
     T downloadMessage(final String messageId, final T target) throws MessageNotFoundException;
 
     /**
+     * provides the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
+     * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
+     * factory (i.e. a JMS session).
+     *
+     * @param messageEntityId the entity id of the message to retrieve
+     * @param target    the target object to be filled.
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message was not found
+     */
+    T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException;
+
+    /**
      * Browses the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
      * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
      * factory (i.e. a JMS session).
@@ -64,12 +76,16 @@ public interface BackendConnector<U, T> {
     T browseMessage(final String messageId, final T target) throws MessageNotFoundException;
 
     /**
-     * provides a list of messageIds which have not been downloaded yet. Only available for Mode.PULL plugins
+     * Browses the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
+     * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
+     * factory (i.e. a JMS session).
      *
-     * @return a list of messages that have not been downloaded yet.
-     * @throws UnsupportedOperationException when called from a plugin using Mode.PUSH
+     * @param messageEntityId the entity id of the message to browse
+     * @param target    the target object to be filled.
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message was not found
      */
-    Collection<String> listPendingMessages();
+    T browseMessage(final Long messageEntityId, final T target) throws MessageNotFoundException;
 
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
@@ -78,6 +94,14 @@ public interface BackendConnector<U, T> {
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
     MessageStatus getStatus(final String messageId);
+
+    /**
+     * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
+     *
+     * @param messageEntityId entity id of the message the status is requested for
+     * @return the message status {@link eu.domibus.common.MessageStatus}
+     */
+    MessageStatus getStatus(final Long messageEntityId);
 
     /**
      * Returns List {@link java.util.List} of error logs {@link ErrorResult} for message with messageid

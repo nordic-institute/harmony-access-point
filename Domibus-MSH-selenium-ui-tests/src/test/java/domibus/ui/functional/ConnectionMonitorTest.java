@@ -166,10 +166,15 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
-		page.grid().getActionButton("Send", 0).click();
-		new DWait(driver).forXMillis(500);
-		page.grid().getActionButton("Refresh", 0).click();
-		new DWait(driver).forXMillis(500);
+		ConMonGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		grid.getActionButton("Send", 0).click();
+		grid.waitForSpinnerToStop();
+
+		grid.getActionButton("Refresh", 0).click();
+		grid.waitForSpinnerToStop();
+
 
 		String afterSentData = page.grid().getSendRecStatus("Send", 0);
 
@@ -189,17 +194,20 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
+		ConMonGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 
-		page.grid().getActionButton("Send", 0).click();
-		new DWait(driver).forXMillis(1000);
-		page.grid().getActionButton("Refresh", 0).click();
-		new DWait(driver).forXMillis(1000);
+		grid.getActionButton("Send", 0).click();
+		grid.waitForSpinnerToStop();
 
-		String afterSentData = page.grid().sentRecvStatusDetail.get(0).getText();
+		grid.getActionButton("Refresh", 0).click();
+		grid.waitForSpinnerToStop();
+
+		String afterSentData = grid.sentRecvStatusDetail.get(0).getText();
 		soft.assertTrue(afterSentData.contains("a few seconds ago"), "After sent data contains time difference in seconds");
-		String afterConnectionStatus = page.grid().connectionStatusIcons.get(0).getText();
+		String afterConnectionStatus = grid.connectionStatusIcons.get(0).getText();
 		soft.assertTrue(afterConnectionStatus.equals("check_circle"), "Success symbol is shown");
-		soft.assertTrue(page.grid().connectionStatusIcons.get(0).getAttribute("style").contains("color: green"), "Symbol is shown with green color");
+		soft.assertTrue(grid.connectionStatusIcons.get(0).getAttribute("style").contains("color: green"), "Symbol is shown with green color");
 		soft.assertAll();
 	}
 
@@ -301,7 +309,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.grid().getActionButton(actionBtnName, i).click();
 
 		modal.getTestbutton().click();
-		new DWait(driver).forXMillis(100);
+
 		modal.getUpdateBtn().click();
 		return page.getAlertArea().getAlertMessage();
 	}

@@ -1,20 +1,20 @@
 package eu.domibus.core.earchive.job;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
-import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.alerts.EArchivingEventService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,69 +50,108 @@ public class EArchivingJobService {
 
     private final NoArgGenerator uuidGenerator;
 
-    private final ObjectMapper objectMapper;
+    private final UserMessageLogDao userMessageLogDao;
+
+    private final EArchivingEventService eArchivingEventService;
 
     public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
                                 DomibusPropertyProvider domibusPropertyProvider,
                                 PModeProvider pModeProvider,
                                 EArchiveBatchDao eArchiveBatchDao,
                                 EArchiveBatchStartDao eArchiveBatchStartDao,
-                                @Qualifier("domibusJsonMapper") ObjectMapper jsonMapper,
-                                NoArgGenerator uuidGenerator) {
+                                NoArgGenerator uuidGenerator,
+                                UserMessageLogDao userMessageLogDao,
+                                EArchivingEventService eArchivingEventService) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
-        this.objectMapper = jsonMapper;
         this.uuidGenerator = uuidGenerator;
+        this.userMessageLogDao = userMessageLogDao;
+        this.eArchivingEventService = eArchivingEventService;
     }
 
     @Transactional(readOnly = true)
-    public long getLastEntityIdArchived() {
-        return eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
+    public long getLastEntityIdArchived(EArchiveRequestType eArchiveRequestType) {
+        return eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType)).getLastPkUserMessage();
     }
 
     @Transactional
-    public void updateLastEntityIdExported(Long lastPkUserMessage) {
-        eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).setLastPkUserMessage(lastPkUserMessage);
+    public void updateLastEntityIdExported(Long lastPkUserMessage, EArchiveRequestType eArchiveRequestType) {
+        eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType)).setLastPkUserMessage(lastPkUserMessage);
     }
 
     @Transactional
-    public EArchiveBatchEntity createEArchiveBatch(Long lastEntityIdProcessed, int batchSize, ListUserMessageDto userMessageToBeArchived) {
-        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(userMessageToBeArchived, batchSize, lastEntityIdProcessed);
+    public EArchiveBatchEntity createEArchiveBatchWithMessages(Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
+        return createEArchiveBatchWithMessages(null,
+                (userMessageToBeArchived.isEmpty() ? null : userMessageToBeArchived.get(0).getUserMessageEntityId()),
+                lastEntityIdProcessed, batchSize, userMessageToBeArchived, requestType);
+    }
 
-        eArchiveBatchUserMessageDao.create(eArchiveBatch, getEntityIds(userMessageToBeArchived.getUserMessageDtos()));
+    @Transactional
+    public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
+        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, batchSize, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
+        eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
         return eArchiveBatch;
     }
 
-    private List<Long> getEntityIds(List<UserMessageDTO> userMessageDTOS) {
-        return userMessageDTOS.stream().map(UserMessageDTO::getEntityId).collect(toList());
+    /**
+     *  Method creates a new (copy) batch from the batch for given batchId. Message ids
+     *  request date, storage location, and RequestType which is set as MANUAL.
+     *  The Original batch re-exported flag is set to true
+     *
+     * @param batchId
+     * @return new batch entry
+     */
+    @Transactional
+    public EArchiveBatchEntity reExportEArchiveBatch(String batchId) {
+        EArchiveBatchEntity originEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+        if (originEntity == null) {
+            throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
+        }
+        List<EArchiveBatchUserMessage> messages =  eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
+
+        EArchiveBatchEntity reExportedBatch = createEArchiveBatchWithMessages(originEntity.getBatchId(),
+                originEntity.getFirstPkUserMessage(),
+                originEntity.getLastPkUserMessage(),
+                originEntity.getBatchSize(),
+                messages,
+                EArchiveRequestType.MANUAL );// rexported batch is set to manual
+        // set original entity as re-exported
+        originEntity.setReExported(Boolean.TRUE);
+        return reExportedBatch;
     }
 
-    private EArchiveBatchEntity createEArchiveBatch(ListUserMessageDto userMessageToBeArchived, int batchSize, long lastEntity) {
+    protected int getEArchiveBatchStartId(EArchiveRequestType requestType) {
+        if (requestType == EArchiveRequestType.CONTINUOUS) {
+            return EArchivingDefaultService.CONTINUOUS_ID;
+        }
+        if (requestType == EArchiveRequestType.SANITIZER) {
+            return EArchivingDefaultService.SANITY_ID;
+        }
+        throw new DomibusEArchiveException("BatchRequestType [" + requestType + "] doesn't have a startDate saved in database");
+    }
+
+    private EArchiveBatchEntity createEArchiveBatch(String originalBatchId, int batchSize, Long firstEntity, Long lastEntity, EArchiveRequestType requestType) {
         EArchiveBatchEntity entity = new EArchiveBatchEntity();
+        entity.setOriginalBatchId(originalBatchId);
         entity.setBatchSize(batchSize);
-        entity.setRequestType(RequestType.CONTINUOUS);
+        entity.setRequestType(requestType);
         entity.setStorageLocation(domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_STORAGE_LOCATION));
         entity.setBatchId(uuidGenerator.generate().toString());
-        entity.setMessageIdsJson(getRawJson(userMessageToBeArchived));
+        entity.setFirstPkUserMessage(firstEntity);
         entity.setLastPkUserMessage(lastEntity);
         entity.setEArchiveBatchStatus(EArchiveBatchStatus.QUEUED);
         entity.setDateRequested(new Date());
-        eArchiveBatchDao.create(entity);
-        return entity;
+        return eArchiveBatchDao.merge(entity);
     }
 
-    private String getRawJson(ListUserMessageDto userMessageToBeArchived) {
-        try {
-            return objectMapper.writeValueAsString(userMessageToBeArchived);
-        } catch (JsonProcessingException e) {
-            throw new DomibusEArchiveException("Could not parse the list of userMessages", e);
+    @Transactional(readOnly = true)
+    public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
+        if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
+            return eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
         }
-    }
-
-    public long getMaxEntityIdToArchived() {
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(getRetryTimeOut())
@@ -167,4 +206,17 @@ public class EArchivingJobService {
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+        return userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, size);
+    }
+
+    public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
+        List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
+
+        for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
+            MessageStatus messageStatus = userMessageLogDao.getMessageStatus(userMessageDto.getMessageId());
+            LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), messageStatus);
+            eArchivingEventService.sendEvent(userMessageDto.getMessageId(), messageStatus);
+        }
+    }
 }

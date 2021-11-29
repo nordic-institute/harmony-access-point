@@ -44,13 +44,14 @@ public class JMSPluginQueueServiceTest {
     @Test
     public void getJMSQueue(@Injectable Submission submission) throws MessageNotFoundException {
         String messageId = "123";
+        long messageEntityId = 123;
         String service = "myService";
         String action = "myAction";
         String defaultQueueProperty = "domibus.defaultQueue";
         String routingQueuePrefixProperty = "domibus.defaultQueue.routing.";
 
         new Expectations(JMSPluginQueueService) {{
-            messageRetriever.browseMessage(messageId);
+            messageRetriever.browseMessage(messageEntityId);
             result = submission;
 
             submission.getService();
@@ -62,7 +63,7 @@ public class JMSPluginQueueServiceTest {
             JMSPluginQueueService.getJMSQueue((QueueContext) any, anyString, anyString);
         }};
 
-        JMSPluginQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        JMSPluginQueueService.getJMSQueue(messageEntityId, messageId, defaultQueueProperty, routingQueuePrefixProperty);
 
         new Verifications() {{
             QueueContext queueContext = null;

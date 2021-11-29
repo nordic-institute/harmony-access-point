@@ -134,7 +134,7 @@ public class WebServicePluginImpl implements BackendInterface {
 
         final String messageId;
         try {
-            messageId = wsPlugin.submit(message);
+            messageId = wsPlugin.submitFromOldPlugin(message);
         } catch (final MessagingProcessingException mpEx) {
             LOG.error(MESSAGE_SUBMISSION_FAILED, mpEx);
             throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateFaultDetail(mpEx));

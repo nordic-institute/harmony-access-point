@@ -1,11 +1,14 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.AbstractBaseEntity;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -13,51 +16,56 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "TB_EARCHIVE_BATCH")
-@NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
-@NamedQuery(name = "EArchiveBatchEntity.findLastEntityIdArchived",
-        query = "SELECT max(b.lastPkUserMessage) FROM EArchiveBatchEntity b WHERE b.requestType =  :REQUEST_TYPE")
+@NamedQuery(name = "EArchiveBatchEntity.findByEntityId", query = "FROM EArchiveBatchEntity batch where batch.entityId = :BATCH_ENTITY_ID")
+@NamedQuery(name = "EArchiveBatchEntity.findByBatchId", query = "FROM EArchiveBatchEntity batch where batch.batchId = :BATCH_ID")
+@NamedQuery(name = "EArchiveBatchEntity.findByStatus", query = "FROM EArchiveBatchEntity b where b.eArchiveBatchStatus in :STATUSES order by b.entityId asc")
+@NamedQuery(name = "EArchiveBatchEntity.updateStatusByDate", query = "UPDATE EArchiveBatchEntity b set b.eArchiveBatchStatus=:NEW_STATUS where b.eArchiveBatchStatus in :STATUSES and b.dateRequested < :LIMIT_DATE")
 public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     @Column(name = "BATCH_ID")
-    private String batchId;
+    protected String batchId;
+
+    @Column(name = "ORIGINAL_BATCH_ID")
+    protected String originalBatchId;
+
+    @Column(name = "REEXPORTED")
+    protected Boolean reExported = Boolean.FALSE;
 
     @Column(name = "REQUEST_TYPE")
     @Enumerated(EnumType.STRING)
-    private RequestType requestType;
+    protected EArchiveRequestType requestType;
 
     @Column(name = "BATCH_STATUS")
     @Enumerated(EnumType.STRING)
-    private EArchiveBatchStatus eArchiveBatchStatus;
+    protected EArchiveBatchStatus eArchiveBatchStatus;
 
     @Column(name = "DATE_REQUESTED")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date dateRequested;
+    protected Date dateRequested;
 
     @Column(name = "LAST_PK_USER_MESSAGE")
-    private Long lastPkUserMessage;
+    protected Long lastPkUserMessage;
 
     @Column(name = "BATCH_SIZE")
-    private Integer batchSize;
+    protected Integer batchSize;
+
+    @Column(name = "ERROR_CODE")
+    protected String errorCode;
+
+    @Column(name = "ERROR_DETAIL")
+    protected String errorMessage;
 
     @Column(name = "STORAGE_LOCATION")
-    private String storageLocation;
+    protected String storageLocation;
 
-    @Column(name = "ERROR")
-    private String error;
+    @Column(name = "FIRST_PK_USER_MESSAGE")
+    private Long firstPkUserMessage;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "MESSAGEIDS_JSON")
-    protected byte[] messageIdsJson;
+    @Column(name = "MANIFEST_CHECK_SUM")
+    protected String manifestChecksum;
 
-    public void setMessageIdsJson(String rawJson) {
-        byte[] bytes = rawJson.getBytes(StandardCharsets.UTF_8);
-        this.messageIdsJson = bytes;
-    }
-
-    public byte[] getMessageIdsJson() {
-        return messageIdsJson;
-    }
+    @Transient
+    private List<EArchiveBatchUserMessage> eArchiveBatchUserMessages;
 
     public String getBatchId() {
         return batchId;
@@ -67,11 +75,27 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.batchId = batchId;
     }
 
-    public RequestType getRequestType() {
+    public String getOriginalBatchId() {
+        return originalBatchId;
+    }
+
+    public void setOriginalBatchId(String originalBatchId) {
+        this.originalBatchId = originalBatchId;
+    }
+
+    public Boolean getReExported() {
+        return reExported;
+    }
+
+    public void setReExported(Boolean reExported) {
+        this.reExported = reExported;
+    }
+
+    public EArchiveRequestType getRequestType() {
         return requestType;
     }
 
-    public void setRequestType(RequestType requestType) {
+    public void setRequestType(EArchiveRequestType requestType) {
         this.requestType = requestType;
     }
 
@@ -89,6 +113,14 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
 
     public void setLastPkUserMessage(Long lastPkUserMessage) {
         this.lastPkUserMessage = lastPkUserMessage;
+    }
+
+    public Long getFirstPkUserMessage() {
+        return firstPkUserMessage;
+    }
+
+    public void setFirstPkUserMessage(Long firstPkUserMessage) {
+        this.firstPkUserMessage = firstPkUserMessage;
     }
 
     public Integer getBatchSize() {
@@ -115,25 +147,81 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
         this.eArchiveBatchStatus = eArchiveBatchStatus;
     }
 
-    public String getError() {
-        return error;
+    public String getErrorCode() {
+        return errorCode;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public List<EArchiveBatchUserMessage> geteArchiveBatchUserMessages() {
+        return eArchiveBatchUserMessages;
+    }
+
+    public void seteArchiveBatchUserMessages(List<EArchiveBatchUserMessage> eArchiveBatchUserMessages) {
+        this.eArchiveBatchUserMessages = eArchiveBatchUserMessages;
+    }
+
+    public String getManifestChecksum() {
+        return manifestChecksum;
+    }
+
+    public void setManifestChecksum(String manifestChecksum) {
+        this.manifestChecksum = manifestChecksum;
     }
 
     @Override
-    public String toString() {
-        return "EArchiveBatchEntity{" +
-                "batchId='" + batchId + '\'' +
-                ", requestType=" + requestType +
-                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
-                ", dateRequested=" + dateRequested +
-                ", lastPkUserMessage=" + lastPkUserMessage +
-                ", batchSize=" + batchSize +
-                ", storageLocation='" + storageLocation + '\'' +
-                ", messageIdsJson=" + Arrays.toString(messageIdsJson) +
-                "} " + super.toString();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EArchiveBatchEntity that = (EArchiveBatchEntity) o;
+
+        return new EqualsBuilder().appendSuper(super.equals(o))
+                .append(batchId, that.batchId)
+                .append(requestType, that.requestType)
+                .append(eArchiveBatchStatus, that.eArchiveBatchStatus)
+                .append(dateRequested, that.dateRequested)
+                .append(lastPkUserMessage, that.lastPkUserMessage)
+                .append(batchSize, that.batchSize)
+                .append(errorCode, that.errorCode)
+                .append(errorMessage, that.errorMessage)
+                .append(storageLocation, that.storageLocation)
+                .append(firstPkUserMessage, that.firstPkUserMessage)
+                .append(manifestChecksum, that.manifestChecksum)
+                .append(reExported, that.reExported)
+                .append(originalBatchId, that.originalBatchId)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(batchId)
+                .append(requestType)
+                .append(eArchiveBatchStatus)
+                .append(dateRequested)
+                .append(lastPkUserMessage)
+                .append(batchSize)
+                .append(errorCode)
+                .append(errorMessage)
+                .append(storageLocation)
+                .append(firstPkUserMessage)
+                .append(manifestChecksum)
+                .append(reExported)
+                .append(originalBatchId)
+                .toHashCode();
     }
 }
+
