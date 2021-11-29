@@ -59,9 +59,8 @@ public class EArchivingFileService {
 
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
         if (rawXmlByMessageId != null) {
-            files.put(SOAP_ENVELOPE_XML, new ByteArrayInputStream(rawXmlByMessageId.getRawMessage()));
-        }
-        if (rawXmlByMessageId == null) {
+            files.put(SOAP_ENVELOPE_XML, rawXmlByMessageId.getRawXmlMessageAsStream());
+        } else {
             LOG.debug("No userMessageRaw found for entityId [{}]", entityId);
         }
 

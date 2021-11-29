@@ -146,7 +146,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
             archiveBatchFilter.setPageSize(filter.getLastCountRequests());
         } else {
 
-            setBatchStatus(archiveBatchFilter, filter.getRequestTypes());
+            setBatchRequestTypes(archiveBatchFilter, filter.getRequestTypes());
             archiveBatchFilter.setStartDate(filter.getStartDate());
             archiveBatchFilter.setEndDate(filter.getEndDate());
 
@@ -175,12 +175,11 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         } else {
             filter.getStatuses().forEach(requestedStatusType -> archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(requestedStatusType.name())));
         }
-        // set filter for all
-        setBatchStatus(archiveBatchFilter, filter.getRequestTypes());
 
         // set filter
         archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
         archiveBatchFilter.setMessageEndId(dateToPKUserMessageId(filter.getMessageEndDate()));
+        archiveBatchFilter.setIncludeReExportedBatches(filter.getIncludeReExportedBatches());
 
         // set pagination
         archiveBatchFilter.setPageSize(pageSize);
@@ -189,7 +188,7 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         return archiveBatchFilter;
     }
 
-    private void setBatchStatus(EArchiveBatchFilter archiveBatchFilter, List<BatchRequestType> requestTypes) {
+    private void setBatchRequestTypes(EArchiveBatchFilter archiveBatchFilter, List<BatchRequestType> requestTypes) {
         requestTypes.forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
         if(archiveBatchFilter.getRequestTypes().contains(EArchiveRequestType.CONTINUOUS)) {
             archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.SANITIZER);
