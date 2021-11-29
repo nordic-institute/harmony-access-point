@@ -81,24 +81,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: tomcat-embed-core-9.0.39.jar
-   ]]></notes>
-        <!-- we are using this in a test module -->
-        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
-        <cve>CVE-2020-17527</cve>
-        <cve>CVE-2021-24122</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: tomcat-embed-websocket-9.0.39.jar
-   ]]></notes>
-        <!-- we are using this in a test module -->
-        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
-        <cve>CVE-2020-17527</cve>
-        <cve>CVE-2021-24122</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: spring-xxx-5.xx.RELEASE.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
@@ -113,4 +95,35 @@
         <!-- wss4j-ws-security-common has transitive dependency on opensaml library but not on velocity so we are not impacted -->
         <cve>CVE-2020-13936</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-xxx-yyy.jar
+   ]]></notes>
+        <!-- we are using this in a test module -->
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-.*@.*$</packageUrl>
+        <cve>CVE-2020-17527</cve>
+        <cve>CVE-2021-24122</cve>
+        <cve>CVE-2020-9484</cve>
+        <cve>CVE-2021-25122</cve>
+        <cve>CVE-2021-25329</cve>
+        <cve>CVE-2021-30640</cve>
+        <cve>CVE-2021-33037</cve>
+        <cve>CVE-2021-41079</cve>
+        <cve>CVE-2021-42340</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-xxx-yyy.jar
+   ]]></notes>
+        <!-- we are using these libraries in a test module -->
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*@.*$</packageUrl>
+        <cve>CVE-2017-9735</cve>
+        <cve>CVE-2020-27216</cve>
+        <cve>CVE-2021-28165</cve>
+        <cve>CVE-2021-28169</cve>
+        <cve>CVE-2021-34428</cve>
+    </suppress>
+
 </suppressions>
