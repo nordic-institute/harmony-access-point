@@ -555,6 +555,15 @@
         </createTable>
     </changeSet>
     <!-- End EArchive Tables -->
+
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-8654">
+        <addColumn tableName="TB_PART_INFO">
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
+        </addColumn>
+    </changeSet>
+
+
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

@@ -1,5 +1,5 @@
 
-package eu.domibus.core.message.compression;
+package eu.domibus.api.message.compression;
 
 import javax.activation.DataSource;
 import java.io.IOException;

@@ -124,56 +124,55 @@ public class CompressionService {
      * @throws EbMS3Exception if an problem occurs during the de compression or the mimetype of a compressed payload was missing
      */
     public boolean handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
-        //if compression is not necessary return false
-        if (!legConfigForMessage.isCompressPayloads()) {
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_NOT_ENABLED);
-            return false;
-        }
-
         for (final PartInfo partInfo : partInfoList) {
-            if (partInfo.isInBody()) {
-                LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_PART_INFO_IN_BODY, partInfo.getHref());
-                continue;
-            }
-
-            String mimeType = null;
-            boolean payloadCompressed = false;
-
-            if (partInfo.getPartProperties() != null) {
-                for (final Property property : partInfo.getPartProperties()) {
-                    if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
-                        mimeType = property.getValue();
-                    }
-                    if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
-                        payloadCompressed = true;
-                    }
-                }
-            }
-
-            if (!payloadCompressed) {
-                LOG.debug("Decompression is not needed: payload is not compressed");
-                continue;
-            }
-
-            final Property compressionProperty = new Property();
-            compressionProperty.setName(CompressionService.COMPRESSION_PROPERTY_KEY);
-            compressionProperty.setValue(CompressionService.COMPRESSION_PROPERTY_VALUE);
-            partInfo.getPartProperties().remove(compressionProperty);
-
-            if (mimeType == null) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), userMessage.getMessageId());
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
-                        .message("No mime type found for payload with cid:" + partInfo.getHref())
-                        .refToMessageId(userMessage.getMessageId())
-                        .mshRole(MSHRole.RECEIVING)
-                        .build();
-            }
-            partInfo.setPayloadDatahandler(new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType)));
-            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
+            handlePartInfoDecompression(userMessage.getMessageId(), partInfo);
         }
         return true;
     }
+
+    public void handlePartInfoDecompression(String messageId, PartInfo partInfo) throws EbMS3Exception {
+        if (partInfo.isInBody()) {
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_PART_INFO_IN_BODY, partInfo.getHref());
+            return;
+        }
+
+        String mimeType = null;
+        boolean payloadCompressed = false;
+
+        if (partInfo.getPartProperties() != null) {
+            for (final Property property : partInfo.getPartProperties()) {
+                if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
+                    mimeType = property.getValue();
+                }
+                if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+                    payloadCompressed = true;
+                }
+            }
+        }
+
+        if (!payloadCompressed) {
+            LOG.debug("Decompression is not needed: payload is not compressed");
+            return;
+        }
+
+        final PartProperty compressionProperty = new PartProperty();
+        compressionProperty.setName(CompressionService.COMPRESSION_PROPERTY_KEY);
+        compressionProperty.setValue(CompressionService.COMPRESSION_PROPERTY_VALUE);
+        partInfo.getPartProperties().remove(compressionProperty);
+
+        if (mimeType == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_FAILURE_MISSING_MIME_TYPE, partInfo.getHref(), messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("No mime type found for payload with cid:" + partInfo.getHref())
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+        partInfo.setCompressed(true);
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
+    }
+
 
     private class CompressedDataSource implements DataSource {
         private DataSource ds;
