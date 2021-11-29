@@ -22,10 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.io.ByteArrayInputStream;
+import javax.activation.DataSource;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
@@ -164,16 +162,14 @@ public class EArchivingFileServiceTest {
         Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
         Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
     }
+
     @Test
-    public void getArchivingFiles_compressedAttachment(@Injectable RawEnvelopeDto rawEnvelopeDto,
-                                            @Injectable PartInfo partInfo1,
+    public void getArchivingFiles_compressedAttachment(@Injectable PartInfo partInfo1,
                                             @Injectable DataHandler dataHandler,
                                             @Injectable InputStream inputStream) throws IOException {
+        RawEnvelopeDto rawEnvelopeDto = new RawEnvelopeDto(1L, RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
-
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
