@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -157,15 +156,5 @@ public class AlertDaoIT {
 
     public static Date asDate(LocalDateTime localDate) {
         return Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
-    @Test
-    public void deleteAlerts() {
-        final LocalDateTime now = LocalDateTime.now();
-        final Date deletionDate = asDate(now.plusDays(1));
-        final Date reportingDate = asDate(now);
-        createAlert("blue_gw", "red_gw", true, reportingDate);
-        alertDao.deleteAlerts(deletionDate);
-        assertEquals(Collections.emptyList(), alertDao.findRetryAlerts());
     }
 }
