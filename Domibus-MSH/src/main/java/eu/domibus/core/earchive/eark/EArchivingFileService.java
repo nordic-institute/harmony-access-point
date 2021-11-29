@@ -3,6 +3,7 @@ package eu.domibus.core.earchive.eark;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.Property;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
@@ -78,25 +79,31 @@ public class EArchivingFileService {
             throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and entityId [" + entityId + "]");
         }
         try {
-            String mimeType = null;
-            boolean payloadCompressed = false;
-            if (partInfo.getPartProperties() != null) {
-                for (final Property property : partInfo.getPartProperties()) {
-                    if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
-                        mimeType = property.getValue();
-                    }
-                    if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
-                        payloadCompressed = true;
-                    }
-                }
-                if (StringUtils.isNotBlank(mimeType) && payloadCompressed) {
-                    return Pair.of(getFileName(partInfo, getExtension(mimeType)), new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream());
-                }
+            Map<String, String> props = getProps(partInfo);
+            String mimeType = props.get(Property.MIME_TYPE);
+            if (messageIsCompressed(props, mimeType)) {
+                return Pair.of(
+                        getFileName(partInfo, getExtension(mimeType)),
+                        new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream());
             }
             return Pair.of(getFileName(partInfo, getExtension(partInfo.getMime())), partInfo.getPayloadDatahandler().getInputStream());
         } catch (IOException e) {
             throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "] and messageId [" + entityId + "]", e);
         }
+    }
+
+    private boolean messageIsCompressed(Map<String, String> props, String mimeType) {
+        return StringUtils.isNotBlank(mimeType) && StringUtils.equalsIgnoreCase(props.get(CompressionService.COMPRESSION_PROPERTY_KEY), CompressionService.COMPRESSION_PROPERTY_VALUE);
+    }
+
+    private Map<String, String> getProps(PartInfo partInfo) {
+        Map<String, String> props = new HashMap<>();
+        if (partInfo != null) {
+            for (PartProperty partProperty : partInfo.getPartProperties()) {
+                props.put(partProperty.getName(), partProperty.getValue());
+            }
+        }
+        return props;
     }
 
     protected String getFileName(PartInfo info) {
