@@ -146,11 +146,13 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized void refreshTrustStore() {
-        KeyStore oldTruststore = this.truststore;
+        KeyStore oldTruststore = getTrustStore();
         final KeyStore trustStore = loadTrustStore();
         setTrustStore(trustStore);
 
-        if (!areKeystoresIdentical(oldTruststore, trustStore)) {
+        if (areKeystoresIdentical(oldTruststore, trustStore)) {
+            LOG.debug("New truststore and previous truststore are identical");
+        } else {
             signalService.signalTrustStoreUpdate(domain);
         }
     }
@@ -158,21 +160,26 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     protected boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
         try {
             if (store1 == null && store2 == null) {
+                LOG.debug("Identical keystores: both are null");
                 return true;
             }
             if (store1 == null || store2 == null) {
+                LOG.debug("Different keystores: [{}] vs [{}]", store1, store2);
                 return false;
             }
             if (store1.size() != store2.size()) {
+                LOG.debug("Different keystores: [{}] vs [{}] entries", store1.size(), store2.size());
                 return false;
             }
             final Enumeration<String> aliases = store1.aliases();
             while (aliases.hasMoreElements()) {
                 final String alias = aliases.nextElement();
                 if (!store2.containsAlias(alias)) {
+                    LOG.debug("Different keystores: [{}] alias is not found in both", alias);
                     return false;
                 }
                 if (!store1.getCertificate(alias).equals(store2.getCertificate(alias))) {
+                    LOG.debug("Different keystores: [{}] certificate is different", alias);
                     return false;
                 }
             }
