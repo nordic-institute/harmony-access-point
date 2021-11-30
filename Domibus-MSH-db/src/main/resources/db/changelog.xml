@@ -738,6 +738,7 @@
                 <constraints nullable="false"/>
             </column>
             <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
