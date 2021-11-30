@@ -96,11 +96,11 @@
         <cve>CVE-2020-13936</cve>
     </suppress>
 
+    <!-- test modules exclusions start here -->
     <suppress>
         <notes><![CDATA[
    file name: tomcat-embed-xxx-yyy.jar
    ]]></notes>
-        <!-- we are using this in a test module -->
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-.*@.*$</packageUrl>
         <cve>CVE-2020-17527</cve>
         <cve>CVE-2021-24122</cve>
@@ -117,7 +117,6 @@
         <notes><![CDATA[
    file name: jetty-xxx-yyy.jar
    ]]></notes>
-        <!-- we are using these libraries in a test module -->
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*@.*$</packageUrl>
         <cve>CVE-2017-9735</cve>
         <cve>CVE-2020-27216</cve>
@@ -125,5 +124,58 @@
         <cve>CVE-2021-28169</cve>
         <cve>CVE-2021-34428</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: accessors-smart-1.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
+        <cve>CVE-2021-27568</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jakarta.el-3.0.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.el@.*$</packageUrl>
+        <cve>CVE-2021-28170</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-rt-features-metrics-3.4.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-features\-metrics@.*$</packageUrl>
+        <cve>CVE-2021-22696</cve>
+        <cve>CVE-2021-30468</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-spring-boot-autoconfigure-3.4.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-autoconfigure@.*$</packageUrl>
+        <cve>CVE-2021-22696</cve>
+        <cve>CVE-2021-30468</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: cxf-spring-boot-starter-jaxws-3.4.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-spring\-boot\-starter\-jaxws@.*$</packageUrl>
+        <cve>CVE-2021-22696</cve>
+        <cve>CVE-2021-30468</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: json-smart-2.3.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-smart@.*$</packageUrl>
+        <cve>CVE-2021-27568</cve>
+    </suppress>
+    <!-- test modules exclusions start here -->
+
 
 </suppressions>
