@@ -163,9 +163,6 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = EArchiveRequestType.CONTINUOUS;
 
-            eArchiveBatch.getEArchiveBatchStatus();
-            result = EArchiveBatchStatus.STARTED;
-
             domibusEARKSIPResult.getManifestChecksum();
             result = "sha256:test";
 
