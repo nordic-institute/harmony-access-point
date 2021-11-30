@@ -96,10 +96,16 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this._messageInterval;
   }
 
-  set messageInterval(value: DateInterval) {
-    this._messageInterval = value;
-    if (this._messageInterval.value) {
-      this.filter.receivedFrom = new Date(this.filter.receivedTo - this._messageInterval.value * this.MS_PER_MINUTE);
+  set messageInterval(dateInterval: DateInterval) {
+    if (this._messageInterval == dateInterval) {
+      return;
+    }
+    this._messageInterval = dateInterval;
+    if (dateInterval.value) {
+      if (!this.filter.receivedTo) {
+        this.filter.receivedTo = new Date();
+      }
+      this.filter.receivedFrom = new Date(this.filter.receivedTo - dateInterval.value * this.MS_PER_MINUTE);
     } else {
       this.filter.receivedFrom = null;
       this.filter.receivedTo = null;
@@ -453,10 +459,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
+    this._messageInterval = this.messageIntervals[this.messageIntervals.length - 1];
   }
 
   onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
+    this._messageInterval = this.messageIntervals[this.messageIntervals.length - 1];
   }
 
   private showNextAttemptInfo(row: any): boolean {
