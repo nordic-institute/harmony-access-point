@@ -825,6 +825,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -932,6 +933,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
