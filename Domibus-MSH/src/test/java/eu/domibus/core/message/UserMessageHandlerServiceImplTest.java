@@ -606,7 +606,6 @@ public class UserMessageHandlerServiceImplTest {
             result = "messageId";
 
             compressionService.handleDecompression(userMessage, null, legConfiguration);
-            result = true;
 
             propertyProfileValidator.validate(userMessage, pmodeKey);
             result = EbMS3ExceptionBuilder.getInstance()
@@ -641,7 +640,6 @@ public class UserMessageHandlerServiceImplTest {
 
         new Expectations() {{
             compressionService.handleDecompression(userMessage, null, legConfiguration);
-            result = true;
 
             messagingService.storeMessagePayloads(userMessage, null, MSHRole.RECEIVING, legConfiguration, anyString);
             result = new CompressionException("Could not store binary data for message ", null);

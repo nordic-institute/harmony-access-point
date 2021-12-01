@@ -351,7 +351,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
     String DOMIBUS_EARCHIVE_BATCH_SIZE = "domibus.earchive.batch.size";
     String DOMIBUS_EARCHIVE_BATCH_MAX = "domibus.earchive.batch.max";
-    String DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT = "domibus.earchive.batch.retryTimeOut";
+    String DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT = "domibus.earchive.batch.retry.timeout";
     String DOMIBUS_EARCHIVE_BATCH_MPCS = "domibus.earchive.batch.mpcs";
     String DOMIBUS_EARCHIVE_NOTIFICATION_URL = "domibus.earchive.notification.url";
     String DOMIBUS_EARCHIVE_NOTIFICATION_TIMEOUT = "domibus.earchive.notification.timeout";
