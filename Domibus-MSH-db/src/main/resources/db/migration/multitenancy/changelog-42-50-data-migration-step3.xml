@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- drop any previously created index, UQ, etc to avoid name collision -->
+    <changeSet id="EDELIVERY-7970-drop-indexes-uq-multitenancy" author="Catalin Enache">
+<!--        <dropForeignKeyConstraint baseTableName="TB_REV_CHANGES" constraintName="FK_REV_CHANGES_REV_INFO" />-->
+
+<!--        <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_SIGNAL_MESSAGE_ID" />-->
+    </changeSet>
+
+    <!-- rename any previously created UK constraints and indices to avoid name collision -->
+    <changeSet id="EDELIVERY-7970-rename-old-uk-constraints-and-indices-multitenancy" author="Sebastian-Ion TINCU" dbms="oracle">
+        <sql endDelimiter="\n/" dbms="oracle">
+-- ALTER INDEX IDX_USER_ID RENAME TO OLD_IDX_USER_ID
+-- /
+--
+-- ALTER TABLE TB_CERTIFICATE RENAME CONSTRAINT UK_CERTIFICATE_ALIAS TO OLD_UK_CERTIFICATE_ALIAS
+-- /
+-- ALTER INDEX UK_CERTIFICATE_ALIAS RENAME TO OLD_UK_CERTIFICATE_ALIAS
+-- /
+        </sql>
+    </changeSet>
+
+    <!-- rename former tables to OLD_* -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-former-tables-multitenancy">
+        <renameTable oldTableName="TB_USER_DOMAIN" newTableName="OLD_TB_USER_DOMAIN"/>
+    </changeSet>
+
+    <!-- remove MIGR_ prefix from new tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-MIGR-tables-multitenancy">
+        <renameTable oldTableName="MIGR_TB_USER_DOMAIN" newTableName="TB_USER_DOMAIN" />
+    </changeSet>
+
+    <!-- add constraints and indexes -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-constraints-multitenancy">
+        <!-- TB_USER_DOMAIN -->
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_DOMAIN_USER_NAME" tableName="TB_USER_DOMAIN"/>
+    </changeSet>
+
+</databaseChangeLog>

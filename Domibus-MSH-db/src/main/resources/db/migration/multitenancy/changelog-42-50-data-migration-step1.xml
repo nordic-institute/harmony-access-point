@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- clean existing tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-prepare-multitenancy">
+        <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
+
+        <sql endDelimiter="\n/" dbms="oracle">
+DECLARE
+    table_does_not_exist exception;
+    PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_DOMAIN';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_DOMAIN: table does not exist');
+    END;
+END;
+/
+        </sql>
+
+        <sql endDelimiter="\n//" dbms="mysql">
+DELIMITER //
+
+DROP TABLE IF EXISTS MIGR_TB_USER_DOMAIN
+//
+        </sql>
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8441-recreate-MIGR-tables-for-primary-key-migration-multitenancy">
+        <!-- TB_USER_DOMAIN -->
+        <createTable tableName="MIGR_TB_USER_DOMAIN">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN"/>
+            </column>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="DOMAIN" type="VARCHAR(255)"/>
+            <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

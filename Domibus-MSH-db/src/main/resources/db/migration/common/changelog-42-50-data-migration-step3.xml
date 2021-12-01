@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- drop any previously created index, UQ, etc to avoid name collision -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-drop-indexes-uq-common">
+        <dropForeignKeyConstraint baseTableName="TB_REV_CHANGES" constraintName="FK_REV_CHANGES_REV_INFO" />
+        <dropForeignKeyConstraint baseTableName="TB_COMMAND_PROPERTY" constraintName="FK_COMMAND_PROPERTY_ID" />
+        <dropForeignKeyConstraint baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID" />
+        <dropForeignKeyConstraint baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID" />
+        <dropForeignKeyConstraint baseTableName="TB_EVENT_PROPERTY" constraintName="FK_EVENT_PROPERTY_ID" />
+        <dropForeignKeyConstraint baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV" />
+        <dropForeignKeyConstraint baseTableName="TB_USER_PASSWORD_HISTORY" constraintName="FK_USER_PASSWORD_HISTORY" />
+        <dropForeignKeyConstraint baseTableName="TB_USER_ROLES" constraintName="FK_USER_ROLES_ROLE" />
+        <dropForeignKeyConstraint baseTableName="TB_USER_ROLES" constraintName="FK_USER_ROLES_USER" />
+        <dropForeignKeyConstraint baseTableName="TB_USER_ROLE_AUD" constraintName="FK_USR_ROL_AUD_REV_INFO" />
+    </changeSet>
+
+    <!-- rename any previously created UK constraints and indices to avoid name collision -->
+    <changeSet author="Sebastian-Ion TINCU" dbms="oracle" id="EDELIVERY-7970-rename-old-uk-constraints-and-indices-common">
+        <sql endDelimiter="\n/" dbms="oracle">
+ALTER INDEX IDX_FK_REV_CHANGES_REV_INFO RENAME TO OLD_IDX_FK_REV_CHNGS_REV_INFO
+/
+
+ALTER INDEX IDX_COMMAND_PROP_COMMAND_ID RENAME TO OLD_IDX_COMMAND_PROP_CMD_ID
+/
+
+ALTER INDEX IDX_FK_ALERT RENAME TO OLD_IDX_FK_ALERT
+/
+
+ALTER INDEX IDX_FK_EVENT_PROPERTY RENAME TO OLD_IDX_FK_EVENT_PROPERTY
+/
+
+ALTER INDEX IDX_FK_USER_AUD_REV RENAME TO OLD_IDX_FK_USER_AUD_REV
+/
+
+ALTER INDEX IDX_UPH_USER_ID RENAME TO OLD_IDX_UPH_USER_ID
+/
+
+ALTER INDEX IDX_ROLE_ID RENAME TO OLD_IDX_ROLE_ID
+/
+
+ALTER INDEX IDX_FK_USR_ROL_AUD_REV_INFO RENAME TO OLD_IDX_FK_USR_ROL_AUD_REV_INF
+/
+
+ALTER INDEX IDX_FK_EVENT RENAME TO OLD_IDX_FK_EVENT
+/
+
+ALTER INDEX IDX_USER_ID RENAME TO OLD_IDX_USER_ID
+/
+
+ALTER TABLE TB_COMMAND_PROPERTY RENAME CONSTRAINT UK_COMMAND_PROP_NAME TO OLD_UK_COMMAND_PROP_NAME
+/
+ALTER INDEX UK_COMMAND_PROP_NAME RENAME TO OLD_UK_COMMAND_PROP_NAME
+/
+
+ALTER TABLE TB_USER RENAME CONSTRAINT UK_USER_NAME TO OLD_UK_USER_NAME
+/
+ALTER INDEX UK_USER_NAME RENAME TO OLD_UK_USER_NAME
+/
+
+ALTER TABLE TB_USER_ROLE RENAME CONSTRAINT UK_ROLE_NAME TO OLD_UK_ROLE_NAME
+/
+ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
+/
+        </sql>
+    </changeSet>
+
+    <!-- rename former tables to OLD_* -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-former-tables-common">
+        <renameTable oldTableName="TB_ALERT" newTableName="OLD_TB_ALERT" />
+        <renameTable oldTableName="TB_EVENT" newTableName="OLD_TB_EVENT" />
+        <renameTable oldTableName="TB_EVENT_ALERT" newTableName="OLD_TB_EVENT_ALERT" />
+        <renameTable oldTableName="TB_EVENT_PROPERTY" newTableName="OLD_TB_EVENT_PROPERTY" />
+        <renameTable oldTableName="TB_COMMAND" newTableName="OLD_TB_COMMAND" />
+        <renameTable oldTableName="TB_COMMAND_PROPERTY" newTableName="OLD_TB_COMMAND_PROPERTY" />
+        <renameTable oldTableName="TB_USER" newTableName="OLD_TB_USER" />
+        <renameTable oldTableName="TB_USER_PASSWORD_HISTORY" newTableName="OLD_TB_USER_PASSWORD_HISTORY" />
+        <renameTable oldTableName="TB_USER_ROLE" newTableName="OLD_TB_USER_ROLE" />
+        <renameTable oldTableName="TB_USER_ROLES" newTableName="OLD_TB_USER_ROLES" />
+        <renameTable oldTableName="TB_REV_INFO" newTableName="OLD_TB_REV_INFO" />
+        <renameTable oldTableName="TB_REV_CHANGES" newTableName="OLD_TB_REV_CHANGES" />
+        <renameTable oldTableName="TB_USER_AUD" newTableName="OLD_TB_USER_AUD" />
+        <renameTable oldTableName="TB_USER_ROLE_AUD" newTableName="OLD_TB_USER_ROLE_AUD" />
+        <renameTable oldTableName="TB_USER_ROLES_AUD" newTableName="OLD_TB_USER_ROLES_AUD" />
+    </changeSet>
+
+    <!-- remove MIGR_ prefix from new tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-MIGR-tables-common">
+        <renameTable oldTableName="MIGR_TB_ALERT" newTableName="TB_ALERT" />
+        <renameTable oldTableName="MIGR_TB_EVENT" newTableName="TB_EVENT" />
+        <renameTable oldTableName="MIGR_TB_EVENT_ALERT" newTableName="TB_EVENT_ALERT" />
+        <renameTable oldTableName="MIGR_TB_EVENT_PROPERTY" newTableName="TB_EVENT_PROPERTY" />
+        <renameTable oldTableName="MIGR_TB_COMMAND" newTableName="TB_COMMAND" />
+        <renameTable oldTableName="MIGR_TB_COMMAND_PROPERTY" newTableName="TB_COMMAND_PROPERTY" />
+        <renameTable oldTableName="MIGR_TB_USER" newTableName="TB_USER" />
+        <renameTable oldTableName="MIGR_TB_USER_PASSWORD_HISTORY" newTableName="TB_USER_PASSWORD_HISTORY" />
+        <renameTable oldTableName="MIGR_TB_USER_ROLE" newTableName="TB_USER_ROLE" />
+        <renameTable oldTableName="MIGR_TB_USER_ROLES" newTableName="TB_USER_ROLES" />
+        <renameTable oldTableName="MIGR_TB_REV_INFO" newTableName="TB_REV_INFO" />
+        <renameTable oldTableName="MIGR_TB_REV_CHANGES" newTableName="TB_REV_CHANGES" />
+        <renameTable oldTableName="MIGR_TB_USER_AUD" newTableName="TB_USER_AUD" />
+        <renameTable oldTableName="MIGR_TB_USER_ROLE_AUD" newTableName="TB_USER_ROLE_AUD" />
+        <renameTable oldTableName="MIGR_TB_USER_ROLES_AUD" newTableName="TB_USER_ROLES_AUD" />
+    </changeSet>
+
+    <!-- add constraints and indexes -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-constraints-common">
+        <!-- TB_REV_CHANGES -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <!-- TB_COMMAND_PROPERTY -->
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
+            <column name="FK_COMMAND"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UK_COMMAND_PROP_NAME"
+                             tableName="TB_COMMAND_PROPERTY"/>
+
+        <!-- TB_ALERT -->
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_ALERT"
+                                 constraintName="FK_ALERT_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+        <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <!-- TB_EVENT_ALERT -->
+        <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_ALERT"/>
+        <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_EVENT"/>
+        <createIndex indexName="IDX_FK_ALERT" tableName="TB_EVENT_ALERT">
+            <column name="FK_ALERT"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_EVENT" tableName="TB_EVENT_ALERT">
+            <column name="FK_EVENT"/>
+        </createIndex>
+
+        <!-- TB_EVENT_PROPERTY -->
+        <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_PROPERTY"
+                                 constraintName="FK_EVENT_PROPERTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_EVENT"/>
+        <createIndex indexName="IDX_FK_EVENT_PROPERTY" tableName="TB_EVENT_PROPERTY">
+            <column name="FK_EVENT"/>
+        </createIndex>
+
+        <!-- TB_USER -->
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
+
+        <!-- TB_USER_AUD -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USER_AUD_REV" tableName="TB_USER_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <!-- TB_USER_PASSWORD_HISTORY -->
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_PASSWORD_HISTORY"
+                                 constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER"/>
+        <createIndex indexName="IDX_UPH_USER_ID" tableName="TB_USER_PASSWORD_HISTORY">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <!-- TB_USER_ROLE -->
+        <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UK_ROLE_NAME" tableName="TB_USER_ROLE"/>
+
+        <!-- TB_USER_ROLES -->
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_ROLES"
+                                 constraintName="FK_USER_ROLES_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER"/>
+
+        <addForeignKeyConstraint baseColumnNames="ROLE_ID" baseTableName="TB_USER_ROLES"
+                                 constraintName="FK_USER_ROLES_USER" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_ROLE"/>
+        <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
+            <column name="ROLE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_ID" tableName="TB_USER_ROLES">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <!-- TB_USER_ROLE_AUD -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- alter Oracle sequence -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence-common">
+        <sql dbms="oracle">
+            ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
+        </sql>
+    </changeSet>
+
+    <include file="changelog-utc-conversion-procedures.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

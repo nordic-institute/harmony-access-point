@@ -388,7 +388,9 @@
     </changeSet>-->
     <!-- End UI Replication Tables -->
 
-    <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+    <include file="migration/common/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+
+    <include file="migration/single-tenancy/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">

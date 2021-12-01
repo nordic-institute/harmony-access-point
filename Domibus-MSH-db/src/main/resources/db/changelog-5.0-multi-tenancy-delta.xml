@@ -22,9 +22,9 @@
         </createTable>
     </changeSet>
 
-    <!-- TODO Fix MT migration (alter, step1 - table creation -, step2 - data migration -,
-    step3 - renaming and FK/UK/index creation -, step4 - cleanup -)-->
-    <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+    <include file="migration/common/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+
+    <include file="migration/multitenancy/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
