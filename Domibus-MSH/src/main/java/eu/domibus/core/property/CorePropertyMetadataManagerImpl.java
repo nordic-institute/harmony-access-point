@@ -230,6 +230,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_EXPORT_EMPTY, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
@@ -253,6 +254,10 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_MAIL_SUBJECT, Usage.DOMAIN, true),
+
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_LEVEL, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_MAIL_SUBJECT, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
 

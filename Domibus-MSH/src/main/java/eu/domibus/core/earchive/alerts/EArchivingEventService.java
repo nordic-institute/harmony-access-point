@@ -24,7 +24,7 @@ public class EArchivingEventService {
         this.eventService = eventService;
     }
 
-    public void sendEvent(String messageId, MessageStatus messageStatus) {
+    public void sendEventMessageNotFinal(String messageId, MessageStatus messageStatus) {
         ArchivingMessagesNonFinalModuleConfiguration alertConfiguration = archivingMessagesNonFinalStatusConfigurationManager.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
@@ -33,5 +33,16 @@ public class EArchivingEventService {
 
         LOG.debug("Creating Alert for message [{}] status [{}]", messageId, messageStatus);
         eventService.enqueueEArchivingMessageNonFinalEvent(messageId, messageStatus);
+    }
+
+    public void sendEventStartDateStopped() {
+        ArchivingMessagesNonFinalModuleConfiguration alertConfiguration = archivingMessagesNonFinalStatusConfigurationManager.getConfiguration();
+        if (!alertConfiguration.isActive()) {
+            LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
+            return;
+        }
+
+        LOG.debug("Creating Alert for continuous job start date stopped");
+        eventService.enqueueEArchivingStartDateStopped();
     }
 }
