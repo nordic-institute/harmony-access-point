@@ -16,11 +16,14 @@ public class EArchivingEventService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(EArchivingEventService.class);
 
     private final ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager;
+    private final ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedModuleConfiguration;
     private final EventService eventService;
 
     public EArchivingEventService(ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager,
+                                  ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedConfigurationManager,
                                   EventService eventService) {
         this.archivingMessagesNonFinalStatusConfigurationManager = archivingMessagesNonFinalStatusConfigurationManager;
+        this.archivingStartDateStoppedModuleConfiguration = archivingStartDateStoppedConfigurationManager;
         this.eventService = eventService;
     }
 
@@ -36,7 +39,7 @@ public class EArchivingEventService {
     }
 
     public void sendEventStartDateStopped() {
-        ArchivingMessagesNonFinalModuleConfiguration alertConfiguration = archivingMessagesNonFinalStatusConfigurationManager.getConfiguration();
+        ArchivingStartDateStoppedModuleConfiguration alertConfiguration = archivingStartDateStoppedModuleConfiguration.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
             return;

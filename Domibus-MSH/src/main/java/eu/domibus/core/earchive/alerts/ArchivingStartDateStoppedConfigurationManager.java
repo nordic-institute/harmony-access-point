@@ -61,7 +61,7 @@ public class ArchivingStartDateStoppedConfigurationManager
 
             return new ArchivingStartDateStoppedModuleConfiguration(alertLevel, mailSubject);
         } catch (Exception ex) {
-            LOG.warn("Error while configuring alerts related to e-archiving message non-final for domain:[{}].", currentDomain, ex);
+            LOG.warn("Error while configuring alerts related to e-archiving continuous start date stopped for domain:[{}].", currentDomain, ex);
             return new ArchivingStartDateStoppedModuleConfiguration();
         }
     }
