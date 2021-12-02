@@ -781,9 +781,6 @@
                                  constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_D_PART_PROPERTY"/>
-        <createIndex indexName="IDX_PART_PROPS_PART_INFO" tableName="TB_PART_PROPERTIES">
-            <column name="PART_INFO_ID_FK"/>
-        </createIndex>
         <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
             <column name="PART_INFO_PROPERTY_FK"/>
         </createIndex>
@@ -813,9 +810,6 @@
                                  constraintName="FK_MSG_PROPS_MSG_PROP" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_D_MESSAGE_PROPERTY"/>
-        <createIndex indexName="IDX_MSG_PROPS_MSG_ID" tableName="TB_MESSAGE_PROPERTIES">
-            <column name="USER_MESSAGE_ID_FK"/>
-        </createIndex>
         <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
             <column name="MESSAGE_PROPERTY_FK"/>
         </createIndex>
@@ -1138,9 +1132,6 @@
                                  constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
-        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
-            <column name="FK_COMMAND"/>
-        </createIndex>
         <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UK_COMMAND_PROP_NAME"
                              tableName="TB_COMMAND_PROPERTY"/>
 
@@ -2775,9 +2766,6 @@
         <createIndex indexName="IDX_FK_ALERT" tableName="TB_EVENT_ALERT">
             <column name="FK_ALERT"/>
         </createIndex>
-        <createIndex indexName="IDX_FK_EVENT" tableName="TB_EVENT_ALERT">
-            <column name="FK_EVENT"/>
-        </createIndex>
 
         <createTable tableName="TB_EVENT_PROPERTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -3240,9 +3228,6 @@
                                  referencedTableName="TB_USER_ROLE"/>
         <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
             <column name="ROLE_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_ID" tableName="TB_USER_ROLES">
-            <column name="USER_ID"/>
         </createIndex>
 
         <createTable tableName="TB_USER_ROLES_AUD">
