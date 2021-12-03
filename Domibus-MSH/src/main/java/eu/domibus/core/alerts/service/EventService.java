@@ -124,4 +124,9 @@ public interface EventService {
      * @param status        the status of the message that is not final
      */
     void enqueueEArchivingMessageNonFinalEvent(String messageId, MessageStatus status);
+
+    /**
+     * Will create an earchiving start date stopped event and enqueue it to the alert/event monitoring queue.
+     */
+    void enqueueEArchivingStartDateStopped();
 }

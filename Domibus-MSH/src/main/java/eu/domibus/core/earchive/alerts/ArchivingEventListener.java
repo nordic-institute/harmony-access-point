@@ -36,7 +36,9 @@ public class ArchivingEventListener {
     }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'ARCHIVING_MESSAGES_NON_FINAL' or selector = 'ARCHIVING_NOTIFICATION_FAILED'")
+            selector = "selector = 'ARCHIVING_MESSAGES_NON_FINAL' " +
+                    "or selector = 'ARCHIVING_NOTIFICATION_FAILED' " +
+                    "or selector = 'ARCHIVING_START_DATE_STOPPED'")
     @Transactional
     public void onEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);

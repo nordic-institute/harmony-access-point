@@ -25,8 +25,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.util.UUID;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_SIZE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author François Gautier
@@ -70,7 +69,9 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", messageId2));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE, "false");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_BATCH_SIZE, "1");
+        domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT, "0");
         jmsManager = new JMSManagerImpl() {
             public void sendMessageToQueue(JmsMessage message, Queue destination) {
                 jmsManagerTriggered = true;
