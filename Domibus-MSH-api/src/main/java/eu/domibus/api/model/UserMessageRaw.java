@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.*;
 import java.io.ByteArrayInputStream;
@@ -21,10 +22,10 @@ import java.util.zip.GZIPOutputStream;
 @Entity
 @Table(name = "TB_USER_MESSAGE_RAW")
 @NamedQueries({
-        @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM UserMessageRaw l where l.userMessage.messageId=:MESSAGE_ID"),
-        @NamedQuery(name = "RawDto.findByEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM UserMessageRaw l where l.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) FROM UserMessageRaw l where l.userMessage.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "RawDto.findByEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) FROM UserMessageRaw l where l.entityId=:ENTITY_ID"),
         @NamedQuery(name = "Raw.deleteByMessageID", query = "DELETE FROM UserMessageRaw r where r.entityId=:MESSAGE_ENTITY_ID"),
-        @NamedQuery(name = "RawDto.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) " +
+        @NamedQuery(name = "RawDto.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) " +
                 "FROM UserMessageRaw l where l.userMessage.entityId=:USER_MESSAGE_ID"),
         @NamedQuery(name = "UserMessageRaw.deleteMessages", query = "delete from UserMessageRaw r where r.entityId in :IDS"),
 })
@@ -38,6 +39,9 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
     @Lob
     @Column(name = "RAW_XML")
     protected byte[] rawXML;
+
+    @Column(name = "COMPRESSED")
+    protected Boolean compressed;
 
     public UserMessage getUserMessage() {
         return userMessage;
@@ -55,6 +59,10 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
     public byte[] getRawXML() {
         if (rawXML == null) {
             return null;
+        }
+
+        if (!this.getCompressed()) {
+            return this.rawXML;
         }
 
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(rawXML))) {
@@ -78,6 +86,15 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
         }
 
         this.rawXML = byteStream.toByteArray();
+        this.compressed = true;
+    }
+
+    public Boolean getCompressed() {
+        return BooleanUtils.toBoolean(compressed);
+    }
+
+    public void setCompressed(Boolean compressed) {
+        this.compressed = compressed;
     }
 
 }
