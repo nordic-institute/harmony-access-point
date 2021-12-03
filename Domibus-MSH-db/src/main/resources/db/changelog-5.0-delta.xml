@@ -602,15 +602,6 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="Ion Perpegel" id="EDELIVERY-8655">
-        <addColumn tableName="TB_USER_MESSAGE_RAW">
-            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
-        </addColumn>
-        <addColumn tableName="TB_SIGNAL_MESSAGE_RAW">
-            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
-        </addColumn>
-    </changeSet>
-
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
