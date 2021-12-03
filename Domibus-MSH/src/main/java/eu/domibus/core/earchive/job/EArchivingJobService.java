@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,8 +74,10 @@ public class EArchivingJobService {
     }
 
     @Transactional(readOnly = true)
-    public long getLastEntityIdArchived(EArchiveRequestType eArchiveRequestType) {
-        return eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType)).getLastPkUserMessage();
+    public EArchiveBatchStart getContinuousStartDate(EArchiveRequestType eArchiveRequestType) {
+        EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType));
+        Hibernate.initialize(byReference);
+        return byReference;
     }
 
     @Transactional
@@ -92,14 +95,16 @@ public class EArchivingJobService {
     @Transactional
     public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
         EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, batchSize, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
-        eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
+        if(CollectionUtils.isNotEmpty(userMessageToBeArchived)) {
+            eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
+        }
         return eArchiveBatch;
     }
 
     /**
-     *  Method creates a new (copy) batch from the batch for given batchId. Message ids
-     *  request date, storage location, and RequestType which is set as MANUAL.
-     *  The Original batch re-exported flag is set to true
+     * Method creates a new (copy) batch from the batch for given batchId. Message ids
+     * request date, storage location, and RequestType which is set as MANUAL.
+     * The Original batch re-exported flag is set to true
      *
      * @param batchId
      * @return new batch entry
@@ -110,14 +115,14 @@ public class EArchivingJobService {
         if (originEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
         }
-        List<EArchiveBatchUserMessage> messages =  eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
+        List<EArchiveBatchUserMessage> messages = eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
 
         EArchiveBatchEntity reExportedBatch = createEArchiveBatchWithMessages(originEntity.getBatchId(),
                 originEntity.getFirstPkUserMessage(),
                 originEntity.getLastPkUserMessage(),
                 originEntity.getBatchSize(),
                 messages,
-                EArchiveRequestType.MANUAL );// rexported batch is set to manual
+                EArchiveRequestType.MANUAL);// rexported batch is set to manual
         // set original entity as re-exported
         originEntity.setReExported(Boolean.TRUE);
         return reExportedBatch;
@@ -154,8 +159,23 @@ public class EArchivingJobService {
         }
         return Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
-                .minusMinutes(getRetryTimeOut())
+                .minusMinutes(rounding60min(getRetryTimeOut()))
                 .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+    }
+
+    /**
+     * The format of {@code DomibusDatePrefixedSequenceIdGeneratorGenerator#DATETIME_FORMAT_DEFAULT}
+     * does not allow a precision with minutes.
+     *
+     * @param retryTimeOut in minutes
+     * @return rounded per hour (60, 120, etc.)
+     */
+    protected long rounding60min(long retryTimeOut) {
+        if (retryTimeOut % 60L == 0) {
+            return retryTimeOut;
+        }
+        long hours = retryTimeOut / 60L;
+        return (hours + 1) * 60;
     }
 
     protected long getRetryTimeOut() {
@@ -216,7 +236,26 @@ public class EArchivingJobService {
         for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
             MessageStatus messageStatus = userMessageLogDao.getMessageStatus(userMessageDto.getMessageId());
             LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), messageStatus);
-            eArchivingEventService.sendEvent(userMessageDto.getMessageId(), messageStatus);
+            eArchivingEventService.sendEventMessageNotFinal(userMessageDto.getMessageId(), messageStatus);
         }
     }
+
+    public void createEventOnStartDateContinuousJobStopped(Date continuousStartDate) {
+        Integer property = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+
+        if (property == null || continuousStartDate == null) {
+            LOG.error("The configuration is incorrect: either [{}] is undefined or the continuous job start date is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            eArchivingEventService.sendEventStartDateStopped();
+            return;
+        }
+
+        ZonedDateTime continuousStartDateTime = ZonedDateTime.ofInstant(continuousStartDate.toInstant(), ZoneOffset.UTC);
+        ZonedDateTime allowedDateTime = ZonedDateTime.now(ZoneOffset.UTC).minusHours(property);
+
+        if (allowedDateTime.isAfter(continuousStartDateTime)) {
+            LOG.warn("Earchive continuous job StartDate has not been updated since [{}] which is before the allowed time window [{}]", continuousStartDateTime, allowedDateTime);
+            eArchivingEventService.sendEventStartDateStopped();
+        }
+    }
+
 }

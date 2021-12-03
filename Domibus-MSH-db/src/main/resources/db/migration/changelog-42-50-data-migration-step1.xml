@@ -1782,6 +1782,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
                 <constraints nullable="false"/>
             </column>
             <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
+            <column defaultValueBoolean="false" name="COMPRESSED" type="BOOLEAN" />
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

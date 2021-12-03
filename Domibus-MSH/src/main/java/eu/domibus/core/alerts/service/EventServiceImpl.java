@@ -366,4 +366,13 @@ public class EventServiceImpl implements EventService {
         enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enqueueEArchivingStartDateStopped() {
+        Event event = new Event(EventType.ARCHIVING_START_DATE_STOPPED);
+        enqueueEvent(EventType.ARCHIVING_START_DATE_STOPPED.name(), event);
+    }
+
 }

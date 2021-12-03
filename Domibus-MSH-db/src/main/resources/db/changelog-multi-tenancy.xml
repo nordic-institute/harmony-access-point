@@ -426,10 +426,6 @@
             <column name="FK_ALERT"/>
         </createIndex>
 
-        <createIndex indexName="IDX_FK_EVENT" tableName="TB_EVENT_ALERT">
-            <column name="FK_EVENT"/>
-        </createIndex>
-
         <createIndex indexName="IDX_FK_EVENT_PROPERTY" tableName="TB_EVENT_PROPERTY">
             <column name="FK_EVENT"/>
         </createIndex>
@@ -439,10 +435,6 @@
         </createIndex>
 
         <createIndex indexName="IDX_UPH_USER_ID" tableName="TB_USER_PASSWORD_HISTORY">
-            <column name="USER_ID"/>
-        </createIndex>
-
-        <createIndex indexName="IDX_USER_ID" tableName="TB_USER_ROLES">
             <column name="USER_ID"/>
         </createIndex>
     </changeSet>

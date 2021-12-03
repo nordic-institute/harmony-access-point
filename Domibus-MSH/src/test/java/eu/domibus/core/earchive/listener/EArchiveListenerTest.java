@@ -107,9 +107,10 @@ public class EArchiveListenerTest {
         };
     }
 
-    @Test(expected = DomibusEArchiveException.class)
+    @Test
     public void onMessage_noMessages(@Injectable Message message,
-                                     @Injectable EArchiveBatchEntity eArchiveBatch) {
+                                     @Injectable EArchiveBatchEntity eArchiveBatch,
+                                     @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -125,12 +126,43 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = eArchiveBatch;
+
+            eArchiveBatch.getDateRequested();
+            result = new Date();
+
+            eArchiveBatch.geteArchiveBatchUserMessages();
+            result = null;
+
+            eArchiveBatch.getBatchId();
+            result = "batchId";
+
+            eArchiveBatch.getRequestType();
+            result = EArchiveRequestType.CONTINUOUS;
+
+            fileSystemEArchivePersistence.createEArkSipStructure((BatchEArchiveDTO) any, (List<EArchiveBatchUserMessage>) any);
+            result = domibusEARKSIPResult;
+
+            domibusEARKSIPResult.getManifestChecksum();
+            result = "sha256:test";
         }};
 
         eArchiveListener.onMessage(message);
 
         new FullVerifications() {{
             jmsUtil.setDomain(message);
+            times = 1;
+
+            eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
+            times = 1;
+
+            eArchiveBatchUtils.getMessageIds((List<EArchiveBatchUserMessage>) any);
+            times = 1;
+
+            eArchiveBatch.setManifestChecksum("sha256:test");
+            times = 1;
+
+            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any));
+            times = 1;
         }};
     }
 
@@ -162,9 +194,6 @@ public class EArchiveListenerTest {
 
             eArchiveBatch.getRequestType();
             result = EArchiveRequestType.CONTINUOUS;
-
-            eArchiveBatch.getEArchiveBatchStatus();
-            result = EArchiveBatchStatus.STARTED;
 
             domibusEARKSIPResult.getManifestChecksum();
             result = "sha256:test";
@@ -218,6 +247,9 @@ public class EArchiveListenerTest {
 
             eArchiveBatch.geteArchiveBatchUserMessages();
             result = batchUserMessages;
+
+            eArchiveBatch.getBatchId();
+            result = "batchId";
 
         }};
 

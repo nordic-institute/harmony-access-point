@@ -44,6 +44,7 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalTrustStoreUpdate(Domain domain) {
+        LOG.debug("Signaling truststore update on [{}] domain", domain);
 
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_TRUSTSTORE);
@@ -54,6 +55,7 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalPModeUpdate() {
+        LOG.debug("Signaling PMode update on [{}] domain", domainContextProvider.getCurrentDomain().getCode());
 
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_PMODE);

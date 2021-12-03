@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
@@ -28,6 +29,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -144,9 +146,47 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized void refreshTrustStore() {
+        KeyStore oldTruststore = getTrustStore();
         final KeyStore trustStore = loadTrustStore();
         setTrustStore(trustStore);
-        signalService.signalTrustStoreUpdate(domain);
+
+        if (areKeystoresIdentical(oldTruststore, trustStore)) {
+            LOG.debug("New truststore and previous truststore are identical");
+        } else {
+            signalService.signalTrustStoreUpdate(domain);
+        }
+    }
+
+    protected boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
+        try {
+            if (store1 == null && store2 == null) {
+                LOG.debug("Identical keystores: both are null");
+                return true;
+            }
+            if (store1 == null || store2 == null) {
+                LOG.debug("Different keystores: [{}] vs [{}]", store1, store2);
+                return false;
+            }
+            if (store1.size() != store2.size()) {
+                LOG.debug("Different keystores: [{}] vs [{}] entries", store1.size(), store2.size());
+                return false;
+            }
+            final Enumeration<String> aliases = store1.aliases();
+            while (aliases.hasMoreElements()) {
+                final String alias = aliases.nextElement();
+                if (!store2.containsAlias(alias)) {
+                    LOG.debug("Different keystores: [{}] alias is not found in both", alias);
+                    return false;
+                }
+                if (!store1.getCertificate(alias).equals(store2.getCertificate(alias))) {
+                    LOG.debug("Different keystores: [{}] certificate is different", alias);
+                    return false;
+                }
+            }
+            return true;
+        } catch (KeyStoreException e) {
+            throw new DomibusCertificateException("Invalid keystore", e);
+        }
     }
 
     @Override
