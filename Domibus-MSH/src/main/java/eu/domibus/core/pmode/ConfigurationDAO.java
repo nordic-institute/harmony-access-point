@@ -46,7 +46,11 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
 
         for (final Process process : businessProcesses.getProcesses()) {
             process.getInitiatorParties().size();
+            process.getInitiatorParties().stream().forEach(party -> party.getIdentifiers().size());
+
             process.getResponderParties().size();
+            process.getResponderParties().stream().forEach(party -> party.getIdentifiers().size());
+
             process.getLegs().size();
             // change PersistentSet with HasSet
             process.detachParties();
