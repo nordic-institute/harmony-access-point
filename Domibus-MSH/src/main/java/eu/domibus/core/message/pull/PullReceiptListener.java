@@ -35,6 +35,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.xml.soap.SOAPMessage;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author idragusa
@@ -143,7 +144,7 @@ public class PullReceiptListener implements MessageListener {
         ebms3MessageInfo.setRefToMessageId(signalMessage.getRefToMessageId());
         result.setMessageInfo(ebms3MessageInfo);
         Ebms3Receipt receipt = new Ebms3Receipt();
-        receipt.getAny().add(new String(receiptEntity.getRawXml()));
+        receipt.getAny().add(new String(receiptEntity.getRawXml(), StandardCharsets.UTF_8));
         result.setReceipt(receipt);
         
         return result;
