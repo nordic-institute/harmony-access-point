@@ -196,7 +196,6 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
         Arrays.stream(addressNames)
                 .filter(addressName -> !StringUtils.startsWith(addressName, "$.artemis.internal"))
-                .filter(addressName -> !(routingType == RoutingType.ANYCAST && StringUtils.startsWith(addressName,"jms.topic")))
                 .forEach(addressName -> {
             try {
                 ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(toSimpleString(addressName));

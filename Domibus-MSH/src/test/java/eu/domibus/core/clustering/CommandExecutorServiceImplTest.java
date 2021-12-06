@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -154,5 +155,59 @@ public class CommandExecutorServiceImplTest {
         }};
 
         assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
+    }
+
+    @Test
+    public void skipCommandSameServer_NullCommandProperties(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+
+        assertTrue(commandExecutorService.skipCommandSameServer(command, null));
+    }
+
+    @Test
+    public void skipCommandSameServer_NullOriginServerProperty(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+        String originServerName = null;
+
+        new Expectations() {{
+            commandProperties.get(CommandProperty.ORIGIN_SERVER);
+            result = originServerName;
+        }};
+
+        assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
+    }
+
+    @Test
+    public void skipCommandSameServer_BlankOriginServerProperty(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+        String originServerName = " ";
+
+        new Expectations() {{
+            commandProperties.get(CommandProperty.ORIGIN_SERVER);
+            result = originServerName;
+        }};
+
+        assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
+    }
+
+    @Test
+    public void skipCommandSameServer_DoesNotSkipOnSeparateServer(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+        String originServerName = "server1";
+        String currentServerName = "server2";
+
+        new Expectations() {{
+            commandProperties.get(CommandProperty.ORIGIN_SERVER);
+            result = originServerName;
+
+            serverInfoService.getServerName();
+            result = currentServerName;
+        }};
+
+        assertFalse(commandExecutorService.skipCommandSameServer(command, commandProperties));
     }
 }

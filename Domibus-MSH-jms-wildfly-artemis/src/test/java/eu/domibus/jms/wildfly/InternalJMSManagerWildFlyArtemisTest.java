@@ -240,50 +240,6 @@ public class InternalJMSManagerWildFlyArtemisTest {
     }
 
     @Test
-    public void testGetQueueMap_IgnoresAnycastTopicAddresses(@Injectable AddressControl anycastTopicAddressControl) throws Exception {
-        final String[] addressNames = {"jms.topic.DomibusClusterCommandTopic"};
-        final RoutingType anycastRouting = RoutingType.ANYCAST;
-
-        // GIVEN
-        new MockUp<MBeanServerInvocationHandler>() {
-            @Mock
-            public <T> T newProxyInstance(MBeanServerConnection connection,
-                                          ObjectName objectName,
-                                          Class<T> interfaceClass,
-                                          boolean notificationBroadcaster) {
-                if (AddressControl.class.isAssignableFrom(interfaceClass)) {
-                    if (objectName.getCanonicalName().contains("address=\"jms.topic.DomibusClusterCommandTopic\"")) {
-                        return (T) anycastTopicAddressControl;
-                    } else {
-                        throw new IllegalArgumentException("Unknown AddressControl object name: " + objectName);
-                    }
-                }
-                throw new IllegalArgumentException("Unknown proxy interface argument: " + interfaceClass);
-            }
-        };
-
-        new Expectations(jmsManager) {{
-            domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER);
-            result = "localhost";
-
-            activeMQServerControl.getAddressNames();
-            result = addressNames;
-        }};
-
-        // WHEN
-        jmsManager.getQueueMap(anycastRouting);
-
-        // THEN
-        new Verifications() {{
-            anycastTopicAddressControl.getQueueNames();
-            times = 0;
-
-            jmsManager.getAddressQueueMap("jms.topic.DomibusClusterCommandTopic", (String[]) any, null, anycastRouting, (ObjectNameBuilder) any);
-            times = 0;
-        }};
-    }
-
-    @Test
     public void testGetQueueMap_NetworkTopology(@Injectable AddressControl sendAddressControl) throws Exception {
         final String[] addressNames = {"jms.queue.DomibusSendMessageQueue"};
         final String[] sendQueueNames = {"jms.queue.DomibusSendMessageQueue1", "jms.queue.DomibusSendMessageQueue2"};
