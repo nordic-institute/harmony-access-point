@@ -31,6 +31,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -395,8 +396,10 @@ public class CachingPModeProviderTest {
         // When
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
+
         // Then
-        assertEquals(expectedList, partyIdByServiceAndAction);
+        assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
+        assertTrue(CollectionUtils.containsAll(expectedList, partyIdByServiceAndAction));
     }
 
     @Test
@@ -418,7 +421,8 @@ public class CachingPModeProviderTest {
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
         // Then
-        assertEquals(expectedList, partyIdByServiceAndAction);
+        assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
+        assertTrue(CollectionUtils.containsAll(expectedList, partyIdByServiceAndAction));
     }
 
     private Party getPartyByName(Set<Party> parties, final String partyName) {
