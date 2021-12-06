@@ -49,7 +49,6 @@ public class JMSMessPgTest extends SeleniumTest {
 			log.info("cancel delete");
 			page.getCancelButton().click();
 			new Dialog(driver).confirm();
-			page.wait.forXMillis(500);
 
 			soft.assertTrue(page.grid().scrollTo("ID", rowInfo.get("ID")) >= 0, "Message still present in the grid after user cancels delete operation");
 

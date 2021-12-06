@@ -85,7 +85,6 @@ public class TlsTrustStorePage extends DomibusPage {
     public void uploadAddCert(String filePath, String password, DButton button, DInput inputField) throws Exception {
 
         button.click();
-        wait.forXMillis(100);
         chooseFileButton.sendKeys(filePath);
         inputField.fill(password);
 
@@ -117,7 +116,7 @@ public class TlsTrustStorePage extends DomibusPage {
 
         log.info("Wait for download to complete");
 
-        wait.forXMillis(3000);
+        wait.forFileToBeDownloaded(filePath);
 
         log.info("Check if file is downloaded at given location");
         if(!DFileUtils.isFileDownloaded(filePath)){

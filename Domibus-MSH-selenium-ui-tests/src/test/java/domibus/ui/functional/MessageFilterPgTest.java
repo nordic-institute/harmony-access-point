@@ -569,9 +569,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		log.info("editing the message filter");
 		MessageFilterModal modal = new MessageFilterModal(driver);
 		modal.getActionInput().fill(anotherActionName);
-		modal.wait.forXMillis(150);
 		modal.clickOK();
-		modal.wait.forXMillis(150);
 
 		log.info("check that new value is present in grid");
 		String listedAction = page.grid().getRowInfo(index).get("Action");
@@ -612,9 +610,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		log.info("edit the same filter again");
 		modal = new MessageFilterModal(driver);
 		modal.getActionInput().fill(anotherActionName);
-		modal.wait.forXMillis(150);
 		modal.clickOK();
-		modal.wait.forXMillis(150);
 
 		try {
 			log.info("changing domain");

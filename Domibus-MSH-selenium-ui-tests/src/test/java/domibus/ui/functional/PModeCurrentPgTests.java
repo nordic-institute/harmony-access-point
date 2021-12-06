@@ -220,7 +220,6 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		log.info("changing domain");
 		page.getDomainSelector().selectOptionByText(domainName);
 
-		page.wait.forXMillis(1000);
 		String d1Pmode = page.getTextArea().getText();
 
 		log.info("comparing pmodes");

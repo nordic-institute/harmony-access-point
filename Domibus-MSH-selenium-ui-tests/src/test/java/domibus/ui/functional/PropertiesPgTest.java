@@ -411,7 +411,6 @@ public class PropertiesPgTest extends SeleniumTest {
 
 
 		page.grid().getGridCtrl().showCtrls();
-		page.wait.forXMillis(3000);
 
 		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
 		log.info("getting value after refresh: " + value);
@@ -442,7 +441,6 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().setPropRowValue(0, toSetValue);
 
 
-		page.wait.forXMillis(1000);
 		page.grid().getPagination().goToNextPage();
 
 		String value = rest.properties().getDomibusPropertyDetail(info.get("Property Name"), null).getString("value");
@@ -550,7 +548,6 @@ public class PropertiesPgTest extends SeleniumTest {
 			userBlocked = errMessage.contains("Suspended");
 		}
 
-		page.wait.forXMillis(60000);
 		ClientResponse response = rest.callLogin(username, data.defaultPass());
 		soft.assertEquals(response.getStatus(), 200, "Login response is success");
 

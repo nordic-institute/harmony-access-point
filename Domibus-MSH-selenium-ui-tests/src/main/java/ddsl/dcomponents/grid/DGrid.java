@@ -126,7 +126,6 @@ public class DGrid extends DComponent {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 
-//		this.wait.forXMillis(200);
 		Actions action = new Actions(driver);
 		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
 		weToDobject(element).scrollIntoView();

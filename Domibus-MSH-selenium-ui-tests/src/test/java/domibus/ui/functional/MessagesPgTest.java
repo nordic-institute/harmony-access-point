@@ -321,7 +321,7 @@ public class MessagesPgTest extends SeleniumTest {
 				statusChanged = true;
 				break;
 			}
-			page.wait.forXMillis(1000);
+
 		}
 
 		soft.assertTrue(statusChanged, "Message changed");

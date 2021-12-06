@@ -116,7 +116,6 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo));
 			page.filters().getJmsSearchButton().click();
 
-			page.wait.forXMillis(500);
 			page.grid().waitForRowsToLoad();
 
 			log.info("checking message id");

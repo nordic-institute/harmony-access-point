@@ -327,7 +327,7 @@ public class MessageFilter2PgTest extends SeleniumTest {
 		log.info("Check if file is downloaded at given location");
 		for (int i = 0; i < 10; i++) {
 			if (!DFileUtils.isFileDownloaded(filePath)) {
-				page.wait.forXMillis(500);
+				page.wait.forFileToBeDownloaded(filePath);
 			} else {
 				break;
 			}

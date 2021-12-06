@@ -178,7 +178,6 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 
 		log.info("press tab key");
 		cpage.pressTABKey();
-		page.wait.forXMillis(2000);
 
 		log.info("Validation message for password policy under new password field");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.newPasswordFieldLabel), "Message is displayed");

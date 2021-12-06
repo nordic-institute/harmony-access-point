@@ -18,7 +18,8 @@ import java.util.List;
 
 public class BaseTest {
 	
-	public static WebDriver driver;
+//	public static WebDriver driver;
+	public WebDriver driver;
 	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
@@ -106,7 +107,6 @@ public class BaseTest {
 			}
 		}
 	}
-
 
 	private void generateAlerts() {
 		try {

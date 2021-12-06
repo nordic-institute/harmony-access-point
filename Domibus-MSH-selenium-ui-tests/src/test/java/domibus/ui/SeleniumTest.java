@@ -59,8 +59,8 @@ public class SeleniumTest extends BaseTest {
 	@BeforeClass(alwaysRun = true)
 	public void beforeClass() throws Exception {
 		log.info("--------Initialize test class-------");
-
 		driver = DriverManager.getDriver();
+
 	}
 
 	@BeforeMethod(alwaysRun = true)
