@@ -31,6 +31,7 @@
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="PUSH"/>
             <xsd:enumeration value="PULL"/>
+            <xsd:minLength value="0"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -41,7 +42,7 @@
             <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
             <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
             <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
-            <xsd:element name="ProcessingType" type="ProcessingType" minOccurs="1"/>
+            <xsd:element name="ProcessingType" type="ProcessingType" minOccurs="0" default="PUSH"/>
         </xsd:all>
         <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
     </xsd:complexType>
@@ -155,5 +156,4 @@
             <xsd:maxLength value="1024"/>
         </xsd:restriction>
     </xsd:simpleType>
-
 </xsd:schema>
