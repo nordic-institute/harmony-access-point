@@ -269,7 +269,7 @@ public class DomibusQuartzStarterTest {
                                                    @Injectable Trigger trigger) {
         new Expectations() {{
             trigger.getPreviousFireTime();
-            times = 1;
+            times = 0;
         }};
 
         boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger, "default");
