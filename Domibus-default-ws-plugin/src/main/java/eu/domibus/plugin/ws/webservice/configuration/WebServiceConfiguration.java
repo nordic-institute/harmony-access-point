@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.plugin.webService.impl.CustomInInterceptor;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
@@ -105,6 +106,7 @@ public class WebServiceConfiguration {
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                              WebServiceImpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
+                                             CustomInInterceptor customInInterceptor,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor,
@@ -113,7 +115,7 @@ public class WebServiceConfiguration {
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
         endpoint.setProperties(endpointProperties);
         endpoint.setSchemaLocations(getSchemaLocations());
-        endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
+        endpoint.setInInterceptors(Arrays.asList(customInInterceptor, customAuthenticationInterceptor));
         endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
         endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
