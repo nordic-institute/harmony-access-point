@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -35,6 +36,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
  * @since 5.0
  */
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
     public static final String MPC = "UserMessageLogDaoITMpc";
