@@ -12,5 +12,5 @@ public interface FSXMLHelper {
 
     <T> T parseXML(InputStream inputStream, Class<T> clazz) throws JAXBException;
 
-    void writeXML(OutputStream outputStream, Class clazz, Object objectToWrite) throws JAXBException;
+    <T> void writeXML(OutputStream outputStream, Class<T> clazz, T objectToWrite) throws JAXBException;
 }

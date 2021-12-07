@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 public class FSPurgeLocksService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeLocksService.class);
 
-    private FSDomainService fsDomainService;
+    private final FSDomainService fsDomainService;
 
-    private FSFilesManager fsFilesManager;
+    private final FSFilesManager fsFilesManager;
 
-    private FSFileNameHelper fsFileNameHelper;
+    private final FSFileNameHelper fsFileNameHelper;
 
-    private FSPluginProperties fsPluginProperties;
+    private final FSPluginProperties fsPluginProperties;
 
     public FSPurgeLocksService(FSDomainService fsDomainService, FSFilesManager fsFilesManager, FSFileNameHelper fsFileNameHelper, FSPluginProperties fsPluginProperties) {
         this.fsDomainService = fsDomainService;
@@ -55,17 +55,15 @@ public class FSPurgeLocksService {
         }
 
         FileObject[] files = null;
-        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
-             FileObject targetFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER)) {
-
+        try (FileObject targetFolder = fsFilesManager.getEnsureChildFolder(fsFilesManager.setUpFileSystem(domain), FSFilesManager.OUTGOING_FOLDER)) {
             files = fsFilesManager.findAllDescendantFiles(targetFolder);
-            LOG.trace("Found [{}] files: [{}]", files.length, (Object) files);
+            LOG.trace("Found [{}] files: [{}]", files.length, files);
 
             List<FileObject> lockFiles = Arrays.stream(files)
                     .filter(file -> fsFileNameHelper.isLockFile(file.getName().getBaseName()))
                     .filter(file -> fsFilesManager.isFileOlderThan(file, expirationLimit))
                     .collect(Collectors.toList());
-            LOG.debug("Found [{}] locked file names: [{}]", lockFiles.size(), (Object) lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
+            LOG.debug("Found [{}] locked file names: [{}]", lockFiles.size(), lockFiles.stream().map(file -> file.getName().getBaseName()).toArray());
 
             for (FileObject lockFile : lockFiles) {
                 String dataFileName = fsFileNameHelper.stripLockSuffix(targetFolder.getName().getRelativeName(lockFile.getName()));

@@ -6,7 +6,6 @@ import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,11 +23,15 @@ public class FSWorkersConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSWorkersConfiguration.class);
 
-    @Autowired
-    protected DomainContextExtService domainContextExtService;
+    protected final DomainContextExtService domainContextExtService;
 
-    @Autowired
-    protected DomibusSchedulerExtService domibusSchedulerExtService;
+    protected final DomibusSchedulerExtService domibusSchedulerExtService;
+
+    public FSWorkersConfiguration(DomainContextExtService domainContextExtService,
+                                  DomibusSchedulerExtService domibusSchedulerExtService) {
+        this.domainContextExtService = domainContextExtService;
+        this.domibusSchedulerExtService = domibusSchedulerExtService;
+    }
 
     @Bean
     public JobDetailFactoryBean fsPluginSendMessagesWorkerJob() {

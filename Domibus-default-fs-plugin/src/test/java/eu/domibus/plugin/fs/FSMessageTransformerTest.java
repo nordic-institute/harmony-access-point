@@ -27,6 +27,7 @@ import java.util.*;
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class FSMessageTransformerTest {
 
@@ -62,7 +63,6 @@ public class FSMessageTransformerTest {
     private static final String TEXT_XML = "text/xml";
     private static final String AGREEMENT_REF_A1 = "A1";
     private static final String AGREEMENT_REF_TYPE_T1 = "T1";
-    private static final String EMPTY_STR = "";
     private static final String MYPROP = "MyProp";
     private static final String MYPROP_TYPE = "propType";
     private static final String MYPROP_VALUE = "SomeValue";
@@ -154,8 +154,7 @@ public class FSMessageTransformerTest {
     public void testTransformToSubmission_NormalFlow() throws Exception {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_metadata.xml");
         // Transform FSMessage to Submission
-        FSMessageTransformer transformer = new FSMessageTransformer();
-        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
+        FSMessageTransformer transformer = new FSMessageTransformer(new FSMimeTypeHelperImpl(), null);
 
         Submission submission = transformer.transformToSubmission(fsMessage);
 
@@ -167,8 +166,7 @@ public class FSMessageTransformerTest {
     public void testTransformToSubmission_NormalFlow_WithPayloadInfo() throws Exception {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_WithPayloadInfo_metadata.xml");
         // Transform FSMessage to Submission
-        FSMessageTransformer transformer = new FSMessageTransformer();
-        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
+        FSMessageTransformer transformer = new FSMessageTransformer(new FSMimeTypeHelperImpl(), null);
         Submission submission = transformer.transformToSubmission(fsMessage);
 
         assertTransformPayloadInfo(submission);
@@ -195,8 +193,7 @@ public class FSMessageTransformerTest {
     @Test(expected = FSPluginException.class)
     public void testTransformToSubmission_MultiplePartInfo() throws Exception {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_MultiplePartInfo_metadata.xml");
-        FSMessageTransformer transformer = new FSMessageTransformer();
-        transformer.fsMimeTypeHelper = new FSMimeTypeHelperImpl();
+        FSMessageTransformer transformer = new FSMessageTransformer(new FSMimeTypeHelperImpl(), null);
         // expect exception on multiple PartInfo in PayloadInfo
         transformer.transformToSubmission(fsMessage);
     }
@@ -279,9 +276,8 @@ public class FSMessageTransformerTest {
         DataHandler dataHandler = new DataHandler(dataSource);
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(null, dataSource.getName(), dataHandler));
-        FSMessage fsMessage = new FSMessage(fsPayloads, metadata);
 
-        return fsMessage;
+        return new FSMessage(fsPayloads, metadata);
     }
 
     @Test
@@ -299,7 +295,7 @@ public class FSMessageTransformerTest {
             fsMessageTransformer.getPartyInfoFromSubmission(submission);
             Assert.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals(ex.getMessage(), "Mandatory field From PartyId is not provided.");
+            Assert.assertEquals("Mandatory field From PartyId is not provided.", ex.getMessage());
         }
 
         new Verifications() {{
@@ -315,15 +311,13 @@ public class FSMessageTransformerTest {
             fsMessageTransformer.validateFromParty(null, null);
             Assert.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals(ex.getMessage(), "Mandatory field PartyInfo/From is not provided.");
+            Assert.assertEquals("Mandatory field PartyInfo/From is not provided.", ex.getMessage());
         }
     }
 
     @Test
     public void validateFromPartyEmptyPartyId(@Injectable Submission submission, @Injectable Submission.Party fromParty) {
 
-        Set<Submission.Party> parties = new HashSet<>();
-        parties.add(fromParty);
         new Expectations() {{
             fromParty.getPartyId();
             result = " ";
@@ -332,7 +326,7 @@ public class FSMessageTransformerTest {
             fsMessageTransformer.validateFromParty(fromParty, null);
             Assert.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals(ex.getMessage(), "Mandatory field From PartyId is not provided.");
+            Assert.assertEquals("Mandatory field From PartyId is not provided.", ex.getMessage());
         }
     }
 
@@ -343,14 +337,12 @@ public class FSMessageTransformerTest {
             fsMessageTransformer.validateFromRole(" ");
             Assert.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals(ex.getMessage(), "Mandatory field From Role is not provided.");
+            Assert.assertEquals("Mandatory field From Role is not provided.", ex.getMessage());
         }
     }
 
     @Test
     public void validateFromValidPartyWithRole(@Injectable Submission.Party fromParty) {
-        Set<Submission.Party> parties = new HashSet<>();
-        parties.add(fromParty);
 
         new Expectations(fsMessageTransformer) {{
             fromParty.getPartyId();

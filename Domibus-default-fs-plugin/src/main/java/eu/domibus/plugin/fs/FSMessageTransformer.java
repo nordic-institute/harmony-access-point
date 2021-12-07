@@ -12,14 +12,13 @@ import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.VFS;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.activation.DataHandler;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,11 +42,15 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
     protected final ObjectFactory objectFactory = new ObjectFactory();
 
-    @Autowired
-    protected FSMimeTypeHelper fsMimeTypeHelper;
+    protected final FSMimeTypeHelper fsMimeTypeHelper;
 
-    @Autowired
-    protected FileUtilExtService fileUtilExtService;
+    protected final FileUtilExtService fileUtilExtService;
+
+    public FSMessageTransformer(FSMimeTypeHelper fsMimeTypeHelper,
+                                FileUtilExtService fileUtilExtService) {
+        this.fsMimeTypeHelper = fsMimeTypeHelper;
+        this.fileUtilExtService = fileUtilExtService;
+    }
 
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
@@ -232,7 +235,11 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             FSPayload fsPayload = new FSPayload(mimeType, fileName, payload.getPayloadDatahandler());
             if (StringUtils.isNotEmpty(payload.getFilepath())) {
                 fsPayload.setFilePath(payload.getFilepath());
-                fsPayload.setFileSize(new File(payload.getFilepath()).length());
+                try (FileObject fileObject = VFS.getManager().resolveFile(payload.getFilepath())){
+                    fsPayload.setFileSize(fileObject.getContent().getSize());
+                } catch (FileSystemException e) {
+                    e.printStackTrace();
+                }
             }
             result.put(payload.getContentId(), fsPayload);
         }

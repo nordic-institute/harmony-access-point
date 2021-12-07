@@ -11,11 +11,10 @@ import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
-import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,20 +28,27 @@ public class FSProcessFileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
-    @Resource(name = "backendFSPlugin")
     protected FSPluginImpl backendFSPlugin;
 
-    @Autowired
-    protected FSFilesManager fsFilesManager;
+    protected final FSFilesManager fsFilesManager;
 
-    @Autowired
-    protected FSPluginProperties fsPluginProperties;
+    protected final FSPluginProperties fsPluginProperties;
 
-    @Autowired
-    protected FSXMLHelper fsxmlHelper;
+    protected final FSXMLHelper fsxmlHelper;
 
-    @Autowired
-    protected FSFileNameHelper fsFileNameHelper;
+    protected final FSFileNameHelper fsFileNameHelper;
+
+    public FSProcessFileService(FSFilesManager fsFilesManager,
+                                FSPluginProperties fsPluginProperties,
+                                FSXMLHelper fsxmlHelper,
+                                FSFileNameHelper fsFileNameHelper,
+                                @Qualifier("backendFSPlugin") FSPluginImpl backendFSPlugin) {
+        this.fsFilesManager = fsFilesManager;
+        this.fsPluginProperties = fsPluginProperties;
+        this.fsxmlHelper = fsxmlHelper;
+        this.fsFileNameHelper = fsFileNameHelper;
+        this.backendFSPlugin = backendFSPlugin;
+    }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void processFile(FileObject processableFile, String domain) throws FileSystemException, JAXBException, MessagingProcessingException {
