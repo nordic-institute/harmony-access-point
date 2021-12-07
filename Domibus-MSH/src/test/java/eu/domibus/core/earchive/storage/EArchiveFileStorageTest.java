@@ -99,7 +99,7 @@ public class EArchiveFileStorageTest {
     }
 
     @Test
-    public void getStorageDirectory() {
+    public void getStorageDirectory(@Injectable Domain domain) {
         Assert.assertNull(eArchiveFileStorage.getStorageDirectory());
     }
 
