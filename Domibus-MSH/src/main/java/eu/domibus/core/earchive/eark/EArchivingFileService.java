@@ -85,11 +85,11 @@ public class EArchivingFileService {
         return getBaseName(info) + ".attachment" + extension;
     }
 
-    private String getExtension(PartInfo mime) {
+    private String getExtension(PartInfo partInfo) {
         try {
-            return MimeTypes.getDefaultMimeTypes().forName(mime.getMime()).getExtension();
+            return MimeTypes.getDefaultMimeTypes().forName(partInfo.getMime()).getExtension();
         } catch (MimeTypeException e) {
-            LOG.warn("Mimetype [{}] not found", mime);
+            LOG.warn("Mimetype [{}] not found", partInfo);
             return "";
         }
     }
