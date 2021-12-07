@@ -253,13 +253,13 @@ public class DomibusQuartzStarterTest {
             scheduler.getTriggerState(withAny(triggerKey));
             result = triggerState;
 
-            domibusQuartzStarter.isTriggerInErrorOrBlockedState(withAny(Trigger.TriggerState.ERROR), withAny(trigger));
+            domibusQuartzStarter.isTriggerInErrorOrBlockedState(withAny(Trigger.TriggerState.ERROR), withAny(trigger), anyString);
             result = true;
         }};
 
         domibusQuartzStarter.getTriggersInErrorOrBlockedState(scheduler, domainName, triggerInfoList, jobName, triggers);
         new FullVerifications() {{
-            domibusQuartzStarter.isTriggerInErrorOrBlockedState(withAny(Trigger.TriggerState.ERROR), trigger);
+            domibusQuartzStarter.isTriggerInErrorOrBlockedState(withAny(Trigger.TriggerState.ERROR), trigger, anyString);
             times = 1;
         }};
     }
@@ -269,10 +269,10 @@ public class DomibusQuartzStarterTest {
                                                    @Injectable Trigger trigger) {
         new Expectations() {{
             trigger.getPreviousFireTime();
-            times = 1;
+            times = 0;
         }};
 
-        boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger);
+        boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger, "default");
         Assert.assertTrue(isErrorOrBlockedState);
     }
 
