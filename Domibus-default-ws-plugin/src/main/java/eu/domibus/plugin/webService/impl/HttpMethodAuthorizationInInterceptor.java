@@ -13,11 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 
 @Component
-public class CustomInInterceptor extends AbstractPhaseInterceptor<Message> {
+public class HttpMethodAuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(eu.domibus.plugin.webService.impl.CustomInInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor.class);
 
-    public CustomInInterceptor() {
+    public HttpMethodAuthorizationInInterceptor() {
         super(Phase.PRE_PROTOCOL);
     }
 

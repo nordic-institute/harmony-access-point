@@ -77,7 +77,7 @@ public class WSPluginConfiguration {
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                              WebServicePluginImpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
-                                             CustomInInterceptor customInInterceptor,
+                                             HttpMethodAuthorizationInInterceptor httpMethodAuthorizationInInterceptor,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
@@ -86,7 +86,7 @@ public class WSPluginConfiguration {
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
         endpoint.setProperties(endpointProperties);
         endpoint.setSchemaLocations(getSchemaLocations());
-        endpoint.setInInterceptors(Arrays.asList(customInInterceptor, customAuthenticationInterceptor));
+        endpoint.setInInterceptors(Arrays.asList(httpMethodAuthorizationInInterceptor, customAuthenticationInterceptor));
         endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
         endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
