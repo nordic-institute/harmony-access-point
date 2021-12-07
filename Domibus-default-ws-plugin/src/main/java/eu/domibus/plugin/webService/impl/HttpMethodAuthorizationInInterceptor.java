@@ -23,9 +23,9 @@ public class HttpMethodAuthorizationInInterceptor extends AbstractPhaseIntercept
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        final String httpMethod = (String) message.get("org.apache.cxf.request.method");
+        final String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
 
-        if (StringUtils.containsIgnoreCase(httpMethod, HttpMethod.GET)) {
+        if (StringUtils.equalsIgnoreCase(httpMethod, HttpMethod.GET)) {
             LOG.debug("Detected GET request: aborting the interceptor chain");
             message.getInterceptorChain().abort();
 
