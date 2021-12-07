@@ -238,7 +238,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
                 try (FileObject fileObject = VFS.getManager().resolveFile(payload.getFilepath())){
                     fsPayload.setFileSize(fileObject.getContent().getSize());
                 } catch (FileSystemException e) {
-                    e.printStackTrace();
+                    LOG.warn("File [{}] not found to get the size", payload.getFilepath());
                 }
             }
             result.put(payload.getContentId(), fsPayload);
