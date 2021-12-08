@@ -11,7 +11,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,8 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -189,7 +190,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Properties properties = new Properties();
-            properties.load(fis);
+            properties.load(new InputStreamReader(fis, StandardCharsets.UTF_8.name()));
             String propertySourceName = domain.getCode() + "-" + new File(configFile).getName();
             DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource(propertySourceName, properties);
             propertySources.addLast(newPropertySource);

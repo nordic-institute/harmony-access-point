@@ -1,12 +1,12 @@
 package eu.domibus.core.alerts.configuration.messaging;
 
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
-import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
@@ -60,6 +60,10 @@ public class MessagingConfigurationManager
             final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean messageAlertActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
+          /*  byte[] bytes = mailSubject.getBytes(StandardCharsets.UTF_8);
+            String utf8EncodedSubject = new String(bytes, StandardCharsets.UTF_8);*/
+
+           // LOG.debug("MailSubject after encoding:[{}]", utf8EncodedSubject);
 
             if (!alertActive || !messageAlertActive) {
                 LOG.debug("domain:[{}] Alert message status change module is inactive for the following reason:global alert module active[{}], message status change module active[{}]",

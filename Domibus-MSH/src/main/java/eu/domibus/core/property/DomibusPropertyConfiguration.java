@@ -12,6 +12,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -101,6 +102,7 @@ public class DomibusPropertyConfiguration {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer result = new PropertySourcesPlaceholderConfigurer();
+        result.setFileEncoding(StandardCharsets.UTF_8.name());
         result.setIgnoreResourceNotFound(true);
         result.setIgnoreUnresolvablePlaceholders(true);
         return result;
