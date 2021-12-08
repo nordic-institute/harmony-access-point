@@ -1716,6 +1716,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -1732,6 +1733,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

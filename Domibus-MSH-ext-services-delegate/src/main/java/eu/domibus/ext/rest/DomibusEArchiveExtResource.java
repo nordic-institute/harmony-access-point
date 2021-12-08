@@ -157,10 +157,10 @@ public class DomibusEArchiveExtResource {
     @GetMapping(path = "/batches/exported", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ExportedBatchResultDTO historyOfTheExportedBatches(
             // message start date-hour in format yyMMddHH
-            @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageStartDate") Long messageStartDate,
-            @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam("messageEndDate") Long messageEndDate,
+            @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam(value ="messageStartDate", required = false) Long messageStartDate,
+            @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam(value ="messageEndDate", required = false) Long messageEndDate,
             @Parameter(description = "Filter batches for statuses") @RequestParam(value = "statuses", required = false) List<ExportedBatchStatusType> statuses,
-            @Parameter(description = "Include ReExported Batches (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "reExport", defaultValue = "false") Boolean includeReExportedBatches,
+            @Parameter(description = "Include ReExported Batches (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "includeReExportedBatches", defaultValue = "false") Boolean includeReExportedBatches,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {

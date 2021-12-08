@@ -2,7 +2,6 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.fs.ebms3.ObjectFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -57,13 +56,13 @@ public class FSXMLHelperImpl implements FSXMLHelper {
      * @throws JAXBException JAXB exception
      */
     @Override
-    public void writeXML(OutputStream outputStream, Class clazz, Object objectToWrite) throws JAXBException {
+    public <T> void writeXML(OutputStream outputStream, Class<T> clazz, T objectToWrite) throws JAXBException {
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         QName qName = new QName("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/", clazz.getSimpleName());
 
-        marshaller.marshal(new JAXBElement(qName, clazz, null, objectToWrite), outputStream);
+        marshaller.marshal(new JAXBElement<>(qName, clazz, null, objectToWrite), outputStream);
     }
 
     protected Schema loadSchema(String schemaName) throws SAXException {

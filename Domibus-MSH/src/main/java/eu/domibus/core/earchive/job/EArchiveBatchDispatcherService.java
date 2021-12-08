@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.EArchiveBatchStart;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,12 +58,14 @@ public class EArchiveBatchDispatcherService {
     @Timer(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     @Counter(clazz = EArchiveBatchDispatcherService.class, value = "earchive_createBatch")
     public void startBatch(Domain domain, EArchiveRequestType eArchiveRequestType) {
-         final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
+
         if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
             LOG.debug("eArchiving is not enabled");
             return;
         }
-        Long lastEntityIdProcessed = eArchivingJobService.getLastEntityIdArchived(eArchiveRequestType);
+        EArchiveBatchStart continuousStartDate = eArchivingJobService.getContinuousStartDate(eArchiveRequestType);
+        Long lastEntityIdProcessed = continuousStartDate.getLastPkUserMessage();
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
         long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType);
         int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
@@ -83,12 +87,18 @@ public class EArchiveBatchDispatcherService {
             newLastEntityIdProcessed = batchAndEnqueue.getLastPkUserMessage();
             LOG.debug("EArchive created with last entity [{}]", lastEntityIdProcessed);
         }
-        if(eArchiveRequestType == EArchiveRequestType.SANITIZER){
+        if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             eArchivingJobService.createEventOnNonFinalMessages(lastEntityIdProcessed, maxEntityIdToArchived);
+            eArchivingJobService.createEventOnStartDateContinuousJobStopped(continuousStartDate.getModificationTime());
         }
         if (batchCreated(lastEntityIdProcessed, newLastEntityIdProcessed)) {
             eArchivingJobService.updateLastEntityIdExported(newLastEntityIdProcessed, eArchiveRequestType);
             LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
+        } else {
+            if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_EARCHIVE_EXPORT_EMPTY)) && eArchiveRequestType == EArchiveRequestType.CONTINUOUS) {
+                EArchiveBatchEntity eArchiveBatchWithoutMessages = createBatchAndEnqueue(lastEntityIdProcessed, batchSize, domain, EArchiveRequestType.CONTINUOUS, new ArrayList<>());
+                LOG.debug("EArchive [{}] created with no messages", eArchiveBatchWithoutMessages.getBatchId());
+            }
         }
     }
 
@@ -107,6 +117,10 @@ public class EArchiveBatchDispatcherService {
         }
         long lastEntityIdTreated = messagesForArchivingAsc.get(messagesForArchivingAsc.size() - 1).getUserMessageEntityId();
 
+        return createBatchAndEnqueue(lastEntityIdTreated, batchSize, domain, requestType, messagesForArchivingAsc);
+    }
+
+    public EArchiveBatchEntity createBatchAndEnqueue(long lastEntityIdTreated, int batchSize, Domain domain, EArchiveRequestType requestType, List<EArchiveBatchUserMessage> messagesForArchivingAsc) {
         EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated, batchSize, messagesForArchivingAsc, requestType);
 
         enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());

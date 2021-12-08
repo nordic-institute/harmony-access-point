@@ -1,7 +1,6 @@
 package eu.domibus.plugin.fs.queue;
 
 import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -12,7 +11,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,16 +30,19 @@ public class FSSendMessageListener implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSSendMessageListener.class);
 
-    @Autowired
-    private FSSendMessagesService fsSendMessagesService;
+    private final FSSendMessagesService fsSendMessagesService;
 
-    @Autowired
-    protected FSFilesManager fsFilesManager;
+    protected final FSFilesManager fsFilesManager;
 
-    @Autowired
-    private DomibusConfigurationExtService domibusConfigurationExtService;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class}, timeout = 1200) // 20 minutes
+    public FSSendMessageListener(FSSendMessagesService fsSendMessagesService,
+                                 FSFilesManager fsFilesManager) {
+        this.fsSendMessagesService = fsSendMessagesService;
+        this.fsFilesManager = fsFilesManager;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class}, timeout = 1200)
+    // 20 minutes
     @Override
     public void onMessage(Message message) {
         LOG.debug("received message on fsPluginSendQueue");
@@ -61,26 +62,21 @@ public class FSSendMessageListener implements MessageListener {
             LOG.error("Error while consuming JMS message: [{}] fileName empty.", message);
             return;
         }
-        
-        FileObject fileObject = null;
-        try {
-            FileSystemManager fileSystemManager = getVFSManager();
-            fileObject = fileSystemManager.resolveFile(fileName);
+
+        try (FileObject fileObject = getVFSManager().resolveFile(fileName)) {
             if (!fileObject.exists()) {
                 LOG.warn("File does not exist: [{}] discard the JMS message", fileName);
                 fsFilesManager.deleteLockFile(fileObject);
                 return;
             }
+            fsSendMessagesService.authenticateForDomain(domain);
+
+            //process the file
+            LOG.debug("now send the file: {}", fileObject);
+            fsSendMessagesService.processFileSafely(fileObject, domain);
         } catch (FileSystemException e) {
             LOG.error("Error occurred while trying to access the file to be sent: " + fileName, e);
-            return;
         }
-
-        fsSendMessagesService.authenticateForDomain(domain);
-
-        //process the file
-        LOG.debug("now send the file: {}", fileObject);
-        fsSendMessagesService.processFileSafely(fileObject, domain);
     }
 
     protected FileSystemManager getVFSManager() throws FileSystemException {

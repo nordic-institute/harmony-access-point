@@ -90,23 +90,25 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional
     public void updateStartDateContinuousArchive(Long startMessageDate) {
         updateEArchiveBatchStart(CONTINUOUS_ID, startMessageDate);
     }
 
     @Override
+    @Transactional
     public void updateStartDateSanityArchive(Long startMessageDate) {
         updateEArchiveBatchStart(SANITY_ID, startMessageDate);
     }
 
     @Override
     public Long getStartDateContinuousArchive() {
-        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
+        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.read(CONTINUOUS_ID).getLastPkUserMessage());
     }
 
     @Override
     public Long getStartDateSanityArchive() {
-        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
+        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.read(SANITY_ID).getLastPkUserMessage());
     }
 
     private void updateEArchiveBatchStart(int sanityId, Long startMessageDate) {

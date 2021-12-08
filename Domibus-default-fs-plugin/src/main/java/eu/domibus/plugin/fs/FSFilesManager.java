@@ -11,12 +11,10 @@ import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.activation.DataHandler;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 /**
@@ -39,14 +37,20 @@ public class FSFilesManager {
     public static final String SENT_FOLDER = "SENT";
     public static final String FAILED_FOLDER = "FAILED";
 
-    @Autowired
-    protected FSPluginProperties fsPluginProperties;
+    protected final FSPluginProperties fsPluginProperties;
 
-    @Autowired
-    protected FSFileNameHelper fsFileNameHelper;
+    protected final FSFileNameHelper fsFileNameHelper;
 
-    public FileObject getEnsureRootLocation(final String location, final String domain,
-                                            final String user, final String password) throws FileSystemException {
+    public FSFilesManager(FSPluginProperties fsPluginProperties,
+                          FSFileNameHelper fsFileNameHelper) {
+        this.fsPluginProperties = fsPluginProperties;
+        this.fsFileNameHelper = fsFileNameHelper;
+    }
+
+    public FileObject getEnsureRootLocation(final String location,
+                                            final String domain,
+                                            final String user,
+                                            final String password) throws FileSystemException {
         StaticUserAuthenticator auth = new StaticUserAuthenticator(domain, user, password);
         FileSystemOptions opts = new FileSystemOptions();
         DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(opts, auth);
@@ -65,7 +69,7 @@ public class FSFilesManager {
         FtpFileSystemConfigBuilder.getInstance().setConnectTimeout(opts, TEN_SECONDS);
         FtpFileSystemConfigBuilder.getInstance().setDataTimeout(opts, TEN_SECONDS);
         FtpFileSystemConfigBuilder.getInstance().setSoTimeout(opts, TEN_SECONDS);
-        SftpFileSystemConfigBuilder.getInstance().setTimeout(opts, TEN_SECONDS);
+        SftpFileSystemConfigBuilder.getInstance().setSessionTimeoutMillis(opts, TEN_SECONDS);
 
         FileSystemManager fsManager = getVFSManager();
         FileObject rootDir = fsManager.resolveFile(location, opts);
@@ -241,7 +245,7 @@ public class FSFilesManager {
             } catch (FileSystemException ex) {
                 // errors with close are not very important at this point
                 // just log in case there's an underlying problem
-                LOG.warn("Error closing file", ex);
+                LOG.warn("Error closing file :[{}]", file.getName(), ex);
             }
         }
     }
@@ -252,13 +256,9 @@ public class FSFilesManager {
      * @param directory base directory
      * @param fileName  file name
      * @param content   content
-     * @throws java.io.IOException
      */
     public void createFile(FileObject directory, String fileName, String content) throws IOException {
-        try (FileObject file = directory.resolveFile(fileName);
-             OutputStream fileOS = file.getContent().getOutputStream();
-             OutputStreamWriter fileOSW = new OutputStreamWriter(fileOS)) {
-
+        try (OutputStreamWriter fileOSW = new OutputStreamWriter(directory.resolveFile(fileName).getContent().getOutputStream())) {
             fileOSW.write(content);
         }
     }
