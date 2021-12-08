@@ -9,6 +9,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -434,11 +435,14 @@ public class CertificateServiceImpl implements CertificateService {
     protected List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore) {
         try {
             List<TrustStoreEntry> trustStoreEntries = new ArrayList<>();
+            Integer certificateExpiryAlertDays = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_DELAY_DAYS);
+            LOG.debug("Certificate imminent expiry alert delay days:[{}]", certificateExpiryAlertDays);
             final Enumeration<String> aliases = trustStore.aliases();
             while (aliases.hasMoreElements()) {
                 final String alias = aliases.nextElement();
                 final X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
                 TrustStoreEntry trustStoreEntry = createTrustStoreEntry(alias, certificate);
+                trustStoreEntry.setCertificateExpiryAlertDays(certificateExpiryAlertDays);
                 trustStoreEntries.add(trustStoreEntry);
             }
             return trustStoreEntries;
@@ -459,7 +463,7 @@ public class CertificateServiceImpl implements CertificateService {
             }
         }
         if (addedNr > 0) {
-            LOG.trace("Added [{}] certificates so persisting the truststore.");
+            LOG.trace("Added [{}] certificates so persisting the truststore.", addedNr);
             persistTrustStore(trustStore, trustName);
             return true;
         }
@@ -478,7 +482,7 @@ public class CertificateServiceImpl implements CertificateService {
             }
         }
         if (removedNr > 0) {
-            LOG.trace("Removed [{}] certificates so persisting the truststore.");
+            LOG.trace("Removed [{}] certificates so persisting the truststore.", removedNr);
             persistTrustStore(trustStore, trustName);
             return true;
         }
@@ -528,10 +532,15 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected TruststoreEntity getTruststoreEntity(String trustName) {
-        TruststoreEntity entity = truststoreDao.findByName(trustName);
-        String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
-        entity.setPassword(decrypted);
-        return entity;
+        try {
+            TruststoreEntity entity = truststoreDao.findByName(trustName);
+            String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+            entity.setPassword(decrypted);
+            return entity;
+        } catch (Exception ex) {
+            LOG.debug("Error while retrieving truststore entity [{}]", trustName, ex);
+            throw new ConfigurationException("Could not retrieve truststore entity " + trustName, ex);
+        }
     }
 
     protected KeyStore loadTrustStore(InputStream contentStream, String password, String type) {
@@ -611,10 +620,10 @@ public class CertificateServiceImpl implements CertificateService {
             Optional<String> filePath = filePathSupplier.get();
             if (!filePath.isPresent()) {
                 if (optional) {
-                    LOG.info("Trustore with type [{}] is missing and optional so exiting.", name);
+                    LOG.info("Truststore with type [{}] is missing and optional so exiting.", name);
                     return;
                 }
-                throw new DomibusCertificateException(String.format("Trustore with type [%s] is missing and is not optional.", name));
+                throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", name));
             }
 
             byte[] content = getTruststoreContentFromFile(filePath.get());

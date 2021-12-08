@@ -58,7 +58,7 @@ public class PluginMessageStatusChangeNotifierTest {
         properties.put(MessageConstants.STATUS_TO, MessageStatus.ACKNOWLEDGED.toString());
         properties.put(MessageConstants.CHANGE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
-        pluginMessageStatusChangeNotifier.notifyPlugin(backendConnector, messageId, properties);
+        pluginMessageStatusChangeNotifier.notifyPlugin(backendConnector, 123L, messageId, properties);
 
         new FullVerifications() {{
             MessageStatusChangeEvent event;

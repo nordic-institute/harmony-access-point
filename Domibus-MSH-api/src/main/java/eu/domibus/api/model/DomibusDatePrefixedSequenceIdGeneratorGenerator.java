@@ -10,8 +10,13 @@ import org.hibernate.id.PersistentIdentifierGenerator;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) incremen

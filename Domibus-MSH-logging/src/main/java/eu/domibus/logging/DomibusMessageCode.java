@@ -98,6 +98,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_ARCHIVE_BATCH_ARCHIVED_NOTIFICATION_RECEIVED("BUS-087", "Received Archive Notification for batch: [{}] with message: [{}] from the archiving client to Domibus!"),
     BUS_ARCHIVE_BATCH_ERROR_NOTIFICATION_RECEIVED("BUS-088", "Received Archive Failed notification for batch: [{}] with message: [{}] from the archiving client to Domibus!"),
     BUS_ARCHIVE_BATCH_EXPORT_FAILED("BUS-089", "Export failed batch: [{}]. Error message: [{}]!"),
+    BUS_ARCHIVE_BATCH_ARCHIVED("BUS-090", "Batch: [{}] with first [{}] and last message: [{}] is Archived."),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),

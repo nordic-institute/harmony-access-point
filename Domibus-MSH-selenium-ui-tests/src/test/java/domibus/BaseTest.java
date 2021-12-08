@@ -69,7 +69,8 @@ public class BaseTest {
 		}
 		
 		waitForErrors();
-		
+		generateAlerts();
+
 		log.info("DONE GENERATING TEST DATA");
 	}
 	
@@ -105,5 +106,28 @@ public class BaseTest {
 			}
 		}
 	}
-	
+
+
+	private void generateAlerts() {
+		try {
+
+			for (String userRoleValue : DRoles.userRoleValues()) {
+				for (int i = 0; i < 5; i++) {
+					String name = rest.getUsername(null, userRoleValue, true, false, true);
+					rest.login(name, "veryVeryWrong");
+				}
+			}
+
+			for (int i = 0; i < 5; i++) {
+				String pluginUsername = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+				messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+	}
+
 }

@@ -256,6 +256,7 @@ public class BackendNotificationService {
         PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
         payloadSubmittedEvent.setCid(partInfo.getHref());
         payloadSubmittedEvent.setFileName(originalFilename);
+        payloadSubmittedEvent.setMessageEntityId(userMessage.getEntityId());
         payloadSubmittedEvent.setMessageId(userMessage.getMessageId());
         payloadSubmittedEvent.setMime(partInfo.getMime());
         backendConnector.payloadSubmittedEvent(payloadSubmittedEvent);
@@ -271,6 +272,7 @@ public class BackendNotificationService {
         PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
         payloadProcessedEvent.setCid(partInfo.getHref());
         payloadProcessedEvent.setFileName(originalFilename);
+        payloadProcessedEvent.setMessageEntityId(userMessage.getEntityId());
         payloadProcessedEvent.setMessageId(userMessage.getMessageId());
         payloadProcessedEvent.setMime(partInfo.getMime());
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
@@ -287,7 +289,7 @@ public class BackendNotificationService {
 
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageId(), unknownReceiverQueue);
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
             return;
         }
 
@@ -301,8 +303,6 @@ public class BackendNotificationService {
 
     protected void validateAndNotify(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType, Map<String, String> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageId(), notificationType);
-
-        submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName, notificationType);
 
         notify(userMessage, backendName, notificationType, properties);
     }
@@ -326,6 +326,7 @@ public class BackendNotificationService {
             return;
         }
         final String messageId = userMessage.getMessageId();
+        final long messageEntityId = userMessage.getEntityId();
 
         List<NotificationType> requiredNotificationTypeList = backendConnectorService.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
@@ -343,25 +344,26 @@ public class BackendNotificationService {
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
         if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            notifyAsync(asyncNotificationConfiguration, messageId, notificationType, properties);
+            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, notificationType, properties);
             return;
         }
 
-        notifySync(backendConnector, asyncNotificationConfiguration, messageId, notificationType, properties);
+        notifySync(backendConnector, asyncNotificationConfiguration, messageEntityId, messageId, notificationType, properties);
     }
 
     protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
         return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
     }
 
-    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, String messageId, NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Long messageEntityId, String messageId, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageEntityId, messageId, notificationType, properties).createMessage(), backendNotificationQueue);
     }
 
     protected void notifySync(BackendConnector<?, ?> backendConnector,
                               AsyncNotificationConfiguration asyncNotificationConfiguration,
+                              long messageEntityId,
                               String messageId,
                               NotificationType notificationType,
                               Map<String, String> properties) {
@@ -372,7 +374,7 @@ public class BackendNotificationService {
             return;
         }
 
-        pluginEventNotifier.notifyPlugin(backendConnector, messageId, properties);
+        pluginEventNotifier.notifyPlugin(backendConnector, messageEntityId, messageId, properties);
     }
 
     public void notifyOfSendFailure(final UserMessage userMessage, UserMessageLog userMessageLog) {

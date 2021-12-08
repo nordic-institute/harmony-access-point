@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.encryption.DecryptDataSource;
+import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -78,6 +79,9 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "ENCRYPTED")
     protected Boolean encrypted;
 
+    @Column(name = "COMPRESSED")
+    protected Boolean compressed;
+
     @Transient
     public String getMimeProperty() {
         return partProperties.stream()
@@ -138,6 +142,14 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.encrypted = encrypted;
     }
 
+    public Boolean getCompressed() {
+        return BooleanUtils.toBoolean(compressed);
+    }
+
+    public void setCompressed(Boolean compressed) {
+        this.compressed = compressed;
+    }
+
     public UserMessage getUserMessage() {
         return userMessage;
     }
@@ -159,13 +171,20 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @PostLoad
     public void loadBinary() {
         if (fileName != null) { /* Create payload data handler from File */
-            LOG.debug("LoadBinary from file: " + fileName);
+            LOG.debug("LoadBinary from file: [{}]", fileName);
             DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
+
             if (isEncrypted()) {
                 LOG.debug("Using DecryptDataSource for payload [{}]", href);
                 final Cipher decryptCipher = getDecryptCipher();
                 fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
             }
+
+            if(getCompressed()) {
+                LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
+                fsDataSource = new DecompressionDataSource(fsDataSource, getMime());
+            }
+
             payloadDatahandler = new DataHandler(fsDataSource);
             return;
         }
@@ -175,10 +194,16 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
             payloadDatahandler = null;
         } else {
             DataSource dataSource = new ByteArrayDataSource(binaryData, mime);
+
             if (isEncrypted()) {
                 LOG.debug("Using DecryptDataSource for payload [{}]", href);
                 final Cipher decryptCipher = getDecryptCipher();
                 dataSource = new DecryptDataSource(dataSource, decryptCipher);
+            }
+
+            if(getCompressed()) {
+                LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
+                dataSource = new DecompressionDataSource(dataSource, getMime());
             }
             payloadDatahandler = new DataHandler(dataSource);
         }

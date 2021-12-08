@@ -839,7 +839,6 @@ public class AuditPgTest extends SeleniumTest {
 		rest.jms().deleteMessages(queue, messageId);
 
 		AuditPage page = new AuditPage(driver);
-		page.wait.forXMillis(1000);
 
 		log.info("Navigate to Audit page");
 		page.getSidebar().goToPage(PAGES.AUDIT);

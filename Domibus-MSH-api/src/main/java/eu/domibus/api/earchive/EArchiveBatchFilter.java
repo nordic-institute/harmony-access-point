@@ -18,15 +18,16 @@ public class EArchiveBatchFilter {
     Integer pageStart;
     Integer pageSize;
     List<EArchiveBatchStatus> statusList;
+    Boolean includeReExportedBatches;
 
     public EArchiveBatchFilter() {
     }
 
     public EArchiveBatchFilter(List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Integer pageStart, Integer pageSize) {
-        this(new ArrayList<>(), requestTypes, startDate, endDate, null, null, pageStart, pageSize);
+        this(new ArrayList<>(), requestTypes, startDate, endDate, null, null, null, pageStart, pageSize);
     }
 
-    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Integer pageStart, Integer pageSize) {
+    public EArchiveBatchFilter(List<EArchiveBatchStatus> statusList, List<EArchiveRequestType> requestTypes, Date startDate, Date endDate, Long messageStartId, Long messageEndId, Boolean includeReExportedBatches, Integer pageStart, Integer pageSize) {
         this.requestTypes = requestTypes;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -35,6 +36,15 @@ public class EArchiveBatchFilter {
         this.pageStart = pageStart;
         this.pageSize = pageSize;
         this.statusList = statusList;
+        this.includeReExportedBatches = includeReExportedBatches;
+    }
+
+    public Boolean getIncludeReExportedBatches() {
+        return includeReExportedBatches;
+    }
+
+    public void setIncludeReExportedBatches(Boolean includeReExportedBatches) {
+        this.includeReExportedBatches = includeReExportedBatches;
     }
 
     public List<EArchiveRequestType> getRequestTypes() {
@@ -110,6 +120,7 @@ public class EArchiveBatchFilter {
                 ", pageStart=" + pageStart +
                 ", pageSize=" + pageSize +
                 ", statusList=" + statusList +
+                ", includeReExportedBatches=" + includeReExportedBatches +
                 '}';
     }
 }

@@ -44,10 +44,10 @@ public class JMSPluginQueueService {
      * @return the default or the routing queue
      * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
      */
-    public String getJMSQueue(String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
+    public String getJMSQueue(long messageEntityId, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
         Submission submission;
         try {
-            submission = messageRetriever.browseMessage(messageId);
+            submission = messageRetriever.browseMessage(messageEntityId);
         } catch (MessageNotFoundException e) {
             throw new DefaultJmsPluginException("Could not find message with id [" + messageId + "]", e);
         }

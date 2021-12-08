@@ -111,7 +111,20 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
         <!-- End Spring -->
-
+        <!-- Jackson json object mapper -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <!-- End jackson json mapper -->
         <!-- Start Apache -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -182,23 +195,6 @@
             <artifactId>spring-security-config</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Jackson for mockMVC tests -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <scope>test</scope>
-        </dependency>
-
 
         <!-- End Test dependencies -->
 

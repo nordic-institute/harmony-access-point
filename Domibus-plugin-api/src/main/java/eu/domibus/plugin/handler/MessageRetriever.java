@@ -26,6 +26,14 @@ public interface MessageRetriever {
      */
     Submission downloadMessage(String messageId) throws MessageNotFoundException;
 
+    /**
+     * provides the message with the corresponding messageId
+     *
+     * @param messageEntityId the entity id of the message to retrieve
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission downloadMessage(Long messageEntityId) throws MessageNotFoundException;
 
     /**
      * Browse the message with the corresponding messageId
@@ -37,12 +45,28 @@ public interface MessageRetriever {
     Submission browseMessage(String messageId) throws MessageNotFoundException;
 
     /**
+     * Browse the message with the corresponding messageId
+     *
+     * @param messageEntityId the entity id of the message to browse
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission browseMessage(Long messageEntityId) throws MessageNotFoundException;
+
+    /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
      *
      * @param messageId id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
     MessageStatus getStatus(String messageId);
+    /**
+     * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
+     *
+     * @param messageEntityId entity id of the message the status is requested for
+     * @return the message status {@link eu.domibus.common.MessageStatus}
+     */
+    MessageStatus getStatus(final Long messageEntityId);
 
     /**
      * Returns List {@link java.util.List} of error logs {@link ErrorResult} for message with messageid

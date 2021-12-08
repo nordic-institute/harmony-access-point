@@ -98,14 +98,14 @@ public class RetryDefaultEbms3ServiceTest {
 
     @Test
     public void getMessagesNotAlreadyQueuedWithNoAlreadyQueuedMessagesTest() {
-        List<String> retryMessageIds = Arrays.asList("retry123@domibus.eu", "retry456@domibus.eu", "expired123@domibus.eu");
+        List<Long> retryMessageIds = Arrays.asList(123L, 456L, 789L);
 
         new NonStrictExpectations(retryService) {{
-            userMessageLogDao.findRetryMessages();
+            userMessageLogDao.findRetryMessages(anyLong, anyLong);
             result = new ArrayList<>(retryMessageIds);
         }};
 
-        List<String> result = retryService.getMessagesNotAlreadyScheduled();
+        List<Long> result = retryService.getMessagesNotAlreadyScheduled();
         assertEquals(3, result.size());
 
         assertEquals(result, retryMessageIds);
@@ -116,10 +116,14 @@ public class RetryDefaultEbms3ServiceTest {
                                                    @Injectable UserMessageLog userMessageLog,
                                                    @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         String messageId = "123";
+        long messageEntityId = 123L;
 
         new Expectations() {{
 
-            userMessageDao.findByMessageId(messageId);
+            userMessage.getMessageId();
+            result = messageId;
+
+            userMessageDao.findByEntityId(messageEntityId);
             result = userMessage;
 
             updateRetryLoggingService.getLegConfiguration(userMessage);
@@ -130,9 +134,13 @@ public class RetryDefaultEbms3ServiceTest {
 
             updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = true;
+
+            userMessage.isSourceMessage();
+            result = false;
+
         }};
 
-        retryService.doEnqueueMessage(messageId);
+        retryService.doEnqueueMessage(messageEntityId);
 
         new FullVerifications() {{
             userMessageService.scheduleSending(userMessage, userMessageLog);
@@ -145,9 +153,13 @@ public class RetryDefaultEbms3ServiceTest {
                                  @Injectable UserMessageLog userMessageLog,
                                  @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         String messageId = "123";
+        long messageEntityId = 123L;
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessage.getMessageId();
+            result = messageId;
+
+            userMessageDao.findByEntityId(messageEntityId);
             result = userMessage;
 
             updateRetryLoggingService.getLegConfiguration(userMessage);
@@ -159,11 +171,14 @@ public class RetryDefaultEbms3ServiceTest {
             updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
             result = false;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByEntityIdSafely(messageEntityId);
             result = userMessageLog;
+
+            userMessage.isSourceMessage();
+            result = false;
         }};
 
-        retryService.doEnqueueMessage(messageId);
+        retryService.doEnqueueMessage(messageEntityId);
 
         new FullVerifications() {{
             userMessageService.scheduleSending(userMessage, userMessageLog);

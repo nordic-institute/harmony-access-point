@@ -59,6 +59,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     private AuditService auditService;
 
 
+    @Autowired
+    protected SignalMessageRawService signalMessageRawService;
+
     @Override
     public void saveRawEnvelope(String rawXMLMessage, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
@@ -69,8 +72,16 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         LOG.debug("Persist raw XML envelope: [{}]", rawXMLMessage);
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
         rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
-        rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+        rawEnvelopeLog.setRawXML(rawXMLMessage);
         rawEnvelopeLogDao.create(rawEnvelopeLog);
+    }
+
+    @Override
+    public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
+        String rawXMLMessage = soapUtil.getRawXMLMessage(request);
+        UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
+        rawEnvelopeLog.setRawXML(rawXMLMessage);
+        return rawEnvelopeLog;
     }
 
     @Override
@@ -87,7 +98,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             if (userMessage != null) {
                 rawEnvelopeLog.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
             }
-            rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
+            rawEnvelopeLog.setRawXML(rawXMLMessage);
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
@@ -95,7 +106,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    public void saveResponse(SOAPMessage response, SignalMessage signalMessage) {
+    public void saveResponse(SOAPMessage response, Long signalMessageEntityId) {
         if (isNonRepudiationAuditDisabled()) {
             LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data.");
             return;
@@ -104,35 +115,11 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         try {
             String rawXMLMessage = soapUtil.getRawXMLMessage(response);
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
-            SignalMessageRaw rawEnvelopeLog = new SignalMessageRaw();
-            rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
-            rawEnvelopeLog.setSignalMessage(signalMessage);
-            signalMessageRawEnvelopeDao.create(rawEnvelopeLog);
+            signalMessageRawService.saveSignalMessageRawService(rawXMLMessage, signalMessageEntityId);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
         }
     }
-
-    @Transactional
-    @Override
-    public void saveResponse(SOAPMessage response, String userMessageId) {
-        if (isNonRepudiationAuditDisabled()) {
-            LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data for message [{}].", userMessageId);
-            return;
-        }
-
-        List<SignalMessage> signalMessages = signalMessageDao.findByRefMessageId(userMessageId);
-        if (CollectionUtils.isEmpty(signalMessages)) {
-            LOG.warn("Could not find any signal message for ref message [{}]", userMessageId);
-            return;
-        }
-
-        // in case we will save the signal messages for unsuccessful operations, this code will take the one corresponding to the successful one
-        SignalMessage signalMessage = signalMessages.stream().findFirst().orElse(null);
-
-        saveResponse(response, signalMessage);
-    }
-
 
     @Override
     public String getUserMessageEnvelope(String messageId) {
@@ -142,15 +129,15 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             return null;
         }
 
-        RawEnvelopeDto userEnvelope = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
-        if (userEnvelope == null) {
+        RawEnvelopeDto rawEnvelopeDto = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
+        if (rawEnvelopeDto == null) {
             LOG.info("User message envelope with entity id [{}] was not found.", userMessage.getEntityId());
             return null;
         }
 
         auditService.addMessageEnvelopesDownloadedAudit(messageId, ModificationType.USER_MESSAGE_ENVELOPE_DOWNLOADED);
-        LOG.debug("Returning the user message envelope with id [{}]: [{}]", messageId, userEnvelope.getRawMessage());
-        final String rawXml = new String(userEnvelope.getRawMessage(), StandardCharsets.UTF_8);
+        LOG.debug("Returning the user message envelope with id [{}]: [{}]", messageId, rawEnvelopeDto.getRawMessage());
+        final String rawXml = rawEnvelopeDto.getRawXmlMessage();
         return rawXml;
     }
 
@@ -164,7 +151,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
         LOG.debug("Returning the signal message envelope with user message id [{}]: [{}]", userMessageId, rawEnvelopeDto.getRawMessage());
-        final String rawXml = new String(rawEnvelopeDto.getRawMessage(), StandardCharsets.UTF_8);
+        final String rawXml = rawEnvelopeDto.getRawXmlMessage();
         return rawXml;
     }
 

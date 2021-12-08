@@ -38,7 +38,7 @@ public class EArchiveErrorHandlerTest {
 
         new Expectations() {{
 
-            eArchivingDefaultService.getEArchiveBatch(entityId);
+            eArchivingDefaultService.getEArchiveBatch(entityId, false);
             result = eArchiveBatch;
         }};
         RuntimeException error = new RuntimeException("ERROR");

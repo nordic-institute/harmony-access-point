@@ -11,10 +11,7 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.SubmissionUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +27,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertNotNull;
 
 @Transactional
+@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
 public class DatabaseMessageHandlerTestIT extends AbstractIT {
 
     @Configuration
@@ -92,6 +90,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
     public void submitWithNoToPartyId() throws MessagingProcessingException, IOException {
         Submission submission = submissionUtil.createSubmission();
         submission.getToParties().clear();

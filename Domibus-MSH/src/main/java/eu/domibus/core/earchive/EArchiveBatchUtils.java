@@ -1,14 +1,9 @@
 package eu.domibus.core.earchive;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.domibus.api.model.ListUserMessageDto;
-import eu.domibus.api.model.UserMessageDTO;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,37 +16,20 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
 @Component
 public class EArchiveBatchUtils {
 
-    private final ObjectMapper objectMapper;
-
-    public EArchiveBatchUtils(@Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
-    public ListUserMessageDto getUserMessageDtoFromJson(EArchiveBatchEntity eArchiveBatchByBatchId) {
-        try {
-            return objectMapper.readValue(new String(eArchiveBatchByBatchId.getMessageIdsJson(), StandardCharsets.UTF_8), ListUserMessageDto.class);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not read batch list from batch:" + eArchiveBatchByBatchId.getBatchId(), e);
+    public List<String> getMessageIds(List<EArchiveBatchUserMessage> userMessageDtos) {
+        if(CollectionUtils.isEmpty(userMessageDtos)){
+            return new ArrayList<>();
         }
+        return userMessageDtos.stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toList());
     }
-
-    public List<String> getMessageIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getMessageId).collect(Collectors.toList());
-    }
-
-    public List<Long> getEntityIds(List<UserMessageDTO> userMessageDtos) {
-        return userMessageDtos.stream().map(UserMessageDTO::getEntityId).collect(Collectors.toList());
-    }
-
-    public String getRawJson(ListUserMessageDto userMessageToBeArchived) {
-        try {
-            return objectMapper.writeValueAsString(userMessageToBeArchived);
-        } catch (JsonProcessingException e) {
-            throw new DomibusEArchiveException("Could not parse the list of userMessages", e);
+    public List<Long> getEntityIds(List<EArchiveBatchUserMessage> userMessageDtos) {
+        if(CollectionUtils.isEmpty(userMessageDtos)){
+            return new ArrayList<>();
         }
+        return userMessageDtos.stream().map(EArchiveBatchUserMessage::getUserMessageEntityId).collect(Collectors.toList());
     }
 
-    Long extractDateFromPKUserMessageId(Long pkUserMessage) {
+    public Long extractDateFromPKUserMessageId(Long pkUserMessage) {
         if (pkUserMessage == null) {
             return null;
         }

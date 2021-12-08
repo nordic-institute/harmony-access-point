@@ -13,6 +13,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,13 +58,17 @@ public class DomainDaoImplTest {
     }
 
     @Test
-    public void findAllDomainCodes() {
+    public void findAllDomainCodes() throws IOException {
         new Expectations() {{
             domibusConfigurationService.getConfigLocation();
             result = "src/test/resources/config";
         }};
 
+        Path emptyDomainDir = Files.createTempDirectory(Paths.get(domibusConfigurationService.getConfigLocation()), "emptyDomainDir");
+
         List<String> domainCodes = domainDao.findAllDomainCodes();
+
+        Files.deleteIfExists(emptyDomainDir);
 
         assertEquals(2, domainCodes.size());
         assertEquals("default", domainCodes.get(0));

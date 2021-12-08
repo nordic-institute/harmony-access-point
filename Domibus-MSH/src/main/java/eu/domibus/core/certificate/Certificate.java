@@ -1,7 +1,7 @@
 package eu.domibus.core.certificate;
 
-import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
@@ -153,8 +153,10 @@ public class Certificate extends AbstractBaseEntity {
                 ", notBefore=" + notBefore +
                 ", notAfter=" + notAfter +
                 ", lastNotification=" + lastNotification +
+                ", alertImminentNotificationDate=" + alertImminentNotificationDate +
+                ", alertExpiredNotificationDate=" + alertExpiredNotificationDate +
                 ", certificateType=" + certificateType +
                 ", certificateStatus=" + certificateStatus +
-                '}';
+                "} " + super.toString();
     }
 }

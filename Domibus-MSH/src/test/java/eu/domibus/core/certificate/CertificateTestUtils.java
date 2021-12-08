@@ -38,4 +38,22 @@ public class CertificateTestUtils {
             throw new DomibusCertificateException("Could not load certificate from file " + filePath + ", alias " + alias, e);
         }
     }
+
+
+    /**
+     * Loads a keystore from a JKS file
+     * @param filePath path to the file representing the keystore
+     * @param password the password to open the keystore
+     */
+    public static KeyStore loadKeyStoreFromJKSFile(String filePath, String password) {
+        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(fileInputStream, password.toCharArray());
+
+            return keyStore;
+        } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+            throw new DomibusCertificateException("Could not load keystore from file " + filePath, e);
+        }
+    }
 }

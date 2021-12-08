@@ -34,7 +34,7 @@ public class DComponent {
 		
 		try {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
-			wait.forXMillis(200);
+			wait.forElementToBeGone(By.cssSelector("[class*=\"overlay-backdrop\"]"));
 		} catch (Exception e) {}
 		
 	}

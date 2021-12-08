@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -25,6 +26,8 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.certificate.CertificateTestUtils.loadKeyStoreFromJKSFile;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
 
 /**
@@ -34,6 +37,12 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplTest {
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
+
+    private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+    private static final String TEST_KEYSTORE = "testkeystore.jks";
+    private static final String TEST_KEYSTORE2 = "expired_gateway_keystore.jks";
+    private static final String TEST_KEYSTORE_PASSWORD = "1234";
+    private static final String TEST_KEYSTORE2_PASSWORD = "test123";
 
     @Tested
     private DefaultDomainCryptoServiceSpiImpl domainCryptoService;
@@ -94,7 +103,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     public void throwsExceptionWhenFailingToLoadMerlinProperties_WSSecurityException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
+        thrown.expectMessage("Error occurred when loading the properties of TrustStore");
 
         new Expectations() {{
             merlin.loadProperties((Properties) any, (ClassLoader) any, null);
@@ -109,7 +118,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
+        thrown.expectMessage("Error occurred when loading the properties of TrustStore");
 
         new Expectations() {{
             merlin.loadProperties((Properties) any, (ClassLoader) any, null);
@@ -196,5 +205,48 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 //            signalService.signalTrustStoreUpdate(domain);
 //        }};
 //    }
+
+    @Test(expected = ConfigurationException.class)
+    public void initTruststore(@Injectable Properties properties, @Injectable Merlin merlin) throws WSSecurityException, IOException {
+
+        new Expectations() {{
+            domainCryptoService.getTrustStoreProperties();
+            result = properties;
+
+        }};
+        domainCryptoService.init();
+
+        new Verifications() {{
+            merlin.loadProperties(properties, Merlin.class.getClassLoader(), null);
+        }};
+
+
+    }
+
+    @Test
+    public void replaceTrustStore() {
+
+        byte[] store = "cert content".getBytes();
+        String password = "test123";
+
+        domainCryptoService.replaceTrustStore(store, password);
+
+        new Verifications() {{
+            certificateService.replaceTrustStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
+        }};
+    }
+
+    @Test
+    public void areKeystoresIdentical() {
+        KeyStore store0 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
+        KeyStore store1 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
+        KeyStore store2 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE2, TEST_KEYSTORE2_PASSWORD);
+
+        boolean shouldBeTrue = domainCryptoService.areKeystoresIdentical(store0, store1);
+        Assert.assertTrue(shouldBeTrue);
+
+        boolean shouldBeFalse = domainCryptoService.areKeystoresIdentical(store1, store2);
+        Assert.assertFalse(shouldBeFalse);
+    }
 
 }

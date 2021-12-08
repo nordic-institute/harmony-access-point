@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.eark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.earchive.DomibusEArchiveException;
@@ -12,23 +13,20 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import org.apache.commons.io.IOUtils;
-import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.activation.DataSource;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author François Gautier
@@ -65,62 +63,6 @@ public class EArchivingFileServiceTest {
     }
 
     @Test
-    public void getFileName_ok(@Injectable PartInfo partInfo) {
-        new Expectations() {{
-            partInfo.getMime();
-            result = MimeTypes.XML;
-
-            partInfo.getHref();
-            result = CID + MESSAGE;
-        }};
-        String fileName = eArchivingFileService.getFileName(partInfo);
-
-        assertEquals(MESSAGE + ".attachment.xml", fileName);
-    }
-
-    @Test
-    public void getFileName_noExtension(@Injectable PartInfo partInfo) {
-        new Expectations() {{
-            partInfo.getMime();
-            result = "NoExtension";
-
-            partInfo.getHref();
-            result = CID + MESSAGE;
-        }};
-        String fileName = eArchivingFileService.getFileName(partInfo);
-
-        assertEquals(MESSAGE + ".attachment", fileName);
-    }
-
-    @Test
-    public void getFileName_nohref(@Injectable PartInfo partInfo) {
-        new Expectations() {{
-            partInfo.getMime();
-            result = MimeTypes.XML;
-
-            partInfo.getHref();
-            result = null;
-        }};
-        String fileName = eArchivingFileService.getFileName(partInfo);
-
-        assertEquals("bodyload.attachment.xml", fileName);
-    }
-
-    @Test
-    public void getFileName_hrefNoCid(@Injectable PartInfo partInfo) {
-        new Expectations() {{
-            partInfo.getMime();
-            result = MimeTypes.XML;
-
-            partInfo.getHref();
-            result = "NOCID";
-        }};
-        String fileName = eArchivingFileService.getFileName(partInfo);
-
-        assertEquals("NOCID.attachment.xml", fileName);
-    }
-
-    @Test
     public void getArchivingFiles_happyFlow(@Injectable RawEnvelopeDto rawEnvelopeDto,
                                             @Injectable PartInfo partInfo1,
                                             @Injectable DataHandler dataHandler,
@@ -128,8 +70,44 @@ public class EArchivingFileServiceTest {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
 
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
+            rawEnvelopeDto.getRawXmlMessageAsStream();
+            result = new ByteArrayInputStream(RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
+
+            userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
+            result = rawEnvelopeDto;
+
+            partInfoService.findPartInfo(entityId);
+            result = partInfos;
+
+            partInfo1.getPayloadDatahandler();
+            result = dataHandler;
+
+            dataHandler.getInputStream();
+            result = inputStream;
+
+            partInfo1.getMime();
+            result = MimeTypes.XML;
+
+            partInfo1.getHref();
+            result = CID + MESSAGE;
+        }};
+
+        Map<String, InputStream> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
+
+        new FullVerifications() {
+        };
+
+        Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
+        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
+    }
+
+    @Test
+    public void getArchivingFiles_compressedAttachment(@Injectable PartInfo partInfo1,
+                                            @Injectable DataHandler dataHandler,
+                                            @Injectable InputStream inputStream) throws IOException {
+        RawEnvelopeDto rawEnvelopeDto = new RawEnvelopeDto(1L, getCompressedBytes(RAW_ENVELOPE_CONTENT), true);
+        List<PartInfo> partInfos = Collections.singletonList(partInfo1);
+        new Expectations() {{
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
@@ -167,8 +145,8 @@ public class EArchivingFileServiceTest {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
 
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
+            rawEnvelopeDto.getRawXmlMessageAsStream();
+            result = new ByteArrayInputStream(RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
@@ -183,7 +161,8 @@ public class EArchivingFileServiceTest {
             result = CID + MESSAGE;
 
             partInfo1.getMime();
-            result = MediaType.OCTET_STREAM.getType();
+            result = MimeTypes.XML;
+
         }};
 
         try {
@@ -205,8 +184,8 @@ public class EArchivingFileServiceTest {
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
 
-            rawEnvelopeDto.getRawMessage();
-            result = RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8);
+            rawEnvelopeDto.getRawXmlMessageAsStream();
+            result = new ByteArrayInputStream(RAW_ENVELOPE_CONTENT.getBytes(StandardCharsets.UTF_8));
 
             userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
             result = rawEnvelopeDto;
@@ -238,5 +217,45 @@ public class EArchivingFileServiceTest {
         };
     }
 
+    @Test
+    public void getFile(
+            @Injectable PartInfo partInfo,
+            @Injectable PartProperty partProperty1,
+            @Injectable PartProperty partProperty2,
+            @Injectable DataSource source,
+            @Injectable InputStream inputStream
 
+    ) throws IOException {
+        Set<PartProperty> properties = new HashSet<>();
+        properties.add(partProperty1);
+        properties.add(partProperty2);
+
+
+        byte[] compressedBytes = getCompressedBytes(RAW_ENVELOPE_CONTENT);
+
+        new Expectations(){{
+
+            partInfo.getPayloadDatahandler().getInputStream();
+            result = new ByteArrayInputStream(compressedBytes);
+
+        }};
+        InputStream file = eArchivingFileService.getInputStream(1L, partInfo);
+
+        assertNotNull("message.attachment.xml", file);
+
+        new FullVerifications(){};
+    }
+
+    private byte[] getCompressedBytes(String rawEnvelopeContent) throws IOException {
+        byte[] compressedBytes;
+
+        // Compress it
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
+            try(OutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+                gzipOutputStream.write(rawEnvelopeContent.getBytes(StandardCharsets.UTF_8));
+            }
+            compressedBytes = byteArrayOutputStream.toByteArray();
+        }
+        return compressedBytes;
+    }
 }

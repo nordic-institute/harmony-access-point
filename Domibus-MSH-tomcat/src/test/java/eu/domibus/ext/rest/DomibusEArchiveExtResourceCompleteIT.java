@@ -2,40 +2,47 @@ package eu.domibus.ext.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
-import eu.domibus.core.earchive.EArchiveTestUtils;
+import eu.domibus.core.earchive.*;
 import eu.domibus.ext.domain.archive.ExportedBatchDTO;
 import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
 import eu.domibus.ext.domain.archive.QueuedBatchDTO;
 import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,7 +52,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The complete rest endpoint integration tests
  */
-@Transactional
 public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
     // The endpoints to test
@@ -65,6 +71,8 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
+    @Autowired
+    protected PlatformTransactionManager transactionManager;
 
     private MockMvc mockMvc;
 
@@ -96,7 +104,9 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
-
+        // Do not use @Transactional on Class because it adds "false" transactions also to services.
+        // Note here you can not use @Transactional annotation with the following code force commit on data preparation level!!
+        TransactionStatus transactionStatus = transactionManager.getTransaction(TransactionDefinition.withDefaults());
         Date currentDate = Calendar.getInstance().getTime();
 
         uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
@@ -116,12 +126,11 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 uml1.getEntityId(),
                 uml3.getEntityId(),
                 1,
-                "/tmp/batch",
-                "{\"2110100000000001\"}"));
+                "/tmp/batch"));
         eArchiveBatchUserMessageDao.create(batch1, Arrays.asList(
-                uml1.getEntityId(),
-                uml2.getEntityId(),
-                uml3.getEntityId()));
+                new EArchiveBatchUserMessage(uml1.getEntityId(), uml1.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml2.getEntityId(), uml2.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml3.getEntityId(), uml3.getUserMessage().getMessageId())));
 
         batch2 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
@@ -131,107 +140,110 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 2110100000000011L,
                 2110100000000020L,
                 1,
-                "/tmp/batch",
-                "{\"2110100000000003\"}"));
+                "/tmp/batch"));
 
         eArchiveBatchUserMessageDao.create(batch2, Arrays.asList(
-                uml4.getEntityId(), uml5.getEntityId()
+                new EArchiveBatchUserMessage(uml4.getEntityId(), uml4.getUserMessage().getMessageId()),
+                new EArchiveBatchUserMessage(uml5.getEntityId(), uml5.getUserMessage().getMessageId())
         ));
-
         batch3 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
-                batch2.getBatchId(),
+                UUID.randomUUID().toString(),
                 EArchiveRequestType.MANUAL,
                 EArchiveBatchStatus.EXPORTED,
                 DateUtils.addDays(currentDate, 0),
                 2110100000000021L,
                 2110110000000001L,
                 1,
-                "/tmp/batch",
-                "{\"2110100000000004\"}")); // is copy from 2
-        eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(
-                uml6.getEntityId()));
+                "/tmp/batch")); // is copy from 2
+        eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
+        transactionManager.commit(transactionStatus);
     }
 
     @Test
+    @Transactional
     public void testGetSanityArchivingStartDate() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_SANITY_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals(10100L, Long.parseLong(content));
+        assertEquals(10100L, Long.parseLong(content));
     }
 
     @Test
+    @Transactional
     public void testResetSanityArchivingStartDate() throws Exception {
         // given
         long resultDate = 21101500L;
         // when
         mockMvc.perform(put(TEST_ENDPOINT_SANITY_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("messageStartDate", resultDate + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageStartDate", resultDate + "")
+                )
                 .andExpect(status().is2xxSuccessful());
 
         // then
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_SANITY_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals(resultDate, Long.parseLong(content));
+        assertEquals(resultDate, Long.parseLong(content));
     }
 
     @Test
+    @Transactional
     public void testGetStartDateContinuousArchive() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_CONTINUOUS_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals(10100L, Long.parseLong(content));
+        assertEquals(10100L, Long.parseLong(content));
     }
 
     @Test
+    @Transactional
     public void testResetStartDateContinuousArchive() throws Exception {
         // given
         long resultDate = 21101500L;
         // when
         mockMvc.perform(put(TEST_ENDPOINT_CONTINUOUS_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("messageStartDate", resultDate + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageStartDate", resultDate + "")
+                )
                 .andExpect(status().is2xxSuccessful());
 
         // then
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_CONTINUOUS_DATE)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf()))
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals(resultDate, Long.parseLong(content));
+        assertEquals(resultDate, Long.parseLong(content));
     }
 
     @Test
+    @Transactional
     public void testGetQueuedBatchRequestsForNoResults() throws Exception {
         // given
         Integer lastCountRequests = 10;
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("lastCountRequests", lastCountRequests + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("lastCountRequests", lastCountRequests + "")
+                )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
@@ -241,19 +253,20 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
         Assert.assertNotNull(response.getFilter());
         Assert.assertNotNull(response.getPagination());
-        Assert.assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
-        Assert.assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
+        assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
+        assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
         //
-        Assert.assertEquals(1, response.getQueuedBatches().size());
+        assertEquals(1, response.getQueuedBatches().size());
         QueuedBatchDTO responseBatch = response.getQueuedBatches().get(0);
-        Assert.assertEquals(batch1.getBatchId(), responseBatch.getBatchId());
-        Assert.assertEquals(batch1.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
-        Assert.assertEquals(batch1.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
-        Assert.assertEquals(batch1.getDateRequested(), responseBatch.getEnqueuedTimestamp());
-        Assert.assertEquals(batch1.getRequestType().name(), responseBatch.getRequestType().name());
+        assertEquals(batch1.getBatchId(), responseBatch.getBatchId());
+        assertEquals(batch1.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
+        assertEquals(batch1.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
+        assertEquals(batch1.getDateRequested(), responseBatch.getEnqueuedTimestamp());
+        assertEquals(batch1.getRequestType().name(), responseBatch.getRequestType().name());
     }
 
     @Test
+    @Transactional
     public void testHistoryOfTheExportedBatches() throws Exception {
 // given
         Long messageStartDate = 211005L;
@@ -261,29 +274,32 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_EXPORTED)
-                .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                .with(csrf())
-                .param("messageStartDate", messageStartDate + "")
-                .param("messageEndDate", messageEndDate + "")
-        )
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageStartDate", messageStartDate + "")
+                        .param("messageEndDate", messageEndDate + "")
+                )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
         ExportedBatchResultDTO response = objectMapper.readValue(content, ExportedBatchResultDTO.class);
-
+        // test filters
         Assert.assertNotNull(response.getFilter());
         Assert.assertNotNull(response.getPagination());
-        Assert.assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
-        Assert.assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
-        Assert.assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
-
-        Assert.assertEquals(1, response.getExportedBatches().size());
+        assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
+        assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
+        assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
+        // test results
+        assertEquals(1, response.getExportedBatches().size());
         ExportedBatchDTO responseBatch = response.getExportedBatches().get(0);
-        Assert.assertEquals(batch3.getBatchId(), responseBatch.getBatchId());
-        Assert.assertEquals(batch3.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
-        Assert.assertEquals(batch3.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
-        Assert.assertEquals(batch3.getDateRequested(), responseBatch.getEnqueuedTimestamp());
-        Assert.assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
+        assertEquals(batch3.getBatchId(), responseBatch.getBatchId());
+        assertEquals(batch3.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
+        assertEquals(batch3.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
+        assertEquals(batch3.getDateRequested(), responseBatch.getEnqueuedTimestamp());
+        assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
+        // test date formatting
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\""+sdf.format(batch3.getDateRequested())+"\""));
     }
 }

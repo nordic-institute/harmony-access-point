@@ -2,13 +2,14 @@ package eu.domibus.core.earchive.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
+import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchStartDao;
-import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.alerts.EArchivingEventService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
@@ -20,11 +21,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_MPCS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -56,6 +61,10 @@ public class EArchivingJobServiceTest {
     private ObjectMapper domibusJsonMapper;
     @Injectable
     private EArchiveBatchUtils eArchiveBatchUtils;
+    @Injectable
+    private UserMessageLogDao userMessageLogDao;
+    @Injectable
+    private EArchivingEventService eArchivingEventService;
 
     @Test
     public void getMpcs() {
@@ -117,5 +126,113 @@ public class EArchivingJobServiceTest {
         assertEquals(3, mpc1);
         new FullVerifications() {
         };
+    }
+
+    @Test
+    public void getId_CONTINUOUS() {
+        int id = eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.CONTINUOUS);
+        assertEquals(1, id);
+    }
+
+    @Test
+    public void getId_SANITY() {
+        int id = eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.SANITIZER);
+        assertEquals(2, id);
+    }
+
+    @Test(expected = DomibusEArchiveException.class)
+    public void getId_MANUAL() {
+        eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.MANUAL);
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages(@Injectable  EArchiveBatchUserMessage batchUserMessage) {
+        new Expectations(){{
+            userMessageLogDao.findMessagesNotFinalAsc(0L, 1L);
+            result =  asList(batchUserMessage);
+
+            batchUserMessage.getMessageId();
+            result = "messageId";
+
+            userMessageLogDao.getMessageStatus("messageId");
+            result = MessageStatus.NOT_FOUND;
+        }};
+        eArchivingJobService.createEventOnNonFinalMessages(0L, 1L);
+
+        new FullVerifications(){{
+            eArchivingEventService.sendEventMessageNotFinal("messageId", MessageStatus.NOT_FOUND);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages_noAlert() {
+        new Expectations(){{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            result = 5;
+        }};
+        eArchivingJobService.createEventOnStartDateContinuousJobStopped(new Date());
+
+        new FullVerifications(){{
+            eArchivingEventService.sendEventStartDateStopped();
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages_alert() {
+        new Expectations(){{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            result = 5;
+        }};
+        eArchivingJobService.createEventOnStartDateContinuousJobStopped(Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusHours(10).toInstant()));
+
+        new FullVerifications(){{
+            eArchivingEventService.sendEventStartDateStopped();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages_wrongConfig() {
+        new Expectations(){{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            result = null;
+        }};
+        eArchivingJobService.createEventOnStartDateContinuousJobStopped(new Date());
+
+        new FullVerifications(){{
+            eArchivingEventService.sendEventStartDateStopped();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void createEventOnNonFinalMessages_dateNull() {
+        new Expectations(){{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
+            result = 5;
+        }};
+        eArchivingJobService.createEventOnStartDateContinuousJobStopped(null);
+
+        new FullVerifications(){{
+            eArchivingEventService.sendEventStartDateStopped();
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void rounding60min_10() {
+        assertEquals(60L, eArchivingJobService.rounding60min(10));
+    }
+
+    @Test
+    public void rounding60min_70() {
+        assertEquals(120L, eArchivingJobService.rounding60min(70));
+    }
+
+    @Test
+    public void rounding60min_60() {
+        assertEquals(60L, eArchivingJobService.rounding60min(60));
     }
 }

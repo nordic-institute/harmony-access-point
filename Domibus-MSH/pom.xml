@@ -317,11 +317,6 @@
             <artifactId>javax.el</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-        </dependency>
         <!-- End Hibernate -->
 
         <dependency>

@@ -32,12 +32,7 @@ public class SubmissionValidatorService {
         this.submissionAS4Transformer = submissionAS4Transformer;
     }
 
-    public void validateSubmission(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType) throws SubmissionValidationException {
-        if (NotificationType.MESSAGE_RECEIVED != notificationType) {
-            LOG.debug("Validation is not configured to be done for notification of type [{}]", notificationType);
-            return;
-        }
-
+    public void validateSubmission(UserMessage userMessage, List<PartInfo> partInfoList, String backendName) throws SubmissionValidationException {
         SubmissionValidatorList submissionValidatorList = submissionValidatorListProvider.getSubmissionValidatorList(backendName);
         if (submissionValidatorList == null) {
             LOG.debug("No submission validators found for backend [{}]", backendName);

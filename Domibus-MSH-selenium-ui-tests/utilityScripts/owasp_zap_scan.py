@@ -4,6 +4,9 @@ from zapv2 import ZAPv2
 import os
 import logging as log
 import time
+import requests
+import shutil
+
 
 log.basicConfig(level=log.DEBUG)
 
@@ -60,9 +63,17 @@ while (progress<100):
 
 log.info("Scan complete")
 
-# print html report to file
-log.info("Printing HTML report to file")
-with open('../zap_report.html', "w") as myfile:
-	myfile.write(zap.core.htmlreport())
 
-# log.info('Shutdown ZAP -> ' + zap.core.shutdown())
+# print PDF report to file
+log.info("Printing PDF report to file")
+params = {"apikey": apiKey,
+          "title": "REST Zap Scan Report",
+          "template": "traditional-pdf",
+          "contexts": "DOMIBUS_CONTEXT",
+          "reportFileName": "rest_zap_scan_report",
+          "reportDir" : os.getcwd()}
+
+resp = requests.get(zap_url + "/JSON/reports/action/generate/", params=params)
+if resp.status_code != 200:
+	log.critical("CREATE PDF REPORT OPTERATION FAILED: ", resp)
+	exit(-1)

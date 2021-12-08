@@ -40,7 +40,7 @@ public class DFileUtils {
 	public static Boolean isFileDownloaded(String path) throws Exception {
 		int size = new File(path).listFiles().length;
 		if (size == 1) {
-			log.debug("Folder has file in it ");
+			log.debug("Folder has file in it: " + new File(path).listFiles()[0].getAbsolutePath());
 			return true;
 		} else {
 			log.debug("File is not downloaded yet");

@@ -150,6 +150,8 @@ public class DssConfiguration {
     @Autowired
     private PasswordEncryptionExtService passwordEncryptionService;
 
+    @Autowired
+    private DssExtensionPropertyManager propertyManager;
 
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
@@ -409,34 +411,6 @@ public class DssConfiguration {
     @Bean
     public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
         return new TriggerChangeListener(domibusSchedulerExtService);
-    }
-
-    @Bean
-    public DssPropertyEncryptionListener dssPropertyEncryptionListener() {
-        return new DssPropertyEncryptionListener(passwordEncryptionService, this, domibusConfigurationExtService, domainExtService);
-    }
-
-    /**
-     * @return True if password encryption is active
-     */
-    public boolean isPasswordEncryptionActive() {
-        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, DssExtensionPropertyManager.AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE);
-        return BooleanUtils.toBoolean(passwordEncryptionActive);
-    }
-
-    /**
-     * get the base (mapped to default) and other domains property
-     *
-     * @param domain
-     * @param propertyName
-     * @return
-     */
-    public String getDomainProperty(String domain, String propertyName) {
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            DomainDTO domainDTO = domainExtService.getDomain(domain);
-            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
-        }
-        return domibusPropertyExtService.getProperty(propertyName);
     }
 
     @Bean
