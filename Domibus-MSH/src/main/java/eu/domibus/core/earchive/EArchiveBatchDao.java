@@ -134,12 +134,12 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         if (filter.getEndDate() != null) {
             predicates.add(builder.lessThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.dateRequested), filter.getEndDate()));
         }
-        // the "batch MessageSId" is a range. Check if start and end message Id falls into the range
+        // the "batch MessageId" is a range. Check if start and end message Id falls into the range
         if (filter.getMessageStarId() != null) {
-            predicates.add(builder.greaterThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.lastPkUserMessage), filter.getMessageStarId()));
+            predicates.add(builder.greaterThanOrEqualTo(eArchiveBatchRoot.get(EArchiveBatchEntity_.firstPkUserMessage), filter.getMessageStarId()));
         }
         if (filter.getMessageEndId() != null) {
-            predicates.add(builder.lessThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.firstPkUserMessage), filter.getMessageEndId()));
+            predicates.add(builder.lessThan(eArchiveBatchRoot.get(EArchiveBatchEntity_.lastPkUserMessage), filter.getMessageEndId()));
         }
 
         // filter by type
