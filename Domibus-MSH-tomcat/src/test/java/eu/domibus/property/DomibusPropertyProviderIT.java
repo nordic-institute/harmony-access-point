@@ -11,6 +11,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.property.ExternalTestModulePropertyManager.*;
 
@@ -157,13 +161,23 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     @Test
-    public void getPropertyWithUTF8SpecialCharacters() {
-        String newMailSubject = "Message status change:PL|ąćęłńóżź|ALPHA: α |LATIN SMALL LETTER E WITH ACUTE:ê";
-        String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
-        Domain currentDomain = domainContextProvider.getCurrentDomain();
+    public void getPropertyWithUTF8SpecialCharacters() throws IOException {
+        InputStream input = getClass().getClassLoader().getResourceAsStream("properties/test.properties");
+        String utf8String = "Message status change:PL|ąćęłńóżź|ALPHA: α |LATIN SMALL LETTER E WITH ACUTE:ê";
+        Properties properties = new Properties();
+        properties.setProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT, utf8String);
+        properties.load(input);
+        String mailSubject = properties.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
 
-        domibusPropertyProvider.setProperty(currentDomain, mailSubject, newMailSubject);
-        String result = domibusPropertyProvider.getProperty(currentDomain, mailSubject);
-        Assert.assertEquals(newMailSubject, result);
+        //Default encoding for properties file reading is ISO-8859-1. So we get different value.
+        Assert.assertNotEquals(mailSubject, utf8String);
+
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        domibusPropertyProvider.setProperty(currentDomain, mailSubject, utf8String);
+        String uft8MailSubject = domibusPropertyProvider.getProperty(currentDomain, mailSubject);
+
+        //Domibus property configuration set the encoding to UTF8-8 . So we get same string with utf8 characters.
+        Assert.assertEquals(uft8MailSubject, utf8String);
+        input.close();
     }
 }
