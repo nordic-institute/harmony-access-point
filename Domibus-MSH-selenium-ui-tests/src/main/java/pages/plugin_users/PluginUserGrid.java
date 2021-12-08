@@ -50,5 +50,4 @@ public class PluginUserGrid extends DGrid {
 		gridRows.get(rowNumber).findElements(cellSelector).get(0).click();
 	}
 
-
 }

@@ -36,7 +36,7 @@ public class AlertPgTest extends SeleniumTest {
 
 
 		if (StringUtils.equalsIgnoreCase(alertType, "MSG_STATUS_CHANGED")) {
-			soft.assertTrue(foundMessage(messageList, entity), "Could not find mesage in list of domain messages");
+			soft.assertTrue(foundMessage(messageList, entity), "Could not find message in list of domain messages");
 		} else if (StringUtils.equalsIgnoreCase(alertType, "USER_LOGIN_FAILURE")
 				|| StringUtils.equalsIgnoreCase(alertType, "USER_ACCOUNT_DISABLED")
 				|| StringUtils.equalsIgnoreCase(alertType, "USER_ACCOUNT_ENABLED")
@@ -792,8 +792,6 @@ public class AlertPgTest extends SeleniumTest {
 	@Test(description = "ALRT-28", groups = {"multiTenancy", "singleTenancy"})
 	public void defaultDataInSearchFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
-		selectRandomDomain();
 
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
