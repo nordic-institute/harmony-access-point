@@ -43,7 +43,7 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
 
 
         if (isExternalAPI(requestUrl)) {
-            LOG.debug("Request URL [{}] is an external API", requestUrl);
+            LOG.debug("Skipping writing prefix. Request URL [{}] is an external API", requestUrl);
             return;
         }
 
