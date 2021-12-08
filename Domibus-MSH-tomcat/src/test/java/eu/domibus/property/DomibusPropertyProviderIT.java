@@ -4,8 +4,8 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
 import org.junit.Test;
@@ -154,5 +154,16 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         domibusPropertyProvider.setProperty(currentDomain, propName, newValue);
         String result2 = domibusPropertyProvider.getProperty(currentDomain, propName);
         Assert.assertEquals(newValue, result2);
+    }
+
+    @Test
+    public void getPropertyWithUTF8SpecialCharacters() {
+        String newMailSubject = "Message status change:PL|ąćęłńóżź|ALPHA: α |LATIN SMALL LETTER E WITH ACUTE:ê";
+        String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+
+        domibusPropertyProvider.setProperty(currentDomain, mailSubject, newMailSubject);
+        String result = domibusPropertyProvider.getProperty(currentDomain, mailSubject);
+        Assert.assertEquals(newMailSubject, result);
     }
 }
