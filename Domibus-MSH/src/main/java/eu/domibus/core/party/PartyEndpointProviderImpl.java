@@ -20,7 +20,7 @@ public class PartyEndpointProviderImpl implements PartyEndpointProvider {
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
         final String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined endpoint URL [{}] for party [{}]", finalRecipientAPUrl, receiverParty.getName());
+            LOG.debug("Determined endpoint URL [{}] for party [{}] and final recipient", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
             return finalRecipientAPUrl;
         }
 
