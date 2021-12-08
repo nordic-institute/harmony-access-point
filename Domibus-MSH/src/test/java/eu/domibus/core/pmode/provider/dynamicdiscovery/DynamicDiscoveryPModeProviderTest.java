@@ -12,6 +12,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
@@ -119,6 +120,9 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Mock
     DomainContextProvider domainProvider;
+
+    @Mock
+    PartyEndpointProvider partyEndpointProvider;
 
     @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
