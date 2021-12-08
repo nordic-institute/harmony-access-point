@@ -162,10 +162,11 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Test
     public void getPropertyWithUTF8SpecialCharacters() throws IOException {
+
         InputStream input = getClass().getClassLoader().getResourceAsStream("properties/test.properties");
         String utf8String = "Message status change:PL|ąćęłńóżź|ALPHA: α |LATIN SMALL LETTER E WITH ACUTE:ê";
+
         Properties properties = new Properties();
-        properties.setProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT, utf8String);
         properties.load(input);
         String mailSubject = properties.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
 
