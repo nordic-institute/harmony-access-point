@@ -2,7 +2,6 @@ package eu.domibus.ext.delegate.services.util;
 
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.ext.services.FileUtilExtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,8 +12,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileUtilServiceDelegate implements FileUtilExtService {
 
-    @Autowired
-    protected FileServiceUtil fileServiceUtil;
+    protected final FileServiceUtil fileServiceUtil;
+
+    public FileUtilServiceDelegate(FileServiceUtil fileServiceUtil) {
+        this.fileServiceUtil = fileServiceUtil;
+    }
 
     /**
      * {@inheritDoc}

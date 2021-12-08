@@ -1,5 +1,7 @@
 package eu.domibus.plugin.fs;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
@@ -19,6 +21,8 @@ import javax.activation.DataHandler;
  */
 @RunWith(JMockit.class)
 public class FSFilesManagerTest {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManagerTest.class);
 
     @Tested
     private FSFilesManager instance;
@@ -127,7 +131,7 @@ public class FSFilesManagerTest {
     }
 
     @Test
-    public void testGetDataHandler() throws Exception {
+    public void testGetDataHandler() {
         DataHandler result = instance.getDataHandler(rootDir);
 
         Assert.assertNotNull(result);
@@ -192,8 +196,8 @@ public class FSFilesManagerTest {
             Assert.assertTrue(e.getMessage().contains("Location folder is not set for domain"));
         }
 
-        new FullVerifications() {{
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -258,7 +262,7 @@ public class FSFilesManagerTest {
             instance.createFile(rootDir, "tobecreated", "withcontent");
         } catch (FileSystemException e) {
             if ("File closed.".equals(e.getMessage())) {
-                // unit test workaround, file is being closed twice
+                LOG.trace("unit test workaround, file is being closed twice");
             } else {
                 Assert.fail();
             }
