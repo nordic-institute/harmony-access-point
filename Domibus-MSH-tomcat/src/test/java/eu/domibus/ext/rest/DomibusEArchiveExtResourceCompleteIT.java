@@ -52,7 +52,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The complete rest endpoint integration tests
  */
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
     // The endpoints to test
@@ -74,7 +73,6 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
 
     @Autowired
     protected PlatformTransactionManager transactionManager;
-
 
     private MockMvc mockMvc;
 
@@ -162,6 +160,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testGetSanityArchivingStartDate() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_SANITY_DATE)
@@ -175,6 +174,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testResetSanityArchivingStartDate() throws Exception {
         // given
         long resultDate = 21101500L;
@@ -197,6 +197,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testGetStartDateContinuousArchive() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_CONTINUOUS_DATE)
@@ -210,6 +211,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testResetStartDateContinuousArchive() throws Exception {
         // given
         long resultDate = 21101500L;
@@ -232,6 +234,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testGetQueuedBatchRequestsForNoResults() throws Exception {
         // given
         Integer lastCountRequests = 10;
@@ -263,6 +266,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testHistoryOfTheExportedBatches() throws Exception {
 // given
         Long messageStartDate = 211005L;

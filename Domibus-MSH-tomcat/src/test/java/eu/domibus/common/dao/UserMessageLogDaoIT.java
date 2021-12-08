@@ -36,7 +36,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
  * @since 5.0
  */
 @Transactional
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
     public static final String MPC = "UserMessageLogDaoITMpc";

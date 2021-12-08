@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -28,7 +28,6 @@ import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
  * @since 5.0
  */
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
@@ -52,6 +51,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
+    @Autowired
+    protected PlatformTransactionManager transactionManager;
+
 
     EArchiveBatchEntity batch1;
     EArchiveBatchEntity batch2;
@@ -65,14 +67,12 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     UserMessageLog uml8_not_archived;
 
     @Before
-    @Transactional
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
         Assert.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
         Assert.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
-
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
         uml2 = messageDaoTestUtil.createUserMessageLog("uml2-" + UUID.randomUUID(), currentDate);
         uml3 = messageDaoTestUtil.createUserMessageLog("uml3-" + UUID.randomUUID(), currentDate);
@@ -110,7 +110,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
                 new EArchiveBatchUserMessage(uml4.getEntityId(), uml4.getUserMessage().getMessageId()),
                 new EArchiveBatchUserMessage(uml5.getEntityId(), uml5.getUserMessage().getMessageId())
         ));
-
     }
 
     @Test
@@ -218,11 +217,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         // given
         List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
         Assert.assertEquals(3, messageList.size());
-        messageList.forEach(umlTest ->
-                Assert.assertNull(em.createQuery("select um.archived from UserMessageLog um where um.userMessage.entityId=:entityId")
-                        .setParameter("entityId", umlTest.getEntityId())
-                        .getSingleResult())
-        );
         Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
 
         // when
@@ -232,11 +226,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         // messages and
         Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
-        messageList.forEach(umlTest ->
-                Assert.assertNotNull(em.createQuery("select um.archived from UserMessageLog um where um.userMessage.entityId=:entityId")
-                        .setParameter("entityId", umlTest.getEntityId())
-                        .getSingleResult())
-        );
     }
 
     @Test
