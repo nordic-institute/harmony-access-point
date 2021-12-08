@@ -63,12 +63,14 @@ public class EArchivingFileService {
         final List<PartInfo> partInfos = partInfoService.findPartInfo(entityId);
 
         for (PartInfo partInfo : partInfos) {
-            files.put(getFileName(partInfo), getInputStream(entityId, partInfo));
+            files.put(
+                    getBaseName(partInfo) + ".attachment" + getExtension(partInfo),
+                    getInputStream(entityId, partInfo));
         }
         return files;
     }
 
-    private InputStream getInputStream(Long entityId, PartInfo partInfo) {
+    protected InputStream getInputStream(Long entityId, PartInfo partInfo) {
         if (partInfo.getPayloadDatahandler() == null) {
             throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and entityId [" + entityId + "]");
         }
@@ -79,15 +81,15 @@ public class EArchivingFileService {
         }
     }
 
-    protected String getFileName(PartInfo info) {
-        return getBaseName(info) + ".attachment" + getExtension(info);
+    protected String getFileName(PartInfo info, String extension) {
+        return getBaseName(info) + ".attachment" + extension;
     }
 
-    private String getExtension(PartInfo info) {
+    private String getExtension(PartInfo partInfo) {
         try {
-            return MimeTypes.getDefaultMimeTypes().forName(info.getMime()).getExtension();
+            return MimeTypes.getDefaultMimeTypes().forName(partInfo.getMime()).getExtension();
         } catch (MimeTypeException e) {
-            LOG.warn("Mimetype [{}] not found", info.getMime());
+            LOG.warn("Mimetype [{}] not found", partInfo);
             return "";
         }
     }
@@ -109,14 +111,6 @@ public class EArchivingFileService {
             return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveDTO).getBytes(StandardCharsets.UTF_8));
         } catch (JsonProcessingException e) {
             throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
-        }
-    }
-
-    public BatchEArchiveDTO getBatchEArchiveDTO(InputStream content) {
-        try {
-            return objectMapper.readValue(content, BatchEArchiveDTO.class);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not parse to BatchEArchiveDTO", e);
         }
     }
 }
