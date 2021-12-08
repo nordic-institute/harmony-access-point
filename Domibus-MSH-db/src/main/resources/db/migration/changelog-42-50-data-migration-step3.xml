@@ -1452,9 +1452,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
             <column name="ROLE_ID"/>
         </createIndex>
-        <createIndex indexName="IDX_USER_ID" tableName="TB_USER_ROLES">
-            <column name="USER_ID"/>
-        </createIndex>
 
         <!-- TB_USER_ROLE_AUD -->
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
