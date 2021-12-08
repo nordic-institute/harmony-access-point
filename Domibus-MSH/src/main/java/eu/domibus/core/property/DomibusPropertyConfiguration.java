@@ -43,7 +43,6 @@ public class DomibusPropertyConfiguration {
         resources.add(new ClassPathResource("config/domibus-default.properties"));
         resources.add(new ClassPathResource("config/" + DOMIBUS_PROPERTY_FILE));
 
-
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/*-plugin-default.properties");
         LOG.debug("Adding the following plugin default properties files [{}]", pluginDefaultResourceList);
