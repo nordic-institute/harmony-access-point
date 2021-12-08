@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @since 4.2.6
+ * @author Cosmin Baciu
+ */
 @Service
 public class PartyEndpointProviderImpl implements PartyEndpointProvider {
 
