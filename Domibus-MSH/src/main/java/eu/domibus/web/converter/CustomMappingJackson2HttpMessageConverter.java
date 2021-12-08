@@ -24,7 +24,7 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomMappingJackson2HttpMessageConverter.class);
 
-    protected static final List<String> EXTERNAL_API_URL = Arrays.asList(DOMIBUS_EXTERNAL_API_PREFIX, PLUGIN_API_PREFIX);
+    protected static final List<String> EXTERNAL_API_URLS = Arrays.asList(DOMIBUS_EXTERNAL_API_PREFIX, PLUGIN_API_PREFIX);
 
     public void setJsonPrefix(String jsonPrefix) {
         super.setJsonPrefix(fixNewLineCharacter(jsonPrefix));
@@ -51,6 +51,6 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
     }
 
     protected boolean isExternalAPI(String requestUrl) {
-        return EXTERNAL_API_URL.stream().anyMatch(apiURL -> requestUrl.contains(apiURL));
+        return EXTERNAL_API_URLS.stream().anyMatch(apiURL -> requestUrl.contains(apiURL));
     }
 }
