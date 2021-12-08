@@ -37,10 +37,12 @@ public class DomibusPropertyConfiguration {
     public PropertiesFactoryBean domibusDefaultProperties() throws IOException {
         PropertiesFactoryBean result = new PropertiesFactoryBean();
         result.setIgnoreResourceNotFound(true);
+        result.setFileEncoding(StandardCharsets.UTF_8.name());
 
         List<Resource> resources = new ArrayList<>();
         resources.add(new ClassPathResource("config/domibus-default.properties"));
         resources.add(new ClassPathResource("config/" + DOMIBUS_PROPERTY_FILE));
+
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] pluginDefaultResourceList = resolver.getResources("classpath*:config/*-plugin-default.properties");
@@ -54,6 +56,7 @@ public class DomibusPropertyConfiguration {
     public PropertiesFactoryBean domibusProperties(String domibusConfigLocation) throws IOException {
         PropertiesFactoryBean result = new PropertiesFactoryBean();
         result.setIgnoreResourceNotFound(true);
+        result.setFileEncoding(StandardCharsets.UTF_8.name());
 
         List<Resource> resources = new ArrayList<>();
         resources.add(new ClassPathResource("config/domibus-default.properties"));

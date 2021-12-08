@@ -19,8 +19,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -190,7 +188,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Loading properties file for domain [{}]: [{}]...", domain, configFile);
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(fis, StandardCharsets.UTF_8.name()));
+            properties.load(fis);
             String propertySourceName = domain.getCode() + "-" + new File(configFile).getName();
             DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource(propertySourceName, properties);
             propertySources.addLast(newPropertySource);

@@ -60,10 +60,6 @@ public class MessagingConfigurationManager
             final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
             final Boolean messageAlertActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
-          /*  byte[] bytes = mailSubject.getBytes(StandardCharsets.UTF_8);
-            String utf8EncodedSubject = new String(bytes, StandardCharsets.UTF_8);*/
-
-           // LOG.debug("MailSubject after encoding:[{}]", utf8EncodedSubject);
 
             if (!alertActive || !messageAlertActive) {
                 LOG.debug("domain:[{}] Alert message status change module is inactive for the following reason:global alert module active[{}], message status change module active[{}]",
