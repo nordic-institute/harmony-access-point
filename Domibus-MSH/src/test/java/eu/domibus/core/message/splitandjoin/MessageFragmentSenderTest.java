@@ -8,8 +8,10 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.Expectations;
@@ -65,6 +67,11 @@ public class MessageFragmentSenderTest {
     @Injectable
     protected ErrorLogDao errorLogDao;
 
+    @Injectable
+    protected PartyEndpointProvider partyEndpointProvider;
+
+    @Injectable
+    protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Test
     public void validateBeforeSendingSuccessful(@Injectable UserMessage userMessage,

@@ -150,6 +150,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE, Type.NUMERIC), //there is one place at init time where it is not refreshed
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION, Type.REGEXP),
 
+            new DomibusPropertyMetadata(DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+
             new DomibusPropertyMetadata(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING, Type.BOOLEAN, Usage.DOMAIN, true),

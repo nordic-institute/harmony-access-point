@@ -8,9 +8,11 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ public class MSHDispatcher {
     public static final String HEADER_DOMIBUS_MESSAGE_ID = "DOMIBUS-MESSAGE_ID";
     public static final String HEADER_DOMIBUS_SPLITTING_COMPRESSION = "DOMIBUS-SPLITTING-COMPRESSION";
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcher.class);
 
     @Autowired
     private DispatchClientProvider dispatchClientProvider;
@@ -53,6 +56,8 @@ public class MSHDispatcher {
     @Timer(clazz = MSHDispatcher.class,value = "dispatch")
     @Counter(clazz = MSHDispatcher.class,value = "dispatch")
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
+        LOG.debug("Dispatching message to endpoint [{}]", endpoint);
+
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.

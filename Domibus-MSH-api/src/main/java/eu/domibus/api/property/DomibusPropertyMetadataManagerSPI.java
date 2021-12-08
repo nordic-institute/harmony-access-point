@@ -92,6 +92,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE = "domibus.jms.connectionFactory.session.cache.size";
     String DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE = "domibus.jms.queue.maxBrowseSize";
     String DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION = "domibus.jms.internalQueue.expression";
+    String DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE = "domibus.receiver.selfsending.validation.active";
     String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
     String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
     String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING = "domibus.sender.certificate.validation.onreceiving";
