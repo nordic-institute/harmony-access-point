@@ -145,8 +145,6 @@ public class MailSender {
                 helper.setTo(to);
             }
             helper.setText(html, true);
-           /* byte[] bytes = model.getSubject().getBytes(StandardCharsets.UTF_8);
-            String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);*/
             helper.setSubject(model.getSubject());
             helper.setFrom(from);
             javaMailSender.send(message);

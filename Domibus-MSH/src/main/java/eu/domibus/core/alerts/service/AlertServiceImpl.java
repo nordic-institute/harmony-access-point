@@ -235,8 +235,6 @@ public class AlertServiceImpl implements AlertService {
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT);
         subject += "[" + serverName + "]";
-       /* byte[] bytes = subject.getBytes(StandardCharsets.UTF_8);
-        String utf8EncodedSubject = new String(bytes, StandardCharsets.UTF_8);*/
         return subject;
     }
 
