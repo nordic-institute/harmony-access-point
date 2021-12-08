@@ -217,8 +217,13 @@ public class Party extends AbstractBaseEntity {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + identifiers.hashCode();
-        result = 31 * result + name.hashCode();
+
+        if(identifiers != null) {
+            result = 31 * result + identifiers.hashCode();
+        }
+        if(name != null) {
+            result = 31 * result + name.hashCode();
+        }
         return result;
     }
 
