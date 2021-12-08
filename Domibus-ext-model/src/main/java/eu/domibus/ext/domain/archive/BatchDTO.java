@@ -7,7 +7,7 @@ import java.util.List;
  * @author Joze Rihtarsic
  * @since 5.0
  */
-public class ExportedBatchDTO {
+public class BatchDTO {
 
     protected String batchId;
     protected BatchRequestType requestType;

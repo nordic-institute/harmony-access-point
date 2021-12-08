@@ -11,7 +11,7 @@ public class ExportedBatchResultDTO {
 
     protected PaginationDTO pagination;
     protected ExportedBatchFilterDTO filter;
-    protected List<ExportedBatchDTO> exportedBatches;
+    protected List<BatchDTO> batchDTOS;
 
     public ExportedBatchResultDTO() {
     }
@@ -42,10 +42,10 @@ public class ExportedBatchResultDTO {
         this.pagination = paginationDTO;
     }
 
-    public List<ExportedBatchDTO> getExportedBatches() {
-        if (exportedBatches == null) {
-            exportedBatches = new ArrayList<>();
+    public List<BatchDTO> getBatchDTOS() {
+        if (batchDTOS == null) {
+            batchDTOS = new ArrayList<>();
         }
-        return exportedBatches;
+        return batchDTOS;
     }
 }

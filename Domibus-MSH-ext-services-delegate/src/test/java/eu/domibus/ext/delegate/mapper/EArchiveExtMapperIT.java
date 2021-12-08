@@ -2,9 +2,8 @@ package eu.domibus.ext.delegate.mapper;
 
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.domain.archive.BatchRequestType;
-import eu.domibus.ext.domain.archive.ExportedBatchDTO;
-import eu.domibus.ext.domain.archive.QueuedBatchDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class EArchiveExtMapperIT {
         toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
         toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
         // when
-        final QueuedBatchDTO converted = archiveExtMapper.archiveBatchToQueuedBatch(toConvert);
+        final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then
         assertEquals(toConvert.getBatchId(), converted.getBatchId());
         assertArrayEquals(toConvert.getMessages().toArray(), converted.getMessages().toArray());
@@ -64,7 +63,7 @@ public class EArchiveExtMapperIT {
         toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
         toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
         // when
-        final QueuedBatchDTO converted = archiveExtMapper.archiveBatchToQueuedBatch(toConvert);
+        final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then
         assertEquals(toConvert.getBatchId(), converted.getBatchId());
         assertArrayEquals(toConvert.getMessages().toArray(), converted.getMessages().toArray());
@@ -88,7 +87,7 @@ public class EArchiveExtMapperIT {
         toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
         toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
         // when
-        final ExportedBatchDTO converted = archiveExtMapper.archiveBatchToExportBatch(toConvert);
+        final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then
         assertEquals(toConvert.getBatchId(), converted.getBatchId());
         assertArrayEquals(toConvert.getMessages().toArray(), converted.getMessages().toArray());
@@ -99,6 +98,7 @@ public class EArchiveExtMapperIT {
         assertEquals(datetime, converted.getMessageEndDate().longValue());
         assertEquals(datetime, converted.getMessageStartDate().longValue());
     }
+
 
     @Test
     public void archiveBatchToExportBatch_sanitizer() {
@@ -113,7 +113,7 @@ public class EArchiveExtMapperIT {
         toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
         toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
         // when
-        final ExportedBatchDTO converted = archiveExtMapper.archiveBatchToExportBatch(toConvert);
+        final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then
         assertEquals(toConvert.getBatchId(), converted.getBatchId());
         assertArrayEquals(toConvert.getMessages().toArray(), converted.getMessages().toArray());

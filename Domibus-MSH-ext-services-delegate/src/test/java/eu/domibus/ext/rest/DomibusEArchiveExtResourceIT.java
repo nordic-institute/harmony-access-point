@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +55,7 @@ public class DomibusEArchiveExtResourceIT {
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";
     public static final String TEST_ENDPOINT_QUEUED = TEST_ENDPOINT_RESOURCE + "/batches/queued";
+    public static final String TEST_ENDPOINT_BATCH = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}";
     public static final String TEST_ENDPOINT_EXPORTED = TEST_ENDPOINT_RESOURCE + "/batches/exported";
     public static final String TEST_ENDPOINT_SANITY_DATE = TEST_ENDPOINT_RESOURCE + "/sanity-mechanism/start-date";
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
@@ -167,7 +167,7 @@ public class DomibusEArchiveExtResourceIT {
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
-        verify(mockDomibusEArchiveService, times(1)).updateStartDateSanityArchive(Matchers.eq(resultDate));
+        verify(mockDomibusEArchiveService, times(1)).updateStartDateSanityArchive(resultDate);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class DomibusEArchiveExtResourceIT {
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
-        verify(mockDomibusEArchiveService, times(1)).updateStartDateContinuousArchive(Matchers.eq(resultDate));
+        verify(mockDomibusEArchiveService, times(1)).updateStartDateContinuousArchive(resultDate);
     }
 
     @Test
@@ -206,8 +206,7 @@ public class DomibusEArchiveExtResourceIT {
         when(mockDomibusEArchiveService.getBatchRequestListCount(any())).thenReturn(0L);
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
-                .param("lastCountRequests", lastCountRequests + "")
-        )
+                .param("lastCountRequests", lastCountRequests + ""))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
@@ -219,7 +218,7 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getFilter());
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(0), response.getPagination().getTotal());
-        assertEquals(0, response.getQueuedBatches().size());
+        assertEquals(0, response.getBatches().size());
         assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
     }
 
@@ -253,7 +252,7 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getFilter());
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
-        assertEquals(2, response.getQueuedBatches().size());
+        assertEquals(2, response.getBatches().size());
         assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
     }
 
@@ -291,7 +290,7 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getFilter());
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
-        assertEquals(2, response.getExportedBatches().size());
+        assertEquals(2, response.getBatchDTOS().size());
         assertEquals(response.getPagination().getPageSize(), filterCaptor.getValue().getPageSize());
         assertEquals(response.getPagination().getPageStart(), filterCaptor.getValue().getPageStart());
         assertNull(filterCaptorCount.getValue().getPageSize());
@@ -355,7 +354,7 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getFilter());
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
-        assertEquals(2, response.getExportedBatches().size());
+        assertEquals(2, response.getBatchDTOS().size());
         assertEquals(Integer.valueOf(pageSize), response.getPagination().getPageSize());
         assertEquals(Integer.valueOf(pageStart), response.getPagination().getPageStart());
         assertEquals(response.getPagination().getPageSize(), filterCaptor.getValue().getPageSize());

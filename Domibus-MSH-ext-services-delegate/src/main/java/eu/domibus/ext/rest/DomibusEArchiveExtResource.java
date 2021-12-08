@@ -33,6 +33,8 @@ import java.util.List;
 @Tag(name = "archive", description = "Domibus eArchive services API")
 public class DomibusEArchiveExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
+    public static final String RETURN_RESULTS_OF_TOTAL = "Return [{}] results of total: [{}].";
+    public static final String NO_RESULTS_FOUND_FOUND = "No results found found!";
 
     final DomibusEArchiveExtService domibusEArchiveExtService;
     final ExtExceptionHelper extExceptionHelper;
@@ -88,15 +90,36 @@ public class DomibusEArchiveExtResource {
         Long total = domibusEArchiveExtService.getQueuedBatchRequestsCount(filter);
 
         if (total == null || total < 1L) {
-            LOG.trace("No results found found!");
+            LOG.trace(NO_RESULTS_FOUND_FOUND);
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
         }
         resultDTO.getPagination().setTotal(total.intValue());
-        List<QueuedBatchDTO> batches = domibusEArchiveExtService.getQueuedBatchRequests(filter, pageStart, pageSize);
-        resultDTO.getQueuedBatches().addAll(batches);
-        LOG.trace("Return [{}] results of total: [{}].", batches.size(), total);
+        List<BatchDTO> batches = domibusEArchiveExtService.getQueuedBatchRequests(filter, pageStart, pageSize);
+        resultDTO.getBatches().addAll(batches);
+        LOG.trace(RETURN_RESULTS_OF_TOTAL, batches.size(), total);
         return resultDTO;
+    }
+
+    /**
+     * Get the earchive batch
+     * <p>
+     * Method returns the earchive batch for the given batch ID.
+     *
+     * @param batchId:   batch id of the batch,
+     * @return Batch with a given batchId
+     */
+    @Operation(summary = "Get the batch",
+            description = "Method returns the earchive batch for the given batch ID.",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @GetMapping(path = "/batches/{batchId:.+}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public BatchDTO getExportedBatch(
+            @Parameter(description = "Batch id.") @PathVariable(name = "batchId") String batchId) {
+        LOG.info("Return exported batch with batchId: [{}].", batchId);
+
+        BatchDTO batch = domibusEArchiveExtService.getBatch(batchId);
+        LOG.trace("Return exported batch with batchId: [{}] -> [{}]", batchId, batch);
+        return batch;
     }
 
     /**
@@ -125,14 +148,14 @@ public class DomibusEArchiveExtResource {
         LOG.info("Return batch messages with batch id [{}] for page: [{}] and page size: [{}].", batchId, pageStart, pageSize);
         Long total = domibusEArchiveExtService.getBatchMessageCount(batchId);
         if (total == null || total < 1L) {
-            LOG.trace("No results found found!");
+            LOG.trace(NO_RESULTS_FOUND_FOUND);
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
         }
         resultDTO.getPagination().setTotal(total.intValue());
         List<String> messagePage = domibusEArchiveExtService.getBatchMessageIds(batchId, pageStart, pageSize);
         resultDTO.getMessages().addAll(messagePage);
-        LOG.trace("Return [{}] results of total: [{}].", messagePage.size(), total);
+        LOG.trace(RETURN_RESULTS_OF_TOTAL, messagePage.size(), total);
         return resultDTO;
     }
 
@@ -172,14 +195,14 @@ public class DomibusEArchiveExtResource {
         Long total = domibusEArchiveExtService.getExportedBatchRequestsCount(filter);
 
         if (total == null || total < 1L) {
-            LOG.trace("No results found found!");
+            LOG.trace(NO_RESULTS_FOUND_FOUND);
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
         }
         resultDTO.getPagination().setTotal(total.intValue());
-        List<ExportedBatchDTO> batches = domibusEArchiveExtService.getExportedBatchRequests(filter, pageStart, pageSize);
-        resultDTO.getExportedBatches().addAll(batches);
-        LOG.trace("Return [{}] results of total: [{}].", batches.size(), total);
+        List<BatchDTO> batches = domibusEArchiveExtService.getExportedBatchRequests(filter, pageStart, pageSize);
+        resultDTO.getBatchDTOS().addAll(batches);
+        LOG.trace(RETURN_RESULTS_OF_TOTAL, batches.size(), total);
         return resultDTO;
     }
 
@@ -273,13 +296,13 @@ public class DomibusEArchiveExtResource {
 
         Long total = domibusEArchiveExtService.getNotArchivedMessageCount(filter);
         if (total == null || total < 1L) {
-            LOG.trace("No results found found!");
+            LOG.trace(NO_RESULTS_FOUND_FOUND);
             messagesDTO.getPagination().setTotal(0);
             return messagesDTO;
         }
         messagesDTO.getPagination().setTotal(total.intValue());
         List<String> messageIds = domibusEArchiveExtService.getNotArchivedMessages(filter, pageStart, pageSize);
-        LOG.trace("Return [{}] results of total: [{}].", messageIds.size(), total);
+        LOG.trace(RETURN_RESULTS_OF_TOTAL, messageIds.size(), total);
         messagesDTO.getMessages().addAll(messageIds);
         return messagesDTO;
     }
