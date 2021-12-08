@@ -359,7 +359,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_NOTIFICATION_USEPROXY = "domibus.earchive.notification.useProxy";
     String DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME = "domibus.earchive.notification.username";
     String DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD = "domibus.earchive.notification.password"; //NOSONAR
-    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
+    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.rest.messages.return";
     String DOMIBUS_EARCHIVE_RETENTION_DAYS = "domibus.earchive.retention.days";
     String DOMIBUS_EARCHIVE_RETENTION_CRON = "domibus.earchive.retention.cron";
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
