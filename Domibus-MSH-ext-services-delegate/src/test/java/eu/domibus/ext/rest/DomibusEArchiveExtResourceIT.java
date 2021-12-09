@@ -290,7 +290,7 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getFilter());
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
-        assertEquals(2, response.getBatchDTOS().size());
+        assertEquals(2, response.getBatches().size());
         assertEquals(response.getPagination().getPageSize(), filterCaptor.getValue().getPageSize());
         assertEquals(response.getPagination().getPageStart(), filterCaptor.getValue().getPageStart());
         assertNull(filterCaptorCount.getValue().getPageSize());
@@ -354,7 +354,7 @@ public class DomibusEArchiveExtResourceIT {
         assertNotNull(response.getFilter());
         assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(2), response.getPagination().getTotal());
-        assertEquals(2, response.getBatchDTOS().size());
+        assertEquals(2, response.getBatches().size());
         assertEquals(Integer.valueOf(pageSize), response.getPagination().getPageSize());
         assertEquals(Integer.valueOf(pageStart), response.getPagination().getPageStart());
         assertEquals(response.getPagination().getPageSize(), filterCaptor.getValue().getPageSize());

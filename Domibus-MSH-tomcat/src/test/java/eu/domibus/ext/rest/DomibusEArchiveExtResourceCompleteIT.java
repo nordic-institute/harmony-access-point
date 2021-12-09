@@ -319,8 +319,8 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
         assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
         // test results
-        assertEquals(1, response.getBatchDTOS().size());
-        BatchDTO responseBatch = response.getBatchDTOS().get(0);
+        assertEquals(1, response.getBatches().size());
+        BatchDTO responseBatch = response.getBatches().get(0);
         assertEquals(batch3.getBatchId(), responseBatch.getBatchId());
         assertEquals(batch3.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
         assertEquals(batch3.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
