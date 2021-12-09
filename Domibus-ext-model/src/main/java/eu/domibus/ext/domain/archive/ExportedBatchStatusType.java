@@ -9,5 +9,8 @@ public enum ExportedBatchStatusType {
     ARCHIVED,
     ARCHIVE_FAILED,
     EXPIRED,
-    DELETED;
+    DELETED,
+    QUEUED,
+    STARTED,
+    FAILED
 }

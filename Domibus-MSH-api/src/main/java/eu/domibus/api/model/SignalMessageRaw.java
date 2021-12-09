@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.*;
 import java.io.ByteArrayInputStream;
@@ -13,8 +14,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 @NamedQueries({
-        @NamedQuery(name = "SignalMessageRaw.findByMessageEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM SignalMessageRaw l where l.entityId=:ENTITY_ID"),
-        @NamedQuery(name = "SignalMessageRaw.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) " +
+        @NamedQuery(name = "SignalMessageRaw.findByMessageEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) FROM SignalMessageRaw l where l.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "SignalMessageRaw.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) " +
                 "FROM SignalMessageRaw l JOIN l.signalMessage sm " +
                 "JOIN sm.userMessage um where um.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "SignalMessageRaw.deleteMessages", query = "delete from SignalMessageRaw mi where mi.entityId in :IDS"),
@@ -32,6 +33,9 @@ public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
     @Column(name = "RAW_XML")
     protected byte[] rawXML;
 
+    @Column(name = "COMPRESSED")
+    protected Boolean compressed;
+
     public SignalMessage getSignalMessage() {
         return signalMessage;
     }
@@ -48,6 +52,10 @@ public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
     public byte[] getRawXML() {
         if (rawXML == null) {
             return null;
+        }
+
+        if (!this.getCompressed()) {
+            return this.rawXML;
         }
 
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(rawXML))) {
@@ -71,7 +79,15 @@ public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
         }
 
         this.rawXML = byteStream.toByteArray();
+        this.compressed = true;
     }
 
+    public Boolean getCompressed() {
+        return BooleanUtils.toBoolean(compressed);
+    }
+
+    public void setCompressed(Boolean compressed) {
+        this.compressed = compressed;
+    }
 
 }

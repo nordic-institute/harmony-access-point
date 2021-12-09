@@ -31,5 +31,7 @@ public interface DomibusEArchiveService {
 
     EArchiveBatchRequestDTO reExportBatch(String batchId);
 
+    EArchiveBatchRequestDTO getBatch(String batchId);
+
     EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus, String message);
 }

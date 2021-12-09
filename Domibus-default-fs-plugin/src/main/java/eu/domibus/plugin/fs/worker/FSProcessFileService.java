@@ -29,6 +29,7 @@ public class FSProcessFileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
+    //Constructor injection produces circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
     @Resource(name = "backendFSPlugin")
     protected FSPluginImpl backendFSPlugin;
 

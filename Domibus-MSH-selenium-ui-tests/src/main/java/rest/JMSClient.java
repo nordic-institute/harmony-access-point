@@ -122,7 +122,6 @@ public class JMSClient extends BaseRestClient {
 		JSONObject params = new JSONObject();
 		params.put("action", "REMOVE");
 		params.put("source", source);
-//		params.put("destination", destination);
 		params.put("selectedMessages", array);
 		
 		ClientResponse response = requestPOST(resource.path(RestServicePaths.JMS_ACTION), params.toString());

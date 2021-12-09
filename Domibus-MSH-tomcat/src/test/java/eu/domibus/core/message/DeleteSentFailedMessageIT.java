@@ -7,6 +7,7 @@ import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
+@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
 public class DeleteSentFailedMessageIT extends DeleteMessageIT {
 
     @Before

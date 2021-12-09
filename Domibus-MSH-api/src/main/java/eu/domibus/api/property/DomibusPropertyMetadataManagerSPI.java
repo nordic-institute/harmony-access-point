@@ -346,6 +346,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
 
     String DOMIBUS_EARCHIVE_ACTIVE = "domibus.earchive.active";
+    String DOMIBUS_EARCHIVE_EXPORT_EMPTY = "domibus.earchive.export.empty";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";
     String DOMIBUS_EARCHIVE_CRON = "domibus.earchive.cron";
     String DOMIBUS_EARCHIVE_SANITY_CRON = "domibus.earchive.sanitizer.cron";
@@ -358,13 +359,18 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_EARCHIVE_NOTIFICATION_USEPROXY = "domibus.earchive.notification.useProxy";
     String DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME = "domibus.earchive.notification.username";
     String DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD = "domibus.earchive.notification.password"; //NOSONAR
-    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.restAPI.messageList.returnMessages";
+    String DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES = "domibus.earchive.rest.messages.return";
     String DOMIBUS_EARCHIVE_RETENTION_DAYS = "domibus.earchive.retention.days";
     String DOMIBUS_EARCHIVE_RETENTION_CRON = "domibus.earchive.retention.cron";
     String DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX = "domibus.earchive.retention.delete.max";
+    String DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS = "domibus.earchive.start_date.stopped.allowed_hours";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX = "domibus.alert.earchive.messages_non_final";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".active";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_LEVEL = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".level";
     String DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX + ".mail.subject";
+    String DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_PREFIX = "domibus.alert.earchive.start_date_stopped";
+    String DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_ACTIVE = DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_PREFIX + ".active";
+    String DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_LEVEL = DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_PREFIX + ".level";
+    String DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_PREFIX + ".mail.subject";
 
 }

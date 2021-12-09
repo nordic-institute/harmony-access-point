@@ -240,6 +240,10 @@ public class MessagesPgTest extends SeleniumTest {
 			}
 		}
 
+		if(toCheckIndex < 0){
+			throw new SkipException("Message with desired characteristics was not found");
+		}
+
 		String zipPath = page.downloadMessage(toCheckIndex);
 
 		log.info("downloaded message to zip with path " + zipPath);

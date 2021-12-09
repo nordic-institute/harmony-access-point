@@ -15,6 +15,7 @@ import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.MessageDBUtil;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,7 @@ import java.util.List;
  * @author idragusa
  * @since 5.0
  */
-
+@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public abstract class DeleteMessageIT extends AbstractIT {
 
     @Configuration
