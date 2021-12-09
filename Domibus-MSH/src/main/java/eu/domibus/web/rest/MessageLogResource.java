@@ -112,6 +112,9 @@ public class MessageLogResource extends BaseResource {
 
         // return also the current messageType to be shown in GUI
         filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
+        // remove
+        filters.remove(PROPERTY_MIN_ENTITY_ID);
+        filters.remove(PROPERTY_MAX_ENTITY_ID);
 
         result.setFilter(filters);
         result.setMshRoles(MSHRole.values());
