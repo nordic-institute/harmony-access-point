@@ -539,6 +539,17 @@ public class BackendMessageValidator {
     }
 
     public void validateSubmissionPayload(Submission submission, MSHRole mshRole) throws EbMS3Exception {
+        if(submission.getPayloads() == null){
+            return;
+        }
+        if(submission.getPayloads().size() > 28){
+            LOG.businessError(BUS_ATTACHMENTS_MORE_THAN_28);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message(BUS_ATTACHMENTS_MORE_THAN_28.getMessage())
+                    .mshRole(mshRole)
+                    .build();
+        }
         for (Submission.Payload submissionPayload : submission.getPayloads()) {
             validateSubmissionPartInfoProperties(submissionPayload.getPayloadProperties(), mshRole);
         }
