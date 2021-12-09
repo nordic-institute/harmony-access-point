@@ -125,18 +125,15 @@ public class MessageLogResource extends BaseResource {
     }
 
     private void setDefaultFilters(MessageLogFilterRequestRO request, HashMap<String, Object> filters) {
-        Date defaultFrom = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES).toInstant());
-        Date defaultTo = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());
-
         //we just set default values for received column
         // in order to improve pagination on large amount of data
         Date from = dateUtil.fromString(request.getReceivedFrom());
         if (from == null) {
-            from = defaultFrom;
+            from = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES).toInstant());;
         }
         Date to = dateUtil.fromString(request.getReceivedTo());
         if (to == null) {
-            to = defaultTo;
+            to = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());;
         }
         filters.put(PROPERTY_RECEIVED_FROM, from);
         filters.put(PROPERTY_RECEIVED_TO, to);
