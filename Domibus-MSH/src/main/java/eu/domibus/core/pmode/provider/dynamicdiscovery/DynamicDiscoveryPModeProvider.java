@@ -124,9 +124,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         final Collection<eu.domibus.common.model.configuration.Process> result = new ArrayList<>();
         for (final eu.domibus.common.model.configuration.Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
             if (process.isDynamicResponder() && (process.isDynamicInitiator() || process.getInitiatorParties().contains(getConfiguration().getParty()))) {
-                if (!process.getInitiatorParties().contains(getConfiguration().getParty())) {
-                    process.getInitiatorParties().add(getConfiguration().getParty());
-                }
+                // after adding validation to the upload/update pMode, this shouldn't happen anymore
+//                if (!process.getInitiatorParties().contains(getConfiguration().getParty())) {
+//                    process.getInitiatorParties().add(getConfiguration().getParty());
+//                }
                 LOG.debug("Found dynamic receiver process: " + process.getName());
                 result.add(process);
             }
@@ -138,9 +139,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         final Collection<eu.domibus.common.model.configuration.Process> result = new ArrayList<>();
         for (final eu.domibus.common.model.configuration.Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
             if (process.isDynamicInitiator() && (process.isDynamicResponder() || process.getResponderParties().contains(getConfiguration().getParty()))) {
-                if (!process.getResponderParties().contains(getConfiguration().getParty())) {
-                    process.getResponderParties().add(getConfiguration().getParty());
-                }
+                // after adding validation to the upload/update pMode, this shouldn't happen anymore
+//                if (!process.getResponderParties().contains(getConfiguration().getParty())) {
+//                    process.getResponderParties().add(getConfiguration().getParty());
+//                }
                 LOG.debug("Found dynamic sender process: " + process.getName());
                 result.add(process);
             }
