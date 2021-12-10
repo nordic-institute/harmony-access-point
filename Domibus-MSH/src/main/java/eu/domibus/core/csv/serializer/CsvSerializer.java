@@ -1,5 +1,6 @@
 package eu.domibus.core.csv.serializer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opencsv.ICSVWriter;
 
 /**
@@ -11,5 +12,5 @@ public interface CsvSerializer {
 
     boolean canHandle(Object fieldValue);
 
-    String serialize(Object fieldValue);
+    String serialize(Object fieldValue) throws JsonProcessingException;
 }
