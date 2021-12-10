@@ -9,7 +9,6 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -45,6 +44,7 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalTrustStoreUpdate(Domain domain) {
+        LOG.debug("Signaling truststore update on [{}] domain", domain);
 
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_TRUSTSTORE);
@@ -55,6 +55,7 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalPModeUpdate() {
+        LOG.debug("Signaling PMode update on [{}] domain", domainContextProvider.getCurrentDomain().getCode());
 
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.RELOAD_PMODE);
@@ -128,6 +129,19 @@ public class SignalServiceImpl implements SignalService {
         commandProperties.put(Command.COMMAND, Command.USER_SESSION_INVALIDATION);
         commandProperties.put(CommandProperty.USER_NAME, userName);
 
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalClearCaches() {
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        String domainCode = domain == null ? null : domain.getCode();
+
+        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
         sendMessage(commandProperties);
     }
 }

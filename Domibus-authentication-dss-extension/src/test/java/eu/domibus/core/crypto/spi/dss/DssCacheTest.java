@@ -4,10 +4,9 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.Cache;
 
 import static org.junit.Assert.*;
 
@@ -24,33 +23,37 @@ public class DssCacheTest {
         DssCache dssCache = new DssCache(cache);
         String key = "key";
         Boolean valid = true;
+
         dssCache.addToCache(key, valid);
-        new Verifications(){{
-            Element element;
-            cache.putIfAbsent(element=withCapture());
-            assertEquals(key,element.getObjectKey());
-            assertEquals(valid,element.getObjectValue());
+
+        new Verifications() {{
+            Object valueActual;
+            Object keyActual;
+            cache.putIfAbsent(keyActual = withCapture(), valueActual = withCapture());
+            assertEquals(key, keyActual);
+            assertEquals(valid, valueActual);
         }};
     }
 
     @Test
-    public void isChainValidTrue(@Mocked Cache cache,@Mocked Element element) {
+    public void isChainValidTrue(@Mocked Cache cache, @Mocked Cache.ValueWrapper valueWrapper) {
         DssCache dssCache = new DssCache(cache);
         String key = "key";
-        new Expectations(){{
-           cache.get(key);
-           result=element;
+
+        new Expectations() {{
+            cache.get(key);
+            result = valueWrapper;
         }};
         assertTrue(dssCache.isChainValid(key));
     }
 
     @Test
-    public void isChainValidFalse(@Mocked Cache cache,@Mocked Element element) {
+    public void isChainValidFalse(@Mocked Cache cache) {
         DssCache dssCache = new DssCache(cache);
         String key = "key";
-        new Expectations(){{
+        new Expectations() {{
             cache.get(key);
-            result=null;
+            result = null;
         }};
         assertFalse(dssCache.isChainValid(key));
     }
@@ -59,8 +62,8 @@ public class DssCacheTest {
     public void clear(@Mocked Cache cache) {
         DssCache dssCache = new DssCache(cache);
         dssCache.clear();
-        new Verifications(){{
-           cache.removeAll();
+        new Verifications() {{
+            cache.clear();
         }};
     }
 }
