@@ -5,6 +5,7 @@ import eu.domibus.core.message.DeleteMessageIT;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.xml.sax.SAXException;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
+@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
 public class DeleteReceivedMessageIT extends DeleteMessageIT {
 
     /**

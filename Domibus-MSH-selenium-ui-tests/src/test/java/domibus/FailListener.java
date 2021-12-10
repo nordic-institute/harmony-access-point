@@ -46,6 +46,11 @@ public class FailListener implements ITestListener {
 
 	@Override
 	public void onTestFailure(ITestResult result) {
+		try {
+			result.getThrowable().printStackTrace();
+		} catch (Exception e) {
+		}
+
 		takeScreenshot(result);
 		test_count++;
 		failed_count++;
@@ -54,6 +59,10 @@ public class FailListener implements ITestListener {
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
+		try {
+			result.getThrowable().printStackTrace();
+		} catch (Exception e) {
+		}
 		takeScreenshot(result);
 		test_count++;
 		skipped_count++;

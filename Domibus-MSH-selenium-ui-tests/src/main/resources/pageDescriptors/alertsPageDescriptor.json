@@ -144,6 +144,7 @@
       "BATCH_ID",
       "BATCH_STATUS"
     ],
+    "ARCHIVING_START_DATE_STOPPED": [],
     "PARTITION_EXPIRATION": [
       "PARTITION_NAME"
     ]

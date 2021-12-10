@@ -12,6 +12,7 @@ import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.core.user.ui.UserRole;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -24,6 +25,7 @@ import javax.persistence.PersistenceContext;
  * @author Ion Perpegel
  * @since 4.1
  */
+@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired

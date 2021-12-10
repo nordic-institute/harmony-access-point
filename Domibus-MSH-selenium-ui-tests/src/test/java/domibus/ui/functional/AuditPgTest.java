@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import com.sun.jersey.api.client.ClientResponse;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
@@ -53,7 +54,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5247 - AU-6 - Filter events so that there are no results */
+	/* EDELIVERY-5247 - AU-6 - Filter events so that there are no results */
 	@Test(description = "AU-6", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void searchWithNoData() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -82,7 +83,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5248 - AU-7 - Delete all criteria and press Search */
+	/* EDELIVERY-5248 - AU-7 - Delete all criteria and press Search */
 	@Test(description = "AU-7", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void deleteSearchCriteria() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -117,12 +118,19 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5255 - AU-14 - Check Audit page for DOWNLOAD MESSAGE event */
+	/* EDELIVERY-5255 - AU-14 - Check Audit page for DOWNLOAD MESSAGE event */
 	@Test(description = "AU-14", groups = {"multiTenancy", "singleTenancy"})
 	public void messageDownloadedLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String messID = rest.getMessageIDsWithStatus(null, "SEND_FAILURE").get(0);
+		List<String> ids = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
+
+		if (ids.size() == 0) {
+			throw new SkipException("No messages found");
+		}
+
+		String messID = ids.get(0);
+
 		log.info("Download message " + messID);
 		rest.messages().downloadMessage(messID, null);
 
@@ -147,7 +155,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5256 - AU-15 - Check Audit page for Create NEW Message filter event  */
+	/* EDELIVERY-5256 - AU-15 - Check Audit page for Create NEW Message filter event  */
 	@Test(description = "AU-15", groups = {"multiTenancy", "singleTenancy"})
 	public void msgFilterCreation() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -188,7 +196,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5257 - AU-16 - Check Audit page for EDIT Message filter event */
+	/* EDELIVERY-5257 - AU-16 - Check Audit page for EDIT Message filter event */
 	@Test(description = "AU-16", groups = {"multiTenancy", "singleTenancy"})
 	public void msgFilterEdit() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -226,7 +234,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5258 - AU-17 - Check Audit page for Move upMove Down Message Filter event */
+	/* EDELIVERY-5258 - AU-17 - Check Audit page for Move upMove Down Message Filter event */
 	@Test(description = "AU-17", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
 	public void msgFilterMoveAction() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -272,7 +280,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5260 - AU-19 - Check page for Text update of Pmode event */
+	/* EDELIVERY-5260 - AU-19 - Check page for Text update of Pmode event */
 	@Test(description = "AU-19", groups = {"multiTenancy", "singleTenancy"})
 	public void txtUpdatePmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -310,7 +318,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5261 - AU-20 - Check page for PMode Upload event */
+	/* EDELIVERY-5261 - AU-20 - Check page for PMode Upload event */
 	@Test(description = "AU-20", groups = {"multiTenancy", "singleTenancy"})
 	public void pmodeUpload() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -331,7 +339,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5263 - AU-22 - Check page for Create Party as ADMIN event */
+	/* EDELIVERY-5263 - AU-22 - Check page for Create Party as ADMIN event */
 	@Test(description = "AU-22", groups = {"multiTenancy", "singleTenancy"})
 	public void createParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -379,7 +387,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5264 - AU-23 - Check page for Edit parties as ADMIN event */
+	/* EDELIVERY-5264 - AU-23 - Check page for Edit parties as ADMIN event */
 	@Test(description = "AU-23", groups = {"multiTenancy", "singleTenancy"})
 	public void editParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -402,7 +410,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5265 - AU-24 - Check page for Delete parties as ADMIN event */
+	/* EDELIVERY-5265 - AU-24 - Check page for Delete parties as ADMIN event */
 	@Test(description = "AU-24", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -438,7 +446,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5266 - AU-25 - Check page for Download oldcurrent  PModes from Pmodes Archive as ADMIN event */
+	/* EDELIVERY-5266 - AU-25 - Check page for Download oldcurrent  PModes from Pmodes Archive as ADMIN event */
 	@Test(description = "AU-25", groups = {"multiTenancy", "singleTenancy"})
 	public void pmodeDownload() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -477,7 +485,7 @@ public class AuditPgTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-5267 - AU-26 - Check page for Restore PMode from Pmode Archive event */
+	/* EDELIVERY-5267 - AU-26 - Check page for Restore PMode from Pmode Archive event */
 	@Test(description = "AU-26", groups = {"multiTenancy", "singleTenancy"})
 	public void restorePmodeFromArchive() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -517,7 +525,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5268 - AU-27 - Check page for Delete Pmode from Pmode Archive event */
+	/* EDELIVERY-5268 - AU-27 - Check page for Delete Pmode from Pmode Archive event */
 	@Test(description = "AU-27", groups = {"multiTenancy", "singleTenancy"})
 	public void deletePmodeFromArchive() throws Exception {
 		log.info("upload pmode");
@@ -568,7 +576,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5269 - AU-28 - Check page for New user event */
+	/* EDELIVERY-5269 - AU-28 - Check page for New user event */
 	@Test(description = "AU-28", groups = {"multiTenancy", "singleTenancy"})
 	public void createUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -596,7 +604,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5270 - AU-29 - Check page for Edit user event */
+	/* EDELIVERY-5270 - AU-29 - Check page for Edit user event */
 	@Test(description = "AU-29", groups = {"multiTenancy", "singleTenancy"})
 	public void editUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -626,7 +634,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5271 - AU-30 - Check page for Delete user event */
+	/* EDELIVERY-5271 - AU-30 - Check page for Delete user event */
 	@Test(description = "AU-30", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -654,7 +662,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5281 - AU-39 - Check data for New Basic Plugin User event */
+	/* EDELIVERY-5281 - AU-39 - Check data for New Basic Plugin User event */
 	@Test(description = "AU-39", groups = {"multiTenancy", "singleTenancy"})
 	public void createPluginUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -681,7 +689,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5282 - AU-40 - Check data for Delete Basic Plugin User event */
+	/* EDELIVERY-5282 - AU-40 - Check data for Delete Basic Plugin User event */
 	@Test(description = "AU-40", groups = {"multiTenancy", "singleTenancy"})
 	public void deletePluginUserLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -709,7 +717,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5259 - AU-18 - Check Audit page for Delete Message Filter event */
+	/* EDELIVERY-5259 - AU-18 - Check Audit page for Delete Message Filter event */
 	@Test(description = "AU-18", groups = {"multiTenancy", "singleTenancy"})
 	public void msgFilterDeletion() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -742,7 +750,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5249 - AU-8 - Change current domain */
+	/* EDELIVERY-5249 - AU-8 - Change current domain */
 	@Test(description = "AU-8", groups = {"multiTenancy"})
 	public void changeDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -795,7 +803,7 @@ public class AuditPgTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-5251 - AU-10 - Navigate to page 2 of events and change domain */
+	/* EDELIVERY-5251 - AU-10 - Navigate to page 2 of events and change domain */
 	@Test(description = "AU-10", groups = {"multiTenancy"})
 	public void changeDomainFromSecPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -825,7 +833,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5253 - AU-12 - Check Audit page for DELETE JMS Message event */
+	/* EDELIVERY-5253 - AU-12 - Check Audit page for DELETE JMS Message event */
 	@Test(description = "AU-12", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteJMSMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -836,7 +844,10 @@ public class AuditPgTest extends SeleniumTest {
 		}
 
 		String messageId = rest.jms().getQueueMessages(queue).getJSONObject(0).getString("id");
-		rest.jms().deleteMessages(queue, messageId);
+		log.info("deleting message " + messageId);
+		ClientResponse response = rest.jms().deleteMessages(queue, messageId);
+
+		log.info("deleting message has returned: " + response.getEntity(String.class));
 
 		AuditPage page = new AuditPage(driver);
 
@@ -867,7 +878,7 @@ public class AuditPgTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5254 - AU-13 - Check Audit page for RESEND MESSAGE event */
+	/* EDELIVERY-5254 - AU-13 - Check Audit page for RESEND MESSAGE event */
 	@Test(description = "AU-13", groups = {"multiTenancy", "singleTenancy"})
 	public void msgResendLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -887,6 +898,9 @@ public class AuditPgTest extends SeleniumTest {
 			}
 		}
 
+		if (null == messId) {
+			throw new SkipException("No message with the correct status has been found");
+		}
 
 		AuditPage page = new AuditPage(driver);
 		log.info("Navigate to Audit page");
@@ -911,7 +925,7 @@ public class AuditPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5262 - AU-21 - Check page for Download event from Pmode-current page */
+	/* EDELIVERY-5262 - AU-21 - Check page for Download event from Pmode-current page */
 	@Test(description = "AU-21", groups = {"multiTenancy", "singleTenancy"})
 	public void currentPmodeDownloadLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -940,7 +954,7 @@ public class AuditPgTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-5252 - AU-11 - Check JMS MOVE message event on Audit page */
+	/* EDELIVERY-5252 - AU-11 - Check JMS MOVE message event on Audit page */
 	@Test(description = "AU-11", groups = {"multiTenancy", "singleTenancy"})
 	public void jmsMoveEvent() throws Exception {
 		SoftAssert soft = new SoftAssert();

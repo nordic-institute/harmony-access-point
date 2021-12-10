@@ -1411,6 +1411,7 @@ ALTER INDEX PK_PLUGIN_USER_PASSWD_HISTO RENAME TO OLD_PK_PLUGIN_USR_PASS_HIST
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -1491,6 +1492,7 @@ ALTER INDEX PK_PLUGIN_USER_PASSWD_HISTO RENAME TO OLD_PK_PLUGIN_USR_PASS_HIST
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -1507,6 +1509,7 @@ ALTER INDEX PK_PLUGIN_USER_PASSWD_HISTO RENAME TO OLD_PK_PLUGIN_USR_PASS_HIST
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
             </column>
             <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

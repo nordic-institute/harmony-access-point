@@ -13,6 +13,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JsonFormatterConfiguration {
 
+    /**
+     * Generate common JSON ObjectMapper fpr formatting dates as: "2021-12-01T14:52:00Z"
+     *
+     * @return
+     */
     @Bean("domibusJsonMapper")
     public ObjectMapper objectMapper() {
         ObjectMapper bean = new ObjectMapper();

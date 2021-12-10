@@ -1,7 +1,7 @@
 package eu.domibus.api.model;
 
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
@@ -16,14 +16,14 @@ import java.util.zip.GZIPInputStream;
  */
 public class RawEnvelopeDto {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RawEnvelopeDto.class);
-
     final byte[] rawMessage;
     final long id;
+    final boolean compressed;
 
-    public RawEnvelopeDto(long id, byte[] rawMessage) {
+    public RawEnvelopeDto(long id, byte[] rawMessage, boolean compressed) {
         this.id = id;
         this.rawMessage = rawMessage;
+        this.compressed = compressed;
     }
 
     public byte[] getRawMessage() {
@@ -44,13 +44,13 @@ public class RawEnvelopeDto {
     }
 
     private byte[] getUncompressedRawData() {
+        if (!this.compressed) {
+            return getRawMessage();
+        }
         try (GZIPInputStream unzipStream = new GZIPInputStream(new ByteArrayInputStream(getRawMessage()))) {
             return IOUtils.toByteArray(unzipStream);
         } catch (IOException e) {
-            LOG.warn("Failed to unzip raw envelope data with id [{}]", id, e);
-            // TODO EDELIVERY-8704 there will be no uncompressed envelopes in the database after migration
-            // for now, we just try to decompress them and, if failing, return the raw data
-            return getRawMessage();
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_008, "Failed to unzip raw envelope data with id " + id, e);
         }
     }
 

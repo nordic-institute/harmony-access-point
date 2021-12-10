@@ -3,15 +3,12 @@ package eu.domibus.core.earchive.storage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.WarningUtil;
+import eu.domibus.core.util.FileSystemUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemManager;
-import org.apache.commons.vfs2.VFS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -19,8 +16,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
@@ -42,6 +37,8 @@ public class EArchiveFileStorage {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+    @Autowired
+    protected FileSystemUtil fileSystemUtil;
 
     public EArchiveFileStorage(Domain domain) {
         this.domain = domain;
@@ -68,7 +65,7 @@ public class EArchiveFileStorage {
     private Path getPath(String location) {
         Path path;
         try {
-            path = createLocation(location);
+            path = fileSystemUtil.createLocation(location);
         } catch (FileSystemException e) {
             throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.", e);
         }
@@ -85,58 +82,6 @@ public class EArchiveFileStorage {
     public void reset() {
         storageDirectory = null;
         init();
-    }
-
-    /**
-     * It attempts to create the directory whenever is not present.
-     * It works also when the location is a symbolic link.
-     */
-    protected Path createLocation(String path) throws FileSystemException {
-        FileSystemManager fileSystemManager = getVFSManager();
-
-        try (FileObject fileObject = fileSystemManager.resolveFile(path)) {
-            if (!fileObject.exists()) {
-                fileObject.createFolder();
-                LOG.info("The eArchiving folder [{}] has been created!", fileObject.getPath().toAbsolutePath());
-            }
-            if (fileObject.isSymbolicLink()) {
-                try (FileObject f1 = fileSystemManager.resolveFile(Files.readSymbolicLink(fileObject.getPath()).toAbsolutePath().toString())) {
-                    return returnWritablePath(f1);
-                }
-            }
-            return returnWritablePath(fileObject);
-        } catch (IOException ioEx) {
-            return getTemporaryPath(path, fileSystemManager, ioEx);
-        }
-    }
-
-    private Path getTemporaryPath(String path, FileSystemManager fileSystemManager, IOException ioEx) throws FileSystemException {
-        LOG.error("Error creating/accessing the eArchiving folder [{}]", path, ioEx);
-        try (FileObject fo = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"))) {
-            LOG.warn(WarningUtil.warnOutput("The temporary eArchiving folder " + fo.getPath().toAbsolutePath() + " has been selected!"));
-            return fo.getPath();
-        }
-    }
-
-    private Path returnWritablePath(FileObject fileObject) throws IOException {
-        if (!fileObject.isWriteable()) {
-            throw new IOException("Write permission for eArchiving folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
-        }
-        return fileObject.getPath();
-    }
-
-    private void close(FileObject fileObject) throws FileSystemException {
-        if (fileObject != null) {
-            fileObject.close();
-        }
-    }
-
-    private FileSystemManager getVFSManager() {
-        try {
-            return VFS.getManager();
-        } catch (FileSystemException e) {
-            throw new IllegalStateException("VFS Manager could not be created");
-        }
     }
 
 }

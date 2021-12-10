@@ -28,9 +28,6 @@
 ALTER INDEX IDX_FK_REV_CHANGES_REV_INFO RENAME TO OLD_IDX_FK_REV_CHNGS_REV_INFO
 /
 
-ALTER INDEX IDX_COMMAND_PROP_COMMAND_ID RENAME TO OLD_IDX_COMMAND_PROP_CMD_ID
-/
-
 ALTER INDEX IDX_FK_ALERT RENAME TO OLD_IDX_FK_ALERT
 /
 
@@ -47,12 +44,6 @@ ALTER INDEX IDX_ROLE_ID RENAME TO OLD_IDX_ROLE_ID
 /
 
 ALTER INDEX IDX_FK_USR_ROL_AUD_REV_INFO RENAME TO OLD_IDX_FK_USR_ROL_AUD_REV_INF
-/
-
-ALTER INDEX IDX_FK_EVENT RENAME TO OLD_IDX_FK_EVENT
-/
-
-ALTER INDEX IDX_USER_ID RENAME TO OLD_IDX_USER_ID
 /
 
 ALTER TABLE TB_COMMAND_PROPERTY RENAME CONSTRAINT UK_COMMAND_PROP_NAME TO OLD_UK_COMMAND_PROP_NAME
@@ -126,9 +117,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
                                  constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
-        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
-            <column name="FK_COMMAND"/>
-        </createIndex>
         <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UK_COMMAND_PROP_NAME"
                              tableName="TB_COMMAND_PROPERTY"/>
 
@@ -150,9 +138,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EVENT"/>
         <createIndex indexName="IDX_FK_ALERT" tableName="TB_EVENT_ALERT">
             <column name="FK_ALERT"/>
-        </createIndex>
-        <createIndex indexName="IDX_FK_EVENT" tableName="TB_EVENT_ALERT">
-            <column name="FK_EVENT"/>
         </createIndex>
 
         <!-- TB_EVENT_PROPERTY -->
@@ -199,9 +184,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
                                  referencedTableName="TB_USER_ROLE"/>
         <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
             <column name="ROLE_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_ID" tableName="TB_USER_ROLES">
-            <column name="USER_ID"/>
         </createIndex>
 
         <!-- TB_USER_ROLE_AUD -->
