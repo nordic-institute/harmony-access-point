@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
 import static eu.domibus.api.util.DomibusStringUtil.*;
+import static eu.domibus.core.property.DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT;
 import static eu.domibus.logging.DomibusMessageCode.*;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -542,16 +543,20 @@ public class BackendMessageValidator {
         if(submission.getPayloads() == null){
             return;
         }
-        if(submission.getPayloads().size() > 28){
+        validateSubmissionAttachmentCount(submission, mshRole);
+        for (Submission.Payload submissionPayload : submission.getPayloads()) {
+            validateSubmissionPartInfoProperties(submissionPayload.getPayloadProperties(), mshRole);
+        }
+    }
+
+    private void validateSubmissionAttachmentCount(Submission submission, MSHRole mshRole) throws EbMS3Exception {
+        if(submission.getPayloads().size() > DOMIBUS_MAX_ATTACHMENT_COUNT){
             LOG.businessError(BUS_ATTACHMENTS_MORE_THAN_28);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message(BUS_ATTACHMENTS_MORE_THAN_28.getMessage())
                     .mshRole(mshRole)
                     .build();
-        }
-        for (Submission.Payload submissionPayload : submission.getPayloads()) {
-            validateSubmissionPartInfoProperties(submissionPayload.getPayloadProperties(), mshRole);
         }
     }
 

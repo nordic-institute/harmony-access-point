@@ -12,6 +12,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
+import eu.domibus.core.property.DomibusGeneralConstants;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
 import mockit.*;
@@ -790,7 +791,7 @@ public class BackendMessageValidatorTest {
     public void validateSubmissionPayload_MoreThan28Attachments(@Mocked Submission mockSubmission )throws EbMS3Exception{
 
         Set<Submission.Payload> payloadSet = new HashSet<>();
-        for(int i=0; i<29; i++){
+        for(int i = 0; i<(DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT+1); i++){
             Submission.Payload mockPayload = new Submission.Payload(Integer.toString(i), null, null, true, null, null);
             payloadSet.add(mockPayload);
         }
