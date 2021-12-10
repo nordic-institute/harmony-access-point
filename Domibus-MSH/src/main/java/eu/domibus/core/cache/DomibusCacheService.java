@@ -1,5 +1,7 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -17,5 +19,9 @@ public interface DomibusCacheService {
     String CRL_BY_CERT = "crlByCert";
 
     void clearCache(String refreshCacheName);
+
+    void evict(String cacheName, String propertyName);
+
+    void clearAllCaches() throws DomibusCoreException;
 
 }

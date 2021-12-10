@@ -25,12 +25,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.3.11</cxf.version>
-        <wss4j-ws-security.version>2.2.6</wss4j-ws-security.version>
+        <cxf.version>3.4.3</cxf.version>
+        <wss4j.ws.security.version>2.3.2</wss4j.ws.security.version>
         <spring.version>5.2.18.RELEASE</spring.version>
         <spring.security.version>5.4.9</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
-        <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
+        <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
+        <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <activemq.version>5.15.14</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
         <slf4j.version>1.7.28</slf4j.version>
@@ -128,9 +129,10 @@
         <activation.version>1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
 
-        <xmlsec.version>2.1.7</xmlsec.version>
+        <xmlsec.version>2.2.0</xmlsec.version>
         <httpcore.version>4.4.5</httpcore.version>
-        <ehcache.version>2.10.6</ehcache.version>
+        <ehcache.version>3.8.1</ehcache.version>
+        <cache-api.version>1.1.1</cache-api.version>
         <hamcrest.version>1.3</hamcrest.version>
         <commons-collections.version>3.2</commons-collections.version>
         <commons-net.version>3.5</commons-net.version>
@@ -451,16 +453,28 @@
                 <version>${hibernate.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>${hibernate.validator.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
                 <version>${c3p0.version}</version>
             </dependency>
             <!-- End Hibernate -->
+
+            <!-- validation apis -->
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate.validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>${glassfish.javax.el.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax</groupId>
@@ -496,11 +510,6 @@
                 <groupId>javax.jws</groupId>
                 <artifactId>jsr181-api</artifactId>
                 <version>${jsr181-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax.validation.version}</version>
             </dependency>
 
             <!-- ActiveMQ -->
@@ -641,12 +650,12 @@
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-dom</artifactId>
-                <version>${wss4j-ws-security.version}</version>
+                <version>${wss4j.ws.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-common</artifactId>
-                <version>${wss4j-ws-security.version}</version>
+                <version>${wss4j.ws.security.version}</version>
             </dependency>
             <!-- End Apache Commons -->
 
@@ -762,9 +771,14 @@
 
             <!-- Ehcache -->
             <dependency>
-                <groupId>net.sf.ehcache</groupId>
+                <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${cache-api.version}</version>
             </dependency>
 
             <!-- FreeMarker-->

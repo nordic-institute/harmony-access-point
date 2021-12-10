@@ -17,7 +17,6 @@ import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
-import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.springframework.beans.factory.ObjectProvider;
@@ -388,7 +387,7 @@ public class DssConfiguration {
         if (cache == null) {
             throw new IllegalArgumentException(String.format("Cache named:[%s] not found, please configure it.", cacheName));
         }
-        return new DssCache((Cache) cache.getNativeCache());
+        return new DssCache(cache);
     }
 
     @Bean
