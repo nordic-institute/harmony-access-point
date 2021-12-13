@@ -7,6 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.api.spring.DomibusWebContext;
 import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.web.interceptor.AuthenticationInterceptor;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +29,7 @@ import java.util.List;
 @ComponentScan(basePackages = "eu.domibus.ext.rest")
 public class DomibusExtWebConfiguration implements WebMvcConfigurer {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtWebConfiguration.class);
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -44,6 +47,7 @@ public class DomibusExtWebConfiguration implements WebMvcConfigurer {
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         // Configure Object Mapper with format date as: "2021-12-01T14:52:00Z"
         // for objects in package: eu.domibus.ext.domain.archive
+        LOG.debug("Register DomibusExtMappingConverter for package [{}].", BatchDTO.class.getPackage().getName());
         DomibusExtMappingConverter converter = new DomibusExtMappingConverter(BatchDTO.class.getPackage().getName());
         converter.setObjectMapper(new ObjectMapper() {{
             registerModule(new JavaTimeModule());
