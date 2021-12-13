@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest.spring;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
@@ -23,7 +24,7 @@ public class DomibusExtMappingConverter extends MappingJackson2HttpMessageConver
 
     @Override
     public boolean canRead(Type type, Class<?> contextClass, MediaType mediaType) {
-        if (contextClass.getName().startsWith(basePackage)) {
+        if (StringUtils.startsWith(contextClass.getName(), basePackage)) {
             return super.canRead(type, contextClass, mediaType);
         }
         return false;
@@ -31,7 +32,7 @@ public class DomibusExtMappingConverter extends MappingJackson2HttpMessageConver
 
     @Override
     public boolean canWrite(Class<?> clazz, MediaType mediaType) {
-        if (clazz.getName().startsWith(basePackage)) {
+        if (StringUtils.startsWith(clazz.getName(), basePackage)) {
             return super.canWrite(clazz, mediaType);
         }
         return false;
