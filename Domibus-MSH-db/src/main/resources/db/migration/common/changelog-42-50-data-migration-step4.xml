@@ -276,6 +276,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_message_acknw
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_send_attempt
 //
 
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_multitenancy
+//
+
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate
 //
 
@@ -415,6 +418,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_pm_join_process_resp_party
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_pm_configuration_raw
+//
+
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_domain
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user

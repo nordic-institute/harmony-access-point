@@ -417,11 +417,9 @@
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
 
-        <addUniqueConstraint columnNames="VERSION" constraintName="UK_VERSION" tableName="TB_VERSION" />
-
         <addUniqueConstraint columnNames="LOCK_KEY" constraintName="UK_LOCK_KEY" tableName="TB_LOCK"/>
 
-        <addUniqueConstraint columnNames="VERSION" constraintName="UK_VERSION" tableName="TB_VERSION"/>
+        <addUniqueConstraint columnNames="VERSION" constraintName="UK_VERSION" tableName="TB_VERSION" />
 
     </changeSet>
 

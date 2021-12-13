@@ -218,11 +218,6 @@ ALTER TABLE TB_USER RENAME CONSTRAINT PK_USER TO OLD_PK_USER
 ALTER INDEX PK_USER RENAME TO OLD_PK_USER
 /
 
-ALTER TABLE TB_USER_AUD RENAME CONSTRAINT PK_USER_AUD TO OLD_PK_USER_AUD
-/
-ALTER INDEX PK_USER_AUD RENAME TO OLD_PK_USER_AUD
-/
-
 ALTER TABLE TB_USER_PASSWORD_HISTORY RENAME CONSTRAINT PK_USER_PASSWORD_HISTORY TO OLD_PK_USER_PASSWORD_HISTORY
 /
 ALTER INDEX PK_USER_PASSWORD_HISTORY RENAME TO OLD_PK_USER_PASSWORD_HISTORY
@@ -236,11 +231,6 @@ ALTER INDEX PK_USER_ROLE RENAME TO OLD_PK_USER_ROLE
 ALTER TABLE TB_USER_ROLES RENAME CONSTRAINT PK_PRIMARY TO OLD_PK_PRIMARY
 /
 ALTER INDEX PK_PRIMARY RENAME TO OLD_PK_PRIMARY
-/
-
-ALTER TABLE TB_USER_ROLE_AUD RENAME CONSTRAINT PK_USER_ROLE_AUD TO OLD_PK_USER_ROLE_AUD
-/
-ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
 /
         </sql>
     </changeSet>
@@ -469,34 +459,6 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
-        <!-- TB_USER_AUD -->
-        <createTable tableName="MIGR_TB_USER_AUD">
-            <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
-            </column>
-            <column name="REV" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
-            </column>
-            <column name="REVTYPE" type="TINYINT"/>
-            <column name="USER_ENABLED" type="BOOLEAN"/>
-            <column name="ACTIVE_MOD" type="BOOLEAN"/>
-            <column name="USER_DELETED" type="BOOLEAN"/>
-            <column name="DELETED_MOD" type="BOOLEAN"/>
-            <column name="USER_EMAIL" type="VARCHAR(255)"/>
-            <column name="EMAIL_MOD" type="BOOLEAN"/>
-            <column name="USER_PASSWORD" type="VARCHAR(255)"/>
-            <column name="PASSWORD_MOD" type="BOOLEAN"/>
-            <column name="USER_NAME" type="VARCHAR(255)"/>
-            <column name="USERNAME_MOD" type="BOOLEAN"/>
-            <column name="OPTLOCK" type="INT"/>
-            <column name="VERSION_MOD" type="BOOLEAN"/>
-            <column name="ROLES_MOD" type="BOOLEAN"/>
-            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
-            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
-            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
-            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
-        </createTable>
-
         <!-- TB_USER_PASSWORD_HISTORY -->
         <createTable tableName="MIGR_TB_USER_PASSWORD_HISTORY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -561,20 +523,6 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="REVTYPE" type="TINYINT"/>
             <column name="USER_ID" type="BIGINT"/>
             <column name="ROLE_ID" type="BIGINT"/>
-        </createTable>
-
-        <!-- TB_USER_ROLE_AUD -->
-        <createTable tableName="MIGR_TB_USER_ROLE_AUD">
-            <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
-            </column>
-            <column name="REV" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
-            </column>
-            <column name="REVTYPE" type="TINYINT"/>
-            <column name="ROLE_NAME" type="VARCHAR(255)"/>
-            <column name="NAME_MOD" type="BOOLEAN"/>
-            <column name="USERS_MOD" type="BOOLEAN"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

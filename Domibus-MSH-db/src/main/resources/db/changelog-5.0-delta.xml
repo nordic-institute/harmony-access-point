@@ -84,8 +84,9 @@
     </changeSet>
 
     <!-- Start UI Replication Tables -->
-    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-temporary-drop-ui-replication-table">
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-temporary-drop-ui-replication-objects">
         <dropTable tableName="TB_MESSAGE_UI" cascadeConstraints="true" />
+        <dropView viewName="V_MESSAGE_UI_DIFF" />
     </changeSet>
 
     <!--<changeSet author="Ion Perpegel" id="EDELIVERY-7677">

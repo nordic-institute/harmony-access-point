@@ -34,7 +34,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
 
     <changeSet author="nperpion" id="EDELIVERY-8503_3">
@@ -61,6 +61,33 @@
             <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
         </insert>
+    </changeSet>
+
+    <!-- indexes -->
+    <changeSet author="Catalin Enache" id="1564496480476-30-new-indices">
+        <comment>create indexes</comment>
+        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- foreign keys -->
+    <changeSet author="Catalin Enache" id="1564496480476-56-new-foreign-keys">
+        <comment>create foreign keys</comment>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
     </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->

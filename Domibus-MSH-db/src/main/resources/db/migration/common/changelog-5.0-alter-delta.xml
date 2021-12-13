@@ -32,35 +32,6 @@
     </changeSet>
     <!-- End migration for renamed unique key constraints  -->
 
-    <!-- Start migration for renamed foreign key constraints and indexes -->
-    <changeSet author="Soumya" id="EDELIVERY-7840-Rename-foreign-key-constraints-common">
-        <sql dbms="oracle">
-            ALTER TABLE TB_REV_CHANGES RENAME CONSTRAINT FK_REV_CHANGES_REV TO FK_REV_CHANGES_REV_INFO;
-            ALTER INDEX FK_REV_CHANGES_REV RENAME TO IDX_FK_REV_CHANGES_REV_INFO;
-        </sql>
-        <sql dbms="mysql">
-            ALTER TABLE TB_REV_CHANGES
-            DROP FOREIGN KEY FK_REV_CHANGES_REV,
-            ADD CONSTRAINT FK_REV_CHANGES_REV_INFO FOREIGN KEY (`REV`) REFERENCES TB_REV_INFO (`ID`);
-
-            ALTER TABLE TB_REV_CHANGES RENAME INDEX FK_REV_CHANGES_REV TO IDX_FK_REV_CHANGES_REV_INFO;
-        </sql>
-
-        <sql dbms="oracle">
-            ALTER TABLE TB_USER_ROLE_AUD RENAME CONSTRAINT FK_USER_ROLE_AUD TO FK_USR_ROL_AUD_REV_INFO;
-            ALTER INDEX FK_USER_ROLE_AUD RENAME TO IDX_FK_USR_ROL_AUD_REV_INFO;
-        </sql>
-        <sql dbms="mysql">
-            ALTER TABLE TB_USER_ROLE_AUD
-            DROP FOREIGN KEY FK_USER_ROLE_AUD,
-            ADD CONSTRAINT FK_USR_ROL_AUD_REV_INFO FOREIGN KEY (`REV`) REFERENCES TB_REV_INFO
-            (`ID`);
-
-            ALTER TABLE TB_USER_ROLE_AUD RENAME INDEX FK_USER_ROLE_AUD TO IDX_FK_USR_ROL_AUD_REV_INFO;
-        </sql>
-    </changeSet>
-    <!-- End migration for renamed foreign key constraints and indexes -->
-
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-primary-key-index-names-common">
         <sql dbms="oracle">
             ALTER TABLE TB_ALERT RENAME CONSTRAINT PK_TB_ALERT TO PK_ALERT;

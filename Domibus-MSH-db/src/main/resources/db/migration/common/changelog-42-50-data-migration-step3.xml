@@ -10,37 +10,33 @@
 
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7970-drop-indexes-uq-common">
-        <dropForeignKeyConstraint baseTableName="TB_REV_CHANGES" constraintName="FK_REV_CHANGES_REV_INFO" />
         <dropForeignKeyConstraint baseTableName="TB_COMMAND_PROPERTY" constraintName="FK_COMMAND_PROPERTY_ID" />
         <dropForeignKeyConstraint baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID" />
         <dropForeignKeyConstraint baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID" />
         <dropForeignKeyConstraint baseTableName="TB_EVENT_PROPERTY" constraintName="FK_EVENT_PROPERTY_ID" />
-        <dropForeignKeyConstraint baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV" />
         <dropForeignKeyConstraint baseTableName="TB_USER_PASSWORD_HISTORY" constraintName="FK_USER_PASSWORD_HISTORY" />
         <dropForeignKeyConstraint baseTableName="TB_USER_ROLES" constraintName="FK_USER_ROLES_ROLE" />
         <dropForeignKeyConstraint baseTableName="TB_USER_ROLES" constraintName="FK_USER_ROLES_USER" />
+        <dropForeignKeyConstraint baseTableName="TB_REV_CHANGES" constraintName="FK_REV_CHANGES_REV_INFO" />
         <dropForeignKeyConstraint baseTableName="TB_USER_ROLE_AUD" constraintName="FK_USR_ROL_AUD_REV_INFO" />
     </changeSet>
 
     <!-- rename any previously created UK constraints and indices to avoid name collision -->
     <changeSet author="Sebastian-Ion TINCU" dbms="oracle" id="EDELIVERY-7970-rename-old-uk-constraints-and-indices-common">
         <sql endDelimiter="\n/" dbms="oracle">
-ALTER INDEX IDX_FK_REV_CHANGES_REV_INFO RENAME TO OLD_IDX_FK_REV_CHNGS_REV_INFO
-/
-
 ALTER INDEX IDX_FK_ALERT RENAME TO OLD_IDX_FK_ALERT
 /
 
 ALTER INDEX IDX_FK_EVENT_PROPERTY RENAME TO OLD_IDX_FK_EVENT_PROPERTY
 /
 
-ALTER INDEX IDX_FK_USER_AUD_REV RENAME TO OLD_IDX_FK_USER_AUD_REV
-/
-
 ALTER INDEX IDX_UPH_USER_ID RENAME TO OLD_IDX_UPH_USER_ID
 /
 
 ALTER INDEX IDX_ROLE_ID RENAME TO OLD_IDX_ROLE_ID
+/
+
+ALTER INDEX IDX_FK_REV_CHANGES_REV_INFO RENAME TO OLD_IDX_FK_REV_CHNGS_REV_INFO
 /
 
 ALTER INDEX IDX_FK_USR_ROL_AUD_REV_INFO RENAME TO OLD_IDX_FK_USR_ROL_AUD_REV_INF
@@ -76,9 +72,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         <renameTable oldTableName="TB_USER_ROLE" newTableName="OLD_TB_USER_ROLE" />
         <renameTable oldTableName="TB_USER_ROLES" newTableName="OLD_TB_USER_ROLES" />
         <renameTable oldTableName="TB_REV_INFO" newTableName="OLD_TB_REV_INFO" />
-        <renameTable oldTableName="TB_REV_CHANGES" newTableName="OLD_TB_REV_CHANGES" />
-        <renameTable oldTableName="TB_USER_AUD" newTableName="OLD_TB_USER_AUD" />
-        <renameTable oldTableName="TB_USER_ROLE_AUD" newTableName="OLD_TB_USER_ROLE_AUD" />
         <renameTable oldTableName="TB_USER_ROLES_AUD" newTableName="OLD_TB_USER_ROLES_AUD" />
     </changeSet>
 
@@ -95,22 +88,11 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         <renameTable oldTableName="MIGR_TB_USER_ROLE" newTableName="TB_USER_ROLE" />
         <renameTable oldTableName="MIGR_TB_USER_ROLES" newTableName="TB_USER_ROLES" />
         <renameTable oldTableName="MIGR_TB_REV_INFO" newTableName="TB_REV_INFO" />
-        <renameTable oldTableName="MIGR_TB_REV_CHANGES" newTableName="TB_REV_CHANGES" />
-        <renameTable oldTableName="MIGR_TB_USER_AUD" newTableName="TB_USER_AUD" />
-        <renameTable oldTableName="MIGR_TB_USER_ROLE_AUD" newTableName="TB_USER_ROLE_AUD" />
         <renameTable oldTableName="MIGR_TB_USER_ROLES_AUD" newTableName="TB_USER_ROLES_AUD" />
     </changeSet>
 
     <!-- add constraints and indexes -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7970-constraints-common">
-        <!-- TB_REV_CHANGES -->
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
-                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
-                                 referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
-            <column name="REV"/>
-        </createIndex>
 
         <!-- TB_COMMAND_PROPERTY -->
         <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
@@ -152,14 +134,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         <!-- TB_USER -->
         <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
 
-        <!-- TB_USER_AUD -->
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
-                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="IDX_FK_USER_AUD_REV" tableName="TB_USER_AUD">
-            <column name="REV"/>
-        </createIndex>
-
         <!-- TB_USER_PASSWORD_HISTORY -->
         <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_PASSWORD_HISTORY"
                                  constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
@@ -186,14 +160,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
             <column name="ROLE_ID"/>
         </createIndex>
 
-        <!-- TB_USER_ROLE_AUD -->
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
-                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
-                                 referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
-            <column name="REV"/>
-        </createIndex>
     </changeSet>
 
     <!-- alter Oracle sequence -->

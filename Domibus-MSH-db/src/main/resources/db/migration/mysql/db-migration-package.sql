@@ -277,6 +277,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_pm_join_process_resp_party
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_pm_configuration_raw
 //
 
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_domain
+//
+
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user
 //
 
@@ -341,6 +344,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_roles_aud
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate
+//
+
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_multitenancy
 //
 
 /** -- Helper procedures and functions start -*/
@@ -6721,6 +6727,93 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw(INOUT migration_p
     END
 //
 
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_domain()
+    BEGIN
+        DECLARE id_pk BIGINT;
+        DECLARE user_name VARCHAR(255);
+        DECLARE domain VARCHAR(255);
+        DECLARE preferred_domain VARCHAR(255);
+        DECLARE creation_time TIMESTAMP;
+        DECLARE created_by VARCHAR(255);
+        DECLARE modification_time TIMESTAMP;
+        DECLARE modified_by VARCHAR(255);
+
+        DECLARE calculated_id_pk BIGINT;
+
+        DECLARE done INT DEFAULT FALSE;
+        DECLARE migration_status BOOLEAN;
+
+        DECLARE c_user_domain CURSOR FOR
+        SELECT UD.ID_PK,
+                UD.USER_NAME,
+                UD.DOMAIN,
+                UD.PREFERRED_DOMAIN,
+                UD.CREATION_TIME,
+                UD.CREATED_BY,
+                UD.MODIFICATION_TIME,
+                UD.MODIFIED_BY
+        FROM TB_USER_DOMAIN UD;
+
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
+
+        SET @i := 0;
+        SET @v_batch_no := 1;
+        SET @v_tab := 'TB_USER_DOMAIN';
+        SET @v_tab_new := 'MIGR_TB_USER_DOMAIN';
+
+        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
+
+        OPEN c_user_domain;
+        read_loop:
+		LOOP
+            BEGIN
+                DECLARE EXIT HANDLER FOR SQLEXCEPTION
+                BEGIN
+                    GET DIAGNOSTICS CONDITION 1
+                                    @p2 = MESSAGE_TEXT;
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_domain -> execute immediate error: ', @p2));
+                END;
+
+                FETCH c_user_domain INTO id_pk, user_name, domain, preferred_domain, creation_time, created_by, modification_time, modified_by;
+
+                IF done THEN
+                    LEAVE read_loop;
+                END IF;
+
+                SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
+
+                INSERT INTO MIGR_TB_USER_DOMAIN (ID_PK, USER_NAME, DOMAIN, PREFERRED_DOMAIN, CREATION_TIME, CREATED_BY,
+                                                 MODIFICATION_TIME, MODIFIED_BY)
+                VALUES (calculated_id_pk,
+                        user_name,
+                        domain,
+                        preferred_domain,
+                        creation_time,
+                        created_by,
+                        modification_time,
+                        modified_by);
+
+                SET @i = @i + 1;
+                IF @i MOD @BATCH_SIZE = 0 THEN
+                    COMMIT;
+                    CALL MIGRATE_42_TO_50_trace(CONCAT(
+                            @v_tab_new, ': Commit after ', @BATCH_SIZE * @v_batch_no, ' records'));
+                    SET @v_batch_no := @v_batch_no + 1;
+                END IF;
+            END;
+        END LOOP read_loop;
+        COMMIT;
+
+        CALL MIGRATE_42_TO_50_trace(CONCAT('Migrated ', @i, ' records in total into ', @v_tab_new));
+        CLOSE c_user_domain;
+
+        CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
+        IF migration_status THEN
+            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
+        END IF;
+    END
+//
+
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user(INOUT migration_pks JSON)
     BEGIN
         DECLARE id_pk BIGINT;
@@ -8701,7 +8794,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSO
     END
 //
 
-/**-- main entry point for running the migration --*/
+/**-- main entry point for running the single tenancy or multitenancy non-general schema migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
     BEGIN
         SET @migration_pks := '{}';
@@ -8814,4 +8907,37 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
         CALL MIGRATE_42_TO_50_migrate_user_roles_aud(@migration_pks, @missing_entity_date_prefix);
         -- END migrate primary keys to new format
     END
+//
+
+/**-- main entry point for running the multitenancy general schema migration --*/
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_multitenancy()
+BEGIN
+    SET @migration_pks := '{}';
+
+    -- keep it in this order
+    CALL MIGRATE_42_TO_50_prepare_timezone_offset(@migration_pks);
+
+    -- START migrate primary keys to new format
+    CALL MIGRATE_42_TO_50_migrate_alert(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_event(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_event_alert(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_event_property(@migration_pks);
+    --
+    CALL MIGRATE_42_TO_50_migrate_command(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_command_property(@migration_pks);
+    --
+    CALL MIGRATE_42_TO_50_migrate_user_domain;
+    --
+    CALL MIGRATE_42_TO_50_migrate_user(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_user_password_history(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_user_role(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_user_roles(@migration_pks);
+    --
+    SET @missing_entity_date_prefix := SYSDATE();
+    CALL MIGRATE_42_TO_50_migrate_rev_info(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_rev_changes(@migration_pks, @missing_entity_date_prefix);
+    CALL MIGRATE_42_TO_50_migrate_user_role_aud(@migration_pks, @missing_entity_date_prefix);
+    CALL MIGRATE_42_TO_50_migrate_user_roles_aud(@migration_pks, @missing_entity_date_prefix);
+    -- END migrate primary keys to new format
+END
 //

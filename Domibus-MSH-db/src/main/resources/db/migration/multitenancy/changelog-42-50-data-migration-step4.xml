@@ -16,11 +16,8 @@ PURGE TABLE OLD_TB_USER_DOMAIN
         </sql>
 
         <sql dbms="mysql" endDelimiter="\n//">
-DELIMITER //
-
 DROP TABLE OLD_TB_USER_DOMAIN
 //
-
         </sql>
     </changeSet>
 </databaseChangeLog>

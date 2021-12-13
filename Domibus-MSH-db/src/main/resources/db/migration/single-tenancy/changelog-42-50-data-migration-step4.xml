@@ -424,8 +424,6 @@ PURGE TABLE OLD_TB_ROUTING_CRITERIA_AUD
         </sql>
 
         <sql dbms="mysql" endDelimiter="\n//">
-DELIMITER //
-
 DROP TABLE OLD_TB_MESSAGING
 //
 

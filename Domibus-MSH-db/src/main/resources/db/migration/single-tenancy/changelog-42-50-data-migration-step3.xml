@@ -74,6 +74,7 @@
         <dropForeignKeyConstraint baseTableName="TB_AUTHENTICATION_ENTRY_AUD" constraintName="FK_AUTH_ENTRY_AUD_REV" />
         <dropForeignKeyConstraint baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY" constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" />
         <dropForeignKeyConstraint baseTableName="TB_MESSAGE_ACKNW_PROP" constraintName="FK_MSG_ACK_PROP_MSG_ACK" />
+        <dropForeignKeyConstraint baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV" />
 
         <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_MESSAGE_IN_ERROR_ID" />
         <dropIndex tableName="TB_ERROR_LOG" indexName="IDX_SIGNAL_MESSAGE_ID" />
@@ -277,6 +278,9 @@ ALTER INDEX IDX_FK_PARTY_IDENT_ID_TYPE RENAME TO OLD_IDX_FK_PARTY_IDENT_ID_TYPE
 ALTER INDEX IDX_FK_BACKEND_FTR_AUD_REV RENAME TO OLD_IDX_FK_BACKEND_FTR_AUD_REV
 /
 
+ALTER INDEX IDX_FK_USER_AUD_REV RENAME TO OLD_IDX_FK_USER_AUD_REV
+/
+
 ALTER TABLE TB_CERTIFICATE RENAME CONSTRAINT UK_CERTIFICATE_ALIAS TO OLD_UK_CERTIFICATE_ALIAS
 /
 ALTER INDEX UK_CERTIFICATE_ALIAS RENAME TO OLD_UK_CERTIFICATE_ALIAS
@@ -379,6 +383,10 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <renameTable oldTableName="TB_PM_PARTY_ID_TYPE_AUD" newTableName="OLD_TB_PM_PARTY_ID_TYPE_AUD" />
         <renameTable oldTableName="TB_PM_PARTY_IDENTIFIER_AUD" newTableName="OLD_TB_PM_PARTY_IDENTIFIER_AUD" />
         <renameTable oldTableName="TB_ROUTING_CRITERIA_AUD" newTableName="OLD_TB_ROUTING_CRITERIA_AUD" />
+
+        <renameTable oldTableName="TB_REV_CHANGES" newTableName="OLD_TB_REV_CHANGES" />
+        <renameTable oldTableName="TB_USER_AUD" newTableName="OLD_TB_USER_AUD" />
+        <renameTable oldTableName="TB_USER_ROLE_AUD" newTableName="OLD_TB_USER_ROLE_AUD" />
     </changeSet>
 
     <!-- remove MIGR_ prefix from new tables -->
@@ -451,10 +459,14 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <renameTable oldTableName="MIGR_TB_PM_PARTY_ID_TYPE_AUD" newTableName="TB_PM_PARTY_ID_TYPE_AUD" />
         <renameTable oldTableName="MIGR_TB_PM_PARTY_IDENTIF_AUD" newTableName="TB_PM_PARTY_IDENTIFIER_AUD" />
         <renameTable oldTableName="MIGR_TB_ROUTING_CRITERIA_AUD" newTableName="TB_ROUTING_CRITERIA_AUD" />
+
+        <renameTable oldTableName="MIGR_TB_REV_CHANGES" newTableName="TB_REV_CHANGES" />
+        <renameTable oldTableName="MIGR_TB_USER_AUD" newTableName="TB_USER_AUD" />
+        <renameTable oldTableName="MIGR_TB_USER_ROLE_AUD" newTableName="TB_USER_ROLE_AUD" />
     </changeSet>
 
     <!-- add constraints and indexes -->
-    <changeSet id="EDELIVERY-7970-constraints" author="Catalin Enache">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-constraints-single-tenancy">
         <!-- TB_USER_MESSAGE -->
         <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
                                  constraintName="FK_USER_MSG_ACTION_ID" deferrable="false" initiallyDeferred="false"
@@ -611,7 +623,6 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_USER_MESSAGE_LOG">
             <column name="FK_TIMEZONE_OFFSET" />
         </createIndex>
-
 
         <!-- TB_SIGNAL_MESSAGE_LOG -->
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
@@ -1282,6 +1293,32 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
                                  referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
         <createIndex indexName="IDX_PLUGIN_USER_ID" tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
             <column name="USER_ID"/>
+        </createIndex>
+
+        <!-- TB_REV_CHANGES -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <!-- TB_USER_AUD -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USER_AUD_REV" tableName="TB_USER_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <!-- TB_USER_ROLE_AUD -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
         </createIndex>
     </changeSet>
 
