@@ -104,7 +104,6 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 .build();
         // Do not use @Transactional on Class because it adds "false" transactions also to services.
         // Note here you can not use @Transactional annotation with the following code force commit on data preparation level!!
-        TransactionStatus transactionStatus = transactionManager.getTransaction(TransactionDefinition.withDefaults());
         Date currentDate = Calendar.getInstance().getTime();
 
         uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate);
@@ -154,11 +153,11 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 1,
                 "/tmp/batch")); // is copy from 2
         eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
-        transactionManager.commit(transactionStatus);
     }
 
 
     @Test
+    @Transactional
     public void testGetBatch() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_BATCH, batch1.getBatchId())
@@ -175,6 +174,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void testGetBatch_notFound() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_BATCH, "unknown")
