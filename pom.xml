@@ -25,8 +25,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.4.3</cxf.version>
-        <wss4j.ws.security.version>2.3.2</wss4j.ws.security.version>
+        <cxf.version>3.4.5</cxf.version>
+        <wss4j.ws.security.version>2.3.3</wss4j.ws.security.version>
         <spring.version>5.2.18.RELEASE</spring.version>
         <spring.security.version>5.4.9</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
@@ -129,7 +129,7 @@
         <activation.version>1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
 
-        <xmlsec.version>2.2.0</xmlsec.version>
+        <xmlsec.version>2.2.3</xmlsec.version>
         <httpcore.version>4.4.5</httpcore.version>
         <ehcache.version>3.8.1</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
