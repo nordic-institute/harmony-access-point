@@ -63,10 +63,10 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * Method returns Queued batches in database for given search filter and page
      */
     @Override
-    public List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+    public List<BatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         EArchiveBatchFilter archiveBatchFilter = convertQueuedFilter(filter, pageStart, pageSize);
         List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
-        return result.stream().map(eArchiveExtMapper::archiveBatchToQueuedBatch).collect(Collectors.toList());
+        return result.stream().map(eArchiveExtMapper::archiveBatchToBatch).collect(Collectors.toList());
     }
 
     /**
@@ -82,10 +82,10 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
      * Method returns Exported batches in database for given search filter and page
      */
     @Override
-    public List<ExportedBatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
+    public List<BatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize) {
         EArchiveBatchFilter archiveBatchFilter = convertExportFilter(filter, pageStart, pageSize);
         List<EArchiveBatchRequestDTO> result = domibusEArchiveService.getBatchRequestList(archiveBatchFilter);
-        return result.stream().map(eArchiveExtMapper::archiveBatchToExportBatch).collect(Collectors.toList());
+        return result.stream().map(eArchiveExtMapper::archiveBatchToBatch).collect(Collectors.toList());
     }
 
     @Override
@@ -106,6 +106,12 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     public BatchStatusDTO reExportBatch(String batchId) {
         EArchiveBatchRequestDTO batchDTO = domibusEArchiveService.reExportBatch(batchId);
         return eArchiveExtMapper.archiveBatchToBatchStatus(batchDTO);
+    }
+
+    @Override
+    public BatchDTO getBatch(String batchId) {
+        EArchiveBatchRequestDTO batch = domibusEArchiveService.getBatch(batchId);
+        return eArchiveExtMapper.archiveBatchToBatch(batch);
     }
 
     @Override

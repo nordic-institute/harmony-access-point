@@ -12,6 +12,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,7 @@ public class DomibusPropertyConfiguration {
     public PropertiesFactoryBean domibusDefaultProperties() throws IOException {
         PropertiesFactoryBean result = new PropertiesFactoryBean();
         result.setIgnoreResourceNotFound(true);
+        result.setFileEncoding(StandardCharsets.UTF_8.name());
 
         List<Resource> resources = new ArrayList<>();
         resources.add(new ClassPathResource("config/domibus-default.properties"));
@@ -53,6 +55,7 @@ public class DomibusPropertyConfiguration {
     public PropertiesFactoryBean domibusProperties(String domibusConfigLocation) throws IOException {
         PropertiesFactoryBean result = new PropertiesFactoryBean();
         result.setIgnoreResourceNotFound(true);
+        result.setFileEncoding(StandardCharsets.UTF_8.name());
 
         List<Resource> resources = new ArrayList<>();
         resources.add(new ClassPathResource("config/domibus-default.properties"));
@@ -101,6 +104,7 @@ public class DomibusPropertyConfiguration {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer result = new PropertySourcesPlaceholderConfigurer();
+        result.setFileEncoding(StandardCharsets.UTF_8.name());
         result.setIgnoreResourceNotFound(true);
         result.setIgnoreUnresolvablePlaceholders(true);
         return result;

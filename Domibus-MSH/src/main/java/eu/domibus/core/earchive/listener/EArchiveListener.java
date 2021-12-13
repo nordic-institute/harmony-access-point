@@ -73,9 +73,9 @@ public class EArchiveListener implements MessageListener {
 
         String batchMessageType = jmsUtil.getMessageTypeSafely(message);
         if (StringUtils.equals(EArchiveBatchStatus.ARCHIVED.name(), batchMessageType)) {
-            onMessageArchiveBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+            onMessageArchiveBatch(eArchiveBatchByBatchId, userMessageDtos);
         } else if (StringUtils.equals(EArchiveBatchStatus.EXPORTED.name(), batchMessageType))  {
-            onMessageExportBatch(batchId, eArchiveBatchByBatchId, userMessageDtos);
+            onMessageExportBatch(eArchiveBatchByBatchId, userMessageDtos);
         } else {
             LOG.error("Invalid JMS message type [{}] of the batchId [{}] and/or entityId [{}]! The batch processing is ignored!",
                     batchMessageType, batchId, entityId);
@@ -85,28 +85,28 @@ public class EArchiveListener implements MessageListener {
         }
     }
 
-    protected void onMessageExportBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.STARTED);
+    protected void onMessageExportBatch(EArchiveBatchEntity eArchiveBatch, List<EArchiveBatchUserMessage> userMessageDtos) {
+        eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
         if (CollectionUtils.isEmpty(userMessageDtos)) {
-            throw new DomibusEArchiveException("no messages present in the earchive batch [" + batchId + "]");
+            LOG.info("eArchiving for batchId [{}] has no messages", eArchiveBatch.getBatchId());
+        } else {
+            LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
+                    eArchiveBatch.getBatchId(),
+                    userMessageDtos.get(0).getMessageId(),
+                    userMessageDtos.get(userMessageDtos.size() - 1).getMessageId());
         }
-        LOG.info("eArchiving for batchId [{}] starting userMessageLog from [{}] to [{}]",
-                batchId,
-                userMessageDtos.get(0).getMessageId(),
-                userMessageDtos.get(userMessageDtos.size() - 1).getMessageId());
-
-        String manifestChecksum = exportInFileSystem(eArchiveBatchByBatchId, userMessageDtos);
-        eArchiveBatchByBatchId.setManifestChecksum(manifestChecksum);
-        eArchivingDefaultService.executeBatchIsExported(eArchiveBatchByBatchId);
+        String manifestChecksum = exportInFileSystem(eArchiveBatch, userMessageDtos);
+        eArchiveBatch.setManifestChecksum(manifestChecksum);
+        eArchivingDefaultService.executeBatchIsExported(eArchiveBatch);
     }
 
-    protected void onMessageArchiveBatch(String batchId, EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
+    protected void onMessageArchiveBatch(EArchiveBatchEntity eArchiveBatch, List<EArchiveBatchUserMessage> userMessageDtos) {
         LOG.debug("Set batchId [{}] archived starting userMessageLog from [{}] to [{}]",
-                batchId,
+                eArchiveBatch.getBatchId(),
                 userMessageDtos.get(userMessageDtos.size() - 1),
                 userMessageDtos.get(0));
 
-        eArchivingDefaultService.executeBatchIsArchived(eArchiveBatchByBatchId, userMessageDtos);
+        eArchivingDefaultService.executeBatchIsArchived(eArchiveBatch, userMessageDtos);
     }
 
     private String exportInFileSystem(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
@@ -116,8 +116,8 @@ public class EArchiveListener implements MessageListener {
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                         .status("SUCCESS")
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId("" + batchUserMessages.get(0).getUserMessageEntityId())
-                        .messageEndId("" + batchUserMessages.get(batchUserMessages.size() - 1).getUserMessageEntityId())
+                        .messageStartId(getMessageStartDate(batchUserMessages, 0))
+                        .messageEndId(getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)))
                         .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
                 batchUserMessages);
@@ -125,5 +125,19 @@ public class EArchiveListener implements MessageListener {
             LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
         return eArkSipStructure.getManifestChecksum();
+    }
+
+    private int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
+        if(CollectionUtils.isEmpty(batchUserMessages)){
+            return 0;
+        }
+        return batchUserMessages.size() - 1;
+    }
+
+    private String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
+        if(CollectionUtils.isEmpty(batchUserMessages)){
+            return null;
+        }
+        return "" + batchUserMessages.get(index).getUserMessageEntityId();
     }
 }

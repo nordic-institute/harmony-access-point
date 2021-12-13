@@ -433,13 +433,6 @@
         </sql>
     </changeSet>
 
-    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-indices" dbms="oracle">
-        <!-- add missing index -->
-        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
-            <column name="FK_COMMAND"/>
-        </createIndex>
-    </changeSet>
-
     <changeSet author="ion perpegel" id="EDELIVERY-8503_1">
         <createTable tableName="TB_LOCK" remarks="Stores keys used for locking/synchronizing in cluster">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -569,6 +562,12 @@
         </createTable>
     </changeSet>
     <!-- End EArchive Tables -->
+
+    <!-- drop overlaping indexes -->
+    <changeSet author="idragusa" id="EDELIVERY-8595">
+        <dropIndex tableName="TB_EVENT_ALERT" indexName="IDX_FK_EVENT" />
+        <dropIndex tableName="TB_USER_ROLES" indexName="IDX_USER_ID" />
+    </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8602-recreate-audit-views-with-rev-id-and-id-nullability-off">
         <createView

@@ -12,7 +12,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.FileNameParser;
-import org.apache.commons.vfs2.provider.URLFileNameParser;
+import org.apache.commons.vfs2.provider.GenericURLFileNameParser;
 import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
 
@@ -21,7 +21,7 @@ import org.apache.commons.vfs2.provider.VfsComponentContext;
  *
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
-public class SmbFileNameParser extends URLFileNameParser {
+public class SmbFileNameParser extends GenericURLFileNameParser {
 
     private static final SmbFileNameParser INSTANCE = new SmbFileNameParser();
     private static final int SMB_PORT = 139;
@@ -40,7 +40,7 @@ public class SmbFileNameParser extends URLFileNameParser {
         final StringBuilder name = new StringBuilder();
 
         // Extract the scheme and authority parts
-        final Authority auth = extractToPath(filename, name);
+        final Authority auth = extractToPath(context, filename, name);
 
         // extract domain
         String username = auth.getUserName();

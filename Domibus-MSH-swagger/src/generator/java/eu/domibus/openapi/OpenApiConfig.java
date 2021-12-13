@@ -67,7 +67,7 @@ public class OpenApiConfig {
                         .license(new License().name("EUPL 1.2")
                                 .url("https://www.eupl.eu/")
                         ))
-                .servers(Arrays.asList(serverDemo, serverLocalhost));
+                .servers(Arrays.asList(serverDemo));
     }
 
     /**
