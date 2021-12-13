@@ -208,13 +208,20 @@ public class BusinessProcessValidator implements PModeValidator {
 
     protected void validateSelfPartyExists(List<ValidationIssue> issues, Process process, Configuration pMode) {
         if (pMode.getParty() == null) {
-            LOG.trace("validInitiatorParties is empty or null, exiting");
+            LOG.info("Self party is null, exiting");
             return;
         }
-        if (!process.getInitiatorParties().stream().anyMatch(party -> party.getName().equals(pMode.getParty().getName()))
-                && !process.getResponderParties().stream().anyMatch(party -> party.getName().equals(pMode.getParty().getName()))) {
+        if (!selfPartyIsInitiatorForProcess(process, pMode) && !selfPartyIsResponderForProcess(process, pMode)) {
             createIssue(issues, process, pMode.getParty().getName(), "The self party [%s] needs to be either initiator or responder of the process [%s]!");
         }
+    }
+
+    private boolean selfPartyIsResponderForProcess(Process process, Configuration pMode) {
+        return process.getResponderParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
+    }
+
+    private boolean selfPartyIsInitiatorForProcess(Process process, Configuration pMode) {
+        return process.getInitiatorParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
     }
 
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
