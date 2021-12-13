@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.api.spring.DomibusWebContext;
+import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.web.interceptor.AuthenticationInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -43,7 +44,7 @@ public class DomibusExtWebConfiguration implements WebMvcConfigurer {
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         // Configure Object Mapper with format date as: "2021-12-01T14:52:00Z"
         // for objects in package: eu.domibus.ext.domain.archive
-        DomibusExtMappingConverter converter = new DomibusExtMappingConverter("eu.domibus.ext.domain.archive");
+        DomibusExtMappingConverter converter = new DomibusExtMappingConverter(BatchDTO.class.getPackage().getName());
         converter.setObjectMapper(new ObjectMapper() {{
             registerModule(new JavaTimeModule());
             registerModule(new Jdk8Module());
