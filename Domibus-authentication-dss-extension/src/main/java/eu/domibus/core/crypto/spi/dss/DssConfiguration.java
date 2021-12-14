@@ -168,7 +168,7 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()), trustedListTrustStore());
+        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager), trustedListTrustStore());
         boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
         boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
         boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
