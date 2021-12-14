@@ -1462,9 +1462,9 @@
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
                             <skipRuntimeScope>true</skipRuntimeScope>
-                            &lt;!&ndash; Disable .Net Assembly Analyzer &ndash;&gt;
+                            <!-- Disable .Net Assembly Analyzer -->
                             <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                            &lt;!&ndash; Disable checking npm dev dependencies &ndash;&gt;
+                            <!-- Disable checking npm dev dependencies -->
                             <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
                             <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
                             <suppressionFile>project-check-exclude.xml</suppressionFile>
