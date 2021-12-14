@@ -83,6 +83,11 @@
       <span>Domibus Properties</span>
     </button>
 
+    <div class="bottom-link" *ngIf="fullMenu">
+      <a target="_blank"
+         href="https://edelivery.digital/ap-licence-info">License info</a>
+    </div>
+
     <div class="collapse-button">
       <button *ngIf="fullMenu" mat-raised-button id="expand_id" (click)="toggleMenu()">
         <mat-icon mat-tooltip="Collapse">chevron_left</mat-icon>
