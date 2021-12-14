@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * @author Thomas Dussart
  * @since 4.2
  */
+@Service
 public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
     public static final String CUSTOM_TRUSTED_LISTS_PREFIX = "domibus.authentication.dss.custom.trusted.lists";
