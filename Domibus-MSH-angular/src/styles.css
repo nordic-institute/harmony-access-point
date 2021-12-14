@@ -132,6 +132,15 @@ mat-sidenav[_ngcontent-c0] {
   bottom: 0;
 }
 
+.bottom-link {
+  position: absolute;
+  bottom: 60px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
 /* --- EC Logo ---*/
 #bottomLogo {
   display: none;
