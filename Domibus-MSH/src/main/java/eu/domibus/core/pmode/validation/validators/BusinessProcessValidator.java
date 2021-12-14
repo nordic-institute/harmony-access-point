@@ -217,11 +217,13 @@ public class BusinessProcessValidator implements PModeValidator {
     }
 
     private boolean selfPartyIsResponderForProcess(Process process, Configuration pMode) {
-        return process.getResponderParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
+        return !CollectionUtils.isEmpty(process.getResponderParties())
+                && process.getResponderParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
     }
 
     private boolean selfPartyIsInitiatorForProcess(Process process, Configuration pMode) {
-        return process.getInitiatorParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
+        return !CollectionUtils.isEmpty(process.getInitiatorParties())
+                && process.getInitiatorParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
     }
 
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {
