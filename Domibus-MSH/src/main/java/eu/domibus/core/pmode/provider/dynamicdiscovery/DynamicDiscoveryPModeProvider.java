@@ -11,6 +11,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
@@ -124,10 +125,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         final Collection<eu.domibus.common.model.configuration.Process> result = new ArrayList<>();
         for (final eu.domibus.common.model.configuration.Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
             if (process.isDynamicResponder() && (process.isDynamicInitiator() || process.getInitiatorParties().contains(getConfiguration().getParty()))) {
-                // after adding validation to the upload/update pMode, this shouldn't happen anymore
-//                if (!process.getInitiatorParties().contains(getConfiguration().getParty())) {
-//                    process.getInitiatorParties().add(getConfiguration().getParty());
-//                }
+                if (!process.getInitiatorParties().contains(getConfiguration().getParty())) {
+                    throw new ConfigurationException(process + " does not contain self party " + getConfiguration().getParty() + " as an initiator party.");
+                }
                 LOG.debug("Found dynamic receiver process: " + process.getName());
                 result.add(process);
             }
@@ -139,10 +139,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         final Collection<eu.domibus.common.model.configuration.Process> result = new ArrayList<>();
         for (final eu.domibus.common.model.configuration.Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
             if (process.isDynamicInitiator() && (process.isDynamicResponder() || process.getResponderParties().contains(getConfiguration().getParty()))) {
-                // after adding validation to the upload/update pMode, this shouldn't happen anymore
-//                if (!process.getResponderParties().contains(getConfiguration().getParty())) {
-//                    process.getResponderParties().add(getConfiguration().getParty());
-//                }
+                if (!process.getResponderParties().contains(getConfiguration().getParty())) {
+                    throw new ConfigurationException(process + " does not contain self party " + getConfiguration().getParty() + " as a responder party.");
+                }
                 LOG.debug("Found dynamic sender process: " + process.getName());
                 result.add(process);
             }
