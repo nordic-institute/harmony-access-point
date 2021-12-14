@@ -49,7 +49,6 @@
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.4</c3p0.version>
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
-        <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
@@ -601,6 +600,14 @@
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
                 <version>${xmlsec.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -657,11 +664,27 @@
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-dom</artifactId>
                 <version>${wss4j.ws.security.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-common</artifactId>
                 <version>${wss4j.ws.security.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Apache Commons -->
 
@@ -676,6 +699,14 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-security</artifactId>
                 <version>${cxf.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                    bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -753,6 +784,23 @@
                 <artifactId>peppol-lookup</artifactId>
                 <version>${peppol.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.difi.vefa</groupId>
+                <artifactId>peppol-security</artifactId>
+                <version>${peppol.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk15to18 and bcpkix-jdk15to18
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <!-- End Difi libraries -->
 
             <!-- eDelivery SMP profile  -->
@@ -760,6 +808,18 @@
                 <groupId>eu.europa.ec.dynamic-discovery</groupId>
                 <artifactId>dynamic-discovery-client</artifactId>
                 <version>${dynamic.discovery.client.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk15to18 and bcpkix-jdk15to18
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End eDelivery SMP profile -->
 
@@ -1402,9 +1462,9 @@
                         <configuration>
                             <skipProvidedScope>true</skipProvidedScope>
                             <skipRuntimeScope>true</skipRuntimeScope>
-                            <!-- Disable .Net Assembly Analyzer -->
+                            &lt;!&ndash; Disable .Net Assembly Analyzer &ndash;&gt;
                             <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                            <!-- Disable checking npm dev dependencies -->
+                            &lt;!&ndash; Disable checking npm dev dependencies &ndash;&gt;
                             <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
                             <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
                             <suppressionFile>project-check-exclude.xml</suppressionFile>
