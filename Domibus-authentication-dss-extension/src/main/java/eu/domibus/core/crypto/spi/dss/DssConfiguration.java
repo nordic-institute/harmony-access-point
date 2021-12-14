@@ -146,6 +146,10 @@ public class DssConfiguration {
     @Autowired
     private PasswordEncryptionExtService passwordEncryptionService;
 
+    @Autowired
+    private DssExtensionPropertyManager dssExtensionPropertyManager;
+
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -156,7 +160,6 @@ public class DssConfiguration {
         return new IgnorePivotFilenameFilter();
     }
 
-
     private String getCacheDirectoryName(String dssCachePath, String nodeName) {
         return dssCachePath + File.separator + nodeName + File.separator;
     }
@@ -166,9 +169,9 @@ public class DssConfiguration {
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
         CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()), trustedListTrustStore());
-        boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
-        boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
-        boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
+        boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
+        boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
+        boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
         LOG.debug("New Certificate verifier instance with crl chek:[{}], exception on missing revocation:[{}], check revocation for untrusted chains:[{}]",
                 crlCheck,
                 enableExceptionOnMissingRevocationData,
@@ -335,7 +338,7 @@ public class DssConfiguration {
     public CronTriggerFactoryBean dssRefreshTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(dssRefreshJob().getObject());
-        String dssRefreshCronExpression = dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_REFRESH_CRON);
+        String dssRefreshCronExpression = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_REFRESH_CRON);
         obj.setCronExpression(dssRefreshCronExpression);
         LOG.debug("dssRefreshTrigger configured with cronExpression [{}]", dssRefreshCronExpression);
         obj.setStartDelay(20000);
@@ -381,10 +384,10 @@ public class DssConfiguration {
         return new DssCache(cache);
     }
 
-    @Bean
-    public DssExtensionPropertyManager dssExtensionPropertyManager() {
-        return new DssExtensionPropertyManager();
-    }
+//    @Bean
+//    public DssExtensionPropertyManager dssExtensionPropertyManager() {
+//        return new DssExtensionPropertyManager();
+//    }
 
     @Bean
     public ProxyHelper proxyHelper(final DssExtensionPropertyManager dssExtensionPropertyManager) {
