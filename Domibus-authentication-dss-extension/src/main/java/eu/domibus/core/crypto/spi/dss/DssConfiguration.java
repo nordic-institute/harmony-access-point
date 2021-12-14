@@ -384,11 +384,6 @@ public class DssConfiguration {
         return new DssCache(cache);
     }
 
-//    @Bean
-//    public DssExtensionPropertyManager dssExtensionPropertyManager() {
-//        return new DssExtensionPropertyManager();
-//    }
-
     @Bean
     public ProxyHelper proxyHelper(final DssExtensionPropertyManager dssExtensionPropertyManager) {
         return new ProxyHelper(dssExtensionPropertyManager);
