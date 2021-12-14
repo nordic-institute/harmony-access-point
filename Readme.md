@@ -31,17 +31,17 @@ In addition, the following documents that are available on the [Domibus release 
 
 In order to build Harmony Access Point including all release artifacts use the following profiles:
 
-    mvn -f neds-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI 
+    mvn -f harmony-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI 
 
 **Note:** Running the tests takes a long time (~20 min or more).
 
 Integration tests can be skipped using the `skipITs` property:
 
-    mvn -f neds-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -DskipITs=true
+    mvn -f harmony-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -DskipITs=true
 
 All tests can be skipped using the `maven.test.skip` property
 
-    mvn -f neds-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -Dmaven.test.skip=true
+    mvn -f harmony-pom.xml clean install -Ptomcat -Pdefault-plugins -Pdatabase -PUI -Dmaven.test.skip=true
 
 Full build instruction are available in the `harmony-common` [repository]([here](https://github.com/nordic-institute/harmony-common/)).
 

@@ -10,17 +10,17 @@
     <packaging>pom</packaging>
     <name>Harmony MSH</name>
     <modules>
-        <module>Domibus-MSH/neds-pom.xml</module>
-        <module>Domibus-MSH-api/neds-pom.xml</module>
-        <module>Domibus-MSH-ext-services-delegate/neds-pom.xml</module>
-        <module>Domibus-MSH-logging/neds-pom.xml</module>
-        <module>Domibus-MSH-jms-spi/neds-pom.xml</module>
-        <module>Domibus-MSH-jms-spi-helper/neds-pom.xml</module>
-        <module>Domibus-MSH-soapui-tests/neds-pom.xml</module>
-        <module>Domibus-plugin-api/neds-pom.xml</module>
-        <module>Domibus-MSH-test/neds-pom.xml</module>
-        <module>Domibus-iam-spi/neds-pom.xml</module>
-        <module>Domibus-ext-model/neds-pom.xml</module>
+        <module>Domibus-MSH/harmony-pom.xml</module>
+        <module>Domibus-MSH-api/harmony-pom.xml</module>
+        <module>Domibus-MSH-ext-services-delegate/harmony-pom.xml</module>
+        <module>Domibus-MSH-logging/harmony-pom.xml</module>
+        <module>Domibus-MSH-jms-spi/harmony-pom.xml</module>
+        <module>Domibus-MSH-jms-spi-helper/harmony-pom.xml</module>
+        <module>Domibus-MSH-soapui-tests/harmony-pom.xml</module>
+        <module>Domibus-plugin-api/harmony-pom.xml</module>
+        <module>Domibus-MSH-test/harmony-pom.xml</module>
+        <module>Domibus-iam-spi/harmony-pom.xml</module>
+        <module>Domibus-ext-model/harmony-pom.xml</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1197,9 +1197,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-jms-activemq/neds-pom.xml</module>
-                <module>Domibus-MSH-taskexecutor-tomcat/neds-pom.xml</module>
-                <module>Domibus-MSH-tomcat/neds-pom.xml</module>
+                <module>Domibus-MSH-jms-activemq/harmony-pom.xml</module>
+                <module>Domibus-MSH-taskexecutor-tomcat/harmony-pom.xml</module>
+                <module>Domibus-MSH-tomcat/harmony-pom.xml</module>
             </modules>
         </profile>
         <profile>
@@ -1208,7 +1208,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-angular/neds-pom.xml</module>
+                <module>Domibus-MSH-angular/harmony-pom.xml</module>
             </modules>
         </profile>
         <profile>
@@ -1217,10 +1217,10 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-ws-stubs/neds-pom.xml</module>
-                <module>Domibus-default-ws-plugin/neds-pom.xml</module>
-                <module>Domibus-default-jms-plugin/neds-pom.xml</module>
-                <module>Domibus-default-fs-plugin/neds-pom.xml</module>
+                <module>Domibus-ws-stubs/harmony-pom.xml</module>
+                <module>Domibus-default-ws-plugin/harmony-pom.xml</module>
+                <module>Domibus-default-jms-plugin/harmony-pom.xml</module>
+                <module>Domibus-default-fs-plugin/harmony-pom.xml</module>
             </modules>
         </profile>
         <profile>
@@ -1238,13 +1238,13 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-db/neds-pom.xml</module>
+                <module>Domibus-MSH-db/harmony-pom.xml</module>
             </modules>
         </profile>
         <profile>
             <id>swagger</id>
             <modules>
-                <module>Domibus-MSH-swagger/neds-pom.xml</module>
+                <module>Domibus-MSH-swagger/harmony-pom.xml</module>
             </modules>
         </profile>
         <profile>

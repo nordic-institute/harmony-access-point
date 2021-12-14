@@ -9,7 +9,7 @@
         <groupId>org.niis</groupId>
         <artifactId>harmony</artifactId>
         <version>0.0.1</version>
-        <relativePath>../neds-pom.xml</relativePath>
+        <relativePath>../harmony-pom.xml</relativePath>
     </parent>
     <artifactId>harmony-test</artifactId>
     <packaging>jar</packaging>
