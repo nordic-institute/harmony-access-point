@@ -2,11 +2,8 @@
   <mat-sidenav mode="side" opened="true" ngClass="{{menuClass}}" [disableClose]="true">
     <!-- sidenav content -->
     <div id="topLogo">
-      <img src="assets/images/Domibus_logo_icon.svg" [attr.height]="fullMenu ? '74px' : '40px'"
-           [attr.width]="fullMenu ? '74px' : '40px'"/>
-      <div id="topLogoText" *ngIf="fullMenu">
-        <h1>Domibus <span>Administration <br>Console</span></h1>
-      </div>
+      <img src="assets/images/Logo.svg" *ngIf="fullMenu"/>
+      <img src="assets/images/Logomark.svg" *ngIf="!fullMenu"/>
     </div>
 
     <button mat-raised-button class="sideNavButton" [routerLink]="['/']" id="messages_id" *ngIf="isUser()">
@@ -88,7 +85,7 @@
 
     <div class="bottom-link" *ngIf="fullMenu">
       <a target="_blank"
-         href="https://edelivery.digital/ap-licence-info">License info</a>
+         href="https://edelivery.digital/ap-licence-info">Licence info</a>
     </div>
 
     <div class="collapse-button">
@@ -99,21 +96,6 @@
       <button *ngIf="!fullMenu" mat-raised-button id="collapse_id" (click)="toggleMenu()">
         <mat-icon mat-tooltip="Expand">chevron_right</mat-icon>
       </button>
-    </div>
-
-    <div id="bottomLogo" *ngIf="fullMenu">
-      <div>
-        <img src="assets/images/EC+Logo2.png"/>
-      </div>
-      <div class="domibusTextSmall"
-           style="display: flex;flex-direction: column-reverse;text-align: left;color:#004494;padding-left: 5px;">
-        <div>
-          Connecting Europe
-        </div>
-        <div style="font-size: 10pt">
-          CEF Digital
-        </div>
-      </div>
     </div>
 
   </mat-sidenav>

@@ -77,11 +77,13 @@ ngx-datatable span:before:not([class^="datatable-icon-"]) {
     [STRUCTURE]
 ----------------------------------------------------*/
 
-/* --- CONTAINER --------- */
-/*------------------------ */
-.mat-sidenav-container {
-  background-color: #F5F5F5;
+.mat-sidenav {
+  background-color: #f0fbfc !important;
   color: rgba(0, 0, 0, .99);
+}
+
+.mat-expansion-panel {
+  background-color: #f0fbfc !important;
 }
 
 /* --- SIDEBAR --------- */
@@ -91,27 +93,25 @@ mat-sidenav[_ngcontent-c0] {
 }
 
 /* --- Logo ---*/
-#topLogoText {
-  margin-left: 5px;
-  text-align: left;
-}
-
 #topLogo {
+  display: flex;
   vertical-align: middle;
+  justify-content: center;
+  align-items: center;
 }
 
-#topLogoText h1 {
-  margin-top: 10px;
-  font-size: 18px;
-  font-weight: 900;
+.menu-expanded #topLogo {
+  padding-top: 18px;
+  padding-bottom: 20px;
+  padding-left: 15px;
+  padding-right: 20px;
 }
 
-#topLogoText h1 span {
-  display: inline-block;
-  margin-top: 10px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
+.menu-collapsed #topLogo {
+  padding-top: 18px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 /* --- Menu ---*/
@@ -120,6 +120,8 @@ mat-sidenav[_ngcontent-c0] {
   border-radius: 0;
   line-height: 50px !important;
   letter-spacing: 1px;
+  color: #003399;
+  background-color: #f0fbfc;
 }
 
 .sideNavButton {
@@ -184,7 +186,7 @@ mat-sidenav[_ngcontent-c0] {
 }
 
 #sandwichMenu .material-icons:hover {
-  color: #03A9F4;
+  color: #003399;
 }
 
 /* --- Help button ---*/
