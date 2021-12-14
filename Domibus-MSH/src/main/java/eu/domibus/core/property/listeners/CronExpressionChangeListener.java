@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
+import eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
 
 /**
  * @author Ion Perpegel
@@ -52,8 +54,9 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
             {DOMIBUS_MONITORING_CONNECTION_CRON, "connectionMonitoringJob"},
             {DOMIBUS_ERRORLOG_CLEANER_CRON, "errorLogCleanerJob"},
-            {DOMIBUS_EARCHIVE_CRON, "eArchiveContinuousJob"},
-            {DOMIBUS_EARCHIVE_RETENTION_CRON, "eArchivingCleanupJob"},
+            {DOMIBUS_EARCHIVE_CRON, EARCHIVE_CONTINUOUS_JOB},
+            {DOMIBUS_EARCHIVE_SANITY_CRON,  EARCHIVE_SANITIZER_JOB},
+            {DOMIBUS_EARCHIVE_RETENTION_CRON, EARCHIVE_CLEANUP_JOB},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override

@@ -381,6 +381,47 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void pauseJob(Domain domain, String jobNameToPause) throws DomibusSchedulerException {
+        try {
+            LOG.debug("Pause cron job [{}]!", jobNameToPause);
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            JobKey jobKey = findJob(scheduler, jobNameToPause);
+            if (jobKey ==null){
+                LOG.warn("Can not pause the job [{}] because it does not exists!", jobNameToPause);
+                return;
+            }
+            scheduler.pauseJob(jobKey);
+        } catch (SchedulerException ex) {
+            LOG.error("Error pausing the job [{}]", jobNameToPause, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException {
+        try {
+            LOG.debug("Resume cron job [{}]!", jobNameToResume);
+            Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+            JobKey jobKey = findJob(scheduler, jobNameToResume);
+            if (jobKey ==null){
+                LOG.warn("Can not resume the job [{}] because it does not exists!", jobNameToResume);
+                return;
+            }
+            scheduler.resumeJob(jobKey);
+        } catch (SchedulerException ex) {
+            LOG.error("Error resuming the job [{}]", jobNameToResume, ex);
+            throw new DomibusSchedulerException(ex);
+        }
+    }
+
     @Override
     public void markJobForDeletionByDomain(Domain domain, String jobNameToDelete) {
         jobsToDelete.add(new DomibusDomainQuartzJob(domain, jobNameToDelete));

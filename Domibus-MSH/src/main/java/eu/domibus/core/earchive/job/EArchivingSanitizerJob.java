@@ -21,6 +21,7 @@ public class EArchivingSanitizerJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         eArchiveBatchService.startBatch(domain, EArchiveRequestType.SANITIZER);
+
     }
 
 }

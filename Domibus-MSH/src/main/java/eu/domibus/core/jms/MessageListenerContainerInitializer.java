@@ -95,7 +95,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         createPullMessageListenerContainer(domain);
         createEArchiveMessageListenerContainer(domain);
         createRetentionListenerContainer(domain);
-
         createMessageListenersForPlugins(domain);
     }
 
@@ -254,10 +253,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     }
 
     protected void createEArchiveMessageListenerContainer(Domain domain) {
-        final String eArchiveActive = domibusPropertyProvider.getProperty(domain, DOMIBUS_EARCHIVE_ACTIVE);
-        if (BooleanUtils.isNotTrue(BooleanUtils.toBooleanObject(eArchiveActive))) {
-            return;
-        }
         DomainMessageListenerContainer instance = messageListenerContainerFactory.createEArchiveMessageListenerContainer(domain);
         instance.start();
         DomainMessageListenerContainer instance1 = messageListenerContainerFactory.createEArchiveNotificationListenerContainer(domain);

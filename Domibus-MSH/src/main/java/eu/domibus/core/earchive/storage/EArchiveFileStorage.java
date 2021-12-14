@@ -76,6 +76,9 @@ public class EArchiveFileStorage {
     }
 
     public File getStorageDirectory() {
+        if (storageDirectory == null) {
+            init();
+        }
         return storageDirectory;
     }
 
