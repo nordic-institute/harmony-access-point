@@ -40,11 +40,11 @@ public class BusinessProcessValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getProcesses()
-                .forEach(process -> performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes()));
+                .forEach(process -> performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes(), pMode));
         return issues;
     }
 
-    protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
+    protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes, Configuration pMode) {
         //validate forbidden characters in process name
         validateForbiddenCharacters(issues, process.getName(), "process name [" + process.getName() + "]");
 
@@ -71,6 +71,8 @@ public class BusinessProcessValidator implements PModeValidator {
 
         //leg configuration
         validateLegConfiguration(issues, process);
+
+        validateSelfPartyExists(issues, process, pMode);
     }
 
     protected void validateForbiddenCharacters(List<ValidationIssue> issues, String name, String message) {
@@ -202,6 +204,26 @@ public class BusinessProcessValidator implements PModeValidator {
         allLegs.stream()
                 .filter(leg -> validLegs.stream().noneMatch(validLeg -> StringUtils.equalsIgnoreCase(validLeg.getName(), leg.getName())))
                 .forEach(leg -> createIssue(issues, process, leg.getName(), "Leg [%s] of process [%s] not found in business process leg configurations"));
+    }
+
+    protected void validateSelfPartyExists(List<ValidationIssue> issues, Process process, Configuration pMode) {
+        if (pMode.getParty() == null) {
+            LOG.info("Self party is null, exiting");
+            return;
+        }
+        if (!selfPartyIsInitiatorForProcess(process, pMode) && !selfPartyIsResponderForProcess(process, pMode)) {
+            createIssue(issues, process, pMode.getParty().getName(), "The self party [%s] needs to be either initiator or responder of the process [%s]!");
+        }
+    }
+
+    private boolean selfPartyIsResponderForProcess(Process process, Configuration pMode) {
+        return !CollectionUtils.isEmpty(process.getResponderParties())
+                && process.getResponderParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
+    }
+
+    private boolean selfPartyIsInitiatorForProcess(Process process, Configuration pMode) {
+        return !CollectionUtils.isEmpty(process.getInitiatorParties())
+                && process.getInitiatorParties().stream().anyMatch(party -> StringUtils.equals(party.getName(), pMode.getParty().getName()));
     }
 
     protected void createIssue(List<ValidationIssue> issues, Process process, String name, String message) {

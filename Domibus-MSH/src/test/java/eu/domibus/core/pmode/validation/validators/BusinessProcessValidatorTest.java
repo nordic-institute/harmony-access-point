@@ -56,6 +56,8 @@ public class BusinessProcessValidatorTest {
         field3.set(process, new HashSet<>());
         process.setInitiatorPartiesXml(initiatorParties);
 
+        process.setResponderPartiesXml(new ResponderParties());
+
         new Expectations() {{
             configuration.getBusinessProcesses();
             result = businessProcesses;
@@ -79,7 +81,7 @@ public class BusinessProcessValidatorTest {
         }};
 
         Assert.assertNotNull(results);
-        Assert.assertTrue(results.size() == 5);
+        Assert.assertTrue(results.size() == 6);
     }
 
     @Test
