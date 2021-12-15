@@ -34,8 +34,8 @@
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <activemq.version>5.15.14</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <slf4j.version>1.7.28</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <logback.version>1.2.8</logback.version>
         <logback.elasticsearch.appender.version>1.6</logback.elasticsearch.appender.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
