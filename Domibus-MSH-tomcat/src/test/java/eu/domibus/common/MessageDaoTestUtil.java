@@ -6,6 +6,8 @@ import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgeConverter;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -66,8 +68,14 @@ public class MessageDaoTestUtil {
     @Autowired
     PartyIdDao partyIdDao;
 
+    @Autowired
+    MessageAcknowledgementDao messageAcknowledgementDao;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
+
+    @Autowired
+    MessageAcknowledgeConverter messageAcknowledgeConverter;
 
     final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";

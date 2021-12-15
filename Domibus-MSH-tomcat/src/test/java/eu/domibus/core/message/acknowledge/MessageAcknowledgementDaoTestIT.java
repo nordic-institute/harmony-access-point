@@ -4,22 +4,24 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.Injectable;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,6 @@ import static org.junit.Assert.assertNotNull;
  */
 //@ActiveProfiles("h2Debug")
 //TODO move it in the core module when Domibus will reference the configuration files via the classpath instead of file disk
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
 public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
@@ -48,13 +49,19 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private SignalMessageDao signalMessageDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     Ebms3MessagingDocumentParser ebms3MessagingDocumentParser;
 
     @Autowired
     Ebms3Converter ebms3Converter;
+    @Autowired
+    MessageDaoTestUtil messageDaoTestUtil;
+    @Autowired
+    MessageStatusDao messageStatusDao;
+    @Autowired
+    MshRoleDao mshRoleDao;
 
     @Before
     public void setup() {
@@ -63,7 +70,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testSaveMessageAcknowledge(@Injectable UserMessage userMessage) {
+    public void testSaveMessageAcknowledge() {
         String user = "baciuco";
         String messageId = "123";
         Timestamp acknowledgetTimestamp = new Timestamp(System.currentTimeMillis());
@@ -73,10 +80,12 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         properties.put("prop1", "value1");
         properties.put("prop1", "value1");
 
-        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage, acknowledgetTimestamp, from, to);
+        UserMessageLog msg1 = messageDaoTestUtil.createUserMessageLog(messageId, new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
+
+        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, msg1.getUserMessage(), acknowledgetTimestamp, from, to);
         messageAcknowledgementDao.create(entity);
 
-        final List<MessageAcknowledgementEntity> retrievedEntityList = messageAcknowledgementDao.findByMessageId(messageId);
+        final List<MessageAcknowledgementEntity> retrievedEntityList = this.messageAcknowledgementDao.findByMessageId(messageId);
 
         assertNotNull(retrievedEntityList);
         assertEquals(1, retrievedEntityList.size());
@@ -84,11 +93,9 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         final MessageAcknowledgementEntity retrievedEntity = retrievedEntityList.get(0);
         assertEquals(entity.getEntityId(), retrievedEntity.getEntityId());
         assertEquals(entity.getCreatedBy(), retrievedEntity.getCreatedBy());
-//        assertEquals(entity.getMessageId(), retrievedEntity.getMessageId());
         assertEquals(entity.getAcknowledgeDate(), retrievedEntity.getAcknowledgeDate());
         assertEquals(entity.getFrom(), retrievedEntity.getFrom());
         assertEquals(entity.getTo(), retrievedEntity.getTo());
-//        assertEquals(entity.getProperties().iterator().next(), retrievedEntity.getProperties().iterator().next());
 
         assertNotNull(entity.getCreationTime());
         assertNotNull(entity.getCreatedBy());
@@ -98,30 +105,25 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         assertEquals(entity.getCreationTime().getTime(), entity.getModificationTime().getTime());
     }
 
-        @Test
-//    @Transactional
+    @Test
+    @Transactional
     public void testMessaging() throws Exception {
-        //TODO: Check why Party From and To are not working
         Ebms3SignalMessage signalMessage = getSignalMessage();
 
         Ebms3Messaging ebms3Messaging = getMessaging();
         ebms3Messaging.setSignalMessage(signalMessage);
         ebms3Messaging.getUserMessage().setMessageInfo(signalMessage.getMessageInfo());
 
+        UserMessageLog msg1 = messageDaoTestUtil.createUserMessageLog("messageId", new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
+
         SignalMessageResult messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-//        messagingDao.create(messaging);
+        messaging.getSignalMessage().setUserMessage(msg1.getUserMessage());
 
         // Builds the signal message log
-        MessageStatusEntity messageStatus = new MessageStatusEntity();
-        messageStatus.setMessageStatus(MessageStatus.SEND_IN_PROGRESS);
-        MSHRoleEntity mshRole = new MSHRoleEntity();
-        mshRole.setRole(MSHRole.SENDING);
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-//                .setMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId())
-                .setMessageStatus(messageStatus)
-                .setMshRole(mshRole)
-//                .setNotificationStatus(NotificationStatus.NOT_REQUIRED)
-                ;
+                .setSignalMessage(messaging.getSignalMessage())
+                .setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.SEND_IN_PROGRESS))
+                .setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         // Saves an entry of the signal message log
         signalMessageLogDao.create(smlBuilder.build());
 

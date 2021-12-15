@@ -10,7 +10,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -49,8 +48,6 @@ public class UpdateRetryLoggingService {
 
     private final UserMessageLogDao userMessageLogDao;
 
-    private final UserMessageDao userMessageDao;
-
     private final UserMessageLogDefaultService userMessageLogService;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
@@ -76,7 +73,6 @@ public class UpdateRetryLoggingService {
 
     public UpdateRetryLoggingService(BackendNotificationService backendNotificationService,
                                      UserMessageLogDao userMessageLogDao,
-                                     UserMessageDao userMessageDao,
                                      UserMessageLogDefaultService userMessageLogService,
                                      DomibusPropertyProvider domibusPropertyProvider,
                                      UIReplicationSignalService uiReplicationSignalService,
@@ -90,7 +86,6 @@ public class UpdateRetryLoggingService {
                                      ReprogrammableService reprogrammableService) {
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
-        this.userMessageDao = userMessageDao;
         this.userMessageLogService = userMessageLogService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.uiReplicationSignalService = uiReplicationSignalService;

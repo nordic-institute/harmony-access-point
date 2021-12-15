@@ -6,7 +6,6 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -17,11 +16,9 @@ import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
-import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -40,10 +37,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 
-import javax.jms.Destination;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -61,7 +54,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static eu.domibus.messaging.MessageConstants.MESSAGE_ID;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.awaitility.Awaitility.with;
 
@@ -221,35 +213,6 @@ public abstract class AbstractIT {
             exc.printStackTrace();
         }
         return null;
-    }
-
-
-    /**
-     * The connection must be started and stopped before and after the method call.
-     *
-     */
-    protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
-
-        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        if (connection instanceof ActiveMQXAConnection) {
-            ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
-        }
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(queueName);
-        MessageProducer producer = session.createProducer(destination);
-        // Creates the Message using Spring MessageCreator
-//        NotifyMessageCreator messageCreator = new NotifyMessageCreator(messageId, NotificationType.MESSAGE_RECEIVED);
-        Message msg = session.createTextMessage();
-        msg.setStringProperty(MessageConstants.DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
-        msg.setStringProperty(MESSAGE_ID, messageId);
-        msg.setObjectProperty(MessageConstants.NOTIFICATION_TYPE, NotificationType.MESSAGE_RECEIVED.name());
-        msg.setStringProperty(MessageConstants.ENDPOINT, "backendInterfaceEndpoint");
-        msg.setStringProperty(MessageConstants.FINAL_RECIPIENT, "testRecipient");
-        producer.send(msg);
-        System.out.println("Message with ID [" + messageId + "] sent in queue!");
-        producer.close();
-        session.close();
-
     }
 
     public void prepareSendMessage(String responseFileName) {

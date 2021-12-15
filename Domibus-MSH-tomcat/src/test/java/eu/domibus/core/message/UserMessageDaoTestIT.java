@@ -4,12 +4,13 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.test.common.MessageTestUtility;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertNotNull;
 
 public class UserMessageDaoTestIT extends AbstractIT {
 
@@ -37,9 +38,11 @@ public class UserMessageDaoTestIT extends AbstractIT {
     @Autowired
     protected AgreementDao agreementDao;
 
+    @Autowired
+    protected MessagePropertyDao messagePropertyDao;
+
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSaveUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
@@ -77,14 +80,17 @@ public class UserMessageDaoTestIT extends AbstractIT {
         mpcDao.create(mpcEntity);
         userMessage.setMpc(mpcEntity);
 
+        for (MessageProperty messageProperty : userMessage.getMessageProperties()) {
+            messagePropertyDao.create(messageProperty);
+        }
+
         userMessageDao.create(userMessage);
 
         final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
+        assertNotNull(dbUserMessage);
         final Set<MessageProperty> messageProperties = dbUserMessage.getMessageProperties();
-        messageProperties.forEach(messageProperty -> messageProperty.getValue());
+        messageProperties.forEach(messageProperty -> assertNotNull(messageProperty.getValue()));
 
-        userMessage.getPartyInfo().getFrom().getFromRole().getValue();
-
-        System.out.println(userMessage);
+        assertNotNull( userMessage.getPartyInfo().getFrom().getFromRole().getValue());
     }
 }

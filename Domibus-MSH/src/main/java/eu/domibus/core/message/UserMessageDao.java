@@ -1,9 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -11,14 +9,12 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.ParameterMode;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
-import java.util.Date;
 import java.util.List;
 
 /**
