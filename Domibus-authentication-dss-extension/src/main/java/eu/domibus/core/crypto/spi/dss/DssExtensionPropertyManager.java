@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,16 +18,16 @@ import java.util.stream.Collectors;
  * @author Thomas Dussart
  * @since 4.2
  */
+@Service
 public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
     public static final String CUSTOM_TRUSTED_LISTS_PREFIX = "domibus.authentication.dss.custom.trusted.lists";
     public static final String CONSTRAINTS_PREFIX = "domibus.authentication.dss.constraints";
 
-    public static final String AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL="domibus.authentication.dss.current.official.journal.url";
-    public static final String AUTHENTICATION_DSS_CURRENT_LOTL_URL="domibus.authentication.dss.current.lotl.url";
-    public static final String AUTHENTICATION_DSS_LOTL_COUNTRY_CODE="domibus.authentication.dss.lotl.country.code";
-    public static final String AUTHENTICATION_DSS_REFRESH_CRON="domibus.authentication.dss.refresh.cron";
-    public static final String AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA="domibus.authentication.dss.exception.on.missing.revocation.data";
+    public static final String AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL = "domibus.authentication.dss.current.official.journal.url";
+    public static final String AUTHENTICATION_DSS_CURRENT_LOTL_URL = "domibus.authentication.dss.current.lotl.url";
+    public static final String AUTHENTICATION_DSS_REFRESH_CRON = "domibus.authentication.dss.refresh.cron";
+    public static final String AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA = "domibus.authentication.dss.exception.on.missing.revocation.data";
     public static final String AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS = "domibus.authentication.dss.check.revocation.for.untrusted.chains";
     public static final String AUTHENTICATION_DSS_PROXY_HTTPS_HOST = "domibus.authentication.dss.proxy.https.host";
     public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PORT = "domibus.authentication.dss.proxy.https.port";
@@ -47,17 +48,18 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_DATA_LOADER_CONNECTION_TIMEOUT = "domibus.dss.data.loader.connection.timeout";
     public static final String DSS_DATA_LOADER_CONNECTION_REQUEST_TIMEOUT = "domibus.dss.data.loader.connection.request.timeout";
     //Dynamic custom trusted list properties
-    public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list1.url";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list1.code";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_2_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list2.url";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_2_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list2.code";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_3_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list3.url";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_3_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list3.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = CUSTOM_TRUSTED_LISTS_PREFIX + ".list1.url";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = CUSTOM_TRUSTED_LISTS_PREFIX + ".list1.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_2_URL = CUSTOM_TRUSTED_LISTS_PREFIX + ".list2.url";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_2_CODE = CUSTOM_TRUSTED_LISTS_PREFIX + ".list2.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_3_URL = CUSTOM_TRUSTED_LISTS_PREFIX + ".list3.url";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_3_CODE = CUSTOM_TRUSTED_LISTS_PREFIX + ".list3.code";
     //Dynamic constraints properties
-    public static final String DSS_CONSTRAINTS_CONSTRAINT1_NAME= CONSTRAINTS_PREFIX +".constraint1.name";
-    public static final String DSS_CONSTRAINTS_CONSTRAINT2_NAME= CONSTRAINTS_PREFIX +".constraint2.name";
-    public static final String DSS_CONSTRAINTS_CONSTRAINT1_STATUS= CONSTRAINTS_PREFIX +".constraint1.status";
-    public static final String DSS_CONSTRAINTS_CONSTRAINT2_STATUS= CONSTRAINTS_PREFIX +".constraint2.status";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT1_NAME = CONSTRAINTS_PREFIX + ".constraint1.name";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT2_NAME = CONSTRAINTS_PREFIX + ".constraint2.name";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT1_STATUS = CONSTRAINTS_PREFIX + ".constraint1.status";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT2_STATUS = CONSTRAINTS_PREFIX + ".constraint2.status";
+    public static final String DSS_EXTENSION_PROPERTIES = "authentication-dss-extension.properties";
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -65,7 +67,6 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CURRENT_LOTL_URL, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_LOTL_COUNTRY_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_FULL_TLS_REFRESH, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_REFRESH_CRON, DomibusPropertyMetadataDTO.Type.CRON, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_HOST, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
