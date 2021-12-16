@@ -9,7 +9,6 @@ import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,7 +47,7 @@ public class ErrorHandlerService {
     }
 
     public ResponseEntity<ValidationResponseRO> createResponse(PModeValidationException ex, HttpStatus status) {
-        LOG.error(ex.getMessage(), ex);
+        LOG.warn(ex.getMessage() + " : " + ex.getIssues().toString(), ex);
 
         HttpHeaders headers = new HttpHeaders();
         //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
