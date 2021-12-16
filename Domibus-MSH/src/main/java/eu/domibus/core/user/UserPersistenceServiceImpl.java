@@ -100,6 +100,14 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         userDao.update(userEntity);
     }
 
+//    public void createDefaultUser() {
+//        User user = new User();
+//        user.setUserName("admin");
+//        user.addRole(userRoleDao.findByName());
+//        user.setPassword();
+//        userDao.create(user);
+//    }
+
     protected void updateUsers(Collection<eu.domibus.api.user.User> users, boolean withPasswordChange) {
         for (eu.domibus.api.user.User user : users) {
             updateUser(withPasswordChange, user);
@@ -195,8 +203,9 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
         for (eu.domibus.api.user.User user : newUsers) {
             setUserDomainForMultiTenancy(user);
-            securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
-
+            if(!user.hasDefaultPassword()) {
+                securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
+            }
             User userEntity = authCoreMapper.userApiToUserSecurity(user);
 
             userEntity.setPassword(bCryptEncoder.encode(userEntity.getPassword()));

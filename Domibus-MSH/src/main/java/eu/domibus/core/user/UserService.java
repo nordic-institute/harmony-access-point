@@ -68,7 +68,6 @@ public interface UserService {
      */
     Integer getDaysTillExpiration(String username);
 
-
     public void triggerPasswordAlerts();
 
     void changePassword(String username, String currentPassword, String newPassword);
@@ -93,4 +92,6 @@ public interface UserService {
      * @return the count of matching users.
      */
     long countUsers(AuthRole authRole, String userName, String deleted);
+
+    void createDefaultUserIfApplicable();
 }

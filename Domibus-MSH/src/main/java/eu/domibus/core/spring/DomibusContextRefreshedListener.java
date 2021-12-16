@@ -8,6 +8,7 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,9 @@ public class DomibusContextRefreshedListener {
     @Autowired
     TLSCertificateManager tlsCertificateManager;
 
+    @Autowired
+    UserManagementServiceImpl userManagementService;
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -88,6 +92,12 @@ public class DomibusContextRefreshedListener {
 
         multiDomainCryptoService.persistTruststoresIfApplicable();
         tlsCertificateManager.persistTruststoresIfApplicable();
+
+        createDefaultUsersIfApplicable();
+    }
+
+    private void createDefaultUsersIfApplicable() {
+        userManagementService.createDefaultUserIfApplicable();
     }
 
     /**

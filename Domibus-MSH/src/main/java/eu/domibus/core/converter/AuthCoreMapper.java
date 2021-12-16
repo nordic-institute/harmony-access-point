@@ -39,6 +39,7 @@ public interface AuthCoreMapper {
         userUi.setEmail(user.getEmail());
         userUi.setPassword(user.getPassword());
         userUi.setDeleted(user.isDeleted());
+        userUi.setDefaultPassword(user.hasDefaultPassword());
 
         return userUi;
     }

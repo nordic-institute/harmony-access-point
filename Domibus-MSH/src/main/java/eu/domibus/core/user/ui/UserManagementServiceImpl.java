@@ -1,10 +1,12 @@
 package eu.domibus.core.user.ui;
 
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
@@ -20,10 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -262,6 +261,38 @@ public class UserManagementServiceImpl implements UserService {
     public long countUsers(AuthRole authRole, String userName, String deleted) {
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
         return listDao.countEntries(filters);
+    }
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Override
+    public void createDefaultUserIfApplicable() {
+        // check property
+        // check already exists
+        String userName = domibusConfigurationService.isMultiTenantAware() ? "super" : "admin";
+        User existing = userDao.loadUserByUsername(userName);
+        if (existing != null) {
+            LOG.info("User [{}] already exists; exiting.");
+            return;
+        }
+        // create api user
+        eu.domibus.api.user.User user = new eu.domibus.api.user.User();
+        // super if multi, admin if single
+        String userRole = domibusConfigurationService.isMultiTenantAware() ? AuthRole.ROLE_AP_ADMIN.name() : AuthRole.ROLE_ADMIN.name();
+        user.setStatus(UserState.NEW.name());
+        user.setUserName(userName);
+        user.setAuthorities(Arrays.asList(userRole));
+        // need to set the hasDefaultPassword property
+        user.setDefaultPassword(true);
+        user.setActive(true);
+        // generate password as guid
+        String password = UUID.randomUUID().toString();
+        user.setPassword(password);
+
+        userPersistenceService.updateUsers(Arrays.asList(user));
+
+        LOG.info("Default password for user [{}] is [{}].", userName, password);
     }
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {

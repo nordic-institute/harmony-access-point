@@ -23,6 +23,7 @@ public class User implements UserBase {
     private boolean suspended;
     private boolean deleted;
     private LocalDateTime expirationDate;
+    private Boolean defaultPassword = false;
 
     public User(String userName, String email, Boolean active, List<String> authorities, UserState userState,
                 Date suspensionDate, boolean deleted) {
@@ -145,5 +146,12 @@ public class User implements UserBase {
 
     public boolean isNew() {
         return UserState.NEW.name().equals(getStatus());
+    }
+
+    public Boolean hasDefaultPassword() {
+        return this.defaultPassword;
+    }
+    public void setDefaultPassword(Boolean defaultPassword) {
+        this.defaultPassword = defaultPassword;
     }
 }

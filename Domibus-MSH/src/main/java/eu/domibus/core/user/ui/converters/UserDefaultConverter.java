@@ -23,7 +23,7 @@ public class UserDefaultConverter implements UserConverter {
         for (UserRole role : roles) {
             authorities.add(role.getName());
         }
-        return new User(
+        User user = new User(
                 userEntity.getUserName(),
                 userEntity.getEmail(),
                 userEntity.isActive(),
@@ -31,6 +31,8 @@ public class UserDefaultConverter implements UserConverter {
                 UserState.PERSISTED,
                 userEntity.getSuspensionDate(),
                 userEntity.isDeleted());
+        user.setDefaultPassword(userEntity.hasDefaultPassword());
+        return user;
     }
 
     @Override
