@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.niis</groupId>
         <artifactId>harmony</artifactId>
-        <version>0.0.1</version>
+        <version>1.0.0</version>
         <relativePath>../harmony-pom.xml</relativePath>
     </parent>
     <artifactId>harmony-jms-activemq</artifactId>
