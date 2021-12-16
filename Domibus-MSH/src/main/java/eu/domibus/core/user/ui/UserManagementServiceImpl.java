@@ -1,5 +1,6 @@
 package eu.domibus.core.user.ui;
 
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
@@ -70,6 +71,12 @@ public class UserManagementServiceImpl implements UserService {
     @Autowired
     private UserFilteringDao listDao;
 
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    DomainService domainService;
+    
     /**
      * {@inheritDoc}
      */
@@ -263,22 +270,29 @@ public class UserManagementServiceImpl implements UserService {
         return listDao.countEntries(filters);
     }
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
-
     @Override
     public void createDefaultUserIfApplicable() {
         // check property
-        // check already exists
+
+        // super if multi, admin if single
         String userName = domibusConfigurationService.isMultiTenantAware() ? "super" : "admin";
+
+        // check already exists
         User existing = userDao.loadUserByUsername(userName);
         if (existing != null) {
-            LOG.info("User [{}] already exists; exiting.");
+            LOG.info("User [{}] already exists; exiting.", userName);
             return;
         }
+
         // create api user
+        String password = createDefaultUser(userName);
+
+        LOG.info("Default password for user [{}] is [{}].", userName, password);
+    }
+
+    protected String createDefaultUser(String userName) {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
-        // super if multi, admin if single
+        // AP_ADMIN if multi, ADMIN if single
         String userRole = domibusConfigurationService.isMultiTenantAware() ? AuthRole.ROLE_AP_ADMIN.name() : AuthRole.ROLE_ADMIN.name();
         user.setStatus(UserState.NEW.name());
         user.setUserName(userName);
@@ -289,10 +303,11 @@ public class UserManagementServiceImpl implements UserService {
         // generate password as guid
         String password = UUID.randomUUID().toString();
         user.setPassword(password);
-
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            user.setDomain(domainService.getDomains().get(0).getName());
+        }
         userPersistenceService.updateUsers(Arrays.asList(user));
-
-        LOG.info("Default password for user [{}] is [{}].", userName, password);
+        return password;
     }
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {

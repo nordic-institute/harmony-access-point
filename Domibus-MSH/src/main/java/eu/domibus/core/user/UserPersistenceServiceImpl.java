@@ -100,14 +100,6 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         userDao.update(userEntity);
     }
 
-//    public void createDefaultUser() {
-//        User user = new User();
-//        user.setUserName("admin");
-//        user.addRole(userRoleDao.findByName());
-//        user.setPassword();
-//        userDao.create(user);
-//    }
-
     protected void updateUsers(Collection<eu.domibus.api.user.User> users, boolean withPasswordChange) {
         for (eu.domibus.api.user.User user : users) {
             updateUser(withPasswordChange, user);

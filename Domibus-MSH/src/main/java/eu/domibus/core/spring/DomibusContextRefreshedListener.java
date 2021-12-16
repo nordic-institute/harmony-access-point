@@ -93,10 +93,6 @@ public class DomibusContextRefreshedListener {
         multiDomainCryptoService.persistTruststoresIfApplicable();
         tlsCertificateManager.persistTruststoresIfApplicable();
 
-        createDefaultUsersIfApplicable();
-    }
-
-    private void createDefaultUsersIfApplicable() {
         userManagementService.createDefaultUserIfApplicable();
     }
 
