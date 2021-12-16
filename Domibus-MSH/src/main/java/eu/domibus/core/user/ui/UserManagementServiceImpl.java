@@ -301,13 +301,17 @@ public class UserManagementServiceImpl implements UserService {
 
     protected void createDefaultUser(String userName) {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
+
+        user.setUserName(userName);
+        user.setStatus(UserState.NEW.name());
+
         // AP_ADMIN if multi, ADMIN if single
         String userRole = domibusConfigurationService.isMultiTenantAware() ? AuthRole.ROLE_AP_ADMIN.name() : AuthRole.ROLE_ADMIN.name();
-        user.setStatus(UserState.NEW.name());
-        user.setUserName(userName);
         user.setAuthorities(Arrays.asList(userRole));
+
         // need to set the hasDefaultPassword property
         user.setDefaultPassword(true);
+
         user.setActive(true);
         // generate password as guid
         String password = UUID.randomUUID().toString();

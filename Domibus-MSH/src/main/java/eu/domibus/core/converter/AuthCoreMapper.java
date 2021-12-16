@@ -25,7 +25,6 @@ public interface AuthCoreMapper {
     @Mapping(ignore = true, target = "attemptCount")
     @Mapping(ignore = true, target = "suspensionDate")
     @Mapping(ignore = true, target = "passwordChangeDate")
-    @Mapping(ignore = true, target = "defaultPassword")
     @Mapping(ignore = true, target = "version")
     default eu.domibus.core.user.ui.User userApiToUserSecurity(User user) {
         if (user == null) {
