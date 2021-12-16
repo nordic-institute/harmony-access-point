@@ -195,7 +195,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
         for (eu.domibus.api.user.User user : newUsers) {
             setUserDomainForMultiTenancy(user);
-            if(!user.hasDefaultPassword()) {
+            if (!user.hasDefaultPassword()) {
                 securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
             }
             User userEntity = authCoreMapper.userApiToUserSecurity(user);
@@ -213,10 +213,10 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void deleteUsers(List<eu.domibus.api.user.User> usersToDelete) {
-        for (eu.domibus.api.user.User userToDelete :usersToDelete) {
+        for (eu.domibus.api.user.User userToDelete : usersToDelete) {
             setUserDomainForMultiTenancy(userToDelete);
             User user = userDao.loadUserByUsername(userToDelete.getUserName());
-            if(user != null){
+            if (user != null) {
                 userDao.delete(user);
                 userSessionsService.invalidateSessions(user);
             }

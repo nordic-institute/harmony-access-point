@@ -3,6 +3,7 @@ package eu.domibus.core.user.ui;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.AtLeastOneAdminException;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER;
 
 /**
  * * Management of regular users, used in ST mode and when a domain admin user logs in in MT mode
@@ -76,7 +79,7 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     DomainService domainService;
-    
+
     /**
      * {@inheritDoc}
      */
@@ -270,9 +273,17 @@ public class UserManagementServiceImpl implements UserService {
         return listDao.countEntries(filters);
     }
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     public void createDefaultUserIfApplicable() {
         // check property
+        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
+        if (!enabled) {
+            LOG.info("De3fault user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
+            return;
+        }
 
         // super if multi, admin if single
         String userName = domibusConfigurationService.isMultiTenantAware() ? "super" : "admin";
@@ -285,12 +296,10 @@ public class UserManagementServiceImpl implements UserService {
         }
 
         // create api user
-        String password = createDefaultUser(userName);
-
-        LOG.info("Default password for user [{}] is [{}].", userName, password);
+        createDefaultUser(userName);
     }
 
-    protected String createDefaultUser(String userName) {
+    protected void createDefaultUser(String userName) {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User();
         // AP_ADMIN if multi, ADMIN if single
         String userRole = domibusConfigurationService.isMultiTenantAware() ? AuthRole.ROLE_AP_ADMIN.name() : AuthRole.ROLE_ADMIN.name();
@@ -307,7 +316,8 @@ public class UserManagementServiceImpl implements UserService {
             user.setDomain(domainService.getDomains().get(0).getName());
         }
         userPersistenceService.updateUsers(Arrays.asList(user));
-        return password;
+
+        LOG.info("Default password for user [{}] is [{}].", userName, password);
     }
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {
