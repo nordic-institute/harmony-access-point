@@ -7,11 +7,11 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
-<!--    <changeSet id="EDELIVERY-4916" author="Catalin Enache">-->
-<!--        <insert tableName="TB_USER_ROLE">-->
-<!--            <column name="ID_PK" value="${default_id_pk}0000000003" type="INT"/>-->
-<!--            <column name="ROLE_NAME" value="ROLE_AP_ADMIN"/>-->
-<!--        </insert>-->
+    <changeSet id="EDELIVERY-4916" author="Catalin Enache">
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="${default_id_pk}0000000003" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_AP_ADMIN"/>
+        </insert>
 <!--        <insert tableName="TB_USER">-->
 <!--            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>-->
 <!--            <column name="USER_NAME" value="super"/>-->
@@ -33,7 +33,7 @@
 <!--            <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>-->
 <!--            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>-->
 <!--        </insert>-->
-<!--    </changeSet>-->
+    </changeSet>
 
     <!-- this file must be included in every future changelog-data.xml or changelog-multi-tenancy-data.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>

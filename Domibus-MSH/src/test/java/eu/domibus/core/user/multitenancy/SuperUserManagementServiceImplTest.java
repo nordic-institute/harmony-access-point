@@ -1,16 +1,15 @@
 package eu.domibus.core.user.multitenancy;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.UserPersistenceService;
@@ -20,15 +19,14 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,6 +82,15 @@ public class SuperUserManagementServiceImplTest {
     @Injectable
     UserFilteringDao userFilteringDao;
 
+    @Injectable
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DomainService domainService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Test
     public void updateUsers() {
         User user = new User() {{
@@ -102,7 +109,7 @@ public class SuperUserManagementServiceImplTest {
 
         new Verifications() {{
             SecurityContextHolder.getContext().getAuthentication();
-            SecurityContextHolder.getContext().setAuthentication((Authentication)any);
+            SecurityContextHolder.getContext().setAuthentication((Authentication) any);
             domainTaskExecutor.submit((Runnable) any);
         }};
     }

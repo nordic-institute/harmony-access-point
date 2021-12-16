@@ -80,6 +80,9 @@ public class UserManagementServiceImpl implements UserService {
     @Autowired
     DomainService domainService;
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
     /**
      * {@inheritDoc}
      */
@@ -273,9 +276,6 @@ public class UserManagementServiceImpl implements UserService {
         return listDao.countEntries(filters);
     }
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-
     @Override
     public void createDefaultUserIfApplicable() {
         // check property
@@ -311,14 +311,15 @@ public class UserManagementServiceImpl implements UserService {
 
         // need to set the hasDefaultPassword property
         user.setDefaultPassword(true);
-
         user.setActive(true);
+
         // generate password as guid
         String password = UUID.randomUUID().toString();
         user.setPassword(password);
         if (domibusConfigurationService.isMultiTenantAware()) {
             user.setDomain(domainService.getDomains().get(0).getName());
         }
+
         userPersistenceService.updateUsers(Arrays.asList(user));
 
         LOG.info("Default password for user [{}] is [{}].", userName, password);
