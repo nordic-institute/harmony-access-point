@@ -12,7 +12,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -853,7 +852,6 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testFindLastUserTestMessageId(@Injectable TypedQuery<MessageLogInfo> query, @Injectable MessageLogInfo messageLogInfo) {
         // GIVEN
         final Map<String, Object> filters = new HashMap<>();
@@ -862,7 +860,6 @@ public class UserMessageLogDaoTest {
         filters.put("messageType", MessageType.USER_MESSAGE);
 
         new Expectations() {{
-            userMessageLogInfoFilter.filterMessageLogQuery("received", false, withEqual(filters));
             em.createQuery(anyString, MessageLogInfo.class);
             result = query;
             userMessageLogInfoFilter.applyParameters(query, filters);
