@@ -1,7 +1,7 @@
 Domibus 4.2.6
-- Upgraded BouncyCastle to 1.69
-- Update the following libraries to the latest version: Apache CXF 3.4.3, Ehcache 3.8.1, Hibernate Validator 6.1.5.Final etc.
-- Update Apache WSS4J to 2.3.2 to fix an issue reported in Apache Santuario.
+- Upgraded BouncyCastle
+- Update the following libraries to the latest version: Apache CXF, Ehcache, Hibernate Validator
+- Update Apache WSS4J to fix an issue reported in Apache Santuario.
 - Jmx password not read correctly if encrypted
 - isAlive service is not working correctly with ActiveMQ
 - Issue on the delete procedures on the MPC parameter
