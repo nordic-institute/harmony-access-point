@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.europa.esig.dss.validation.process.MessageTag;
+import eu.europa.esig.dss.i18n.MessageTag;
 
 import java.util.List;
 import java.util.Map;
@@ -11,10 +11,10 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.CONSTRA
 
 /**
  * @author Thomas Dussart
- * @since 4.1
- *
- * Load multiple ConstraintInternal objects based on Domibus nested property mechanism.
  * @see ConstraintInternal
+ * @since 4.1
+ * <p>
+ * Load multiple ConstraintInternal objects based on Domibus nested property mechanism.
  */
 public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<ConstraintInternal> {
 
@@ -33,7 +33,7 @@ public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<Cons
     }
 
     @Override
-    protected ConstraintInternal transform(Map<String,String> keyValues) {
+    protected ConstraintInternal transform(Map<String, String> keyValues) {
         final String constraintName = keyValues.get(NAME);
         if (constraintName == null) {
             throw new IllegalStateException("Constraint name can not be empty");

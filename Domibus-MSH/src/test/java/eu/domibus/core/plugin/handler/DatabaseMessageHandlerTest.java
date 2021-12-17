@@ -21,6 +21,7 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -165,8 +166,13 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    protected PartyEndpointProvider partyEndpointProvider;
+
     @Tested
     private DatabaseMessageHandler databaseMessageHandler;
+
+
 
     protected static Property createProperty(String name, String value, String type) {
         Property aProperty = new Property();

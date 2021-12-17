@@ -28,5 +28,4 @@ public interface PkiExtService {
      * @return the array of certificates loaded with the given provider
      */
     X509Certificate[] getCertificatesWithProvider(X509Certificate[] certificates, String provider);
-
 }

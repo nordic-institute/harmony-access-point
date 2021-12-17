@@ -1,7 +1,6 @@
 package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
-import com.mchange.v1.util.CollectionUtils;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -43,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.*;
+import java.security.cert.Certificate;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
@@ -463,7 +463,6 @@ public class CertificateServiceImpl implements CertificateService {
     public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
         return  deserializeCertificateChainFromPemFormat(chain, null);
     }
-
     /**
      * {@inheritDoc}
      */
@@ -477,7 +476,6 @@ public class CertificateServiceImpl implements CertificateService {
             } else {
                 cf = CertificateFactory.getInstance("X509", provider);
             }
-
             PemObject o;
             while ((o = reader.readPemObject()) != null) {
                 if (o.getType().equals("CERTIFICATE")) {

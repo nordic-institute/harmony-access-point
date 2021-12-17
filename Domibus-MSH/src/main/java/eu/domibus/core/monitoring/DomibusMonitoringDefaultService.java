@@ -92,7 +92,7 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
     protected JmsBrokerInfo getJMSBrokerDetails() {
         JmsBrokerInfo jmsBrokerInfo = new JmsBrokerInfo();
         try {
-            jmsManager.getDestinationSize(PULL);
+            jmsManager.isJMSBrokerAlive();
             jmsBrokerInfo.setName(jmsAccess);
             jmsBrokerInfo.setStatus(MonitoringStatus.NORMAL);
             LOG.debug("Domibus MS Broker in  Normal Status");

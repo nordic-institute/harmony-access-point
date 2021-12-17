@@ -26,6 +26,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.1
  */
 public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
+    public static final String DOMIBUS_EXTERNAL_API_PREFIX = "/ext";
+    public static final String PLUGIN_API_PREFIX = "/api";
+
     @Autowired
     CsrfTokenRepository tokenRepository;
 
@@ -89,7 +93,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
         web
                 .ignoring().antMatchers("/services/**")
                 .and()
-                .ignoring().antMatchers("/ext/**");
+                .ignoring().antMatchers(DOMIBUS_EXTERNAL_API_PREFIX + "/**")
+                .and()
+                .ignoring().antMatchers(PLUGIN_API_PREFIX + "/**");
     }
 
     /**

@@ -7,6 +7,7 @@ import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -38,6 +39,9 @@ public class JMSManagerActiveMQTest {
 
     @Injectable
     MBeanServerConnection mBeanServerConnection;
+
+    @Injectable
+    JMSBrokerHelper jmsBrokerHelper;
 
     @Injectable
     BrokerViewMBean brokerViewMBean;

@@ -1,5 +1,7 @@
 package eu.domibus.jms.wildfly;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -10,6 +12,7 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.jms.spi.helper.JMSBrokerHelper;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
@@ -85,6 +88,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
 
     protected ServerInfoService serverInfoService;
 
+    protected JMSBrokerHelper jmsBrokerHelper;
+
     public InternalJMSManagerWildFlyArtemis(MBeanServer mBeanServer,
                                             @Qualifier("activeMQServerControl") ActiveMQServerControl activeMQServerControl,
                                             @Qualifier("jmsSender") JmsOperations jmsSender,
@@ -93,7 +98,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
                                             DomibusPropertyProvider domibusPropertyProvider,
                                             AuthUtils authUtils,
                                             DomibusConfigurationService domibusConfigurationService,
-                                            ServerInfoService serverInfoService) {
+                                            ServerInfoService serverInfoService,
+                                            JMSBrokerHelper jmsBrokerHelper) {
         this.mBeanServer = mBeanServer;
         this.activeMQServerControl = activeMQServerControl;
         this.jmsSender = jmsSender;
@@ -103,6 +109,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         this.authUtils = authUtils;
         this.domibusConfigurationService = domibusConfigurationService;
         this.serverInfoService = serverInfoService;
+        this.jmsBrokerHelper = jmsBrokerHelper;
     }
 
     /**
@@ -181,17 +188,22 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(),
                 domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER), true);
 
-        String[] addressNames = activeMQServerControl.getAddressNames();
-        LOG.debug("Address names: [{}]", Arrays.toString(addressNames));
+        String[] nodeIds = parseNetworkTopology();
+        LOG.debug("Node IDs: {}", Arrays.toString(nodeIds));
 
-        Arrays.stream(addressNames).forEach(addressName -> {
+        String[] addressNames = activeMQServerControl.getAddressNames();
+        LOG.debug("Address names: {}", Arrays.toString(addressNames));
+
+        Arrays.stream(addressNames)
+                .filter(addressName -> !StringUtils.startsWith(addressName, "$.artemis.internal"))
+                .forEach(addressName -> {
             try {
                 ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(toSimpleString(addressName));
 
                 String[] queueNames = getAddressControl(addressObjectName).getQueueNames();
-                LOG.debug("Address to queue names mapping: [{} -> {}]", addressName, Arrays.toString(queueNames));
+                LOG.debug("Address to queue names mapping: [{}] -> {}", addressName, Arrays.toString(queueNames));
 
-                queues.putAll(getAddressQueueMap(addressName, queueNames, routingType, objectNameBuilder));
+                queues.putAll(getAddressQueueMap(addressName, queueNames, nodeIds, routingType, objectNameBuilder));
             } catch (Exception e) {
                 // Just log the error and continue with the next address name
                 LOG.error("Error creating object name for address [" + addressName + "]", e);
@@ -201,8 +213,29 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         return queues;
     }
 
-    protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
-        Map<String, ObjectName> queueMap = Arrays.stream(queueNames).collect(Collectors.toMap(
+    private String[] parseNetworkTopology() {
+        LOG.info("Retrieve node IDs to filter out the queue names coming from other nodes");
+
+        List<String> nodeIds = new ArrayList<>();
+        try {
+            String networkTopology = activeMQServerControl.listNetworkTopology();
+            JsonParser.parseString(networkTopology).getAsJsonArray().forEach(jsonElement -> {
+                JsonElement nodeId = jsonElement.getAsJsonObject().get("nodeID");
+                if(nodeId != null) {
+                    LOG.info("Registering node ID: [{}]", nodeId);
+                    nodeIds.add(nodeId.getAsString());
+                }
+            });
+        } catch (Exception e) {
+            LOG.error("Could not retrieve node IDs", e);
+        }
+        return nodeIds.toArray(new String[0]);
+    }
+
+    protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, String[] nodeIds, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
+        Map<String, ObjectName> queueMap = Arrays.stream(queueNames)
+                .filter(queueName -> ! StringUtils.containsAny(queueName, nodeIds))
+                .collect(Collectors.toMap(
                 Function.identity(),
                 queueName -> {
                     try {
@@ -218,7 +251,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         // Add corresponding entries for the non-qualified names so lookups without the Artemis 1.x JMS prefix will work
         // (using the ActiveMQJMSClient.enable1xPrefixes Artemis 2.x parameter doesn't seem to work)
         Map<String, ObjectName> nonFQNObjectMap = new HashMap<>();
-        queueMap.entrySet().stream().forEach(queueEntry -> {
+        queueMap.entrySet().stream()
+                .forEach(queueEntry -> {
             String keyNonFQN = StringUtils.removeStart(queueEntry.getKey(), JMS_QUEUE_PREFIX);
             nonFQNObjectMap.put(keyNonFQN, queueEntry.getValue());
         });
@@ -499,6 +533,11 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         final ObjectName objectName = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
         final QueueControl queueControl = getQueueControl(objectName);
         return getMessagesTotalCount(queueControl);
+    }
+
+    @Override
+    public void isJMSBrokerAlive() {
+        jmsBrokerHelper.isJMSBrokerAlive(jmsSender);
     }
 
 }

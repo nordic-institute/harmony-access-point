@@ -16,8 +16,10 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -76,6 +78,12 @@ public class AbstractUserMessageSenderTest {
     @Injectable
     protected ErrorLogDao errorLogDao;
 
+    @Injectable
+    protected PartyEndpointProvider partyEndpointProvider;
+
+    @Injectable
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
     private final String messageId = UUID.randomUUID().toString();
 
     private final String senderName = "domibus-blue";
@@ -100,6 +108,7 @@ public class AbstractUserMessageSenderTest {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
         String messageId = "123";
+        String finalRecipient = "0151:123";
 
         new Expectations(abstractUserMessageSender) {{
             messaging.getUserMessage();
@@ -144,7 +153,13 @@ public class AbstractUserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = finalRecipient;
+
+            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            result = finalRecipient;
+
+            mshDispatcher.dispatch(soapMessage, finalRecipient, policy, legConfiguration, pModeKey);
             result = response;
 
             responseHandler.verifyResponse(response, messageId);
@@ -298,6 +313,7 @@ public class AbstractUserMessageSenderTest {
                                                              @Injectable ResponseResult responseResult) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
+        String finalRecipient = "0151:123";
 
         new Expectations(abstractUserMessageSender) {{
             messaging.getUserMessage();
@@ -339,7 +355,13 @@ public class AbstractUserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = finalRecipient;
+
+            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            result = finalRecipient;
+
+            mshDispatcher.dispatch(soapMessage, finalRecipient, policy, legConfiguration, pModeKey);
             result = response;
 
             responseHandler.verifyResponse(response, messageId);
@@ -406,6 +428,7 @@ public class AbstractUserMessageSenderTest {
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
         String attemptError = "OutOfMemory occurred while dispatching messages";
+        String finalRecipient = "0151:123";
 
         new Expectations(abstractUserMessageSender) {{
             messaging.getUserMessage();
@@ -447,7 +470,13 @@ public class AbstractUserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = finalRecipient;
+
+            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            result = finalRecipient;
+
+            mshDispatcher.dispatch(soapMessage, finalRecipient, policy, legConfiguration, pModeKey);
             result = new OutOfMemoryError(attemptError);
 
         }};

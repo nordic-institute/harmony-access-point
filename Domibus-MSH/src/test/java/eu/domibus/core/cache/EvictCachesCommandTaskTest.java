@@ -1,17 +1,13 @@
 package eu.domibus.core.cache;
 
 import eu.domibus.api.cluster.Command;
-import mockit.Expectations;
+import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.cache.CacheManager;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
@@ -25,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 public class EvictCachesCommandTaskTest {
 
     @Tested
-    EvictCachesCommandTask evictCachesCommandTask;
+    private EvictCachesCommandTask evictCachesCommandTask;
 
     @Injectable
-    protected CacheManager cacheManager;
+    protected DomibusCacheService domibusCacheService;
 
     @Test
     public void canHandle() {
@@ -42,20 +38,11 @@ public class EvictCachesCommandTaskTest {
 
     @Test
     public void execute(@Injectable Map<String, String> properties) {
-        Collection<String> cacheNames = new ArrayList<>();
-        String cacheName = "mycache";
-        cacheNames.add(cacheName);
-
-        new Expectations() {{
-            cacheManager.getCacheNames();
-            result = cacheNames;
-        }};
-
 
         evictCachesCommandTask.execute(properties);
 
-        new Verifications() {{
-            cacheManager.getCache(cacheName).clear();
+        new FullVerifications() {{
+            domibusCacheService.clearAllCaches();
         }};
     }
 }

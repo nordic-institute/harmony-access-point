@@ -1,7 +1,6 @@
 package eu.domibus;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.security.ExplicitTypePermission;
+import com.google.gson.Gson;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.MessageStatus;
@@ -14,7 +13,7 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -41,6 +40,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,6 +67,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -165,9 +166,10 @@ public abstract class AbstractIT {
     }
 
     protected UserMessage getUserMessageTemplate() throws IOException {
-        XStream xStream = new XStream();
-        xStream.addPermission(new ExplicitTypePermission(new Class[]{From.class, PartyId.class, UserMessage.class, Property.class, PartInfo.class}));
-        return (UserMessage) xStream.fromXML(new ClassPathResource("dataset/messages/UserMessageTemplate.xml").getInputStream());
+        Resource userMessageTemplate = new ClassPathResource("dataset/messages/UserMessageTemplate.json");
+        String jsonStr = new String(IOUtils.toByteArray(userMessageTemplate.getInputStream()), StandardCharsets.UTF_8);
+        UserMessage userMessage = new Gson().fromJson(jsonStr, UserMessage.class);
+        return userMessage;
     }
 
 

@@ -2,8 +2,7 @@ package eu.domibus.common.model.configuration;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.AuditJoinTable;
 import org.hibernate.envers.Audited;
 
@@ -202,36 +201,47 @@ public class Party extends AbstractBaseEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+    public boolean equals(Object otherParty) {
+        if (this == otherParty) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (otherParty == null || getClass() != otherParty.getClass()) return false;
 
-        Party party = (Party) o;
+        if (!super.equals(otherParty)) return false;
 
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .appendSuper(equalIdentifiers(identifiers, party.identifiers))
-                .append(name, party.name)
-                .append(endpoint, party.endpoint)
-                .isEquals();
+        Party party = (Party) otherParty;
+
+        if (!equalIdentifiers(identifiers, party.identifiers)) return false;
+        return StringUtils.equalsIgnoreCase(name, party.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+
+        if(identifiers != null) {
+            result = 31 * result + identifiers.hashCode();
+        }
+        if(name != null) {
+            result = 31 * result + name.hashCode();
+        }
+        return result;
     }
 
     protected boolean equalIdentifiers(List<Identifier> identifiers, List<Identifier> identifiers1) {
 
-        if(identifiers == null && identifiers1 == null) {
+        if (identifiers == null && identifiers1 == null) {
             return true;
         }
 
-        if(identifiers == null || identifiers1 == null) {
+        if (identifiers == null || identifiers1 == null) {
             return false;
         }
 
-        if(identifiers.size() != identifiers1.size()) {
+        if (identifiers.size() != identifiers1.size()) {
             return false;
         }
 
-        for(Identifier identifier : identifiers) {
+        for (Identifier identifier : identifiers) {
             boolean found = false;
             for (Identifier identifier1 : identifiers1) {
                 if (identifier.equals(identifier1)) {
@@ -244,15 +254,5 @@ public class Party extends AbstractBaseEntity {
             }
         }
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(identifiers)
-                .append(name)
-                .append(endpoint)
-                .toHashCode();
     }
 }

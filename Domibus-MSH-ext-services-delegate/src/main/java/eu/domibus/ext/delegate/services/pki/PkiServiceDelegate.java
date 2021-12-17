@@ -29,6 +29,7 @@ public class PkiServiceDelegate implements PkiExtService {
         return certificateService.extractLeafCertificateFromChain(certificates);
     }
 
+
     /**
      * {@inheritDoc}
      */

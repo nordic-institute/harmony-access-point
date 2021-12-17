@@ -1,6 +1,6 @@
 package eu.domibus.core.ehcache;
 
-import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
+import org.ehcache.sizeof.annotations.IgnoreSizeOf;
 
 /**
  * Generic wrapper around any type of object which is complex and is used as return type from a {@code @Cacheable} method

@@ -78,6 +78,10 @@
         <cve>CVE-2020-10693</cve>
         <!-- we don't use @SafeHtml java annotation -->
         <cve>CVE-2019-10219</cve>
+        <!-- we have hibernate core 5.4.25.Final -->
+        <cve>CVE-2019-14900</cve>
+        <!-- we have hibernate core 5.4.25.Final -->
+        <cve>CVE-2020-25638</cve>
     </suppress>
 
     <suppress>

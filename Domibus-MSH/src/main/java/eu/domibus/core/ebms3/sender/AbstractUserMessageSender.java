@@ -16,13 +16,15 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
@@ -69,9 +71,15 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     private ErrorLogDao errorLogDao;
 
+    @Autowired
+    protected PartyEndpointProvider partyEndpointProvider;
+
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
     @Override
-    @Timer(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
-    @Counter(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
+    @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
+    @Counter(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
     public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();
@@ -135,9 +143,11 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 return;
             }
 
-            getLog().debug("PMode found : " + pModeKey);
+            getLog().debug("PMode found [{}]", pModeKey);
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
-            responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+
+            String receiverUrl = partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, userMessageServiceHelper.getFinalRecipient(userMessage));
+            responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverUrl, policy, legConfiguration, pModeKey);
             responseResult = responseHandler.verifyResponse(responseSoapMessage, messageId);
 
             reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
