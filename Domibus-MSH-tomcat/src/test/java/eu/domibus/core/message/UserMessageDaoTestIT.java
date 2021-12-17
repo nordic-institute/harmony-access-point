@@ -7,6 +7,7 @@ import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,47 +50,38 @@ public class UserMessageDaoTestIT extends AbstractIT {
         final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();
-        partyIdDao.create(senderPartyId);
-        userMessage.getPartyInfo().getFrom().setFromPartyId(senderPartyId);
+        userMessage.getPartyInfo().getFrom().setFromPartyId(partyIdDao.findOrCreateParty(senderPartyId.getValue(), senderPartyId.getType()));
 
-        final PartyRole senderPartyRole = messageTestUtility.createSenderPartyRole();
-        partyRoleDao.create(senderPartyRole);
-        userMessage.getPartyInfo().getFrom().setFromRole(senderPartyRole);
+        userMessage.getPartyInfo().getFrom().setFromRole(partyRoleDao.findOrCreateRole(messageTestUtility.createSenderPartyRole().getValue()));
 
         final PartyId receiverPartyId = messageTestUtility.createReceiverPartyId();
-        partyIdDao.create(receiverPartyId);
-        userMessage.getPartyInfo().getTo().setToPartyId(receiverPartyId);
+        userMessage.getPartyInfo().getTo().setToPartyId(partyIdDao.findOrCreateParty(receiverPartyId.getValue(), receiverPartyId.getType()));
 
-        final PartyRole receiverPartyRole = messageTestUtility.createReceiverPartyRole();
-        partyRoleDao.create(receiverPartyRole);
-        userMessage.getPartyInfo().getTo().setToRole(receiverPartyRole);
+        userMessage.getPartyInfo().getTo().setToRole(partyRoleDao.findOrCreateRole(messageTestUtility.createReceiverPartyRole().getValue()));
 
-        final ActionEntity actionEntity = messageTestUtility.createActionEntity();
-        actionDao.create(actionEntity);
-        userMessage.setAction(actionEntity);
+        userMessage.setAction(actionDao.findOrCreateAction(messageTestUtility.createActionEntity().getValue()));
 
         final ServiceEntity serviceEntity = messageTestUtility.createServiceEntity();
-        serviceDao.create(serviceEntity);
-        userMessage.setService(serviceEntity);
+        userMessage.setService(serviceDao.findOrCreateService(serviceEntity.getValue(), serviceEntity.getType()));
 
         final AgreementRefEntity agreementRefEntity = messageTestUtility.createAgreementRefEntity();
-        agreementDao.create(agreementRefEntity);
-        userMessage.setAgreementRef(agreementRefEntity);
+        userMessage.setAgreementRef(agreementDao.findOrCreateAgreement(agreementRefEntity.getValue(), agreementRefEntity.getType()));
 
-        final MpcEntity mpcEntity = messageTestUtility.createMpcEntity();
-        mpcDao.create(mpcEntity);
-        userMessage.setMpc(mpcEntity);
+        userMessage.setMpc(mpcDao.findOrCreateMpc(messageTestUtility.createMpcEntity().getValue()));
 
+        HashSet<MessageProperty> messageProperties = new HashSet<>();
         for (MessageProperty messageProperty : userMessage.getMessageProperties()) {
-            messagePropertyDao.create(messageProperty);
+            messageProperties.add(messagePropertyDao.findOrCreateProperty(messageProperty.getName(), messageProperty.getValue(), messageProperty.getType()));
         }
+
+        userMessage.setMessageProperties(messageProperties);
 
         userMessageDao.create(userMessage);
 
         final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
         assertNotNull(dbUserMessage);
-        final Set<MessageProperty> messageProperties = dbUserMessage.getMessageProperties();
-        messageProperties.forEach(messageProperty -> assertNotNull(messageProperty.getValue()));
+        final Set<MessageProperty> msgProperties = dbUserMessage.getMessageProperties();
+        msgProperties.forEach(messageProperty -> assertNotNull(messageProperty.getValue()));
 
         assertNotNull( userMessage.getPartyInfo().getFrom().getFromRole().getValue());
     }

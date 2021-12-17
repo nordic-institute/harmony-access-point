@@ -21,7 +21,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,6 +34,7 @@ import java.util.List;
  * @since 3.3
  */
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class MessagingServiceImplTest {
 
@@ -150,7 +150,6 @@ public class MessagingServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testStoreOutgoingMessage(@Injectable UserMessage userMessage,
                                          @Injectable PartInfo partInfo,
                                          @Injectable PayloadPersistence payloadPersistence) throws Exception {

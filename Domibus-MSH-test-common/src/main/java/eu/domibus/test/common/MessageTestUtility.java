@@ -6,7 +6,6 @@ import org.w3c.dom.Document;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.*;
@@ -15,11 +14,10 @@ import java.util.*;
  * @author Thomas Dussart
  * @since 3.3
  */
-
 public class MessageTestUtility {
 
     private static final String DEF_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
-    private static final String FINAL_RECEIPIENT_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+    private static final String FINAL_RECIPIENT_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
     private static final String STRING_TYPE = "string";
     private static final String RED = "red_gw";
     private static final String BLUE = "blue_gw";
@@ -50,7 +48,7 @@ public class MessageTestUtility {
 
         Set<MessageProperty> messageProperties = new HashSet<>();
         messageProperties.add(createProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1", STRING_TYPE));
-        messageProperties.add(createProperty("finalRecipient", FINAL_RECEIPIENT_VALUE, STRING_TYPE));
+        messageProperties.add(createProperty("finalRecipient", FINAL_RECIPIENT_VALUE, STRING_TYPE));
         userMessage.setMessageProperties(messageProperties);
 
         PartyInfo partyInfo = new PartyInfo();
@@ -166,7 +164,7 @@ public class MessageTestUtility {
         return aProperty;
     }
 
-    public static Document readDocument(String name) throws XMLStreamException, ParserConfigurationException {
+    public static Document readDocument(String name) throws XMLStreamException {
         InputStream inStream = MessageTestUtility.class.getResourceAsStream(name);
         return StaxUtils.read(inStream);
     }
