@@ -212,7 +212,7 @@ public class DssConfiguration {
         int socketTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_SOCKET_TIMEOUT);
         int connectionTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIMEOUT);
         LOG.debug("Dss data loader socket timeout in milliseconds:[{}]",socketTimeout);
-        LOG.debug("Dss data loader connectionTimeout timeout in milliseconds:[{}]",connectionTimeout);
+        LOG.debug("Dss data loader connection timeout in milliseconds:[{}]",connectionTimeout);
         commonsDataLoader.setTimeoutSocket(socketTimeout);
         commonsDataLoader.setTimeoutConnection(connectionTimeout);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
