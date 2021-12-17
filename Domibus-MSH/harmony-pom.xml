@@ -10,7 +10,7 @@
         <relativePath>../harmony-pom.xml</relativePath>
     </parent>
 
-    <artifactId>harmony-MSH</artifactId>
+    <artifactId>Harmony-AP</artifactId>
     <packaging>jar</packaging>
     <name>Harmony MSH Core</name>
 

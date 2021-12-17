@@ -31,7 +31,7 @@
         <!-- harmony modules -->
         <dependency>
             <groupId>org.niis</groupId>
-            <artifactId>harmony-MSH</artifactId>
+            <artifactId>Harmony-AP</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
