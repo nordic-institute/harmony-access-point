@@ -15,6 +15,6 @@ public interface UserConverter {
 
     User convert(eu.domibus.core.user.ui.User source);
 
-    List<User> convert(List<eu.domibus.core.user.ui.User> sourceList);
+//    List<User> convert(List<eu.domibus.core.user.ui.User> sourceList);
 }
 

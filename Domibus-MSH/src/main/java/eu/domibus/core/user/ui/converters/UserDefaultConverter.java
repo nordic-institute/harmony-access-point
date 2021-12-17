@@ -35,8 +35,7 @@ public class UserDefaultConverter implements UserConverter {
         return user;
     }
 
-    @Override
-    public List<User> convert(List<eu.domibus.core.user.ui.User> sourceList) {
+    protected List<User> convert(List<eu.domibus.core.user.ui.User> sourceList) {
         if (sourceList == null) {
             return null;
         }
