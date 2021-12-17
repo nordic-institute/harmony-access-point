@@ -1,4 +1,5 @@
 Domibus 4.2.6
+- Upgrade DSS to 5.8
 - Upgraded BouncyCastle
 - Update the following libraries to the latest version: Apache CXF, Ehcache, Hibernate Validator
 - Update Apache WSS4J to fix an issue reported in Apache Santuario.
