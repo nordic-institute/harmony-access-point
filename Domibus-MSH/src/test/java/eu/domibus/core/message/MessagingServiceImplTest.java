@@ -150,15 +150,14 @@ public class MessagingServiceImplTest {
     }
 
     @Test
-    public void testStoreOutgoingMessage(@Injectable UserMessage userMessage,
-                                         @Injectable PartInfo partInfo,
-                                         @Injectable PayloadPersistence payloadPersistence) throws Exception {
-
+    public void testStoreOutgoingMessage(@Injectable PayloadPersistence payloadPersistence) throws Exception {
+        UserMessage userMessage = new UserMessage();
         List<PartInfo> partInfos = new ArrayList<>();
+        PartInfo partInfo = new PartInfo();
         partInfos.add(partInfo);
 
         new Expectations() {{
-            payloadPersistenceProvider.getPayloadPersistence((PartInfo) any, userMessage);
+            payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
             result = payloadPersistence;
 
             userMessage.getPartyInfo();
@@ -166,7 +165,7 @@ public class MessagingServiceImplTest {
         }};
 
         final String backend = "backend";
-        messagingService.storeMessagePayloads(userMessage, null, MSHRole.SENDING, legConfiguration, backend);
+        messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backend);
 
         new Verifications() {{
             payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backend);
