@@ -209,6 +209,10 @@ public class DssConfiguration {
     @Bean
     public CommonsDataLoader dataLoader(ProxyHelper proxyHelper, KeyStore trustedListTrustStore) {
         CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
+        int socketTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_SOCKET_TIMEOUT);
+        int connectionTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIMEOUT);
+        commonsDataLoader.setTimeoutSocket(socketTimeout);
+        commonsDataLoader.setTimeoutConnection(connectionTimeout);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         return commonsDataLoader;
     }

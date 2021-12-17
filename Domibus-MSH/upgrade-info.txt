@@ -1,4 +1,6 @@
 Domibus 4.2.6 (from 4.2.5):
+                - Please remove the property domibus.authentication.dss.custom.trusted.lists.list1.code from /conf/domibus/extensions/config/authentication-dss-extension.properties
+                - Please remove the property domibus.authentication.dss.lotl.country.code=EU from /conf/domibus/extensions/config/authentication-dss-extension.properties
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"
@@ -14,6 +16,11 @@ Domibus 4.2.6 (from 4.2.5):
                                             <heap unit="MB">5</heap>
                                         </cache>
                         Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
+                        Replace:
+                                Configured dss-cache
+                        with:
+                                <cache alias="dss-cache"><expiry><ttl>3600</ttl></expiry><heap unit="MB">50</heap></cache>
+
                     - If you don't use custom caches just replace the old file with the new file version
                 - Run the appropriate DB migration script(mysql-4.2.5-to-4.2.6-migration.ddl for MySQL or oracle-4.2.5-to-4.2.6-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
