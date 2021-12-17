@@ -39,6 +39,7 @@ public class AlertCoreMapperTest extends AbstractMapperTest {
         convertedBack.setNextAttempt(toConvert.getNextAttempt());
         convertedBack.setNextAttemptOffsetSeconds(toConvert.getNextAttemptOffsetSeconds());
         convertedBack.setNextAttemptTimezoneId(toConvert.getNextAttemptTimezoneId());
+        convertedBack.setEvents(toConvert.getEvents());
         objectService.assertObjects(convertedBack, toConvert);
     }
 

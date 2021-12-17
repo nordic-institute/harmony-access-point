@@ -163,9 +163,6 @@ public class MessagingServiceImplTest {
 
             userMessage.getPartyInfo();
             result = partInfos;
-
-            partInfo.toString();
-            result = "partInfo";
         }};
 
         final String backend = "backend";

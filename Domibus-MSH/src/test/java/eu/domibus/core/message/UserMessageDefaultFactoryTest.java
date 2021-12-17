@@ -19,7 +19,6 @@ import javax.activation.DataHandler;
 import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.UUID;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
@@ -48,14 +47,16 @@ public class UserMessageDefaultFactoryTest {
                                               @Injectable MessageInfo messageInfo,
                                               @Injectable MessageGroupEntity messageGroupEntity,
                                               @Injectable MessageFragmentEntity messageFragmentEntity,
-                                              @Injectable ActionEntity actionEntity) {
+                                              @Injectable ActionEntity actionEntity,
+                                              @Injectable AgreementRefEntity agreementRef,
+                                              @Injectable PartyInfo partyInfo,
+                                              @Injectable MessageProperty messageProperty
+    ) {
         Long fragmentNumber = 1L;
         String fragmentFile = "fragmentFile";
-        String messageId = UUID.randomUUID().toString();
-
-        new Expectations() {{
-            messageInfo.getMessageId();
-            result = messageId;
+        HashSet<MessageProperty> messageProperties = new HashSet<>();
+        messageProperties.add(messageProperty);
+        new Expectations(userMessageDefaultFactory) {{
 
             sourceMessage.getMessageId();
             result = "messageId";
@@ -73,7 +74,15 @@ public class UserMessageDefaultFactoryTest {
             result = "conversationId";
 
             sourceMessage.getAgreementRef();
+            result = agreementRef;
+
+            agreementRef.getValue();
             result = "agreementRef";
+
+            agreementRef.getType();
+            result = "agreementType";
+            agreementDictionaryService.findOrCreateAgreement("agreementRef", "agreementType");
+            result = agreementRef;
 
             actionDictionaryService.findOrCreateAction("action");
             result = actionEntity;
@@ -86,11 +95,20 @@ public class UserMessageDefaultFactoryTest {
 
             serviceDictionaryService.findOrCreateService("service", "serviceType");
 
+            sourceMessage.getPartyInfo();
+            result = partyInfo;
+            sourceMessage.getMessageProperties();
+            result = messageProperties;
+
+            userMessageDefaultFactory.createPartyInfo(partyInfo);
+            result = partyInfo;
+
+            userMessageDefaultFactory.createMessageProperties(messageProperties);
+            result = messageProperties;
         }};
 
         userMessageDefaultFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, fragmentNumber, fragmentFile);
 
-        new FullVerifications() {};
     }
 
     @Test
@@ -99,17 +117,10 @@ public class UserMessageDefaultFactoryTest {
                                              @Injectable CollaborationInfo collaborationInfo,
                                              @Injectable PartyInfo partyInfo,
                                              @Injectable MessageProperty messageProperty) {
-        String messageId = UUID.randomUUID().toString();
         HashSet<MessageProperty> msgProperties = new HashSet<>();
         msgProperties.add(messageProperty);
 
         new Expectations(userMessageDefaultFactory) {{
-//            userMessageFragment.getCollaborationInfo();
-//            result = collaborationInfo;
-//            userMessageFragment.getMessageInfo();
-//            result = messageInfo;
-//            messageInfo.getMessageId();
-//            result = messageId;
             userMessageFragment.getPartyInfo();
             result = partyInfo;
             userMessageFragment.getMessageProperties();
@@ -118,21 +129,13 @@ public class UserMessageDefaultFactoryTest {
 
         userMessageDefaultFactory.cloneUserMessageFragment(userMessageFragment);
 
-        new Verifications() {{
-//            userMessageDefaultFactory.createCollaborationInfo(withCapture());
-//            times = 1;
-//            userMessageDefaultFactory.createMessageInfo(withCapture(), messageId);
-//            times = 1;
-//            userMessageDefaultFactory.createMessageProperties(messageProperties);
-//            times = 1;
-        }};
+        new Verifications() {};
 
     }
 
     @Test
     public void createMessageFragmentEntityTest(@Injectable MessageGroupEntity messageGroupEntity) {
         Long fragmentNumber = 1L;
-        String groupId = "groupId";
 
         Assert.assertNotNull(userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber));
     }
