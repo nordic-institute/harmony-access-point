@@ -10,10 +10,10 @@ import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -54,9 +54,6 @@ public class UserManagementServiceImpl implements UserService {
     private UserRoleDao userRoleDao;
 
     @Autowired
-    protected UserConverter userConverter;
-
-    @Autowired
     protected UserPersistenceService userPersistenceService;
 
     @Autowired
@@ -82,6 +79,9 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected AuthCoreMapper authCoreMapper;
 
     /**
      * {@inheritDoc}
@@ -215,7 +215,7 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     protected eu.domibus.api.user.User convertAndPrepareUser(Function<eu.domibus.api.user.User, String> getDomainForUserFn, User userEntity) {
-        eu.domibus.api.user.User user = userConverter.convert(userEntity);
+        eu.domibus.api.user.User user = authCoreMapper.userSecurityToUserApi(userEntity);
 
         String domainCode = getDomainForUserFn.apply(user);
         user.setDomain(domainCode);

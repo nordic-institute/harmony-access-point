@@ -17,7 +17,6 @@ import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
 import eu.domibus.core.user.*;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.ui.converters.UserConverter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -47,9 +46,6 @@ public class UserAlertsServiceImplTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
-
-    @Injectable
-    private UserConverter userConverter;
 
     @Injectable
     private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;

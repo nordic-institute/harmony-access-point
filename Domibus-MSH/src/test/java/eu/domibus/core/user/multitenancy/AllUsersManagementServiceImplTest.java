@@ -10,6 +10,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
@@ -17,7 +18,6 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserFilteringDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
-import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import junit.framework.TestCase;
 import mockit.Expectations;
@@ -55,9 +55,6 @@ public class AllUsersManagementServiceImplTest extends TestCase {
     UserPersistenceService userPersistenceService;
 
     @Injectable
-    UserConverter userConverter;
-
-    @Injectable
     protected UserRoleDao userRoleDao;
 
     @Injectable
@@ -92,6 +89,9 @@ public class AllUsersManagementServiceImplTest extends TestCase {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    AuthCoreMapper authCoreMapper;
 
     @Test
     public void findUsers() {

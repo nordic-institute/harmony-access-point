@@ -33,7 +33,11 @@ public class UserSessionsServiceImplTest {
         Set<GrantedAuthority> authorities = new HashSet<>();
         final UserDetail userDetail = new UserDetail("userName", "password", authorities);
 
-        User user = new User("userName", "email", false, new ArrayList<String>(), UserState.UPDATED, null, false);
+        User user = new User();
+        user.setUserName("userName");
+        user.setEmail("email");
+        user.setActive(false);
+        user.setStatus(UserState.UPDATED.name());
 
         SessionInformation sinfo = new SessionInformation(userDetail, "id", new Date());
 

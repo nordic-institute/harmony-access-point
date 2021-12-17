@@ -25,20 +25,6 @@ public class User implements UserBase {
     private LocalDateTime expirationDate;
     private Boolean defaultPassword = false;
 
-    public User(String userName, String email, Boolean active, List<String> authorities, UserState userState,
-                Date suspensionDate, boolean deleted) {
-        this.userName = userName;
-        this.email = email;
-        this.active = active;
-        this.authorities = authorities;
-        this.status = userState.name();
-        this.password = null;
-        if (suspensionDate != null) {
-            this.suspended = true;
-        }
-        this.deleted = deleted;
-    }
-
     public User() {
         authorities = new LinkedList<>();
     }

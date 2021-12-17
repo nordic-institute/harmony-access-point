@@ -1,7 +1,6 @@
 package eu.domibus.core.user.ui;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -11,10 +10,9 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.UserPersistenceService;
-import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -45,9 +43,6 @@ public class UserManagementServiceImplTest {
     UserRoleDao userRoleDao;
 
     @Injectable
-    UserConverter userConverter;
-
-    @Injectable
     UserPersistenceService userPersistenceService;
 
     @Injectable
@@ -71,6 +66,9 @@ public class UserManagementServiceImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    AuthCoreMapper authCoreMapper;
+
     @Test
     public void findUsersTest() {
         User userEntity = new User();
@@ -84,7 +82,7 @@ public class UserManagementServiceImplTest {
         new Expectations() {{
             userDao.listUsers();
             result = userEntities;
-            userConverter.convert(userEntity);
+            authCoreMapper.userSecurityToUserApi(userEntity);
             result = user;
             userDomainService.getDomainForUser(user.getUserName());
             result = domainCode;
@@ -299,7 +297,7 @@ public class UserManagementServiceImplTest {
         LocalDateTime expDate = LocalDateTime.now().plusDays(30);
 
         new Expectations() {{
-            userConverter.convert(userEntity);
+            authCoreMapper.userSecurityToUserApi(userEntity);
             result = user;
             getDomainForUserFn.apply(user);
             result = domainCode;

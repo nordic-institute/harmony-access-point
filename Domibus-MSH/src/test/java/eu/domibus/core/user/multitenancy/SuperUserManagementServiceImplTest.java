@@ -10,6 +10,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.UserPersistenceService;
@@ -17,7 +18,6 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserFilteringDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
-import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -48,9 +48,6 @@ public class SuperUserManagementServiceImplTest {
 
     @Injectable
     UserPersistenceService userPersistenceService;
-
-    @Injectable
-    UserConverter userConverter;
 
     @Injectable
     protected UserRoleDao userRoleDao;
@@ -90,6 +87,9 @@ public class SuperUserManagementServiceImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    AuthCoreMapper authCoreMapper;
 
     @Test
     public void updateUsers() {
