@@ -281,7 +281,7 @@ public class UserManagementServiceImpl implements UserService {
         // check property
         boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
         if (!enabled) {
-            LOG.info("De3fault user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
+            LOG.info("Default user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
             return;
         }
 
