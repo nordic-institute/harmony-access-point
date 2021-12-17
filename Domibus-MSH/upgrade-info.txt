@@ -1,7 +1,8 @@
 Domibus 4.2.6 (from 4.2.5):
-                - Please remove the property domibus.authentication.dss.custom.trusted.lists.list1.code from /conf/domibus/extensions/config/authentication-dss-extension.properties
-                - Please remove the property domibus.authentication.dss.lotl.country.code=EU from /conf/domibus/extensions/config/authentication-dss-extension.properties
-                - Please remove the property domibus.dss.data.loader.connection.request.timeout from /conf/domibus/extensions/config/authentication-dss-extension.properties
+                - Please remove the following properties from the file /conf/domibus/extensions/config/authentication-dss-extension.properties:
+                        - domibus.authentication.dss.custom.trusted.lists.list1.code
+                        - domibus.authentication.dss.lotl.country.code=EU
+                        - domibus.authentication.dss.custom.trusted.lists.list1.code
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"
