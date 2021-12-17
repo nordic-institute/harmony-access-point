@@ -7,25 +7,25 @@ import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Tiago Miguel
  * @since 4.0
  */
 @RunWith(Parameterized.class)
-public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
+public class UserMessageLogDefaultServiceParameterizedTest {
 
     @Tested
     private UserMessageLogDefaultService userMessageLogDefaultService;
@@ -59,13 +59,12 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
     @Parameterized.Parameters(name = "{index}: service=\"{0}\" action=\"{1}\"")
     public static Collection<Object[]> values() {
         return Arrays.asList(new Object[][]{
-                {"service","action"},
+                {"service", "action"},
                 {Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION}
         });
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSave() {
         final String messageId = "1";
         final String messageStatus = MessageStatus.SEND_ENQUEUED.toString();
@@ -78,20 +77,33 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
 
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(messageId);
+        userMessage.setTestMessage(true);
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
+        MSHRoleEntity mshRoleEntity = new MSHRoleEntity();
+        NotificationStatusEntity notifStatus = new NotificationStatusEntity();
+        new Expectations() {{
+            messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
+            result = messageStatusEntity;
+            mshRoleDao.findOrCreate(MSHRole.valueOf(mshRole));
+            result = mshRoleEntity;
+            notificationStatusDao.findOrCreate(NotificationStatus.valueOf(notificationStatus));
+            result = notifStatus;
+            messageStatusDao.findMessageStatus(MessageStatus.valueOf(messageStatus));
+            result = messageStatusEntity;
+        }};
         userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
         new Verifications() {{
-            backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
-//            times = userMessageLogDefaultService.checkTestMessage(service,action)?0:1;
 
             UserMessageLog userMessageLog;
             userMessageLogDao.create(userMessageLog = withCapture());
-            Assert.assertEquals(messageId, userMessage.getMessageId());
-            Assert.assertEquals(MessageStatus.SEND_ENQUEUED, userMessageLog.getMessageStatus());
-            Assert.assertEquals(NotificationStatus.NOTIFIED, userMessageLog.getNotificationStatus());
-            Assert.assertEquals(MSHRole.SENDING, userMessageLog.getMshRole());
-            Assert.assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
-            Assert.assertEquals(backendName, userMessageLog.getBackend());
+            assertEquals(messageId, userMessage.getMessageId());
+            assertEquals(MessageStatus.SEND_ENQUEUED, userMessageLog.getMessageStatus());
+            assertEquals(notifStatus, userMessageLog.getNotificationStatus());
+            assertEquals(mshRoleEntity, userMessageLog.getMshRole());
+            assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
+            assertEquals(backendName, userMessageLog.getBackend());
         }};
     }
 }

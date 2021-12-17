@@ -344,4 +344,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
             Assert.assertNotNull(uml.getArchived());
         }
     }
+
+    @Test
+    @Transactional
+    public void findRetryMessages() {
+        List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L);
+
+        Assert.assertEquals(2, retryMessages.size());
+    }
 }

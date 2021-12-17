@@ -11,6 +11,7 @@ import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.util.DateUtilImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -147,6 +148,12 @@ public class MessageDaoTestUtil {
                 break;
             case DOWNLOADED:
                 userMessageLog.setDownloaded(received);
+                break;
+            case WAITING_FOR_RETRY:
+                userMessageLog.setNextAttempt(new DateUtilImpl().fromString("2019-01-01T12:00:00Z"));
+                userMessageLog.setSendAttempts(1);
+                userMessageLog.setSendAttemptsMax(5);
+                userMessageLog.setScheduled(false);
                 break;
         }
         userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));

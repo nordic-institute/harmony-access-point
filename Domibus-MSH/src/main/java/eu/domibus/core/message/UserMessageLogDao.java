@@ -161,7 +161,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             initializeChildren(userMessageLog);
             return userMessageLog;
         } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any result for message with id {[]}", messageId);
+            LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
         }
     }
@@ -179,7 +179,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             query.setParameter(STR_MESSAGE_ID, messageId);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id {[]}", messageId);
+            LOG.debug("No result for message with id [{}]", messageId);
             return MessageStatus.NOT_FOUND;
         }
     }
@@ -190,7 +190,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with entity id {[]}", messageEntityId);
+            LOG.debug("No result for message with entity id [{}]", messageEntityId);
             return MessageStatus.NOT_FOUND;
         }
     }
@@ -211,7 +211,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             initializeChildren(userMessageLog);
             return userMessageLog;
         } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any result for message with entityId {[]}", entityId);
+            LOG.debug("Could not find any result for message with entityId [{}]", entityId);
             return null;
         }
     }
