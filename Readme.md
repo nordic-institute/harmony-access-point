@@ -1,6 +1,6 @@
 
 [![License badge](https://img.shields.io/badge/license-EUPL-blue.svg)](License.md)
-[![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://github.com/nordic-institute/harmony-common/tree/harmony-develop/doc)
+[![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://github.com/nordic-institute/harmony-common/tree/main/doc)
 [![Support badge]( https://img.shields.io/badge/support-sof-yellowgreen.svg)](https://edelivery.digital/contact)
 
 # Harmony eDelivery Access - Access Point
