@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -25,10 +26,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.MessageStatus.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.junit.Assert.*;
 
 /**
  * @author Ion Perpegel
@@ -53,9 +56,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
 
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    protected EntityManager em;
-
     private Date before;
     private Date timeT;
     private Date after;
@@ -73,6 +73,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final String sendFailureWithProperties = randomUUID().toString();
     private final String testDate = randomUUID().toString();
     private long maxEntityId;
+    private UserMessageLog msg1;
 
     @Before
     @Transactional
@@ -82,20 +83,20 @@ public class UserMessageLogDaoIT extends AbstractIT {
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        messageDaoTestUtil.createUserMessageLog("msg1", timeT);
+        msg1 = messageDaoTestUtil.createUserMessageLog("msg1", timeT);
         messageDaoTestUtil.createUserMessageLog("msg2", timeT);
         messageDaoTestUtil.createUserMessageLog("msg3", old);
 
         messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC);
 
         messageDaoTestUtil.createUserMessageLog(deletedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, false, MPC);
-        messageDaoTestUtil.createUserMessageLog(receivedNoProperties, timeT, MSHRole.SENDING, MessageStatus.RECEIVED, false, MPC);
+        messageDaoTestUtil.createUserMessageLog(receivedNoProperties, timeT, MSHRole.SENDING, RECEIVED, false, MPC);
         messageDaoTestUtil.createUserMessageLog(downloadedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, false, MPC);
         messageDaoTestUtil.createUserMessageLog(waitingForRetryNoProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, false, MPC);
         messageDaoTestUtil.createUserMessageLog(sendFailureNoProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC);
 
         messageDaoTestUtil.createUserMessageLog(deletedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, true, MPC);
-        messageDaoTestUtil.createUserMessageLog(receivedWithProperties, timeT, MSHRole.SENDING, MessageStatus.RECEIVED, true, MPC);
+        messageDaoTestUtil.createUserMessageLog(receivedWithProperties, timeT, MSHRole.SENDING, RECEIVED, true, MPC);
         messageDaoTestUtil.createUserMessageLog(downloadedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, true, MPC);
         messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC);
         messageDaoTestUtil.createUserMessageLog(sendFailureWithProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MPC);
@@ -122,93 +123,93 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getSentUserMessagesWithPayloadNotClearedOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, false);
-        Assert.assertEquals(2, downloadedUserMessagesOlderThan.size());
+        assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
-        Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
-        Assert.assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
+        assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
+        assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
     }
 
     @Test
     public void getSentUserMessagesWithPayloadNotClearedOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(before, MPC, 10, false);
-        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
+        assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getSentUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, true);
-        Assert.assertEquals(2, downloadedUserMessagesOlderThan.size());
+        assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
-        Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
-        Assert.assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
+        assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
+        assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
     }
 
     @Test
     public void getSentUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(before, MPC, 10, true);
-        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
+        assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getDownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10);
-        Assert.assertEquals(2, downloadedUserMessagesOlderThan.size());
+        assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(downloadedNoProperties, downloadedWithProperties));
-        Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, downloadedNoProperties).size());
-        Assert.assertEquals(2, getProperties(downloadedUserMessagesOlderThan, downloadedWithProperties).size());
+        assertEquals(0, getProperties(downloadedUserMessagesOlderThan, downloadedNoProperties).size());
+        assertEquals(2, getProperties(downloadedUserMessagesOlderThan, downloadedWithProperties).size());
     }
 
     @Test
     public void getDownloadedUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getDownloadedUserMessagesOlderThan(before, MPC, 10);
-        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
+        assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getUndownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
                 userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10);
-        Assert.assertEquals(2, undownloadedUserMessagesOlderThan.size());
+        assertEquals(2, undownloadedUserMessagesOlderThan.size());
         Assert.assertThat(undownloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(receivedNoProperties, receivedWithProperties));
-        Assert.assertEquals(0, getProperties(undownloadedUserMessagesOlderThan, receivedNoProperties).size());
-        Assert.assertEquals(2, getProperties(undownloadedUserMessagesOlderThan, receivedWithProperties).size());
+        assertEquals(0, getProperties(undownloadedUserMessagesOlderThan, receivedNoProperties).size());
+        assertEquals(2, getProperties(undownloadedUserMessagesOlderThan, receivedWithProperties).size());
     }
 
     @Test
     public void getUndownloadedUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getUndownloadedUserMessagesOlderThan(before, MPC, 10);
-        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
+        assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getDeletedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10);
-        Assert.assertEquals(2, deletedUserMessagesOlderThan.size());
+        assertEquals(2, deletedUserMessagesOlderThan.size());
         Assert.assertThat(deletedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(deletedNoProperties, deletedWithProperties));
-        Assert.assertEquals(0, getProperties(deletedUserMessagesOlderThan, deletedNoProperties).size());
-        Assert.assertEquals(2, getProperties(deletedUserMessagesOlderThan, deletedWithProperties).size());
+        assertEquals(0, getProperties(deletedUserMessagesOlderThan, deletedNoProperties).size());
+        assertEquals(2, getProperties(deletedUserMessagesOlderThan, deletedWithProperties).size());
     }
 
     @Test
@@ -234,7 +235,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void getDeletedUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getDeletedUserMessagesOlderThan(before, MPC, 10);
-        Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
+        assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
@@ -247,7 +248,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         long count = userMessageLogDao.countEntries(filters);
 
-        Assert.assertEquals(12, count);
+        assertEquals(12, count);
     }
 
     @Test
@@ -257,12 +258,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 {"receivedFrom", before},
                 {"receivedTo", after},
                 {"mshRole", MSHRole.RECEIVING},
-                {"messageStatus", MessageStatus.RECEIVED},
+                {"messageStatus", RECEIVED},
         }).collect(Collectors.toMap(data -> (String) data[0], data -> data[1]));
 
         long count = userMessageLogDao.countEntries(filters);
 
-        Assert.assertEquals(2, count);
+        assertEquals(2, count);
     }
 
     @Test
@@ -275,7 +276,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         List<MessageLogInfo> messages = userMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
 
-        Assert.assertEquals(7, messages.size());
+        assertEquals(7, messages.size());
     }
 
     @Test
@@ -285,7 +286,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
 
         String messageId = userMessageLogDao.findLastTestMessageId(testParty);
-        Assert.assertEquals("msg-test-1", messageId);
+        assertEquals("msg-test-1", messageId);
     }
 
     @Test
@@ -294,7 +295,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
 
         UserMessageLog message = userMessageLogDao.findMessageToDeleteNotInFinalStatus("msg-test-2");
-        Assert.assertEquals("msg-test-2", message.getUserMessage().getMessageId());
+        assertEquals("msg-test-2", message.getUserMessage().getMessageId());
     }
 
     @Test
@@ -306,7 +307,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final String finalRecipient = "finalRecipient2";
 
         List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
-        Assert.assertEquals(3, message.size());
+        assertEquals(3, message.size());
     }
 
 
@@ -316,8 +317,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
-        Assert.assertEquals(7, messagesForArchiving.size());
-        Assert.assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
+        assertEquals(7, messagesForArchiving.size());
+        assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
     }
 
     @Test
@@ -326,7 +327,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
-        Assert.assertEquals(6, messagesForArchiving.size());
+        assertEquals(6, messagesForArchiving.size());
     }
 
     @Test
@@ -350,6 +351,184 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findRetryMessages() {
         List<Long> retryMessages = userMessageLogDao.findRetryMessages(0, 999999999999999999L);
 
-        Assert.assertEquals(2, retryMessages.size());
+        assertEquals(2, retryMessages.size());
+    }
+
+    @Test
+    @Transactional
+    public void findMessagesNotFinalAsc() {
+        List<EArchiveBatchUserMessage> retryMessages = userMessageLogDao.findMessagesNotFinalAsc(0, 999999999999999999L);
+
+        assertEquals(5, retryMessages.size());
+    }
+
+    @Test
+    @Transactional
+    public void getMessageStatus_messageId() {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(msg1.getUserMessage().getMessageId());
+
+        assertEquals(RECEIVED, messageStatus);
+    }
+
+    @Test
+    @Transactional
+    public void getMessageStatus_entityId() {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(msg1.getEntityId());
+
+        assertEquals(RECEIVED, messageStatus);
+    }
+
+    @Test
+    @Transactional
+    public void getMessageStatus_messageIdNotFound() {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus("notfound");
+
+        assertEquals(NOT_FOUND, messageStatus);
+    }
+
+    @Test
+    @Transactional
+    public void getMessageStatus_entityIdNotFound() {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(12234567890L);
+
+        assertEquals(NOT_FOUND, messageStatus);
+    }
+
+    @Test
+    @Transactional
+    public void findByMessageIdSafely_notfound() {
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely("notFound");
+
+        Assert.assertNull(userMessageLog);
+    }
+
+    @Test
+    @Transactional
+    public void findByMessageIdSafely_ok() {
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId());
+
+        Assert.assertNotNull(userMessageLog);
+    }
+
+    @Test
+    @Transactional
+    public void findByEntityId() {
+        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(msg1.getEntityId());
+
+        Assert.assertNotNull(userMessageLog);
+    }
+
+    @Test
+    @Transactional
+    @Ignore("EDELIVERY-8767: fix the function")
+    public void findByEntityId_notFound() {
+        try {
+            userMessageLogDao.findByEntityId(12234567890L);
+            fail();
+        } catch (NoResultException e) {
+            //OK
+        }
+    }
+
+    @Test
+    @Transactional
+    public void findByEntityIdSafely() {
+        UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(msg1.getEntityId());
+
+        Assert.assertNotNull(userMessageLog);
+    }
+
+    @Test
+    @Transactional
+    @Ignore("EDELIVERY-8767: fix the function")
+    public void findByEntityIdSafely_notFound() {
+        UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(12234567890L);
+        Assert.assertNull(userMessageLog);
+    }
+
+    @Test
+    @Transactional
+    public void setMessageStatus_DELETED() {
+        userMessageLogDao.setMessageStatus(msg1, DELETED);
+
+        UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
+        assertEquals(DELETED, byEntityId.getMessageStatus());
+        Assert.assertNotNull(byEntityId.getDeleted());
+        Assert.assertNull(byEntityId.getAcknowledged());
+        Assert.assertNull(byEntityId.getDownloaded());
+        Assert.assertNull(byEntityId.getFailed());
+    }
+    @Test
+    @Transactional
+    public void setMessageStatus_ACKNOWLEDGED() {
+        userMessageLogDao.setMessageStatus(msg1, ACKNOWLEDGED);
+
+        UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
+        assertEquals(ACKNOWLEDGED, byEntityId.getMessageStatus());
+        Assert.assertNull(byEntityId.getDeleted());
+        Assert.assertNotNull(byEntityId.getAcknowledged());
+        Assert.assertNull(byEntityId.getDownloaded());
+        Assert.assertNull(byEntityId.getFailed());
+    }
+
+    @Test
+    @Transactional
+    public void setMessageStatus_ACKNOWLEDGED_WITH_WARNING() {
+        userMessageLogDao.setMessageStatus(msg1, ACKNOWLEDGED_WITH_WARNING);
+
+        UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
+        assertEquals(ACKNOWLEDGED_WITH_WARNING, byEntityId.getMessageStatus());
+        Assert.assertNull(byEntityId.getDeleted());
+        Assert.assertNotNull(byEntityId.getAcknowledged());
+        Assert.assertNull(byEntityId.getDownloaded());
+        Assert.assertNull(byEntityId.getFailed());
+    }
+
+    @Test
+    @Transactional
+    public void setMessageStatus_DOWNLOADED() {
+        userMessageLogDao.setMessageStatus(msg1, DOWNLOADED);
+
+        UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
+        assertEquals(DOWNLOADED, byEntityId.getMessageStatus());
+        Assert.assertNull(byEntityId.getDeleted());
+        Assert.assertNull(byEntityId.getAcknowledged());
+        Assert.assertNotNull(byEntityId.getDownloaded());
+        Assert.assertNull(byEntityId.getFailed());
+    }
+
+    @Test
+    @Transactional
+    public void setMessageStatus_SEND_FAILURE() {
+        userMessageLogDao.setMessageStatus(msg1, SEND_FAILURE);
+
+        UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
+        assertEquals(SEND_FAILURE, byEntityId.getMessageStatus());
+        Assert.assertNull(byEntityId.getDeleted());
+        Assert.assertNull(byEntityId.getAcknowledged());
+        Assert.assertNull(byEntityId.getDownloaded());
+        Assert.assertNotNull(byEntityId.getFailed());
+    }
+
+    @Test
+    @Transactional
+    public void findBackendForMessageId() {
+        String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId());
+        assertNull(backendForMessageId);
+    }
+
+    @Test
+    @Transactional
+    public void setAsNotified() {
+        userMessageLogDao.setAsNotified(msg1);
+
+        UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
+        assertEquals(NotificationStatus.NOTIFIED, byEntityId.getNotificationStatus().getStatus());
+    }
+
+    @Test
+    public void findAllInfoPaged() {
+        List<MessageLogInfo> backend = userMessageLogDao.findAllInfoPaged(0, 5, "BACKEND", true, new HashMap<>());
+        assertEquals(5, backend.size());
     }
 }

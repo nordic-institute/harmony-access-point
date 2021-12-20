@@ -166,6 +166,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initializeChildren(UserMessageLog userMessageLog) {
         //initialize values from the second level cache
         userMessageLog.getMessageStatus();
