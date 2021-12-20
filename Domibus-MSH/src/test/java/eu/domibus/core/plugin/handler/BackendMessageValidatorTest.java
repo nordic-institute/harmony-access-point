@@ -12,6 +12,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
+import eu.domibus.core.property.DomibusGeneralConstants;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.Submission;
 import mockit.*;
@@ -24,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
@@ -782,5 +785,24 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("PartProperty is too long (over 1024 characters).");
         backendMessageValidatorObj.validateSubmissionPayloadProperty(payloadProperty, MSHRole.SENDING);
+    }
+
+    @Test
+    public void validateSubmissionPayload_MoreThan28Attachments(@Mocked Submission mockSubmission )throws EbMS3Exception{
+
+        Set<Submission.Payload> payloadSet = new HashSet<>();
+        for(int i = 0; i<(DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT+1); i++){
+            Submission.Payload mockPayload = new Submission.Payload(Integer.toString(i), null, null, true, null, null);
+            payloadSet.add(mockPayload);
+        }
+
+        new Expectations(){{
+            mockSubmission.getPayloads();
+            result = payloadSet;
+        }};
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("Maximum number of attachments Domibus can accept in a message is 28.");
+        backendMessageValidatorObj.validateSubmissionPayload(mockSubmission, MSHRole.SENDING);
     }
 }
