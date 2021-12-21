@@ -263,7 +263,7 @@ public class UserMessageHandlerServiceImplTest {
                     false);
             result = soapResponseMessage;
 
-            as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
+            as4ReceiptService.generateResponse(soapResponseMessage, false);
             result = new SignalMessageResult();
         }};
 
@@ -402,7 +402,7 @@ public class UserMessageHandlerServiceImplTest {
             as4ReceiptService.generateReceipt(soapRequestMessage, userMessage, ReplyPattern.RESPONSE, true, false, selfSending);
             result = soapResponseMessage;
 
-            as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
+            as4ReceiptService.generateResponse(soapResponseMessage, false);
             result = new SignalMessageResult();
         }};
 
@@ -818,7 +818,7 @@ public class UserMessageHandlerServiceImplTest {
                     false);
             result = soapResponseMessage;
 
-            as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
+            as4ReceiptService.generateResponse(soapResponseMessage, false);
             result = signalMessageResult;
 
             userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false, false, false, signalMessageResult);
@@ -863,7 +863,7 @@ public class UserMessageHandlerServiceImplTest {
                     false,
                     false);
 
-            as4ReceiptService.generateResponse(responseMessage, userMessage, false);
+            as4ReceiptService.generateResponse(responseMessage, false);
             result = new SignalMessageResult();
             userMessage.getMessageId();
             result = "TestMessage123";

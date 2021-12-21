@@ -50,7 +50,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 /**
@@ -70,7 +69,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected final UIReplicationSignalService uiReplicationSignalService;
     protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
-    private final SignalMessageLogDao signalMessageLogDao;
     protected final UserMessageService userMessageService;
     private final MessageIdGenerator messageIdGenerator;
     protected final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
@@ -88,7 +86,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
                                  TimestampDateFormatter timestampDateFormatter,
-                                 SignalMessageLogDao signalMessageLogDao,
                                  UserMessageService userMessageService,
                                  MessageIdGenerator messageIdGenerator,
                                  UserMessageRawEnvelopeDao rawEnvelopeLogDao,
@@ -105,7 +102,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
-        this.signalMessageLogDao = signalMessageLogDao;
         this.userMessageService = userMessageService;
         this.messageIdGenerator = messageIdGenerator;
         this.rawEnvelopeLogDao = rawEnvelopeLogDao;
@@ -206,12 +202,11 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
     /**
-     *
-     * @param responseMessage SOAP response message
+     *  @param responseMessage SOAP response message
      * @param selfSendingFlag indicates that the message is sent to the same Domibus instance
      */
     @Override
-    public SignalMessageResult generateResponse(final SOAPMessage responseMessage, UserMessage userMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
+    public SignalMessageResult generateResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
         Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(responseMessage);

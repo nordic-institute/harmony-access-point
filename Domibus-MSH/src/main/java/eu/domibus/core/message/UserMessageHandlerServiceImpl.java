@@ -229,7 +229,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         SignalMessageResult signalMessageResult = null;
         try {
-            signalMessageResult = as4ReceiptService.generateResponse(responseMessage, userMessage, selfSendingFlag);
+            signalMessageResult = as4ReceiptService.generateResponse(responseMessage, selfSendingFlag);
         } catch (final SOAPException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
             throw EbMS3ExceptionBuilder.getInstance()

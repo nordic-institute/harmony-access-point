@@ -9,7 +9,6 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
@@ -28,7 +27,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -41,6 +39,7 @@ import static org.junit.Assert.assertNull;
  * @author Thomas Dussart
  * @since 3.3
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions", "unused"})
 @RunWith(JMockit.class)
 public class Ebms3PullRequestHandlerImplTest {
 
@@ -180,16 +179,16 @@ public class Ebms3PullRequestHandlerImplTest {
 
             messageExchangeService.verifySenderCertificate(legConfiguration, pullContext.getResponder().getName());
             result = new DomibusCertificateException("test");
-
-
         }};
+
         pullRequestHandler.handleRequest(messageId, pullContext);
+
         new Verifications() {{
-            EbMS3Exception e = null;
+            EbMS3Exception e;
             reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getErrorCode());
-            Ebms3Error faultInfo = null;
+            Ebms3Error faultInfo;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
             Assert.assertEquals("EBMS:0101", faultInfo.getErrorCode());
@@ -199,8 +198,6 @@ public class Ebms3PullRequestHandlerImplTest {
             MessageAttempt attempt = null;
             messageAttemptService.create(withAny(attempt));
             times = 1;
-
-
         }};
     }
 
@@ -220,11 +217,11 @@ public class Ebms3PullRequestHandlerImplTest {
         }};
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
-            EbMS3Exception e = null;
+            EbMS3Exception e;
             reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
-            Ebms3Error faultInfo = null;
+            Ebms3Error faultInfo;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
             Assert.assertEquals("EBMS:0010", faultInfo.getErrorCode());
