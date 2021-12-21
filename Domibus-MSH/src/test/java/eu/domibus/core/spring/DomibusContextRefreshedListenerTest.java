@@ -8,6 +8,7 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -54,6 +55,9 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     TLSCertificateManager tlsCertificateManager;
+
+    @Injectable
+    UserManagementServiceImpl userManagementService;
 
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
