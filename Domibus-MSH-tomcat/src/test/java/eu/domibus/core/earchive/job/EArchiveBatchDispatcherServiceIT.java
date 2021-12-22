@@ -12,7 +12,6 @@ import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -31,7 +30,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
     JMSManager jmsManager;

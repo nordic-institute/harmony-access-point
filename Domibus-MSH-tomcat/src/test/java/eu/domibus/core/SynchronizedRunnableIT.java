@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_K
  * @author Ion Perpegel
  * @since 5.0
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class SynchronizedRunnableIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
@@ -36,7 +34,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             try {
                 Thread.sleep(10000);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("SynchronizedRunnableIT stopped", e);
             }
             i.getAndIncrement();
             LOG.info("Task 1 exit");
@@ -51,7 +49,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOG.error("SynchronizedRunnableIT stopped", e);
             }
             i.getAndIncrement();
             LOG.info("Task 2 exit");
@@ -62,7 +60,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("SynchronizedRunnableIT stopped", e);
         }
         LOG.info("Launch task 2");
         t2.start();
@@ -71,7 +69,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             t2.join();
             Assert.assertEquals(1, i.get());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("SynchronizedRunnableIT stopped", e);
         }
     }
 
@@ -84,7 +82,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             try {
                 Thread.sleep(2000);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("SynchronizedRunnableIT stopped", e);
             }
             i.getAndIncrement();
             LOG.info("Task 1 exit");
@@ -99,7 +97,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOG.error("SynchronizedRunnableIT stopped", e);
             }
             i.getAndIncrement();
             LOG.info("Task 2 exit");
@@ -109,7 +107,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("SynchronizedRunnableIT stopped", e);
         }
         LOG.info("Launch task 2");
         t2.start();
@@ -118,7 +116,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             t2.join();
             Assert.assertEquals(2, i.get());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("SynchronizedRunnableIT stopped", e);
         }
     }
 
