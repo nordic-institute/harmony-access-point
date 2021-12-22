@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
 import static eu.domibus.api.util.DomibusStringUtil.*;
 import static eu.domibus.core.property.DomibusGeneralConstants.DOMIBUS_MAX_ATTACHMENT_COUNT;
@@ -550,7 +551,11 @@ public class BackendMessageValidator {
     }
 
     private void validateSubmissionAttachmentCount(Submission submission, MSHRole mshRole) throws EbMS3Exception {
-        if(submission.getPayloads().size() > DOMIBUS_MAX_ATTACHMENT_COUNT){
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE)) {
+            LOG.debug("Skipping attachment count validation.");
+            return;
+        }
+        if (submission.getPayloads().size() > DOMIBUS_MAX_ATTACHMENT_COUNT) {
             LOG.businessError(BUS_ATTACHMENTS_MORE_THAN_28);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
