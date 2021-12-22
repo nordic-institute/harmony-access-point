@@ -1,13 +1,13 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
@@ -22,7 +22,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
@@ -469,8 +468,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         Assert.assertNull(defaultProxy);
     }
 
-//    @Test
-    @Ignore("This is not a unit tests but the code is useful to test real SMP entries")
+    @Test
     public void testLookupInformation() throws Exception {
         new NonStrictExpectations() {{
             domibusProxyService.isProxyUserSet();

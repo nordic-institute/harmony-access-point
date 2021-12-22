@@ -18,7 +18,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -428,20 +427,7 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void validateAgreementRef_PmodeTooLong() throws EbMS3Exception {
-        String type = "AgreementRefType";
-        String value = "AgreementRefValue";
-
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("AgreementRef Pmode is too long (over 255 characters)");
-
-        backendMessageValidatorObj.validateAgreementRef(value, type);
-    }
-
-    @Test
     public void validateAgreementRef_TypeTooLong() throws EbMS3Exception {
-        AgreementRefEntity agreementRef = new AgreementRefEntity();
         String type = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
         String value = "AgreementRefValue";
 

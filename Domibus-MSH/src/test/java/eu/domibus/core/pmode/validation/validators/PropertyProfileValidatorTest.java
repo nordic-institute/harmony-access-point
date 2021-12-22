@@ -17,7 +17,6 @@ import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -62,7 +61,6 @@ public class PropertyProfileValidatorTest {
 
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void validateTest(@Injectable UserMessage userMessage,
                              @Injectable eu.domibus.api.model.Property property1,
                              @Injectable eu.domibus.api.model.Property property2) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
@@ -70,7 +68,7 @@ public class PropertyProfileValidatorTest {
         messageProperties.add(property1);
         messageProperties.add(property2);
 
-        Set<MessageProperty> properties = new HashSet<>();
+        Set<eu.domibus.api.model.MessageProperty> properties = new HashSet<>();
         properties.add(createMessageProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
         properties.add(createMessageProperty(MessageConstants.FINAL_RECIPIENT, MessageConstants.FINAL_RECIPIENT, "String", true));
         new NonStrictExpectations(legConfiguration, propertySet) {{
@@ -101,36 +99,36 @@ public class PropertyProfileValidatorTest {
     }
 
 
-    @Test(expected = EbMS3Exception.class)
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void validateMissingPropertyTest(@Injectable UserMessage userMessage) throws EbMS3Exception {
+    @Test
+    public void validateMissingPropertyTest(@Injectable UserMessage userMessage,
+                                            @Injectable LegConfiguration legConfiguration,
+                                            @Injectable PropertySet propertySet) throws EbMS3Exception {
+        String pmodeKey = "anyKey";
+
         Set<MessageProperty> properties = new HashSet<>();
         properties.add(createMessageProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
-        new NonStrictExpectations(legConfiguration, propertySet) {{
-            domibusConfigurationService.isFourCornerEnabled();
-            result = true;
+        new NonStrictExpectations() {{
+            pModeProvider.getLegConfiguration(pmodeKey);
+            result = legConfiguration;
 
             legConfiguration.getPropertySet();
             result = propertySet;
-
-            propertySet.getProperties();
-            result = properties;
         }};
 
-        propertyProfileValidator.validate(userMessage, "anyKey");
+        propertyProfileValidator.validate(userMessage, pmodeKey);
     }
 
+
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void checkDuplicateMessagePropertiesTest(@Injectable Messaging messaging,
                                                     @Injectable Property profiledProperty,
                                                     @Injectable eu.domibus.api.model.MessageProperty messageProperty,
-                                                    @Injectable eu.domibus.api.model.MessageProperty messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
+                                                    @Injectable eu.domibus.api.model.MessageProperty messageProperty1) {
         Set<Property> properties = new HashSet<>();
         final List<Property> modifiablePropertyList = new ArrayList<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
-        Set<eu.domibus.api.model.MessageProperty> messagePropertiesSet = new HashSet<>();
         String duplicateMessageProperty = "originalSender";
+        Set<eu.domibus.api.model.MessageProperty> messagePropertiesSet = new HashSet<>();
         messagePropertiesSet.add(messageProperty);
         messagePropertiesSet.add(messageProperty1);
         modifiablePropertyList.addAll(properties);
@@ -145,14 +143,12 @@ public class PropertyProfileValidatorTest {
 
         try {
             propertyProfileValidator.checkDuplicateMessageProperties(modifiablePropertyList, messagePropertiesSet);
+            Assert.fail();
         } catch (EbMS3Exception e) {
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0052, e.getErrorCode());
             Assert.assertEquals("Duplicate Message property found for property name [originalSender]", e.getMessage());
         }
-        new Verifications() {{
-            messagePropertiesSet.stream().filter(string -> string.getName().equalsIgnoreCase(profiledProperty.getKey())).count();
-            times = 1;
-        }};
+
     }
 
     private MessageProperty createMessageProperty(String name, String key, String dataType, boolean required) {
@@ -168,9 +164,9 @@ public class PropertyProfileValidatorTest {
     private Property createProperty(String name, String key, String dataType, boolean required) {
         Property property = new Property();
         property.setName(name);
-//        property.setRequired(required);
-//        property.setKey(key);
-//        property.setDatatype(dataType);
+        property.setRequired(required);
+        property.setKey(key);
+        property.setDatatype(dataType);
 
         return property;
     }

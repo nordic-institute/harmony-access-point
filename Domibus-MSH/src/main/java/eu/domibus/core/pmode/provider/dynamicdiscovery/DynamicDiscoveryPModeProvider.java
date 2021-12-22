@@ -210,10 +210,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         String messageId = getMessageId(userMessage);
         if (userMessage != null &&
                 userMessage.getPartyInfo() != null &&
-                userMessage.getPartyInfo().getTo() != null &&
-                userMessage.getPartyInfo().getTo().getToPartyId() != null &&
-                userMessage.getPartyInfo().getTo().getToPartyId() != null
-        ) {
+                userMessage.getPartyInfo().getTo() != null) {
             to = userMessage.getPartyInfo().getTo().getToPartyId();
         }
         if (to == null) {

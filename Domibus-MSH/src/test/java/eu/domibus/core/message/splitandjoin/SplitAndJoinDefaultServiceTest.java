@@ -55,7 +55,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService.ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE;
-import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
 
 /**
@@ -207,7 +206,6 @@ public class SplitAndJoinDefaultServiceTest {
             userMessageDefaultService.createMessageFragments(userMessage, messageGroupEntity = withCapture(), fragmentFiles);
 
             Assert.assertEquals(2L, messageGroupEntity.getFragmentCount().longValue());
-//            Assert.assertEquals(sourceMessageId, messageGroupEntity.getSourceMessageId());
             Assert.assertEquals(sourceMessageId, messageGroupEntity.getGroupId());
             Assert.assertEquals(BigInteger.valueOf(sourceMessageFileLength), messageGroupEntity.getMessageSize());
 
@@ -387,16 +385,10 @@ public class SplitAndJoinDefaultServiceTest {
     @Test
     public void generateSourceFileName() {
         String directory = "/home/temp";
-        String uuidValue = "123";
-
-        new Expectations() {{
-            UUID.randomUUID().toString();
-            result = uuidValue;
-        }};
 
         final String generateSourceFileName = splitAndJoinDefaultService.generateSourceFileName(directory);
 
-        Assert.assertEquals(generateSourceFileName, directory + "/" + uuidValue);
+        Assert.assertTrue(StringUtils.contains(generateSourceFileName, directory + "/" ));
     }
 
     @Test

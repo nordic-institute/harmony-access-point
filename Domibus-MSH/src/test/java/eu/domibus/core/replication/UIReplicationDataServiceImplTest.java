@@ -28,6 +28,7 @@ import java.util.UUID;
  * @author Catalin Enache
  * @since 4.0
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class UIReplicationDataServiceImplTest {
 
@@ -62,10 +63,9 @@ public class UIReplicationDataServiceImplTest {
     private final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
     private final NotificationStatus notificationStatus = NotificationStatus.REQUIRED;
     private final MSHRole mshRole = MSHRole.SENDING;
-    private final MessageType messageType = MessageType.USER_MESSAGE;
     private final String conversationId = UUID.randomUUID().toString();
     private final String refToMessageId = UUID.randomUUID().toString();
-    private Random rnd = new Random();
+    private final Random rnd = new Random();
     private final Date deleted = new Date(Math.abs(System.currentTimeMillis() - rnd.nextLong()));
     private final Date received = new Date(Math.abs(System.currentTimeMillis() - rnd.nextLong()));
     private final Date nextAttempt = new Date(Math.abs(System.currentTimeMillis() - rnd.nextLong()));
@@ -85,7 +85,7 @@ public class UIReplicationDataServiceImplTest {
 
 
     @Test
-    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomibusCoreMapper coreMapper) {
+    public void testMessageReceived( final @Injectable DomibusCoreMapper coreMapper) {
 
         new Expectations(uiReplicationDataService) {{
             uiReplicationDataService.createUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
@@ -120,11 +120,11 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testMessageChange_EntityFound_ResultOK(final @Mocked UIMessageEntity uiMessageEntity) {
+    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
+    public void testMessageChange_EntityFound_ResultOK(final @Injectable UIMessageEntity uiMessageEntity) {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
-        new Expectations(uiReplicationDataService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageId(anyString);
             result = userMessageLog;
 
@@ -135,17 +135,17 @@ public class UIReplicationDataServiceImplTest {
         //tested method
         uiReplicationDataService.messageChange(messageId, jmsTime.getTime());
 
-        new FullVerifications(uiReplicationDataService) {{
+        new FullVerifications() {{
             uiMessageDao.updateMessage(userMessageLog, jmsTime.getTime());
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
     public void testMessageChange_EntityNotFound_Warn() {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
-        new Expectations(uiReplicationDataService) {{
+        new Expectations() {{
             uiMessageDao.findUIMessageByMessageId(anyString);
             result = null;
         }};
@@ -153,8 +153,7 @@ public class UIReplicationDataServiceImplTest {
         //tested method
         uiReplicationDataService.messageChange(messageId, jmsTime.getTime());
 
-        new FullVerifications(uiReplicationDataService) {{
-        }};
+        new FullVerifications() {};
     }
 
     @Test
@@ -193,8 +192,8 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSaveUIMessageFromSignalMessageLog(final @Mocked UIMessageEntity uiMessageEntity) {
+    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
+    public void testSaveUIMessageFromSignalMessageLog(final @Injectable UIMessageEntity uiMessageEntity) {
         final UserMessageLog userMessageLog = createUserMessageLog();
         final UserMessage userMessage = createUserMessage();
 
@@ -257,8 +256,8 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSaveUIMessageFromUserMessageLog(final @Mocked Messaging messaging, final @Mocked UIMessageEntity uiMessageEntity) {
+    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
+    public void testSaveUIMessageFromUserMessageLog(final @Injectable Messaging messaging, final @Injectable UIMessageEntity uiMessageEntity) {
         final SignalMessageLog signalMessageLog = createSignalMessageLog();
         final UserMessage userMessage = createUserMessage();
         final SignalMessage signalMessage = createSignalMessage();
