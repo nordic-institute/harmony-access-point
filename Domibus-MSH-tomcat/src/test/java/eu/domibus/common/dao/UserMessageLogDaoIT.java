@@ -3,7 +3,6 @@ package eu.domibus.common.dao;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
@@ -15,9 +14,7 @@ import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -420,7 +417,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8767: fix the function")
+    @Ignore("EDELIVERY-8767: findByEntity -> hibernate initialization")
     public void findByEntityId_notFound() {
         try {
             userMessageLogDao.findByEntityId(12234567890L);
@@ -440,7 +437,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8767: fix the function")
+    @Ignore("EDELIVERY-8767: findByEntity -> hibernate initialization")
     public void findByEntityIdSafely_notFound() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(12234567890L);
         Assert.assertNull(userMessageLog);
