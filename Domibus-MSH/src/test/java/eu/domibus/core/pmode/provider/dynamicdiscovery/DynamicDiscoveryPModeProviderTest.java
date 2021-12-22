@@ -359,10 +359,10 @@ public class DynamicDiscoveryPModeProviderTest {
 
         Collection<Process> result = classUnderTest.findDynamicResponderProcesses();
 
-        assertEquals(3, result.size());
+        assertEquals(2, result.size());
 
         for (Process process : result) {
-            assertTrue(process.isDynamicInitiator());
+//            assertTrue(process.isDynamicInitiator());
             assertTrue(process.isDynamicResponder());
         }
     }

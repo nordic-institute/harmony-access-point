@@ -11,7 +11,7 @@ import java.util.List;
 public class QueuedBatchResultDTO {
     protected QueuedBatchFilterDTO filter;
     protected PaginationDTO pagination;
-    protected List<QueuedBatchDTO> queuedBatches;
+    protected List<BatchDTO> batches;
 
     public QueuedBatchResultDTO() {
     }
@@ -42,10 +42,10 @@ public class QueuedBatchResultDTO {
         this.pagination = pagination;
     }
 
-    public List<QueuedBatchDTO> getQueuedBatches() {
-        if (queuedBatches == null) {
-            queuedBatches = new ArrayList<>();
+    public List<BatchDTO> getBatches() {
+        if (batches == null) {
+            batches = new ArrayList<>();
         }
-        return queuedBatches;
+        return batches;
     }
 }

@@ -83,7 +83,7 @@ public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
     }
 
     public Boolean getCompressed() {
-        return BooleanUtils.toBoolean(compressed);
+        return BooleanUtils.isTrue(compressed);
     }
 
     public void setCompressed(Boolean compressed) {

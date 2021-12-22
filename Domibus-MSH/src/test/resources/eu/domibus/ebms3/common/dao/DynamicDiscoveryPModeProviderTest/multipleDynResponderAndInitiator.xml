@@ -86,6 +86,9 @@
 				 binding="push"
 				 initiatorRole="defaultInitiatorRole"
 				 responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="self"/>
+			</initiatorParties>
 			<legs>
 				<leg name="testLegtestAction"/>
 			</legs>
@@ -96,6 +99,9 @@
 				 binding="push"
 				 initiatorRole="defaultInitiatorRole"
 				 responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="self"/>
+			</initiatorParties>
 			<legs>
 				<leg name="testLegtestAction"/>
 			</legs>
@@ -106,6 +112,9 @@
 				 binding="push"
 				 initiatorRole="defaultInitiatorRole"
 				 responderRole="defaultResponderRole">
+			<responderParties>
+				<responderParty name="self"/>
+			</responderParties>
 			<legs>
 				<leg name="testLegtestAction"/>
 			</legs>

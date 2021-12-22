@@ -174,9 +174,15 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    public EArchiveBatchRequestDTO getBatch(String batchId) {
+        EArchiveBatchEntity copyBatch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+        return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(copyBatch);
+    }
+
+    @Override
     @Transactional
     public EArchiveBatchRequestDTO setBatchClientStatus(String batchId, @NotNull EArchiveBatchStatus batchStatus, String message) {
-        LOG.debug("Got status notification with status: [{}] and message: [{}] for batchId: [{}]", batchStatus.name(), message, batchId);
+        LOG.debug("Got status notification with status: [{}] and message: [{}] for batchId: [{}]", batchStatus, message, batchId);
         EArchiveBatchEntity eArchiveBatchEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (eArchiveBatchEntity == null) {
             throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");

@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.h2.tools.Server;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -125,6 +126,7 @@ public class UploadPModeIT extends AbstractIT {
      */
     @Test
     @Transactional
+    @Ignore("Unstable bamboo test")
     public void testVerifyPModeContent() throws IOException, JAXBException, SQLException {
         Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
 
