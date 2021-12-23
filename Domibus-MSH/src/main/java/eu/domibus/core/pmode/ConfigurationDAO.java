@@ -96,7 +96,5 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
             this.delete(this.read());
         }
         this.create(configuration);
-
-
     }
 }

@@ -617,6 +617,10 @@ public class DomainSchedulerFactoryConfiguration {
         properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
         properties.setProperty("org.quartz.scheduler.jmx.export", "false");
         properties.setProperty("org.quartz.threadExecutor.class", DomibusQuartzThreadExecutor.class.getCanonicalName());
+        // domibus uses TCCL - ThreadContextClassLoad to load plugins. Use InitThreadContextClassLoadHelper
+        // to use the current init class loader which also loads the plugins. If you change this, check the
+        // plugin execution on wildfly
+        properties.setProperty("org.quartz.scheduler.classLoadHelper.class", "org.quartz.simpl.InitThreadContextClassLoadHelper");
 
         properties.setProperty("org.quartz.scheduler.instanceName", "general");
         if (StringUtils.isNotEmpty(tablePrefix)) {

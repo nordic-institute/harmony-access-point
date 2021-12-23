@@ -102,14 +102,18 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
     this._messageInterval = dateInterval;
     if (dateInterval.value) {
-      if (!this.filter.receivedTo) {
-        this.filter.receivedTo = new Date();
-      }
-      this.filter.receivedFrom = new Date(this.filter.receivedTo - dateInterval.value * this.MS_PER_MINUTE);
+      this.setDatesFromInterval();
     } else {
       this.filter.receivedFrom = null;
       this.filter.receivedTo = null;
       super.advancedSearch = true;
+    }
+  }
+
+  private setDatesFromInterval() {
+    if (this.messageInterval && this.messageInterval.value) {
+      this.filter.receivedTo = new Date();
+      this.filter.receivedFrom = new Date(this.filter.receivedTo - this.messageInterval.value * this.MS_PER_MINUTE);
     }
   }
 
@@ -300,6 +304,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
+  protected onBeforeFilter() {
+    this.setDatesFromInterval();
+  }
+
   private calculateCount(result: MessageLogResult) {
     this.estimatedCount = result.estimatedCount;
     if (result.estimatedCount) {
@@ -455,15 +463,20 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.filter.messageType = this.msgTypes[1];
     this.conversationIdValue = null;
     this.notificationStatusValue = null;
+    this.setCustomMessageInterval();
   }
 
   onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
-    this._messageInterval = this.messageIntervals[this.messageIntervals.length - 1];
+    this.setCustomMessageInterval();
   }
 
   onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
+    this.setCustomMessageInterval();
+  }
+
+  private setCustomMessageInterval() {
     this._messageInterval = this.messageIntervals[this.messageIntervals.length - 1];
   }
 
