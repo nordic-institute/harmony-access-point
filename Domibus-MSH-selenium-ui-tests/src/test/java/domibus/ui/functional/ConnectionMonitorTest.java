@@ -1,9 +1,9 @@
 package domibus.ui.functional;
 
-import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -16,8 +16,6 @@ import utils.DFileUtils;
 import utils.PModeXMLUtils;
 
 import java.io.File;
-
-
 
 
 public class ConnectionMonitorTest extends SeleniumTest {
@@ -284,13 +282,13 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		String pathToInvalidCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
 
 		tPage.uploadFile(pathToInvalidCert, "test123", soft);
-		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
+		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestMessDetailsModal modal = new TestMessDetailsModal(driver);
 		String partyName = page.grid().getRowSpecificColumnVal(0, "Party");
 
-		if (partyName != currentParty) {
+		if (!StringUtils.equalsIgnoreCase(partyName, currentParty)) {
 			String actualErrMsg = getAlrtForTestMsg(page, 0, "Details", modal);
 			String certError = String.format(DMessages.CONNECTION_MONITORING_CERT_ERROR, partyName, "red_gw");
 			soft.assertTrue(actualErrMsg.equals(certError), "Correct error is shown");

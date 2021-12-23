@@ -1,15 +1,11 @@
 package domibus.ui;
 
-import com.codahale.metrics.ConsoleReporter;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
-import ddsl.dcomponents.SideNavigation;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import ddsl.enums.PAGES;
 import domibus.BaseTest;
-import metricss.MyMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,8 +23,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -39,9 +33,9 @@ public class SeleniumTest extends BaseTest {
 
 
 	static int methodCount = 1;
-	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	public String logFilename;
 
+	public static final Logger log = LoggerFactory.getLogger(SeleniumTest.class);
 
 
 	@BeforeSuite(alwaysRun = true)
@@ -70,7 +64,12 @@ public class SeleniumTest extends BaseTest {
 		log.info("--------------------------- Running test method: " + method.getDeclaringClass().getSimpleName() + "." + method.getName());
 		methodCount++;
 
-		driver.get(data.getUiBaseUrl());
+		try {
+			driver.get(data.getUiBaseUrl());
+		} catch (Exception e) {
+			driver = DriverManager.getDriver();
+			driver.get(data.getUiBaseUrl());
+		}
 		new DomibusPage(driver).waitForPageToLoad();
 
 		login(data.getAdminUser());

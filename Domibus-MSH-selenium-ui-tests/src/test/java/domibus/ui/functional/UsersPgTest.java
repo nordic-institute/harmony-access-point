@@ -728,7 +728,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		page.grid().waitForRowsToLoad();
 
-		log.info("Delete new Super user {}", userName);
+		log.info(String.format("Delete new Super user {}", userName));
 
 		page.grid().scrollToAndSelect("Username", userName);
 		page.getDeleteBtn().click();

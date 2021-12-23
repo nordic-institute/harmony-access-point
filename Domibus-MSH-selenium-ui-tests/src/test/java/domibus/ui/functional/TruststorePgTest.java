@@ -49,7 +49,7 @@ public class TruststorePgTest extends SeleniumTest {
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 
 		page.uploadFile(path, "test123", soft);
-		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
+		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 
 		log.info("Validate presence of successfully keyword in Alert message for default domain");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("successfully"), DMessages.TRUSTSTORE_REPLACE_SUCCESS);
@@ -73,7 +73,7 @@ public class TruststorePgTest extends SeleniumTest {
 
 		page.uploadFile(path, "test123", soft);
 
-		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
+		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 
 		log.info("Validate presence of successfully keyword in Alert message");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("successfully"), DMessages.TRUSTSTORE_REPLACE_SUCCESS);
@@ -96,7 +96,7 @@ public class TruststorePgTest extends SeleniumTest {
 
 		page.uploadFile(path, "test123", soft);
 
-		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
+		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 		log.info("Validate presence of successfully keyword in alert message");
 
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("successfully"), DMessages.TRUSTSTORE_REPLACE_SUCCESS);

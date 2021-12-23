@@ -281,7 +281,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 
 		String q = rest.jms().getRandomQNameWithMessages();
-		log.debug("found queue: {}", q);
+		log.debug(String.format("found queue: {}", q));
 		if (StringUtils.isEmpty(q)) {
 			throw new SkipException("no queue has messages");
 		}

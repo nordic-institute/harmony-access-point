@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +24,9 @@ public class BaseTest {
 	public static DomibusC1 messageSender = new DomibusC1();
 	
 	public ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	
-	
-	Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
+
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	public void generateTestData() throws Exception {
 		
