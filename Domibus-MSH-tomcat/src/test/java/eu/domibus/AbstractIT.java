@@ -102,7 +102,7 @@ public abstract class AbstractIT {
 
     @BeforeClass
     public static void init() throws IOException {
-        if(springContextInitialized) {
+        if (springContextInitialized) {
             return;
         }
 
@@ -150,7 +150,9 @@ public abstract class AbstractIT {
         }
 
         final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes(UTF_8));
-        configurationDAO.updateConfiguration(pModeConfiguration);
+        if (!configurationDAO.configurationExists()) {
+            configurationDAO.updateConfiguration(pModeConfiguration);
+        }
     }
 
     protected void uploadPmode() throws IOException, XmlProcessingException {
@@ -200,7 +202,6 @@ public abstract class AbstractIT {
 
     /**
      * Convert the given file to a string
-     *
      */
     protected String getAS4Response(String file) {
         try {
