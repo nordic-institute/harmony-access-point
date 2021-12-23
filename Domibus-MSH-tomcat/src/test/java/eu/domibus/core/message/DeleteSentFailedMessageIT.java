@@ -21,7 +21,7 @@ import java.util.Map;
  * @since 5.0
  */
 @Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
-public class DeleteSentFailedMessageIT extends DeleteMessageIT {
+public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
 
     @Before
     public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {

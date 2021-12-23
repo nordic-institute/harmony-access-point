@@ -42,7 +42,7 @@ public class SoapSampleUtil {
         attachment.setContentId("cid:message");
         message.addAttachmentPart(attachment);
 
-        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1", "tc1Action", "", "pushTestcase1tc1Action");
+        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1", "tc4Action", "", "pushTestcase1tc4Action");
 
         message.setProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         message.setProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());

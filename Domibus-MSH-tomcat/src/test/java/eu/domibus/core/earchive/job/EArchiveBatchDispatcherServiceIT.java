@@ -1,15 +1,25 @@
 package eu.domibus.core.earchive.job;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.core.earchive.EArchiveBatchDao;
+import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.jms.JMSManagerImpl;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +32,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -30,7 +42,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDispatcherServiceIT.class);
 
     JMSManager jmsManager;
 
@@ -54,8 +69,15 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     private Domain domain;
 
     private boolean jmsManagerTriggered = false;
+    private int userMessageFound = 0;
     private String messageId1;
-    private String messageId2;
+
+    @Autowired
+    private UserMessageLogDao userMessageLogDao;
+    @Autowired
+    private EArchiveBatchDao userMessageDao;
+    @Autowired
+    private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     @Before
     public void setUp() throws Exception {
@@ -64,7 +86,6 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
         messageId1 = UUID.randomUUID().toString();
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", messageId1));
-        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", messageId2));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE, "false");
@@ -78,24 +99,28 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void startBatch() {
         ReflectionTestUtils.setField(eArchiveBatchDispatcherService, "jmsManager", jmsManager);
-        int initBatchSize = em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size();
-        int initMessageSize =  em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size();
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.CONTINUOUS);
         Assert.assertTrue(jmsManagerTriggered);
 
-        jmsManagerTriggered=false;
+        jmsManagerTriggered = false;
 
-        int i = em.createQuery("update UserMessageLog u set u.archived = null")
-                .executeUpdate();
+        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId1);
+        byMessageId.setArchived(null);
         //All UserMessageLog are now available for archiving again
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.SANITIZER);
-        Assert.assertTrue(jmsManagerTriggered);
-
         //Only 1 new batch created because START_DATE of continuous forbid the sanitizer to pick up the last message
-        Assert.assertEquals(3+initBatchSize, em.createQuery("select batch from EArchiveBatchEntity batch").getResultList().size());
-        Assert.assertEquals(3+initMessageSize, em.createQuery("select batchMessage from EArchiveBatchUserMessage batchMessage").getResultList().size());
+        List<EArchiveBatchEntity> batchesByStatus = userMessageDao.findBatchesByStatus(Arrays.asList(EArchiveBatchStatus.values()), 10000);
+        for (EArchiveBatchEntity byStatus : batchesByStatus) {
+            List<EArchiveBatchUserMessage> batchMessageList = eArchiveBatchUserMessageDao.getBatchMessageList(byStatus.getBatchId(), 0, 1000);
+            for (EArchiveBatchUserMessage eArchiveBatchUserMessage : batchMessageList) {
+                if (StringUtils.equals(eArchiveBatchUserMessage.getMessageId(), messageId1)) {
+                    LOG.info(eArchiveBatchUserMessage.toString());
+                    userMessageFound++;
+                }
+            }
+        }
+        Assert.assertEquals(1, userMessageFound);
     }
 }

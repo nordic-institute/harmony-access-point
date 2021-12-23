@@ -26,7 +26,7 @@ import java.util.Map;
 
 @Transactional
 @Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
-public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
+public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentSuccessMessageIT.class);
 

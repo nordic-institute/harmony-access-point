@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -19,15 +18,9 @@ import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -55,31 +48,29 @@ public class PropertyProfileValidatorTest {
     @Injectable
     UserMessageServiceHelper userMessageDefaultServiceHelper = new UserMessageDefaultServiceHelper();
 
-    private final LegConfiguration legConfiguration = new LegConfiguration();
-
-    private final PropertySet propertySet = new PropertySet();
-
-
     @Test
-    @Ignore("EDELIVERY-8776 MessageProperty ClassCast exception")
     public void validateTest(@Injectable UserMessage userMessage,
-                             @Injectable eu.domibus.api.model.Property property1,
-                             @Injectable eu.domibus.api.model.Property property2) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-        Set<eu.domibus.api.model.Property> messageProperties = new HashSet<>();
+                             @Injectable eu.domibus.api.model.MessageProperty property1,
+                             @Injectable eu.domibus.api.model.MessageProperty property2,
+                             @Injectable LegConfiguration legConfiguration,
+                             @Injectable PropertySet propertySet) throws EbMS3Exception {
+        Set<eu.domibus.api.model.MessageProperty> messageProperties = new HashSet<>();
         messageProperties.add(property1);
         messageProperties.add(property2);
 
-        Set<eu.domibus.api.model.MessageProperty> properties = new HashSet<>();
-        properties.add(createMessageProperty(MessageConstants.ORIGINAL_SENDER));
-        properties.add(createMessageProperty(MessageConstants.FINAL_RECIPIENT));
-        new NonStrictExpectations(legConfiguration, propertySet) {{
+        Set<eu.domibus.common.model.configuration.Property> properties = new HashSet<>();
+        properties.add(createProperty(MessageConstants.ORIGINAL_SENDER));
+        properties.add(createProperty(MessageConstants.FINAL_RECIPIENT));
+        new NonStrictExpectations() {{
             property1.getName();
             result = MessageConstants.ORIGINAL_SENDER;
+
             property1.getType();
             result = "String";
 
             property2.getName();
             result = MessageConstants.FINAL_RECIPIENT;
+
             property2.getType();
             result = "String";
 
@@ -124,13 +115,12 @@ public class PropertyProfileValidatorTest {
                                                     @Injectable eu.domibus.api.model.MessageProperty messageProperty,
                                                     @Injectable eu.domibus.api.model.MessageProperty messageProperty1) {
         Set<Property> properties = new HashSet<>();
-        final List<Property> modifiablePropertyList = new ArrayList<>();
-        properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
+        properties.add(createProperty(MessageConstants.ORIGINAL_SENDER));
         String duplicateMessageProperty = "originalSender";
         Set<eu.domibus.api.model.MessageProperty> messagePropertiesSet = new HashSet<>();
         messagePropertiesSet.add(messageProperty);
         messagePropertiesSet.add(messageProperty1);
-        modifiablePropertyList.addAll(properties);
+        final List<Property> modifiablePropertyList = new ArrayList<>(properties);
 
         new Expectations() {{
             messageProperty.getName();
@@ -150,21 +140,12 @@ public class PropertyProfileValidatorTest {
 
     }
 
-    private MessageProperty createMessageProperty(String name) {
-        MessageProperty property = new MessageProperty();
-        property.setName(name);
-
-        return property;
-    }
-
-    private Property createProperty(String name, String key, String dataType, boolean required) {
+    private Property createProperty(String name) {
         Property property = new Property();
         property.setName(name);
-        property.setRequired(required);
-        property.setKey(key);
-        property.setDatatype(dataType);
-
+        property.setRequired(false);
+        property.setKey(name);
+        property.setDatatype("String");
         return property;
     }
-
-}
+    }

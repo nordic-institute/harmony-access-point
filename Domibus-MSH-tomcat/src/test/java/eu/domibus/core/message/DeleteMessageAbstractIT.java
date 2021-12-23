@@ -5,17 +5,16 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
-import eu.domibus.test.common.SoapSampleUtil;
-import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.MessageDBUtil;
+import eu.domibus.test.common.SoapSampleUtil;
+import eu.domibus.test.common.SubmissionUtil;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +35,7 @@ import java.util.List;
  * @author idragusa
  * @since 5.0
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
-public abstract class DeleteMessageIT extends AbstractIT {
+public abstract class DeleteMessageAbstractIT extends AbstractIT {
 
     @Configuration
     static class ContextConfiguration {
