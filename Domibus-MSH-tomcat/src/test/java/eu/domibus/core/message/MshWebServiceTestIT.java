@@ -21,7 +21,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class MshWebServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);

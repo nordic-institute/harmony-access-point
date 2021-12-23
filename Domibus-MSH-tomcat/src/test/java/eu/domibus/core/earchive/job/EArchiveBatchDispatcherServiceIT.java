@@ -85,7 +85,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         uploadPmode(SERVICE_PORT);
 
         messageId1 = UUID.randomUUID().toString();
-        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage2.xml", messageId1));
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4.xml", messageId1));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_ACTIVE, "false");

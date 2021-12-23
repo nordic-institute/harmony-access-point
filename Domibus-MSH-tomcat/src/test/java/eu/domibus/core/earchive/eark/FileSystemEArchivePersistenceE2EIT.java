@@ -97,7 +97,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
         uploadPmode(SERVICE_PORT);
 
-        String filename = "SOAPMessage2.xml";
+        String filename = "SOAPMessage4.xml";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 

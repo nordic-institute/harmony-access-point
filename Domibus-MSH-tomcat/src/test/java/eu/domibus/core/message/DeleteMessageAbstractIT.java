@@ -93,7 +93,7 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
     }
 
     protected void receiveMessageToDelete() throws SOAPException, IOException, ParserConfigurationException, SAXException {
-        String filename = "SOAPMessage2.xml";
+        String filename = "SOAPMessage4.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
