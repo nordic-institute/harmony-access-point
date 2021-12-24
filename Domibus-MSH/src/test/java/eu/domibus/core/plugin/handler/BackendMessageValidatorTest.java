@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE;
 import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
 import static eu.domibus.core.plugin.handler.BackendMessageValidator.MESSAGE_WITH_ID_STR;
 
@@ -799,6 +800,9 @@ public class BackendMessageValidatorTest {
         new Expectations(){{
             mockSubmission.getPayloads();
             result = payloadSet;
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE);
+            result = true;
         }};
 
         thrown.expect(EbMS3Exception.class);

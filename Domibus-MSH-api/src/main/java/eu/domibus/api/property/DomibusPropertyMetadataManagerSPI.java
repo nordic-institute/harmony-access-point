@@ -258,6 +258,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
+    String DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE = "domibus.payload.limit.28attachments.per.message";
     String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
 
     String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
