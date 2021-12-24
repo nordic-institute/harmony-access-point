@@ -16,9 +16,9 @@ import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NA
  * @author Ion Perpegel
  * @since 5.0
  */
-public class TLSCertificateManagerImplT extends AbstractIT {
+public class TLSCertificateManagerIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImplT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerIT.class);
 
     @Autowired
     private TLSCertificateManagerImpl tlsCertificateManager;

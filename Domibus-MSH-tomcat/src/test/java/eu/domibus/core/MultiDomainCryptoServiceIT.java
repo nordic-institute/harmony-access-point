@@ -24,9 +24,9 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  * @author Ion Perpegel
  * @since 5.0
  */
-public class MultiDomainCryptoServiceImplT extends AbstractIT {
+public class MultiDomainCryptoServiceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImplT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceIT.class);
 
     private final String DOMIBUS_TRUSTSTORE_FILE_NAME = "domibus.truststore.jks";
 
