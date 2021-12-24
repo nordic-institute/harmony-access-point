@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.TLSCertificateManagerImpl;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +37,8 @@ public class TLSCertificateManagerIT extends AbstractIT {
     @Test
     @Transactional
     public void persistTruststoresIfApplicable() {
-        boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
-        Assert.assertFalse(isPersisted);
         tlsCertificateManager.persistTruststoresIfApplicable();
-        isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
+        boolean isPersisted = truststoreDao.existsWithName(TLS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
 
@@ -59,11 +58,46 @@ public class TLSCertificateManagerIT extends AbstractIT {
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 2);
 
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(),"keystores", "green_gw.cer");
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "green_gw.cer");
         byte[] content = Files.readAllBytes(path);
-        tlsCertificateManager.addCertificate(content, "green_gw");
+        String green_gw = "green_gw";
+        tlsCertificateManager.addCertificate(content, green_gw);
 
         trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         Assert.assertTrue(trustStoreEntries.size() == 3);
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+    }
+
+    @Test
+    @Transactional
+    public void removeCertificate() {
+        tlsCertificateManager.persistTruststoresIfApplicable();
+
+        List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+        Assert.assertTrue(trustStoreEntries.size() == 2);
+
+        String blue_gw = "blue_gw";
+        tlsCertificateManager.removeCertificate(blue_gw);
+
+        trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+        Assert.assertTrue(trustStoreEntries.size() == 1);
+        Assert.assertTrue(!trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(blue_gw)));
+    }
+
+    @Test
+    @Transactional
+    public void replaceTrustStore() throws IOException {
+        tlsCertificateManager.persistTruststoresIfApplicable();
+
+        List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+        Assert.assertTrue(trustStoreEntries.size() == 2);
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
+        byte[] content = Files.readAllBytes(path);
+        String file_name = "cefsupportgwtruststore.jks";
+        tlsCertificateManager.replaceTrustStore(file_name, content, "test123");
+
+        trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
+        Assert.assertTrue(trustStoreEntries.size() == 9);
     }
 }
