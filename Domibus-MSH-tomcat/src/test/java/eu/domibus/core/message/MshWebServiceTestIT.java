@@ -13,6 +13,7 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -21,7 +22,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -94,6 +95,9 @@ public class MshWebServiceTestIT extends AbstractIT {
 
     @Autowired
     protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
+
+    @Autowired
+    protected SoapUtil soapUtil;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -159,9 +163,11 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String signalMessageRawString = new String(signalMessageRaw.getRawXML());
         LOG.info("signalMessageRawString [{}]", signalMessageRawString);
 
-
         final String expectedResponseRawXml = getExpectedResponseXml(signalMessageRawString);
         assertEquals(expectedResponseRawXml, signalMessageRawString);
+
+        String rawXMLMessage = soapUtil.getRawXMLMessage(soapResponse);
+        assertTrue(Arrays.equals(signalMessageRaw.getRawXML(), rawXMLMessage.getBytes(StandardCharsets.UTF_8)));
     }
 
     protected String getExpectedResponseXml(final String signalMessageRawString) throws IOException {
