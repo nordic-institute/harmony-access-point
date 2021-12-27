@@ -16,6 +16,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ *
+ * Base entity class that handles compressed xml content
+ */
 @MappedSuperclass
 public class RawXmlEntity extends AbstractNoGeneratedPkEntity {
 
