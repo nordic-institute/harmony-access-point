@@ -56,7 +56,7 @@ public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
         }
 
         ReceiptEntity result = new ReceiptEntity();
-        result.setRawXml(ebms3Receipt.getAny().get(0));
+        result.setRawXML(ebms3Receipt.getAny().get(0));
         return result;
     }
 
@@ -83,7 +83,7 @@ public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
     public Ebms3Receipt receiptToEbms3Receipt(ReceiptEntity receiptEntity) {
         Ebms3Receipt result = new Ebms3Receipt();
         List<String> receiptList = new ArrayList<>();
-        receiptList.add(new String(receiptEntity.getRawXml(), StandardCharsets.UTF_8));
+        receiptList.add(new String(receiptEntity.getRawXML(), StandardCharsets.UTF_8));
         result.setAny(receiptList);
         return result;
     }

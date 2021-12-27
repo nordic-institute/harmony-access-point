@@ -142,7 +142,7 @@ public class MshWebServiceTestIT extends AbstractIT {
 
         final ReceiptEntity receiptEntity = receiptDao.read(dbSignalMessage.getEntityId());
         assertNotNull(receiptEntity);
-        assertNotNull(receiptEntity.getRawXml());
+        assertNotNull(receiptEntity.getRawXML());
 
         final UserMessageRaw userMessageRaw = rawEnvelopeLogDao.read(userMessage.getEntityId());
         assertNotNull(userMessageRaw);
