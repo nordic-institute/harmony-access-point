@@ -8,6 +8,7 @@ import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,14 +25,14 @@ public class TruststoreResourceIT extends AbstractIT {
     @Autowired
     private TruststoreDao truststoreDao;
 
-    @After
+    @Before
     public void clean() {
         if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME)) {
             TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_NAME);
             truststoreDao.delete(trust);
         }
     }
-    
+
     @Test
     public void testTruststoreEntries_ok() throws IOException {
 
