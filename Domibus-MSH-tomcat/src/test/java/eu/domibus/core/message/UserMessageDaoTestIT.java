@@ -3,16 +3,13 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.dictionary.*;
-import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.test.common.MessageTestUtility;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class UserMessageDaoTestIT extends AbstractIT {
@@ -47,7 +44,6 @@ public class UserMessageDaoTestIT extends AbstractIT {
     MessagePropertyDao propertyDao;
 
     @Test
-//    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     @Transactional
     public void testSaveUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
