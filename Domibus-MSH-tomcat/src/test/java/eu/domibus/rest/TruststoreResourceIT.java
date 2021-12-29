@@ -1,12 +1,8 @@
 package eu.domibus.rest;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
-import eu.domibus.core.util.MultiPartFileUtilImpl;
 import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
@@ -18,18 +14,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class TruststoreResourceIT extends AbstractIT {
-
-    @Autowired
-    private MultiDomainCryptoService multiDomainCertificateProvider;
-
-    @Autowired
-    private DomainContextProvider domainProvider;
-
-    @Autowired
-    private CertificateService certificateService;
-
-    @Autowired
-    private MultiPartFileUtilImpl multiPartFileUtil;
 
     @Autowired
     private TruststoreResource truststoreResource;

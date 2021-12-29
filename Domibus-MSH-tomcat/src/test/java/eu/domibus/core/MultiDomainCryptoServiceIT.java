@@ -8,13 +8,11 @@ import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.crypto.DefaultDomainCryptoServiceSpiImpl;
-import eu.domibus.core.crypto.DomainCryptoServiceFactory;
-import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
-import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +38,6 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  */
 public class MultiDomainCryptoServiceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceIT.class);
-
     private final String DOMIBUS_TRUSTSTORE_FILE_NAME = "domibus.truststore.jks";
 
     @Autowired
@@ -62,6 +58,14 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
+    @After
+    public void clean() {
+        if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_FILE_NAME)) {
+            TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_FILE_NAME);
+            truststoreDao.delete(trust);
+        }
+    }
+
     @Test
     @Transactional
     public void persistTruststoresIfApplicable() {
@@ -70,8 +74,6 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.persistTruststoresIfApplicable();
         isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
-
-//        truststoreDao.delete(truststoreDao.findByName(DOMIBUS_TRUSTSTORE_FILE_NAME));
     }
 
     @Test
