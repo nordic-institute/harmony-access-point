@@ -3,13 +3,16 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.dictionary.*;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
+
 
 public class UserMessageDaoTestIT extends AbstractIT {
 
@@ -36,13 +39,17 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
     @Autowired
     protected AgreementDao agreementDao;
-
-
+    
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    @Transactional
     public void testSaveUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
+
+//        messageProperties.add(createProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1", STRING_TYPE));
+//        messageProperties.add(createProperty("finalRecipient", FINAL_RECEIPIENT_VALUE, STRING_TYPE));
+
         final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();
