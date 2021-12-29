@@ -38,8 +38,6 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  */
 public class MultiDomainCryptoServiceIT extends AbstractIT {
 
-    private final String DOMIBUS_TRUSTSTORE_FILE_NAME = "domibus.truststore.jks";
-
     @Autowired
     private MultiDomainCryptoServiceImpl multiDomainCryptoService;
 
@@ -60,8 +58,8 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @After
     public void clean() {
-        if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_FILE_NAME)) {
-            TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_FILE_NAME);
+        if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME)) {
+            TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_NAME);
             truststoreDao.delete(trust);
         }
     }
@@ -69,10 +67,10 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void persistTruststoresIfApplicable() {
-        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_FILE_NAME);
-        Assert.assertFalse(isPersisted);
+//        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
+//        Assert.assertFalse(isPersisted);
         multiDomainCryptoService.persistTruststoresIfApplicable();
-        isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
+        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
 
@@ -84,7 +82,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.persistTruststoresIfApplicable();
         byte[] store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_FILE_NAME, store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
