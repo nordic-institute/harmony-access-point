@@ -150,7 +150,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void getBatchListFilterDates() {
+    public void expireBatches() {
         eArchivingRetentionService.expireBatches();
 
         EArchiveBatchFilter filter = new EArchiveBatchFilter(singletonList(EXPIRED), null, null, null, null, null, null, null, null);
@@ -162,10 +162,13 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void cleanStoredBatches() {
+        //setup batch and export messages
         EArchiveBatchEntity eArchiveBatch = eArchivingService.getEArchiveBatch(batch4.getEntityId(), true);
         eArchiveListener.onMessageExportBatch(eArchiveBatch, eArchiveBatch.geteArchiveBatchUserMessages());
+        // need to set the status manually now
         eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.ARCHIVED, null, null);
 
+        // check exported successfully
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatch.getBatchId())) {
             final FileObject[] children = batchDirectory.getChildren();
             Assert.assertEquals(2, children.length);
@@ -181,6 +184,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         // Only one deleted
         Assert.assertEquals(1, batchRequestsCount.size());
 
+        // check nothing left
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatch.getBatchId())) {
             Assert.assertEquals(FileType.IMAGINARY, batchDirectory.getType());
         } catch (Exception e) {
