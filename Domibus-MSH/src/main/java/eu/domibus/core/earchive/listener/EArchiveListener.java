@@ -85,7 +85,7 @@ public class EArchiveListener implements MessageListener {
         }
     }
 
-    protected void onMessageExportBatch(EArchiveBatchEntity eArchiveBatch, List<EArchiveBatchUserMessage> userMessageDtos) {
+    public void onMessageExportBatch(EArchiveBatchEntity eArchiveBatch, List<EArchiveBatchUserMessage> userMessageDtos) {
         eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
         if (CollectionUtils.isEmpty(userMessageDtos)) {
             LOG.info("eArchiving for batchId [{}] has no messages", eArchiveBatch.getBatchId());

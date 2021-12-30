@@ -70,6 +70,7 @@ public class EArchivingRetentionService {
         LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
 
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId())) {
+            final FileObject[] children = batchDirectory.getChildren();
             batchDirectory.deleteAll();
             batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
         } catch (Exception e) {
