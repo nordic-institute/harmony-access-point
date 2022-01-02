@@ -395,17 +395,6 @@
 				<leg name="pullTestcase17tc17Action"/>
 			</legs>
 		</process>
-		<process name="tc18Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pullTestcase18tc18Action"/>
-			</legs>
-		</process>
 		<process name="tc20Process" agreement="agreementDummy" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
