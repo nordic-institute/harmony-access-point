@@ -12,4 +12,6 @@ class DomibusSoapUIConstants {
     public static final def JSON_JMS_SRV_PASSWORD = 'jmsServerPassword';
     public static final def JSON_JMS_PLG_USERNAME = 'jmsPluginUsername';
     public static final def JSON_JMS_PLG_PASSWORD = 'jmsPluginPassword';
+	public static final def BATCH_SUCCESS_STATUS="success" // Status value assigned to a batch in case of a successfull export
+	public static final def BATCH_FAILURE_STATUS="failure" // Status value assigned to a batch in case of a failed export
 }

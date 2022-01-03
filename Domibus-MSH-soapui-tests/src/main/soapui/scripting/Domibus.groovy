@@ -55,6 +55,7 @@ class Domibus{
 	static def MSG_STATUS_MAX_WAIT_TIME_EXT = 180_000 // Maximum time to wait to check the message status extended.
 	static def MSG_STATUS_STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
 	static def CLUSTER_WAIT_TIME=15000	// Time to wait for property changes to be propagated accross clusters
+
 	
     static def CLEAR_CACHE_COMMAND_TOMCAT = $/rmdir /S /Q ..\work & rmdir /S /Q ..\logs & del /S /Q ..\temp\* & FOR /D %p IN ("..\temp\*.*") DO rmdir /s /q "%p"  & rmdir /S /Q ..\webapps\domibus & rmdir /S /Q ..\conf\domibus\work/$
 
@@ -349,6 +350,9 @@ class Domibus{
     def cleanDatabaseForDomains(domainIdList) {
         debugLog("  ====  Calling \"cleanDatabaseForDomains\" ${domainIdList}.", log)
         def sqlQueriesList = [
+				"UPDATE TB_EARCHIVE_START SET LAST_PK_USER_MESSAGE=000101000000000000",
+				"delete from TB_EARCHIVEBATCH_UM",
+				"delete from TB_EARCHIVE_BATCH",
 		        "delete from TB_USER_MESSAGE_RAW",				
 				"delete from TB_SEND_ATTEMPT",
 				"delete from TB_PART_PROPERTIES",
