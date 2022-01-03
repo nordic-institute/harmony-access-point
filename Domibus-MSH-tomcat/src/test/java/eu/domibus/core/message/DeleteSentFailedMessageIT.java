@@ -1,25 +1,39 @@
 package eu.domibus.core.message;
 
 
+import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
-import org.apache.commons.collections.CollectionUtils;
+import eu.domibus.plugin.BackendConnector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
-*
  * @author idragusa
  * @since 5.0
  */
 public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentFailedMessageIT.class);
+
+    @Autowired
+    private ITTestsService itTestsService;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
+    @Autowired
+    private UserMessageLogDao userMessageLogDao;
 
     @Before
     public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
@@ -28,21 +42,30 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         uploadPmode(SERVICE_PORT, toReplace);
     }
 
-    @Transactional
     @Test
-    public void testDeleteFailedMessage() throws MessagingProcessingException, IOException {
-        Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
-        sendMessageToDelete(MessageStatus.SEND_FAILURE);
+    public void testDeleteFailedMessage() throws MessagingProcessingException {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
-        Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
+        String messageId = itTestsService.sendMessageToDelete(MessageStatus.SEND_FAILURE);
+
+        LOG.info("Message Id to delete: [{}]", messageId);
+        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
+        Assert.assertNotNull(byMessageId);
+
+        Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
+        Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
+
         deleteMessages();
 
-        Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
+        Assert.assertNull(userMessageDao.findByMessageId(messageId));
+        try {
+            userMessageLogDao.findByMessageId(messageId);
+            Assert.fail();
+        } catch (NoResultException e) {
+            //OK
+        }
 
-        Assert.assertTrue(initialMap.size() > 0);
-        Assert.assertTrue(beforeDeletionMap.size() > 0);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
-        Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
     }
 
 }

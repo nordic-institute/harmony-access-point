@@ -2,16 +2,10 @@ package eu.domibus.core.message;
 
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
-import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.MessageDBUtil;
 import eu.domibus.test.common.SoapSampleUtil;
-import eu.domibus.test.common.SubmissionUtil;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
@@ -44,12 +38,6 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
     protected MessageDBUtil messageDBUtil;
 
     @Autowired
-    protected SubmissionUtil submissionUtil;
-
-    @Autowired
-    protected DatabaseMessageHandler databaseMessageHandler;
-
-    @Autowired
     protected SoapSampleUtil soapSampleUtil;
 
     protected static List<String> tablesToExclude;
@@ -78,13 +66,4 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
         messageRetentionService.deleteExpiredMessages();
     }
 
-    protected void sendMessageToDelete(MessageStatus status) throws MessagingProcessingException, IOException {
-
-        Submission submission = submissionUtil.createSubmission();
-        uploadPmode();
-        final String messageId = databaseMessageHandler.submit(submission, "mybackend");
-
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-        userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.SEND_FAILURE);
-    }
 }
