@@ -45,6 +45,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ConstantConditions")
 @Transactional
+@Ignore("Unstable bamboo test")
 public class UploadPModeIT extends AbstractIT {
 
     public static final String SCHEMAS_DIR = "schemas/";
