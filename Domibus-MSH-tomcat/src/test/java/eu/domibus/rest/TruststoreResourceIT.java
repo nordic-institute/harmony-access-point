@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 public class TruststoreResourceIT extends AbstractIT {
 
@@ -26,7 +25,7 @@ public class TruststoreResourceIT extends AbstractIT {
     public void testTruststoreEntries_ok() throws IOException {
 
         eu.domibus.core.crypto.TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
-        domibusTruststoreEntity.setName(new Random().nextLong() + "domibus.truststore");
+        domibusTruststoreEntity.setName("domibus.truststore");
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
         byte[] trustStoreBytes = IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks"));

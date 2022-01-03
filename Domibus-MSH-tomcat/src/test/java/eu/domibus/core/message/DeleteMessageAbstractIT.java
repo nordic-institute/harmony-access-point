@@ -8,18 +8,12 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.MessageDBUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,25 +31,8 @@ import java.util.List;
  */
 public abstract class DeleteMessageAbstractIT extends AbstractIT {
 
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public BackendConnectorProvider backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorProvider.class);
-        }
-
-        @Bean
-        public BackendConnector backendConnector() {
-            return Mockito.mock(BackendConnector.class);
-        }
-    }
-
     @Autowired
     protected BackendConnectorProvider backendConnectorProvider;
-
-    @Autowired
-    protected BackendConnector backendConnector;
 
     @Autowired
     protected MessageRetentionDefaultService messageRetentionService;
@@ -87,11 +64,6 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
         ));
     }
 
-    @Before
-    public void initialize() {
-        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-    }
-
     protected void receiveMessageToDelete() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         String filename = "SOAPMessage4.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
@@ -109,6 +81,7 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
     protected void sendMessageToDelete(MessageStatus status) throws MessagingProcessingException, IOException {
 
         Submission submission = submissionUtil.createSubmission();
+        uploadPmode();
         final String messageId = databaseMessageHandler.submit(submission, "mybackend");
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
