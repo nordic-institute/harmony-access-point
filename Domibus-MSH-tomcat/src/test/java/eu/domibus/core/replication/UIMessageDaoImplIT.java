@@ -22,7 +22,7 @@ import java.util.*;
  * @author Catalin Enache
  * @since 4.1
  */
-@Ignore
+@Ignore("EDELIVERY-8789: UI replication accessement")
 public class UIMessageDaoImplIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
