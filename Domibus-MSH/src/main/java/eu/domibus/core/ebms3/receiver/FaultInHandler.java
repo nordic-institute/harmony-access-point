@@ -17,8 +17,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -79,6 +81,8 @@ public class FaultInHandler extends AbstractFaultHandler {
         final Exception exception = (Exception) context.get(Exception.class.getName());
         final Throwable cause = exception.getCause();
         EbMS3Exception ebMS3Exception = null;
+        final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
+
         if (cause != null) {
 
             if (!(cause instanceof EbMS3Exception)) {
@@ -99,10 +103,17 @@ public class FaultInHandler extends AbstractFaultHandler {
                         }
                     } else {
                         //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
-                        final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
+
+                        ErrorCode.EbMS3ErrorCode ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0004;
+                        String errorMessage = "unknown error occurred";
+                        if (cause instanceof WSSecurityException) {
+                            errorMessage = cause.getMessage();
+                            ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
+                        }
+
                         ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
-                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                                .message("unknown error occurred")
+                                .ebMS3ErrorCode(ebMS3ErrorCode)
+                                .message(errorMessage)
                                 .refToMessageId(messageId)
                                 .cause(cause)
                                 .mshRole(MSHRole.RECEIVING)
@@ -114,12 +125,15 @@ public class FaultInHandler extends AbstractFaultHandler {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
 
+            if (StringUtils.isEmpty(ebMS3Exception.getRefToMessageId()) && !StringUtils.isEmpty(messageId)) {
+                ebMS3Exception.setRefToMessageId(messageId);
+            }
+
             this.processEbMSError(context, ebMS3Exception);
 
         } else {
             if (exception instanceof PolicyException) {
                 //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
-                final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
 
                 ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0103)
@@ -132,6 +146,7 @@ public class FaultInHandler extends AbstractFaultHandler {
                 ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                         .message("unknown error occurred")
+                        .refToMessageId(messageId)
                         .mshRole(MSHRole.RECEIVING)
                         .build();
             }
