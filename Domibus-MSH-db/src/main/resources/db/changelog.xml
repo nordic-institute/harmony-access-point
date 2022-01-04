@@ -3123,6 +3123,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
 
         <createTable tableName="TB_USER_AUD">
             <column name="ID_PK" type="BIGINT">
