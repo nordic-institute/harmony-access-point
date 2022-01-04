@@ -19,7 +19,7 @@ CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
 
-    -- entry point for running the migration - to be executed in a BEGIN/END; block
+    -- entry point for running the single tenancy or multitenancy non-general schema migration - to be executed in a BEGIN/END; block
     PROCEDURE migrate;
 
 END MIGRATE_42_TO_50;
@@ -1930,8 +1930,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN event_alert.FIRST .. event_alert.LAST
                 LOOP
                     BEGIN
-                        lookup_migration_pk('alert', migration_pks, event_alert(i).FK_EVENT, v_fk_alert);
-                        lookup_migration_pk('event', migration_pks, event_alert(i).FK_ALERT, v_fk_event);
+                        lookup_migration_pk('alert', migration_pks, event_alert(i).FK_ALERT, v_fk_alert);
+                        lookup_migration_pk('event', migration_pks, event_alert(i).FK_EVENT, v_fk_event);
 
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
                                           ' (FK_EVENT, FK_ALERT, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
@@ -6313,7 +6313,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END IF;
     END migrate_user_roles_aud;
 
-    /**-- main entry point for running the migration --*/
+    /**-- main entry point for running the single tenancy or the multitenancy non-general schema migration --*/
     PROCEDURE migrate IS
         migration_pks JSON_OBJECT_T;
         missing_entity_date_prefix DATE;

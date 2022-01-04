@@ -5,21 +5,13 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <!-- step 2:
-     - it will create the package for data migration
-     - run the migration procedure
-     If this step fails the user could execute again: Step 1 and this step
-    -->
-
-    <!-- (re)create the migration subprograms  -->
-    <changeSet id="EDELIVERY-7970-2" author="Catalin Enache">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-subprograms-single-tenancy">
         <comment>(Re)create the migration subprograms</comment>
         <sqlFile path="src/main/resources/db/migration/oracle/db-migration-package.sql" endDelimiter="\n/" dbms="oracle"/>
-        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-package.sql" endDelimiter="\n//" dbms="mysql"/>
     </changeSet>
 
     <!-- execute the migration subprogram -->
-    <changeSet id="EDELIVERY-7970-3" author="Catalin Enache">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-subprograms-execute-single-tenancy">
         <sql endDelimiter="\n/" dbms="oracle">
 BEGIN
     MIGRATE_42_TO_50.MIGRATE;
@@ -28,8 +20,6 @@ END;
         </sql>
 
         <sql dbms="mysql" endDelimiter="\n//">
-DELIMITER //
-
 CALL MIGRATE_42_TO_50_migrate
 //
         </sql>
