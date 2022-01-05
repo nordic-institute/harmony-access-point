@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 
 import eu.domibus.AbstractIT;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.test.common.MessageDBUtil;
@@ -13,7 +14,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
     protected MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
-    protected Provider<SOAPMessage> mshWebserviceTest;
+    protected MSHWebservice mshWebserviceTest;
 
     @Autowired
     protected MessageDBUtil messageDBUtil;

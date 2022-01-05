@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws.moved;
+package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.messaging.XmlProcessingException;

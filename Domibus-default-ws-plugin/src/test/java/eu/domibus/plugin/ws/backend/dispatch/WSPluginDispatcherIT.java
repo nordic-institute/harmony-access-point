@@ -3,7 +3,6 @@ package eu.domibus.plugin.ws.backend.dispatch;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,7 +22,6 @@ public class WSPluginDispatcherIT extends AbstractBackendWSIT {
     @Autowired
     private WSPluginDispatcher wsPluginDispatcher;
 
-    @Ignore
     @Test
     public void sendSuccess() {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();

@@ -1,5 +1,6 @@
-package eu.domibus.plugin.ws.moved;
+package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -11,7 +12,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class ReceiveMessageIT extends AbstractBackendWSIT {
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    MSHWebservice mshWebserviceTest;
     @Autowired
     SoapSampleUtil soapSampleUtil;
 

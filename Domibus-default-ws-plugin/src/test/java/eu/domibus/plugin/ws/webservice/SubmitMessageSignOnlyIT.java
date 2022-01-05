@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws.moved;
+package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.reliability.ReliabilityChecker;

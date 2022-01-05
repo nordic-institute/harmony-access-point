@@ -10,6 +10,7 @@ import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,7 +26,6 @@ import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,7 +56,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
     @Autowired
-    protected Provider<SOAPMessage> mshWebserviceTest;
+    protected MSHWebservice mshWebserviceTest;
 
     @Autowired
     protected SoapSampleUtil soapSampleUtil;
@@ -82,7 +82,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        // because we must not use DirtyContext do not use common indentifiers!
+        // because we must not use DirtyContext do not use common identifiers!
         //messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         messageId = UUID.randomUUID() + "@domibus.eu";
 

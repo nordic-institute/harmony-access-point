@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
@@ -55,7 +56,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     MessagingService messagingService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    MSHWebservice mshWebserviceTest;
 
     @Autowired
     MessageUtil messageUtil;

@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
@@ -64,7 +65,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     UserMessageSampleUtil userMessageSampleUtil;
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    MSHWebservice mshWebserviceTest;
 
     @Autowired
     DomibusConditionUtil domibusConditionUtil;

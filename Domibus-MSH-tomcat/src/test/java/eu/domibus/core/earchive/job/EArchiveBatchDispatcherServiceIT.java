@@ -14,6 +14,7 @@ import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -30,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -53,10 +52,11 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
 
     @Autowired
-    protected Provider<SOAPMessage> mshWebserviceTest;
+    protected MSHWebservice mshWebserviceTest;
 
     @Autowired
     protected SoapSampleUtil soapSampleUtil;
+
     @Autowired
     protected DomainService domainService;
 
