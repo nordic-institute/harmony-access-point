@@ -1,5 +1,7 @@
 package eu.domibus.ext.rest.error;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -42,9 +44,14 @@ public class ExtExceptionHelper {
         if (cause instanceof  PModeValidationException) {
             return createResponseFromPModeValidationException((PModeValidationException) cause);
         }
+        if (cause instanceof DomibusEArchiveException) {
+            return createResponse(cause, ((DomibusEArchiveException) cause).getError()== DomibusCoreErrorCode.DOM_009?
+                    HttpStatus.NOT_FOUND:HttpStatus.INTERNAL_SERVER_ERROR, true);
+        }
         if (cause instanceof DomibusCoreException) {
             return createResponseFromCoreException(cause, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
         //other exceptions wrapped by interceptors
         return createResponse(cause);
     }

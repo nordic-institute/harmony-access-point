@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;

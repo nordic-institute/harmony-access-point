@@ -41,7 +41,11 @@ public enum DomibusCoreErrorCode {
     /**
      * Convert exception
      */
-    DOM_008("008")
+    DOM_008("008"),
+    /**
+     * Not found exception
+     */
+    DOM_009("009")
     ;
 
     private final String errorCode;
