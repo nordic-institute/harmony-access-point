@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
+@Deprecated
 public class WebServicePluginImplTest {
 
     public static final String MESSAGE_ID = "messageId";

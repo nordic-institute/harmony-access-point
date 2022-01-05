@@ -9,7 +9,7 @@
             <eb3:SignalMessage>
                 <eb3:MessageInfo>
                     <eb3:Timestamp>2016-02-24T08:06:52.561Z</eb3:Timestamp>
-                    <eb3:MessageId>ed941f27-0ba4-40b5-9976-dc72e781803d@domibus.eu</eb3:MessageId>
+                    <eb3:MessageId>MESSAGE_ID</eb3:MessageId>
                     <eb3:RefToMessageId>IT31-363a-4328-9f81-8d84bf2da59f@domibus.eu</eb3:RefToMessageId>
                 </eb3:MessageInfo>
                 <eb3:Receipt>

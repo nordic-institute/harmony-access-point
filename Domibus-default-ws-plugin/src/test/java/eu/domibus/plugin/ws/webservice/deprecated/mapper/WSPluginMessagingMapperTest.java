@@ -14,7 +14,8 @@ import java.io.InputStream;
  * @author François Gautier
  * @since 5.0
  */
-public class MessagingMapperTest {
+@Deprecated
+public class WSPluginMessagingMapperTest {
 
     public static final String SUBMIT_MESSAGE_MESSAGING_XML = "submitMessage_messaging.xml";
 

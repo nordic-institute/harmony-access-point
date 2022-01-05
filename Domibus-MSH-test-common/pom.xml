@@ -116,6 +116,11 @@
             <artifactId>activemq-kahadb-store</artifactId>
         </dependency>
         <!-- End ActiveMQ -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.awaitility</groupId>

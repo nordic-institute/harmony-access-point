@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws;
+package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
@@ -12,6 +12,7 @@ import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
 import eu.domibus.plugin.webService.generated.RetrieveMessageRequest;
 import eu.domibus.plugin.webService.generated.RetrieveMessageResponse;
+import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.UserMessageSampleUtil;

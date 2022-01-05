@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings("ThrowableNotThrown")
 @RunWith(JMockit.class)
+@Deprecated
 public class WSPluginFaultOutInterceptorTest {
 
     @Tested

@@ -1,17 +1,18 @@
-package eu.domibus.plugin.ws;
+package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
+import eu.domibus.plugin.ws.AbstractBackendWSIT;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This JUNIT implements the Test cases List Pending Messages-01 and List Pending Messages-02.
@@ -28,13 +29,14 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
     @Test
     public void testListPendingMessagesOk() {
-        List<String> messageIds = new ArrayList<>();
-        messageIds.add("2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu");
-        messageIds.add("78a1d578-0cc7-41fb-9f35-86a5b2769a14@domibus.eu");
-        messageIds.add("2bbc05d8-b603-4742-a118-137898a81de3@domibus.eu");
+        Random random = new Random();
+        List<Pair<Long, String>> messageIds = new ArrayList<>();
+        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
+        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
+        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
 
-        for (String messageId : messageIds) {
-            final JmsMessage message = new NotifyMessageCreator(123, messageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
+        for (Pair<Long, String> messageId : messageIds) {
+            final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 
@@ -46,7 +48,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         // Verifies the response
         Assert.assertNotNull(response);
         Assert.assertFalse(response.getMessageID().isEmpty());
-        Assert.assertTrue(response.getMessageID().containsAll(messageIds));
+        Assert.assertTrue(response.getMessageID().containsAll(messageIds.stream().map(Pair::getRight).collect(Collectors.toList())));
 
     }
 
