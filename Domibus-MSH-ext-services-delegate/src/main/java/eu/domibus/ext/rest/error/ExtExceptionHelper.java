@@ -41,12 +41,12 @@ public class ExtExceptionHelper {
         Throwable cause = extractCause(extException);
 
         //Domibus core exceptions
-        if (cause instanceof  PModeValidationException) {
+        if (cause instanceof PModeValidationException) {
             return createResponseFromPModeValidationException((PModeValidationException) cause);
         }
         if (cause instanceof DomibusEArchiveException) {
-            return createResponse(cause, ((DomibusEArchiveException) cause).getError()== DomibusCoreErrorCode.DOM_009?
-                    HttpStatus.NOT_FOUND:HttpStatus.INTERNAL_SERVER_ERROR, true);
+            return createResponse(cause, ((DomibusEArchiveException) cause).getError() == DomibusCoreErrorCode.DOM_009 ?
+                    HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR, true);
         }
         if (cause instanceof DomibusCoreException) {
             return createResponseFromCoreException(cause, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -89,6 +89,7 @@ public class ExtExceptionHelper {
 
     /**
      * Return in a unique String both error message and validation issues
+     *
      * @return error message String
      */
     public String getPModeValidationMessage(PModeValidationException e) {

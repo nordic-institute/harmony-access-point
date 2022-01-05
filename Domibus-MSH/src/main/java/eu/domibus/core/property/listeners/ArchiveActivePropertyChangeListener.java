@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -39,14 +38,12 @@ public class ArchiveActivePropertyChangeListener implements DomibusPropertyChang
         Domain domain = domainService.getDomain(domainCode);
         if (Boolean.valueOf(propertyValue)) {
             domibusScheduler.resumeJob(domain, EARCHIVE_CONTINUOUS_JOB);
-            domibusScheduler.resumeJob(domain,EARCHIVE_SANITIZER_JOB);
-            domibusScheduler.resumeJob(domain,EARCHIVE_CLEANUP_JOB);
+            domibusScheduler.resumeJob(domain, EARCHIVE_SANITIZER_JOB);
+            domibusScheduler.resumeJob(domain, EARCHIVE_CLEANUP_JOB);
         } else {
-            domibusScheduler.pauseJob(domain,EARCHIVE_CONTINUOUS_JOB);
-            domibusScheduler.pauseJob(domain,EARCHIVE_SANITIZER_JOB);
-            domibusScheduler.pauseJob(domain,EARCHIVE_CLEANUP_JOB);
+            domibusScheduler.pauseJob(domain, EARCHIVE_CONTINUOUS_JOB);
+            domibusScheduler.pauseJob(domain, EARCHIVE_SANITIZER_JOB);
+            domibusScheduler.pauseJob(domain, EARCHIVE_CLEANUP_JOB);
         }
     }
-
-
 }
