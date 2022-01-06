@@ -27,7 +27,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_AUTOGENERATE_PASSWORD;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE;
 
 /**
  * * Management of regular users, used in ST mode and when a domain admin user logs in in MT mode
@@ -269,7 +270,6 @@ public class UserManagementServiceImpl implements UserService {
         return finalUsers;
     }
 
-
     @Override
     public long countUsers(AuthRole authRole, String userName, String deleted) {
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
@@ -279,9 +279,9 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     public void createDefaultUserIfApplicable() {
         // check property
-        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
+        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE);
         if (!enabled) {
-            LOG.info("Default user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_CREATE_DEFAULT_USER);
+            LOG.info("Default user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE);
             return;
         }
 
@@ -326,12 +326,19 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     private String getPassword() {
-        long start = System.currentTimeMillis();
+        String result;
+        boolean generate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_AUTOGENERATE_PASSWORD);
+        if (generate) {
+            long start = System.currentTimeMillis();
 
-        String result = UUID.randomUUID().toString();
+            result = UUID.randomUUID().toString();
 
-        long finish = System.currentTimeMillis();
-        LOG.info("Password generation for default user took [{}]", finish - start);
+            long finish = System.currentTimeMillis();
+            LOG.info("Password generation for default user took [{}]", finish - start);
+        } else {
+            result = "123456";
+            LOG.info("Password for the default user will be hardcoded");
+        }
 
         return result;
     }
