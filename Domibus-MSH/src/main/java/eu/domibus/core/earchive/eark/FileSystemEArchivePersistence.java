@@ -1,7 +1,7 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.core.earchive.BatchEArchiveDTO;
-import eu.domibus.core.earchive.DomibusEArchiveException;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;

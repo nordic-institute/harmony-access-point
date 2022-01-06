@@ -1,6 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
-import eu.domibus.core.earchive.DomibusEArchiveException;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
