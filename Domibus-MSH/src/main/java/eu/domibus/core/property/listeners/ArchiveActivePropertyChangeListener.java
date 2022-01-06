@@ -37,13 +37,9 @@ public class ArchiveActivePropertyChangeListener implements DomibusPropertyChang
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         Domain domain = domainService.getDomain(domainCode);
         if (Boolean.valueOf(propertyValue)) {
-            domibusScheduler.resumeJob(domain, EARCHIVE_CONTINUOUS_JOB);
-            domibusScheduler.resumeJob(domain, EARCHIVE_SANITIZER_JOB);
-            domibusScheduler.resumeJob(domain, EARCHIVE_CLEANUP_JOB);
+            domibusScheduler.resumeJobs(domain, EARCHIVE_CONTINUOUS_JOB,EARCHIVE_SANITIZER_JOB,EARCHIVE_CLEANUP_JOB);
         } else {
-            domibusScheduler.pauseJob(domain, EARCHIVE_CONTINUOUS_JOB);
-            domibusScheduler.pauseJob(domain, EARCHIVE_SANITIZER_JOB);
-            domibusScheduler.pauseJob(domain, EARCHIVE_CLEANUP_JOB);
+            domibusScheduler.pauseJobs(domain, EARCHIVE_CONTINUOUS_JOB,EARCHIVE_SANITIZER_JOB,EARCHIVE_CLEANUP_JOB);
         }
     }
 }
