@@ -14,6 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Autowired

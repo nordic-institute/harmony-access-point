@@ -4,14 +4,17 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.test.common.MessageTestUtility;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+import javax.transaction.Transactional;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class UserMessageDaoTestIT extends AbstractIT {
+
+    private static final String STRING_TYPE = "string";
 
     @Autowired
     UserMessageDao userMessageDao;
@@ -37,13 +40,18 @@ public class UserMessageDaoTestIT extends AbstractIT {
     @Autowired
     protected AgreementDao agreementDao;
 
+    @Autowired
+    MessagePropertyDao propertyDao;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    @Transactional
     public void testSaveUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
-        final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
+
+        MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1", STRING_TYPE);
+        MessageProperty messageProperty2 = propertyDao.findOrCreateProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4", STRING_TYPE);
+        userMessage.setMessageProperties(new HashSet<>(Arrays.asList(messageProperty1, messageProperty2)));
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();
         partyIdDao.create(senderPartyId);

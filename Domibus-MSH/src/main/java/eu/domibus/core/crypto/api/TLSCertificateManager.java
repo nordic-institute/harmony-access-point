@@ -53,5 +53,8 @@ public interface TLSCertificateManager extends DomainsAware {
      */
     boolean removeCertificate(String alias);
 
+    /**
+     * Reads the truststore from a disk location and persists it in the DB if not already there
+     */
     void persistTruststoresIfApplicable();
 }
