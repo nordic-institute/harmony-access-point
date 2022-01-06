@@ -104,7 +104,6 @@ public class UIMessageDaoImplIT extends AbstractIT {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testCountMessages() {
         Map<String, Object> filters = new HashMap<>();
         long count;

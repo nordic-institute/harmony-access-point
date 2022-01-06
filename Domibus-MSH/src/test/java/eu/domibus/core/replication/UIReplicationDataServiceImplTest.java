@@ -30,6 +30,7 @@ import java.util.UUID;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
 public class UIReplicationDataServiceImplTest {
 
     @Tested
@@ -120,7 +121,6 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
     public void testMessageChange_EntityFound_ResultOK(final @Injectable UIMessageEntity uiMessageEntity) {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
@@ -141,7 +141,6 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
     public void testMessageChange_EntityNotFound_Warn() {
         final UserMessageLog userMessageLog = createUserMessageLog();
 
@@ -192,7 +191,6 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
     public void testSaveUIMessageFromSignalMessageLog(final @Injectable UIMessageEntity uiMessageEntity) {
         final UserMessageLog userMessageLog = createUserMessageLog();
         final UserMessage userMessage = createUserMessage();
@@ -256,7 +254,6 @@ public class UIReplicationDataServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-5517: UIReplication synchronization issue: improve UPDATE mechanism")
     public void testSaveUIMessageFromUserMessageLog(final @Injectable Messaging messaging, final @Injectable UIMessageEntity uiMessageEntity) {
         final SignalMessageLog signalMessageLog = createSignalMessageLog();
         final UserMessage userMessage = createUserMessage();

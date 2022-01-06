@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ConstantConditions")
 @Transactional
-@Ignore("Unstable bamboo test")
+@Ignore("EDELIVERY-8797: Upload PMode: IT Tests")
 public class UploadPModeIT extends AbstractIT {
 
     public static final String SCHEMAS_DIR = "schemas/";
@@ -126,7 +126,6 @@ public class UploadPModeIT extends AbstractIT {
      */
     @Test
     @Transactional
-    @Ignore("Unstable bamboo test")
     public void testVerifyPModeContent() throws IOException, JAXBException, SQLException {
         Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
 
