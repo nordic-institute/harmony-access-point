@@ -1,8 +1,10 @@
 package eu.domibus.core.earchive.job;
 
 import com.fasterxml.uuid.NoArgGenerator;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -113,7 +115,7 @@ public class EArchivingJobService {
     public EArchiveBatchEntity reExportEArchiveBatch(String batchId) {
         EArchiveBatchEntity originEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (originEntity == null) {
-            throw new DomibusEArchiveException("EArchive batch not found batchId: [" + batchId + "]");
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"EArchive batch not found batchId: [" + batchId + "]");
         }
         List<EArchiveBatchUserMessage> messages = eArchiveBatchUserMessageDao.getBatchMessageList(originEntity.getBatchId(), null, null);
 

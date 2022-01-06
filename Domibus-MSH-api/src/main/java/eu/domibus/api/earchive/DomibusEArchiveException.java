@@ -1,4 +1,4 @@
-package eu.domibus.core.earchive;
+package eu.domibus.api.earchive;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
@@ -11,11 +11,19 @@ import eu.domibus.api.exceptions.DomibusCoreException;
  */
 public class DomibusEArchiveException extends DomibusCoreException {
 
+    public DomibusEArchiveException(DomibusCoreErrorCode code, String message, Throwable cause) {
+        super(code, message, cause);
+    }
+
+    public DomibusEArchiveException(DomibusCoreErrorCode code, String message) {
+        super(code, message);
+    }
+
     public DomibusEArchiveException(String message, Throwable cause) {
-        super(DomibusCoreErrorCode.DOM_001, message, cause);
+        this(DomibusCoreErrorCode.DOM_001, message, cause);
     }
 
     public DomibusEArchiveException(String message) {
-        super(DomibusCoreErrorCode.DOM_001, message);
+        this(DomibusCoreErrorCode.DOM_001, message);
     }
 }

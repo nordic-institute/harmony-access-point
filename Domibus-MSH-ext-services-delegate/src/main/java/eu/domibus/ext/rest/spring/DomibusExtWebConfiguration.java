@@ -49,11 +49,11 @@ public class DomibusExtWebConfiguration implements WebMvcConfigurer {
         // for objects in package: eu.domibus.ext.domain.archive
         LOG.debug("Register DomibusExtMappingConverter for package [{}].", BatchDTO.class.getPackage().getName());
         DomibusExtMappingConverter converter = new DomibusExtMappingConverter(BatchDTO.class.getPackage().getName());
-        converter.setObjectMapper(new ObjectMapper() {{
-            registerModule(new JavaTimeModule());
-            registerModule(new Jdk8Module());
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        }});
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        converter.setObjectMapper(objectMapper);
         converters.add(0, converter);
     }
 }
