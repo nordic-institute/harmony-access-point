@@ -176,6 +176,24 @@
                        </configuration>
                    </execution>
                    <execution>
+                       <id>generate-mysql-script-user-data</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-user-data.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-user-data.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-${project.version}-user-data.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
                        <id>generate-mysql-script-multi-tenancy-data</id>
                        <phase>generate-resources</phase>
                        <goals>
@@ -248,6 +266,24 @@
                        </configuration>
                    </execution>
                    <execution>
+                       <id>generate-oracle-script-user-data</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/changelog-user-data.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-user-data.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-${project.version}-user-data.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
                        <id>generate-oracle-script-multi-tenancy-data</id>
                        <phase>generate-resources</phase>
                        <goals>
@@ -305,17 +341,17 @@
 
                    <!-- data migration 4.2 to 5.0 starts here -->
                    <execution>
-                       <id>generate-mysql-script-migration-step1</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step1</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step1.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step1.xml
                            </changeLogFile>
                            <url>
-                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step1.mysql
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step1.mysql
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-step1.ddl
@@ -323,17 +359,17 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-step2</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step2.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step2.xml
                            </changeLogFile>
                            <url>
-                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step2.mysql
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step2.mysql
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-step2.ddl
@@ -341,17 +377,17 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-step3</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step3</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step3.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step3.xml
                            </changeLogFile>
                            <url>
-                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step3.mysql
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step3.mysql
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-step3.ddl
@@ -359,17 +395,17 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-step4</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step4</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step4.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step4.xml
                            </changeLogFile>
                            <url>
-                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step4.mysql
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step4.mysql
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-step4.ddl
@@ -378,17 +414,17 @@
                    </execution>
 
                    <execution>
-                       <id>generate-oracle-script-migration-step1</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step1</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step1.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step1.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step1.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step1.oracle
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-step1.ddl
@@ -396,17 +432,17 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-step2</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step2</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step2.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step2.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step2.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step2.oracle
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-step2.ddl
@@ -414,17 +450,17 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-step3</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step3</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step3.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step3.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step3.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step3.oracle
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-step3.ddl
@@ -432,20 +468,165 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-step4</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step4</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/migration/changelog-42-50-data-migration-step4.xml
+                               src/main/resources/db/migration/changelog-42-50-data-migration-single-tenancy-step4.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-step4.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-single-tenancy-step4.oracle
                            </url>
                            <migrationSqlOutputFile>
                                ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-step4.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-multitenancy-step1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step1.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step1.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step1.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-multitenancy-step2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step2.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step2.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step2.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-multitenancy-step3</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step3.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step3.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-mysql-script-migration-multitenancy-step4</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step4.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step4.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+
+                   <execution>
+                       <id>generate-oracle-script-migration-multitenancy-step1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step1.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step1.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step1.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-migration-multitenancy-step2</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step2.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step2.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step2.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-migration-multitenancy-step3</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step3.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step3.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-migration-multitenancy-step4</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/migration/changelog-42-50-data-migration-multitenancy-step4.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-42-50-data-migration-multitenancy-step4.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>

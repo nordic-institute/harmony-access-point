@@ -5,16 +5,11 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <!-- step 1:
-     - it will drop any previously created MIGR_ and dictionary tables (5.0 model)
-     - it will create MIGR_ and dictionary tables (5.0 model)
-    -->
-
     <!-- properties - to be used in column definitions -->
-    <include file="../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <!-- clean existing tables -->
-    <changeSet id="EDELIVERY-7970" author="Catalin Enache">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-prepare-single-tenancy">
         <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
 
         <sql endDelimiter="\n/" dbms="oracle">
@@ -219,34 +214,6 @@ BEGIN
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ALERT';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ALERT: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT_ALERT';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT_ALERT: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT_PROPERTY';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT_PROPERTY: table does not exist');
-    END;
-
-    BEGIN
         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_AUTHENTICATION_ENTRY';
     EXCEPTION
         WHEN table_does_not_exist THEN
@@ -279,20 +246,6 @@ BEGIN
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_CERTIFICATE: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_COMMAND';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_COMMAND: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_COMMAND_PROPERTY';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_COMMAND_PROPERTY: table does not exist');
     END;
 
     BEGIN
@@ -527,13 +480,6 @@ BEGIN
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER: table does not exist');
-    END;
-
-    BEGIN
         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_MSG_DELETION_JOB';
     EXCEPTION
         WHEN table_does_not_exist THEN
@@ -541,45 +487,10 @@ BEGIN
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_PASSWORD_HISTORY';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_PASSWORD_HISTORY: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLE';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLE: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLES';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLES: table does not exist');
-    END;
-
-    BEGIN
         EXECUTE IMMEDIATE 'DROP TABLE MIGR_WS_PLUGIN_TB_MESSAGE_LOG';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_WS_PLUGIN_TB_MESSAGE_LOG: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_REV_INFO';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_REV_INFO: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_REV_CHANGES';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_REV_CHANGES: table does not exist');
     END;
 
     BEGIN
@@ -651,34 +562,11 @@ BEGIN
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ROUTING_CRITERIA_AUD: table does not exist');
     END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_AUD';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_AUD: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLE_AUD';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLE_AUD: table does not exist');
-    END;
-
-    BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLES_AUD';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLES_AUD: table does not exist');
-    END;
 END;
 /
         </sql>
 
         <sql endDelimiter="\n//" dbms="mysql">
-DELIMITER //
-
 DROP TABLE IF EXISTS MIGR_TB_USER_MESSAGE
 //
 
@@ -763,18 +651,6 @@ DROP TABLE IF EXISTS TB_D_MSH_ROLE
 DROP TABLE IF EXISTS MIGR_TB_ACTION_AUDIT
 //
 
-DROP TABLE IF EXISTS MIGR_TB_ALERT
-//
-
-DROP TABLE IF EXISTS MIGR_TB_EVENT
-//
-
-DROP TABLE IF EXISTS MIGR_TB_EVENT_ALERT
-//
-
-DROP TABLE IF EXISTS MIGR_TB_EVENT_PROPERTY
-//
-
 DROP TABLE IF EXISTS MIGR_TB_AUTHENTICATION_ENTRY
 //
 
@@ -788,12 +664,6 @@ DROP TABLE IF EXISTS MIGR_TB_ROUTING_CRITERIA
 //
 
 DROP TABLE IF EXISTS MIGR_TB_CERTIFICATE
-//
-
-DROP TABLE IF EXISTS MIGR_TB_COMMAND
-//
-
-DROP TABLE IF EXISTS MIGR_TB_COMMAND_PROPERTY
 //
 
 DROP TABLE IF EXISTS MIGR_TB_ENCRYPTION_KEY
@@ -895,28 +765,10 @@ DROP TABLE IF EXISTS MIGR_TB_PM_JOIN_PROC_RSP_PARTY
 DROP TABLE IF EXISTS MIGR_TB_PM_CONFIGURATION_RAW
 //
 
-DROP TABLE IF EXISTS MIGR_TB_USER
-//
-
 DROP TABLE IF EXISTS MIGR_TB_USER_MSG_DELETION_JOB
 //
 
-DROP TABLE IF EXISTS MIGR_TB_USER_PASSWORD_HISTORY
-//
-
-DROP TABLE IF EXISTS MIGR_TB_USER_ROLE
-//
-
-DROP TABLE IF EXISTS MIGR_TB_USER_ROLES
-//
-
 DROP TABLE IF EXISTS MIGR_WS_PLUGIN_TB_MESSAGE_LOG
-//
-
-DROP TABLE IF EXISTS MIGR_TB_REV_INFO
-//
-
-DROP TABLE IF EXISTS MIGR_TB_REV_CHANGES
 //
 
 DROP TABLE IF EXISTS MIGR_TB_AUTH_ENTRY_AUD
@@ -948,20 +800,11 @@ DROP TABLE IF EXISTS MIGR_TB_PM_PARTY_IDENTIF_AUD
 
 DROP TABLE IF EXISTS MIGR_TB_ROUTING_CRITERIA_AUD
 //
-
-DROP TABLE IF EXISTS MIGR_TB_USER_AUD
-//
-
-DROP TABLE IF EXISTS MIGR_TB_USER_ROLE_AUD
-//
-
-DROP TABLE IF EXISTS MIGR_TB_USER_ROLES_AUD
-//
         </sql>
     </changeSet>
 
     <!-- rename any previously created PK constraints to avoid name collision -->
-    <changeSet id="EDELIVERY-7970-rename-old-pk-constraints" author="Sebastian-Ion TINCU" dbms="oracle">
+    <changeSet author="Sebastian-Ion TINCU" dbms="oracle" id="EDELIVERY-7970-rename-old-pk-constraints-single-tenancy">
         <sql endDelimiter="\n/" dbms="oracle">
 ALTER TABLE WS_PLUGIN_TB_MESSAGE_LOG RENAME CONSTRAINT PK_WS_PLUGIN_TB_MESSAGE_LOG TO OLD_PK_WS_PLUGIN_TB_MSG_LOG
 /
@@ -988,16 +831,6 @@ ALTER TABLE TB_CERTIFICATE RENAME CONSTRAINT PK_CERTIFICATE TO OLD_PK_CERTIFICAT
 ALTER INDEX PK_CERTIFICATE RENAME TO OLD_PK_CERTIFICATE
 /
 
-ALTER TABLE TB_REV_INFO RENAME CONSTRAINT PK_REV_INFO TO OLD_PK_REV_INFO
-/
-ALTER INDEX PK_REV_INFO RENAME TO OLD_PK_REV_INFO
-/
-
-ALTER TABLE TB_REV_CHANGES RENAME CONSTRAINT PK_REV_CHANGES TO OLD_PK_REV_CHANGES
-/
-ALTER INDEX PK_REV_CHANGES RENAME TO OLD_PK_REV_CHANGES
-/
-
 ALTER TABLE TB_CERTIFICATE_AUD RENAME CONSTRAINT PK_CERTIFICATE_AUD TO OLD_PK_CERTIFICATE_AUD
 /
 ALTER INDEX PK_CERTIFICATE_AUD RENAME TO OLD_PK_CERTIFICATE_AUD
@@ -1006,11 +839,6 @@ ALTER INDEX PK_CERTIFICATE_AUD RENAME TO OLD_PK_CERTIFICATE_AUD
 ALTER TABLE TB_PM_CONFIGURATION_AUD RENAME CONSTRAINT PK_CONFIGURATION_AUD TO OLD_PK_CONFIGURATION_AUD
 /
 ALTER INDEX PK_CONFIGURATION_AUD RENAME TO OLD_PK_CONFIGURATION_AUD
-/
-
-ALTER TABLE TB_COMMAND RENAME CONSTRAINT PK_COMMAND TO OLD_PK_COMMAND
-/
-ALTER INDEX PK_COMMAND RENAME TO OLD_PK_COMMAND
 /
 
 ALTER TABLE TB_ENCRYPTION_KEY RENAME CONSTRAINT PK_ENCRYPTION_KEY TO OLD_PK_ENCRYPTION_KEY
@@ -1168,26 +996,6 @@ ALTER TABLE TB_PM_PARTY_ID_TYPE_AUD RENAME CONSTRAINT PK_PARTY_ID_TYPE_AUD TO OL
 ALTER INDEX PK_PARTY_ID_TYPE_AUD RENAME TO OLD_PK_PARTY_ID_TYPE_AUD
 /
 
-ALTER TABLE TB_ALERT RENAME CONSTRAINT PK_ALERT TO OLD_PK_ALERT
-/
-ALTER INDEX PK_ALERT RENAME TO OLD_PK_ALERT
-/
-
-ALTER TABLE TB_EVENT RENAME CONSTRAINT PK_EVENT TO OLD_PK_EVENT
-/
-ALTER INDEX PK_EVENT RENAME TO OLD_PK_EVENT
-/
-
-ALTER TABLE TB_EVENT_ALERT RENAME CONSTRAINT PK_EVENT_ALERT TO OLD_PK_EVENT_ALERT
-/
-ALTER INDEX PK_EVENT_ALERT RENAME TO OLD_PK_EVENT_ALERT
-/
-
-ALTER TABLE TB_EVENT_PROPERTY RENAME CONSTRAINT PK_EVENT_PROPERTY TO OLD_PK_EVENT_PROPERTY
-/
-ALTER INDEX PK_EVENT_PROPERTY RENAME TO OLD_PK_EVENT_PROPERTY
-/
-
 ALTER TABLE TB_BACKEND_FILTER RENAME CONSTRAINT PK_BACKEND_FILTER TO OLD_PK_BACKEND_FILTER
 /
 ALTER INDEX PK_BACKEND_FILTER RENAME TO OLD_PK_BACKEND_FILTER
@@ -1228,29 +1036,9 @@ ALTER TABLE TB_PLUGIN_USER_PASSWD_HISTORY RENAME CONSTRAINT PK_PLUGIN_USER_PASSW
 ALTER INDEX PK_PLUGIN_USER_PASSWD_HISTO RENAME TO OLD_PK_PLUGIN_USR_PASS_HIST
 /
 
-ALTER TABLE TB_USER RENAME CONSTRAINT PK_USER TO OLD_PK_USER
-/
-ALTER INDEX PK_USER RENAME TO OLD_PK_USER
-/
-
 ALTER TABLE TB_USER_AUD RENAME CONSTRAINT PK_USER_AUD TO OLD_PK_USER_AUD
 /
 ALTER INDEX PK_USER_AUD RENAME TO OLD_PK_USER_AUD
-/
-
-ALTER TABLE TB_USER_PASSWORD_HISTORY RENAME CONSTRAINT PK_USER_PASSWORD_HISTORY TO OLD_PK_USER_PASSWORD_HISTORY
-/
-ALTER INDEX PK_USER_PASSWORD_HISTORY RENAME TO OLD_PK_USER_PASSWORD_HISTORY
-/
-
-ALTER TABLE TB_USER_ROLE RENAME CONSTRAINT PK_USER_ROLE TO OLD_PK_USER_ROLE
-/
-ALTER INDEX PK_USER_ROLE RENAME TO OLD_PK_USER_ROLE
-/
-
-ALTER TABLE TB_USER_ROLES RENAME CONSTRAINT PK_PRIMARY TO OLD_PK_PRIMARY
-/
-ALTER INDEX PK_PRIMARY RENAME TO OLD_PK_PRIMARY
 /
 
 ALTER TABLE TB_USER_ROLE_AUD RENAME CONSTRAINT PK_USER_ROLE_AUD TO OLD_PK_USER_ROLE_AUD
@@ -1261,7 +1049,8 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
     </changeSet>
 
     <!-- Start Dictionary Tables -->
-    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-dictionary-tables">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-dictionary-tables-single-tenancy">
+        <!-- TB_D_MSH_ROLE -->
         <createTable tableName="TB_D_MSH_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_MSH_ROLE"/>
@@ -1280,6 +1069,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
         </createTable>
         <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
 
+        <!-- TB_D_MESSAGE_PROPERTY -->
         <createTable tableName="TB_D_MESSAGE_PROPERTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_MSG_PROPERTY"/>
@@ -1305,6 +1095,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
         </sql>
 
+        <!-- TB_D_PART_PROPERTY -->
         <createTable tableName="TB_D_PART_PROPERTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_PART_PROPERTY"/>
@@ -1330,6 +1121,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
         </sql>
 
+        <!-- TB_D_MPC -->
         <createTable tableName="TB_D_MPC">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_MPC"/>
@@ -1348,6 +1140,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
         </createTable>
         <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_MPC_VALUE" tableName="TB_D_MPC"/>
 
+        <!-- TB_D_SERVICE -->
         <createTable tableName="TB_D_SERVICE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_SERVICE"/>
@@ -1372,6 +1165,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             ALTER TABLE TB_D_SERVICE ADD CONSTRAINT UK_D_SERVICE_VALUE_TYPE UNIQUE (VALUE, TYPE);
         </sql>
 
+        <!-- TB_D_PARTY -->
         <createTable tableName="TB_D_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_PARTY"/>
@@ -1396,6 +1190,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             ALTER TABLE TB_D_PARTY ADD CONSTRAINT UK_D_PARTY_VALUE_TYPE UNIQUE (VALUE, TYPE);
         </sql>
 
+        <!-- TB_D_ACTION -->
         <createTable tableName="TB_D_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_ACTION"/>
@@ -1414,6 +1209,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
         </createTable>
         <addUniqueConstraint columnNames="ACTION" constraintName="UK_D_PARTY_ACTION" tableName="TB_D_ACTION"/>
 
+        <!-- TB_D_AGREEMENT -->
         <createTable tableName="TB_D_AGREEMENT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_AGREEMENT"/>
@@ -1438,6 +1234,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             ALTER TABLE TB_D_AGREEMENT ADD CONSTRAINT UK_D_AGREEMENT_VALUE_TYPE UNIQUE (VALUE, TYPE);
         </sql>
 
+        <!-- TB_D_ROLE -->
         <createTable tableName="TB_D_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_ROLE"/>
@@ -1456,6 +1253,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
         </createTable>
         <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_ROLE_VALUE" tableName="TB_D_ROLE"/>
 
+        <!-- TB_D_NOTIFICATION_STATUS -->
         <createTable tableName="TB_D_NOTIFICATION_STATUS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_NOTIFICATION_STATUS"/>
@@ -1474,6 +1272,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
         </createTable>
         <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_NOTIF_STATUS" tableName="TB_D_NOTIFICATION_STATUS"/>
 
+        <!-- TB_D_MESSAGE_STATUS -->
         <createTable tableName="TB_D_MESSAGE_STATUS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_D_MESSAGE_STATUS"/>
@@ -1491,26 +1290,10 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS"/>
-
-        <createTable tableName="TB_D_TIMEZONE_OFFSET">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_D_TIMEZONE_OFFSET"/>
-            </column>
-            <column name="NEXT_ATTEMPT_TIMEZONE_ID" type="VARCHAR(255)" remarks="Time zone ID on the application server to use when converting the next attempt for displaying it to the user"/>
-            <column name="NEXT_ATTEMPT_OFFSET_SECONDS" type="INT" remarks="Offset in seconds of the time zone on the application server to use when converting the next attempt for displaying it to the user"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-        <addUniqueConstraint columnNames="NEXT_ATTEMPT_TIMEZONE_ID,NEXT_ATTEMPT_OFFSET_SECONDS" constraintName="UK_D_TIMEZONE_OFFSET" tableName="TB_D_TIMEZONE_OFFSET"/>
     </changeSet>
 
-    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-MIGR-tables">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-MIGR-tables-single-tenancy">
+        <!-- TB_USER_MESSAGE -->
         <createTable tableName="MIGR_TB_USER_MESSAGE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE"/>
@@ -1861,6 +1644,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_SEND_ATTEMPT -->
         <createTable tableName="MIGR_TB_SEND_ATTEMPT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_SEND_ATTEMPT"/>
@@ -1890,7 +1674,8 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
         </createTable>
     </changeSet>
 
-    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8441-recreate-MIGR-tables-for-primary-key-migration">
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8441-recreate-MIGR-tables-for-primary-key-migration-single-tenancy">
+        <!-- WS_PLUGIN_TB_MESSAGE_LOG -->
         <createTable tableName="MIGR_WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
@@ -1908,6 +1693,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             </column>
         </createTable>
 
+        <!-- TB_MESSAGE_ACKNW_PROP -->
         <createTable tableName="MIGR_TB_MESSAGE_ACKNW_PROP">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_ACKNW_PROP"/>
@@ -1927,6 +1713,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_MESSAGING_LOCK -->
         <createTable tableName="MIGR_TB_MESSAGING_LOCK">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_MESSAGING_LOCK"/>
@@ -1952,6 +1739,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_USER_MSG_DELETION_JOB -->
         <createTable tableName="MIGR_TB_USER_MSG_DELETION_JOB">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MSG_DELETION_JOB"/>
@@ -1974,6 +1762,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_CERTIFICATE -->
         <createTable tableName="MIGR_TB_CERTIFICATE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE"/>
@@ -2002,35 +1791,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
-        <createTable tableName="MIGR_TB_REV_INFO">
-            <column name="ID" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_REV_INFO"/>
-            </column>
-            <column name="TIMESTAMP" type="BIGINT"/>
-            <column name="REVISION_DATE" type="TIMESTAMP"/>
-            <column name="USER_NAME" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_REV_CHANGES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_REV_CHANGES"/>
-            </column>
-            <column name="REV" type="BIGINT"/>
-            <column name="AUDIT_ORDER" type="INT"/>
-            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
-            <column name="GROUP_NAME" type="VARCHAR(255)"/>
-            <column name="ENTITY_ID" type="VARCHAR(255)"/>
-            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
+        <!-- TB_CERTIFICATE_AUD -->
         <createTable tableName="MIGR_TB_CERTIFICATE_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
@@ -2049,44 +1810,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
         </createTable>
 
-        <createTable tableName="MIGR_TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_COMMAND"/>
-            </column>
-            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
-                <constraints nullable="false"/>
-            </column>
-            <column name="COMMAND_NAME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
-            <column name="PROPERTY_NAME" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
-            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
+        <!-- TB_ENCRYPTION_KEY -->
         <createTable tableName="MIGR_TB_ENCRYPTION_KEY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_ENCRYPTION_KEY"/>
@@ -2108,6 +1832,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_BUSINESS_PROCESS -->
         <createTable tableName="MIGR_TB_PM_BUSINESS_PROCESS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_BUSINESS_PROCESS"/>
@@ -2122,6 +1847,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_ACTION -->
         <createTable tableName="MIGR_TB_PM_ACTION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_ACTION"/>
@@ -2139,6 +1865,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_ACTION_AUDIT -->
         <createTable tableName="MIGR_TB_ACTION_AUDIT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_ACTION_AUDIT"/>
@@ -2162,6 +1889,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_AGREEMENT -->
         <createTable tableName="MIGR_TB_PM_AGREEMENT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_AGREEMENT"/>
@@ -2180,6 +1908,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PARTY -->
         <createTable tableName="MIGR_TB_PM_PARTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_PARTY"/>
@@ -2199,6 +1928,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_CONFIGURATION -->
         <createTable tableName="MIGR_TB_PM_CONFIGURATION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_CONFIGURATION"/>
@@ -2215,6 +1945,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_CONFIGURATION_AUD -->
         <createTable tableName="MIGR_TB_PM_CONFIGURATION_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_AUD"/>
@@ -2229,6 +1960,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="NAME_MOD" type="BOOLEAN"/>
         </createTable>
 
+        <!-- TB_PM_CONFIGURATION_RAW -->
         <createTable tableName="MIGR_TB_PM_CONFIGURATION_RAW">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_CONFIGURATION_RAW"/>
@@ -2246,6 +1978,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_CONFIGURATION_RAW_AUD -->
         <createTable tableName="MIGR_TB_PM_CONF_RAW_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_RAW_AUD"/>
@@ -2262,6 +1995,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="XML_MOD" type="BOOLEAN"/>
         </createTable>
 
+        <!-- TB_PM_ERROR_HANDLING -->
         <createTable tableName="MIGR_TB_PM_ERROR_HANDLING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_ERROR_HANDLING"/>
@@ -2282,6 +2016,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PAYLOAD_PROFILE -->
         <createTable tableName="MIGR_TB_PM_PAYLOAD_PROFILE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_PAYLOAD_PROFILE"/>
@@ -2299,6 +2034,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PAYLOAD -->
         <createTable tableName="MIGR_TB_PM_PAYLOAD">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_PAYLOAD"/>
@@ -2321,6 +2057,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_JOIN_PAYLOAD_PROFILE -->
         <createTable tableName="MIGR_TB_PM_JOIN_PAYLD_PROFILE">
             <column name="FK_PAYLOAD" type="BIGINT">
                 <constraints nullable="false"/>
@@ -2338,6 +2075,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_MEP_BINDING -->
         <createTable tableName="MIGR_TB_PM_MEP_BINDING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_MEP_BINDING"/>
@@ -2355,6 +2093,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_ROLE -->
         <createTable tableName="MIGR_TB_PM_ROLE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_ROLE"/>
@@ -2372,6 +2111,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_MEP -->
         <createTable tableName="MIGR_TB_PM_MEP">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_MEP"/>
@@ -2390,6 +2130,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PROCESS -->
         <createTable tableName="MIGR_TB_PM_PROCESS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_PROCESS"/>
@@ -2417,6 +2158,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_JOIN_PROCESS_INIT_PARTY -->
         <createTable tableName="MIGR_TB_PM_JOIN_PROC_INI_PARTY">
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
@@ -2434,6 +2176,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_SECURITY -->
         <createTable tableName="MIGR_TB_PM_SECURITY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_SECURITY"/>
@@ -2452,6 +2195,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_SERVICE -->
         <createTable tableName="MIGR_TB_PM_SERVICE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_SERVICE"/>
@@ -2470,6 +2214,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_RECEPTION_AWARENESS -->
         <createTable tableName="MIGR_TB_PM_RECEPTION_AWARENESS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_RECEPTION_AWARENESS"/>
@@ -2490,6 +2235,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_RELIABILITY -->
         <createTable tableName="MIGR_TB_PM_RELIABILITY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_RELIABILITY"/>
@@ -2508,6 +2254,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_MPC -->
         <createTable tableName="MIGR_TB_PM_MPC">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_MPC"/>
@@ -2538,6 +2285,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_MESSAGE_PROPERTY_SET -->
         <createTable tableName="MIGR_TB_PM_MSG_PROPERTY_SET">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_MESSAGE_PROPERTY_SET"/>
@@ -2554,6 +2302,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_SPLITTING -->
         <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode"
                      tableName="MIGR_TB_PM_SPLITTING">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -2575,6 +2324,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_LEG -->
         <createTable tableName="MIGR_TB_PM_LEG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_LEG"/>
@@ -2602,6 +2352,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_JOIN_PROCESS_LEG -->
         <createTable tableName="MIGR_TB_PM_JOIN_PROCESS_LEG">
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
@@ -2619,6 +2370,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_JOIN_PROCESS_RESP_PARTY -->
         <createTable tableName="MIGR_TB_PM_JOIN_PROC_RSP_PARTY">
             <column name="PROCESS_FK" type="BIGINT">
                 <constraints nullable="false"/>
@@ -2636,6 +2388,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_MESSAGE_PROPERTY -->
         <createTable tableName="MIGR_TB_PM_MESSAGE_PROPERTY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_MESSAGE_PROPERTY"/>
@@ -2655,6 +2408,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_JOIN_PROPERTY_SET -->
         <createTable tableName="MIGR_TB_PM_JOIN_PROPERTY_SET">
             <column name="PROPERTY_FK" type="BIGINT">
                 <constraints nullable="false"/>
@@ -2672,6 +2426,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_LEG_MPC -->
         <createTable tableName="MIGR_TB_PM_LEG_MPC">
             <column name="LEGCONFIGURATION_ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
@@ -2692,6 +2447,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PARTY_AUD -->
         <createTable tableName="MIGR_TB_PM_PARTY_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_AUD"/>
@@ -2710,6 +2466,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="USERNAME_MOD" type="BOOLEAN"/>
         </createTable>
 
+        <!-- TB_PM_PARTY_ID_TYPE -->
         <createTable tableName="MIGR_TB_PM_PARTY_ID_TYPE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_PARTY_ID_TYPE"/>
@@ -2727,6 +2484,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PARTY_IDENTIFIER -->
         <createTable tableName="MIGR_TB_PM_PARTY_IDENTIFIER">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PM_PARTY_IDENTIFIER"/>
@@ -2744,6 +2502,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_PM_PARTY_IDENTIFIER_AUD -->
         <createTable tableName="MIGR_TB_PM_PARTY_IDENTIF_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_IDENTIFIER_AUD"/>
@@ -2755,6 +2514,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="FK_PARTY" type="BIGINT"/>
         </createTable>
 
+        <!-- TB_PM_PARTY_ID_TYPE_AUD -->
         <createTable tableName="MIGR_TB_PM_PARTY_ID_TYPE_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_ID_TYPE_AUD"/>
@@ -2769,98 +2529,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="VALUE_MOD" type="BOOLEAN"/>
         </createTable>
 
-        <createTable tableName="MIGR_TB_ALERT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_ALERT"/>
-            </column>
-            <column name="ALERT_TYPE" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ATTEMPTS_NUMBER" type="INT"/>
-            <column name="MAX_ATTEMPTS_NUMBER" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PROCESSED" type="BOOLEAN"/>
-            <column name="PROCESSED_TIME" type="TIMESTAMP"/>
-            <column name="REPORTING_TIME" type="TIMESTAMP"/>
-            <column name="REPORTING_TIME_FAILURE" type="TIMESTAMP"/>
-            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
-            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
-            <column name="ALERT_STATUS" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ALERT_LEVEL" type="VARCHAR(20)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_EVENT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_EVENT"/>
-            </column>
-            <column name="EVENT_TYPE" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="REPORTING_TIME" type="TIMESTAMP"/>
-            <column name="LAST_ALERT_DATE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_EVENT_ALERT">
-            <column name="FK_EVENT" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
-            </column>
-            <column name="FK_ALERT" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_EVENT_PROPERTY">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_EVENT_PROPERTY"/>
-            </column>
-            <column name="PROPERTY_TYPE" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="FK_EVENT" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="DTYPE" type="VARCHAR(31)"/>
-            <column name="STRING_VALUE" type="VARCHAR(255)"/>
-            <column name="DATE_VALUE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
+        <!-- TB_BACKEND_FILTER -->
         <createTable tableName="MIGR_TB_BACKEND_FILTER">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_BACKEND_FILTER"/>
@@ -2877,6 +2546,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_BACKEND_FILTER_AUD -->
         <createTable tableName="MIGR_TB_BACKEND_FILTER_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_BACKEND_FILTER_AUD"/>
@@ -2892,6 +2562,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="ROUTINGCRITERIAS_MOD" type="BOOLEAN"/>
         </createTable>
 
+        <!-- TB_ROUTING_CRITERIA -->
         <createTable tableName="MIGR_TB_ROUTING_CRITERIA">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_ROUTING_CRITERIA"/>
@@ -2910,6 +2581,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_ROUTING_CRITERIA_AUD -->
         <createTable tableName="MIGR_TB_ROUTING_CRITERIA_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_ROUTING_CRITERIA_AUD"/>
@@ -2924,6 +2596,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="NAME_MOD" type="BOOLEAN"/>
         </createTable>
 
+        <!-- TB_BACK_RCRITERIA_AUD -->
         <createTable tableName="MIGR_TB_BACK_RCRITERIA_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_BACK_RCRITERIA_AUD"/>
@@ -2936,6 +2609,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="PRIORITY" type="INT"/>
         </createTable>
 
+        <!-- TB_AUTHENTICATION_ENTRY -->
         <createTable tableName="MIGR_TB_AUTHENTICATION_ENTRY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_AUTHENTICATION_ENTRY"/>
@@ -2967,6 +2641,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
+        <!-- TB_AUTHENTICATION_ENTRY_AUD -->
         <createTable tableName="MIGR_TB_AUTH_ENTRY_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_AUTHENTICATION_ENTRY_AUD"/>
@@ -2995,6 +2670,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
         </createTable>
 
+        <!-- TB_PLUGIN_USER_PASSWD_HISTORY -->
         <createTable tableName="MIGR_TB_PLUGIN_USR_PASSWD_HIST">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_PLUGIN_USER_PASSWD_HISTO"/>
@@ -3016,40 +2692,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
 
-        <createTable tableName="MIGR_TB_USER">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_USER"/>
-            </column>
-            <column name="USER_EMAIL" type="VARCHAR(255)"/>
-            <column name="USER_ENABLED" type="BOOLEAN">
-                <constraints nullable="false"/>
-            </column>
-            <column name="USER_PASSWORD" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="USER_NAME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="OPTLOCK" type="INT"/>
-            <column defaultValueNumeric="0" name="ATTEMPT_COUNT" type="INT"/>
-            <column name="SUSPENSION_DATE" type="TIMESTAMP"/>
-            <column defaultValueNumeric="0" name="USER_DELETED" type="BOOLEAN">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="PASSWORD_CHANGE_DATE" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueNumeric="0" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
+        <!-- TB_USER_AUD -->
         <createTable tableName="MIGR_TB_USER_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
@@ -3077,68 +2720,7 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
         </createTable>
 
-        <createTable tableName="MIGR_TB_USER_PASSWORD_HISTORY">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_PASSWORD_HISTORY"/>
-            </column>
-            <column name="USER_ID" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="USER_PASSWORD" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_USER_ROLE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE"/>
-            </column>
-            <column name="ROLE_NAME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_USER_ROLES">
-            <column name="USER_ID" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
-            </column>
-            <column name="ROLE_ID" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="MIGR_TB_USER_ROLES_AUD">
-            <column name="REV" type="BIGINT"/>
-            <column name="REVTYPE" type="TINYINT"/>
-            <column name="USER_ID" type="BIGINT"/>
-            <column name="ROLE_ID" type="BIGINT"/>
-        </createTable>
-
+        <!-- TB_USER_ROLE_AUD -->
         <createTable tableName="MIGR_TB_USER_ROLE_AUD">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>

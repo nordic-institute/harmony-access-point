@@ -3107,13 +3107,13 @@
             <column name="OPTLOCK" type="INT"/>
             <column defaultValueNumeric="0" name="ATTEMPT_COUNT" type="INT"/>
             <column name="SUSPENSION_DATE" type="TIMESTAMP"/>
-            <column defaultValueNumeric="0" name="USER_DELETED" type="BOOLEAN">
+            <column defaultValueBoolean="false" name="USER_DELETED" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
             <column defaultValueComputed="${now}" name="PASSWORD_CHANGE_DATE" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueNumeric="0" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column defaultValueBoolean="false" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -3272,17 +3272,6 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-
-    <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
-        <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
-            <column name="ROLE_NAME" value="ROLE_ADMIN"/>
-        </insert>
-        <insert tableName="TB_USER_ROLE">
-            <column name="ID_PK" value="${default_id_pk}0000000002" type="INT"/>
-            <column name="ROLE_NAME" value="ROLE_USER"/>
-        </insert>
     </changeSet>
 
     <changeSet author="ion perpegel" id="EDELIVERY-8503_1">

@@ -49,8 +49,6 @@ public class MessageTestUtility {
         userMessage.setMpc(mpcEntity);
 
         Set<MessageProperty> messageProperties = new HashSet<>();
-        messageProperties.add(createProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1", STRING_TYPE));
-        messageProperties.add(createProperty("finalRecipient", FINAL_RECEIPIENT_VALUE, STRING_TYPE));
         userMessage.setMessageProperties(messageProperties);
 
         PartyInfo partyInfo = new PartyInfo();

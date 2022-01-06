@@ -43,7 +43,7 @@ import javax.xml.transform.TransformerFactory;
  * @since 4.2
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
-public class IncomingEbms3UserMessageEbms3ReceiptHandlerTest {
+public class IncomingUserMessageReceiptHandlerTest {
 
    /* @Injectable
     BackendNotificationService backendNotificationService;

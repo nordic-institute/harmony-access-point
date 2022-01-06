@@ -57,7 +57,7 @@ import static org.junit.Assert.fail;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class IncomingEbms3UserMessageHandlerTest {
+public class IncomingUserMessageHandlerTest {
 
     @Tested
     IncomingUserMessageHandler incomingUserMessageHandler;
