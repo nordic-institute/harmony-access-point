@@ -172,9 +172,9 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatch.getBatchId())) {
             final FileObject[] children = batchDirectory.getChildren();
             Assert.assertEquals(2, children.length);
-            Assert.assertTrue(children[0].getName().getBaseName().equals("METS.xml"));
+            Assert.assertNotNull(batchDirectory.getChild("METS.xml"));
         } catch (Exception e) {
-            LOG.error("Error reading eark ztructure for batch [{}]", eArchiveBatch.getBatchId(), e);
+            LOG.error("Error reading eark structure for batch [{}]", eArchiveBatch.getBatchId(), e);
         }
 
         eArchivingRetentionService.cleanStoredBatches();
@@ -188,7 +188,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatch.getBatchId())) {
             Assert.assertEquals(FileType.IMAGINARY, batchDirectory.getType());
         } catch (Exception e) {
-            LOG.error("Error reading eark ztructure for batch [{}]", eArchiveBatch.getBatchId(), e);
+            LOG.error("Error reading eark structure for batch [{}]", eArchiveBatch.getBatchId(), e);
         }
     }
 }
