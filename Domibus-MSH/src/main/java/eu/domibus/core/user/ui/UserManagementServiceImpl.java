@@ -314,15 +314,26 @@ public class UserManagementServiceImpl implements UserService {
         user.setActive(true);
 
         // generate password as guid
-        String password = UUID.randomUUID().toString();
+        String password = getPassword();
         user.setPassword(password);
         if (domibusConfigurationService.isMultiTenantAware()) {
-            user.setDomain(domainService.getDomains().get(0).getName());
+            user.setDomain(domainService.DEFAULT_DOMAIN.getName());
         }
 
         userPersistenceService.updateUsers(Arrays.asList(user));
 
         LOG.info("Default password for user [{}] is [{}].", userName, password);
+    }
+
+    private String getPassword() {
+        long start = System.currentTimeMillis();
+
+        String result = UUID.randomUUID().toString();
+
+        long finish = System.currentTimeMillis();
+        LOG.info("Password generation for default user took [{}]", finish - start);
+
+        return result;
     }
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {

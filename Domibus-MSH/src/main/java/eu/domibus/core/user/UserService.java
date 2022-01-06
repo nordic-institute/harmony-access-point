@@ -93,5 +93,8 @@ public interface UserService {
      */
     long countUsers(AuthRole authRole, String userName, String deleted);
 
+    /**
+     * Creates a default user ( admin for ST and super for MT) at bootstrap time with a generated password
+     */
     void createDefaultUserIfApplicable();
 }
