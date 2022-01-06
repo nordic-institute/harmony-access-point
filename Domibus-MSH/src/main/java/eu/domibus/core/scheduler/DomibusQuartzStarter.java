@@ -162,11 +162,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
-        domainContextProvider.clearCurrentDomain();
-
         if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE)) {
             pauseJobs(domain, EARCHIVE_CONTINUOUS_JOB,EARCHIVE_SANITIZER_JOB,EARCHIVE_CLEANUP_JOB);
         }
+        domainContextProvider.clearCurrentDomain();
     }
 
     protected void removeMarkedForDeletionJobs() {
