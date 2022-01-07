@@ -3,6 +3,7 @@ package eu.domibus.test;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,6 +65,11 @@ public abstract class AbstractIT {
 
     @Autowired
     protected DomibusConditionUtil domibusConditionUtil;
+    @Autowired
+    protected ConfigurableEnvironment environment;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     private static boolean springContextInitialized = false;
 
