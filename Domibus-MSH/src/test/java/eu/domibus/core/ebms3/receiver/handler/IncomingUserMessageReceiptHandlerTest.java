@@ -25,6 +25,7 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.soap.SOAPMessage;
@@ -34,6 +35,7 @@ import javax.xml.soap.SOAPMessage;
  * @since 4.2
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
+@Ignore("[EDELIVERY-8739] Improve code coverage")
 public class IncomingUserMessageReceiptHandlerTest {
 
     @Tested
