@@ -6,7 +6,6 @@ import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -18,7 +17,6 @@ import static org.junit.Assert.assertTrue;
  * @since 3.3
  */
 
-@Ignore
 @RunWith(JMockit.class)
 public class UserMessageLegConfigurationFactoryTest {
 
