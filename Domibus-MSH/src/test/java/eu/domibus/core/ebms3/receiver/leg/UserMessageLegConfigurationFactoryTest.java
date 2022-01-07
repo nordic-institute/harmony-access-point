@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.ebms3.model.*;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationExtractor;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
 import mockit.integration.junit4.JMockit;
@@ -20,12 +20,12 @@ import static org.junit.Assert.assertTrue;
 
 @Ignore
 @RunWith(JMockit.class)
-public class Ebms3UserMessageLegConfigurationFactoryTest {
+public class UserMessageLegConfigurationFactoryTest {
 
-    /*@Test
+    @Test
     public void testUserMessageConfigurationFactory() {
-        Messaging messaging = new Messaging();
-        messaging.setUserMessage(new UserMessage());
+        Ebms3Messaging messaging = new Ebms3Messaging();
+        messaging.setUserMessage(new Ebms3UserMessage());
         SoapMessage soapMessage = new SoapMessage(new MessageImpl());
         UserMessageLegConfigurationFactory userMessageLegConfigurationFactory = new UserMessageLegConfigurationFactory();
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);
@@ -40,10 +40,10 @@ public class Ebms3UserMessageLegConfigurationFactoryTest {
 
     @Test
     public void testPullRequestConfigurationFactory() {
-        Messaging messaging = new Messaging();
+        Ebms3Messaging messaging = new Ebms3Messaging();
         SoapMessage soapMessage = new SoapMessage(new MessageImpl());
-        SignalMessage signalMessage = new SignalMessage();
-        signalMessage.setPullRequest(new PullRequest());
+        Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
+        signalMessage.setPullRequest(new Ebms3PullRequest());
         messaging.setSignalMessage(signalMessage);
         UserMessageLegConfigurationFactory userMessageLegConfigurationFactory = new UserMessageLegConfigurationFactory();
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);
@@ -59,10 +59,10 @@ public class Ebms3UserMessageLegConfigurationFactoryTest {
 
     @Test
     public void testReceiptConfigurationFactory() {
-        Messaging messaging = new Messaging();
+        Ebms3Messaging messaging = new Ebms3Messaging();
         SoapMessage soapMessage = new SoapMessage(new MessageImpl());
-        SignalMessage signalMessage = new SignalMessage();
-        signalMessage.setReceipt(new ReceiptEntity());
+        Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
+        signalMessage.setReceipt(new Ebms3Receipt());
         messaging.setSignalMessage(signalMessage);
         UserMessageLegConfigurationFactory userMessageLegConfigurationFactory = new UserMessageLegConfigurationFactory();
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);
@@ -75,6 +75,6 @@ public class Ebms3UserMessageLegConfigurationFactoryTest {
         Mockito.verify(mock,Mockito.times(0)).visit(Mockito.any(UserMessageLegConfigurationExtractor.class));
         Mockito.verify(mock,Mockito.times(0)).visit(Mockito.any(PullRequestLegConfigurationExtractor.class));
         Mockito.verify(mock,Mockito.times(1)).visit(Mockito.any(ReceiptLegConfigurationExtractor.class));
-    }*/
+    }
 
 }

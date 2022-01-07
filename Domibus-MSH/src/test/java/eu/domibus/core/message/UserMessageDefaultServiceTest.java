@@ -13,7 +13,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -41,17 +40,17 @@ import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Session;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
-import javax.jms.Session;
 import javax.persistence.EntityManager;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.core.message.UserMessageDefaultService.BATCH_SIZE;
 import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -60,7 +59,7 @@ import static org.junit.Assert.fail;
  * @author Cosmin Baciu, Soumya
  * @since 3.3
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
 public class UserMessageDefaultServiceTest {
 
@@ -208,7 +207,7 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     UserMessageDefaultRestoreService userMessageDefaultRestoreService;
 
-    @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
+    @Injectable
     EntityManager em;
 
     @Test
@@ -442,19 +441,63 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    @Ignore
-    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2, @Mocked Session session) {
+    public void testDeleteMessages(@Injectable UserMessageLogDto uml1,
+                                   @Injectable UserMessageLogDto uml2,
+                                   @Injectable Session session) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-
+        List<String> filenames = new ArrayList<>();
+        filenames.add("file1");
         new Expectations() {{
+            uml1.getEntityId();
+            result = 1L;
+            uml2.getEntityId();
+            result = 2L;
+            uml1.getMessageId();
+            result = "1L";
+            uml2.getMessageId();
+            result = "2L";
             em.unwrap(Session.class);
             result = session;
+
+            partInfoService.findFileSystemPayloadFilenames((List<String>) any);
+            result = filenames;
+
+            userMessageLogDao.deleteMessageLogs((List<Long>) any);
+            result = 1;
+            signalMessageLogDao.deleteMessageLogs((List<Long>) any);
+            result = 1;
+            signalMessageRawEnvelopeDao.deleteMessages((List<Long>) any);
+            result = 1;
+            receiptDao.deleteReceipts((List<Long>) any);
+            result = 1;
+            signalMessageDao.deleteMessages((List<Long>) any);
+            result = 1;
+            userMessageRawEnvelopeDao.deleteMessages((List<Long>) any);
+            result = 1;
+            messageAttemptDao.deleteAttemptsByMessageIds((List<Long>) any);
+            result = 1;
+
+            errorLogService.deleteErrorLogsByMessageIdInError((List<String>) any);
+            result = 1;
+
+            messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds((List<Long>) any);
+            result = 1;
+
+            userMessageDao.deleteMessages((List<Long>) any);
+            result = 1;
         }};
 
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
-        new Verifications() {{
+        new FullVerifications() {{
+            session.setJdbcBatchSize(BATCH_SIZE);
+
             backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
+
+            partInfoService.deletePayloadFiles(filenames);
+
+            em.flush();
+            times = 2;
         }};
     }
 
