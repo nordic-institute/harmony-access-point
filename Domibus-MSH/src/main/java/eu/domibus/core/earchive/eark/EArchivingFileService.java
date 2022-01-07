@@ -2,10 +2,11 @@ package eu.domibus.core.earchive.eark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
-import eu.domibus.core.earchive.DomibusEArchiveException;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.logging.DomibusLogger;
@@ -72,7 +73,7 @@ public class EArchivingFileService {
 
     protected InputStream getInputStream(Long entityId, PartInfo partInfo) {
         if (partInfo.getPayloadDatahandler() == null) {
-            throw new DomibusEArchiveException("Could not find attachment for [" + partInfo.getHref() + "] and entityId [" + entityId + "]");
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"Could not find attachment for [" + partInfo.getHref() + "] and entityId [" + entityId + "]");
         }
         try {
             return partInfo.getPayloadDatahandler().getInputStream();

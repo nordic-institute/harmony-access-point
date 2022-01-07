@@ -8,7 +8,7 @@ import groovy.json.JsonSlurper
  *
  */
 class SoapUIPropertyUtils {
-    static def final  JMS_MANDATORY_PROPERTIES = [
+    static def final JMS_MANDATORY_PROPERTIES = [
             "site",
             "jmsClientType",
             "jmsUrl",
@@ -20,7 +20,7 @@ class SoapUIPropertyUtils {
      * Method parses the JSON type string and property object. Method also validates if json contains all required jms data
      * for the domain
      * @param allJMSProperties - json string for jms data
-     * @param log  - logger object
+     * @param log - logger object
      * @return "double" hashmap of properties values[domain][property]
      */
     static def parseJMSDomainProperties(allJMSProperties, log) {
@@ -33,7 +33,7 @@ class SoapUIPropertyUtils {
      *  for the domain. The required parameters are given in the list argument mandatoryProperties.
      * @param allProperties - json string of parameters
      * @param mandatoryProperties - required list of parameters for the domain
-     * @param log  - logger object
+     * @param log - logger object
      * @return "double" hashmap of properties values[domain][property]
      */
     static def parseProperties(allProperties, mandatoryProperties, log) {
@@ -68,14 +68,29 @@ class SoapUIPropertyUtils {
      * @param propertyName - property name
      * @param log - logger
      */
-    static def getDomainProperty(context,defPropertyValues, propertyDomain, propertyName, log) {
-        log.debug "Get project property: " +propertyDomain+"."+propertyName
-        String value  = context.expand('${#Project#' +propertyDomain+"."+propertyName + '}')
+    static def getDomainProperty(context, defPropertyValues, propertyDomain, propertyName, log) {
+        log.debug "Get project property: " + propertyDomain + "." + propertyName
+        String value = context.expand('${#Project#' + propertyDomain + "." + propertyName + '}')
         if (value == null || value.trim().isEmpty()) {
-            log.debug "Project property: " +propertyDomain+"."+propertyName + " is empty! get it from initial json property definition"
+            log.debug "Project property: " + propertyDomain + "." + propertyName + " is empty! get it from initial json property definition"
             value = defPropertyValues[propertyDomain][propertyName]
-            log.debug "Got value "+ value + " for property: " +propertyDomain+"."+propertyName + "."
+            log.debug "Got value " + value + " for property: " + propertyDomain + "." + propertyName + "."
         }
         return value
+    }
+
+
+    /**
+     * replace slashes in project custom properties values
+     *
+     * @param source - source path
+     */
+    static String formatPathSlashes(String source) {
+        if ((source != null) && (source != "")) {
+            if (System.properties['os.name'].toLowerCase().contains('windows')) {
+                return source.replaceAll("/", "\\\\")
+            }
+        }
+        return source
     }
 }

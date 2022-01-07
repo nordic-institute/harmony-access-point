@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- clean existing tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-prepare-common">
+        <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
+
+        <sql endDelimiter="\n/" dbms="oracle">
+DECLARE
+    table_does_not_exist exception;
+    PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_ALERT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_ALERT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT_ALERT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT_ALERT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_EVENT_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_EVENT_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_COMMAND';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_COMMAND: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_COMMAND_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_COMMAND_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_PASSWORD_HISTORY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_PASSWORD_HISTORY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLES';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLES: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_REV_INFO';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_REV_INFO: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_REV_CHANGES';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_REV_CHANGES: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLE_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLE_AUD: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_ROLES_AUD';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_ROLES_AUD: table does not exist');
+    END;
+END;
+/
+        </sql>
+
+        <sql endDelimiter="\n//" dbms="mysql">
+DELIMITER //
+
+DROP TABLE IF EXISTS MIGR_TB_ALERT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_EVENT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_EVENT_ALERT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_EVENT_PROPERTY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_COMMAND
+//
+
+DROP TABLE IF EXISTS MIGR_TB_COMMAND_PROPERTY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_PASSWORD_HISTORY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_ROLE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_ROLES
+//
+
+DROP TABLE IF EXISTS MIGR_TB_REV_INFO
+//
+
+DROP TABLE IF EXISTS MIGR_TB_REV_CHANGES
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_AUD
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_ROLE_AUD
+//
+
+DROP TABLE IF EXISTS MIGR_TB_USER_ROLES_AUD
+//
+        </sql>
+    </changeSet>
+
+    <!-- rename any previously created PK constraints to avoid name collision -->
+    <changeSet author="Sebastian-Ion TINCU" dbms="oracle" id="EDELIVERY-7970-rename-old-pk-constraints-common">
+        <sql endDelimiter="\n/" dbms="oracle">
+ALTER TABLE TB_REV_INFO RENAME CONSTRAINT PK_REV_INFO TO OLD_PK_REV_INFO
+/
+ALTER INDEX PK_REV_INFO RENAME TO OLD_PK_REV_INFO
+/
+
+ALTER TABLE TB_REV_CHANGES RENAME CONSTRAINT PK_REV_CHANGES TO OLD_PK_REV_CHANGES
+/
+ALTER INDEX PK_REV_CHANGES RENAME TO OLD_PK_REV_CHANGES
+/
+
+ALTER TABLE TB_COMMAND RENAME CONSTRAINT PK_COMMAND TO OLD_PK_COMMAND
+/
+ALTER INDEX PK_COMMAND RENAME TO OLD_PK_COMMAND
+/
+
+ALTER TABLE TB_ALERT RENAME CONSTRAINT PK_ALERT TO OLD_PK_ALERT
+/
+ALTER INDEX PK_ALERT RENAME TO OLD_PK_ALERT
+/
+
+ALTER TABLE TB_EVENT RENAME CONSTRAINT PK_EVENT TO OLD_PK_EVENT
+/
+ALTER INDEX PK_EVENT RENAME TO OLD_PK_EVENT
+/
+
+ALTER TABLE TB_EVENT_ALERT RENAME CONSTRAINT PK_EVENT_ALERT TO OLD_PK_EVENT_ALERT
+/
+ALTER INDEX PK_EVENT_ALERT RENAME TO OLD_PK_EVENT_ALERT
+/
+
+ALTER TABLE TB_EVENT_PROPERTY RENAME CONSTRAINT PK_EVENT_PROPERTY TO OLD_PK_EVENT_PROPERTY
+/
+ALTER INDEX PK_EVENT_PROPERTY RENAME TO OLD_PK_EVENT_PROPERTY
+/
+
+ALTER TABLE TB_USER RENAME CONSTRAINT PK_USER TO OLD_PK_USER
+/
+ALTER INDEX PK_USER RENAME TO OLD_PK_USER
+/
+
+ALTER TABLE TB_USER_PASSWORD_HISTORY RENAME CONSTRAINT PK_USER_PASSWORD_HISTORY TO OLD_PK_USER_PASSWORD_HISTORY
+/
+ALTER INDEX PK_USER_PASSWORD_HISTORY RENAME TO OLD_PK_USER_PASSWORD_HISTORY
+/
+
+ALTER TABLE TB_USER_ROLE RENAME CONSTRAINT PK_USER_ROLE TO OLD_PK_USER_ROLE
+/
+ALTER INDEX PK_USER_ROLE RENAME TO OLD_PK_USER_ROLE
+/
+
+ALTER TABLE TB_USER_ROLES RENAME CONSTRAINT PK_PRIMARY TO OLD_PK_PRIMARY
+/
+ALTER INDEX PK_PRIMARY RENAME TO OLD_PK_PRIMARY
+/
+        </sql>
+    </changeSet>
+
+    <!-- Start Dictionary Tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-recreate-dictionary-tables-common">
+        <!-- TB_D_TIMEZONE_OFFSET -->
+        <createTable tableName="TB_D_TIMEZONE_OFFSET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_TIMEZONE_OFFSET"/>
+            </column>
+            <column name="NEXT_ATTEMPT_TIMEZONE_ID" type="VARCHAR(255)" remarks="Time zone ID on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column name="NEXT_ATTEMPT_OFFSET_SECONDS" type="INT" remarks="Offset in seconds of the time zone on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="NEXT_ATTEMPT_TIMEZONE_ID,NEXT_ATTEMPT_OFFSET_SECONDS" constraintName="UK_D_TIMEZONE_OFFSET" tableName="TB_D_TIMEZONE_OFFSET"/>
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8441-recreate-MIGR-tables-for-primary-key-migration-common">
+        <!-- TB_REV_INFO -->
+        <createTable tableName="MIGR_TB_REV_INFO">
+            <column name="ID" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_REV_INFO"/>
+            </column>
+            <column name="TIMESTAMP" type="BIGINT"/>
+            <column name="REVISION_DATE" type="TIMESTAMP"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_REV_CHANGES -->
+        <createTable tableName="MIGR_TB_REV_CHANGES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_REV_CHANGES"/>
+            </column>
+            <column name="REV" type="BIGINT"/>
+            <column name="AUDIT_ORDER" type="INT"/>
+            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
+            <column name="GROUP_NAME" type="VARCHAR(255)"/>
+            <column name="ENTITY_ID" type="VARCHAR(255)"/>
+            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_COMMAND -->
+        <createTable tableName="MIGR_TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_COMMAND"/>
+            </column>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMMAND_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_COMMAND_PROPERTY -->
+        <createTable tableName="MIGR_TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_ALERT -->
+        <createTable tableName="MIGR_TB_ALERT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ALERT"/>
+            </column>
+            <column name="ALERT_TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ATTEMPTS_NUMBER" type="INT"/>
+            <column name="MAX_ATTEMPTS_NUMBER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROCESSED" type="BOOLEAN"/>
+            <column name="PROCESSED_TIME" type="TIMESTAMP"/>
+            <column name="REPORTING_TIME" type="TIMESTAMP"/>
+            <column name="REPORTING_TIME_FAILURE" type="TIMESTAMP"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+            <column name="ALERT_STATUS" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ALERT_LEVEL" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_EVENT -->
+        <createTable tableName="MIGR_TB_EVENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT"/>
+            </column>
+            <column name="EVENT_TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REPORTING_TIME" type="TIMESTAMP"/>
+            <column name="LAST_ALERT_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_EVENT_ALERT -->
+        <createTable tableName="MIGR_TB_EVENT_ALERT">
+            <column name="FK_EVENT" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
+            </column>
+            <column name="FK_ALERT" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_EVENT_PROPERTY -->
+        <createTable tableName="MIGR_TB_EVENT_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT_PROPERTY"/>
+            </column>
+            <column name="PROPERTY_TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FK_EVENT" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DTYPE" type="VARCHAR(31)"/>
+            <column name="STRING_VALUE" type="VARCHAR(255)"/>
+            <column name="DATE_VALUE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER -->
+        <createTable tableName="MIGR_TB_USER">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER"/>
+            </column>
+            <column name="USER_EMAIL" type="VARCHAR(255)"/>
+            <column name="USER_ENABLED" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OPTLOCK" type="INT"/>
+            <column defaultValueNumeric="0" name="ATTEMPT_COUNT" type="INT"/>
+            <column name="SUSPENSION_DATE" type="TIMESTAMP"/>
+            <column defaultValueNumeric="0" name="USER_DELETED" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="PASSWORD_CHANGE_DATE" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_PASSWORD_HISTORY -->
+        <createTable tableName="MIGR_TB_USER_PASSWORD_HISTORY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_PASSWORD_HISTORY"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_ROLE -->
+        <createTable tableName="MIGR_TB_USER_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE"/>
+            </column>
+            <column name="ROLE_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_ROLES -->
+        <createTable tableName="MIGR_TB_USER_ROLES">
+            <column name="USER_ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
+            </column>
+            <column name="ROLE_ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_ROLES_AUD -->
+        <createTable tableName="MIGR_TB_USER_ROLES_AUD">
+            <column name="REV" type="BIGINT"/>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_ID" type="BIGINT"/>
+            <column name="ROLE_ID" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

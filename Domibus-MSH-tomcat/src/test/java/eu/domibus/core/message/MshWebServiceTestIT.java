@@ -14,6 +14,7 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -33,6 +34,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -94,6 +96,9 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
 
+    @Autowired
+    protected SoapUtil soapUtil;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
@@ -141,7 +146,7 @@ public class MshWebServiceTestIT extends AbstractIT {
 
         final ReceiptEntity receiptEntity = receiptDao.read(dbSignalMessage.getEntityId());
         assertNotNull(receiptEntity);
-        assertNotNull(receiptEntity.getRawXml());
+        assertNotNull(receiptEntity.getRawXML());
 
         final UserMessageRaw userMessageRaw = rawEnvelopeLogDao.read(userMessage.getEntityId());
         assertNotNull(userMessageRaw);
@@ -158,9 +163,11 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String signalMessageRawString = new String(signalMessageRaw.getRawXML());
         LOG.info("signalMessageRawString [{}]", signalMessageRawString);
 
-
         final String expectedResponseRawXml = getExpectedResponseXml(signalMessageRawString);
         assertEquals(expectedResponseRawXml, signalMessageRawString);
+
+        String rawXMLMessage = soapUtil.getRawXMLMessage(soapResponse);
+        assertTrue(Arrays.equals(signalMessageRaw.getRawXML(), rawXMLMessage.getBytes(StandardCharsets.UTF_8)));
     }
 
     protected String getExpectedResponseXml(final String signalMessageRawString) throws IOException {

@@ -50,9 +50,6 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     protected SoapUtil soapUtil;
 
     @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
     private UserMessageDao userMessageDao;
 
     @Autowired

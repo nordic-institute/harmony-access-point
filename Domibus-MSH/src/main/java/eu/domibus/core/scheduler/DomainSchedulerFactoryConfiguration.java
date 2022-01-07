@@ -69,6 +69,10 @@ public class DomainSchedulerFactoryConfiguration {
     public static final String GROUP_GENERAL = "GENERAL";
     private static final Integer JOB_START_DELAY_IN_MS = 30000;
 
+    public static final String EARCHIVE_CONTINUOUS_JOB="eArchiveContinuousJob";
+    public static final String EARCHIVE_CLEANUP_JOB="eArchivingCleanupJob";
+    public static final String EARCHIVE_SANITIZER_JOB="eArchiveSanitizerJob";
+
     @Autowired
     @Qualifier("taskExecutor")
     protected Executor executor;
@@ -486,7 +490,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean eArchiveContinuousTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -507,7 +511,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean eArchiveSanitizerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+        if (domainContextProvider.getCurrentDomainSafely() == null ) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -529,7 +533,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean eArchivingCleanupTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null || !domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
         }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
@@ -559,6 +563,7 @@ public class DomainSchedulerFactoryConfiguration {
             }
         }
         schedulerFactoryBean.setTriggers(domibusStandardTriggerList.toArray(new Trigger[domibusStandardTriggerList.size()]));
+
         return schedulerFactoryBean;
     }
 

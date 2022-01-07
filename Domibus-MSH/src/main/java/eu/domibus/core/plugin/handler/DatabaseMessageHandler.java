@@ -370,11 +370,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.debug("Authorized as [{}]", displayUser);
 
         String messageId = null;
-        UserMessage userMessage = null;
         try {
             backendMessageValidator.validateSubmissionSending(submission);
 
-            userMessage = transformer.transformFromSubmission(submission);
+            UserMessage userMessage = transformer.transformFromSubmission(submission);
 
             if (userMessage == null) {
                 LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");

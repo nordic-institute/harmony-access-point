@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @author Ion Perpegel
+ * @author François Gautier
  * @since 5.0
  */
 public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
