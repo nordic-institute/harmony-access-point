@@ -2,7 +2,6 @@ package eu.domibus.plugin.ws;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,14 +14,13 @@ import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.test.DomibusConditionUtil;
+import eu.domibus.test.PModeUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 
 import javax.activation.DataHandler;
@@ -43,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.awaitility.Awaitility.with;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -76,6 +73,8 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     @Autowired
     DomibusConditionUtil domibusConditionUtil;
+    @Autowired
+    PModeUtil pModeUtil;
 
     protected void verifySendMessageAck(eu.domibus.plugin.ws.generated.body.SubmitResponse response) {
         final List<String> messageID = response.getMessageID();
@@ -290,29 +289,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
-        uploadPmode(redHttpPort, null);
-    }
-
-    protected void uploadPmode(Integer redHttpPort, Pair<String, String>... toReplace) throws IOException, XmlProcessingException {
-        final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
-
-        String pmodeText = IOUtils.toString(inputStream, UTF_8);
-        if (toReplace != null) {
-            pmodeText = replace(pmodeText, toReplace);
-        }
-        if (redHttpPort != null) {
-            LOG.info("Using wiremock http port [{}]", redHttpPort);
-            pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
-        }
-
-        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes(UTF_8));
-        if (!configurationDAO.configurationExists()) {
-            configurationDAO.updateConfiguration(pModeConfiguration);
-        }
-    }
-
-    protected void uploadPmode() throws IOException, XmlProcessingException {
-        uploadPmode(null);
+        pModeUtil.uploadPmode(redHttpPort);
     }
 
     protected String replace(String body, Pair<String, String>... replace) {

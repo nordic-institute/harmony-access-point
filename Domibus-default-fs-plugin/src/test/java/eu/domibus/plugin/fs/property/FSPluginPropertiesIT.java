@@ -9,7 +9,6 @@ import eu.domibus.core.property.PropertyRetrieveManager;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -55,33 +54,8 @@ public class FSPluginPropertiesIT extends AbstractIT {
     // contrary to implemented properties mechanism which allow to override values from the default file
     // fs-plugin-default.properties takes precedence here so we will test both files values
     static class ContextConfiguration {
-//        @Bean
-//        @Primary
-//        public PropertyProviderHelper propertyProviderHelper() {
-//            return Mockito.mock(PropertyProviderHelper.class);
-//        }
-//        @Bean
-//        @Primary
-//        public DomibusConfigurationExtService domibusConfigurationExtService() {
-//            return Mockito.mock(DomibusConfigurationExtService.class);
-//        }
-//        @Bean
-//        @Primary
-//        public DefaultDomibusConfigurationService defaultDomibusConfigurationService() {
-//            return Mockito.spy(DefaultDomibusConfigurationService.class);
-//        }
     }
 
-
-    @Before
-    public void setUp() throws Exception {
-//        Mockito.reset(domibusConfigurationExtService);
-//        when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(false);
-//        Mockito.reset(defaultDomibusConfigurationService);
-//        when(defaultDomibusConfigurationService.isMultiTenantAware()).thenReturn(false);
-//        when(propertyProviderHelper.isMultiTenantAware()).thenReturn(false);
-//        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
-    }
 
     @Test
     public void testGetLocation() {

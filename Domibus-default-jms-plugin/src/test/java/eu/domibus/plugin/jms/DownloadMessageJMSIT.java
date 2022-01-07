@@ -17,6 +17,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.UserMessageSampleUtil;
+import eu.domibus.test.UserMessageService;
 import eu.domibus.test.common.JMSMessageUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.activemq.ActiveMQXAConnection;

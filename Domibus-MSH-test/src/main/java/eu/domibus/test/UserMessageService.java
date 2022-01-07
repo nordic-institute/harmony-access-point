@@ -1,4 +1,4 @@
-package eu.domibus.plugin.jms;
+package eu.domibus.test;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageDao;

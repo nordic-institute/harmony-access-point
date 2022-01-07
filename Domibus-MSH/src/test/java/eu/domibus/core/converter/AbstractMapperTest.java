@@ -21,7 +21,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public abstract class AbstractMapperTest {
     @Configuration
-//    @ComponentScan(basePackages = "eu.domibus.core.converter", basePackageClasses = {EventMapper.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
