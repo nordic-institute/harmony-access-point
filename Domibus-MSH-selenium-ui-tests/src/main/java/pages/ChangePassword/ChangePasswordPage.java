@@ -188,7 +188,6 @@ public class ChangePasswordPage extends DomibusPage {
 
 	public void pressTABKey() throws Exception {
 		weToDobject(mandatoryFieldsText).click();
-		wait.forXMillis(500);
 	}
 
 }

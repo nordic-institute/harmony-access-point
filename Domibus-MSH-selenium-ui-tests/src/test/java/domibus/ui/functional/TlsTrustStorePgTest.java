@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import org.testng.Reporter;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -18,6 +19,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 	public void uploadCertificate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 
@@ -45,6 +47,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 	public void uploadCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 
@@ -64,6 +67,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 	public void removeCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 
@@ -95,6 +99,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 	public void removeAllCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 
@@ -130,6 +135,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 	public void uploadCertfterRemove() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);

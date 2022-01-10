@@ -1,5 +1,6 @@
 package domibus.ui.ux;
 
+import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -25,11 +26,12 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORES_TLS);
 
 	// Need to handle messages separately for ST & MT after resolution of  EDELIVERY-8270
-    /* EDELIVERY-8183 - TLS-1-Open Truststores-TLS page with no configuration */
+	/* EDELIVERY-8183 - TLS-1-Open Truststores-TLS page with no configuration */
 	@Test(description = "TLS-1", groups = {"singleTenancy", "NoTlsConfig"})
 	public void openTlsTrustorePg() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 
 		selectRandomDomain();
@@ -49,11 +51,12 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8184 - TLS-2-Open Truststores-TLS page with proper configuration */
+	/* EDELIVERY-8184 - TLS-2-Open Truststores-TLS page with proper configuration */
 	@Test(description = "TLS-2", groups = {"singleTenancy", "TlsConfig"})
 	public void openPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
 		selectRandomDomain();
 
@@ -65,22 +68,24 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8197 - TLS-11-Verify Download CSV */
+	/* EDELIVERY-8197 - TLS-11-Verify Download CSV */
 	@Test(description = "TLS-11", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void downloadCSV() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
+		Reporter.log("Click on download csv button");
 		log.info("Click on download csv button");
 		String fileName = page.pressSaveCsvAndSaveFile();
+		Reporter.log("downloaded rows to file " + fileName);
 		log.info("downloaded rows to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8198 - TLS-12-Change visible number of rows */
+	/* EDELIVERY-8198 - TLS-12-Change visible number of rows */
 	@Test(description = "TLS-12", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void changeRowCount() throws Exception {
 
@@ -93,7 +98,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8201 - TLS-15-Check uncheck fields on Show Column links */
+	/* EDELIVERY-8201 - TLS-15-Check uncheck fields on Show Column links */
 	@Test(description = "TLS-15", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void changeVisibleColumns() throws Exception {
 
@@ -108,7 +113,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8203 - TLS-17-Hide link after uncheckingchecking checkbox */
+	/* EDELIVERY-8203 - TLS-17-Hide link after uncheckingchecking checkbox */
 	@Test(description = "TLS-17", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void hideWithoutSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -132,7 +137,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8199 - TLS-13-Check Sorting */
+	/* EDELIVERY-8199 - TLS-13-Check Sorting */
 	@Test(description = "TLS-13", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void verifySorting() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -152,7 +157,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8202 - TLS-16-Check ALL None link feature */
+	/* EDELIVERY-8202 - TLS-16-Check ALL None link feature */
 	@Test(description = "TLS-16", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void verifyAllNoneLinkFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -166,7 +171,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-8204 - TLS-18-Open Tls TrustStore page with Super Admin */
+	/* EDELIVERY-8204 - TLS-18-Open Tls TrustStore page with Super Admin */
 	@Test(description = "TLS-18", groups = {"multiTenancy", "TlsConfig"})
 	public void openPageForSuperAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -182,7 +187,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8205 - TLS-19-Open Tls Truststore page with Super Admin when no ssl configuration is done */
+	/* EDELIVERY-8205 - TLS-19-Open Tls Truststore page with Super Admin when no ssl configuration is done */
 	@Test(description = "TLS-19", groups = {"multiTenancy", "NoTlsConfig"})
 	public void openPageSuperAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -200,7 +205,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8267 - TLS-23- Verify Single click on grid row */
+	/* EDELIVERY-8267 - TLS-23- Verify Single click on grid row */
 	@Test(description = "TLS-23", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void singleClick() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -213,7 +218,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8268 - TLS-24-Verify Double click on grid row */
+	/* EDELIVERY-8268 - TLS-24-Verify Double click on grid row */
 	@Test(description = "TLS-24", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void doubleClick() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -231,13 +236,14 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8191 - TLS-8-Download Certificate */
+	/* EDELIVERY-8191 - TLS-8-Download Certificate */
 	@Test(description = "TLS-8", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void downloadCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
+		Reporter.log("Customized location for download");
 		log.info("Customized location for download");
 		String filePath = data.downloadFolderPath();
 
@@ -247,7 +253,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8200 - TLS-14-Check Show Column link */
+	/* EDELIVERY-8200 - TLS-14-Check Show Column link */
 	@Test(description = "TLS-14", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void checkShowLink() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -260,7 +266,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-8306 - TLS-25-Check Reflection of Upload Certificate feature on other domain */
+	/* EDELIVERY-8306 - TLS-25-Check Reflection of Upload Certificate feature on other domain */
 	@Test(description = "TLS-25", groups = {"multiTenancy", "TlsConfig"})
 	public void compareDomainDataAfterUpload() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -281,7 +287,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-8308 - TLS-27-Check reflection of remove certificate on other domain */
+	/* EDELIVERY-8308 - TLS-27-Check reflection of remove certificate on other domain */
 	@Test(description = "TLS-27", groups = {"multiTenancy", "TlsConfig"})
 	public void compareDomainDataAfterRemove() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -304,7 +310,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-8309 - TLS-28-Check reflection on other domain data after removal of all certificate from tls truststore page */
+	/* EDELIVERY-8309 - TLS-28-Check reflection on other domain data after removal of all certificate from tls truststore page */
 	@Test(description = "TLS-28", groups = {"multiTenancy", "TlsConfig"})
 	public void compareDomainDataAfterRemoveAll() throws Exception {
 		SoftAssert soft = new SoftAssert();

@@ -10,21 +10,16 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.asserts.SoftAssert;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -37,8 +32,8 @@ import java.util.zip.ZipInputStream;
 
 
 public class TestUtils {
-	
-	protected static Logger log = LoggerFactory.getLogger("TestUtils");
+
+	protected static final Logger log = LoggerFactory.getLogger(TestUtils.class);
 	
 	/* Checks if List provided is sorted*/
 	public static boolean isStringListSorted(List<String> strings, Order order) {

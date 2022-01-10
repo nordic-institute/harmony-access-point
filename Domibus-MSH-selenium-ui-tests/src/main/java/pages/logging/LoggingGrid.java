@@ -55,7 +55,7 @@ public class LoggingGrid extends DGrid {
 			DObject button = weToDobject(btn);
 			if(button.getText().equalsIgnoreCase(level)){
 				button.click();
-				wait.forXMillis(500);
+				wait.forAttributeToContain(button.element, "class", "mat-button-toggle-checked");
 				break;
 			}
 		}

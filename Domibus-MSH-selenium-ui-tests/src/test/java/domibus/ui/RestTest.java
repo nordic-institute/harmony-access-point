@@ -30,8 +30,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RestTest extends BaseTest {
-	
-	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
+
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
 	public List<String> domains = new ArrayList<>();
 	public List<String> messageFilterPlugins = new ArrayList<>();
 	private String invalidStringsFile = "src/test/resources/rest_csv/invalidStrings.txt";
