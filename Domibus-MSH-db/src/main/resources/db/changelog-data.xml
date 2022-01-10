@@ -9,8 +9,7 @@
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
-    <changeSet id="insert_default_roles" author="Sebastian-Ion TINCU" dbms="h2">
-        <comment>Setup default roles</comment>
+    <changeSet author="thomas dussart" id="EDELIVERY-2144_1">
         <insert tableName="TB_USER_ROLE">
             <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_ADMIN"/>
