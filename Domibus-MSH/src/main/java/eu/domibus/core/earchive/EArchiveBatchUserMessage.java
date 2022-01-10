@@ -77,7 +77,6 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
     public String toString() {
         return "EArchiveBatchUserMessage{" +
                 "entityId=" + entityId +
-                ", eArchiveBatch=" + eArchiveBatch +
                 ", userMessageEntityId=" + userMessageEntityId +
                 ", messageId='" + messageId + '\'' +
                 '}';
