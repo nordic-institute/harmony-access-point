@@ -404,7 +404,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Override
     @Transactional(noRollbackFor = DomibusSchedulerException.class)
     public void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException {
-
+        resumeJobs(domain, jobNameToResume);
     }
 
     @Override
