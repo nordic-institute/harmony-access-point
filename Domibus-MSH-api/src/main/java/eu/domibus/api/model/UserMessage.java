@@ -238,12 +238,6 @@ public class UserMessage extends AbstractBaseEntity {
                 ", sourceMessage=" + sourceMessage +
                 ", messageFragment=" + messageFragment +
                 ", testMessage=" + testMessage +
-                ", partyInfo=" + partyInfo +
-                ", action=" + action +
-                ", service=" + service +
-                ", agreementRef=" + agreementRef +
-                ", mpc=" + mpc +
-                ", messageProperties=" + messageProperties +
                 '}';
     }
 }

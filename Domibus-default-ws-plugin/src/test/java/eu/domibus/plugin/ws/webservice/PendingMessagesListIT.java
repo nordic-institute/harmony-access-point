@@ -31,9 +31,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     public void testListPendingMessagesOk() {
         Random random = new Random();
         List<Pair<Long, String>> messageIds = new ArrayList<>();
-        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
-        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
-        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
+        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID() + "@domibus.eu"));
+        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID() + "@domibus.eu"));
+        messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID() + "@domibus.eu"));
 
         for (Pair<Long, String> messageId : messageIds) {
             final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();

@@ -44,7 +44,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequest(payloadHref);
 
-        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"));
+        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"), Pair.of("REF_MESSAGE_ID", UUID.randomUUID() + "@domibus.eu"));
 
         final Messaging messaging = createMessageHeader(payloadHref);
         messaging.getUserMessage().getCollaborationInfo().setAction("TC3Leg1");

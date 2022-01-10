@@ -34,13 +34,13 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
      * Test for the backend sendMessage service with payload profile enabled
      */
     @Test
-    @Ignore("EDELIVERY-8814: SubmitMessageIT - fix tests")
+    @Ignore("EDELIVERY-8739: Improve code coverage")
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
         Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
 
-        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"));
+        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"), Pair.of("REF_MESSAGE_ID", UUID.randomUUID() + "@domibus.eu"));
         SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
 
         final List<String> messageID = response.getMessageID();

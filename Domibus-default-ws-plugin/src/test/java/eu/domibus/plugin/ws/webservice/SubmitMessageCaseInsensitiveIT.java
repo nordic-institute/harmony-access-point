@@ -45,7 +45,8 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
 
-        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"));
+        Pair<String, String> message_id = Pair.of("MESSAGE_ID", UUID.randomUUID() + "@domibus.eu");
+        super.prepareSendMessage("validAS4Response.xml", message_id, Pair.of("REF_MESSAGE_ID", UUID.randomUUID() + "@domibus.eu"));
 
         final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging = createMessageHeaderWs(payloadHref);
         messaging.getUserMessage().getCollaborationInfo().setAction("TC3Leg1");

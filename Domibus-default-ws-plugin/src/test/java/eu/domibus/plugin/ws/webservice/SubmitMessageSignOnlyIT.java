@@ -1,7 +1,8 @@
 package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
@@ -27,17 +28,15 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
 
-    @Autowired
-    NonRepudiationChecker nonRepudiationChecker;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceImpl.class);
 
     @Autowired
-    private ReliabilityChecker reliabilityChecker;
+    NonRepudiationChecker nonRepudiationChecker;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
     }
-
 
     /**
      * Test for the backend sendMessage service with payload profile enabled
@@ -45,12 +44,17 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
     @Test
     @Ignore("EDELIVERY-8739: Improve code coverage")
     public void testSubmitMessageValid() throws SubmitMessageFault {
+        String msgId = UUID.randomUUID() + "@domibus.eu";
+        String refMsgId = UUID.randomUUID() + "@domibus.eu";
+        LOG.info("Message Id: [{}] RefMsgId: [{}]", msgId, refMsgId);
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
         Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
         ebMSHeaderInfo.getUserMessage().getCollaborationInfo().setAction("TC4Leg1");
 
-        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"));
+        super.prepareSendMessage("validAS4Response.xml",
+                Pair.of("MESSAGE_ID", msgId),
+                Pair.of("REF_MESSAGE_ID", refMsgId));
         SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
 
         final List<String> messageID = response.getMessageID();

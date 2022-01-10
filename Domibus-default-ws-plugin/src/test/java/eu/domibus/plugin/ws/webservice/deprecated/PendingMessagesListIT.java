@@ -8,6 +8,7 @@ import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,6 +29,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
 
     @Test
+    @Ignore("EDELIVERY-8739: Improve code coverage")
     public void testListPendingMessagesOk() {
         Random random = new Random();
         List<Pair<Long, String>> messageIds = new ArrayList<>();
@@ -53,6 +55,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-8739: Improve code coverage")
     public void testListPendingMessagesNOk() {
 
         String request = "<listPendingMessagesRequest>1</listPendingMessagesRequest>";

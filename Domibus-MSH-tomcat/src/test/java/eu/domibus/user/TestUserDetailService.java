@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author François Gautier
  * @since 5.0
+ *
+ * Providing UserDetail for annotation @WithUserDetails(value = LOGGED_USER, userDetailsServiceBeanName = "testUserDetailService")
  */
 @Service
 public class TestUserDetailService implements UserDetailsService {

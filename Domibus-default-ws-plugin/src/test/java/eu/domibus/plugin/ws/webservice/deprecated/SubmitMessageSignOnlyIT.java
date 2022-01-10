@@ -47,7 +47,7 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
         Messaging ebMSHeaderInfo = createMessageHeader(payloadHref);
         ebMSHeaderInfo.getUserMessage().getCollaborationInfo().setAction("TC4Leg1");
 
-        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"));
+        super.prepareSendMessage("validAS4Response.xml", Pair.of("MESSAGE_ID", UUID.randomUUID()+"@domibus.eu"), Pair.of("REF_MESSAGE_ID", UUID.randomUUID() + "@domibus.eu"));
         SubmitResponse response = backendWebService.submitMessage(submitRequest, ebMSHeaderInfo);
 
         final List<String> messageID = response.getMessageID();
