@@ -1,5 +1,6 @@
 package domibus.ui.ux;
 
+import org.testng.Reporter;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -57,8 +58,8 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 
-	// EDELIVERY-6959 - ALRT-35 - Delete domain alert as super
-	// EDELIVERY-8455- jira issue reported for delete operation
+// EDELIVERY-6959 - ALRT-35 - Delete domain alert as super
+// EDELIVERY-8455- jira issue reported for delete operation
 
 	/*  ALRT-35 - Delete domain alert as super  */
 	@Test(description = "ALRT-35", groups = {"multiTenancy"})
@@ -76,9 +77,9 @@ public class AlertPgUXTest extends SeleniumTest {
 		if (beforeCount <= 1) {
 
 			new SkipException("no grid data available");
-		}
-		else {
+		} else {
 			page.deleteAlertAndVerify(0, Boolean.FALSE, soft);
+			Reporter.log("Mark One unprocessed alert as processed");
 			log.info("Mark One unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
@@ -91,9 +92,9 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 	// EDELIVERY-6960 - ALRT-36 - Delete SUPER alert as super
-	// EDELIVERY-8455- jira issue reported for delete operation
+// EDELIVERY-8455- jira issue reported for delete operation
 	/*  ALRT-36 - Delete SUPER alert as super  */
-	@Test(description = "ALRT-36", groups = {"multiTenancy"},enabled=false)
+	@Test(description = "ALRT-36", groups = {"multiTenancy"}, enabled = false)
 	public void delSuperAlert() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
@@ -106,9 +107,9 @@ public class AlertPgUXTest extends SeleniumTest {
 		if (beforeCount <= 1) {
 
 			new SkipException("no grid data available");
-		}
-		else{
+		} else {
 			page.deleteAlertAndVerify(0, Boolean.FALSE, soft);
+			Reporter.log("Mark one unprocessed alert as processed");
 			log.info("Mark one unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
@@ -120,9 +121,9 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 	// EDELIVERY-6958 - ALRT-34 - Delete domain alert as admin
-	// EDELIVERY-8455- jira issue reported for delete operation
+// EDELIVERY-8455- jira issue reported for delete operation
 	/*  ALRT-34 - Delete domain alert as admin  */
-	@Test(description = "ALRT-34", groups = {"multiTenancy", "singleTenancy"},enabled=false)
+	@Test(description = "ALRT-34", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void delDomainAlertByAdmin() throws Exception {
 
 		SoftAssert soft = new SoftAssert();
@@ -132,6 +133,7 @@ public class AlertPgUXTest extends SeleniumTest {
 			String username = Gen.randomAlphaNumeric(10);
 			rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), null);
 			login(username, data.defaultPass());
+			Reporter.log(String.format("Created user %s with role %s", username, DRoles.ADMIN));
 			log.info(String.format("Created user %s with role %s", username, DRoles.ADMIN));
 		}
 		AlertPage page = new AlertPage(driver);
@@ -141,12 +143,13 @@ public class AlertPgUXTest extends SeleniumTest {
 		int beforeCount = page.grid().getPagination().getTotalItems();
 		if (beforeCount <= 1) {
 
-			new SkipException("no grid data available"); }
+			new SkipException("no grid data available");
+		} else {
 
-		else {
-
+			Reporter.log("Delete unprocessed super alerts");
 			log.info("Delete unprocessed super alerts");
 			page.deleteAlertAndVerify(0, Boolean.FALSE, soft);
+			Reporter.log("Mark one unprocessed alert as processed");
 			log.info("Mark one unprocessed alert as processed");
 			page.alertsGrid().markAsProcessed(1);
 			page.getSaveButton().click();
@@ -165,20 +168,23 @@ public class AlertPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
-		if(data.isMultiDomain()) {
+		if (data.isMultiDomain()) {
 			page.filters().getShowDomainCheckbox().click();
 			page.filters().getSearchButton().click();
 		}
 		page.grid().waitForRowsToLoad();
 
+		Reporter.log("Mark one unprocessed alert as processed and save");
 		log.info("Mark one unprocessed alert as processed and save");
 
 		page.processAlertAndVerify(soft, Boolean.TRUE);
+		Reporter.log("index" + page.grid().getSelectedRowIndex());
 		log.info("index" + page.grid().getSelectedRowIndex());
 		soft.assertTrue(page.grid().getSelectedRowIndex() < 0, "Row is still not present");
 		soft.assertFalse(page.getSaveButton().isEnabled(), "Save button is not enabled");
 		soft.assertFalse(page.getCancelButton().isEnabled(), "Cancel button is not enabled");
 
+		Reporter.log("Mark one unprocessed alert as processed and cancel");
 		log.info("Mark one unprocessed alert as processed and cancel");
 		page.processAlertAndVerify(soft, Boolean.FALSE);
 		soft.assertTrue(page.grid().getSelectedRowIndex() > 0, "Row is still present");
@@ -198,21 +204,25 @@ public class AlertPgUXTest extends SeleniumTest {
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
 
+		Reporter.log("showing domain alerts");
 		log.info("showing domain alerts");
 		page.filters().getShowDomainCheckbox().click();
 		page.filters().getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 
+		Reporter.log("Getting all listed message info");
 		log.info("Getting all listed message info");
 		List<HashMap<String, String>> dom1RowInfo = page.grid().getListedRowInfo();
 
-		if(dom1RowInfo.size() == 0){
+		if (dom1RowInfo.size() == 0) {
 			throw new SkipException("not enough alerts to perform test");
 		}
 
+		Reporter.log("changing domain");
 		log.info("changing domain");
 		page.getDomainSelector().selectAnotherDomain();
 
+		Reporter.log("showing domain alerts");
 		log.info("showing domain alerts");
 		page.filters().getShowDomainCheckbox().click();
 		page.filters().getSearchButton().click();
@@ -236,22 +246,25 @@ public class AlertPgUXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		int noOfAlerts = page.grid().getPagination().getTotalItems();
+		Reporter.log("Total number of records : " + noOfAlerts);
 		log.info("Total number of records : " + noOfAlerts);
 
-		if(noOfAlerts < 3){
+		if (noOfAlerts < 3) {
 			throw new SkipException("not enough alerts to test");
 		}
 
+		Reporter.log("Getting alert info for first row");
 		log.info("Getting alert info for first row");
 
 		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
 
+		Reporter.log("Search on the basis of first row data " + firstRowAlert);
 		log.info("Search on the basis of first row data " + firstRowAlert);
 		page.filters().basicFilterBy(null, firstRowAlert.get("Alert Type"), firstRowAlert.get("Alert Status"),
 				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
 
 		page.grid().waitForRowsToLoad();
-		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(),"Show domain checkbox is unchecked after search");
+		soft.assertFalse(page.filters().getShowDomainCheckbox().isChecked(), "Show domain checkbox is unchecked after search");
 
 		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
 
@@ -279,17 +292,20 @@ public class AlertPgUXTest extends SeleniumTest {
 
 		page.grid().waitForRowsToLoad();
 
+		Reporter.log("Total number of records : " + page.grid().getPagination().getTotalItems());
 		log.info("Total number of records : " + page.grid().getPagination().getTotalItems());
+		Reporter.log("Getting alert info for first row");
 		log.info("Getting alert info for first row");
 
 		HashMap<String, String> firstRowAlert = page.grid().getRowInfo(0);
 
+		Reporter.log("Search on the basis of first row data " + firstRowAlert);
 		log.info("Search on the basis of first row data " + firstRowAlert);
 		page.filters().basicFilterBy(null, firstRowAlert.get("Alert Type"), firstRowAlert.get("Alert Status"),
 				firstRowAlert.get("Alert level"), firstRowAlert.get("Creation Time"), null);
 
 		page.grid().waitForRowsToLoad();
-		soft.assertTrue(page.filters().getShowDomainCheckbox().isChecked(),"Show domain checkbox is checked after search");
+		soft.assertTrue(page.filters().getShowDomainCheckbox().isChecked(), "Show domain checkbox is checked after search");
 
 		List<HashMap<String, String>> allResultInfo = page.grid().getAllRowInfo();
 

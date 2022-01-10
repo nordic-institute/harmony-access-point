@@ -19,8 +19,8 @@ import java.util.List;
  * @since 4.1.2
  */
 public class DFileUtils {
-	
-	protected static Logger log = LoggerFactory.getLogger("FileUtils");
+
+	protected static final Logger log = LoggerFactory.getLogger(DFileUtils.class);
 	
 	
 	/*  This method will return total row count having data present in it*/

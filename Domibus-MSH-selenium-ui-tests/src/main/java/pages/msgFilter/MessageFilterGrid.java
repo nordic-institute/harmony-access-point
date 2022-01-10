@@ -118,7 +118,7 @@ public class MessageFilterGrid extends DGrid {
 		}
 		log.info("action selector identified and will be performed");
 		weToDButton(row.findElement(selector)).click();
-		wait.forXMillis(500);
+		waitForRowsToLoad();
 	}
 
 }

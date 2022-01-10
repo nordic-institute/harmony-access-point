@@ -34,7 +34,7 @@ for service in services:
 	new_image_text = image_text[:version_start_index] + version
 
 	del data["services"][service]["image"]
-	data["services"][service]["image"] = new_image_text
+	data["services"][service]["image"] = "edelivery-docker.devops.tech.ec.europa.eu/" + new_image_text
 
 
 # set ports and wildfly container name (necessary for selfsending)

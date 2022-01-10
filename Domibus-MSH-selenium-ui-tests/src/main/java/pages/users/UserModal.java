@@ -97,22 +97,22 @@ public class UserModal extends EditModal {
 	}
 
 	public DObject getUsernameErrMess() {
-		wait.forXMillis(700);
+		wait.forElementToBe(usernameErrMess);
 		return new DObject(driver, usernameErrMess);
 	}
 
 	public DObject getEmailErrMess() {
-		wait.forXMillis(700);
+		wait.forElementToBe(emailErrMess);
 		return new DObject(driver, emailErrMess);
 	}
 
 	public DObject getPassErrMess() {
-		wait.forXMillis(700);
+		wait.forElementToBe(passErrMess);
 		return new DObject(driver, passErrMess);
 	}
 
 	public DObject getConfirmationErrMess() {
-		wait.forXMillis(700);
+		wait.forElementToBe(confirmationErrMess);
 		return new DObject(driver, confirmationErrMess);
 	}
 }

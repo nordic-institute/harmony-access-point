@@ -1,5 +1,6 @@
 package domibus.ui.ux;
 
+import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class PmodePartiesPgUXTest extends SeleniumTest {
 
-    /* EDELIVERY-5323 - PMP-1 - Open PMode - Parties page */
+	/* EDELIVERY-5323 - PMP-1 - Open PMode - Parties page */
 	@Test(description = "PMP-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openPModePartiesPage() throws Exception {
 
@@ -45,7 +46,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-5340 - PMP-18 - User singleclicks on a row on Pmode-Parties */
+	/* EDELIVERY-5340 - PMP-18 - User singleclicks on a row on Pmode-Parties */
 	@Test(description = "PMP-18", groups = {"multiTenancy", "singleTenancy"})
 	public void selectRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -66,19 +67,22 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5325 - PMP-3 - User chooses to download the list of parties */
+	/* EDELIVERY-5325 - PMP-3 - User chooses to download the list of parties */
 	@Test(description = "PMP-3", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadFilteredPartiesList() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Navigate to Pmode parties page");
 		log.info("Navigate to Pmode parties page");
 		PModePartiesPage page = new PModePartiesPage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 
 		String partyName = page.grid().getRowInfo(0).get("Party Name");
 
+		Reporter.log("Search for party with id " + partyName);
 		log.info("Search for party with id " + partyName);
 		page.filters().getNameInput().fill(partyName);
+		Reporter.log("Click on search button");
 		log.info("Click on search button");
 		page.filters().getSearchButton().click();
 
@@ -91,11 +95,12 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5338 - PMP-16 - Download all lists of records */
+	/* EDELIVERY-5338 - PMP-16 - Download all lists of records */
 	@Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadAllParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		Reporter.log("Navigate to Pmode parties page");
 		log.info("Navigate to Pmode parties page");
 		PModePartiesPage page = new PModePartiesPage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
@@ -109,7 +114,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5330 - PMP-8 - User makes changes and Saves them */
+	/* EDELIVERY-5330 - PMP-8 - User makes changes and Saves them */
 	@Test(description = "PMP-8", groups = {"multiTenancy", "singleTenancy"})
 	public void updateParty() throws Exception {
 
@@ -132,7 +137,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-5341 - PMP-19 - User single click on row on Pmode-Parties */
+	/* EDELIVERY-5341 - PMP-19 - User single click on row on Pmode-Parties */
 	@Test(description = "PMP-19", groups = {"multiTenancy", "singleTenancy"})
 	public void singleClick() throws Exception {
 
@@ -153,7 +158,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5333 - PMP-11 - Click Show columns link on Pmode ArchiveParties */
+	/* EDELIVERY-5333 - PMP-11 - Click Show columns link on Pmode ArchiveParties */
 	@Test(description = "PMP-11", groups = {"multiTenancy", "singleTenancy"})
 	public void checkShowLnk() throws Exception {
 
@@ -169,7 +174,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5334 - PMP-12 - CheckUncheck of fields on Show links */
+	/* EDELIVERY-5334 - PMP-12 - CheckUncheck of fields on Show links */
 	@Test(description = "PMP-12", groups = {"multiTenancy", "singleTenancy"})
 	public void showHideOfFields() throws Exception {
 
@@ -184,7 +189,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5335 - PMP-13 - Click Hide link without any new selection */
+	/* EDELIVERY-5335 - PMP-13 - Click Hide link without any new selection */
 	@Test(description = "PMP-13", groups = {"multiTenancy", "singleTenancy"})
 	public void showHideNoNewSelection() throws Exception {
 
@@ -202,7 +207,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5337 - PMP-15 - Click All None link */
+	/* EDELIVERY-5337 - PMP-15 - Click All None link */
 	@Test(description = "PMP-15", groups = {"multiTenancy", "singleTenancy"})
 	public void checkAllNoneLnk() throws Exception {
 
@@ -220,7 +225,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5339 - PMP-17 - Change Rows field data */
+	/* EDELIVERY-5339 - PMP-17 - Change Rows field data */
 	@Test(description = "PMP-17", groups = {"multiTenancy", "singleTenancy"})
 	public void checkRowsNo() throws Exception {
 

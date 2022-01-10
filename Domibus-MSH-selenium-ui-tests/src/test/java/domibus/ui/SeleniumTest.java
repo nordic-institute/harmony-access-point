@@ -1,15 +1,11 @@
 package domibus.ui;
 
-import com.codahale.metrics.ConsoleReporter;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
-import ddsl.dcomponents.SideNavigation;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import ddsl.enums.PAGES;
 import domibus.BaseTest;
-import metricss.MyMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,6 +13,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.testng.ITestContext;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -27,8 +25,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -39,9 +35,9 @@ public class SeleniumTest extends BaseTest {
 
 
 	static int methodCount = 1;
-	public Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	public String logFilename;
 
+	public static final Logger log = LoggerFactory.getLogger(SeleniumTest.class);
 
 
 	@BeforeSuite(alwaysRun = true)
@@ -59,18 +55,24 @@ public class SeleniumTest extends BaseTest {
 	@BeforeClass(alwaysRun = true)
 	public void beforeClass() throws Exception {
 		log.info("--------Initialize test class-------");
-
 		driver = DriverManager.getDriver();
 	}
 
 	@BeforeMethod(alwaysRun = true)
 	protected void beforeMethod(Method method) throws Exception {
 
+		MDC.put("logFileName", method.getDeclaringClass().getSimpleName());
+
 		log.info("--------------------------- Running test number: " + methodCount);
 		log.info("--------------------------- Running test method: " + method.getDeclaringClass().getSimpleName() + "." + method.getName());
 		methodCount++;
 
-		driver.get(data.getUiBaseUrl());
+		try {
+			driver.get(data.getUiBaseUrl());
+		} catch (Exception e) {
+			driver = DriverManager.getDriver();
+			driver.get(data.getUiBaseUrl());
+		}
 		new DomibusPage(driver).waitForPageToLoad();
 
 		login(data.getAdminUser());
