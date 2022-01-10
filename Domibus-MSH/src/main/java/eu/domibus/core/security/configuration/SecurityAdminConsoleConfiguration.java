@@ -65,14 +65,20 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
     public void configureHttpSecurity(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
-                .antMatchers("/rest/security/user/domain").hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .antMatchers("/rest/security/user/domain")
+                    .hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .and()
                 .sessionManagement()
-                .maximumSessions(10)
-                .maxSessionsPreventsLogin(false)
-                .expiredSessionStrategy(expiredSessionStrategy)
-                .sessionRegistry(sessionRegistry)
-        ;
+                    .maximumSessions(10)
+                    .maxSessionsPreventsLogin(false)
+                    .expiredSessionStrategy(expiredSessionStrategy)
+                    .sessionRegistry(sessionRegistry);
+
+        httpSecurity
+                .headers()
+                    .httpStrictTransportSecurity()
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000);
     }
 
     @Override
