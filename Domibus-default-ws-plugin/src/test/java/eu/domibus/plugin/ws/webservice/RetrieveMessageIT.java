@@ -73,7 +73,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Ignore("EDELIVERY-8739: Improve code coverage")
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testRetrieveMessageOk() throws Exception {
         retrieveMessage("2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu");
     }

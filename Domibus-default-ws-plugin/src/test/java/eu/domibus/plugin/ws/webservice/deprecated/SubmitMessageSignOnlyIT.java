@@ -40,7 +40,7 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
      * Test for the backend sendMessage service with payload profile enabled
      */
     @Test
-    @Ignore("EDELIVERY-8739: Improve code coverage")
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequest(payloadHref);

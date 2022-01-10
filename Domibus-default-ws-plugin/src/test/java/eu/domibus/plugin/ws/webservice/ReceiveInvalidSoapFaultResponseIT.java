@@ -31,7 +31,7 @@ public class ReceiveInvalidSoapFaultResponseIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Ignore("EDELIVERY-8739: Improve code coverage")
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testReceiveValidSoapFault() throws SubmitMessageFault {
 //        submitMessage(MessageStatus.WAITING_FOR_RETRY, "InvalidSOAPFaultResponse.xml");
         Assert.assertTrue(loggerUtil.verifyLogging("SOAPFaultException: Invalid SOAP fault content"));

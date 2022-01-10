@@ -39,7 +39,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      *
      */
     @Test
-    @Ignore("EDELIVERY-8739: Improve code coverage")
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequest(payloadHref);

@@ -29,7 +29,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
 
     @Test
-    @Ignore("EDELIVERY-8739: Improve code coverage")
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testListPendingMessagesOk() {
         Random random = new Random();
         List<Pair<Long, String>> messageIds = new ArrayList<>();
@@ -55,7 +55,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Ignore("EDELIVERY-8739: Improve code coverage")
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testListPendingMessagesNOk() {
 
         String request = "<listPendingMessagesRequest>1</listPendingMessagesRequest>";
