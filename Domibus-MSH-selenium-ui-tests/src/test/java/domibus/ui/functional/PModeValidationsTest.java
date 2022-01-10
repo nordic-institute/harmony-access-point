@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import org.testng.Reporter;
 import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
@@ -13,12 +14,13 @@ import utils.PModeXMLUtils;
 public class PModeValidationsTest extends SeleniumTest {
 
 
-    /* EDELIVERY-7292 - PMC-14 - PMode validations -  are considered invalid in any value */
+	/* EDELIVERY-7292 - PMC-14 - PMode validations -  are considered invalid in any value */
 	@Test(description = "PMC-14", groups = {"multiTenancy", "singleTenancy"})
 	public void invalidCharacters() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Reporter.log("uploading pmode to modify");
 			log.info("uploading pmode to modify");
 			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 		}
@@ -45,12 +47,13 @@ public class PModeValidationsTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-7293 - PMC-15 - PMode validations - all listed URLs are valid */
+	/* EDELIVERY-7293 - PMC-15 - PMode validations - all listed URLs are valid */
 	@Test(description = "PMC-15", groups = {"multiTenancy", "singleTenancy"})
 	public void invalidURLs() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Reporter.log("uploading pmode to modify");
 			log.info("uploading pmode to modify");
 			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 		}
@@ -68,12 +71,13 @@ public class PModeValidationsTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7294 - PMC-16 - PMode validations - attributes with integer values are validated as integers */
+	/* EDELIVERY-7294 - PMC-16 - PMode validations - attributes with integer values are validated as integers */
 	@Test(description = "PMC-16", groups = {"multiTenancy", "singleTenancy"})
 	public void integerAttributesValidations() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Reporter.log("uploading pmode to modify");
 			log.info("uploading pmode to modify");
 			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 		}
@@ -92,7 +96,7 @@ public class PModeValidationsTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7288 - PMC-12 - PMode validations - boolean attributes dont accept other values */
+	/* EDELIVERY-7288 - PMC-12 - PMode validations - boolean attributes dont accept other values */
 	@Test(description = "PMC-12", groups = {"multiTenancy", "singleTenancy"})
 	public void validationsBooleans() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -109,12 +113,13 @@ public class PModeValidationsTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7291 - PMC-13 - PMode validations - party describing current system must be present */
+	/* EDELIVERY-7291 - PMC-13 - PMode validations - party describing current system must be present */
 	@Test(description = "PMC-13", groups = {"multiTenancy", "singleTenancy"})
 	public void currentPmodeNoCurrentParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Reporter.log("uploading pmode to modify");
 			log.info("uploading pmode to modify");
 			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
 		}
@@ -135,8 +140,6 @@ public class PModeValidationsTest extends SeleniumTest {
 		soft.assertTrue(page.getAlertArea().isError(), "Error message shown");
 		soft.assertAll();
 	}
-
-
 
 
 }

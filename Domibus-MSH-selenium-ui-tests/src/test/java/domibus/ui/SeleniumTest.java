@@ -13,6 +13,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.testng.ITestContext;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
@@ -54,11 +56,12 @@ public class SeleniumTest extends BaseTest {
 	public void beforeClass() throws Exception {
 		log.info("--------Initialize test class-------");
 		driver = DriverManager.getDriver();
-
 	}
 
 	@BeforeMethod(alwaysRun = true)
 	protected void beforeMethod(Method method) throws Exception {
+
+		MDC.put("logFileName", method.getDeclaringClass().getSimpleName());
 
 		log.info("--------------------------- Running test number: " + methodCount);
 		log.info("--------------------------- Running test method: " + method.getDeclaringClass().getSimpleName() + "." + method.getName());

@@ -41,7 +41,6 @@ public class BaseTest {
 		}
 
 		for (int i = 0; i < domains.size(); i++) {
-			
 			String domain = domains.get(i);
 			
 			rearrangeMessageFilters(domain);
