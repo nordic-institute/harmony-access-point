@@ -12,8 +12,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -212,7 +210,7 @@ public class ProcessValidator {
             case MORE_THAN_ONE_LEG_FOR_THE_SAME_MPC:
                 return "More than one leg for the same mpc";
             case TOO_MANY_PROCESSES:
-                return "To many processes found";
+                return "Too many processes found";
             case TOO_MANY_RESPONDER:
                 return "Pull process should only have one responder configured for mpc";
             case NO_RESPONDER:

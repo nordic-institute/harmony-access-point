@@ -38,7 +38,7 @@ public class PullReceiptSender {
     @Transactional(propagation = Propagation.REQUIRED)
     public void sendReceipt(final SOAPMessage soapMessage, final String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey, final String messsageId, String domainCode) throws EbMS3Exception {
         domainContextProvider.setCurrentDomain(domainCode);
-        LOG.trace("[sendReceipt] Message:[{}] dispatch receipt", messsageId);
+        LOG.debug("[sendReceipt] Message:[{}] dispatch receipt", messsageId);
         final SOAPMessage acknowledgementResult;
         try {
             acknowledgementResult = mshDispatcher.dispatch(soapMessage, endpoint, policy, legConfiguration, pModeKey);
@@ -48,7 +48,7 @@ public class PullReceiptSender {
             LOG.error("Error dispatching the pull receipt for message:[{}]", messsageId, e);
             throw e;
         } finally {
-            LOG.trace("[sendReceipt] ~~~ finnaly the end ~~~");
+            LOG.trace("[sendReceipt] ~~~ finally the end ~~~");
         }
     }
 
