@@ -54,7 +54,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     @Test
     public void convertEvent() {
         PModeResponseRO toConvert = (PModeResponseRO) objectService.createInstance(PModeResponseRO.class);
-        toConvert.setId("" + new Random().nextLong());
+        toConvert.setId("" + new Random().nextInt());
         final PModeArchiveInfo converted = domibusCoreMapper.pModeResponseROToPModeArchiveInfo(toConvert);
         final PModeResponseRO convertedBack = domibusCoreMapper.pModeArchiveInfoToPModeResponseRO(converted);
         convertedBack.setCurrent(true);
