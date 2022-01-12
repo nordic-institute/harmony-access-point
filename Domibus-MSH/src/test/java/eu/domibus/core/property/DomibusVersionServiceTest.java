@@ -9,6 +9,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -69,13 +70,14 @@ public class DomibusVersionServiceTest {
 
     @Test
     public void getBuiltTime(@Mocked Properties versionProps) {
-
+        Locale.setDefault(Locale.ENGLISH);
         new Expectations() {{
             versionProps.getProperty("Build-Time");
             result = "2021-02-18 09:47";
         }};
 
         String time = service.getBuiltTime();
+
         assertEquals("2021-02-18 09:47|Coordinated Universal Time", time);
     }
 }

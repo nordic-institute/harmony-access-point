@@ -21,9 +21,14 @@ public class MockAuthenticationService implements AuthenticationService {
     public UserDetail getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            String userName = (String) authentication.getPrincipal();
-            UserDetail userDetail = new UserDetail(userName, StringUtils.EMPTY, authentication.getAuthorities());
-            return userDetail;
+            if (authentication.getPrincipal() instanceof String) {
+                String userName = (String) authentication.getPrincipal();
+                UserDetail userDetail = new UserDetail(userName, StringUtils.EMPTY, authentication.getAuthorities());
+                return userDetail;
+            }
+            if (authentication.getPrincipal() instanceof UserDetail) {
+                return (UserDetail) authentication.getPrincipal();
+            }
         }
         return null;
     }

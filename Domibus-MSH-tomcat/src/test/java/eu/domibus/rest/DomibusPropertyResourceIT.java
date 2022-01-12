@@ -61,7 +61,6 @@ public class DomibusPropertyResourceIT extends AbstractIT {
     }
 
     @Test
-    @Ignore // Test fails because when the scheduler is started (DomibusQuartzStarter:139 it looses the jobs.
     public void testSetCronExpression() {
 
         String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;

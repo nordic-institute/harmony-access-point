@@ -21,7 +21,6 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -91,9 +90,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     private MessagingService messagingService;
-
-    @Autowired
-    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private UserMessageLogDefaultService userMessageLogService;

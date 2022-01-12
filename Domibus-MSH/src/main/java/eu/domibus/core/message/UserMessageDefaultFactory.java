@@ -21,7 +21,8 @@ import java.util.*;
 @Service
 public class UserMessageDefaultFactory implements UserMessageFactory {
 
-    private static final List<String> ALLOWED_PROPERTIES = Arrays.asList(new String[]{"originalSender", "finalRecipient", "trackingIdentifier"});
+    private static final List<String> ALLOWED_PROPERTIES = Arrays.asList(
+            "originalSender", "finalRecipient", "trackingIdentifier");
     public static final String CID_FRAGMENT = "cid:fragment";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String TEXT_XML = "text/xml";
@@ -34,7 +35,13 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     protected ServiceDictionaryService serviceDictionaryService;
     protected ActionDictionaryService actionDictionaryService;
 
-    public UserMessageDefaultFactory(PartPropertyDictionaryService partPropertyDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartyIdDictionaryService partyIdDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService, AgreementDictionaryService agreementDictionaryService, ServiceDictionaryService serviceDictionaryService, ActionDictionaryService actionDictionaryService) {
+    public UserMessageDefaultFactory(PartPropertyDictionaryService partPropertyDictionaryService,
+                                     MessagePropertyDictionaryService messagePropertyDictionaryService,
+                                     PartyIdDictionaryService partyIdDictionaryService,
+                                     PartyRoleDictionaryService partyRoleDictionaryService,
+                                     AgreementDictionaryService agreementDictionaryService,
+                                     ServiceDictionaryService serviceDictionaryService,
+                                     ActionDictionaryService actionDictionaryService) {
         this.partPropertyDictionaryService = partPropertyDictionaryService;
         this.messagePropertyDictionaryService = messagePropertyDictionaryService;
         this.partyIdDictionaryService = partyIdDictionaryService;

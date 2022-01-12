@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
@@ -107,7 +106,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
         File file = new File(domibusConfigurationService.getConfigLocation(), filename);
         try {
             String hash = DigestUtils.sha256Hex(FileUtils.readFileToByteArray(file));
-            LOG.debug("Hash for " + filename + ": " + hash);
+            LOG.debug("Hash for [{}]: [{}]", filename, hash);
             if (hash.compareTo(expectedHash) == 0) {
                 warnOutput("SAMPLE CONFIGURATION FILE IS BEING USED - NOT FOR PRODUCTION USAGE " + filename);
             }

@@ -25,8 +25,9 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 4.1.4
  */
-@SuppressWarnings("ThrowableNotThrown")
+@SuppressWarnings({"ThrowableNotThrown", "ResultOfMethodCallIgnored"})
 @RunWith(JMockit.class)
+@Deprecated
 public class WSPluginFaultOutInterceptorTest {
 
     @Tested

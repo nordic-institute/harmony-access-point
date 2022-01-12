@@ -242,25 +242,6 @@ public class FSPluginImplTest {
         }};
     }
 
-   /* @Test
-    public void testDeliverMessage_Multitenancy(@Injectable final FSMessage fsMessage) throws JAXBException, MessageNotFoundException, FileSystemException {
-
-        final UserMessage userMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
-        final String messageContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGludm9pY2U+aGVsbG88L2ludm9pY2U+";
-        final String invoiceContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
-
-
-        final DataHandler messageHandler = new DataHandler(new ByteArrayDataSource(messageContent.getBytes(), TEXT_XML));
-        final DataHandler invoiceHandler = new DataHandler(new ByteArrayDataSource(invoiceContent.getBytes(), TEXT_XML));
-        final Map<String, FSPayload> fsPayloads = new HashMap<>();
-        fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", messageHandler));
-        fsPayloads.put("cid:invoice", new FSPayload(TEXT_XML, "invoice.xml", invoiceHandler));
-
-        expectationsDeliverMessage("DOMAIN1", userMessage, fsPayloads);
-
-        backendFS.deliverMessage(messageId);
-    }*/
-
     @Test
     public void testDeliverMessage_MultiplePayloads(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {

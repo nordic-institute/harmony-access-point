@@ -12,7 +12,6 @@ import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;

@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
@@ -22,7 +23,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,6 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class MshWebServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);
@@ -59,7 +58,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     MessagingService messagingService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    MSHWebservice mshWebserviceTest;
 
     @Autowired
     MessageUtil messageUtil;

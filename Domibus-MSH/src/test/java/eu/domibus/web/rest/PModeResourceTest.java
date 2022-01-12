@@ -2,13 +2,12 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import mockit.Expectations;
@@ -25,17 +24,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
  * @author Tiago Miguel
  * @since 3.3
  */
+@SuppressWarnings({"unchecked", "ConstantConditions", "ResultOfMethodCallIgnored"})
 @RunWith(JMockit.class)
 public class PModeResourceTest {
 
     private static final String PMODE_FILE_HAS_BEEN_SUCCESSFULLY_UPLOADED = "PMode file has been successfully uploaded.";
+    public static final byte[] BYTES = "Test".getBytes();
     @Tested
     private PModeResource pModeResource;
 
@@ -147,7 +147,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodesSuccess() throws IOException {
+    public void testUploadPmodesSuccess() {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -166,10 +166,10 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testUploadPmodesIssues() throws XmlProcessingException {
+    public void testUploadPmodesIssues() {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-        List<ValidationIssue> issues = Arrays.asList(new ValidationIssue("issue1"));
+        List<ValidationIssue> issues = Collections.singletonList(new ValidationIssue("issue1"));
 
         new Expectations() {{
             pModeService.updatePModeFile((byte[]) any, anyString);
@@ -189,10 +189,10 @@ public class PModeResourceTest {
     }
 
     @Test()
-    public void testUploadPModesXmlProcessingException() throws XmlProcessingException, IOException {
+    public void testUploadPModesXmlProcessingException() {
         // Given
         MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-        List<ValidationIssue> issues = Arrays.asList(new ValidationIssue("issue1"));
+        List<ValidationIssue> issues = Collections.singletonList(new ValidationIssue("issue1"));
 
         new Expectations() {{
             pModeService.updatePModeFile((byte[]) any, anyString);
@@ -206,7 +206,7 @@ public class PModeResourceTest {
 //         Then
             Assert.assertTrue(ex instanceof PModeValidationException);
             PModeValidationException pex = (PModeValidationException) ex;
-            Assert.assertTrue(pex.getIssues().size() == 1);
+            Assert.assertEquals(1, pex.getIssues().size());
             Assert.assertEquals("issue1", pex.getIssues().get(0).getMessage());
         }
     }
@@ -262,74 +262,56 @@ public class PModeResourceTest {
         Assert.assertEquals("Impossible to delete PModes due to \nMocked exception", response.getBody());
     }
 
-//    @Test
-//    public void testRestorePmodeSuccess() {
-//        // Given
-//        // When
-//        final ResponseEntity<ValidationResponseRO> response = pModeResource.restorePmode(1);
-//
-//        // Then
-//        Assert.assertNotNull(response);
-//        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-//        Assert.assertEquals("PMode file has been successfully uploaded", response.getBody().getMessage());
-//    }
+    @Test
+    public void testRestorePmodeNestedException() {
+        // Given
+        final Exception exception = new Exception(new Exception("Nested mocked exception"));
 
-//    @Test
-//    public void testRestorePmodeException() throws XmlProcessingException {
-//        // Given
-//        final Exception exception = new Exception("Mocked exception");
-//        new Expectations(pModeResource) {{
-//            pModeService.updatePModeFile((byte[]) any, anyString);
-//            result = exception;
-//        }};
-//
-//        // When
-//        final ResponseEntity<ValidationResponseRO> response = pModeResource.restorePmode(1);
-//
-//        // Then
-//        Assert.assertNotNull(response);
-//        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-//        Assert.assertEquals("Failed to upload the PMode file due to: Exception: Mocked exception", response.getBody().getMessage());
-//    }
+        new Expectations(pModeResource) {{
+            pModeService.updatePModeFile((byte[]) any, anyString);
+            result = exception;
+        }};
 
-//    @Test
-//    public void testRestorePmodeNestedException() throws XmlProcessingException {
-//        // Given
-//        final Exception exception = new Exception(new Exception("Nested mocked exception"));
-//
-//        new Expectations(pModeResource) {{
-//            pModeService.updatePModeFile((byte[]) any, anyString);
-//            result = exception;
-//        }};
-//
-//        // When
-//        final ResponseEntity<ValidationResponseRO> response = pModeResource.restorePmode(1);
-//
-//        // Then
-//        Assert.assertNotNull(response);
-//        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-//        Assert.assertEquals("Failed to upload the PMode file due to: Exception: Nested mocked exception", response.getBody().getMessage());
-//    }
+        // When
+        final ValidationResponseRO response;
+        try {
+            response = pModeResource.restorePmode(1L);
+            Assert.fail();
+        } catch (Exception e) {
+            //OK
+        }
 
-//    @Test
-//    public void testRestorePmodeIssues() throws XmlProcessingException {
-//        // Given
-//        List<String> issues = new ArrayList<>();
-//        issues.add("issue1");
-//        new Expectations(pModeResource) {{
-//            pModeService.updatePModeFile((byte[]) any, anyString);
-//            result = issues;
-//        }};
-//
-//        // When
-//        final ResponseEntity<ValidationResponseRO> response = pModeResource.restorePmode(1);
-//
-//        // Then
-//        Assert.assertNotNull(response);
-//        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-//        Assert.assertEquals("PMode file has been successfully uploaded but some issues were detected:", response.getBody().getMessage());
-//        Assert.assertEquals(1, response.getBody().getIssues().size());
-//    }
+    }
+
+    @Test
+    public void testRestorePmodeIssues(@Injectable ConfigurationRaw configurationRaw) {
+        // Given
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(new ValidationIssue("issue1"));
+        new Expectations() {{
+            pModeProvider.getRawConfiguration(1L);
+            result = configurationRaw;
+
+            configurationRaw.getConfigurationDate();
+            result = new Date();
+
+            configurationRaw.getXml();
+            result = BYTES;
+
+            pModeService.updatePModeFile(BYTES,  anyString);
+            result = issues;
+
+            pModeValidationHelper.getValidationResponse(issues, "PMode file has been successfully restored.");
+            result = new ValidationResponseRO("PMode file has been successfully restored. Some issues were detected:", issues);
+        }};
+
+        // When
+        final ValidationResponseRO response = pModeResource.restorePmode(1L);
+
+        // Then
+        Assert.assertEquals("PMode file has been successfully restored. Some issues were detected:", response.getMessage());
+        Assert.assertEquals(1, response.getIssues().size());
+    }
 
     @Test
     public void testPmodeList() {
@@ -367,7 +349,7 @@ public class PModeResourceTest {
     }
 
     @Test
-    public void testGetCsv() throws EbMS3Exception {
+    public void testGetCsv() {
         // Given
         Date date = new Date();
         List<PModeArchiveInfo> pModeArchiveInfoList = new ArrayList<>();

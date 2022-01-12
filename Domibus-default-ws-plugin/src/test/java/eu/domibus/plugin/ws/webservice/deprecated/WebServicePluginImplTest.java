@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
+@Deprecated
 public class WebServicePluginImplTest {
 
     public static final String MESSAGE_ID = "messageId";
@@ -154,7 +155,6 @@ public class WebServicePluginImplTest {
             result = "-Dom137--";
         }};
 
-//        webServicePlugin.setLister(lister);
         webServicePlugin.retrieveMessage(retrieveMessageRequest, new Holder<>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
 
         new Verifications() {{
@@ -166,8 +166,8 @@ public class WebServicePluginImplTest {
 
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
-            @Mocked StatusRequest statusRequest,
-            @Mocked MessageRetriever messageRetriever) throws StatusFault {
+            @Injectable StatusRequest statusRequest,
+            @Injectable MessageRetriever messageRetriever) throws StatusFault {
         new Expectations() {{
             statusRequest.getMessageID();
             result = MESSAGE_ID;

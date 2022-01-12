@@ -152,7 +152,6 @@ public class IncomingPullEbms3ReceiptHandlerTest {
     PartInfoDao partInfoDao;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testHandlePullRequestReceiptHappyFlow(@Mocked final SOAPMessage request,
                                                       @Mocked final Messaging messaging,
                                                       @Mocked final UserMessage userMessage,
@@ -169,10 +168,10 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations() {{
-            messaging.getSignalMessage().getRefToMessageId();
-            result = messageId;
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
             pullMessageService.getLock(messageId);
@@ -217,7 +216,6 @@ public class IncomingPullEbms3ReceiptHandlerTest {
 
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testHandlePullRequestReceiptWithEbmsException(@Mocked final SOAPMessage request,
                                                               @Mocked final Messaging messaging,
                                                               @Mocked final UserMessage userMessage,
@@ -230,11 +228,11 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = userMessageLog;
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
 
-            messaging.getSignalMessage().getRefToMessageId();
-            result = messageId;
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
 
             pullMessageService.getLock(messageId);
             result = messagingLock;
@@ -263,11 +261,8 @@ public class IncomingPullEbms3ReceiptHandlerTest {
 
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testHandlePullRequestReceiptWithReliabilityException(@Mocked final SOAPMessage request,
-                                                                     @Mocked final Messaging messaging,
                                                                      @Mocked final UserMessage userMessage,
-                                                                     @Mocked final MessageExchangeConfiguration me,
                                                                      @Injectable final SOAPMessage soapMessage,
                                                                      @Injectable final PullRequestResult pullRequestResult,
                                                                      @Injectable final MessagingLock messagingLock,
@@ -278,10 +273,10 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            messaging.getSignalMessage().getRefToMessageId();
-            result = messageId;
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
             messagingLock.getMessageState();

@@ -74,21 +74,21 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     public void updateUsers(List<eu.domibus.api.user.User> users) {
         // insertion
         Collection<eu.domibus.api.user.User> newUsers = filterNewUsers(users);
-        LOG.debug("New users:" + newUsers.size());
+        LOG.debug("New users: [{}]", newUsers.size());
         insertNewUsers(newUsers);
 
         // update
         Collection<eu.domibus.api.user.User> noPasswordChangedModifiedUsers = filterModifiedUserWithoutPasswordChange(users);
-        LOG.debug("Modified users without password change:" + noPasswordChangedModifiedUsers.size());
+        LOG.debug("Modified users without password change: [{}]", noPasswordChangedModifiedUsers.size());
         updateUsers(noPasswordChangedModifiedUsers, false);
 
         Collection<eu.domibus.api.user.User> passwordChangedModifiedUsers = filterModifiedUserWithPasswordChange(users);
-        LOG.debug("Modified users with password change:" + passwordChangedModifiedUsers.size());
+        LOG.debug("Modified users with password change: [{}]", passwordChangedModifiedUsers.size());
         updateUsers(passwordChangedModifiedUsers, true);
 
         // deletion
         List<eu.domibus.api.user.User> deletedUsers = filterDeletedUsers(users);
-        LOG.debug("Users to delete:" + deletedUsers.size());
+        LOG.debug("Users to delete: [{}]", deletedUsers.size());
         deleteUsers(deletedUsers);
     }
 
@@ -212,10 +212,10 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void deleteUsers(List<eu.domibus.api.user.User> usersToDelete) {
-        for (eu.domibus.api.user.User userToDelete :usersToDelete) {
+        for (eu.domibus.api.user.User userToDelete : usersToDelete) {
             setUserDomainForMultiTenancy(userToDelete);
             User user = userDao.loadUserByUsername(userToDelete.getUserName());
-            if(user != null){
+            if (user != null) {
                 userDao.delete(user);
                 userSessionsService.invalidateSessions(user);
             }

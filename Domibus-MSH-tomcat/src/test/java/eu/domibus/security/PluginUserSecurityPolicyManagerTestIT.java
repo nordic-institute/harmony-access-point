@@ -3,16 +3,13 @@ package eu.domibus.security;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
-import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.core.user.ui.UserRole;
-import org.junit.Ignore;
+import eu.domibus.core.user.ui.UserRoleDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -25,23 +22,15 @@ import javax.persistence.PersistenceContext;
  * @author Ion Perpegel
  * @since 4.1
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired
     PluginUserSecurityPolicyManager userSecurityPolicyManager;
 
     @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
     protected AuthenticationDAO userDao;
-
     @Autowired
-    private PluginUserPasswordHistoryDao userPasswordHistoryDao;
-
-    @Autowired
-    private PluginUserAlertsServiceImpl userAlertsService;
+    protected UserRoleDao userRoleDao;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -51,7 +40,7 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
 
     private AuthenticationEntity initTestUser(String userName) {
-        UserRole userRole = entityManager.find(UserRole.class, 1L);
+        UserRole userRole = userRoleDao.findByName("ROLE_USER");
         if (userRole == null) {
             userRole = new UserRole("ROLE_USER");
             entityManager.persist(userRole);

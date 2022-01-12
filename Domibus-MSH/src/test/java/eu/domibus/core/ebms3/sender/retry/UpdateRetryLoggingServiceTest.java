@@ -7,7 +7,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -22,7 +21,6 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +30,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class UpdateRetryLoggingServiceTest {
 
@@ -102,13 +101,15 @@ public class UpdateRetryLoggingServiceTest {
      * @throws Exception
      */
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                                   @Injectable UserMessageLog userMessageLog,
                                                                                                   @Injectable LegConfiguration legConfiguration) throws Exception {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(updateRetryLoggingService) {{
+            userMessage.getMessageId();
+            result = messageId;
+
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
@@ -132,11 +133,8 @@ public class UpdateRetryLoggingServiceTest {
     /**
      * Message was restored
      * NextAttempt is set correctly
-     *
-     * @throws Exception
      */
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testUpdateRetryLogging_Restored(@Injectable UserMessage userMessage,
                                                 @Injectable LegConfiguration legConfiguration,
                                                 @Injectable UserMessageLog userMessageLog) throws Exception {
@@ -146,6 +144,9 @@ public class UpdateRetryLoggingServiceTest {
 
 
         new Expectations() {{
+            userMessage.getMessageId();
+            result = messageId;
+
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
@@ -167,13 +168,12 @@ public class UpdateRetryLoggingServiceTest {
 
         new SystemMockFirstOfJanuary2016(); //current timestamp
 
-        final long restoredTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Restored 5 min ago
         Date nextAttempt = new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016 + (RETRY_TIMEOUT_IN_MINUTES / RETRY_COUNT * 60 * 1000));
 
 
         new Expectations() {{
             userMessageLog.getNextAttempt();
-            result = restoredTime;
+            result = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016;
 
             legConfiguration.getReceptionAwareness().getStrategy().getAlgorithm();
             result = RetryStrategy.CONSTANT.getAlgorithm();
@@ -201,10 +201,8 @@ public class UpdateRetryLoggingServiceTest {
      * MessageLogDao#setMessageAsSendFailure is called
      * MessageLogDao#setAsNotified() is not called
      *
-     * @throws Exception
      */
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage,
                                                                                                                         @Injectable UserMessageLog userMessageLog,
                                                                                                                         @Injectable LegConfiguration legConfiguration) throws Exception {
@@ -223,8 +221,8 @@ public class UpdateRetryLoggingServiceTest {
 //            userMessageLog.getReceived();
 //            result = new Date(receivedTime);
 
-            userMessageLog.getNotificationStatus();
-            result = NotificationStatus.NOT_REQUIRED;
+//            userMessageLog.getNotificationStatus();
+//            result = NotificationStatus.NOT_REQUIRED;
 
             userMessage.getMessageId();
             result = messageId;
@@ -250,18 +248,15 @@ public class UpdateRetryLoggingServiceTest {
      * Expected result: MessagingDao#clearPayloadData is called
      * MessageLogDao#setMessageAsSendFailure is called
      * MessageLogDao#setAsNotified() is called
-     *
-     * @throws Exception
      */
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testUpdateRetryLogging_timeoutNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                         @Injectable UserMessageLog userMessageLog,
-                                                                                        @Injectable LegConfiguration legConfiguration) {
+                                                                                        @Injectable LegConfiguration legConfiguration,
+                                                                                        @Injectable NotificationStatusEntity notificationStatus) {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
-        final long received = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; // received one hour ago
 
         new Expectations() {{
             userMessageLog.getSendAttempts();
@@ -271,7 +266,7 @@ public class UpdateRetryLoggingServiceTest {
             result = 3;
 
             userMessageLog.getNotificationStatus();
-            result = NotificationStatus.REQUIRED;
+            result = notificationStatus;
 
             userMessage.getMessageId();
             result = messageId;
@@ -295,8 +290,6 @@ public class UpdateRetryLoggingServiceTest {
     /**
      * Max retries limit not reached
      * Timeout limit reached
-     *
-     * @throws Exception
      */
     @Test
     public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
@@ -305,7 +298,6 @@ public class UpdateRetryLoggingServiceTest {
         new SystemMockFirstOfJanuary2016();
 
         final String messageId = UUID.randomUUID().toString();
-        final long received = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; // received one hour ago
         int retryTimeout = 1;
 
         new Expectations(updateRetryLoggingService) {{
@@ -319,7 +311,7 @@ public class UpdateRetryLoggingServiceTest {
             result = retryTimeout;
 
             updateRetryLoggingService.getScheduledStartTime(userMessageLog);
-            result = received;
+            result = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016;
         }};
 
 
@@ -327,7 +319,6 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testUpdateRetryLogging_success_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                      @Injectable UserMessageLog userMessageLog,
                                                                      @Injectable LegConfiguration legConfiguration,
@@ -335,6 +326,9 @@ public class UpdateRetryLoggingServiceTest {
 
         final String messageId = UUID.randomUUID().toString();
         new Expectations(updateRetryLoggingService) {{
+            userMessage.getMessageId();
+            result = messageId;
+
             userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 

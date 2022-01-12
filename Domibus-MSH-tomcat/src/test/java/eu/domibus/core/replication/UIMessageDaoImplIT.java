@@ -22,7 +22,7 @@ import java.util.*;
  * @author Catalin Enache
  * @since 4.1
  */
-@Ignore
+@Ignore("EDELIVERY-8789: UI replication accessement")
 public class UIMessageDaoImplIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
@@ -104,7 +104,6 @@ public class UIMessageDaoImplIT extends AbstractIT {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testCountMessages() {
         Map<String, Object> filters = new HashMap<>();
         long count;

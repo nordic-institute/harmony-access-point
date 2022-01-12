@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+@Deprecated
 public class StubDtoTransformerTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformerTest.class);
 
