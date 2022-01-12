@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -43,6 +44,9 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
+    @Autowired
+    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
+
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
@@ -51,6 +55,8 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
+
+        userMessageValidatorSpiService.validate(userMessage, partInfoList);
 
         if (ebms3MessageFragmentType != null) {
             userMessage.setMessageFragment(true);
@@ -61,6 +67,4 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }
-
-
 }

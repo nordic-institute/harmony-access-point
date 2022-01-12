@@ -12,6 +12,7 @@
     <modules>
         <module>Domibus-archive-webhook-swagger</module>
         <module>Domibus-MSH</module>
+        <module>Domibus-MSH-spi</module>
         <module>Domibus-MSH-api</module>
         <module>Domibus-MSH-ext-services-delegate</module>
         <module>Domibus-MSH-logging</module>

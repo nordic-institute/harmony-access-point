@@ -1,9 +1,12 @@
 package eu.domibus.core.converter;
 
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -25,6 +28,11 @@ public abstract class AbstractMapperTest {
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {
+
+        @Bean
+        public EArchiveBatchUtils eArchiveBatchUtils() {
+            return Mockito.mock(EArchiveBatchUtils.class);
+        }
     }
 
     @Autowired
