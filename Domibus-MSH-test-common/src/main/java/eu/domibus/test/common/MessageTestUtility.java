@@ -17,7 +17,6 @@ import java.util.*;
 public class MessageTestUtility {
 
     private static final String DEF_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
-    private static final String FINAL_RECIPIENT_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
     private static final String STRING_TYPE = "string";
     private static final String RED = "red_gw";
     private static final String BLUE = "blue_gw";

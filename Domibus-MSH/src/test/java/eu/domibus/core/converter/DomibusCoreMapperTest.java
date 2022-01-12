@@ -32,7 +32,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
 
     @Autowired
     private ObjectService objectService;
-    
+
     @Test
     public void convertDomain() {
         DomainSpi toConvert = (DomainSpi) objectService.createInstance(DomainSpi.class);
@@ -44,7 +44,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     @Test
     public void convertRoutingCriteria() {
         RoutingCriteria toConvert = (RoutingCriteria) objectService.createInstance(RoutingCriteria.class);
-        toConvert.setEntityId(""+new Random().nextLong());
+        toConvert.setEntityId("" + new Random().nextLong());
         final RoutingCriteriaEntity converted = domibusCoreMapper.routingCriteriaToRoutingCriteriaEntity(toConvert);
         final RoutingCriteria convertedBack = domibusCoreMapper.routingCriteriaEntityToRoutingCriteria(converted);
         objectService.assertObjects(convertedBack, toConvert);
@@ -54,7 +54,7 @@ public class DomibusCoreMapperTest extends AbstractMapperTest {
     @Test
     public void convertEvent() {
         PModeResponseRO toConvert = (PModeResponseRO) objectService.createInstance(PModeResponseRO.class);
-        toConvert.setId(""+new Random().nextInt());
+        toConvert.setId("" + new Random().nextLong());
         final PModeArchiveInfo converted = domibusCoreMapper.pModeResponseROToPModeArchiveInfo(toConvert);
         final PModeResponseRO convertedBack = domibusCoreMapper.pModeArchiveInfoToPModeResponseRO(converted);
         convertedBack.setCurrent(true);

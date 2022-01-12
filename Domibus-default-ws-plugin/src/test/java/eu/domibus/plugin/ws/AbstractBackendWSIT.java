@@ -94,6 +94,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -119,11 +120,12 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging createMessageHeaderWs(String payloadHref) {
         return createMessageHeaderWs(payloadHref, "text/xml");
     }
+
     protected eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging createMessageHeaderWs(String payloadHref, String mimeType) {
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging ebMSHeaderInfo = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging();
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage();
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo messageInfo = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo();
-        messageInfo.setMessageId(UUID.randomUUID()+"f@domibus.eu");
+        messageInfo.setMessageId(UUID.randomUUID() + "@domibus.eu");
         userMessage.setMessageInfo(messageInfo);
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.CollaborationInfo collaborationInfo = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.CollaborationInfo();
         collaborationInfo.setAction("TC1Leg1");
@@ -174,6 +176,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         aProperty.setType(type);
         return aProperty;
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -181,6 +184,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected Messaging createMessageHeader(String payloadHref) {
         return createMessageHeader(payloadHref, "text/xml");
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -189,7 +193,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         Messaging ebMSHeaderInfo = new Messaging();
         UserMessage userMessage = new UserMessage();
         MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setMessageId(UUID.randomUUID()+"f@domibus.eu");
+        messageInfo.setMessageId(UUID.randomUUID() + "f@domibus.eu");
         userMessage.setMessageInfo(messageInfo);
         CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setAction("TC1Leg1");
@@ -232,6 +236,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         ebMSHeaderInfo.setUserMessage(userMessage);
         return ebMSHeaderInfo;
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -258,6 +263,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         submitRequest.getPayload().add(largePayload);
         return submitRequest;
     }
+
     protected eu.domibus.plugin.ws.generated.body.SubmitRequest createSubmitRequestWs(String payloadHref) {
         final eu.domibus.plugin.ws.generated.body.SubmitRequest submitRequest = new eu.domibus.plugin.ws.generated.body.SubmitRequest();
         eu.domibus.plugin.ws.generated.body.LargePayloadType largePayload = new eu.domibus.plugin.ws.generated.body.LargePayloadType();
@@ -294,7 +300,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     }
 
     protected String replace(String body, Pair<String, String>... replace) {
-        for (Pair<String, String > key : replace) {
+        for (Pair<String, String> key : replace) {
             body = body.replaceAll(key.getLeft(), key.getRight());
         }
         return body;

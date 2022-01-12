@@ -117,8 +117,6 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         MessageStatusEntity messageStatus = new MessageStatusEntity();
         messageStatus.setMessageStatus(MessageStatus.RECEIVED);
         userMessageLog.setMessageStatus(messageStatus);
-//        userMessageLog.setMessageId(sanitizedMessageId);
-//        userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         MSHRoleEntity mshRole = new MSHRoleEntity();
         mshRole.setRole(MSHRole.RECEIVING);
         userMessageLog.setMshRole(mshRole);
@@ -128,10 +126,9 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
                 NotificationStatus.REQUIRED.name(),
                 MshRole.RECEIVING.name(),
                 1,
-//                "default",
                 "backendWebservice");
 
-        final JmsMessage jmsMessage = new NotifyMessageCreator(2L,sanitizedMessageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
+        final JmsMessage jmsMessage = new NotifyMessageCreator(2L, sanitizedMessageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, WS_NOT_QUEUE);
 //         requires a time to consume messages from the notification queue
         waitForMessage(messageId);
@@ -149,7 +146,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         Assert.assertFalse(retrieveMessageResponse.value.getPayload().isEmpty());
         LargePayloadType payloadType = retrieveMessageResponse.value.getPayload().iterator().next();
         String payload = IOUtils.toString(payloadType.getValue().getDataSource().getInputStream(), Charset.defaultCharset());
-        Assert.assertEquals(payload, messagePayload);
+        Assert.assertEquals(messagePayload, payload);
     }
 
     private RetrieveMessageRequest createRetrieveMessageRequest(String messageId) {

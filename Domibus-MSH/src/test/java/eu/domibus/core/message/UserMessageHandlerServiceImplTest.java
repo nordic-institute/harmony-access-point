@@ -1,10 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3PartInfo;
-import eu.domibus.api.ebms3.model.Ebms3PartProperties;
-import eu.domibus.api.ebms3.model.Ebms3Property;
+import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
@@ -415,30 +412,39 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void test_HandlePayLoads_HappyFlowUsingEmptyCID(@Injectable final UserMessage userMessage,
-                                                           @Injectable final Ebms3Messaging ebms3Messaging,
-                                                           @Injectable final Node bodyContent,
-                                                           @Injectable final PartyInfo partInfo,
-                                                           @Injectable PartProperty property1) throws SOAPException, TransformerException, EbMS3Exception {
+    public void test_HandlePayLoads_HappyFlowUsingEmptyCID(@Injectable final Ebms3Messaging ebms3Messaging,
+                                                           @Injectable final PartInfo partInfo) throws SOAPException, TransformerException, EbMS3Exception {
 
-        HashSet<PartProperty> partProperties1 = new HashSet<>();
-        partProperties1.add(property1);
-//        partInfo.setPartProperties(partProperties1);
-        List<Node> bodyContentNodeList = new ArrayList<>();
-        bodyContentNodeList.add(bodyContent);
-        final Iterator<Node> bodyContentNodeIterator = bodyContentNodeList.iterator();
+        Ebms3PartInfo ebms3PartInfo = new Ebms3PartInfo();
+        ebms3PartInfo.setHref(null);
+        Ebms3Description value1 = new Ebms3Description();
+        value1.setValue("description");
+        value1.setLang("en");
+        ebms3PartInfo.setDescription(value1);
+        Ebms3Schema value = new Ebms3Schema();
+        value.setLocation("location");
+        value.setNamespace("namespace");
+        value.setVersion("version");
+        ebms3PartInfo.setSchema(value);
 
+        Ebms3PayloadInfo ebms3PayloadInfo = new Ebms3PayloadInfo();
+        ebms3PayloadInfo.getPartInfo().add(ebms3PartInfo);
         new Expectations(userMessageHandlerService) {{
+            ebms3Messaging.getUserMessage().getPayloadInfo();
+            result = ebms3PayloadInfo;
+
             ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
             result = "messageId";
 
+            userMessageHandlerService.convert(ebms3PartInfo);
+            result = partInfo;
         }};
 
         userMessageHandlerService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
 
         new Verifications() {{
-//            partInfo.setInBody(true);
-//            partInfo.setPayloadDatahandler((DataHandler) any);
+            partInfo.setInBody(true);
+            partInfo.setPayloadDatahandler((DataHandler) any);
         }};
     }
 

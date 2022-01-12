@@ -104,6 +104,10 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     @Test
     public void testGetPayloadId_NullDomain() {
+        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(null));
+    }
+    @Test
+    public void testGetPayloadId_ok() {
         Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DEFAULT_DOMAIN));
     }
 

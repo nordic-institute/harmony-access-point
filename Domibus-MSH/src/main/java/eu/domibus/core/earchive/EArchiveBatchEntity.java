@@ -188,12 +188,12 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
                 ", requestType=" + requestType +
                 ", eArchiveBatchStatus=" + eArchiveBatchStatus +
                 ", dateRequested=" + dateRequested +
+                ", firstPkUserMessage=" + firstPkUserMessage +
                 ", lastPkUserMessage=" + lastPkUserMessage +
                 ", batchSize=" + batchSize +
                 ", errorCode='" + errorCode + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 ", storageLocation='" + storageLocation + '\'' +
-                ", firstPkUserMessage=" + firstPkUserMessage +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
                 '}';
     }

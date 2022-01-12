@@ -38,6 +38,7 @@ import java.nio.charset.Charset;
  * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @Deprecated
+@Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
     @Autowired
