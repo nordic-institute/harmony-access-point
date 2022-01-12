@@ -26,6 +26,7 @@ public class SignalMessageRawService {
         final SignalMessage signalMessage = signalMessageDao.findByReference(signalMessageId);
         SignalMessageRaw byReference = signalMessageRawEnvelopeDao.findByReference(signalMessageId);
         if (byReference == null) {
+            LOG.debug("SignalMessageRaw not found: [{}] - creation", signalMessageId);
             SignalMessageRaw signalMessageRaw = new SignalMessageRaw();
             signalMessageRaw.setRawXML(rawXml);
             signalMessageRaw.setSignalMessage(signalMessage);
