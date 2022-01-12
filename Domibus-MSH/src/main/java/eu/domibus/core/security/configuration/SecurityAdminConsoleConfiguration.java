@@ -1,5 +1,6 @@
 package eu.domibus.core.security.configuration;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.web.security.AuthenticationService;
@@ -17,6 +18,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_HTTP_SECURITY_STRICT_TRANSPORT_SECURITY;
 
 /**
  * Default Spring security config for Domibus
@@ -41,6 +44,9 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
 
     @Autowired
     ExpiredSessionStrategy expiredSessionStrategy;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Bean(name = "authenticationManagerForAdminConsole")
     @Override
@@ -74,11 +80,12 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
                     .expiredSessionStrategy(expiredSessionStrategy)
                     .sessionRegistry(sessionRegistry);
 
+        Long maxAge = domibusPropertyProvider.getLongProperty(DOMIBUS_HTTP_SECURITY_STRICT_TRANSPORT_SECURITY);
         httpSecurity
                 .headers()
                     .httpStrictTransportSecurity()
                     .includeSubDomains(true)
-                    .maxAgeInSeconds(31536000);
+                    .maxAgeInSeconds(maxAge);
     }
 
     @Override
