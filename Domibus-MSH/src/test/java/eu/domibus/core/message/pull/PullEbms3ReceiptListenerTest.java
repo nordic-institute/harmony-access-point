@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -17,20 +18,18 @@ import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.neethi.Policy;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.xml.soap.SOAPMessage;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author idragusa
  * @since 4.1
  */
+@SuppressWarnings("ConstantConditions")
 @RunWith(JMockit.class)
 public class PullEbms3ReceiptListenerTest {
 
@@ -68,52 +67,96 @@ public class PullEbms3ReceiptListenerTest {
     private MessageStatusDao messageStatusDao;
 
     @Test
-    public void onMessageTest(@Mocked Message message) throws JMSException, EbMS3Exception {
-
-
+    public void onMessageTest_retry(@Injectable Message message, @Injectable ReceiptEntity receiptEntity) throws JMSException, EbMS3Exception {
         new Expectations() {{
             message.getStringProperty(MessageConstants.DOMAIN);
             result = "mydomain";
 
+            message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
+            result = "refToMessageId";
+
+            message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+            result = "pModeKey";
+
+            receiptDao.findBySignalRefToMessageId("refToMessageId");
+            result = null;
+
+            message.propertyExists(MessageConstants.RETRY_COUNT);
+            result = true;
+
+            message.getIntProperty(MessageConstants.RETRY_COUNT);
+            result = 1;
         }};
 
         pullReceiptListener.onMessage(message);
 
         new Verifications() {{
             pullReceiptSender.sendReceipt((SOAPMessage) any, anyString, (Policy) any,
-                    (LegConfiguration) any, anyString, anyString, anyString);
+                    (LegConfiguration) any, "pModeKey", "refToMessageId", "mydomain");
+            times = 0;
+
+            userMessageService.scheduleSendingPullReceipt("refToMessageId", "pModeKey", 2);
             times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void onMessageTestNoReceipt(@Mocked Message message) throws JMSException, EbMS3Exception {
-
+    public void onMessageTest_maxRetry(@Injectable Message message, @Injectable ReceiptEntity receiptEntity) throws JMSException, EbMS3Exception {
         new Expectations() {{
             message.getStringProperty(MessageConstants.DOMAIN);
             result = "mydomain";
 
+            message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
+            result = "refToMessageId";
+
+            message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+            result = "pModeKey";
+
+            receiptDao.findBySignalRefToMessageId("refToMessageId");
+            result = receiptEntity;
+
+            message.propertyExists(MessageConstants.RETRY_COUNT);
+            result = true;
+
+            message.getIntProperty(MessageConstants.RETRY_COUNT);
+            result = 5;
         }};
 
         pullReceiptListener.onMessage(message);
 
         new Verifications() {{
             pullReceiptSender.sendReceipt((SOAPMessage) any, anyString, (Policy) any,
-                    (LegConfiguration) any, anyString, anyString, anyString);
+                    (LegConfiguration) any, "pModeKey", "refToMessageId", "mydomain");
+            times = 1;
+
+            userMessageService.scheduleSendingPullReceipt("refToMessageId", "pModeKey", 1);
             times = 0;
         }};
     }
 
-    private List<SignalMessage> createSignalMessages() {
-        List<SignalMessage> signalMessages = new ArrayList<>();
-        SignalMessage signalMessage = new SignalMessage();
-        ReceiptEntity receipt = new ReceiptEntity();
-        List<String> anyReceipt = new ArrayList<>();
-        anyReceipt.add("some content for the receipt");
-//        receipt.setAny(anyReceipt);
-//        signalMessage.setReceipt(receipt);
-        signalMessages.add(signalMessage);
-        return signalMessages;
+    @Test
+    public void onMessageTestNoRetry(@Injectable Message message) throws JMSException, EbMS3Exception {
+
+        new Expectations() {{
+            message.getStringProperty(MessageConstants.DOMAIN);
+            result = "mydomain";
+            message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
+            result = "refToMessageId";
+            message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+            result = "pModeKey";
+
+            receiptDao.findBySignalRefToMessageId("refToMessageId");
+            result = null;
+        }};
+
+        pullReceiptListener.onMessage(message);
+
+        new Verifications() {{
+            userMessageService.scheduleSendingPullReceipt("refToMessageId", "pModeKey", 1);
+            times = 1;
+            pullReceiptSender.sendReceipt((SOAPMessage) any, anyString, (Policy) any,
+                    (LegConfiguration) any, "pModeKey", "refToMessageId", "mydomain");
+            times = 0;
+        }};
     }
 }

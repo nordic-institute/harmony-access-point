@@ -8,17 +8,18 @@ import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SoapUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,14 +27,22 @@ import org.junit.runner.RunWith;
  * @author Cosmin Baciu
  * @since 4.1
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class MessageFragmentSenderTest {
 
+    public static final Long ENTITY_ID = 1L;
     @Tested
     MessageFragmentSender messageFragmentSender;
 
     @Injectable
     protected PModeProvider pModeProvider;
+
+    @Injectable
+    protected SoapUtil soapUtil;
+
+    @Injectable
+    protected ErrorLogService errorLogService;
 
     @Injectable
     protected MSHDispatcher mshDispatcher;
@@ -80,17 +89,19 @@ public class MessageFragmentSenderTest {
     @Injectable
     public MshRoleDao mshRoleDao;
 
+    @Injectable
+    UserMessage userMessage;
+
+    @Injectable
+    MessageGroupEntity groupEntity;
+
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void validateBeforeSendingSuccessful(@Injectable UserMessage userMessage,
-                                      @Injectable MessageGroupEntity groupEntity) {
-        String groupId = "123";
-
+    public void validateBeforeSendingSuccessful() {
         new Expectations() {{
-//            userMessage.getMessageFragment().getGroupId();
-//            result = groupId;
+            userMessage.getEntityId();
+            result = ENTITY_ID;
 
-            messageGroupDao.findByGroupId(groupId);
+            messageGroupDao.findByUserMessageEntityId(ENTITY_ID);
             result = groupEntity;
         }};
 
@@ -98,16 +109,12 @@ public class MessageFragmentSenderTest {
     }
 
     @Test(expected = SplitAndJoinException.class)
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void validateBeforeSendingExpiredGroup(@Injectable UserMessage userMessage,
-                                                @Injectable MessageGroupEntity groupEntity) {
-        String groupId = "123";
-
+    public void validateBeforeSendingExpiredGroup() {
         new Expectations() {{
-//            userMessage.getMessageFragment().getGroupId();
-//            result = groupId;
+            userMessage.getEntityId();
+            result = ENTITY_ID;
 
-            messageGroupDao.findByGroupId(groupId);
+            messageGroupDao.findByUserMessageEntityId(ENTITY_ID);
             result = groupEntity;
 
             groupEntity.getExpired();
@@ -118,16 +125,12 @@ public class MessageFragmentSenderTest {
     }
 
     @Test(expected = SplitAndJoinException.class)
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void validateBeforeSendingRejectedGroup(@Injectable UserMessage userMessage,
-                                                  @Injectable MessageGroupEntity groupEntity) {
-        String groupId = "123";
-
+    public void validateBeforeSendingRejectedGroup(   ) {
         new Expectations() {{
-//            userMessage.getMessageFragment().getGroupId();
-//            result = groupId;
+            userMessage.getEntityId();
+            result = ENTITY_ID;
 
-            messageGroupDao.findByGroupId(groupId);
+            messageGroupDao.findByUserMessageEntityId(ENTITY_ID);
             result = groupEntity;
 
             groupEntity.getExpired();

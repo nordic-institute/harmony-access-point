@@ -12,9 +12,15 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
+import static eu.domibus.api.model.MSHRole.SENDING;
+import static eu.domibus.api.model.MessageStatus.DELETED;
+import static eu.domibus.api.model.MessageStatus.SEND_ENQUEUED;
+import static eu.domibus.api.model.NotificationStatus.NOTIFIED;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -22,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class UserMessageLogDefaultServiceTest {
 
@@ -60,7 +66,7 @@ public class UserMessageLogDefaultServiceTest {
         new Expectations() {{
             signalMessage.getSignalMessageId();
             result = null;
-            
+
         }};
         assertFalse(userMessageLogDefaultService.setSignalMessageAsDeleted(signalMessage));
         new FullVerifications() {
@@ -80,142 +86,217 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void setSignalMessageAsDeleted_ok(@Injectable final SignalMessage signalMessage,
                                              @Injectable final SignalMessageLog signalMessageLog) {
         String messageId = "1";
-
+        final MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(DELETED);
         new Expectations() {{
             signalMessage.getSignalMessageId();
             result = messageId;
 
-
             signalMessageLogDao.findByMessageId(messageId);
             result = signalMessageLog;
 
+             messageStatusDao.findMessageStatus(MessageStatus.DELETED);
+             result = messageStatusEntity;
         }};
 
         assertTrue(userMessageLogDefaultService.setSignalMessageAsDeleted(signalMessage));
 
-        new FullVerifications() {{
+        new Verifications() {{
+            signalMessageLog.setDeleted((Date) any);
+            times = 1;
 
-            uiReplicationSignalService.messageChange(signalMessageLog.getSignalMessage().getSignalMessageId());
+            signalMessageLog.setMessageStatus(messageStatusEntity);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(messageId);
+            times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSave() {
         final String messageId = "1";
-        final String messageStatus = MessageStatus.SEND_ENQUEUED.toString();
-        final String notificationStatus = NotificationStatus.NOTIFIED.toString();
-        final String mshRole = MSHRole.SENDING.toString();
+        final String messageStatus = SEND_ENQUEUED.toString();
+        final String notificationStatus = NOTIFIED.toString();
+        final String mshRole = SENDING.toString();
         final Integer maxAttempts = 10;
-        final String mpc = " default";
         final String backendName = "JMS";
-        final String endpoint = "http://localhost";
 
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(messageId);
         userMessage.setConversationId(messageId);
+
+        MSHRoleEntity mshRoleEntity = new MSHRoleEntity();
+        mshRoleEntity.setRole(SENDING);
+
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(SEND_ENQUEUED);
+
+        NotificationStatusEntity notificationStatusEntity = new NotificationStatusEntity();
+        notificationStatusEntity.setStatus(NOTIFIED);
+
+        new Expectations() {{
+            messageStatusDao.findOrCreate(SEND_ENQUEUED);
+            result = messageStatusEntity;
+
+            mshRoleDao.findOrCreate(SENDING);
+            result = mshRoleEntity;
+
+            notificationStatusDao.findOrCreate(NOTIFIED);
+            result = notificationStatusEntity;
+
+            messageStatusDao.findMessageStatus(SEND_ENQUEUED);
+            result = messageStatusEntity;
+        }};
+
         userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
         new Verifications() {{
-            backendNotificationService.notifyOfMessageStatusChange(new UserMessage(), withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
+            times = 1;
 
             UserMessageLog userMessageLog;
             userMessageLogDao.create(userMessageLog = withCapture());
+            times = 1;
             Assert.assertEquals(messageId, userMessageLog.getUserMessage().getMessageId());
-            Assert.assertEquals(MessageStatus.SEND_ENQUEUED, userMessageLog.getMessageStatus());
-            Assert.assertEquals(NotificationStatus.NOTIFIED, userMessageLog.getNotificationStatus());
-            Assert.assertEquals(MSHRole.SENDING, userMessageLog.getMshRole());
+            Assert.assertEquals(SEND_ENQUEUED, userMessageLog.getMessageStatus());
+            Assert.assertEquals(NOTIFIED, userMessageLog.getNotificationStatus().getStatus());
+            Assert.assertEquals(SENDING, userMessageLog.getMshRole().getRole());
             Assert.assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
-//            Assert.assertEquals(mpc, userMessageLog.getMpc());
             Assert.assertEquals(backendName, userMessageLog.getBackend());
-//            Assert.assertEquals(endpoint, userMessageLog.getEndpoint());
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testUpdateMessageStatus(@Injectable final UserMessageLog messageLog,
                                         @Injectable final UserMessage userMessage) {
-        final String messageId = "1";
-        final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
-
-        new Expectations() {{
-//            messageLog.getMessageType();
-//            result = MessageType.USER_MESSAGE;
-//
-//            messageLog.getMessageId();
-//            result = messageId;
-//
-//            messageLog.isTestMessage();
-//            result = false;
-        }};
+        final MessageStatus messageStatus = SEND_ENQUEUED;
 
         userMessageLogDefaultService.updateUserMessageStatus(userMessage, messageLog, messageStatus);
 
         new Verifications() {{
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, messageStatus, withAny(new Timestamp(System.currentTimeMillis())));
             userMessageLogDao.setMessageStatus(messageLog, messageStatus);
-            uiReplicationSignalService.messageChange(messageId);
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSetMessageAsDeleted(@Injectable final UserMessage userMessage,
-                                        @Injectable final UserMessageLog messageLog) {
-        userMessageLogDefaultService.setMessageAsDeleted(userMessage, messageLog);
+                                        @Injectable final UserMessageLog userMessageLog) {
 
-        new FullVerifications() {{
-            userMessageLogDefaultService.updateUserMessageStatus(userMessage, messageLog, MessageStatus.DELETED);
+        new Expectations() {{
+            userMessage.isTestMessage();
+            result = true;
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+        userMessageLogDefaultService.setMessageAsDeleted(userMessage, userMessageLog);
+
+        new Verifications() {{
+
+            userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.DELETED);
+            times = 1;
+
+            uiReplicationSignalService.messageChange("messageId");
+            times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSetMessageAsDownloaded(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+        
         userMessageLogDefaultService.setMessageAsDownloaded(userMessage, userMessageLog);
 
-        new FullVerifications() {{
-            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.DOWNLOADED);
+        new Verifications() {{
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.DOWNLOADED, (Timestamp) any);
+            times = 1;
+
+            userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.DOWNLOADED);
+            times = 1;
+
+            uiReplicationSignalService.messageChange("messageId");
+            times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSetMessageAsAcknowledged(@Injectable UserMessage userMessage,
                                              @Injectable UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
         userMessageLogDefaultService.setMessageAsAcknowledged(userMessage, userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED);
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED, (Timestamp) any);
+            times = 1;
+
+            userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED);
+            times = 1;
+
+            uiReplicationSignalService.messageChange("messageId");
+            times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSetMessageAsAckWithWarnings(@Injectable UserMessage userMessage,
                                                 @Injectable UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
         userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
 
+
         new Verifications() {{
-            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING, (Timestamp) any);
+            times = 1;
+
+            userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
+            times = 1;
+
+            uiReplicationSignalService.messageChange("messageId");
+            times = 1;
         }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void tesSetMessageAsSendFailure(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
 
         userMessageLogDefaultService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         new Verifications() {{
-            userMessageLogDefaultService.updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.SEND_FAILURE, (Timestamp) any);
+            times = 1;
+
+            userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.SEND_FAILURE);
+            times = 1;
+
+            uiReplicationSignalService.messageChange("messageId");
+            times = 1;
         }};
     }
 

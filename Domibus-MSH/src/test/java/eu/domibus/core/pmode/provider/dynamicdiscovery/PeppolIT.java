@@ -1,7 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.exception.ConfigurationException;
-import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
 import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -19,7 +18,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.junit.Ignore;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -48,8 +46,10 @@ public class PeppolIT {
 
     private String httpProxyPassword = "";
 
-//    @Test
-    @Ignore("This is not a unit tests but a useful test for a real SMP entry")
+    public static void main(String[] args) throws Exception {
+        new PeppolIT().testLookupInformation();
+    }
+
     public void testLookupInformation() throws Exception {
         EndpointInfo endpointNew = testLookupInformation("0088:112244", "iso6523-actorid-upis", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0", "cenbii-procid-ubl::urn:www.cenbii.eu:profile:bii04:ver1.0", "");
         EndpointInfo endpointOld = testLookupInformation("0088:112233", "iso6523-actorid-upis", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0", "cenbii-procid-ubl::urn:www.cenbii.eu:profile:bii04:ver1.0", "");

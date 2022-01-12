@@ -36,7 +36,7 @@ public class DomibusConditionUtil {
     }
 
     public void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(20, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
 
     public void waitUntilMessageIsAcknowledged(String messageId) {

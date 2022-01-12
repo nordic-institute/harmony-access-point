@@ -1,154 +1,74 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
-import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
-import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.PartInfoDao;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.pull.PullRequestHandler;
 import eu.domibus.core.message.pull.PullRequestResult;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.util.TimestampDateFormatter;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerFactory;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
+@Ignore("[EDELIVERY-8739] Improve code coverage")
 public class IncomingUserMessageReceiptHandlerTest {
-
-   /* @Injectable
-    BackendNotificationService backendNotificationService;
-
-    @Injectable
-    IncomingMessageHandlerFactory incomingMessageHandlerFactory;
-
-    @Injectable
-    MessagingDao messagingDao;
-
-    @Injectable
-    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
-
-    @Injectable
-    MessagingService messagingService;
-
-    @Injectable
-    SignalMessageDao signalMessageDao;
-
-    @Injectable
-    SignalMessageLogDao signalMessageLogDao;
-
-    @Injectable
-    MessageFactory messageFactory;
-
-    @Injectable
-    UserMessageLogDao userMessageLogDao;
-
-    @Injectable
-    JAXBContext jaxbContext;
-
-    @Injectable
-    TransformerFactory transformerFactory;
-
-    @Injectable
-    PModeProvider pModeProvider;
-
-    @Injectable
-    TimestampDateFormatter timestampDateFormatter;
-
-    @Injectable
-    CompressionService compressionService;
-
-    @Injectable
-    MessageIdGenerator messageIdGenerator;
-
-    @Injectable
-    PayloadProfileValidator payloadProfileValidator;
-
-    @Injectable
-    PropertyProfileValidator propertyProfileValidator;
-
-    @Injectable
-    CertificateService certificateService;
-
-    @Injectable
-    SOAPMessage soapRequestMessage;
-
-    @Injectable
-    SOAPMessage soapResponseMessage;
-
-    @Injectable
-    MessageExchangeService messageExchangeService;
-
-    @Injectable
-    EbMS3MessageBuilder messageBuilder;
-
-    @Injectable
-    UserMessageHandlerService userMessageHandlerService;
-
-    @Injectable
-    ResponseHandler responseHandler;
-
-    @Injectable
-    ReliabilityChecker reliabilityChecker;
 
     @Tested
     IncomingUserMessageReceiptHandler incomingUserMessageReceiptHandler;
 
     @Injectable
-    ReliabilityMatcher pullReceiptMatcher;
-
-    @Injectable
-    ReliabilityMatcher pullRequestMatcher;
-
-    @Injectable
-    PullRequestHandler pullRequestHandler;
-
-    @Injectable
     ReliabilityService reliabilityService;
-
     @Injectable
-    PullMessageService pullMessageService;
-
+    ReliabilityChecker reliabilityChecker;
+    @Injectable
+    UserMessageLogDao userMessageLogDao;
+    @Injectable
+    EbMS3MessageBuilder messageBuilder;
+    @Injectable
+    ResponseHandler responseHandler;
+    @Injectable
+    PModeProvider pModeProvider;
+    @Injectable
+    UserMessageDao userMessageDao;
     @Injectable
     MessageUtil messageUtil;
-
     @Injectable
     SoapUtil soapUtil;
+    @Injectable
+    Ebms3Converter ebms3Converter;
+    @Injectable
+    PartInfoDao partInfoDao;
 
     @Test
-    public void testHandleUserMessageReceipt_HappyFlow(@Mocked final SOAPMessage request,
-                                                      @Mocked final Messaging messaging,
-                                                      @Mocked final UserMessage userMessage,
-                                                      @Mocked final MessageExchangeConfiguration messageConfiguration,
+    public void testHandleUserMessageReceipt_HappyFlow(@Injectable final SOAPMessage request,
+                                                      @Injectable final SignalMessage signalMessage,
+                                                      @Injectable final UserMessage userMessage,
+                                                      @Injectable final MessageExchangeConfiguration messageConfiguration,
                                                       @Injectable final PullRequestResult pullRequestResult,
                                                       @Injectable final MessagingLock messagingLock,
                                                       @Injectable final SOAPMessage soapMessage,
@@ -158,20 +78,16 @@ public class IncomingUserMessageReceiptHandlerTest {
         final String messageId = "12345";
         final String pModeKey = "pmodeKey";
         final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageId(messageId);
-        userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
+        userMessageLog.setMessageStatus(messageStatusEntity);
+        userMessageLog.setUserMessage(userMessage);
         new Expectations(incomingUserMessageReceiptHandler) {{
-            messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+            signalMessage.getRefToMessageId();
             result = messageId;
 
             userMessageLogDao.findByMessageId(messageId);
             result = userMessageLog;
-
-            messagingDao.findMessageByMessageId(messageId);
-            result = messaging;
-
-            messaging.getUserMessage();
-            result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = messageConfiguration;
@@ -197,19 +113,23 @@ public class IncomingUserMessageReceiptHandlerTest {
             reliabilityChecker.check(soapMessage, request, responseResult, reliability);
             result = ReliabilityChecker.CheckResult.OK;
 
+
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
+
         }};
 
-        incomingUserMessageReceiptHandler.handleUserMessageReceipt(request, messaging);
+        incomingUserMessageReceiptHandler.handleUserMessageReceipt(request, signalMessage);
 
-        new FullVerifications(incomingUserMessageReceiptHandler) {};
+        new FullVerifications() {};
 
     }
 
     @Test
-    public void testHandleUserMessageReceipt_Exception(@Mocked final SOAPMessage request,
-                                                      @Mocked final Messaging messaging,
-                                                      @Mocked final UserMessage userMessage,
-                                                      @Mocked final MessageExchangeConfiguration messageConfiguration,
+    public void testHandleUserMessageReceipt_Exception(@Injectable final SOAPMessage request,
+                                                      @Injectable final SignalMessage signalMessage,
+                                                      @Injectable final UserMessage userMessage,
+                                                      @Injectable final MessageExchangeConfiguration messageConfiguration,
                                                       @Injectable final PullRequestResult pullRequestResult,
                                                       @Injectable final MessagingLock messagingLock,
                                                       @Injectable final SOAPMessage soapMessage,
@@ -219,20 +139,17 @@ public class IncomingUserMessageReceiptHandlerTest {
         final String messageId = "12345";
         final String pModeKey = "pmodeKey";
         final UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageId(messageId);
-        userMessageLog.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
+        userMessageLog.setMessageStatus(messageStatusEntity);
+        userMessageLog.setUserMessage(userMessage);
+
         new Expectations(incomingUserMessageReceiptHandler) {{
-            messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+            signalMessage.getRefToMessageId();
             result = messageId;
 
             userMessageLogDao.findByMessageId(messageId);
             result = userMessageLog;
-
-            messagingDao.findMessageByMessageId(messageId);
-            result = messaging;
-
-            messaging.getUserMessage();
-            result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = messageConfiguration;
@@ -258,12 +175,9 @@ public class IncomingUserMessageReceiptHandlerTest {
 
         }};
 
-        incomingUserMessageReceiptHandler.handleUserMessageReceipt(request, messaging);
+        incomingUserMessageReceiptHandler.handleUserMessageReceipt(request, signalMessage);
 
-        new FullVerifications(incomingUserMessageReceiptHandler) {{
-            reliabilityChecker.handleEbms3Exception((EbMS3Exception) any, anyString);
-            reliabilityService.handleReliability(messageId, messaging, userMessageLog, ReliabilityChecker.CheckResult.ABORT, request, null, legConfiguration, null);
-        }};
+        new FullVerifications() {};
 
-    }*/
+    }
 }

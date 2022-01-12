@@ -5,21 +5,21 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.core.user.ui.*;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.AuthenticationService;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Ion Perpegel
@@ -27,13 +27,19 @@ import java.util.List;
  */
 public class UserManagementServiceTestIT extends AbstractIT {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceTestIT.class);
+
     private static final String LOGGED_USER = "test_user";
 
     @Autowired
     UserManagementServiceImpl userManagementService;
+    @Autowired
+    UserDetailServiceImpl userDetailService;
 
     @Autowired
     protected UserDao userDao;
+    @Autowired
+    protected AuthenticationService authenticationService;
 
     @Autowired
     protected UserRoleDao userRoleDao;
@@ -48,68 +54,77 @@ public class UserManagementServiceTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Rollback
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    @WithUserDetails(value = LOGGED_USER, userDetailsServiceBeanName = "testUserDetailService")
     public void updateUsers_loggedIn_changeActive() {
-        eu.domibus.api.user.User apiUser = initTestUser(LOGGED_USER);
+        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
+
+        eu.domibus.api.user.User admin = initTestUser("admin_test", AuthRole.ROLE_ADMIN);
+        eu.domibus.api.user.User apiUser = initTestUser(LOGGED_USER, AuthRole.ROLE_ADMIN);
         apiUser.setActive(false);
         try {
-            userManagementService.updateUsers(Arrays.asList(apiUser));
+            userManagementService.updateUsers(Collections.singletonList(apiUser));
             Assert.fail();
         } catch (UserManagementException ex) {
+            LOG.info(ex.getMessage(), ex);
             Assert.assertTrue(ex.getMessage().contains("Cannot change the active status of the logged-in user"));
         }
     }
 
     @Test
     @Transactional
-    @Rollback
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    @WithUserDetails(value = LOGGED_USER, userDetailsServiceBeanName = "testUserDetailService")
     public void updateUsers_loggedIn_changeRole() {
-        eu.domibus.api.user.User apiUser = initTestUser(LOGGED_USER);
-        apiUser.setAuthorities(Arrays.asList("ROLE_USER"));
+        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
+
+        eu.domibus.api.user.User admin = initTestUser("admin_test", AuthRole.ROLE_ADMIN);
+        eu.domibus.api.user.User apiUser = initTestUser(LOGGED_USER, AuthRole.ROLE_USER);
+        apiUser.setAuthorities(Collections.singletonList("ROLE_ADMIN"));
         try {
-            userManagementService.updateUsers(Arrays.asList(apiUser));
+            userManagementService.updateUsers(Collections.singletonList(apiUser));
             Assert.fail();
         } catch (UserManagementException ex) {
+            LOG.info(ex.getMessage(), ex);
             Assert.assertTrue(ex.getMessage().contains("Cannot change the role of the logged-in user"));
         }
     }
 
     @Test
     @Transactional
+    @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
     public void updateUsers_notLoggedIn_atLeastOneAdmin() {
+        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
+
         final User userEntity = createUser("baciuco", "Password-0", "test@domibus.eu", AuthRole.ROLE_USER);
         final eu.domibus.api.user.User apiUser = convert(userEntity);
         apiUser.setActive(false);
         try {
-            userManagementService.updateUsers(Arrays.asList(apiUser));
+            userManagementService.updateUsers(Collections.singletonList(apiUser));
             Assert.fail();
         } catch (UserManagementException ex) {
+            LOG.info(ex.getMessage(), ex);
             Assert.assertTrue(ex.getMessage().contains("There must always be at least one active Domain Admin for each Domain"));
         }
     }
 
     @Test
     @Transactional
-    @Rollback
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
+    @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
     public void updateUsers_notLoggedIn_OK() {
-        eu.domibus.api.user.User apiUser1 = initTestUser("admin1");
-        eu.domibus.api.user.User apiUser = initTestUser("admin2");
-        apiUser.setAuthorities(Arrays.asList("ROLE_USER"));
+        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
+
+        initTestUser("admin1", AuthRole.ROLE_ADMIN);
+        eu.domibus.api.user.User apiUser = initTestUser("admin2", AuthRole.ROLE_ADMIN);
+        apiUser.setAuthorities(Collections.singletonList("ROLE_USER"));
         apiUser.setActive(false);
         apiUser.setEmail("other.email@google.com");
-        userManagementService.updateUsers(Arrays.asList(apiUser));
+        userManagementService.updateUsers(Collections.singletonList(apiUser));
     }
 
-    private eu.domibus.api.user.User initTestUser(String userName) {
+    private eu.domibus.api.user.User initTestUser(String userName, AuthRole roleAdmin) {
         String password = "Password-0";
         String email = "test@mailinator.com";
 
-//        UserRole userRole = userRoleDao.findByName(AuthRole.ROLE_ADMIN.name());
-
-        final User user = createUser(userName, password, email, AuthRole.ROLE_ADMIN);
+        final User user = createUser(userName, password, email, roleAdmin);
         return convert(user);
     }
 
@@ -120,7 +135,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
 
         final Collection<UserRole> roles = userEntity.getRoles();
         List<String> authorities = new ArrayList<>();
-        roles.stream().forEach(userRole -> authorities.add(userRole.getName()));
+        roles.forEach(userRole -> authorities.add(userRole.getName()));
 
 
         user.setAuthorities(authorities);

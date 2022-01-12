@@ -10,7 +10,6 @@ import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.web.rest.ro.MessageLogRO;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -25,17 +24,16 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
     private MessageCoreMapper messageCoreMapper;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertMessageAttempt() {
         MessageAttempt toConvert = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
         final MessageAttemptEntity converted = messageCoreMapper.messageAttemptToMessageAttemptEntity(toConvert);
         final MessageAttempt convertedBack = messageCoreMapper.messageAttemptEntityToMessageAttempt(converted);
 
+        convertedBack.setUserMessageEntityId(toConvert.getUserMessageEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertMessageLog() {
         MessageLogRO toConvert = (MessageLogRO) objectService.createInstance(MessageLogRO.class);
         final MessageLogInfo converted = messageCoreMapper.messageLogROToMessageLogInfo(toConvert);
@@ -45,7 +43,6 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUIMessageEntity() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final UIMessageDiffEntity converted = messageCoreMapper.uiMessageEntityToUIMessageDiffEntity(toConvert);
@@ -55,22 +52,22 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         convertedBack.setAction(toConvert.getAction());
         convertedBack.setServiceType(toConvert.getServiceType());
         convertedBack.setServiceValue(toConvert.getServiceValue());
+        convertedBack.setMessageType(toConvert.getMessageType());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUIMessageEntityMessageLog() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final MessageLogRO converted = messageCoreMapper.uiMessageEntityToMessageLogRO(toConvert);
         final UIMessageEntity convertedBack = messageCoreMapper.messageLogROToUIMessageEntity(converted);
         convertedBack.setLastModified(toConvert.getLastModified());
         convertedBack.setEntityId(toConvert.getEntityId());
+        convertedBack.getTimezoneOffset().setEntityId(toConvert.getTimezoneOffset().getEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUserMessage() {
         UserMessage toConvert = (UserMessage) objectService.createInstance(UserMessage.class);
         final eu.domibus.api.usermessage.domain.UserMessage converted = messageCoreMapper.userMessageToUserMessageApi(toConvert);
@@ -78,7 +75,7 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
 
         convertedBack.setSourceMessage(toConvert.isSourceMessage());
         convertedBack.setMessageFragment(toConvert.isMessageFragment());
-//        convertedBack.setPartInfoList(toConvert.getPartInfoList());
+        convertedBack.setPartyInfo(toConvert.getPartyInfo());
         convertedBack.setEntityId(toConvert.getEntityId());
 
         From fromToConvert = (From) getPartyIdProperty(toConvert, "from");
@@ -100,6 +97,7 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         convertedBack.getService().setEntityId(toConvert.getService().getEntityId());
         convertedBack.getAgreementRef().setEntityId(toConvert.getAgreementRef().getEntityId());
         convertedBack.getAction().setEntityId(toConvert.getAction().getEntityId());
+        convertedBack.setTestMessage(toConvert.isTestMessage());
 
         objectService.assertObjects(convertedBack, toConvert);
     }
@@ -116,7 +114,6 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUIMessageEntityMessageLogInfo() {
         UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
         final MessageLogInfo converted = messageCoreMapper.uiMessageEntityToMessageLogInfo(toConvert);

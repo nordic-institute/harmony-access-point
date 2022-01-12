@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertNotNull;
+
 public class UserMessageDaoTestIT extends AbstractIT {
 
     private static final String STRING_TYPE = "string";
@@ -88,11 +90,10 @@ public class UserMessageDaoTestIT extends AbstractIT {
         userMessageDao.create(userMessage);
 
         final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
-        final Set<MessageProperty> messageProperties = dbUserMessage.getMessageProperties();
-        messageProperties.forEach(messageProperty -> messageProperty.getValue());
+        assertNotNull(dbUserMessage);
+        final Set<MessageProperty> msgProperties = dbUserMessage.getMessageProperties();
+        msgProperties.forEach(messageProperty -> assertNotNull(messageProperty.getValue()));
 
-        userMessage.getPartyInfo().getFrom().getFromRole().getValue();
-
-        System.out.println(userMessage);
+        assertNotNull( userMessage.getPartyInfo().getFrom().getFromRole().getValue());
     }
 }

@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -23,6 +22,7 @@ import static org.junit.Assert.assertEquals;
  * @author Ion Perpegel
  * @since 5.0
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class NestedPropertiesManagerTest {
 
@@ -36,8 +36,7 @@ public class NestedPropertiesManagerTest {
     ConfigurableEnvironment environment;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testGetNestedProperties(@Mocked DomibusPropertyMetadata prop) {
+    public void testGetNestedProperties(@Injectable DomibusPropertyMetadata prop) {
         String prefix = "routing";
 
         Set<String> propertiesStartingWithPrefix = new HashSet<>();
@@ -48,17 +47,18 @@ public class NestedPropertiesManagerTest {
         new Expectations() {{
             prop.getName();
             result = prefix;
-            propertyProviderHelper.filterPropertyNames((Predicate) any);
+            
+            propertyProviderHelper.filterPropertyNames((Predicate<String>) any);
             result = propertiesStartingWithPrefix;
         }};
 
         List<String> nestedProperties = nestedPropertiesManager.getNestedProperties(prop);
-        Assert.assertEquals(1, nestedProperties.size());
+        Assert.assertEquals(3, nestedProperties.size());
         Assert.assertTrue(nestedProperties.contains("rule1"));
     }
 
     @Test
-    public void getPropertyPrefix(@Mocked DomibusPropertyMetadata prop) {
+    public void getPropertyPrefix(@Injectable DomibusPropertyMetadata prop) {
         String prefix = "domain1.rule1";
 
         new Expectations(nestedPropertiesManager) {{
@@ -75,7 +75,7 @@ public class NestedPropertiesManagerTest {
     }
 
     @Test
-    public void getPropertyPrefixForMultitenancy(@Mocked DomibusPropertyMetadata prop) {
+    public void getPropertyPrefixForMultitenancy(@Injectable DomibusPropertyMetadata prop) {
         String prefix = "rule1";
         String domainPrefix = "default.rule1";
         String propertyPrefix = domainPrefix + ".";
@@ -90,7 +90,7 @@ public class NestedPropertiesManagerTest {
     }
 
     @Test
-    public void computePropertyPrefixForDefaultDomain(@Mocked DomibusPropertyMetadata prop) {
+    public void computePropertyPrefixForDefaultDomain(@Injectable DomibusPropertyMetadata prop) {
         String propPrefix = "rule1";
         new Expectations() {{
             prop.getName();
@@ -115,7 +115,7 @@ public class NestedPropertiesManagerTest {
     }
 
     @Test
-    public void computePropertyPrefix(@Injectable Domain domain, @Mocked DomibusPropertyMetadata prop) {
+    public void computePropertyPrefix(@Injectable Domain domain, @Injectable DomibusPropertyMetadata prop) {
         String domainCode = "digit";
         String propPrefix = "propPrefix";
 

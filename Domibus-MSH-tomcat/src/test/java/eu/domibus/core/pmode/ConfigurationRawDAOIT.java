@@ -4,7 +4,6 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -49,7 +48,6 @@ public class ConfigurationRawDAOIT  extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void configurationRaw() {
         List<PModeArchiveInfo> detailedConfigurationRaw = configurationRawDAO.getDetailedConfigurationRaw();
         assertEquals(2, detailedConfigurationRaw.size());

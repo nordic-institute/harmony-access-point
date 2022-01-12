@@ -36,6 +36,7 @@ import java.util.Map;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
+// TODO: François Gautier 07-01-22     EDELIVERY-8815 BackendNotificationServiceTest
 public class BackendNotificationServiceTest {
 
    public static final String FINAL_RECIPIENT = "finalRecipient";

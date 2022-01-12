@@ -2,9 +2,8 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.DomibusProxy;
@@ -62,8 +61,6 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     private final MultiDomainCryptoService multiDomainCertificateProvider;
 
-    private final DomibusConfigurationService domibusConfigurationService;
-
     private final CertificateService certificateService;
 
     private final DomibusProxyService domibusProxyService;
@@ -95,7 +92,6 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     public DynamicDiscoveryServiceOASIS(DomibusPropertyProvider domibusPropertyProvider,
                                         DomainContextProvider domainProvider,
                                         MultiDomainCryptoService multiDomainCertificateProvider,
-                                        DomibusConfigurationService domibusConfigurationService,
                                         CertificateService certificateService,
                                         DomibusProxyService domibusProxyService,
                                         DomibusHttpRoutePlanner domibusHttpRoutePlanner,
@@ -113,7 +109,6 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainProvider = domainProvider;
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
-        this.domibusConfigurationService = domibusConfigurationService;
         this.certificateService = certificateService;
         this.domibusProxyService = domibusProxyService;
         this.domibusHttpRoutePlanner = domibusHttpRoutePlanner;
@@ -138,8 +133,11 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
                                           final String processId,
                                           final String processIdScheme) throws EbMS3Exception {
 
-        LOG.info("[OASIS SMP] Do the lookup by: " + participantId + " " + participantIdScheme + " " + documentId +
-                " " + processId + " " + processIdScheme);
+        LOG.info("[OASIS SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId,
+                participantIdScheme,
+                documentId,
+                processId,
+                processIdScheme);
 
         try {
             DynamicDiscovery smpClient = createDynamicDiscoveryClient();
@@ -152,7 +150,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
-            LOG.debug("Get the endpoint for " + transportProfileAS4);
+            LOG.debug("Get the endpoint for [{}]", transportProfileAS4);
             final Endpoint endpoint = serviceMetadata.getEndpoint(processIdentifier, transportProfiles.getObject(transportProfileAS4));
             LOG.debug("Endpoint for transport profile -  [{}]", endpoint);
             if (endpoint == null || endpoint.getAddress() == null || endpoint.getProcessIdentifier() == null) {
@@ -187,7 +185,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             DefaultProxy defaultProxy = getConfiguredProxy();
             DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex);
 
-            LOG.debug("Creating SMP client " + (defaultProxy != null ? "with" : "without") + " proxy.");
+            LOG.debug("Creating SMP client [{}] proxy.", (defaultProxy != null ? "with" : "without"));
             return DynamicDiscoveryBuilder.newInstance()
                     .fetcher(urlFetchers.getObject(domibusHttpRoutePlanner, defaultProxy))
                     .locator(bdxrLocators.getObject(smlInfo))
