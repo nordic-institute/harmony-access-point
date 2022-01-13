@@ -5,6 +5,7 @@ import eu.domibus.api.model.SignalMessageRaw;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +27,10 @@ public class SignalMessageRawService {
     @Transactional
     public void saveSignalMessageRawService(String rawXml, Long signalMessageId) {
         final SignalMessage signalMessage = signalMessageDao.findByReference(signalMessageId);
+        Hibernate.initialize(signalMessage);// trigger EntityNotFoundException if not found
         try {
-            signalMessageRawEnvelopeDao.findByReference(signalMessageId);
+            // trigger EntityNotFoundException if not found
+            Hibernate.initialize(signalMessageRawEnvelopeDao.findByReference(signalMessageId));
             LOG.warn("SignalMessageRaw already exists for ID_PK: [{}]", signalMessageId);
         } catch (EntityNotFoundException e) {
             LOG.debug("SignalMessageRaw not found: [{}] - creation", signalMessageId, e);
