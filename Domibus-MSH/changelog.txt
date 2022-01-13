@@ -1,4 +1,5 @@
 Domibus 5.0
+- Add HSTS header to admin console REST calls and the property domibus.httpSecurity.httpStrictTransportSecurity.maxAge to configure how much it is kept(default one year)
 - Remove overlapping indexes.
 - On the Domibus Admin Console, the Messages page displays by default only messages exchanged in the past hour
 - Update retry mechanism to consider the retry timeout
