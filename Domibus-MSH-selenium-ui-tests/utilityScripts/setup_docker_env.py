@@ -7,8 +7,9 @@ from yaml import dump
 from requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
 
-file_name = "../../../docker/development/corners/docker-compose-wf-mysql-mt.yml"
-my_webserver_key = "wildfly"
+# file_name = "../../../docker/development/corners/docker-compose-wf-mysql-mt.yml"
+file_name = "../../../docker/development/corners/docker-compose-tc-mysql-mt.yml"
+my_webserver_key = "tomcat"
 
 # GET YML FILE CONTENT
 file = open(file_name)
@@ -34,10 +35,10 @@ for service in services:
 	new_image_text = image_text[:version_start_index] + version
 
 	del data["services"][service]["image"]
-	data["services"][service]["image"] = "edelivery-docker.devops.tech.ec.europa.eu/" + new_image_text
+	data["services"][service]["image"] = new_image_text
 
 
-# set ports and wildfly container name (necessary for selfsending)
+# set ports and container name (necessary for selfsending)
 obj = data['services'][my_webserver_key]
 if "ports" in obj:
     del obj["ports"]
