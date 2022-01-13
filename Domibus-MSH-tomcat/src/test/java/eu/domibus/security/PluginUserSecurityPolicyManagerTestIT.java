@@ -59,13 +59,13 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Rollback
     public void testPasswordReusePolicy_shouldPass() {
         AuthenticationEntity user = initTestUser("testUser1");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
-        userSecurityPolicyManager.changePassword(user, "Password-2");
-        userSecurityPolicyManager.changePassword(user, "Password-3");
-        userSecurityPolicyManager.changePassword(user, "Password-4");
-        userSecurityPolicyManager.changePassword(user, "Password-5");
-        userSecurityPolicyManager.changePassword(user, "Password-6");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
+        userSecurityPolicyManager.changePassword(user, "Password-2222222");
+        userSecurityPolicyManager.changePassword(user, "Password-3333333");
+        userSecurityPolicyManager.changePassword(user, "Password-4444444");
+        userSecurityPolicyManager.changePassword(user, "Password-5555555");
+        userSecurityPolicyManager.changePassword(user, "Password-6666666");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
     }
 
     @Test(expected = DomibusCoreException.class)
@@ -73,12 +73,12 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Rollback
     public void testPasswordReusePolicy_shouldFail() {
         AuthenticationEntity user = initTestUser("testUser2");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
-        userSecurityPolicyManager.changePassword(user, "Password-2");
-        userSecurityPolicyManager.changePassword(user, "Password-3");
-        userSecurityPolicyManager.changePassword(user, "Password-4");
-        userSecurityPolicyManager.changePassword(user, "Password-5");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
+        userSecurityPolicyManager.changePassword(user, "Password-2222222");
+        userSecurityPolicyManager.changePassword(user, "Password-3333333");
+        userSecurityPolicyManager.changePassword(user, "Password-4444444");
+        userSecurityPolicyManager.changePassword(user, "Password-5555555");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
     }
 
     @Test(expected = DomibusCoreException.class)
