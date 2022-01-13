@@ -80,6 +80,7 @@ Domibus 5.0 (from 4.2.3)
                                               .............................
                                           </address-settings>
                                           .............................
+                - The minimum password length for users has increased to 16 and it is recomended to change them for the existing users
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
