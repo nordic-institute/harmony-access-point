@@ -8,6 +8,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
+
 @Service
 public class SignalMessageRawService {
 
@@ -24,15 +26,15 @@ public class SignalMessageRawService {
     @Transactional
     public void saveSignalMessageRawService(String rawXml, Long signalMessageId) {
         final SignalMessage signalMessage = signalMessageDao.findByReference(signalMessageId);
-        SignalMessageRaw byReference = signalMessageRawEnvelopeDao.findByReference(signalMessageId);
-        if (byReference == null) {
-            LOG.debug("SignalMessageRaw not found: [{}] - creation", signalMessageId);
+        try {
+            signalMessageRawEnvelopeDao.findByReference(signalMessageId);
+            LOG.warn("SignalMessageRaw already exists for ID_PK: [{}]", signalMessageId);
+        } catch (EntityNotFoundException e) {
+            LOG.debug("SignalMessageRaw not found: [{}] - creation", signalMessageId, e);
             SignalMessageRaw signalMessageRaw = new SignalMessageRaw();
             signalMessageRaw.setRawXML(rawXml);
             signalMessageRaw.setSignalMessage(signalMessage);
             signalMessageRawEnvelopeDao.create(signalMessageRaw);
-        } else {
-            LOG.warn("SignalMessageRaw already exists for ID_PK: [{}]", signalMessageId);
         }
     }
 }
