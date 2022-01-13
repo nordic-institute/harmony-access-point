@@ -94,7 +94,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
     public void updateUsers_notLoggedIn_atLeastOneAdmin() {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
-        final User userEntity = createUser("baciuco", "Password-0", "test@domibus.eu", AuthRole.ROLE_USER);
+        final User userEntity = createUser("baciuco", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
         final eu.domibus.api.user.User apiUser = convert(userEntity);
         apiUser.setActive(false);
         try {
@@ -121,7 +121,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
     }
 
     private eu.domibus.api.user.User initTestUser(String userName, AuthRole roleAdmin) {
-        String password = "Password-0";
+        String password = "Password-0123456";
         String email = "test@mailinator.com";
 
         final User user = createUser(userName, password, email, roleAdmin);
