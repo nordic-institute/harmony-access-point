@@ -1,4 +1,5 @@
 Domibus 5.0
+- change domibus.passwordPolicy.pattern and domibus.passwordPolicy.validationMessage properties to enforce 16 chars as a minimum length of passwords for users
 - Remove overlapping indexes.
 - On the Domibus Admin Console, the Messages page displays by default only messages exchanged in the past hour
 - Update retry mechanism to consider the retry timeout
