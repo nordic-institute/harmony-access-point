@@ -40,10 +40,9 @@ public class ConnectionMonitoringChangeListenerTest {
     @Before
     public void setupTest() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-
-        String jsonParty1 = "{name:'blue_gw', identifiers:[{partyId:'domibus-blue',partyIdType:{name:'partyTypeUrn'}}, {partyId:'domibus-bluish',partyIdType:{name:'partyTypeUrn2'}}]}";
-        String jsonParty2 = "{name:'red_gw', identifiers:[{partyId:'domibus-red',partyIdType:{name:'partyTypeUrn'}}]}";
-        String jsonParty3 = "{name:'green_gw', identifiers:[{partyId:'domibus-green',partyIdType:{name:'partyTypeUrn'}}]}";
+        String jsonParty1 = "{\"name\":\"blue_gw\", \"identifiers\":[{\"partyId\":\"domibus-blue\",\"partyIdType\":{\"name\":\"partyTypeUrn\"}}, {\"partyId\":\"domibus-bluish\",\"partyIdType\":{\"name\":\"partyTypeUrn2\"}}]}";
+        String jsonParty2 = "{\"name\":\"red_gw\", \"identifiers\":[{\"partyId\":\"domibus-red\",\"partyIdType\":{\"name\":\"partyTypeUrn\"}}]}";
+        String jsonParty3 = "{\"name\":\"green_gw\", \"identifiers\":[{\"partyId\":\"domibus-green\",\"partyIdType\":{\"name\":\"partyTypeUrn\"}}]}";
 
         Party party1 = mapper.readValue(jsonParty1, Party.class);
         Party party2 = mapper.readValue(jsonParty2, Party.class);
