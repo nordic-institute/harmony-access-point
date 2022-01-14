@@ -227,4 +227,17 @@ public class UserMessage extends AbstractBaseEntity {
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
     }
+
+    @Override
+    public String toString() {
+        return "UserMessage{" +
+                "messageId='" + messageId + '\'' +
+                ", refToMessageId='" + refToMessageId + '\'' +
+                ", conversationId='" + conversationId + '\'' +
+                ", timestamp=" + timestamp +
+                ", sourceMessage=" + sourceMessage +
+                ", messageFragment=" + messageFragment +
+                ", testMessage=" + testMessage +
+                '}';
+    }
 }

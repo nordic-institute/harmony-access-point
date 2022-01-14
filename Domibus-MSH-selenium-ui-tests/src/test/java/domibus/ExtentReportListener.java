@@ -2,6 +2,7 @@ package domibus;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.reporter.ExtentReporter;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
@@ -9,6 +10,7 @@ import com.aventstack.extentreports.reporter.configuration.Theme;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
+import org.testng.Reporter;
 import rest.DomibusRestClient;
 import utils.TestRunData;
 
@@ -41,7 +43,6 @@ public class ExtentReportListener implements ITestListener {
 
 
 		public void onStart(ITestContext context){
-			System.out.println("'' = " + 'd');
 			context.getAllTestMethods();
 		}
 
@@ -53,13 +54,16 @@ public class ExtentReportListener implements ITestListener {
 
 		public void onTestSuccess(ITestResult result) {
 			ExtentTest test = createTest(result);
-
+			test.generateLog(Status.PASS, String.valueOf(Reporter.getOutput(result)));
 			test.pass("PASS");
 		}
 
 
 		public void onTestFailure(ITestResult result) {
 			ExtentTest test = createTest(result);
+
+			test.generateLog(Status.PASS, String.valueOf(Reporter.getOutput(result)));
+
 
 			StringBuffer buffer = new StringBuffer();
 			StackTraceElement[] stacktrace = result.getThrowable().getStackTrace();
@@ -74,6 +78,7 @@ public class ExtentReportListener implements ITestListener {
 
 		public void onTestSkipped(ITestResult result) {
 			ExtentTest test = createTest(result);
+			test.generateLog(Status.PASS, String.valueOf(Reporter.getOutput(result)));
 
 			test.skip(String.valueOf(result.getSkipCausedBy()));
 		}

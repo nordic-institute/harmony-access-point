@@ -180,6 +180,25 @@ public class EArchiveBatchEntity extends AbstractBaseEntity {
     }
 
     @Override
+    public String toString() {
+        return "EArchiveBatchEntity{" +
+                "batchId='" + batchId + '\'' +
+                ", originalBatchId='" + originalBatchId + '\'' +
+                ", reExported=" + reExported +
+                ", requestType=" + requestType +
+                ", eArchiveBatchStatus=" + eArchiveBatchStatus +
+                ", dateRequested=" + dateRequested +
+                ", firstPkUserMessage=" + firstPkUserMessage +
+                ", lastPkUserMessage=" + lastPkUserMessage +
+                ", batchSize=" + batchSize +
+                ", errorCode='" + errorCode + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", storageLocation='" + storageLocation + '\'' +
+                ", manifestChecksum='" + manifestChecksum + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 

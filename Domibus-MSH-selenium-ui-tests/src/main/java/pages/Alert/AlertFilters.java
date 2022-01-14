@@ -2,14 +2,18 @@ package pages.Alert;
 
 import ddsl.dcomponents.FilterArea;
 import ddsl.dobjects.*;
+import ddsl.enums.PAGES;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.TestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +75,6 @@ public class AlertFilters extends FilterArea {
 
 
 	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED", "");
-	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED", "PLUGIN", "PARTITION_EXPIRATION",  "ARCHIVING_NOTIFICATION_FAILED", "ARCHIVING_MESSAGES_NON_FINAL" );
 	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS", "FAILED", "RETRY", "");
 	List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW", "MEDIUM", "");
 
@@ -164,6 +167,7 @@ public class AlertFilters extends FilterArea {
 	}
 
 	public boolean verifyDropdownValues(String fieldLabel) throws Exception {
+
 		List<String> valuesOnPage = new ArrayList<>();
 		List<String> expectedValues = new ArrayList<>();
 		switch (fieldLabel) {
@@ -172,8 +176,10 @@ public class AlertFilters extends FilterArea {
 				valuesOnPage = weToSelect(processedContainer).getOptionsTexts();
 				break;
 			case "Alert Type":
-				expectedValues = alertTypeFilterData;
+				JSONObject extraFilters = TestUtils.getPageDescriptorObject(PAGES.ALERTS).getJSONObject("extraFilters");
+				expectedValues.addAll(extraFilters.keySet());
 				valuesOnPage = weToSelect(alertTypeContainer).getOptionsTexts();
+				valuesOnPage.remove("");
 				break;
 			case "Alert Status":
 				expectedValues = alertStatusFilterData;

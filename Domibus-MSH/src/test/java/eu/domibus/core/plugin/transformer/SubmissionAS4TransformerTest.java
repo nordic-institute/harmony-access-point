@@ -1,6 +1,5 @@
 package eu.domibus.core.plugin.transformer;
 
-import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.PartyId;
@@ -12,7 +11,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,6 +21,7 @@ import java.util.*;
  * @author Ion Perpegel, Catalin Enache
  * @since 4.0.1
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class SubmissionAS4TransformerTest {
 
@@ -56,11 +55,8 @@ public class SubmissionAS4TransformerTest {
     @Tested
     private SubmissionAS4Transformer submissionAS4Transformer;
 
-    private ObjectFactory objectFactory = new ObjectFactory();
-
     @Test
-    public void testTransformFromSubmission(final @Mocked Submission submission) {
-        String submittedConvId = "submittedConvId";
+    public void testTransformFromSubmission_generated(final @Mocked Submission submission) {
         String generatedConvId = "guid";
 
         new Expectations() {{
@@ -69,22 +65,47 @@ public class SubmissionAS4TransformerTest {
 
             submission.getConversationId();
             result = null;
-            result = StringUtils.EMPTY;
-            result = submittedConvId;
         }};
 
         String conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
         Assert.assertEquals(generatedConvId, conversationId);
+    }
 
-        conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
+    @Test
+    public void testTransformFromSubmission_empty(final @Mocked Submission submission) {
+        String generatedConvId = "guid";
+
+        new Expectations() {{
+            messageIdGenerator.generateMessageId();
+            result = generatedConvId;
+
+            submission.getConversationId();
+            result = StringUtils.EMPTY;
+        }};
+
+        String  conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
         Assert.assertEquals(StringUtils.EMPTY, conversationId);
 
-        conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
+    }
+
+    @Test
+    public void testTransformFromSubmission_submitted(final @Mocked Submission submission) {
+        String submittedConvId = "submittedConvId";
+        String generatedConvId = "guid";
+
+        new Expectations() {{
+            messageIdGenerator.generateMessageId();
+            result = generatedConvId;
+
+            submission.getConversationId();
+            result = submittedConvId;
+        }};
+
+        String  conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
         Assert.assertEquals(submittedConvId, conversationId);
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testTransformFromMessaging_NotNullUserMessage_TransformationOK(final @Mocked UserMessage userMessage) {
 
         final String action = "TC1Leg1";
@@ -97,11 +118,10 @@ public class SubmissionAS4TransformerTest {
         final PartInfo partInfo = new PartInfo();
         final String fileNameWithoutPath = createFileName();
         partInfo.setFileName(createFileNameWithFullPath(fileNameWithoutPath));
-        final List<PartInfo> partInfoList = Collections.singletonList(partInfo);
 
-        final Set<PartyId> fromPartyIdSet = createPartyId(objectFactory, "domibus-blue");
+        final Set<PartyId> fromPartyIdSet = createPartyId("domibus-blue");
 
-        final Set<PartyId> toPartyIdSet = createPartyId(objectFactory, "domibus-red");
+        final Set<PartyId> toPartyIdSet = createPartyId("domibus-red");
 
         new Expectations(submissionAS4Transformer) {{
 
@@ -111,17 +131,8 @@ public class SubmissionAS4TransformerTest {
             userMessage.getService().getType();
             result = serviceType;
 
-            userMessage.getAction().getValue();
+            userMessage.getActionValue();
             result = action;
-
-            userMessage.getPartyInfo().getFrom().getFromRole();
-            result = fromRole;
-
-            userMessage.getPartyInfo().getTo().getToRole();
-            result = toRole;
-
-//            userMessage.getPayloadInfo().getPartInfo();
-//            result = partInfoList;
 
             userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = fromPartyIdSet;
@@ -131,7 +142,7 @@ public class SubmissionAS4TransformerTest {
 
         }};
 
-        final Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage, null);
+        final Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage, Collections.singletonList(partInfo));
         Assert.assertNotNull(submission);
 
         new Verifications() {{
@@ -166,9 +177,9 @@ public class SubmissionAS4TransformerTest {
         submissionAS4Transformer.addPayload(submission, partInfo);
 
         Assert.assertNotNull(submission);
-        Assert.assertTrue(submission.getPayloads().size() == 1);
+        Assert.assertEquals(1, submission.getPayloads().size());
         Submission.Payload payload = submission.getPayloads().iterator().next();
-        Assert.assertTrue(payload.getPayloadProperties().size() == 2);
+        Assert.assertEquals(2, payload.getPayloadProperties().size());
         Iterator<Submission.TypedProperty> typedProperties = payload.getPayloadProperties().iterator();
         Submission.TypedProperty typedProperty = typedProperties.next();
         Submission.TypedProperty typedProperty2 = typedProperties.next();
@@ -176,7 +187,7 @@ public class SubmissionAS4TransformerTest {
         Assert.assertEquals("text/xml", typedProperty.getKey());
         Assert.assertEquals("MimeType", typedProperty.getValue());
 
-        Assert.assertTrue(typedProperty2.getKey().equals("FileName"));
+        Assert.assertEquals("FileName", typedProperty2.getKey());
         Assert.assertEquals(fileNameWithoutPath, typedProperty2.getValue());
 
     }
@@ -199,7 +210,7 @@ public class SubmissionAS4TransformerTest {
         return File.separator + "domibus" + File.separator + "payloads" + File.separator + fileNameWithoutPath;
     }
 
-    private Set<PartyId> createPartyId(ObjectFactory objectFactory, String partyIdValue) {
+    private Set<PartyId> createPartyId(String partyIdValue) {
         final PartyId partyId = new PartyId();
         partyId.setValue(partyIdValue);
         partyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");

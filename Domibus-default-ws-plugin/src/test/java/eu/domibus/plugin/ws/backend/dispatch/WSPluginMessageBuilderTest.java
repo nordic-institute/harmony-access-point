@@ -58,7 +58,7 @@ public class WSPluginMessageBuilderTest {
     private WSPluginImpl wsPlugin;
 
     @Test
-    public void getJaxbElement_MessageStatusChange(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_MessageStatusChange(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.MESSAGE_STATUS_CHANGE;
@@ -76,7 +76,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_sendSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_sendSuccess(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.SEND_SUCCESS;
@@ -94,7 +94,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_deleteBatch(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_deleteBatch(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.DELETED_BATCH;
@@ -111,7 +111,7 @@ public class WSPluginMessageBuilderTest {
         };
     }
 
-    public void getJaxbElement_delete(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_delete(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.DELETED;
@@ -129,7 +129,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_receiveSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_receiveSuccess(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.RECEIVE_SUCCESS;
@@ -147,7 +147,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_receiveFail(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_receiveFail(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.RECEIVE_FAIL;
@@ -165,7 +165,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_submitMessage(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_submitMessage(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.SUBMIT_MESSAGE;
@@ -183,7 +183,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_sendFailure(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getJaxbElement_sendFailure(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
             result = WSBackendMessageType.SEND_FAILURE;
@@ -201,7 +201,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getSendSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getSendSuccess(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -213,7 +213,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getSDelete(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getSDelete(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -225,7 +225,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getDeleteBatch(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getDeleteBatch(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -236,7 +236,7 @@ public class WSPluginMessageBuilderTest {
         };
     }
     @Test(expected = WSPluginException.class)
-    public void getDeleteBatch_empty(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getDeleteBatch_empty(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = "";
@@ -245,7 +245,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getSendFailure(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getSendFailure(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -258,7 +258,7 @@ public class WSPluginMessageBuilderTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void getSubmitMessage(@Mocked WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
+    public void getSubmitMessage(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
 
         List<SubmitMessage> capturedSubmitMessages = new ArrayList<>();
         List<UserMessage> capturedUserMessages = new ArrayList<>();
@@ -294,7 +294,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test(expected = WSPluginException.class)
-    public void getSubmitMessage_MessageNotFoundException(@Mocked WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
+    public void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -310,7 +310,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getReceiveFailure(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getReceiveFailure(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -322,7 +322,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getReceiveSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+    public void getReceiveSuccess(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -334,7 +334,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPayloadInfo(@Mocked SubmitMessage submitMessage, @Mocked UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPayloadInfo(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo();
             result = null;
@@ -349,7 +349,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPartInfo_empty(@Mocked SubmitMessage submitMessage, @Mocked UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPartInfo_empty(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = new ArrayList<>();
@@ -363,7 +363,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPartInfo_empty2(@Mocked SubmitMessage submitMessage, @Mocked UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPartInfo_empty2(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = new ArrayList<>();
@@ -377,7 +377,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPartInfo_null(@Mocked SubmitMessage submitMessage, @Mocked UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPartInfo_null(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = null;
@@ -392,10 +392,10 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles(@Mocked SubmitMessage submitMessage,
-                                           @Mocked UserMessage userMessage,
-                                           @Mocked ExtendedPartInfo partInfo1,
-                                           @Mocked ExtendedPartInfo partInfo2) {
+    public void fillInfoPartsForLargeFiles(@Injectable SubmitMessage submitMessage,
+                                           @Injectable UserMessage userMessage,
+                                           @Injectable ExtendedPartInfo partInfo1,
+                                           @Injectable ExtendedPartInfo partInfo2) {
         new Expectations(wsPluginMessageBuilder) {{
             userMessage.getPayloadInfo().getPartInfo();
             result = Arrays.asList(partInfo1, partInfo2);
@@ -414,8 +414,8 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInPart_inBody(@Mocked SubmitMessage submitMessage,
-                                  @Mocked ExtendedPartInfo partInfo) {
+    public void fillInPart_inBody(@Injectable SubmitMessage submitMessage,
+                                  @Injectable ExtendedPartInfo partInfo) {
 
         new Expectations(wsPluginMessageBuilder) {{
             partInfo.getPayloadDatahandler();
@@ -445,9 +445,9 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInPart_notInBody(@Mocked SubmitMessage submitMessage,
-                                     @Mocked ExtendedPartInfo partInfo,
-                                     @Mocked DataHandler dataHandler) {
+    public void fillInPart_notInBody(@Injectable SubmitMessage submitMessage,
+                                     @Injectable ExtendedPartInfo partInfo,
+                                     @Injectable DataHandler dataHandler) {
 
         List<LargePayloadType> largePayloadTypes = new ArrayList<>();
 
@@ -486,7 +486,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getAnyPropertyValue_empty(@Mocked ExtendedPartInfo extPartInfo, @Mocked String mimeType) {
+    public void getAnyPropertyValue_empty(@Injectable ExtendedPartInfo extPartInfo, @Injectable String mimeType) {
 
         new Expectations() {{
             extPartInfo
@@ -501,9 +501,9 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getAnyPropertyValue_ok(@Mocked ExtendedPartInfo extPartInfo,
-                                       @Mocked Property property1,
-                                       @Mocked Property property2) {
+    public void getAnyPropertyValue_ok(@Injectable ExtendedPartInfo extPartInfo,
+                                       @Injectable Property property1,
+                                       @Injectable Property property2) {
 
         new Expectations() {{
             extPartInfo
@@ -527,9 +527,9 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void buildSOAPMessage(@Mocked WSBackendMessageLogEntity messageLogEntity,
-                                 @Mocked SendSuccess jaxbElement,
-                                 @Mocked SOAPMessage soapMessage) {
+    public void buildSOAPMessage(@Injectable WSBackendMessageLogEntity messageLogEntity,
+                                 @Injectable SendSuccess jaxbElement,
+                                 @Injectable SOAPMessage soapMessage) {
         new Expectations(wsPluginMessageBuilder) {{
             wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
             result = jaxbElement;
@@ -541,9 +541,9 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void createSOAPMessage(@Mocked SendSuccess sendSuccess,
-                                  @Mocked SOAPMessage soapMessage,
-                                  @Mocked SOAPBody soapBody) throws SOAPException, JAXBException {
+    public void createSOAPMessage(@Injectable SendSuccess sendSuccess,
+                                  @Injectable SOAPMessage soapMessage,
+                                  @Injectable SOAPBody soapBody) throws SOAPException, JAXBException {
         new Expectations() {{
             xmlUtilExtService.getMessageFactorySoap12().createMessage();
             result = soapMessage;
@@ -565,9 +565,9 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test(expected = WSPluginException.class)
-    public void createSOAPMessage_exception(@Mocked SendSuccess sendSuccess,
-                                            @Mocked SOAPMessage soapMessage,
-                                            @Mocked SOAPBody soapBody) throws SOAPException {
+    public void createSOAPMessage_exception(@Injectable SendSuccess sendSuccess,
+                                            @Injectable SOAPMessage soapMessage,
+                                            @Injectable SOAPBody soapBody) throws SOAPException {
         new Expectations() {{
             xmlUtilExtService.getMessageFactorySoap12().createMessage();
             result = soapMessage;

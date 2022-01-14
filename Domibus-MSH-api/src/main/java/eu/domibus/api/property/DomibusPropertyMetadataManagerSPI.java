@@ -257,6 +257,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX = "domibus.payload.temp.job.retention.exclude.regex";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
+    String DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE = "domibus.payload.limit.28attachments.per.message";
     String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
 
     String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
@@ -329,6 +330,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
+    String DOMIBUS_HTTP_SECURITY_STRICT_TRANSPORT_SECURITY = "domibus.httpSecurity.httpStrictTransportSecurity.maxAge";
     String DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE = "domibus.message.download.maxSize";
     String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";

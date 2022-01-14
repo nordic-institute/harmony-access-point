@@ -15,7 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
- * @author Ion Perpegel
+ * @author François Gautier
  * @since 5.0
  */
 @Transactional

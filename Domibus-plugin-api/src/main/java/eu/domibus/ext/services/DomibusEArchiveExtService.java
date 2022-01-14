@@ -20,17 +20,19 @@ public interface DomibusEArchiveExtService {
 
     Long getQueuedBatchRequestsCount(QueuedBatchFilterDTO filter);
 
-    List<QueuedBatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
+    List<BatchDTO> getQueuedBatchRequests(QueuedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
 
     Long getExportedBatchRequestsCount(ExportedBatchFilterDTO filter);
 
-    List<ExportedBatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
+    List<BatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
 
     Long getBatchMessageCount(String batchId);
 
     List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize);
 
     BatchStatusDTO reExportBatch(String batchId);
+
+    BatchDTO getBatch(String batchId);
 
     BatchStatusDTO setBatchClientStatus(String batchId, BatchArchiveStatusType batchStatus, String message);
 

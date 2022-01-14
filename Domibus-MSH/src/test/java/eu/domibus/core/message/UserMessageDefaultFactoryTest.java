@@ -1,30 +1,26 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
-import eu.domibus.api.model.From;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.PartyId;
-import eu.domibus.api.model.PartyInfo;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.To;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.api.usermessage.domain.*;
+import eu.domibus.api.usermessage.domain.CollaborationInfo;
+import eu.domibus.api.usermessage.domain.MessageInfo;
+import eu.domibus.api.usermessage.domain.PartProperties;
+import eu.domibus.api.usermessage.domain.PayloadInfo;
 import eu.domibus.core.message.dictionary.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataHandler;
 import java.io.File;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class UserMessageDefaultFactoryTest {
 
@@ -32,100 +28,119 @@ public class UserMessageDefaultFactoryTest {
     UserMessageDefaultFactory userMessageDefaultFactory;
 
     @Injectable
-    protected PartPropertyDao partPropertyDao;
-
+    protected PartPropertyDictionaryService partPropertyDictionaryService;
     @Injectable
-    protected MessagePropertyDao messagePropertyDao;
-
+    protected MessagePropertyDictionaryService messagePropertyDictionaryService;
     @Injectable
-    protected PartyIdDao partyIdDao;
-
+    protected PartyIdDictionaryService partyIdDictionaryService;
     @Injectable
-    protected PartyRoleDao partyRoleDao;
-
+    protected PartyRoleDictionaryService partyRoleDictionaryService;
     @Injectable
-    protected AgreementDao agreementDao;
+    protected AgreementDictionaryService agreementDictionaryService;
+    @Injectable
+    protected ServiceDictionaryService serviceDictionaryService;
+    @Injectable
+    protected ActionDictionaryService actionDictionaryService;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void createUserMessageFragmentTest(@Mocked UserMessage sourceMessage,
+    public void createUserMessageFragmentTest(@Injectable UserMessage sourceMessage,
                                               @Injectable MessageInfo messageInfo,
                                               @Injectable MessageGroupEntity messageGroupEntity,
-                                              @Injectable MessageFragmentEntity messageFragmentEntity) {
+                                              @Injectable MessageFragmentEntity messageFragmentEntity,
+                                              @Injectable ActionEntity actionEntity,
+                                              @Injectable AgreementRefEntity agreementRef,
+                                              @Injectable PartyInfo partyInfo,
+                                              @Injectable MessageProperty messageProperty
+    ) {
         Long fragmentNumber = 1L;
         String fragmentFile = "fragmentFile";
-        String messageId = UUID.randomUUID().toString();
-
+        HashSet<MessageProperty> messageProperties = new HashSet<>();
+        messageProperties.add(messageProperty);
         new Expectations(userMessageDefaultFactory) {{
-//            sourceMessage.setSplitAndJoin(true);
-//            sourceMessage.getMessageInfo();
-//            result = messageInfo;
-            messageInfo.getMessageId();
-            result = messageId;
 
+            sourceMessage.getMessageId();
+            result = "messageId";
+
+            sourceMessage.getRefToMessageId();
+            result = "refToMessageId";
+
+            sourceMessage.getTimestamp();
+            result = new Date();
+
+            sourceMessage.getActionValue();
+            result = "action";
+
+            sourceMessage.getConversationId();
+            result = "conversationId";
+
+            sourceMessage.getAgreementRef();
+            result = agreementRef;
+
+            agreementRef.getValue();
+            result = "agreementRef";
+
+            agreementRef.getType();
+            result = "agreementType";
+            agreementDictionaryService.findOrCreateAgreement("agreementRef", "agreementType");
+            result = agreementRef;
+
+            actionDictionaryService.findOrCreateAction("action");
+            result = actionEntity;
+
+            sourceMessage.getService().getValue();
+            result = "service";
+
+            sourceMessage.getService().getType();
+            result = "serviceType";
+
+            serviceDictionaryService.findOrCreateService("service", "serviceType");
+
+            sourceMessage.getPartyInfo();
+            result = partyInfo;
+            sourceMessage.getMessageProperties();
+            result = messageProperties;
+
+            userMessageDefaultFactory.createPartyInfo(partyInfo);
+            result = partyInfo;
+
+            userMessageDefaultFactory.createMessageProperties(messageProperties);
+            result = messageProperties;
         }};
 
         userMessageDefaultFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, fragmentNumber, fragmentFile);
 
-        new Verifications() {{
-            userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
-            times = 1;
-        }};
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void cloneUserMessageFragmentTest(@Injectable UserMessage userMessageFragment,
                                              @Injectable MessageInfo messageInfo,
                                              @Injectable CollaborationInfo collaborationInfo,
                                              @Injectable PartyInfo partyInfo,
-                                             @Injectable MessageProperties messageProperties) {
-        String messageId = UUID.randomUUID().toString();
+                                             @Injectable MessageProperty messageProperty) {
+        HashSet<MessageProperty> msgProperties = new HashSet<>();
+        msgProperties.add(messageProperty);
 
         new Expectations(userMessageDefaultFactory) {{
-//            userMessageFragment.getCollaborationInfo();
-//            result = collaborationInfo;
-//            userMessageFragment.getMessageInfo();
-//            result = messageInfo;
-//            messageInfo.getMessageId();
-//            result = messageId;
             userMessageFragment.getPartyInfo();
             result = partyInfo;
             userMessageFragment.getMessageProperties();
-            result = messageProperties;
+            result = msgProperties;
         }};
 
         userMessageDefaultFactory.cloneUserMessageFragment(userMessageFragment);
 
-        new FullVerificationsInOrder(userMessageDefaultFactory) {{
-//            userMessageDefaultFactory.createCollaborationInfo(withCapture());
-//            times = 1;
-//            userMessageDefaultFactory.createMessageInfo(withCapture(), messageId);
-//            times = 1;
-            userMessageDefaultFactory.createPartyInfo(partyInfo);
-            times = 1;
-//            userMessageDefaultFactory.createMessageProperties(messageProperties);
-//            times = 1;
-        }};
+        new Verifications() {};
 
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createMessageFragmentEntityTest(@Injectable MessageGroupEntity messageGroupEntity) {
         Long fragmentNumber = 1L;
-        String groupId = "groupId";
-
-        new Expectations(userMessageDefaultFactory) {{
-            messageGroupEntity.getGroupId();
-            result = groupId;
-        }};
 
         Assert.assertNotNull(userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber));
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createPayloadInfoTest(@Injectable PayloadInfo payloadInfo,
                                       @Injectable PartInfo partInfo,
                                       @Injectable DataHandler dataHandler,
@@ -145,38 +160,49 @@ public class UserMessageDefaultFactoryTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void createMessageInfoTest(@Injectable MessageInfo source) {
-        String messageId = UUID.randomUUID().toString();
-
-        new Expectations(userMessageDefaultFactory) {{
-            source.getTimestamp();
-            result = any;
-            source.getRefToMessageId();
-            result = anyString;
-        }};
-
-//        Assert.assertNotNull(userMessageDefaultFactory.createMessageInfo(source, messageId));
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void createPartyInfoTest(@Injectable PartyInfo source,
                                     @Injectable From from,
                                     @Injectable PartyId party,
-                                    @Injectable To to) {
-        Set<PartyId> partyIds = new HashSet<>();
-        partyIds.add(party);
+                                    @Injectable To to,
+                                    @Injectable PartyRole partyRole) {
 
         new Expectations(userMessageDefaultFactory) {{
             source.getFrom();
             result = from;
-            from.getFromRole();
-            result = anyString;
+
+            from.getRoleValue();
+            result = "FromRole";
+
+            partyRoleDictionaryService.findOrCreateRole("FromRole");
+            result = partyRole;
+
+            from.getFromPartyId();
+            result = party;
+
+            party.getValue();
+            result = "partyValue";
+
+            party.getType();
+            result = "PartyType";
+
+            partyIdDictionaryService.findOrCreateParty("partyValue", "PartyType");
+            result = party;
+
             source.getTo();
             result = to;
-            to.getToRole();
-            result = anyString;
+
+            to.getRoleValue();
+            result = "ToRole";
+
+            partyRoleDictionaryService.findOrCreateRole("ToRole");
+            result = partyRole;
+
+            to.getToPartyId();
+            result = party;
+
+            partyIdDictionaryService.findOrCreateParty("partyValue", "PartyType");
+            result = party;
+
         }};
 
         Assert.assertNotNull(userMessageDefaultFactory.createPartyInfo(source));

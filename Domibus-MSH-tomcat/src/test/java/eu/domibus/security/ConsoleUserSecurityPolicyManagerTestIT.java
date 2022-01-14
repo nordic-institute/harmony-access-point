@@ -3,16 +3,13 @@ package eu.domibus.security;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -25,23 +22,16 @@ import javax.persistence.PersistenceContext;
  * @author Ion Perpegel
  * @since 4.1
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired
     ConsoleUserSecurityPolicyManager userSecurityPolicyManager;
 
     @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private UserRoleDao userRoleDao;
 
     @Autowired
     protected UserDao userDao;
-
-    @Autowired
-    private ConsoleUserPasswordHistoryDao userPasswordHistoryDao;
-
-    @Autowired
-    private ConsoleUserAlertsServiceImpl userAlertsService;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -51,7 +41,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
 
 
     private User initTestUser(String userName) {
-        UserRole userRole = entityManager.find(UserRole.class, 1L);
+        UserRole userRole = userRoleDao.findByName("ROLE_USER");
         if (userRole == null) {
             userRole = new UserRole("ROLE_USER");
             entityManager.persist(userRole);
@@ -71,13 +61,13 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Rollback
     public void testPasswordReusePolicy_shouldPass() {
         User user = initTestUser("testUser1");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
-        userSecurityPolicyManager.changePassword(user, "Password-2");
-        userSecurityPolicyManager.changePassword(user, "Password-3");
-        userSecurityPolicyManager.changePassword(user, "Password-4");
-        userSecurityPolicyManager.changePassword(user, "Password-5");
-        userSecurityPolicyManager.changePassword(user, "Password-6");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
+        userSecurityPolicyManager.changePassword(user, "Password-2222222");
+        userSecurityPolicyManager.changePassword(user, "Password-3333333");
+        userSecurityPolicyManager.changePassword(user, "Password-4444444");
+        userSecurityPolicyManager.changePassword(user, "Password-5555555");
+        userSecurityPolicyManager.changePassword(user, "Password-6666666");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
     }
 
     @Test(expected = DomibusCoreException.class)
@@ -85,12 +75,12 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Rollback
     public void testPasswordReusePolicy_shouldFail() {
         User user = initTestUser("testUser2");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
-        userSecurityPolicyManager.changePassword(user, "Password-2");
-        userSecurityPolicyManager.changePassword(user, "Password-3");
-        userSecurityPolicyManager.changePassword(user, "Password-4");
-        userSecurityPolicyManager.changePassword(user, "Password-5");
-        userSecurityPolicyManager.changePassword(user, "Password-1");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
+        userSecurityPolicyManager.changePassword(user, "Password-2222222");
+        userSecurityPolicyManager.changePassword(user, "Password-3333333");
+        userSecurityPolicyManager.changePassword(user, "Password-4444444");
+        userSecurityPolicyManager.changePassword(user, "Password-5555555");
+        userSecurityPolicyManager.changePassword(user, "Password-1111111");
     }
 
     @Test(expected = DomibusCoreException.class)

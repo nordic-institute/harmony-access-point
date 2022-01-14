@@ -12,8 +12,6 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -29,7 +27,8 @@ public class FailListener implements ITestListener {
 	static int failed_count = 0;
 	static int skipped_count = 0;
 	static int total_test_count = 0;
-	Logger log = LoggerFactory.getLogger("ROOT");
+
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Override
 	public void onStart(ITestContext context) {
@@ -46,6 +45,11 @@ public class FailListener implements ITestListener {
 
 	@Override
 	public void onTestFailure(ITestResult result) {
+		try {
+			result.getThrowable().printStackTrace();
+		} catch (Exception e) {
+		}
+
 		takeScreenshot(result);
 		test_count++;
 		failed_count++;
@@ -54,6 +58,10 @@ public class FailListener implements ITestListener {
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
+		try {
+			result.getThrowable().printStackTrace();
+		} catch (Exception e) {
+		}
 		takeScreenshot(result);
 		test_count++;
 		skipped_count++;

@@ -23,8 +23,8 @@ public class WSPluginDispatcherIT extends AbstractBackendWSIT {
     @Autowired
     private WSPluginDispatcher wsPluginDispatcher;
 
-    @Ignore
     @Test
+    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void sendSuccess() {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
         wsBackendMessageLogEntity.setMessageId(UUID.randomUUID().toString());

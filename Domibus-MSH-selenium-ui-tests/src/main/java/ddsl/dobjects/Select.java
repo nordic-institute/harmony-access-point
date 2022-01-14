@@ -84,6 +84,7 @@ public class Select extends DComponent {
 	private void expand() throws Exception {
 		try {
 			weToDButton(expandBtn).click();
+			wait.forAttributeNotEmpty(selectContainer, "aria-owns");
 		} catch (Exception e) {e.printStackTrace();}
 	}
 
@@ -120,10 +121,8 @@ public class Select extends DComponent {
 
 		List<DObject> optionObj = getOptionElements();
 		if (optionObj.size() == 0) {
-			log.warn("select has no options - " + text);
+			log.warn("select has no options ");
 		}
-
-//		wait.forElementToHaveText(optionObj.get(optionObj.size() - 1).element);
 
 		for (DObject dObject : optionObj) {
 			if (StringUtils.equalsIgnoreCase(dObject.getText(), text)) {

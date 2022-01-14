@@ -98,7 +98,7 @@ public class PropertyProviderHelper {
     }
 
     // duplicated part of the code from context provider so that we can break the circular dependency
-    protected boolean isMultiTenantAware() {
+    public boolean isMultiTenantAware() {
         if (isMultiTenantAware == null) {
             synchronized (isMultiTenantAwareLock) {
                 if (isMultiTenantAware == null) {

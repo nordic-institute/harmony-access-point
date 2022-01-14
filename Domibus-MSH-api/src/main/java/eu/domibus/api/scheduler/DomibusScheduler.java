@@ -29,6 +29,35 @@ public interface DomibusScheduler extends DomainsAware {
     void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException;
 
     /**
+     * If the job exist and it is not already paused, method pause the job.
+     * @param domain the domain of the job to pause
+     * @param jobNameToPause the name of the job to pause
+     */
+    void pauseJob(Domain domain, String jobNameToPause) throws DomibusSchedulerException;
+
+    /**
+     * If the job exist and it is not already paused, method pause the job.
+     * @param domain the domain of the job to pause
+     * @param jobNamesToPause array of the names of the job to pause
+     */
+    void pauseJobs(Domain domain, String ... jobNamesToPause) throws DomibusSchedulerException;
+
+    /**
+     * If the job exist and it is paused, method resumes the job.
+     * @param domain the domain of the job to resume
+     * @param jobNameToResume the name of the job to resume
+     */
+    void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException;
+
+    /**
+     * If the job exist and it is paused, method resumes the job.
+     * @param domain the domain of the job to resume
+     * @param jobNamesToResume the names of the job to resume
+     */
+    void resumeJobs(Domain domain, String ... jobNamesToResume) throws DomibusSchedulerException;
+
+
+    /**
      * Get The Quartz Trigger Details
      * @return QuartzInfo with all Job Name, Domain Name and trigger State
      * @throws Exception

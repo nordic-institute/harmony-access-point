@@ -51,6 +51,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     const canFilter = await this.canProceedToFilter();
     if (canFilter) {
+      this.onBeforeFilter();
       this.setActiveFilter();
       try {
         await this.filterData();
@@ -147,11 +148,14 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     }
     for (const field in this.filterForm.controls) {
       const control: AbstractControl = this.filterForm.controls[field];
-      if (control.value && typeof  control.value == 'string') {
+      if (control.value && typeof control.value == 'string') {
         const val = String.prototype.trim.apply(control.value);
         control.setValue(val);
       }
     }
+  }
+
+  protected onBeforeFilter() {
   }
 };
 export default FilterableListMixin;

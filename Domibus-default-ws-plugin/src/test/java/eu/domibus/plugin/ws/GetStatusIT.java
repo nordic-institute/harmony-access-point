@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws;
 
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.StatusFault;
@@ -26,7 +27,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
     MessagingService messagingService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    MSHWebservice mshWebserviceTest;
 
     @Autowired
     DomibusConditionUtil domibusConditionUtil;

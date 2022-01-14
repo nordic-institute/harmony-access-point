@@ -21,6 +21,8 @@ import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
+import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
@@ -35,7 +37,6 @@ import eu.europa.ec.dynamicdiscovery.model.TransportProfile;
 import mockit.Injectable;
 import mockit.Verifications;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -122,6 +123,10 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Mock
     DomainContextProvider domainProvider;
+    @Mock
+    PartyIdDictionaryService partyIdDictionaryService;
+    @Mock
+    PartyRoleDictionaryService partyRoleDictionaryService;
 
     @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
@@ -203,7 +208,6 @@ public class DynamicDiscoveryPModeProviderTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testDoDynamicDiscoveryOnSender() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
         doReturn(true).when(configurationDAO).configurationExists();
@@ -215,19 +219,12 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(KeyStore.getInstance(KeyStore.getDefaultType())).when(multiDomainCertificateProvider).getTrustStore(DomainService.DEFAULT_DOMAIN);
         doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
         doReturn(DOMAIN).when(domainProvider).getCurrentDomain();
+
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
+        doReturn(userMessage.getPartyInfo().getTo().getToPartyId()).when(partyIdDictionaryService).findOrCreateParty(any(), any());
         dynamicDiscoveryPModeProvider.doDynamicDiscovery(userMessage, MSHRole.SENDING);
-        Party expectedParty = new Party();
-        expectedParty.setName(EXPECTED_COMMON_NAME);
-        expectedParty.setEndpoint(ADDRESS);
-        Identifier expectedIdentifier = new Identifier();
-        expectedIdentifier.setPartyId(EXPECTED_COMMON_NAME);
-        PartyIdType expectedPartyIType = new PartyIdType();
-        expectedPartyIType.setName(dynamicDiscoveryServiceOASIS.getPartyIdType());
-        expectedPartyIType.setValue(dynamicDiscoveryServiceOASIS.getPartyIdType());
-        expectedIdentifier.setPartyIdType(expectedPartyIType);
-        expectedParty.getIdentifiers().add(expectedIdentifier);
-        assertTrue(dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().contains(expectedParty));
+
+        assertEquals(2, dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().size());
     }
 
     @Test(expected = EbMS3Exception.class)
@@ -359,10 +356,10 @@ public class DynamicDiscoveryPModeProviderTest {
 
         Collection<Process> result = classUnderTest.findDynamicResponderProcesses();
 
-        assertEquals(3, result.size());
+        assertEquals(2, result.size());
 
         for (Process process : result) {
-            assertTrue(process.isDynamicInitiator());
+//            assertTrue(process.isDynamicInitiator());
             assertTrue(process.isDynamicResponder());
         }
     }

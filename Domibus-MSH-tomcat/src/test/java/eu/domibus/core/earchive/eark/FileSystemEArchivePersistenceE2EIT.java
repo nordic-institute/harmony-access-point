@@ -10,6 +10,7 @@ import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -20,20 +21,17 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,7 +45,6 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
 public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceE2EIT.class);
@@ -59,7 +56,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     private FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
     @Autowired
-    protected Provider<SOAPMessage> mshWebserviceTest;
+    protected MSHWebservice mshWebserviceTest;
 
     @Autowired
     protected SoapSampleUtil soapSampleUtil;
@@ -85,9 +82,9 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        // because we must not use DirtyContext do not use common indentifiers!
+        // because we must not use DirtyContext do not use common identifiers!
         //messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
-        messageId = UUID.randomUUID().toString() + "@domibus.eu";
+        messageId = UUID.randomUUID() + "@domibus.eu";
 
         batchId = UUID.randomUUID().toString();
         batchEArchiveDTO = new BatchEArchiveDTOBuilder()
@@ -100,7 +97,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
         uploadPmode(SERVICE_PORT);
 
-        String filename = "SOAPMessage2.xml";
+        String filename = "SOAPMessage4.xml";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
@@ -156,6 +153,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
                     List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
                     assertEquals("message.attachment", collect.get(0).getName());
+                    //TODO check if the attachment is unzipped
                     assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
                 }
             }
@@ -163,8 +161,10 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     }
 
     public File getFileItem(String name, File[] files, boolean isFolder) {
-        Optional<File> optFile = Arrays.stream(files).filter(file -> (isFolder ? file.isDirectory() : file.isFile()) && StringUtils.equals(file.getName(), name)).findFirst();
-        return optFile.isPresent() ? optFile.get() : null;
+        return Arrays.stream(files)
+                .filter(file -> (isFolder ? file.isDirectory() : file.isFile()) && StringUtils.equals(file.getName(), name))
+                .findFirst()
+                .orElse(null);
 
     }
 }

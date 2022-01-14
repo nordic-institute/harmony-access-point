@@ -7,6 +7,8 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
@@ -28,7 +30,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
 
-import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.GROUP_GENERAL;
+import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
+import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.EARCHIVE_CLEANUP_JOB;
 
 /**
  * Quartz scheduler starter class which:
@@ -67,6 +70,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     @Autowired
     private PlatformTransactionManager transactionManager;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -156,7 +162,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
-
+        if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE)) {
+            pauseJobs(domain, EARCHIVE_CONTINUOUS_JOB,EARCHIVE_SANITIZER_JOB,EARCHIVE_CLEANUP_JOB);
+        }
         domainContextProvider.clearCurrentDomain();
     }
 
@@ -378,6 +386,68 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         } catch (SchedulerException ex) {
             LOG.error("Error rescheduling job [{}]", jobNameToReschedule, ex);
             throw new DomibusSchedulerException(ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void pauseJob(Domain domain, String jobNameToPause) throws DomibusSchedulerException {
+       pauseJobs(domain, jobNameToPause);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException {
+        resumeJobs(domain, jobNameToResume);
+    }
+
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void pauseJobs(Domain domain, String... jobNamesToPause) throws DomibusSchedulerException {
+        LOG.debug("Pause cron jobs [{}]!", jobNamesToPause);
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+
+        for (String jobNameToPause : jobNamesToPause) {
+            LOG.debug("Pause cron job [{}]!", jobNameToPause);
+            try {
+                JobKey jobKey = findJob(scheduler, jobNameToPause);
+                if (jobKey == null) {
+                    LOG.warn("Can not pause the job [{}] because it does not exists!", jobNameToPause);
+                    continue;
+                }
+                scheduler.pauseJob(jobKey);
+            } catch (SchedulerException ex) {
+                LOG.error("Error pausing the job [{}]", jobNameToPause, ex);
+                throw new DomibusSchedulerException(ex);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(noRollbackFor = DomibusSchedulerException.class)
+    public void resumeJobs(Domain domain, String... jobNamesToResume) throws DomibusSchedulerException {
+        LOG.debug("Resume cron jobs [{}]!", jobNamesToResume);
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+        for (String jobNameToResume : jobNamesToResume) {
+            try {
+                LOG.debug("Resume cron job [{}]!", jobNameToResume);
+
+                JobKey jobKey = findJob(scheduler, jobNameToResume);
+                if (jobKey == null) {
+                    LOG.warn("Can not resume the job [{}] because it does not exists!", jobNameToResume);
+                    continue;
+                }
+                scheduler.resumeJob(jobKey);
+            } catch (SchedulerException ex) {
+                LOG.error("Error resuming the job [{}]", jobNameToResume, ex);
+                throw new DomibusSchedulerException(ex);
+            }
         }
     }
 

@@ -38,7 +38,6 @@ public class ConMonGrid extends DGrid {
 		WebElement toggle = gridRows.get(rowIndex).findElements(cellSelector).get(1).findElement(By.tagName("mat-slide-toggle"));
 
 		toggle.click();
-		wait.forXMillis(500);
 	}
 
 	public boolean isMonitoringEnabled(String partyName) throws Exception {

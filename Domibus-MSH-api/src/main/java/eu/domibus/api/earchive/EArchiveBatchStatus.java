@@ -15,10 +15,6 @@ public enum EArchiveBatchStatus {
      */
     STARTED,
     /**
-     * Batch has failed
-     */
-    RETRIED,
-    /**
      * Batch has failed to export all messages
      */
     FAILED,

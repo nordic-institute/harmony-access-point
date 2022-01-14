@@ -72,4 +72,13 @@ public class EArchiveBatchUserMessage implements DomibusBaseEntity {
     public void setMessageId(String userMessageId) {
         this.messageId = userMessageId;
     }
+
+    @Override
+    public String toString() {
+        return "EArchiveBatchUserMessage{" +
+                "entityId=" + entityId +
+                ", userMessageEntityId=" + userMessageEntityId +
+                ", messageId='" + messageId + '\'' +
+                '}';
+    }
 }

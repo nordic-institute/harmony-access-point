@@ -28,7 +28,8 @@ import java.util.Map;
 public class BaseRestClient {
 	
 	public static DomibusC1 messageSender = new DomibusC1();
-	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
 	protected TestRunData data = new TestRunData();
 	
 	protected Client client = Client.create();

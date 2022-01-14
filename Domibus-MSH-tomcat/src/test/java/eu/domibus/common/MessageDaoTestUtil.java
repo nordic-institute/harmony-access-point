@@ -6,9 +6,12 @@ import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgeConverter;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.util.DateUtilImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,8 +69,14 @@ public class MessageDaoTestUtil {
     @Autowired
     PartyIdDao partyIdDao;
 
+    @Autowired
+    MessageAcknowledgementDao messageAcknowledgementDao;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
+
+    @Autowired
+    MessageAcknowledgeConverter messageAcknowledgeConverter;
 
     final static String PARTY_ID_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
     final static String INITIATOR_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator";
@@ -139,6 +148,12 @@ public class MessageDaoTestUtil {
                 break;
             case DOWNLOADED:
                 userMessageLog.setDownloaded(received);
+                break;
+            case WAITING_FOR_RETRY:
+                userMessageLog.setNextAttempt(new DateUtilImpl().fromString("2019-01-01T12:00:00Z"));
+                userMessageLog.setSendAttempts(1);
+                userMessageLog.setSendAttemptsMax(5);
+                userMessageLog.setScheduled(false);
                 break;
         }
         userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));

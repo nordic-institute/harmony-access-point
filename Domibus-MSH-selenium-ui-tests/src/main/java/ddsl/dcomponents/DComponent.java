@@ -2,7 +2,6 @@ package ddsl.dcomponents;
 
 import ddsl.dobjects.*;
 import ddsl.dobjects.multi_select.MultiSelect;
-import metricss.MyMetrics;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +21,8 @@ public class DComponent {
 
 	public DWait wait;
 	protected WebDriver driver;
-	protected Logger log = LoggerFactory.getLogger(this.getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
 	protected TestRunData data = new TestRunData();
 
 	public DComponent(WebDriver driver) {
