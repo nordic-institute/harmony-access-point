@@ -1,6 +1,5 @@
 package eu.domibus.core.csv;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opencsv.CSVWriter;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -155,7 +154,7 @@ public class CsvServiceImpl implements CsvService {
                 try {
                     String value = serializeFieldValue(field, elem);
                     fieldValues.add(value);
-                } catch (IllegalAccessException | JsonProcessingException e) {
+                } catch (IllegalAccessException e) {
                     LOG.error("Exception while writing on CSV ", e);
                     throw new CsvException(DomibusCoreErrorCode.DOM_001, "Exception while writing on CSV", e);
                 }
@@ -164,7 +163,7 @@ public class CsvServiceImpl implements CsvService {
         }
     }
 
-    protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException, JsonProcessingException {
+    protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
         LOG.trace("Serialization for field [{}]", field);
         Object fieldValue = field.get(elem);
         for (CsvSerializer serializer : csvSerializers) {

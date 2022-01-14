@@ -1,6 +1,6 @@
 package eu.domibus.core.csv.serializer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -24,12 +24,12 @@ public class CsvSerializerMapTest {
     }
 
     @Test
-    public void serialize_Empty() throws JsonProcessingException {
+    public void serialize_Empty() throws DomibusCoreException {
         Assert.assertEquals(cvsSerializerMap.serialize(new HashMap<>()), "{}");
     }
 
     @Test
-    public void serialize_EmptyAttribute() throws JsonProcessingException {
+    public void serialize_EmptyAttribute() throws DomibusCoreException {
         Map<String, Object> props = new HashMap<>();
         props.put("attribute1", "value1");
         props.put("attribute2", null);

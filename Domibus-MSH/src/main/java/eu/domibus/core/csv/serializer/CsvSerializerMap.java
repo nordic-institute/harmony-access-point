@@ -3,6 +3,8 @@ package eu.domibus.core.csv.serializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -20,10 +22,13 @@ public class CsvSerializerMap implements CsvSerializer {
     }
 
     @Override
-    public String serialize(Object fieldValue) throws JsonProcessingException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        return mapper.writeValueAsString(fieldValue);
+    public String serialize(Object fieldValue) throws DomibusCoreException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            return mapper.writeValueAsString(fieldValue);
+        } catch (JsonProcessingException ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Couldn't serialize the object.");
+        }
     }
 }
