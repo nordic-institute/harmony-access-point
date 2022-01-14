@@ -9,6 +9,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+
 @Service
 public class UserMessageValidatorServiceDelegateImpl implements UserMessageValidatorServiceDelegate {
 
@@ -35,6 +37,19 @@ public class UserMessageValidatorServiceDelegateImpl implements UserMessageValid
         userMessageValidatorSpi.validateUserMessage(userMessageDto);
 
         LOG.debug("Finished validating user message");
+    }
+
+    @Override
+    public void validatePayload(InputStream payload, String mimeType) {
+        if (!isUserMessageValidatorActive()) {
+            LOG.debug("Validation skipped: validator SPI is not active");
+            return;
+        }
+        LOG.debug("Validating payload");
+
+        userMessageValidatorSpi.validatePayload(payload, mimeType);
+
+        LOG.debug("Finished validating payload");
     }
 
     protected boolean isUserMessageValidatorActive() {

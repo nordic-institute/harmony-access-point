@@ -1,6 +1,8 @@
 package eu.domibus.ext.delegate.services.message;
 
+import eu.domibus.core.spi.validation.UserMessageValidatorSpiException;
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.logging.DomibusLogger;
@@ -26,6 +28,9 @@ public class UserMessageValidatorServiceInterceptor extends ServiceInterceptor {
     public Exception convertCoreException(Exception e) {
         if (e instanceof DomibusServiceExtException) {
             return e;
+        }
+        if (e instanceof UserMessageValidatorSpiException) {
+            return new UserMessageExtException(DomibusErrorCode.DOM_005, e.getMessage(), e);
         }
         return new UserMessageExtException(e);
     }
