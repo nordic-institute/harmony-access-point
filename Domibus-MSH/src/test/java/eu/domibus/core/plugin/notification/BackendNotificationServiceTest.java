@@ -119,26 +119,26 @@ public class BackendNotificationServiceTest {
 
         @Injectable
         MessagingModuleConfiguration messageCommunicationConfiguration;
+
+//        @Test
+//        public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
+//            String backendName = "backendName";
+//            NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
+//            new Expectations(backendNotificationService) {{
+//                submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
+//
+//                userMessage.getMessageId();
+//                result = "messageId";
+//
+//                backendNotificationService.notify(anyString, backendName, notificationType, null);
+//            }};
+//
+//            backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, null);
+//
+//            new FullVerifications() {
+//            };
+//        }
 /*
-        @Test
-        public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
-            String backendName = "backendName";
-            NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
-            new Expectations(backendNotificationService) {{
-                submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
-
-                userMessage.getMessageId();
-                result = "messageId";
-
-                backendNotificationService.notify(anyString, backendName, notificationType, null);
-            }};
-
-            backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, null);
-
-            new FullVerifications() {
-            };
-        }
-
         @Test
         public void testValidateAndNotify(@Mocked final UserMessage userMessage) {
             Map<String, String> properties = new HashMap<>();
