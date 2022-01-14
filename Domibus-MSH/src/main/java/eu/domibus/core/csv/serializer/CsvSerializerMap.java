@@ -28,7 +28,7 @@ public class CsvSerializerMap implements CsvSerializer {
             mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             return mapper.writeValueAsString(fieldValue);
         } catch (JsonProcessingException ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Couldn't serialize the object.");
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Couldn't serialize the object." + ex);
         }
     }
 }

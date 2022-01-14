@@ -20,9 +20,4 @@ public class UserMessageSampleUtil {
         UserMessage userMessage = mapper.readValue(jsonStr, UserMessage.class);
         return userMessage;
     }
-
-    /*protected String getResourceAsString(String resourceName) throws IOException {
-        ClassPathResource json = new ClassPathResource(this.getClass().getPackage().getName().replaceAll("\\.", "\\/") + "/" + resourceName);
-        return IOUtils.toString(json.getInputStream(), StandardCharsets.UTF_8);
-    }*/
 }
