@@ -1,6 +1,6 @@
 package eu.domibus.core.message.testservice;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.SignalMessage;
@@ -103,9 +103,8 @@ public class TestService {
     protected Submission createSubmission(String sender) throws IOException {
         Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
         String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
-
-        // TODO: François Gautier 29-10-21 GSon to be removed EDELIVERY-8617
-        Submission submission = new Gson().fromJson(jsonStr, Submission.class);
+        ObjectMapper mapper = new ObjectMapper();
+        Submission submission = mapper.readValue(jsonStr, Submission.class);
 
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
         Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");

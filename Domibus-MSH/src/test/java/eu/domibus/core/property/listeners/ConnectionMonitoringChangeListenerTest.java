@@ -1,6 +1,6 @@
 package eu.domibus.core.property.listeners;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -37,16 +38,15 @@ public class ConnectionMonitoringChangeListenerTest {
     protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener(pModeProvider);
 
     @Before
-    public void setupTest() {
-        Gson gson = new Gson();
+    public void setupTest() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonParty1 = "{\"name\":\"blue_gw\", \"identifiers\":[{\"partyId\":\"domibus-blue\",\"partyIdType\":{\"name\":\"partyTypeUrn\"}}, {\"partyId\":\"domibus-bluish\",\"partyIdType\":{\"name\":\"partyTypeUrn2\"}}]}";
+        String jsonParty2 = "{\"name\":\"red_gw\", \"identifiers\":[{\"partyId\":\"domibus-red\",\"partyIdType\":{\"name\":\"partyTypeUrn\"}}]}";
+        String jsonParty3 = "{\"name\":\"green_gw\", \"identifiers\":[{\"partyId\":\"domibus-green\",\"partyIdType\":{\"name\":\"partyTypeUrn\"}}]}";
 
-        String jsonParty1 = "{name:'blue_gw', identifiers:[{partyId:'domibus-blue',partyIdType:{name:'partyTypeUrn'}}, {partyId:'domibus-bluish',partyIdType:{name:'partyTypeUrn2'}}]}";
-        String jsonParty2 = "{name:'red_gw', identifiers:[{partyId:'domibus-red',partyIdType:{name:'partyTypeUrn'}}]}";
-        String jsonParty3 = "{name:'green_gw', identifiers:[{partyId:'domibus-green',partyIdType:{name:'partyTypeUrn'}}]}";
-
-        Party party1 = gson.fromJson(jsonParty1, Party.class);
-        Party party2 = gson.fromJson(jsonParty2, Party.class);
-        Party party3 = gson.fromJson(jsonParty3, Party.class);
+        Party party1 = mapper.readValue(jsonParty1, Party.class);
+        Party party2 = mapper.readValue(jsonParty2, Party.class);
+        Party party3 = mapper.readValue(jsonParty3, Party.class);
 
         List<Party> knownParties = Arrays.asList(party1, party2, party3);
         List<String> testablePartyIds = Arrays.asList("domibus-blue", "domibus-red");

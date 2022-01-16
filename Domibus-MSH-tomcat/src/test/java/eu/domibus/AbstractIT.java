@@ -1,6 +1,6 @@
 package eu.domibus;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -162,7 +162,8 @@ public abstract class AbstractIT {
     protected UserMessage getUserMessageTemplate() throws IOException {
         Resource userMessageTemplate = new ClassPathResource("dataset/messages/UserMessageTemplate.json");
         String jsonStr = new String(IOUtils.toByteArray(userMessageTemplate.getInputStream()), UTF_8);
-        return new Gson().fromJson(jsonStr, UserMessage.class);
+        return new ObjectMapper().readValue(jsonStr, UserMessage.class);
+
     }
 
 
