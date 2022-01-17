@@ -37,4 +37,12 @@ public interface UserMessageExtService {
      * @return {@code originalSender} or {@code null} if message not found
      */
     String getOriginalSender(String messageId);
+
+    /**
+     * Validates the UserMessage before Domibus saves the message into the database.
+     *
+     * @param userMessage The UserMessage to be validated
+     * @throws UserMessageExtException in case the validation does not pass
+     */
+    void validateUserMessage(UserMessageDTO userMessage) throws UserMessageExtException;
 }

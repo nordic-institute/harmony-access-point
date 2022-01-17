@@ -2,6 +2,7 @@ package eu.domibus.ext.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.activation.DataHandler;
 import java.io.Serializable;
 
 /**
@@ -44,6 +45,16 @@ public class PartInfoDTO implements Serializable {
      * MIME {@link String}
      */
     private String mime;
+
+    private DataHandler payloadDatahandler;
+
+    public DataHandler getPayloadDatahandler() {
+        return payloadDatahandler;
+    }
+
+    public void setPayloadDatahandler(DataHandler payloadDatahandler) {
+        this.payloadDatahandler = payloadDatahandler;
+    }
 
     /**
      * Gets the Schema information

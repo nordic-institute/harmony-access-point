@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.pmode.PModeException;
@@ -129,6 +130,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageHandlerServiceImpl userMessageHandlerService;
+
+    @Autowired
+    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -380,6 +384,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
             }
             List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
+
+            userMessageValidatorSpiService.validate(userMessage, partInfos);
 
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
