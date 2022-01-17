@@ -1,25 +1,140 @@
 package eu.domibus.test.earchiving
 
-
+import eu.domibus.test.utils.DockerUtils
 import eu.domibus.test.utils.DomibusSoapUIConstants
 import eu.domibus.test.utils.LogUtils
+import eu.domibus.test.utils.ShellUtils
 import eu.domibus.test.utils.SoapUIPropertyUtils
+import groovy.io.FileType
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+import org.apache.log4j.Logger
+
+import java.nio.file.Paths
 
 class EArchiveUtils {
-    def context = null
-    def log = null
+    def static LOG = Logger.getLogger(LogUtils.SOAPUI_LOGGER_NAME)
 
-    EArchiveUtils(log, context) {
-        this.log = log
+    def context = null
+
+
+    EArchiveUtils(context) {
         this.context = context
     }
 
     // Class destructor
     void finalize() {
-        log.debug "EarchivingUtils class not needed longer."
+        LOG.debug "EArchiveUtils class not needed longer."
     }
+
+    /**
+     * Clean earchive folders. The cleaning is done by the internal script
+     * located in:  eArchivingFolderPath+"/scripts/clean-script.sh"
+     * @param eArchivingFolderPath - e-archive root path where domibus extract the batches
+     * @param log - soapui log4j object
+     * @return script result: [outputStream, errorStream]
+     */
+    def static resetArchiveFolders(String eArchivingFolderPath) {
+        def commandString = [eArchivingFolderPath + "/scripts/clean-script.sh"]
+        return ShellUtils.runCommandInShell(commandString)
+    }
+
+    /**
+     * Return Batch json file
+     * @param eArchivingFolderPath
+     * @param batchId
+     * @return
+     */
+    def static getBatchDataFolder(String eArchivingFolderPath, String batchId) {
+        return Paths.get(eArchivingFolderPath, batchId,
+                EArchiveConstants.FOLDER_REPRESENTATIONS,
+                EArchiveConstants.FOLDER_REPRESENTATION1,
+                EArchiveConstants.FOLDER_DATA).toFile()
+    }
+
+    /**
+     * Return exported batch folder names -> exported messageIDs
+     * @param eArchivingFolderPath
+     * @param batchId
+     * @return
+     */
+    def static getBatchExportedMessageFolders(String eArchivingFolderPath, String batchId) {
+        def dataFolder = getBatchDataFolder(eArchivingFolderPath, batchId)
+        def batchExportedMessageList = []
+        dataFolder.eachFile(FileType.DIRECTORIES) { file ->
+            batchExportedMessageList << file.getName()
+        }
+        return batchExportedMessageList;
+    }
+
+    /**
+     * Return Batch json file
+     * @param eArchivingFolderPath
+     * @param batchId
+     * @return
+     */
+    def static getBatchJsonFile(String eArchivingFolderPath, String batchId) {
+        return Paths.get(eArchivingFolderPath, batchId,
+                EArchiveConstants.FOLDER_REPRESENTATIONS,
+                EArchiveConstants.FOLDER_REPRESENTATION1,
+                EArchiveConstants.FOLDER_DATA,
+                EArchiveConstants.BATCH_JSON_NAME).toFile()
+    }
+
+    /**
+     * Return Batch JSON file
+     * @param eArchivingFolderPath
+     * @param batchId
+     * @return
+     */
+    def static parseBatchJsonObject(File jsonFile) {
+        return (new JsonSlurper()).parse(new FileReader(jsonFile))
+    }
+
+    /**
+     * Return Batch METS file
+     * @param eArchivingFolderPath
+     * @param batchId
+     * @return
+     */
+    def static parseBatchMETSObject(File xmlFile) {
+        return (new XmlSlurper()).parse(new FileReader(xmlFile))
+    }
+
+    /**
+     * Return Batch METS file
+     * @param eArchivingFolderPath
+     * @param batchId
+     * @return
+     */
+    def static getBatchMETSFile(String eArchivingFolderPath, String batchId) {
+        return Paths.get(eArchivingFolderPath, batchId,
+                EArchiveConstants.BATCH_METS_NAME).toFile()
+    }
+
+    /**
+     * print json file
+     * @param json file
+     * @return
+     */
+    def static printBatchJsonFile(def jsonContent, batchId) {
+        LOG.info("  getBatchMetadataFromJson  [][]  ==========================================")
+        LOG.info("  getBatchMetadataFromJson  [][]  Metadata for batch \"$batchId\"")
+        LOG.info("  getBatchMetadataFromJson  [][]  ==========================================")
+        LOG.info("  getBatchMetadataFromJson  [][]  version: " + jsonContent.version)
+        LOG.info("  getBatchMetadataFromJson  [][]  requestType: " + jsonContent.requestType)
+        LOG.info("  getBatchMetadataFromJson  [][]  status: " + jsonContent.status)
+        LOG.info("  getBatchMetadataFromJson  [][]  errorCode: " + jsonContent.errorCode)
+        LOG.info("  getBatchMetadataFromJson  [][]  errorDescription: " + jsonContent.errorDescription)
+        LOG.info("  getBatchMetadataFromJson  [][]  timestamp: " + jsonContent.timestamp)
+        LOG.info("  getBatchMetadataFromJson  [][]  messageStartId: " + jsonContent.messageStartId)
+        LOG.info("  getBatchMetadataFromJson  [][]  messageEndId: " + jsonContent.messageEndId)
+        LOG.info("  getBatchMetadataFromJson  [][]  manifestChecksum: " + jsonContent.manifestChecksum)
+        LOG.info("  getBatchMetadataFromJson  [][]  messages: " + jsonContent.messages)
+        LOG.info("  getBatchMetadataFromJson  [][]  ==========================================")
+        LOG.info("  ====  \"getBatchMetadataFromJson\" DONE.")
+    }
+
 
     /**
      *  Returns a list with all the batch IDs present in the configured eArchive directory
@@ -28,8 +143,8 @@ class EArchiveUtils {
      * @param batchFolder
      * @return
      */
-    def static getBatchIDListFromArchiveFolder(String eArchivingFolderPath,  context, log) {
-        LogUtils.debugLog("  ====  Calling \"getBatchIDListFromArchiveFolder\" for folder:["+eArchivingFolderPath+"]!", log)
+    def getBatchIDListFromArchiveFolder(String eArchivingFolderPath, context, log) {
+        LogUtils.debugLog("  ====  Calling \"getBatchIDListFromArchiveFolder\" for folder:[" + eArchivingFolderPath + "]!", log)
         def batchList = []
         def eArchivingFolder = null
 
@@ -61,8 +176,8 @@ class EArchiveUtils {
      * @param log
      * @return Returns batch.json the metadata of a batch identified by "batchID".
      */
-    def static getBatchMetadataFromJson(String eArchivingFolderPath,String batchID, context, log) {
-        LogUtils.debugLog("  ====  Calling \"getBatchMetadataFromJson\" for batch id ["+batchID+"].", log)
+    def getBatchMetadataFromJson(String eArchivingFolderPath, String batchID, context, log) {
+        LogUtils.debugLog("  ====  Calling \"getBatchMetadataFromJson\" for batch id [" + batchID + "].", log)
 
         def appendPath = "/" + batchID + "/representations/representation1/data"
         def jsonFile = null
@@ -76,7 +191,7 @@ class EArchiveUtils {
             }
         }
 
-        if (jsonFile == null){
+        if (jsonFile == null) {
             LogUtils.debugLog("  getBatchMetadataFromJson  [][]  Error:getBatchMetadataFromJson: The file \"batch.json\" was not found !", log)
             return null;
         }
@@ -112,7 +227,7 @@ class EArchiveUtils {
      * @param log
      * @return list
      */
-    def static getMessageListFromJsonFile(def batchMetadata,  String batchID, context, log) {
+    def getMessageListFromJsonFile(def batchMetadata, String batchID, context, log) {
         LogUtils.debugLog("  ====  Calling \"getMessageListFromJsonFile\".", log)
         def messageList = batchMetadata.messages
         LogUtils.debugLog("  getMessageListFromJsonFile  [][]  Message list for batch \"$batchID\": " + messageList, log)
@@ -125,7 +240,7 @@ class EArchiveUtils {
      * Returns the export status of a batch identified by "batchID".
      * The status is obtained by browsing the batch file "batch.json"
      **/
-    def static getBatchStatus(def batchMetadata,  String batchID, context, log) {
+    def getBatchStatus(def batchMetadata, String batchID, context, log) {
         LogUtils.debugLog("  ====  Calling \"getBatchStatus\".", log)
         LogUtils.debugLog("  getBatchStatus  [][]  batch \"$batchID\" status: " + batchMetadata.status, log)
         LogUtils.debugLog("  ====  \"getBatchStatus\" DONE.", log)
@@ -136,7 +251,7 @@ class EArchiveUtils {
     /**
      * Verifies if the folder present in the export directory is a batch folder or not (dummy folder)
      **/
-    def static isBatchFolder(log, folderPath) {
+    def isBatchFolder(log, folderPath) {
         LogUtils.debugLog("  ====  Calling \"isBatchFolder\".", log)
         def eArchiveFolder = null
         def outcome = true
@@ -161,7 +276,7 @@ class EArchiveUtils {
      * Returns the data of a batch identified by "batchID".
      * Data is obtained by browsing the batch file "METS.xml"
      **/
-    def static getBatchDataFromMETS(String eArchivingFolderPath,String batchID, context, log) {
+    def getBatchDataFromMETS(String eArchivingFolderPath, String batchID, context, log) {
         LogUtils.debugLog("  ====  Calling \"getBatchDataFromMETS\".", log)
 
         def xmlFile = null
@@ -210,7 +325,6 @@ class EArchiveUtils {
         // Return Metadata
         return dataList
     }
-
 
 
 // ----------------------------------------------
