@@ -155,4 +155,30 @@ public class BackendNotificationServiceIT extends AbstractIT {
         assertNotNull(ebms3Messaging);
 
     }
+
+    @Test
+    @Transactional
+    public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+
+        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        String filename = "InvalidBodyloadCidSOAPMessage.xml";
+        String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+
+        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
+
+        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
+        assertNotNull(ebms3Messaging);
+
+    }
+    //InvalidBodyloadCidSOAPMessage.xml
+
 }

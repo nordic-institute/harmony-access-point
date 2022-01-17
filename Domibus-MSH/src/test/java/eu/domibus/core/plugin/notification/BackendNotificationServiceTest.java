@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -43,6 +42,7 @@ public class BackendNotificationServiceTest {
     public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "MessageId";
+    long entityId = 1L;
     public static final Timestamp TIMESTAMP = new Timestamp(System.currentTimeMillis());
     public static final String ORIGINAL_FILENAME = "originalFilename";
     public static final String BACKEND_NAME = "backendName";
@@ -258,74 +258,88 @@ public class BackendNotificationServiceTest {
         new FullVerifications() {
         };
     }
-//
-//            @Test
-//            public void notifySync_propertiesNotNull(
-//                    @Mocked final AsyncNotificationConfiguration notificationListener,
-//                    @Mocked final BackendConnector<?, ?> backendConnector) {
-//
-//                List<NotificationType> requiredNotifications = new ArrayList<>();
-//                requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-//                    result = backendConnector;
-//
-//                    backendConnectorService.getRequiredNotificationTypeList(backendConnector);
-//                    result = requiredNotifications;
-//
-//                    asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
-//                    result = notificationListener;
-//
-//                    asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
-//                    result = notificationListener;
-//
-//                    backendNotificationService.shouldNotifyAsync(notificationListener);
-//                    result = false;
-//
-//                    backendNotificationService.notifySync(backendConnector, notificationListener, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
-//                }};
-//
-//                backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notify_NoNotification(@Mocked final BackendConnector<?, ?> backendConnector) {
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-//                    result = backendConnector;
-//
-//                    backendConnectorService.getRequiredNotificationTypeList(backendConnector);
-//                    result = null;
-//
-//                    backendConnector.getMode();
-//                    result = BackendConnector.Mode.PUSH;
-//
-//                }};
-//
-//                backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notify_NoBackendConnector() {
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-//                    result = null;
-//                }};
-//
-//                backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
-//
-//                new FullVerifications() {
-//                };
-//            }
+
+    @Test
+    public void notifySync_propertiesNotNull(
+            @Mocked final AsyncNotificationConfiguration notificationListener,
+            @Mocked final BackendConnector<?, ?> backendConnector,
+            @Mocked UserMessage userMessage) {
+        long entityId = 1L;
+
+        List<NotificationType> requiredNotifications = new ArrayList<>();
+        requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
+
+        new Expectations(backendNotificationService) {{
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            result = requiredNotifications;
+
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
+            result = notificationListener;
+
+            asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
+            result = notificationListener;
+
+            backendNotificationService.shouldNotifyAsync(notificationListener);
+            result = false;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessage.getEntityId();
+            this.result = entityId;
+
+            backendNotificationService.notifySync(backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
+        }};
+
+        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notify_NoNotification(@Mocked final BackendConnector<?, ?> backendConnector,
+                                      @Mocked UserMessage userMessage) {
+
+        new Expectations(backendNotificationService) {{
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            result = null;
+
+            backendConnector.getMode();
+            result = BackendConnector.Mode.PUSH;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessage.getEntityId();
+            this.result = entityId;
+        }};
+
+        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notify_NoBackendConnector(@Mocked UserMessage userMessage) {
+
+        new Expectations(backendNotificationService) {{
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = null;
+        }};
+
+        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+
+        new FullVerifications() {
+        };
+    }
 //
 //            @Test
 //            public void notify_NotificationNotMatchType(@Mocked BackendConnector<?, ?> backendConnector) {
