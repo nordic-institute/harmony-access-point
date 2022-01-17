@@ -1,11 +1,15 @@
 package eu.domibus.core.converter;
 
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;

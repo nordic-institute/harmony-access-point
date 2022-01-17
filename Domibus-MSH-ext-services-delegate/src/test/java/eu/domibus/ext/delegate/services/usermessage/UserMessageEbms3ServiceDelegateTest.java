@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.usermessage;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.*;
+import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
@@ -30,6 +31,10 @@ public class UserMessageEbms3ServiceDelegateTest {
 
     @Injectable
     UserMessageSecurityService userMessageSecurityService;
+
+    @Injectable
+    UserMessageValidatorSpi userMessageValidatorSpi;
+
     public static final String MESSAGE_ID = "messageId";
 
     @Test
