@@ -3,8 +3,11 @@ package eu.domibus.core.util;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
@@ -20,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
@@ -33,7 +35,10 @@ import java.security.cert.X509CRL;
 @RunWith(JMockit.class)
 public class HttpUtilImplTest {
 
-    private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/receiver/";
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpUtilImplTest.class);
+
+
+    private static final String RESOURCE_PATH = "src/main/conf/domibus/keystore/";
     private static final String TEST_TRUSTSTORE = "gateway_truststore.jks";
     private static final String TEST_TRUSTSTORE_PASSWD = "test123";
 
@@ -54,6 +59,9 @@ public class HttpUtilImplTest {
 
     @Injectable
     DomibusX509TrustManager domibusX509TrustManager;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     @Ignore
@@ -91,7 +99,7 @@ public class HttpUtilImplTest {
     }
 
     @Test
-    @Ignore // TODO add it to a special profile that ony runs in Bamboo. Currently fails on the commission machines (behind proxy)
+    @Ignore("EDELIVERY-8825 testDownloadCRLHttps: fix local run")
     public void testDownloadCRLHttps() throws Exception {
         String url = "http://onsitecrl.verisign.com/offlineca/NATIONALITANDTELECOMAGENCYPEPPOLRootCA.crl";
         /* Added this crl file to git so we have it on https and use it for testing */
@@ -102,11 +110,8 @@ public class HttpUtilImplTest {
         //String urlSSL = "http://localhost:8089/crltest";
 
         KeyStore trustStore = KeyStore.getInstance("JKS");
-        FileInputStream instream = new FileInputStream(new File(RESOURCE_PATH + TEST_TRUSTSTORE));
-        try {
+        try (FileInputStream instream = new FileInputStream(RESOURCE_PATH + TEST_TRUSTSTORE)) {
             trustStore.load(instream, TEST_TRUSTSTORE_PASSWD.toCharArray());
-        } finally {
-            instream.close();
         }
 
         new NonStrictExpectations(proxyUtil) {{
@@ -123,13 +128,13 @@ public class HttpUtilImplTest {
         ByteArrayInputStream inputStream = httpUtil.downloadURL(url);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509CRL x509CRL = (X509CRL) cf.generateCRL(inputStream);
-        System.out.println(x509CRL);
+        LOG.info(x509CRL.toString());
 
         ByteArrayInputStream inputStreamSSL = httpUtil.downloadURL(urlSSL);
         CertificateFactory cfSSL = CertificateFactory.getInstance("X.509");
         X509CRL x509CRLSSL = (X509CRL) cfSSL.generateCRL(inputStreamSSL);
-        System.out.println(x509CRLSSL);
+        LOG.info(x509CRLSSL.toString());
 
-        Assert.assertTrue(x509CRLSSL.equals(x509CRL));
+        Assert.assertEquals(x509CRLSSL, x509CRL);
     }
 }

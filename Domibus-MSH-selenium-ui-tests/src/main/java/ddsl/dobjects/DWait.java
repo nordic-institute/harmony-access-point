@@ -1,6 +1,5 @@
 package ddsl.dobjects;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,8 +25,7 @@ public class DWait {
 	public final WebDriverWait shortWait;
 	private TestRunData data = new TestRunData();
 
-	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private WebDriver driver;
 

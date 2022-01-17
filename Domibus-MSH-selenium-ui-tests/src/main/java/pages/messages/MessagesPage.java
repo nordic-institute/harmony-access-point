@@ -106,7 +106,7 @@ public class MessagesPage extends DomibusPage {
 
 		log.info("Wait for download to complete");
 
-		wait.forXMillis(3000);
+		wait.forFileToBeDownloaded(filePath);
 
 		log.info("Check if file is downloaded at given location");
 		if(!DFileUtils.isFileDownloaded(filePath)){
@@ -129,7 +129,7 @@ public class MessagesPage extends DomibusPage {
 
 		log.info("Wait for Message envelop download to complete");
 
-		wait.forXMillis(3000);
+		wait.forFileToBeDownloaded(filePath);
 
 		log.info("Check if file is downloaded at given location");
 		if(!DFileUtils.isFileDownloaded(filePath)){

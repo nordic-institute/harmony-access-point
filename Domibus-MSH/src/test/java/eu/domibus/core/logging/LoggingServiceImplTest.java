@@ -207,35 +207,6 @@ public class LoggingServiceImplTest {
         }};
     }
 
-//    @Test
-//    public void testSignalLoggingReset_ExceptionThrown_MessageNotSent(final @Mocked JmsMessage jmsMessage, final @Mocked JMSMessageBuilder messageBuilder) {
-//        final String name = "eu.domibus";
-//        final String level = "INFO";
-//
-//        new Expectations(loggingService) {{
-//            JMSMessageBuilder.create();
-//            result = messageBuilder;
-//
-//            messageBuilder.property(Command.COMMAND, Command.LOGGING_RESET);
-//            result = messageBuilder;
-//
-//            messageBuilder.build();
-//            result = jmsMessage;
-//
-//            jmsManager.sendMessageToTopic(jmsMessage, clusterCommandTopic);
-//            result = new DestinationResolutionException("error while sending JMS message");
-//        }};
-//
-//        try {
-//            //tested method
-//            loggingService.signalResetLogging();
-//            Assert.fail("LoggingException expected");
-//        } catch (LoggingException le) {
-//            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
-//            Assert.assertTrue(le.getMessage().contains("Error while sending topic message for logging reset"));
-//        }
-//    }
-
     @Test
     public void testSignalLoggingReset_ExceptionThrown_MessageNotSent(final @Mocked JmsMessage jmsMessage, final @Mocked JMSMessageBuilder messageBuilder) {
         final String name = "eu.domibus";

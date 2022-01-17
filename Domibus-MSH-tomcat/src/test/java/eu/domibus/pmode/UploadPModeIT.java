@@ -9,7 +9,6 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
@@ -44,7 +43,9 @@ import static org.junit.Assert.*;
  * @author martifp
  * @author Catalin Enache
  */
+@SuppressWarnings("ConstantConditions")
 @Transactional
+@Ignore("EDELIVERY-8797: Upload PMode: IT Tests")
 public class UploadPModeIT extends AbstractIT {
 
     public static final String SCHEMAS_DIR = "schemas/";
@@ -78,6 +79,7 @@ public class UploadPModeIT extends AbstractIT {
 
     @Before
     public void setUp() {
+        Locale.setDefault(Locale.ENGLISH);
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "domibus",
@@ -87,9 +89,6 @@ public class UploadPModeIT extends AbstractIT {
 
     /**
      * Tests that the PMODE is correctly saved in the DB.
-     *
-     * @throws IOException
-     * @throws XmlProcessingException
      */
     @Test
     public void testSavePModeOk() throws Exception {
@@ -107,8 +106,9 @@ public class UploadPModeIT extends AbstractIT {
 
         MultipartFile pModeContent = new MockMultipartFile("wrong-domibus-configuration", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
-        }catch (PModeValidationException ex) {
+            adminGui.uploadPMode(pModeContent, "description");
+            fail();
+        } catch (PModeValidationException ex) {
             assertTrue(ex.getMessage().contains("Failed to upload the PMode file due to"));
         }
     }
@@ -126,7 +126,6 @@ public class UploadPModeIT extends AbstractIT {
      */
     @Test
     @Transactional
-    @Ignore("Unstable bamboo test")
     public void testVerifyPModeContent() throws IOException, JAXBException, SQLException {
         Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
 
@@ -227,9 +226,10 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-long-names", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
+            fail();
         } catch (PModeValidationException ex) {
-            assertTrue(ex.getIssues().size() == 2);
+            assertEquals(2, ex.getIssues().size());
             assertTrue(ex.getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxLength"));
         }
     }
@@ -243,13 +243,15 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-overflow", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertEquals(0, ex.getIssues().size());
             assertTrue(ex.getMessage().contains("[DOM_003]:Failed to upload the PMode file due to: NumberFormatException: For input string: \"40894464534632746754875696\""));
         }
-    }    /**
+    }
+
+    /**
      * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
      */
     @Test
@@ -258,14 +260,13 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-configuration-maxsize-negative", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertEquals(1, ex.getIssues().size());
             assertTrue(ex.getIssues().get(0).getMessage().contains("the maxSize value [-4089446453400] of payload profile [MessageProfile] should be neither negative neither a positive value greater than 9223372036854775807"));
         }
     }
-
 
 
     /**
@@ -295,7 +296,7 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-identifier-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
@@ -312,7 +313,7 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-duplicate-entities-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate unique value [http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC]"));
@@ -333,7 +334,7 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-AS4-entities-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertEquals(4, ex.getIssues().size());
@@ -353,7 +354,7 @@ public class UploadPModeIT extends AbstractIT {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
         MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-URI-attributes-exceeds-maxlength", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
-            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertEquals(4, ex.getIssues().size());
@@ -374,7 +375,7 @@ public class UploadPModeIT extends AbstractIT {
         MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-without_payloadprofile", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
-            assertEquals(response.getMessage(), "PMode file has been successfully uploaded.");
+            assertEquals("PMode file has been successfully uploaded.", response.getMessage());
         } catch (PModeValidationException ex) {
             assertEquals(0, ex.getIssues().size());
 

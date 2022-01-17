@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -34,6 +35,7 @@ public class DomibusQuartzStarterTest {
     private final List<String> jobGroups = Collections.singletonList(groupName);
     private final Set<JobKey> jobKeys = new HashSet<>();
     private final JobKey jobKey1 = new JobKey("retryWorkerJob", groupName);
+    private final JobKey jobKey2 = new JobKey("retryWorkerJob1", groupName);
     private final List<Scheduler> generalSchedulers = new ArrayList<>();
     private final Map<Domain, Scheduler> schedulers = new HashMap<>();
 
@@ -57,6 +59,9 @@ public class DomibusQuartzStarterTest {
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
+
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     private PlatformTransactionManager transactionManager;
@@ -359,6 +364,122 @@ public class DomibusQuartzStarterTest {
 
         new FullVerifications(domibusQuartzStarter) {{
             domibusQuartzStarter.deleteSchedulerJob(scheduler, jobKey1, null);
+        }};
+    }
+
+    @Test
+    public void pauseJobTest(@Injectable Domain domain) throws Exception {
+        String jobName = "job1";
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.pauseJobs((Domain)any, anyString);
+            times = 1;
+        }};
+        domibusQuartzStarter.pauseJob(domain, jobName);
+        new Verifications() {{
+            domibusQuartzStarter.pauseJobs(domain, jobName);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void resumeJobTest(@Injectable Domain domain) throws Exception {
+        String jobName = "job1";
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.resumeJobs((Domain)any, anyString);
+            times = 1;
+        }};
+        domibusQuartzStarter.resumeJob(domain, jobName);
+        new Verifications() {{
+            domibusQuartzStarter.resumeJobs(domain, jobName);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void pauseJobsTest(@Injectable Domain domain, @Injectable Scheduler scheduler) throws SchedulerException {
+        String jobName01 = "job1";
+        String jobName02 = "job2";
+
+        domibusQuartzStarter.schedulers.put(domain, scheduler);
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.findJob(scheduler, jobName01);
+            result = jobKey1;
+            domibusQuartzStarter.findJob(scheduler, jobName02);
+            result = jobKey2;
+        }};
+
+        //tested method
+        domibusQuartzStarter.pauseJobs(domain, jobName01, jobName02);
+
+        new FullVerifications(domibusQuartzStarter) {{
+            scheduler.pauseJob(jobKey1);
+            scheduler.pauseJob(jobKey2);
+        }};
+    }
+
+    @Test
+    public void resumeJobsTest(@Injectable Domain domain, @Injectable Scheduler scheduler) throws SchedulerException {
+        String jobName01 = "job1";
+        String jobName02 = "job2";
+
+        domibusQuartzStarter.schedulers.put(domain, scheduler);
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.findJob(scheduler, jobName01);
+            result = jobKey1;
+            domibusQuartzStarter.findJob(scheduler, jobName02);
+            result = jobKey2;
+        }};
+
+        //tested method
+        domibusQuartzStarter.resumeJobs(domain, jobName01, jobName02);
+
+        new FullVerifications(domibusQuartzStarter) {{
+            scheduler.resumeJob(jobKey1);
+            scheduler.resumeJob(jobKey2);
+        }};
+    }
+
+    @Test
+    public void resumeJobsNotFoundTest(@Injectable Domain domain, @Injectable Scheduler scheduler) throws SchedulerException {
+        String jobName01 = "job1";
+        String jobName02 = "job2";
+
+        domibusQuartzStarter.schedulers.put(domain, scheduler);
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.findJob(scheduler, jobName01);
+            result = jobKey1;
+            domibusQuartzStarter.findJob(scheduler, jobName02);
+            result = null;
+        }};
+
+        //tested method
+        domibusQuartzStarter.resumeJobs(domain, jobName01, jobName02);
+
+        new FullVerifications(domibusQuartzStarter) {{
+            scheduler.resumeJob(jobKey1);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void pauseJobsNotFoundTest(@Injectable Domain domain, @Injectable Scheduler scheduler) throws SchedulerException {
+        String jobName01 = "job1";
+        String jobName02 = "job2";
+
+        domibusQuartzStarter.schedulers.put(domain, scheduler);
+        new Expectations(domibusQuartzStarter) {{
+            domibusQuartzStarter.findJob(scheduler, jobName01);
+            result = jobKey1;
+            domibusQuartzStarter.findJob(scheduler, jobName02);
+            result = null;
+        }};
+
+        //tested method
+        domibusQuartzStarter.pauseJobs(domain, jobName01, jobName02);
+
+        new FullVerifications(domibusQuartzStarter) {{
+            scheduler.pauseJob(jobKey1);
+            times = 1;
         }};
     }
 }

@@ -3,8 +3,8 @@ package eu.domibus.core.message.receipt;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -14,34 +14,33 @@ import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
-import eu.domibus.core.message.compression.CompressionService;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.ReceiptDao;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogBuilder;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
-import javax.xml.transform.*;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMResult;
 import java.util.Iterator;
 
@@ -51,69 +50,52 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
 @RunWith(JMockit.class)
 public class AS4Ebms3ReceiptEbms3ServiceImplTest {
 
+    public static final String MESSAGE_ID = "messageId";
     @Tested
     AS4ReceiptServiceImpl as4ReceiptService;
 
     @Injectable
-    BackendNotificationService backendNotificationService;
+    protected  UIReplicationSignalService uiReplicationSignalService;
     @Injectable
-    NonRepudiationService nonRepudiationService;
+    protected  UserMessageHandlerService userMessageHandlerService;
     @Injectable
-    MessagingService messagingService;
+    private  TimestampDateFormatter timestampDateFormatter;
     @Injectable
-    SignalMessageDao signalMessageDao;
+    protected  UserMessageService userMessageService;
     @Injectable
-    SignalMessageLogDao signalMessageLogDao;
+    private  MessageIdGenerator messageIdGenerator;
     @Injectable
-    MessageFactory messageFactory;
+    protected  UserMessageRawEnvelopeDao rawEnvelopeLogDao;
     @Injectable
-    UserMessageLogDao userMessageLogDao;
+    private  SignalMessageDao signalMessageDao;
     @Injectable
-    JAXBContext jaxbContextEBMS;
+    protected  MessageGroupDao messageGroupDao;
     @Injectable
-    TransformerFactory transformerFactory;
+    private  UserMessageDao userMessageDao;
     @Injectable
-    PModeProvider pModeProvider;
+    protected  MessageUtil messageUtil;
     @Injectable
-    TimestampDateFormatter timestampDateFormatter;
+    protected  SoapUtil soapUtil;
     @Injectable
-    CompressionService compressionService;
+    protected XMLUtil xmlUtil;
     @Injectable
-    MessageIdGenerator messageIdGenerator;
+    protected Ebms3Converter ebms3Converter;
     @Injectable
-    PayloadProfileValidator payloadProfileValidator;
+    protected MshRoleDao mshRoleDao;
     @Injectable
-    PropertyProfileValidator propertyProfileValidator;
+    protected MessageStatusDao messageStatusDao;
     @Injectable
-    CertificateService certificateService;
-    @Injectable
-    SOAPMessage soapRequestMessage;
-    @Injectable
-    SOAPMessage soapResponseMessage;
-    @Injectable
-    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
-    @Injectable
-    protected UIReplicationSignalService uiReplicationSignalService;
-    @Injectable
-    protected MessageUtil messageUtil;
-    @Injectable
-    protected MessageGroupDao messageGroupDao;
-    @Injectable
-    protected UserMessageService userMessageService;
-    @Injectable
-    protected UserMessageHandlerService userMessageHandlerService;
-    @Injectable
-    protected SoapUtil soapUtil;
+    protected ReceiptDao receiptDao;
 
     @Injectable
     private LegConfiguration legConfiguration;
 
     @Injectable
-    private SignalMessage signalMessage;
+    private SignalMessageResult signalMessageResult;
 
     @Injectable
     private MessageInfo messageInfo;
@@ -125,24 +107,10 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
     private SignalMessageLog messageLog;
 
     @Injectable
-    private XMLUtil xmlUtil;
-    @Mocked
-    private SignalMessageLogBuilder signalMessageLogBuilder;
+    private SOAPMessage soapResponseMessage;
 
     @Injectable
-    Ebms3Converter ebms3Converter;
-
-    @Injectable
-    UserMessageDao userMessageDao;
-
-    @Injectable
-    MshRoleDao mshRoleDao;
-
-    @Injectable
-    MessageStatusDao messageStatusDao;
-
-    @Injectable
-    ReceiptDao receiptDao;
+    private SOAPMessage soapRequestMessage;
 
     @Test
     public void testGenerateReceipt_WithReliabilityAndResponseRequired(@Injectable final Source messageToReceiptTransform,
@@ -204,7 +172,6 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGenerateReceipt_TransformException(@Injectable Source messageToReceiptTransform,
                                                        @Injectable Transformer transformer,
                                                        @Injectable DOMResult domResult,
@@ -239,8 +206,8 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
             transformer.transform(withAny(messageToReceiptTransform), withAny(domResult));
             result = new TransformerException("TEST Transformer Exception");
 
-            messageInfo.getMessageId();
-            result = "MESSAGE_ID";
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
 
         }};
 
@@ -259,177 +226,55 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
 
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSaveResponse(@Injectable Ebms3Messaging ebms3Messaging) throws SOAPException, EbMS3Exception {
+    public void testSaveResponse(@Injectable Ebms3Messaging ebms3Messaging, @Injectable SignalMessage signalMessage) throws SOAPException, EbMS3Exception {
         new Expectations() {{
 
-            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
+            messageUtil.getMessagingWithDom(soapResponseMessage);
             result = ebms3Messaging;
 
-            ebms3Converter.convertFromEbms3(ebms3Messaging.getSignalMessage());
+            ebms3Converter.convertFromEbms3(ebms3Messaging);
+            result = signalMessageResult;
+
+            signalMessageResult.getSignalMessage();
             result = signalMessage;
-
-            messageInfo.getMessageId();
-            result = "MESSAGE_ID";
-
-            messageInfo.getRefToMessageId();
-            result = "REF_MESSAGE_ID";
-
-            userMessageHandlerService.checkTestMessage(userMessage);
-            result = false;
-
-            SignalMessageLogBuilder.create();
-            result = signalMessageLogBuilder;
-
-            signalMessageLogBuilder.build();
-            result = messageLog;
-
-            userMessage.getMessageId();
-            result = "MESSAGE_ID";
         }};
 
-        as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
+        as4ReceiptService.generateResponse(soapResponseMessage, false);
 
-        new Verifications() {{
-            signalMessageDao.create(signalMessage);
-            signalMessageLogDao.create(withInstanceOf(SignalMessageLog.class));
-//            signalMessageLogBuilder.setMessageStatus(MessageStatus.ACKNOWLEDGED);
-//            signalMessageLogBuilder.setMshRole(MSHRole.SENDING);
-            signalMessageLogDao.create(messageLog);
-            uiReplicationSignalService.signalMessageSubmitted(anyString);
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSaveResponse_Test(@Injectable Ebms3Messaging ebms3Messaging) throws SOAPException, EbMS3Exception {
-        new Expectations() {{
-
-            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
-            result = ebms3Messaging;
-
-            ebms3Converter.convertFromEbms3(ebms3Messaging.getSignalMessage());
-            result = signalMessage;
-
-            messageInfo.getMessageId();
-            result = "MESSAGE_ID";
-
-            messageInfo.getRefToMessageId();
-            result = "REF_MESSAGE_ID";
-
-            userMessageHandlerService.checkTestMessage(userMessage);
-            result = true;
-
-            SignalMessageLogBuilder.create();
-            result = signalMessageLogBuilder;
-
-            signalMessageLogBuilder.build();
-            result = messageLog;
-
-            userMessage.getMessageId();
-            result = "MESSAGE_ID";
-        }};
-
-        as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
-
-        new Verifications() {{
-            signalMessageDao.create(signalMessage);
-//            signalMessageLogBuilder.setMessageStatus(MessageStatus.ACKNOWLEDGED);
-//            signalMessageLogBuilder.setMshRole(MSHRole.SENDING);
-            signalMessageLogDao.create(messageLog);
-            uiReplicationSignalService.signalMessageSubmitted(anyString);
-        }};
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testSaveResponse_DBWriteExceptionFlow(@Injectable Ebms3Messaging ebms3Messaging) throws SOAPException, EbMS3Exception {
-        new Expectations() {{
-
-            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
-            result = ebms3Messaging;
-
-            ebms3Converter.convertFromEbms3(ebms3Messaging.getSignalMessage());
-            result = signalMessage;
-
-            messageInfo.getMessageId();
-            result = "MESSAGE_ID";
-
-            messageInfo.getRefToMessageId();
-            result = "REF_MESSAGE_ID";
-
-            userMessageHandlerService.checkTestMessage(userMessage);
-            result = true;
-
-            SignalMessageLogBuilder.create();
-            result = signalMessageLogBuilder;
-
-            signalMessageLogBuilder.build();
-            result = messageLog;
-
-            signalMessageLogDao.create(messageLog);
-            result = new SOAPException("TEST");
-        }};
-
-        try {
-            as4ReceiptService.generateResponse(soapResponseMessage, userMessage, false);
-            fail();
-        } catch (SOAPException e) {
-            assertEquals(e.getMessage(), "TEST");
-        }
-
-        new Verifications() {{
-            signalMessageDao.create(signalMessage);
-//            signalMessageLogBuilder.setMessageStatus(MessageStatus.ACKNOWLEDGED);
-//            signalMessageLogBuilder.setMshRole(MSHRole.SENDING);
-        }};
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSaveResponse_selfSending(@Injectable Ebms3Messaging ebms3Messaging,
                                              @Injectable Ebms3SignalMessage ebms3SignalMessage,
                                              @Injectable Ebms3MessageInfo ebms3MessageInfo,
-                                             @Injectable Ebms3UserMessage ebms3UserMessage
+                                             @Injectable Ebms3UserMessage ebms3UserMessage,
+                                             @Injectable SignalMessage signalMessage
     ) throws SOAPException, EbMS3Exception {
         new Expectations() {{
-            messageUtil.getMessagingWithDom(withAny(soapRequestMessage));
+            messageUtil.getMessagingWithDom(soapResponseMessage);
             result = ebms3Messaging;
 
-            ebms3Converter.convertFromEbms3(withAny(ebms3SignalMessage));
+            ebms3Converter.convertFromEbms3(ebms3Messaging);
+            result = signalMessageResult;
+
+            signalMessageResult.getSignalMessage();
             result = signalMessage;
 
-            messageInfo.getMessageId();
-            result = "MESSAGE_ID";
+            signalMessage.getRefToMessageId() ;
+            result = "refTomessageId";
 
-            messageInfo.getRefToMessageId();
-            result = "REF_MESSAGE_ID";
-
-            userMessageHandlerService.checkTestMessage(userMessage);
-            result = false;
-
-            SignalMessageLogBuilder.create();
-            result = signalMessageLogBuilder;
-
-            signalMessageLogBuilder.build();
-            result = messageLog;
-
-            userMessage.getMessageId();
-            result = "MESSAGE_ID";
-
-
+            signalMessage.getSignalMessageId() ;
+            result = "signalMessageId";
         }};
 
-        as4ReceiptService.generateResponse(soapResponseMessage, userMessage, true);
+        as4ReceiptService.generateResponse(soapResponseMessage, true);
 
-        new Verifications() {{
-            messageInfo.setRefToMessageId(anyString);
-            messageInfo.setMessageId(anyString);
-            signalMessageDao.create(signalMessage);
-//            signalMessageLogBuilder.setMessageStatus(MessageStatus.ACKNOWLEDGED);
-//            signalMessageLogBuilder.setMshRole(MSHRole.SENDING);
-            signalMessageLogDao.create(messageLog);
-            uiReplicationSignalService.signalMessageSubmitted(anyString);
+        new FullVerifications() {{
+            signalMessage.setRefToMessageId("refTomessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
+            signalMessage.setSignalMessageId("signalMessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
+
         }};
     }
 
@@ -468,8 +313,8 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
             String value;
             messagingElement.addAttribute(idQname = withCapture(), value = withCapture());
             assertNotNull(idQname);
-            assertEquals(idQname.getLocalPart(), "Id");
-            assertEquals(idQname.getPrefix(), "wsu");
+            assertEquals("Id", idQname.getLocalPart());
+            assertEquals("wsu", idQname.getPrefix());
             assertNotNull(value);
             assertEquals(value, "_1" + DigestUtils.sha256Hex(messageId));
         }};

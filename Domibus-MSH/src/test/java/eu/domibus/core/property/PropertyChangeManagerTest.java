@@ -4,13 +4,16 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 
 import java.util.Arrays;
@@ -21,20 +24,22 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @RunWith(JMockit.class)
-@Ignore
 public class PropertyChangeManagerTest {
 
     @Tested
     PropertyChangeManager propertyChangeManager;
 
+
     @Injectable
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
-
     @Injectable
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
-
+    PropertyRetrieveManager propertyRetrieveManager;
     @Injectable
-    private DomibusPropertyChangeNotifier propertyChangeNotifier;
+    PropertyProviderHelper propertyProviderHelper;
+    @Injectable
+    ConfigurableEnvironment environment;
+    @Injectable
+    DomibusPropertyChangeNotifier propertyChangeNotifier;
 
     @Injectable
     @Qualifier("domibusProperties")
@@ -56,7 +61,7 @@ public class PropertyChangeManagerTest {
                 new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_EMAIL, DomibusPropertyMetadata.Usage.DOMAIN, true),
                 new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadata.Usage.DOMAIN, false),
                 DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT),
-        }).collect(Collectors.toMap(x -> x.getName(), x -> x));
+        }).collect(Collectors.toMap(DomibusPropertyMetadata::getName, x -> x));
     }
 
     @Test
@@ -69,32 +74,31 @@ public class PropertyChangeManagerTest {
         new Expectations(propertyChangeManager) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = props.get(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
-//            domibusPropertyProvider.getInternalProperty(domain, propertyName);
-//            result = oldValue;
+            propertyRetrieveManager.getInternalProperty(domain, propertyName);
+            result = oldValue;
             propertyChangeManager.setValueInDomibusPropertySource(anyString, propValue);
         }};
 
         propertyChangeManager.setPropertyValue(domain, propertyName, propValue, true);
 
         new Verifications() {{
-//            domibusPropertyProvider.getInternalProperty(domain, propertyName);
             propertyChangeManager.doSetPropertyValue(domain, propertyName, propValue);
             propertyChangeManager.signalPropertyValueChanged(domain, propertyName, propValue, true, propMeta, oldValue);
         }};
     }
 
-    @Test()
+    @Test
     public void setPropertyValue_MultiTenancy_Domain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
         String propKey = domain.getCode() + "." + propertyName;
 
         new Expectations(propertyChangeManager) {{
-//            domibusPropertyProvider.isMultiTenantAware();
-//            result = true;
+            propertyProviderHelper.isMultiTenantAware();
+            result = true;
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
-//            domibusPropertyProvider.getPropertyKeyForDomain(domain, propertyName);
-//            this.result = propKey;
+            propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
+            this.result = propKey;
             propertyChangeManager.setValueInDomibusPropertySource(propKey, propertyValue);
         }};
 
@@ -110,9 +114,9 @@ public class PropertyChangeManagerTest {
     public void setPropertyValue_MultiTenancy_Domain_NoDomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL, false);
 
-        new Expectations(domibusPropertyProvider) {{
-//            domibusPropertyProvider.isMultiTenantAware();
-//            result = true;
+        new Expectations() {{
+            propertyProviderHelper.isMultiTenantAware();
+            result = true;
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
         }};
@@ -130,12 +134,12 @@ public class PropertyChangeManagerTest {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN_AND_SUPER, true);
         String propKey = "super." + propertyName;
         new Expectations(propertyChangeManager) {{
-//            domibusPropertyProvider.isMultiTenantAware();
-//            result = true;
+            propertyProviderHelper.isMultiTenantAware();
+            result = true;
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
-//            domibusPropertyProvider.getPropertyKeyForSuper(propertyName);
-//            this.result = propKey;
+            propertyProviderHelper.getPropertyKeyForSuper(propertyName);
+            this.result = propKey;
             propertyChangeManager.setValueInDomibusPropertySource("super." + propertyName, propertyValue);
         }};
 
@@ -152,8 +156,8 @@ public class PropertyChangeManagerTest {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL_AND_DOMAIN, true);
 
         new Expectations(propertyChangeManager) {{
-//            domibusPropertyProvider.isMultiTenantAware();
-//            result = true;
+            propertyProviderHelper.isMultiTenantAware();
+            result = true;
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
             propertyChangeManager.setValueInDomibusPropertySource(propertyName, propertyValue);
@@ -171,9 +175,9 @@ public class PropertyChangeManagerTest {
     public void setPropertyValue_MultiTenancy_NoDomain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
-        new Expectations(domibusPropertyProvider) {{
-//            domibusPropertyProvider.isMultiTenantAware();
-//            result = true;
+        new Expectations() {{
+            propertyProviderHelper.isMultiTenantAware();
+            result = true;
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
         }};
@@ -189,8 +193,8 @@ public class PropertyChangeManagerTest {
     @Test()
     public void setPropertyValue_SingleTenancy() {
         new Expectations(propertyChangeManager) {{
-//            domibusPropertyProvider.isMultiTenantAware();
-//            result = false;
+            propertyProviderHelper.isMultiTenantAware();
+            result = false;
             propertyChangeManager.setValueInDomibusPropertySource(propertyName, propertyValue);
         }};
 
@@ -205,9 +209,9 @@ public class PropertyChangeManagerTest {
     @Test
     public void setValueInDomibusPropertySource(@Injectable MutablePropertySources propertySources,
                                                 @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) {
-        new Expectations(domibusPropertyProvider) {{
-//            domibusPropertyProvider.getEnvironment().getPropertySources();
-//            result = propertySources;
+        new Expectations() {{
+            environment.getPropertySources();
+            result = propertySources;
             propertySources.get(DomibusPropertiesPropertySource.NAME);
             result = domibusPropertiesPropertySource;
         }};
@@ -215,7 +219,6 @@ public class PropertyChangeManagerTest {
         propertyChangeManager.setValueInDomibusPropertySource(propertyName, propertyValue);
 
         new Verifications() {{
-//            domibusPropertyProvider.getEnvironment().getPropertySources();
             propertySources.get(DomibusPropertiesPropertySource.NAME);
             domibusPropertiesPropertySource.setProperty(propertyName, propertyValue);
         }};

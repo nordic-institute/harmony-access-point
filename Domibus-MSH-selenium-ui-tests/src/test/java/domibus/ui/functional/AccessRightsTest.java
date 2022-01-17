@@ -1,6 +1,7 @@
 package domibus.ui.functional;
 
 
+import org.testng.Reporter;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -12,38 +13,42 @@ import pages.messages.MessagesPage;
 import utils.Gen;
 
 
-
-
 public class AccessRightsTest extends SeleniumTest {
 
-    /* EDELIVERY-5048 - RGT-1 - Login with valid user with role ROLEUSER */
+	/* EDELIVERY-5048 - RGT-1 - Login with valid user with role ROLEUSER */
 	@Test(description = "RGT-1", groups = {"multiTenancy", "singleTenancy"})
 	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		Reporter.log("Created user with username: " + username);
 		log.info("Created user with username: " + username);
 
 		login(username, data.defaultPass());
+		Reporter.log("Logged in with user: " + username);
 		log.info("Logged in with user: " + username);
 
+		Reporter.log("Checking rights for: " + username);
 		log.info("Checking rights for: " + username);
 		soft.assertTrue(new DomibusPage(driver).getSidebar().isUserState(), "Options that should be available to an USER are present");
 
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5049 - RGT-2 - Check domain switch for role ROLEUSER */
+	/* EDELIVERY-5049 - RGT-2 - Check domain switch for role ROLEUSER */
 	@Test(description = "RGT-2", groups = {"multiTenancy"})
 	public void userAccessDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		Reporter.log("Created user with username: " + username);
 		log.info("Created user with username: " + username);
 
 		login(username, data.defaultPass());
+		Reporter.log("Logged in with user: " + username);
 		log.info("Logged in with user: " + username);
 
+		Reporter.log("Checking domain selector for: " + username);
 		log.info("Checking domain selector for: " + username);
 		DomibusPage page = new DomibusPage(driver);
 		try {
@@ -54,35 +59,41 @@ public class AccessRightsTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5050 - RGT-3 - Login with valid user with role ROLEADMIN */
+	/* EDELIVERY-5050 - RGT-3 - Login with valid user with role ROLEADMIN */
 	@Test(description = "RGT-3", groups = {"multiTenancy", "singleTenancy"})
 	public void adminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		Reporter.log("Created admin with username: " + username);
 		log.info("Created admin with username: " + username);
 
 		login(username, data.defaultPass());
+		Reporter.log("Logged in with admin: " + username);
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);
+		Reporter.log("Checking rights for admin: " + username);
 		log.info("Checking rights for admin: " + username);
 		soft.assertTrue(page.getSidebar().isAdminState(), "Options that should be available to an ADMIN are present");
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5051 - RGT-4 - Check domain switch for role ROLEADMIN */
+	/* EDELIVERY-5051 - RGT-4 - Check domain switch for role ROLEADMIN */
 	@Test(description = "RGT-4", groups = {"multiTenancy"})
 	public void adminDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		Reporter.log("Created admin with username: " + username);
 		log.info("Created admin with username: " + username);
 
 		login(username, data.defaultPass());
+		Reporter.log("Logged in with admin: " + username);
 		log.info("Logged in with admin: " + username);
 
 		DomibusPage page = new DomibusPage(driver);
+		Reporter.log("Checking domain selector for admin: " + username);
 		log.info("Checking domain selector for admin: " + username);
 		try {
 			soft.assertTrue(null == page.getDomainSelector().getSelectedValue(), "Domain selector is NOT present");
@@ -92,18 +103,21 @@ public class AccessRightsTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5052 - RGT-5 - Login with valid user with role ROLEAPADMIN */
+	/* EDELIVERY-5052 - RGT-5 - Login with valid user with role ROLEAPADMIN */
 	@Test(description = "RGT-5", groups = {"multiTenancy"})
 	public void superAdminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		login(data.getAdminUser());
+		Reporter.log("Logged in with super admin");
 		log.info("Logged in with super admin");
 
 		DomibusPage page = new DomibusPage(driver);
+		Reporter.log("Checking rights for super admin");
 		log.info("Checking rights for super admin");
 		soft.assertTrue(page.getSidebar().isSuperState(), "Options that should be available to an SUPER ADMIN are present");
 
+		Reporter.log("Checking domain selector for super user");
 		log.info("Checking domain selector for super user");
 		soft.assertTrue(null != page.getDomainSelector().getSelectedValue(), "Domain selector is present and selected value is not null");
 
@@ -111,13 +125,14 @@ public class AccessRightsTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-7203 - RGT-6 - Resend message as ROLEUSER */
+	/* EDELIVERY-7203 - RGT-6 - Resend message as ROLEUSER */
 	@Test(description = "RGT-6", groups = {"multiTenancy", "singleTenancy"})
 	public void userResendMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		String username = rest.getUsername(null, DRoles.USER, true, false, true);
 		login(username, data.defaultPass());
+		Reporter.log("Logged in with user " + username);
 		log.info("Logged in with user " + username);
 
 		MessagesPage page = new MessagesPage(driver);
@@ -141,13 +156,14 @@ public class AccessRightsTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7204 - RGT-7 - Access Logging page as ROLEADMIN */
+	/* EDELIVERY-7204 - RGT-7 - Access Logging page as ROLEADMIN */
 	@Test(description = "RGT-7", groups = {"multiTenancy", "singleTenancy"})
 	public void adminAccessLoggingPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		String username = rest.getUsername(null, DRoles.ADMIN, true, false, true);
 		login(username, data.defaultPass());
+		Reporter.log("Logged in with admin " + username);
 		log.info("Logged in with admin " + username);
 
 		boolean isPresent = false;

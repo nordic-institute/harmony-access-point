@@ -2,9 +2,7 @@ package ddsl.dcomponents.grid;
 
 import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.DObject;
-import metricss.MyMetrics;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -126,7 +124,6 @@ public class DGrid extends DComponent {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 
-//		this.wait.forXMillis(200);
 		Actions action = new Actions(driver);
 		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
 		weToDobject(element).scrollIntoView();
@@ -650,7 +647,7 @@ public class DGrid extends DComponent {
 
 
 		try {
-			csvDate = TestRunData.CSV_DATE_FORMAT2.parse(csvDateStr);
+			csvDate = TestRunData.CSV_DATE_FORMAT.parse(csvDateStr);
 			uiDate = TestRunData.UI_DATE_FORMAT.parse(uiDateStr);
 		} catch (ParseException e) {
 			log.debug("csvDateStr = " + csvDateStr);

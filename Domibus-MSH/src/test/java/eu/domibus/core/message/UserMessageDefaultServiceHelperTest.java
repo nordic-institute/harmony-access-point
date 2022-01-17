@@ -1,23 +1,17 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.api.usermessage.domain.MessageProperties;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
+import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -43,7 +37,7 @@ public class UserMessageDefaultServiceHelperTest {
 
     private UserMessage userMessage;
 
-    private MessageProperties messageProperties;
+    private Set<MessageProperty> messageProperties = new HashSet<>();
 
     private boolean sameOriginalSender;
 
@@ -61,10 +55,9 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getProperties_noMsgProps2() {
         givenUserMessage();
-//        givenMessageProperties();
+        givenMessageProperties();
 
         Map<String, String> properties = userMessageDefaultServiceHelper.getProperties(userMessage);
 
@@ -85,16 +78,15 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getProperties() {
         givenUserMessage();
-//        givenMessageProperties();
-//        givenProperties(
-//                aProperty().withName("dummy").withValue("dummy").build(),
-//                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
-//                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
-//                aProperty().withName("another_dummy").withValue("another_dummy").build()
-//        );
+        givenMessageProperties();
+        givenProperties(
+                aProperty().withName("dummy").withValue("dummy").build(),
+                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
+                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
+                aProperty().withName("another_dummy").withValue("another_dummy").build()
+        );
 
         Map<String, String> properties = userMessageDefaultServiceHelper.getProperties(userMessage);
 
@@ -116,10 +108,9 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void returnsNullWhenRetrievingTheOriginalSenderForUserMessagesHavingNullMessageProperties() {
         givenUserMessage();
-//        givenNullMessageProperties();
+        givenNullMessageProperties();
 
         whenRetrievingTheOriginalSender();
 
@@ -127,16 +118,15 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void returnsTheOriginalSenderPropertyValueIgnoringOtherPropertiesWhenRetrievingTheOriginalSenderForUserMessagesContainingTheCorrectProperty() {
         givenUserMessage();
-//        givenMessageProperties();
-//        givenProperties(
-//                aProperty().withName("dummy").withValue("dummy").build(),
-//                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
-//                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
-//                aProperty().withName("another_dummy").withValue("another_dummy").build()
-//        );
+        givenMessageProperties();
+        givenProperties(
+                aProperty().withName("dummy").withValue("dummy").build(),
+                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
+                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
+                aProperty().withName("another_dummy").withValue("another_dummy").build()
+        );
 
         whenRetrievingTheOriginalSender();
 
@@ -153,7 +143,6 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void returnsNullWhenRetrievingTheFinalRecipientForUserMessagesHavingNullMessageProperties() {
         givenUserMessage();
 //        givenNullMessageProperties();
@@ -164,16 +153,15 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void returnsTheFinalRecipientPropertyValueIgnoringOtherPropertiesWhenRetrievingTheFinalRecipientForUserMessagesContainingTheCorrectProperty() {
         givenUserMessage();
-//        givenMessageProperties();
-//        givenProperties(
-//                aProperty().withName("dummy").withValue("dummy").build(),
-//                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
-//                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
-//                aProperty().withName("another_dummy").withValue("another_dummy").build()
-//        );
+        givenMessageProperties();
+        givenProperties(
+                aProperty().withName("dummy").withValue("dummy").build(),
+                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
+                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
+                aProperty().withName("another_dummy").withValue("another_dummy").build()
+        );
 
         whenRetrievingTheFinalRecipient();
 
@@ -191,11 +179,10 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void returnsFirsFoundPartyIdentifierWhenRetrievingTheReceivingPartyForUserMessagesHavingMultiplePartyIdentifiersForTheReceivingParty() {
         givenUserMessage();
         givenPartyIdentifiers(
-                aPartyId().withValue("first").build());
+                aPartyId().withValue("first").withType("type").build());
 
         whenRetrievingTheToParty();
 
@@ -280,38 +267,38 @@ public class UserMessageDefaultServiceHelperTest {
         this.userMessage = userMessage;
     }
 
-//    private void givenNullMessageProperties() {
-//        givenMessageProperties(null);
-//    }
+    private void givenNullMessageProperties() {
+        givenMessageProperties(null);
+    }
 
-//    private void givenMessageProperties() {
-//        givenMessageProperties(new MessageProperties());
-//    }
+    private void givenMessageProperties() {
+        givenMessageProperties(new HashSet<>());
+    }
 
-//    private void givenMessageProperties(MessageProperties messageProperties) {
-//        this.messageProperties = messageProperties;
-//        this.userMessage.setMessageProperties(messageProperties);
-//    }
+    private void givenMessageProperties(HashSet<MessageProperty> messageProperties) {
+        this.messageProperties = messageProperties;
+        this.userMessage.setMessageProperties(messageProperties);
+    }
 
-//    private void givenProperties(Property... properties) {
-//        givenProperties(Arrays.asList(properties));
-//    }
+    private void givenProperties(MessageProperty... properties) {
+        givenProperties(Arrays.asList(properties));
+    }
 
-//    private void givenProperties(Collection<Property> properties) {
-//        messageProperties.getProperty().addAll(properties);
-//    }
+    private void givenProperties(Collection<MessageProperty> properties) {
+        messageProperties.addAll(properties);
+    }
 
     private void givenEmptyPartyIdentifiers() {
-        givenPartyIdentifiers();
+        givenPartyIdentifiers(null);
     }
 
-    private void givenPartyIdentifiers(PartyId... properties) {
-        givenPartyIdentifiers(Arrays.asList(properties));
-    }
-
-    private void givenPartyIdentifiers(Collection<PartyId> properties) {
+    private void givenPartyIdentifiers(PartyId properties) {
         To to = new To();
-//        to.getPartyId().addAll(properties);
+        if(properties != null) {
+            to.setToPartyId(new PartyId());
+            to.getToPartyId().setType(properties.getType());
+            to.getToPartyId().setValue(properties.getValue());
+        }
         PartyInfo partyInfo = new PartyInfo();
         partyInfo.setTo(to);
         userMessage.setPartyInfo(partyInfo);
@@ -382,27 +369,30 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void getService(@Mocked UserMessage userMessage) {
-        String service = "my service";
+    public void getService(@Injectable UserMessage userMessage,
+                           @Injectable ServiceEntity service) {
+        String serviceValue = "my service";
 
         new Expectations() {{
-//            userMessage.getCollaborationInfo().getService().getValue();
-//            result = service;
+
+            userMessage.getService();
+            result = service;
+
+            service.getValue();
+            result = serviceValue;
         }};
 
         String value = userMessageDefaultServiceHelper.getService(userMessage);
-        assertEquals(service, value);
+        assertEquals(serviceValue, value);
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getAction(@Mocked UserMessage userMessage) {
         String action = "my action";
 
         new Expectations() {{
-//            userMessage.getCollaborationInfo().getAction();
-//            result = action;
+            userMessage.getActionValue();
+            result = action;
         }};
 
         String value = userMessageDefaultServiceHelper.getAction(userMessage);
@@ -411,9 +401,9 @@ public class UserMessageDefaultServiceHelperTest {
 
     public static final class PropertyBuilder {
 
-        protected String value;
-        protected String name;
-        protected String type;
+        private String value;
+        private String name;
+        private String type;
 
         private PropertyBuilder() {
         }
@@ -432,8 +422,8 @@ public class UserMessageDefaultServiceHelperTest {
             return this;
         }
 
-        public Property build() {
-            Property property = new Property();
+        public MessageProperty build() {
+            MessageProperty property = new MessageProperty();
             property.setValue(value);
             property.setName(name);
             property.setType(type);
@@ -442,8 +432,8 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     public static final class PartyIdBuilder {
-        protected String value;
-        protected String type;
+        private String value;
+        private String type;
 
         private PartyIdBuilder() {
         }
@@ -454,6 +444,10 @@ public class UserMessageDefaultServiceHelperTest {
 
         public PartyIdBuilder withValue(String value) {
             this.value = value;
+            return this;
+        }
+        public PartyIdBuilder withType(String type) {
+            this.type = type;
             return this;
         }
 

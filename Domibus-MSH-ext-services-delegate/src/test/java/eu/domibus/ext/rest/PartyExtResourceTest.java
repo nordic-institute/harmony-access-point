@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.domain.PartyDTO;
 import eu.domibus.ext.domain.PartyFilterRequestDTO;
+import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;

@@ -1,9 +1,9 @@
 package eu.domibus.test;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -15,11 +15,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,19 +27,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.Collections;
 
 /**
@@ -54,8 +44,6 @@ import java.util.Collections;
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
-
-
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
@@ -77,6 +65,11 @@ public abstract class AbstractIT {
 
     @Autowired
     protected DomibusConditionUtil domibusConditionUtil;
+    @Autowired
+    protected ConfigurableEnvironment environment;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     private static boolean springContextInitialized = false;
 
@@ -149,45 +142,5 @@ public abstract class AbstractIT {
         FileUtils.forceMkdir(internalDirectory);
         final File destActiveMQ = new File(internalDirectory, "activemq.xml");
         FileUtils.copyFile(activeMQFile, destActiveMQ);
-    }
-
-
-
-    /**
-     * Convert the given file to a string
-     *
-     * @param file
-     * @return
-     */
-    protected String getAS4Response(String file) {
-        try {
-            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            InputStream is = getClass().getClassLoader().getResourceAsStream("dataset/as4/" + file);
-            Document doc = db.parse(is);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = null;
-            transformer = tf.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            StringWriter writer = new StringWriter();
-            transformer.transform(new DOMSource(doc), new StreamResult(writer));
-            return writer.getBuffer().toString().replaceAll("\n|\r", "");
-        } catch (Exception exc) {
-            Assert.fail(exc.getMessage());
-            exc.printStackTrace();
-        }
-        return null;
-    }
-
-
-    public void prepareSendMessage(String responseFileName) {
-        /* Initialize the mock objects */
-        String body = getAS4Response(responseFileName);
-
-        // Mock the response from the recipient MSH
-        WireMock.stubFor(WireMock.post(WireMock.urlEqualTo("/domibus/services/msh"))
-                .willReturn(WireMock.aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/soap+xml")
-                        .withBody(body)));
     }
 }

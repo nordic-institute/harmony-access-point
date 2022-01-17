@@ -1,6 +1,6 @@
 package eu.domibus.core.message.testservice;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.SignalMessage;
@@ -23,10 +23,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataSource;
+import java.io.IOException;
 
 /**
  * @author Sebastian-Ion TINCU
  */
+@SuppressWarnings({"ConstantConditions", "SameParameterValue", "ResultOfMethodCallIgnored", "unused"})
 @RunWith(JMockit.class)
 public class TestServiceTest {
 
@@ -62,7 +64,7 @@ public class TestServiceTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Mocked
-    private Gson gson;
+    private ObjectMapper gson;
 
     @Mocked
     SignalMessage signalMessage;
@@ -74,7 +76,7 @@ public class TestServiceTest {
     // TODO Is the receiverType the same as the receiverPartyId?
     private String receiverType;
 
-    private Submission submission = new Submission();
+    private final Submission submission = new Submission();
 
     private Submission returnedSubmission;
 
@@ -92,17 +94,17 @@ public class TestServiceTest {
 
     private String messageId, returnedMessageId;
 
-    private String partyId = "test";
+    private final String partyId = "test";
 
-    private String userMessageId = "testmessageid";
+    private final String userMessageId = "testmessageid";
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         new Expectations() {{
-            new Gson();
+            new ObjectMapper();
             result = gson;
 
-            gson.fromJson(anyString, Submission.class);
+            gson.readValue(anyString, Submission.class);
             result = submission;
         }};
     }
@@ -374,11 +376,11 @@ public class TestServiceTest {
     }
 
     @Test
-    public void testGetLastTestSent() {
+    public void testGetLastTestSent() throws IOException {
         new Expectations() {{
-            new Gson();
+            new ObjectMapper();
             times = 0;
-            gson.fromJson(anyString, Submission.class);
+            gson.readValue(anyString, Submission.class);
             times = 0;
             userMessageLogDao.findLastTestMessageId(partyId);
             result = userMessageId;
@@ -390,12 +392,12 @@ public class TestServiceTest {
     }
 
     @Test(expected = TestServiceException.class)
-    public void testGetLastTestSent_NotFound() throws TestServiceException {
+    public void testGetLastTestSent_NotFound() throws TestServiceException, IOException {
         // Given
         new Expectations() {{
-            new Gson();
+            new ObjectMapper();
             times = 0;
-            gson.fromJson(anyString, Submission.class);
+            gson.readValue(anyString, Submission.class);
             times = 0;
             userMessageLogDao.findLastTestMessageId(anyString);
             result = userMessageId;
@@ -409,42 +411,43 @@ public class TestServiceTest {
 
     @Test
     @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
+    public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException, IOException {
         // Given
         new Expectations() {{
             party.getEndpoint();
             result = "testEndpoint";
-            new Gson();
             times = 0;
-            gson.fromJson(anyString, Submission.class);
+            gson.readValue(anyString, Submission.class);
             times = 0;
-            messaging.getSignalMessage();
+
+            party.getEndpoint();
+            result = "testEndpoint";
+
+            signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
             result = signalMessage;
+
             pModeProvider.getPartyByIdentifier(partyId);
             result = party;
         }};
 
         // When
-        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(partyId, userMessageId);
 
         // Then
-        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
         Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getSignalMessageId());
         Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
-//        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 
     @Test(expected = Exception.class)
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
+    public void testGetLastTestReceived_NotFound() throws IOException {
         // Given
         new Expectations() {{
-            new Gson();
+            new ObjectMapper();
             times = 0;
-            gson.fromJson(anyString, Submission.class);
+            gson.readValue(anyString, Submission.class);
             times = 0;
-            messaging.getSignalMessage();
+            signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
             result = null;
         }};
 
@@ -452,14 +455,14 @@ public class TestServiceTest {
     }
 
     @Test
-    public void testGetLastTestReceived(@Injectable Party party) throws TestServiceException {
+    public void testGetLastTestReceived(@Injectable Party party) throws TestServiceException, IOException {
         // Given
         new Expectations() {{
             party.getEndpoint();
             result = "testEndpoint";
-            new Gson();
+            new ObjectMapper();
             times = 0;
-            gson.fromJson(anyString, Submission.class);
+            gson.readValue(anyString, Submission.class);
             times = 0;
             signalMessageLogDao.findLastTestMessageId(partyId);
             result = "signalMessageId";
@@ -468,28 +471,11 @@ public class TestServiceTest {
         }};
 
         // When
-        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceived(partyId, null);
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceived(partyId, null);
 
         // Then
-        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
         Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getSignalMessageId());
         Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
-//        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
-    }
-
-    protected void testGetErrorsDetails() {
-        String userMessageId = "mess_id_1", errorDetails = "DOM005-Cannot find party";
-
-        new Expectations(testService) {{
-            testService.getErrorsForMessage(userMessageId);
-            returns(null, errorDetails);
-        }};
-
-        String result = testService.getErrorsDetails(userMessageId);
-        Assert.assertEquals("Please call the method again to see the details.", result);
-
-        result = testService.getErrorsDetails(userMessageId);
-        Assert.assertEquals("Error details are: " + errorDetails, result);
     }
 }

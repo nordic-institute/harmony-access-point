@@ -13,6 +13,8 @@ import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
 import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
 import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -25,18 +27,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
+import java.time.ZoneOffset;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -50,6 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * The complete rest endpoint integration tests
  */
 public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
+
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceCompleteIT.class);
 
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";
@@ -152,7 +151,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
                 2110110000000001L,
                 1,
                 "/tmp/batch")); // is copy from 2
-        eArchiveBatchUserMessageDao.create(batch3, Arrays.asList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
+        eArchiveBatchUserMessageDao.create(batch3, Collections.singletonList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
     }
 
 
@@ -296,7 +295,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
     @Test
     @Transactional
     public void testHistoryOfTheExportedBatches() throws Exception {
-// given
+        // given
         Long messageStartDate = 211005L;
         Long messageEndDate = 211015L;
 
@@ -327,7 +326,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         assertEquals(batch3.getDateRequested(), responseBatch.getEnqueuedTimestamp());
         assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
         // test date formatting
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + sdf.format(batch3.getDateRequested()) + "\""));
+        LOG.info(content);
+        assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + batch3.getDateRequested().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()));
     }
 }

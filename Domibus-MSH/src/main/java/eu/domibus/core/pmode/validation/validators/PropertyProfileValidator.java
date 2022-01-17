@@ -42,7 +42,6 @@ public class PropertyProfileValidator {
     DomibusConfigurationService domibusConfigurationService;
 
     public void validate(final UserMessage userMessage, final String pmodeKey) throws EbMS3Exception {
-        final List<Property> modifiablePropertyList = new ArrayList<>();
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
         final PropertySet propSet = legConfiguration.getPropertySet();
         if (propSet == null || CollectionUtils.isEmpty(propSet.getProperties())) {
@@ -51,10 +50,8 @@ public class PropertyProfileValidator {
             return;
         }
 
-        final Set<Property> profile = propSet.getProperties();
-
         Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
-        modifiablePropertyList.addAll(profile);
+        final List<Property> modifiablePropertyList = new ArrayList<>(propSet.getProperties());
         if (userMessage.getMessageProperties() != null) {
             checkDuplicateMessageProperties(modifiablePropertyList, messageProperties);
         }
