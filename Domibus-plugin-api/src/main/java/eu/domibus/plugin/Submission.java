@@ -45,7 +45,6 @@ public class Submission {
     private ProcessingType processingType;
 
 
-
     /**
      * Getter for mpc
      * <p>
@@ -612,12 +611,15 @@ public class Submission {
     }
 
     public static class Party {
-        private final String partyId;
-        private final String partyIdType;
+        private String partyId;
+        private String partyIdType;
 
         public Party(final String partyId, final String partyIdType) {
             this.partyId = trim(partyId);
             this.partyIdType = trim(partyIdType);
+        }
+
+        public Party() {
         }
 
         public String getPartyId() {
@@ -749,6 +751,9 @@ public class Submission {
             this.key = trim(key);
             this.value = trim(value);
             this.type = trim(type);
+        }
+
+        public TypedProperty() {
         }
 
         @Override
