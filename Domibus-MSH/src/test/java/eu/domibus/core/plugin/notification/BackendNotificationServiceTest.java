@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -170,14 +171,14 @@ public class BackendNotificationServiceTest {
 //        Map<String, String> props = new HashMap<>();
 //
 //        new Expectations(backendNotificationService) {{
-//            userMessageService.getProperties(MESSAGE_ID);
+//            userMessageService.getProperties(anyLong);
 //            result = props;
 //
-//            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType, props);
+//            backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType, props);
 //            times = 1;
 //        }};
 //
-//        backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType);
+//        backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType);
 //
 //        new FullVerifications() {
 //        };
