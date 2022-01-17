@@ -72,7 +72,7 @@ public class UserMessageValidatorSpiServiceImpl implements UserMessageValidatorS
         if (partInfo.getPartProperties() == null) {
             return false;
         }
-        if(partInfo.getPartProperties() == null) {
+        if(partInfo.getPartProperties().getProperty() == null) {
             return false;
         }
 
