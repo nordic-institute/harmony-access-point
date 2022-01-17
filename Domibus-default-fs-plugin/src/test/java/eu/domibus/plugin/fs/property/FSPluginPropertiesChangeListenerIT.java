@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
+import eu.domibus.plugin.fs.property.listeners.EnabledChangeListener;
 import eu.domibus.plugin.fs.property.listeners.OutQueueConcurrencyChangeListener;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
@@ -37,7 +38,13 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
     private TriggerChangeListener triggerChangeListener;
 
     @Autowired
+    private EnabledChangeListener enabledChangeListener;
+
+    @Autowired
     private DomainExtService domainExtService;
+
+    @Autowired
+    private FSPluginProperties fsPluginProperties;
 
     @Configuration
     static class ContextConfiguration {
@@ -86,5 +93,17 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
 
         outQueueConcurrencyChangeListener.propertyValueChanged("default", OUT_QUEUE_CONCURRENCY, "1-2");
         Mockito.verify(messageListenerContainer, Mockito.times(1)).updateMessageListenerContainerConcurrency(aDefault, "1-2");
+    }
+
+    @Test
+    public void testEnabledChangeListener() {
+        boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
+        Assert.assertTrue(handlesProperty);
+
+        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
+        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).pauseJobs("default", EnabledChangeListener.FSPLUGIN_JOB_NAMES);
+
+        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
+        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).resumeJobs("default", EnabledChangeListener.FSPLUGIN_JOB_NAMES);
     }
 }

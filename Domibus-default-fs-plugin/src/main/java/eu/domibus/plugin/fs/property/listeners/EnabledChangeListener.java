@@ -7,7 +7,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
@@ -21,13 +20,17 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
 @Component
 public class EnabledChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EnabledChangeListener.class);
 
-    @Autowired
-    protected DomibusSchedulerExtService domibusSchedulerExt;
+    public static final String[] FSPLUGIN_JOB_NAMES = TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{});
 
-    @Autowired
-    protected FSPluginProperties fsPluginProperties;
+    final protected DomibusSchedulerExtService domibusSchedulerExt;
+    final protected FSPluginProperties fsPluginProperties;
+
+    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties) {
+        this.domibusSchedulerExt = domibusSchedulerExt;
+        this.fsPluginProperties = fsPluginProperties;
+    }
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -37,15 +40,13 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
         boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
-        String[] jobNames = getJobNames();
+        LOG.info("Setting fs-plugin to: [{}] for domain: [{}]...", enable ? "enabled" : "disabled", domainCode);
+
         if (enable) {
-            domibusSchedulerExt.resumeJobs(domainCode, jobNames);
+            domibusSchedulerExt.resumeJobs(domainCode, FSPLUGIN_JOB_NAMES);
         } else {
-            domibusSchedulerExt.pauseJobs(domainCode, jobNames);
+            domibusSchedulerExt.pauseJobs(domainCode, FSPLUGIN_JOB_NAMES);
         }
     }
 
-    private String[] getJobNames() {
-        return TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{});
-    }
 }
