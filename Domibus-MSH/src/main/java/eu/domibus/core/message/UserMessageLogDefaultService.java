@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ENTITY_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -85,6 +86,8 @@ public class UserMessageLogDefaultService {
         //we set the status after we send the status change event; otherwise the old status and the new status would be the same
         userMessageLog.setMessageStatus(messageStatusEntity);
         userMessageLogDao.create(userMessageLog);
+        LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+        LOG.debug("UserMessage saved with entityId: [{}]", userMessage.getEntityId());
 
         return userMessageLog;
     }
