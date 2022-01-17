@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.UserMessageExtException;
