@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.services.PayloadExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -33,7 +34,7 @@ public class UserMessagePayloadExtResource {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePayloadExtResource.class);
 
     @Autowired
-    UserMessageValidatorServiceDelegate userMessageValidatorServiceDelegate;
+    PayloadExtService payloadExtService;
 
     @Autowired
     ExtExceptionHelper extExceptionHelper;
@@ -48,7 +49,7 @@ public class UserMessagePayloadExtResource {
     @PostMapping(value = "validation", consumes = {"multipart/form-data"})
     public void validatePayload(@RequestPart("file") MultipartFile payload) {
         try {
-            userMessageValidatorServiceDelegate.validatePayload(payload.getInputStream(), payload.getContentType());
+            payloadExtService.validatePayload(payload.getInputStream(), payload.getContentType());
         } catch (IOException e) {
             throw new UserMessageExtException(DomibusErrorCode.DOM_005, "Could not get the payload inputstream");
         }

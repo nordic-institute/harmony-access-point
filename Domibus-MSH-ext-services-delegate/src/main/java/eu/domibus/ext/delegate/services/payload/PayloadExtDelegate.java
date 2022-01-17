@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.payload;
 
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.PayloadExtException;
 import eu.domibus.ext.services.PayloadExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -24,8 +25,7 @@ public class PayloadExtDelegate implements PayloadExtService {
     @Override
     public void validatePayload(InputStream payload, String mimeType) throws PayloadExtException {
         if (!isValidatorActive()) {
-            LOG.debug("Validation skipped: validator SPI is not active");
-            return;
+            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Validation skipped: validator SPI is not active");
         }
         LOG.debug("Validating payload");
         userMessageValidatorSpi.validatePayload(payload, mimeType);
