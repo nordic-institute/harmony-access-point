@@ -348,7 +348,7 @@ public class BackendNotificationService {
             return;
         }
 
-        notifySync(backendConnector, asyncNotificationConfiguration, messageEntityId, messageId, notificationType, properties);
+        notifySync(backendConnector, messageEntityId, messageId, notificationType, properties);
     }
 
     protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
@@ -362,7 +362,6 @@ public class BackendNotificationService {
     }
 
     protected void notifySync(BackendConnector<?, ?> backendConnector,
-                              AsyncNotificationConfiguration asyncNotificationConfiguration,
                               long messageEntityId,
                               String messageId,
                               NotificationType notificationType,

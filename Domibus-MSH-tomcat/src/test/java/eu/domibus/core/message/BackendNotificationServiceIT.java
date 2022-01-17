@@ -2,14 +2,13 @@ package eu.domibus.core.message;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.routing.BackendFilter;
-import eu.domibus.common.NotificationType;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.BackendConnectorService;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.XmlProcessingException;
@@ -91,7 +90,8 @@ public class BackendNotificationServiceIT extends AbstractIT {
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
-        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class))).thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
 //        String backendName = "backendName";
 //        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
@@ -101,12 +101,10 @@ public class BackendNotificationServiceIT extends AbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageIsReceived(messageId);
+        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
-
-//        backendNotificationService.notifyMessageReceived(userMessage, backendName, notificationType, null);
 
     }
 }
