@@ -1,5 +1,6 @@
 package eu.domibus.core.csv;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.model.MSHRole;
@@ -188,7 +189,7 @@ public class CsvServiceImplTest {
     }
 
     @Test
-    public void serializeFieldValue_null() throws NoSuchFieldException, IllegalAccessException {
+    public void serializeFieldValue_null() throws NoSuchFieldException, IllegalAccessException, JsonProcessingException {
         TestCsvFields o = new TestCsvFields();
 
         Field declaredField = TestCsvFields.class.getDeclaredField("nullField");
@@ -199,7 +200,7 @@ public class CsvServiceImplTest {
     }
 
     @Test
-    public void serializeFieldValue_Map() throws NoSuchFieldException, IllegalAccessException {
+    public void serializeFieldValue_Map() throws NoSuchFieldException, IllegalAccessException, JsonProcessingException {
         TestCsvFields o = new TestCsvFields();
         HashMap<String, String> map = new HashMap<>();
         map.put("key1", "value1");
@@ -219,7 +220,7 @@ public class CsvServiceImplTest {
     }
 
     @Test
-    public void serializeFieldValue_Date() throws NoSuchFieldException, IllegalAccessException {
+    public void serializeFieldValue_Date() throws NoSuchFieldException, IllegalAccessException, JsonProcessingException {
         TestCsvFields o = new TestCsvFields();
         o.setDateField(Date.from(LOCAL_DATE_TIME.atZone(ZoneOffset.UTC).toInstant()));
 
@@ -236,7 +237,7 @@ public class CsvServiceImplTest {
     }
 
     @Test
-    public void serializeFieldValue_LocalDateTime() throws IllegalAccessException, NoSuchFieldException {
+    public void serializeFieldValue_LocalDateTime() throws IllegalAccessException, NoSuchFieldException, JsonProcessingException {
         TestCsvFields o = new TestCsvFields();
         o.setLocalDateTimeField(LOCAL_DATE_TIME);
 
@@ -253,7 +254,7 @@ public class CsvServiceImplTest {
     }
 
     @Test
-    public void serializeFieldValue_Objects() throws IllegalAccessException, NoSuchFieldException {
+    public void serializeFieldValue_Objects() throws IllegalAccessException, NoSuchFieldException, JsonProcessingException {
         TestCsvFields o = new TestCsvFields();
         o.setStringField("TEST");
 
@@ -270,7 +271,7 @@ public class CsvServiceImplTest {
     }
 
     @Test(expected = CsvException.class)
-    public void createCSVContents() throws IllegalAccessException, NoSuchFieldException {
+    public void createCSVContents() throws IllegalAccessException, NoSuchFieldException, JsonProcessingException {
         Object o = new Object();
         Field declaredField = TestCsvFields.class.getDeclaredField("stringField");
 

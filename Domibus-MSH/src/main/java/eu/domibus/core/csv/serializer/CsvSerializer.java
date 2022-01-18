@@ -1,6 +1,7 @@
 package eu.domibus.core.csv.serializer;
 
 import com.opencsv.ICSVWriter;
+import eu.domibus.api.exceptions.DomibusCoreException;
 
 /**
  * @author François Gautier
@@ -11,5 +12,5 @@ public interface CsvSerializer {
 
     boolean canHandle(Object fieldValue);
 
-    String serialize(Object fieldValue);
+    String serialize(Object fieldValue) throws DomibusCoreException;
 }

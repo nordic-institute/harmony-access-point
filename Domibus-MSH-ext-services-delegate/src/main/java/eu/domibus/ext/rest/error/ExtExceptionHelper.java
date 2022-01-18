@@ -75,7 +75,7 @@ public class ExtExceptionHelper {
         return new ResponseEntity<>(body, headers, status);
     }
 
-    protected ResponseEntity<ErrorDTO> createResponse(String errorMessage, HttpStatus status) {
+    public ResponseEntity<ErrorDTO> createResponse(String errorMessage, HttpStatus status) {
         LOG.error(errorMessage);
 
         HttpHeaders headers = new HttpHeaders();

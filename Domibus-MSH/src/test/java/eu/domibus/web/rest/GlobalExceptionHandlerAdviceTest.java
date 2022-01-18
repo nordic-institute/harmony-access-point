@@ -1,11 +1,10 @@
 package eu.domibus.web.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.error.GlobalExceptionHandlerAdvice;
-import eu.domibus.web.rest.ro.ErrorRO;
 import org.hibernate.HibernateException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -110,7 +109,7 @@ public class GlobalExceptionHandlerAdviceTest {
         MethodArgumentNotValidException thrown = new MethodArgumentNotValidException(methodParameter, bindingResult);
         // when
         ResponseEntity<Object> restErrorResponse = unitUnderTest.handleMethodArgumentNotValid(thrown, null, null, null);
-        String message = new Gson().toJson(restErrorResponse);
+        String message = new ObjectMapper().writeValueAsString(restErrorResponse);
         // then
         Assert.assertThat(message, new Contains(exceptionMessage));
     }
