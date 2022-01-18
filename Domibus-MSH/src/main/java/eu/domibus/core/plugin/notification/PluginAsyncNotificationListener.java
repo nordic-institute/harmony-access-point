@@ -48,7 +48,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
         this.authUtils = authUtils;
     }
 
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional
     @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")

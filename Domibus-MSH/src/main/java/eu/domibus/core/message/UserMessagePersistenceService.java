@@ -46,6 +46,7 @@ public class UserMessagePersistenceService {
     public void saveIncomingMessage(UserMessage userMessage, List<PartInfo> partInfoList, NotificationStatus notificationStatus, String backendName, UserMessageRaw userMessageRaw, SignalMessageResult signalMessageResult) {
         messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+        LOG.debug("Add message entity ID to LOG MDC [{}]", String.valueOf(userMessage.getEntityId()));
 
         userMessageLogService.save(
                 userMessage,
