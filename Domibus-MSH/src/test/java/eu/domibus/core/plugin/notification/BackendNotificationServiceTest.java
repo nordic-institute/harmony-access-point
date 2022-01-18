@@ -1,16 +1,17 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MessageDeletedBatchEvent;
-import eu.domibus.common.MessageDeletedEvent;
-import eu.domibus.common.NotificationType;
+import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+import javax.management.NotificationListener;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,15 +39,15 @@ import java.util.stream.Stream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.common.NotificationType.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-// TODO: François Gautier 07-01-22     EDELIVERY-8815 BackendNotificationServiceTest
 public class BackendNotificationServiceTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
@@ -130,68 +132,64 @@ public class BackendNotificationServiceTest {
     @Injectable
     MessagingModuleConfiguration messageCommunicationConfiguration;
 
-//        @Test
-//        public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
-//            String backendName = "backendName";
-//            NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
-//            new Expectations(backendNotificationService) {{
-//                submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
-//
-//                userMessage.getMessageId();
-//                result = "messageId";
-//
-//                backendNotificationService.notify(anyString, backendName, notificationType, null);
-//            }};
-//
-//            backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, null);
-//
-//            new FullVerifications() {
-//            };
-//        }
-//        @Test
-//        public void testValidateAndNotify(@Mocked final UserMessage userMessage) {
-//            Map<String, String> properties = new HashMap<>();
-//            properties.put(MessageConstants.FINAL_RECIPIENT, FINAL_RECIPIENT);
-//
-//            String backendName = "backendName";
-//            NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
-//            new Expectations(backendNotificationService) {{
-//                submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
-//
-//                userMessage.getMessageId();
-//                result = "messageId";
-//
-//                backendNotificationService.notify(anyString, backendName, notificationType, properties);
-//            }};
-//
-//
-//            backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, properties);
-//
-//            assertThat(properties.size(), is(1));
-//            assertThat(properties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
-//            new FullVerifications() {
-//            };
-//        }
+    @Test
+    public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+        String backendName = "backendName";
+        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
+        new Expectations(backendNotificationService) {{
+            userMessage.getMessageId();
+            result = "messageId";
+
+            backendNotificationService.notify(userMessage, backendName, notificationType, null);
+        }};
+
+        backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, null);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateAndNotify(@Mocked final UserMessage userMessage) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put(MessageConstants.FINAL_RECIPIENT, FINAL_RECIPIENT);
+
+        String backendName = "backendName";
+        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
+        new Expectations(backendNotificationService) {{
+            userMessage.getMessageId();
+            result = "messageId";
+
+            backendNotificationService.notify(userMessage, backendName, notificationType, properties);
+        }};
 
 
-//    @Test
-//    public void notifyParent(@Mocked NotificationType notificationType,
-//                             @Mocked UserMessage userMessage) {
-//        Map<String, String> props = new HashMap<>();
-//
-//        new Expectations(backendNotificationService) {{
-//            userMessageService.getProperties(anyLong);
-//            result = props;
-//
-//            backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType, props);
-//            times = 1;
-//        }};
-//
-//        backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType);
-//
-//        new FullVerifications() {
-//        };
-//    }
+        backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, properties);
+
+        assertThat(properties.size(), is(1));
+        assertThat(properties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyParent(@Mocked NotificationType notificationType,
+                             @Mocked UserMessage userMessage) {
+        Map<String, String> props = new HashMap<>();
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.getPropertiesAsMap(userMessage);
+            result = props;
+
+            backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType, props);
+            times = 1;
+        }};
+
+        backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType);
+
+        new FullVerifications() {
+        };
+    }
 
     @Test
     public void testNotifyWithNoConfiguredNotificationListener(@Mocked final BackendConnector<?, ?> backendConnector,
@@ -607,7 +605,6 @@ public class BackendNotificationServiceTest {
         return messageDeletedEvent;
     }
 
-
     @Test
     public void getAllMessageIdsForBackendTest(@Mocked UserMessageLogDto uml1,
                                                @Mocked UserMessageLogDto uml2) {
@@ -992,569 +989,562 @@ public class BackendNotificationServiceTest {
         };
     }
 
-//            @Test
-//            public void notifyMessageReceived_isPluginNotificationDisabled(
-//                    @Mocked final BackendFilter matchingBackendFilter,
-//                    @Mocked final UserMessage userMessage) {
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = true;
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyMessageReceived_fragment(
-//                    @Mocked final BackendFilter matchingBackendFilter,
-//                    @Mocked final UserMessage userMessage) {
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    userMessage.isUserMessageFragment();
-//                    result = true;
-//                    times = 1;
-//
-//                    backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_FRAGMENT_RECEIVED, withAny(new HashMap<>()));
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyMessageReceived_NotFragment(
-//                    @Mocked final BackendFilter matchingBackendFilter,
-//                    @Mocked final UserMessage userMessage) {
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    userMessage.isUserMessageFragment();
-//                    result = false;
-//                    times = 1;
-//
-//                    backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_RECEIVED, withAny(new HashMap<>()));
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyPayloadSubmitted(
-//                    @Mocked UserMessage userMessage,
-//                    @Mocked PartInfo partInfo,
-//                    @Mocked BackendConnector<?, ?> backendConnector) {
-//                List<PayloadSubmittedEvent> valueHolderForMultipleInvocations = new ArrayList<>();
-//
-//                new Expectations(backendNotificationService) {{
-//                    userMessageHandlerService.checkTestMessage(userMessage);
-//                    result = false;
-//
-//                    userMessage.getMessageId();
-//                    result = MESSAGE_ID;
-//
-//                    backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-//                    result = backendConnector;
-//
-//                    partInfo.getHref();
-//                    result = HREF;
-//
-//                    partInfo.getMime();
-//                    result = MIME;
-//
-//                    backendConnector.payloadSubmittedEvent(withCapture(valueHolderForMultipleInvocations));
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
-//
-//                new FullVerifications() {
-//                };
-//
-//                assertEquals(1, valueHolderForMultipleInvocations.size());
-//                assertEquals(HREF, valueHolderForMultipleInvocations.get(0).getCid());
-//                assertEquals(ORIGINAL_FILENAME, valueHolderForMultipleInvocations.get(0).getFileName());
-//                assertEquals(MESSAGE_ID, valueHolderForMultipleInvocations.get(0).getMessageId());
-//                assertEquals(MIME, valueHolderForMultipleInvocations.get(0).getMime());
-//            }
-//
-//            @Test
-//            public void notifyPayloadSubmitted_test(
-//                    @Mocked UserMessage userMessage,
-//                    @Mocked PartInfo partInfo) {
-//
-//                new Expectations() {{
-//                    userMessageHandlerService.checkTestMessage(userMessage);
-//                    result = true;
-//                }};
-//
-//                backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyPayloadProcessed(
-//                    @Mocked UserMessage userMessage,
-//                    @Mocked PartInfo partInfo,
-//                    @Mocked BackendConnector<?, ?> backendConnector) {
-//                List<PayloadProcessedEvent> payloadList = new ArrayList<>();
-//
-//                new Expectations(backendNotificationService) {{
-//                    userMessageHandlerService.checkTestMessage(userMessage);
-//                    result = false;
-//
-//                    userMessage.getMessageId();
-//                    result = MESSAGE_ID;
-//
-//                    backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-//                    result = backendConnector;
-//
-//                    partInfo.getHref();
-//                    result = HREF;
-//
-//                    partInfo.getMime();
-//                    result = MIME;
-//
-//                    backendConnector.payloadProcessedEvent(withCapture(payloadList));
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
-//
-//                new FullVerifications() {
-//                };
-//
-//                assertEquals(1, payloadList.size());
-//                assertEquals(HREF, payloadList.get(0).getCid());
-//                assertEquals(ORIGINAL_FILENAME, payloadList.get(0).getFileName());
-//                assertEquals(MESSAGE_ID, payloadList.get(0).getMessageId());
-//                assertEquals(MIME, payloadList.get(0).getMime());
-//            }
-//
-//            @Test
-//            public void notifyPayloadProcessed_test(
-//                    @Mocked UserMessage userMessage,
-//                    @Mocked PartInfo partInfo) {
-//
-//                new Expectations() {{
-//                    userMessageHandlerService.checkTestMessage(userMessage);
-//                    result = true;
-//                }};
-//
-//                backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
-//
-//                new FullVerifications() {
-//                };
-//
-//            }
-//
-//
-//            @Test
-//            public void notifyOfIncoming_matchingBackendFilterNull(
-//                    @Mocked UserMessage userMessage,
-//                    @Mocked NotificationType notificationType) {
-//
-//                Map<String, String> properties = new HashMap<>();
-//
-//                new Expectations() {{
-//                    userMessageServiceHelper.getProperties(userMessage);
-//                    result = new HashMap<>();
-//
-//                    userMessage.getMessageId();
-//                    result = MESSAGE_ID;
-//                }};
-//
-//                backendNotificationService.notifyOfIncoming(
-//                        null,
-//                        userMessage,
-//                        notificationType,
-//                        properties);
-//
-//                //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
-//                new Verifications() {{
-//                    jmsManager.sendMessageToQueue((JmsMessage) any, unknownReceiverQueue);
-//                    times = 1;
-//                }};
-//            }
-//
-//    @Test
-//    public void notifyOfIncoming(
-//            @Mocked BackendFilter matchingBackendFilter,
-//            @Mocked UserMessage userMessage,
-//            @Mocked NotificationType notificationType,
-//            @Mocked List<PartInfo> partInfoList) {
-//        Map<String, String> properties = new HashMap<>();
-//        new Expectations(backendNotificationService) {{
-//            matchingBackendFilter.getBackendName();
-//            result = BACKEND_NAME;
-//
-//            userMessageServiceHelper.getProperties(userMessage);
-//            result = new HashMap<>();
-//
-//            userMessage.getRefToMessageId();
-//            result = "refToMessageId";
-//
-//            userMessage.getConversationId();
-//            result = "conversationId";
-//
-//            userMessageServiceHelper.getPartyFrom(userMessage);
-//            result = "domibus-blue";
-//
-//
-//            backendNotificationService.validateAndNotify(userMessage, partInfoList, BACKEND_NAME, notificationType, properties);
-//            times = 1;
-//        }};
-//
-//        backendNotificationService.notifyOfIncoming(userMessage,
-//                partInfoList,
-//                notificationType,
-//                properties);
-//
-//        new FullVerifications() {{
-//            routingService.getMatchingBackendFilter(userMessage);
-//        }};
-//    }
+    @Test
+    public void notifyMessageReceived_isPluginNotificationDisabled(
+            @Mocked final BackendFilter matchingBackendFilter,
+            @Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+            times = 1;
+        }};
 
-//
-//    @Test
-//    public void notifyOfIncoming(@Mocked UserMessage userMessage,
-//                                 @Mocked NotificationType notificationType,
-//                                 @Mocked Map<String, String> properties,
-//                                 @Mocked BackendFilter matchingBackendFilter) {
-//        new Expectations(backendNotificationService) {{
-//            routingService.getMatchingBackendFilter(userMessage);
-//            result = matchingBackendFilter;
-//
-//            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
-//            times = 1;
-//        }};
-//
-//        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
-//
-//        new FullVerifications() {
-//        };
-//    }
-//
-//
-//    @Test
-//    public void notifyOfSendFailure_isPluginNotificationDisabled(@Mocked UserMessageLog userMessageLog) {
-//        new Expectations(backendNotificationService) {{
-//            backendNotificationService.isPluginNotificationDisabled();
-//            result = true;
-//        }};
-//        backendNotificationService.notifyOfSendFailure(userMessageLog);
-//        new FullVerifications() {
-//        };
-//    }
-//
-//    @Test
-//    public void notifyOfSendFailure_fragment(@Mocked UserMessageLog userMessageLog) {
-//        new Expectations(backendNotificationService) {{
-//            backendNotificationService.isPluginNotificationDisabled();
-//            result = false;
-//
-//            userMessageLog.getMessageId();
-//            result = MESSAGE_ID;
-//
-//            userMessageLog.getBackend();
-//            result = BACKEND_NAME;
-//
-//            userMessageLog.getMessageFragment();
-//            result = true;
-//
-//            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
-//        }};
-//
-//        backendNotificationService.notifyOfSendFailure(userMessageLog);
-//
-//        new FullVerifications() {{
-//            userMessageLogDao.setAsNotified(userMessageLog);
-//            times = 1;
-//
-//            uiReplicationSignalService.messageChange(MESSAGE_ID);
-//            times = 1;
-//        }};
-//    }
-//
-//    @Test
-//    public void notifyOfSendFailure_NoFragment(@Mocked UserMessageLog userMessageLog) {
-//        new Expectations(backendNotificationService) {{
-//            backendNotificationService.isPluginNotificationDisabled();
-//            result = false;
-//
-//            userMessageLog.getMessageId();
-//            result = MESSAGE_ID;
-//
-//            userMessageLog.getBackend();
-//            result = BACKEND_NAME;
-//
-//            userMessageLog.getMessageFragment();
-//            result = false;
-//
-//            backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
-//            times = 1;
-//        }};
-//
-//        backendNotificationService.notifyOfSendFailure(userMessageLog);
-//
-//        new FullVerifications() {{
-//            userMessageLogDao.setAsNotified(userMessageLog);
-//            times = 1;
-//
-//            uiReplicationSignalService.messageChange(MESSAGE_ID);
-//            times = 1;
-//        }};
-//    }
-//
-//    @Test
-//    public void getMessageProperties(@Mocked MessageLog messageLog,
-//                                     @Mocked UserMessage userMessage) {
-//        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
-//        Map<String, String> props = new HashMap<>();
-//        props.put(MessageConstants.FINAL_RECIPIENT, FINAL_RECIPIENT);
-//        props.put(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
-//        new Expectations() {{
-//            messageLog.getMessageStatus();
-//            result = MessageStatus.SEND_ENQUEUED;
-//
-//            messageLog.getMessageId();
-//            result = MESSAGE_ID;
-//
-//            userMessage.getCollaborationInfo().getService().getValue();
-//            result = "CollabInfoValue";
-//
-//            userMessage.getCollaborationInfo().getService().getType();
-//            result = "CollabInfoType";
-//
-//            userMessage.getCollaborationInfo().getAction();
-//            result = "CollabInfoAction";
-//
-//            userMessageServiceHelper.getProperties(userMessage);
-//            result = props;
-//
-//        }};
-//
-//        Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, userMessage, newStatus, TIMESTAMP);
-//
-//        assertThat(messageProperties.size(), is(8));
-//        assertThat(messageProperties.get(MessageConstants.STATUS_FROM), is(MessageStatus.SEND_ENQUEUED.toString()));
-//        assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
-//        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
-//        assertThat(messageProperties.get(MessageConstants.SERVICE), is("CollabInfoValue"));
-//        assertThat(messageProperties.get(MessageConstants.SERVICE_TYPE), is("CollabInfoType"));
-//        assertThat(messageProperties.get(MessageConstants.ACTION), is("CollabInfoAction"));
-//        assertThat(messageProperties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
-//        assertThat(messageProperties.get(MessageConstants.ORIGINAL_SENDER), is(ORIGINAL_SENDER));
-//
-//        new FullVerifications() {
-//        };
-//
-//    }
-//
-//    @Test
-//    public void getMessageProperties_noMessage_NoUserMessage(@Mocked MessageLog messageLog) {
-//        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
-//
-//        new Expectations() {{
-//            messageLog.getMessageStatus();
-//            result = null;
-//
-//        }};
-//
-//        Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, null, newStatus, TIMESTAMP);
-//
-//        assertThat(messageProperties.size(), is(2));
-//        assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
-//        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
-//
-//        new FullVerifications() {
-//        };
-//    }
-//
-//    @Test
-//    public void notifyMessageDeleted_null() {
-//        backendNotificationService.notifyMessageDeleted(MESSAGE_ID, null);
-//        new FullVerifications() {
-//        };
-//    }
-//
-//    @Test
-//    public void notifyMessageDeleted_test(@Mocked UserMessageLog userMessageLog) {
-//        new Expectations() {{
-//            userMessageLog.isTestMessage();
-//            result = true;
-//        }};
-//
-//        backendNotificationService.notifyMessageDeleted(MESSAGE_ID, userMessageLog);
-//        new FullVerifications() {
-//        };
-//
-//    }
-//
-//    @Test
-//    public void notifyMessageDeleted_noBackend(@Mocked UserMessageLog userMessageLog) {
-//        new Expectations() {{
-//            userMessageLog.isTestMessage();
-//            result = false;
-//
-//            userMessageLog.getBackend();
-//            result = "";
-//        }};
-//
-//        backendNotificationService.notifyMessageDeleted(MESSAGE_ID, userMessageLog);
-//
-//        new FullVerifications() {
-//        };
-//
-//    }
-//
-//    @Test
-//    public void notifyMessageDeleted(@Mocked UserMessageLog userMessageLog,
-//                                     @Mocked UserMessage userMessage) {
-//
-//        Map<String, String> props = new HashMap<>();
-//
-//        new Expectations(backendNotificationService) {{
-//            userMessageLog.isTestMessage();
-//            result = false;
-//
-//            userMessageLog.getBackend();
-//            result = "backend";
-//
-//            userMessageLog.getMessageId();
-//            result = MESSAGE_ID;
-//
-//            userMessageService.getProperties(MESSAGE_ID);
-//            result = props;
-//
-//            backendConnectorDelegate.messageDeletedEvent(
-//                    "backend",
-//                    (MessageDeletedEvent) any);
-//            times = 1;
-//
-//        }};
-//
-//        backendNotificationService.notifyMessageDeleted(MESSAGE_ID, userMessageLog);
-//
-//        new FullVerifications() {
-//        };
-//    }
-//
-//    @Test
-//    public void notifyAsync(
-//            @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
-//            @Mocked NotificationType notificationType,
-//            @Mocked Queue backendNotificationQueue) {
-//        Map<String, String> properties = new HashMap<>();
-//        new Expectations() {{
-//            asyncNotificationConfiguration.getBackendNotificationQueue();
-//            result = backendNotificationQueue;
-//
-//            asyncNotificationConfiguration.getBackendConnector().getName();
-//            result = "BackEnd";
-//
-//            jmsManager.sendMessageToQueue((JmsMessage) any, backendNotificationQueue);
-//            times = 1;
-//        }};
-//
-//        backendNotificationService.notifyAsync(asyncNotificationConfiguration, MESSAGE_ID, notificationType, properties);
-//
-//        new FullVerifications() {
-//        };
-//    }
-//
-//    @Test
-//    public void notifySync_noPluginEventNotifier(
-//            @Mocked BackendConnector<?, ?> backendConnector,
-//            @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
-//            @Mocked NotificationType notificationType) {
-//        Map<String, String> properties = new HashMap<>();
-//        new Expectations() {{
-//            backendConnector.getName();
-//            result = "backend";
-//
-//            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
-//            result = null;
-//        }};
-//
-//        backendNotificationService.notifySync(backendConnector, asyncNotificationConfiguration, MESSAGE_ID, notificationType, properties);
-//
-//        new FullVerifications() {
-//        };
-//    }
-//
-//    @Test
-//    public void notifySync_noListener(
-//            @Mocked BackendConnector<?, ?> backendConnector,
-//            @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
-//            @Mocked NotificationType notificationType,
-//            @Mocked PluginEventNotifier pluginEventNotifier) {
-//        Map<String, String> properties = new HashMap<>();
-//        new Expectations() {{
-//            backendConnector.getName();
-//            result = "backend";
-//
-//            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
-//            result = pluginEventNotifier;
-//
-//            backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration);
-//            result = false;
-//        }};
-//
-//        backendNotificationService.notifySync(backendConnector, asyncNotificationConfiguration, MESSAGE_ID, notificationType, properties);
-//
-//        new FullVerifications() {{
-//            pluginEventNotifier.notifyPlugin(backendConnector, MESSAGE_ID, properties);
-//            times = 1;
-//        }};
-//    }
-//
-//    @Test
-//    public void notifySync_ok(
-//            @Mocked BackendConnector<?, ?> backendConnector,
-//            @Mocked NotificationListener asyncNotificationConfiguration,
-//            @Mocked NotificationType notificationType,
-//            @Mocked PluginEventNotifier pluginEventNotifier) {
-//        Map<String, String> properties = new HashMap<>();
-//        new Expectations() {{
-//            backendConnector.getName();
-//            result = "backend";
-//
-//            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
-//            result = pluginEventNotifier;
-//
-//            backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration);
-//            result = true;
-//        }};
-//
-//        backendNotificationService.notifySync(backendConnector, asyncNotificationConfiguration, MESSAGE_ID, notificationType, properties);
-//
-//        new FullVerifications() {{
-//            pluginEventNotifier.notifyPlugin(backendConnector, MESSAGE_ID, properties);
-//            times = 1;
-//
-//            asyncNotificationConfiguration.notify(MESSAGE_ID, notificationType, (Map<String, Object>) any);
-//            times = 1;
-//        }};
-//    }
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageReceived_fragment(
+            @Mocked final BackendFilter matchingBackendFilter,
+            @Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessage.isMessageFragment();
+            result = true;
+            times = 1;
+
+            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_FRAGMENT_RECEIVED, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageReceived_NotFragment(
+            @Mocked final BackendFilter matchingBackendFilter,
+            @Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessage.isMessageFragment();
+            result = false;
+            times = 1;
+
+            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_RECEIVED, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyPayloadSubmitted(
+            @Mocked UserMessage userMessage,
+            @Mocked PartInfo partInfo,
+            @Mocked BackendConnector<?, ?> backendConnector) {
+        List<PayloadSubmittedEvent> valueHolderForMultipleInvocations = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = false;
+
+            userMessage.getEntityId();
+            result = 1L;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            partInfo.getHref();
+            result = HREF;
+
+            partInfo.getMime();
+            result = MIME;
+
+            backendConnector.payloadSubmittedEvent(withCapture(valueHolderForMultipleInvocations));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+
+        assertEquals(1, valueHolderForMultipleInvocations.size());
+        assertEquals(HREF, valueHolderForMultipleInvocations.get(0).getCid());
+        assertEquals(ORIGINAL_FILENAME, valueHolderForMultipleInvocations.get(0).getFileName());
+        assertEquals(MESSAGE_ID, valueHolderForMultipleInvocations.get(0).getMessageId());
+        assertEquals(MIME, valueHolderForMultipleInvocations.get(0).getMime());
+    }
+
+    @Test
+    public void notifyPayloadSubmitted_test(
+            @Mocked UserMessage userMessage,
+            @Mocked PartInfo partInfo) {
+
+        new Expectations() {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = true;
+        }};
+
+        backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyPayloadProcessed(
+            @Mocked UserMessage userMessage,
+            @Mocked PartInfo partInfo,
+            @Mocked BackendConnector<?, ?> backendConnector) {
+        List<PayloadProcessedEvent> payloadList = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = false;
+
+            userMessage.getEntityId();
+            result = 1L;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            partInfo.getHref();
+            result = HREF;
+
+            partInfo.getMime();
+            result = MIME;
+
+            backendConnector.payloadProcessedEvent(withCapture(payloadList));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+
+        assertEquals(1, payloadList.size());
+        assertEquals(HREF, payloadList.get(0).getCid());
+        assertEquals(ORIGINAL_FILENAME, payloadList.get(0).getFileName());
+        assertEquals(MESSAGE_ID, payloadList.get(0).getMessageId());
+        assertEquals(MIME, payloadList.get(0).getMime());
+    }
+
+    @Test
+    public void notifyPayloadProcessed_test(
+            @Mocked UserMessage userMessage,
+            @Mocked PartInfo partInfo) {
+
+        new Expectations() {{
+            userMessageHandlerService.checkTestMessage(userMessage);
+            result = true;
+        }};
+
+        backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
+
+        new FullVerifications() {
+        };
+
+    }
+
+    @Test
+    public void notifyOfIncoming_matchingBackendFilterNull(
+            @Mocked UserMessage userMessage,
+            @Mocked NotificationType notificationType, @Mocked List<PartInfo> partInfoList) {
+
+        Map<String, String> properties = new HashMap<>();
+
+        new Expectations() {{
+            routingService.getMatchingBackendFilter(userMessage);
+            result = null;
+
+            userMessageServiceHelper.getProperties(userMessage);
+            result = new HashMap<>();
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        backendNotificationService.notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+
+        //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, unknownReceiverQueue);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfIncoming(
+            @Mocked BackendFilter matchingBackendFilter,
+            @Mocked UserMessage userMessage,
+            @Mocked NotificationType notificationType,
+            @Mocked List<PartInfo> partInfoList) {
+        Map<String, String> properties = new HashMap<>();
+        new Expectations(backendNotificationService) {{
+            matchingBackendFilter.getBackendName();
+            result = BACKEND_NAME;
+
+            userMessageServiceHelper.getProperties(userMessage);
+            result = new HashMap<>();
+
+            userMessage.getRefToMessageId();
+            result = "refToMessageId";
+
+            userMessage.getConversationId();
+            result = "conversationId";
+
+            userMessageServiceHelper.getPartyFrom(userMessage);
+            result = "domibus-blue";
+
+
+            backendNotificationService.validateAndNotify(userMessage, BACKEND_NAME, notificationType, properties);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+
+        new FullVerifications() {{
+            routingService.getMatchingBackendFilter(userMessage);
+        }};
+    }
+
+
+    @Test
+    public void notifyOfIncoming(@Mocked UserMessage userMessage,
+                                 @Mocked NotificationType notificationType,
+                                 @Mocked Map<String, String> properties,
+                                 @Mocked BackendFilter matchingBackendFilter,
+                                 @Mocked List<PartInfo> partInfoList) {
+        new Expectations(backendNotificationService) {{
+            routingService.getMatchingBackendFilter(userMessage);
+            result = matchingBackendFilter;
+
+            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+
+        new FullVerifications() {
+        };
+    }
+
+
+    @Test
+    public void notifyOfSendFailure_isPluginNotificationDisabled(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+        }};
+        backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendFailure_fragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+
+            userMessage.isMessageFragment();
+            result = true;
+
+            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
+        }};
+
+        backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
+
+        new FullVerifications() {{
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfSendFailure_NoFragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+
+            userMessage.isMessageFragment();
+            result = false;
+
+            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
+
+        new FullVerifications() {{
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getMessageProperties(@Mocked UserMessageLog messageLog,
+                                     @Mocked UserMessage userMessage) {
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+        Map<String, String> props = new HashMap<>();
+        props.put(MessageConstants.FINAL_RECIPIENT, FINAL_RECIPIENT);
+        props.put(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
+        new Expectations() {{
+            messageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessage.getService().getValue();
+            result = "CollabInfoValue";
+
+            userMessage.getService().getType();
+            result = "CollabInfoType";
+
+            userMessage.getActionValue();
+            result = "CollabInfoAction";
+
+            userMessageServiceHelper.getProperties(userMessage);
+            result = props;
+
+        }};
+
+        Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, userMessage, newStatus, TIMESTAMP);
+
+        assertThat(messageProperties.size(), is(8));
+        assertThat(messageProperties.get(MessageConstants.STATUS_FROM), is(MessageStatus.SEND_ENQUEUED.toString()));
+        assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
+        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
+        assertThat(messageProperties.get(MessageConstants.SERVICE), is("CollabInfoValue"));
+        assertThat(messageProperties.get(MessageConstants.SERVICE_TYPE), is("CollabInfoType"));
+        assertThat(messageProperties.get(MessageConstants.ACTION), is("CollabInfoAction"));
+        assertThat(messageProperties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
+        assertThat(messageProperties.get(MessageConstants.ORIGINAL_SENDER), is(ORIGINAL_SENDER));
+
+        new FullVerifications() {
+        };
+
+    }
+
+    @Test
+    public void getMessageProperties_noMessage_NoUserMessage(@Mocked UserMessageLog messageLog) {
+        MessageStatus newStatus = MessageStatus.ACKNOWLEDGED;
+
+        new Expectations() {{
+            messageLog.getMessageStatus();
+            result = null;
+
+        }};
+
+        Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, null, newStatus, TIMESTAMP);
+
+        assertThat(messageProperties.size(), is(2));
+        assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
+        assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageDeleted_test(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations() {{
+            userMessage.isTestMessage();
+            result = true;
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
+        new FullVerifications() {
+        };
+
+    }
+
+    @Test
+    public void notifyMessageDeleted_noBackend(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations() {{
+            userMessage.isTestMessage();
+            result = false;
+
+            userMessageLog.getBackend();
+            result = "";
+
+            userMessage.toString();
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
+
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void notifyMessageDeleted(@Mocked UserMessageLog userMessageLog,
+                                     @Mocked UserMessage userMessage) {
+
+        Map<String, String> props = new HashMap<>();
+        long messageEntityId = 1L;
+        new Expectations(backendNotificationService) {{
+            userMessage.isTestMessage();
+            result = false;
+
+            userMessageLog.getBackend();
+            result = "backend";
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessageLog.getEntityId();
+            result = messageEntityId;
+
+            userMessageService.getProperties(messageEntityId);
+            result = props;
+
+            backendConnectorDelegate.messageDeletedEvent(
+                    "backend",
+                    (MessageDeletedEvent) any);
+            times = 1;
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyAsync(
+            @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
+            @Mocked NotificationType notificationType,
+            @Mocked Queue backendNotificationQueue) {
+        Map<String, String> properties = new HashMap<>();
+        new Expectations() {{
+            asyncNotificationConfiguration.getBackendNotificationQueue();
+            result = backendNotificationQueue;
+
+            asyncNotificationConfiguration.getBackendConnector().getName();
+            result = "BackEnd";
+
+            jmsManager.sendMessageToQueue((JmsMessage) any, backendNotificationQueue);
+            times = 1;
+        }};
+
+        long messageEntityId = 1L;
+        backendNotificationService.notifyAsync(asyncNotificationConfiguration, messageEntityId, MESSAGE_ID, notificationType, properties);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifySync_noPluginEventNotifier(
+            @Mocked BackendConnector<?, ?> backendConnector,
+            @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
+            @Mocked NotificationType notificationType) {
+        Map<String, String> properties = new HashMap<>();
+        new Expectations() {{
+            backendConnector.getName();
+            result = "backend";
+
+            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
+            result = null;
+        }};
+
+        backendNotificationService.notifySync(backendConnector, 1L, MESSAGE_ID, notificationType, properties);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifySync_noListener(
+            @Mocked BackendConnector<?, ?> backendConnector,
+            @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
+            @Mocked NotificationType notificationType,
+            @Mocked PluginEventNotifier pluginEventNotifier) {
+        Map<String, String> properties = new HashMap<>();
+        new Expectations() {{
+            backendConnector.getName();
+            result = "backend";
+
+            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
+            result = pluginEventNotifier;
+        }};
+
+        final long messageEntityId = 1L;
+        backendNotificationService.notifySync(backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+
+        new FullVerifications() {{
+            pluginEventNotifier.notifyPlugin(backendConnector, messageEntityId, MESSAGE_ID, properties);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifySync_ok(
+            @Mocked BackendConnector<?, ?> backendConnector,
+            @Mocked NotificationListener asyncNotificationConfiguration,
+            @Mocked NotificationType notificationType,
+            @Mocked PluginEventNotifier pluginEventNotifier) {
+        Map<String, String> properties = new HashMap<>();
+        new Expectations() {{
+            backendConnector.getName();
+            result = "backend";
+
+            pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
+            result = pluginEventNotifier;
+        }};
+
+        final long messageEntityId = 1L;
+        backendNotificationService.notifySync(backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+
+        new FullVerifications() {{
+            pluginEventNotifier.notifyPlugin(backendConnector, messageEntityId, MESSAGE_ID, properties);
+            times = 1;
+        }};
+    }
 
 }

@@ -153,7 +153,7 @@ public class BackendNotificationService {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
-        notifyOfIncoming(matchingBackendFilter, userMessage, partInfoList, notificationType, new HashMap<>());
+        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
     }
 
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
@@ -280,7 +280,7 @@ public class BackendNotificationService {
         backendConnector.payloadProcessedEvent(payloadProcessedEvent);
     }
 
-    protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, List<PartInfo> partInfoList, final NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
         properties.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         properties.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
@@ -295,15 +295,15 @@ public class BackendNotificationService {
             return;
         }
 
-        validateAndNotify(userMessage, partInfoList, matchingBackendFilter.getBackendName(), notificationType, properties);
+        validateAndNotify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
     }
 
     protected void notifyOfIncoming(final UserMessage userMessage, List<PartInfo> partInfoList, final NotificationType notificationType, Map<String, String> properties) {
         final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
-        notifyOfIncoming(matchingBackendFilter, userMessage, partInfoList, notificationType, properties);
+        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
     }
 
-    protected void validateAndNotify(UserMessage userMessage, List<PartInfo> partInfoList, String backendName, NotificationType notificationType, Map<String, String> properties) {
+    protected void validateAndNotify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, String> properties) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageId(), notificationType);
 
         notify(userMessage, backendName, notificationType, properties);
