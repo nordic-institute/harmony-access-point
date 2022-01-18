@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.ErrorResult;
@@ -64,6 +65,9 @@ public class IncomingUserMessageHandlerTest {
 
     @Injectable
     AuthorizationServiceImpl authorizationService;
+
+    @Injectable
+    UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     /**
      * Happy flow unit testing with actual data
