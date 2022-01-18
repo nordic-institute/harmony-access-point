@@ -1,4 +1,4 @@
-package eu.domibus.core.plugin.delegate;
+package eu.domibus.test.common;
 
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.plugin.AbstractBackendConnector;
@@ -9,15 +9,17 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
  * @author Cosmin Baciu
  * @since 3.2.2
  */
-public class MessageReceivePluginImplementationTest extends AbstractBackendConnector {
+public class MessageReceivePluginMock extends AbstractBackendConnector {
 
-    public MessageReceivePluginImplementationTest(String name) {
+    private MessageReceiveFailureEvent event;
+
+    public MessageReceivePluginMock(String name) {
         super(name);
     }
 
     @Override
     public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
-        super.messageReceiveFailed(messageReceiveFailureEvent);
+        this.event = messageReceiveFailureEvent;
     }
 
     @Override
@@ -30,4 +32,11 @@ public class MessageReceivePluginImplementationTest extends AbstractBackendConne
         return null;
     }
 
+    public void clear() {
+        this.event = null;
+    }
+
+    public MessageReceiveFailureEvent getEvent() {
+        return event;
+    }
 }

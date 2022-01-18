@@ -14,12 +14,14 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.test.common.MessageReceivePluginMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,9 +32,12 @@ import javax.jms.Queue;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
+import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class BackendNotificationServiceIT extends AbstractIT {
@@ -96,6 +101,10 @@ public class BackendNotificationServiceIT extends AbstractIT {
     @Autowired
     Queue notifyBackendWebServiceQueue;
 
+    @Autowired
+    @Qualifier(UNKNOWN_RECEIVER_QUEUE)
+    protected Queue unknownReceiverQueue;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
@@ -156,10 +165,10 @@ public class BackendNotificationServiceIT extends AbstractIT {
 
     }
 
-    @Test
+    @Test(expected = WebServiceException.class)
     @Transactional
     public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        MessageReceivePluginMock backendConnector = new MessageReceivePluginMock("test");
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
@@ -178,7 +187,7 @@ public class BackendNotificationServiceIT extends AbstractIT {
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
 
+        assertEquals(backendConnector.getEvent().getMessageId(), messageId);
     }
-    //InvalidBodyloadCidSOAPMessage.xml
 
 }
