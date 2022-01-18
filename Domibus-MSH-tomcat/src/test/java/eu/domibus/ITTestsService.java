@@ -31,7 +31,6 @@ public class ITTestsService {
     @Autowired
     protected DatabaseMessageHandler databaseMessageHandler;
 
-
     @Autowired
     protected MpcDao mpcDao;
 
@@ -52,11 +51,12 @@ public class ITTestsService {
 
     @Autowired
     protected AgreementDao agreementDao;
+
     @Autowired
     protected UserMessageDao userMessageDao;
+
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
-
 
     @Transactional
     public String sendMessageToDelete(MessageStatus endStatus) throws MessagingProcessingException {

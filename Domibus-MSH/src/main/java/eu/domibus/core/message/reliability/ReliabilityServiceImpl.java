@@ -82,12 +82,12 @@ public class ReliabilityServiceImpl implements ReliabilityService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
+    public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckResult, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
         final Boolean isTestMessage = userMessage.isTestMessage();
 
-        switch (reliabilityCheckSuccessful) {
+        switch (reliabilityCheckResult) {
             case OK:
                 if(StringUtils.isNotBlank(requestRawXMLMessage)) {
                     nonRepudiationService.saveRawEnvelope(requestRawXMLMessage, userMessage);

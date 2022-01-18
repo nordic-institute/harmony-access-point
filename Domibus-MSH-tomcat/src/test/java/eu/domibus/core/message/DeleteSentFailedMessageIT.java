@@ -32,6 +32,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
 
     @Autowired
     private UserMessageDao userMessageDao;
+
     @Autowired
     private UserMessageLogDao userMessageLogDao;
 
