@@ -270,7 +270,7 @@ public class UserMessageHandlerServiceImplTest {
             soapUtil.logMessage(soapRequestMessage);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(null, userMessage, null);
+            backendNotificationService.notifyMessageReceived(null, userMessage);
             times = 1;
 
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
@@ -316,7 +316,7 @@ public class UserMessageHandlerServiceImplTest {
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
         }};
@@ -357,7 +357,7 @@ public class UserMessageHandlerServiceImplTest {
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
             splitAndJoinService.incrementReceivedFragments(null, "backEndName");
@@ -892,7 +892,7 @@ public class UserMessageHandlerServiceImplTest {
             pModeProvider.checkSelfSending(pmodeKey);
             result = false;
 
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             result = new SubmissionValidationException("Error while submitting the message!!");
         }};
         try {
@@ -904,7 +904,7 @@ public class UserMessageHandlerServiceImplTest {
 
         new Verifications() {{
             soapUtil.logMessage(soapRequestMessage);
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
         }};
     }

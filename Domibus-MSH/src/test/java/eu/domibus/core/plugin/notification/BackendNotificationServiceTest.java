@@ -15,7 +15,10 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
@@ -94,9 +97,6 @@ public class BackendNotificationServiceTest {
     Queue unknownReceiverQueue;
 
     @Injectable
-    MessageExchangeService messageExchangeService;
-
-    @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
@@ -133,7 +133,7 @@ public class BackendNotificationServiceTest {
     MessagingModuleConfiguration messageCommunicationConfiguration;
 
     @Test
-    public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+    public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         new Expectations(backendNotificationService) {{
@@ -863,11 +863,11 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
-            backendNotificationService.notifyOfIncoming(userMessage, partInfoList, MESSAGE_FRAGMENT_RECEIVED_FAILURE, withCapture(propertiesList));
+            backendNotificationService.notifyOfIncoming(userMessage, MESSAGE_FRAGMENT_RECEIVED_FAILURE, withCapture(propertiesList));
 
         }};
 
-        backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfoList, errorResult);
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
 
         assertEquals(1, propertiesList.size());
 
@@ -891,7 +891,7 @@ public class BackendNotificationServiceTest {
             result = true;
         }};
 
-        backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfoList, errorResult);
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
 
         new FullVerifications() {
         };
@@ -992,14 +992,14 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageReceived_isPluginNotificationDisabled(
             @Mocked final BackendFilter matchingBackendFilter,
-            @Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+            @Mocked final UserMessage userMessage) {
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = true;
             times = 1;
         }};
 
-        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
 
         new FullVerifications() {
         };
@@ -1008,7 +1008,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageReceived_fragment(
             @Mocked final BackendFilter matchingBackendFilter,
-            @Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+            @Mocked final UserMessage userMessage) {
 
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
@@ -1023,7 +1023,7 @@ public class BackendNotificationServiceTest {
             times = 1;
         }};
 
-        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
 
         new FullVerifications() {
         };
@@ -1032,7 +1032,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageReceived_NotFragment(
             @Mocked final BackendFilter matchingBackendFilter,
-            @Mocked final UserMessage userMessage, @Mocked List<PartInfo> partInfoList) {
+            @Mocked final UserMessage userMessage) {
 
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
@@ -1047,7 +1047,7 @@ public class BackendNotificationServiceTest {
             times = 1;
         }};
 
-        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+        backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
 
         new FullVerifications() {
         };
@@ -1173,7 +1173,7 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyOfIncoming_matchingBackendFilterNull(
             @Mocked UserMessage userMessage,
-            @Mocked NotificationType notificationType, @Mocked List<PartInfo> partInfoList) {
+            @Mocked NotificationType notificationType) {
 
         Map<String, String> properties = new HashMap<>();
 
@@ -1188,7 +1188,7 @@ public class BackendNotificationServiceTest {
             result = MESSAGE_ID;
         }};
 
-        backendNotificationService.notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
 
         //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
         new Verifications() {{
@@ -1201,8 +1201,7 @@ public class BackendNotificationServiceTest {
     public void notifyOfIncoming(
             @Mocked BackendFilter matchingBackendFilter,
             @Mocked UserMessage userMessage,
-            @Mocked NotificationType notificationType,
-            @Mocked List<PartInfo> partInfoList) {
+            @Mocked NotificationType notificationType) {
         Map<String, String> properties = new HashMap<>();
         new Expectations(backendNotificationService) {{
             matchingBackendFilter.getBackendName();
@@ -1225,7 +1224,7 @@ public class BackendNotificationServiceTest {
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
 
         new FullVerifications() {{
             routingService.getMatchingBackendFilter(userMessage);
@@ -1237,8 +1236,7 @@ public class BackendNotificationServiceTest {
     public void notifyOfIncoming(@Mocked UserMessage userMessage,
                                  @Mocked NotificationType notificationType,
                                  @Mocked Map<String, String> properties,
-                                 @Mocked BackendFilter matchingBackendFilter,
-                                 @Mocked List<PartInfo> partInfoList) {
+                                 @Mocked BackendFilter matchingBackendFilter) {
         new Expectations(backendNotificationService) {{
             routingService.getMatchingBackendFilter(userMessage);
             result = matchingBackendFilter;
@@ -1247,7 +1245,7 @@ public class BackendNotificationServiceTest {
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
 
         new FullVerifications() {
         };

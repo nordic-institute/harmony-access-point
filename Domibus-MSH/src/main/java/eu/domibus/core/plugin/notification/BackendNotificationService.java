@@ -114,9 +114,9 @@ public class BackendNotificationService {
     @Autowired
     protected BackendConnectorService backendConnectorService;
 
-
+    //OK
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void notifyMessageReceivedFailure(final UserMessage userMessage, List<PartInfo> partInfoList, ErrorResult errorResult) {
+    public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
 
         if (isPluginNotificationDisabled()) {
@@ -139,12 +139,13 @@ public class BackendNotificationService {
         properties.put(MessageConstants.SERVICE_TYPE, service.getType());
         properties.put(MessageConstants.ACTION, actionValue);
 
-        notifyOfIncoming(userMessage, partInfoList, notificationType, properties);
+        notifyOfIncoming(userMessage, notificationType, properties);
     }
 
+    //OK
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
-    public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage, List<PartInfo> partInfoList) {
+    public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
             return;
         }
@@ -298,7 +299,7 @@ public class BackendNotificationService {
         validateAndNotify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
     }
 
-    protected void notifyOfIncoming(final UserMessage userMessage, List<PartInfo> partInfoList, final NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyOfIncoming(final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
     }
@@ -417,6 +418,7 @@ public class BackendNotificationService {
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
+    //OK
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();

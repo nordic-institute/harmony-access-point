@@ -6,7 +6,10 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
+import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -40,13 +43,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -96,9 +105,6 @@ public class BackendNotificationServiceIT extends AbstractIT {
     @Autowired
     MSHWebservice mshWebserviceTest;
 
-//    @Autowired
-//    BackendNotificationService backendNotificationService;
-
     @Autowired
     MessageUtil messageUtil;
 
@@ -129,7 +135,7 @@ public class BackendNotificationServiceIT extends AbstractIT {
 
     @Before
     public void before() throws IOException, XmlProcessingException {
-        messageId = UUID.randomUUID().toString();
+        messageId = UUID.randomUUID() + "@domibus.eu";
         filename = "SOAPMessage2.xml";
 
         uploadPmode();
@@ -147,7 +153,6 @@ public class BackendNotificationServiceIT extends AbstractIT {
         Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-//        String filename = "SOAPMessage2.xml";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
@@ -223,4 +228,21 @@ public class BackendNotificationServiceIT extends AbstractIT {
         assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
     }
 
+    private File temp;
+    private BatchEArchiveDTO batchEArchiveDTO;
+    private String batchId;
+
+    @Test
+    @Transactional
+    public void notifyMessageReceived() throws Exception {
+//        batchId = UUID.randomUUID().toString();
+//        temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
+
+//        uploadPmode(SERVICE_PORT);
+
+        String filename = "SOAPMessage4.xml";
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        mshWebserviceTest.invoke(soapMessage);
+
+    }
 }
