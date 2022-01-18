@@ -395,7 +395,7 @@ public class BackendNotificationService {
 
         uiReplicationSignalService.messageChange(messageId);
     }
-
+    //OK
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
             return;

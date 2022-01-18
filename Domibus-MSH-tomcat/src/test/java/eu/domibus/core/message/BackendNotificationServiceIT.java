@@ -28,6 +28,7 @@ import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.neethi.Policy;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.jms.Queue;
+import javax.persistence.NoResultException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -268,11 +270,10 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
     }
 
-//    @Autowired
-//    protected MessageStatusDao messageStatusDao;
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
 
     @Test
-//    @Transactional
     public void testDeleteFailedMessage() throws MessagingProcessingException, EbMS3Exception {
         MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
         messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
@@ -286,31 +287,30 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
                 .thenReturn(Mockito.mock(SOAPMessage.class));
 
+        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
+        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
         Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
-                .thenReturn(Mockito.mock(ResponseResult.class));
+                .thenReturn(responseResult);
 
         Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
                 .thenReturn(ReliabilityChecker.CheckResult.OK);
 
         String messageId = itTestsService.sendMessageToDelete(MessageStatus.SEND_ENQUEUED);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
+        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
 
-//        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
-//        Assert.assertNotNull(byMessageId);
-////
-//        Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
-//        Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
+        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
+        Assert.assertNotNull(byMessageId);
 
-//        deleteMessages();
+        deleteMessages();
 
-//        Assert.assertNull(userMessageDao.findByMessageId(messageId));
-//        try {
-//            userMessageLogDao.findByMessageId(messageId);
-//            Assert.fail();
-//        } catch (NoResultException e) {
-//            //OK
-//        }
+        Assert.assertNull(userMessageDao.findByMessageId(messageId));
+        try {
+            userMessageLogDao.findByMessageId(messageId);
+            Assert.fail();
+        } catch (NoResultException e) {
+            //OK
+        }
 
     }
 }
