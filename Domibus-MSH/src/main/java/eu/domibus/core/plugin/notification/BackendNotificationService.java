@@ -246,6 +246,7 @@ public class BackendNotificationService {
                 messageDeletedEvent);
     }
 
+    //OK
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
@@ -262,6 +263,7 @@ public class BackendNotificationService {
         backendConnector.payloadSubmittedEvent(payloadSubmittedEvent);
     }
 
+    //OK
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);

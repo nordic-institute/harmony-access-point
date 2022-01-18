@@ -1,6 +1,9 @@
 package eu.domibus.test.common;
 
+import eu.domibus.common.DeliverMessageEvent;
 import eu.domibus.common.MessageReceiveFailureEvent;
+import eu.domibus.common.PayloadProcessedEvent;
+import eu.domibus.common.PayloadSubmittedEvent;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
@@ -11,15 +14,32 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
  */
 public class MessageReceivePluginMock extends AbstractBackendConnector {
 
-    private MessageReceiveFailureEvent event;
+    private MessageReceiveFailureEvent messageReceiveFailureEvent;
+    private PayloadSubmittedEvent payloadSubmittedEvent;
+    private PayloadProcessedEvent payloadProcessedEvent;
 
     public MessageReceivePluginMock(String name) {
         super(name);
     }
 
     @Override
+    public String getName() {
+        return "domibusBackend";
+    }
+
+    @Override
     public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
-        this.event = messageReceiveFailureEvent;
+        this.messageReceiveFailureEvent = messageReceiveFailureEvent;
+    }
+
+    @Override
+    public void payloadSubmittedEvent(PayloadSubmittedEvent payloadSubmittedEvent) {
+        this.payloadSubmittedEvent = payloadSubmittedEvent;
+    }
+
+    @Override
+    public void payloadProcessedEvent(PayloadProcessedEvent payloadProcessedEvent) {
+        this.payloadProcessedEvent = payloadProcessedEvent;
     }
 
     @Override
@@ -32,11 +52,24 @@ public class MessageReceivePluginMock extends AbstractBackendConnector {
         return null;
     }
 
-    public void clear() {
-        this.event = null;
+    @Override
+    public void deliverMessage(final DeliverMessageEvent event) {
+
     }
 
-    public MessageReceiveFailureEvent getEvent() {
-        return event;
+    public void clear() {
+        this.messageReceiveFailureEvent = null;
+    }
+
+    public MessageReceiveFailureEvent getMessageReceiveFailureEvent() {
+        return messageReceiveFailureEvent;
+    }
+
+    public PayloadSubmittedEvent getPayloadSubmittedEvent() {
+        return payloadSubmittedEvent;
+    }
+
+    public PayloadProcessedEvent getPayloadProcessedEvent() {
+        return payloadProcessedEvent;
     }
 }

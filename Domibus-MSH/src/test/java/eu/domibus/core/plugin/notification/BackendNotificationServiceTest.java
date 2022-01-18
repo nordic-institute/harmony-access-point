@@ -1,7 +1,9 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -24,12 +26,15 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static eu.domibus.common.NotificationType.MESSAGE_STATUS_CHANGE;
 
 /**
  * @author Cosmin Baciu
@@ -340,47 +345,53 @@ public class BackendNotificationServiceTest {
         new FullVerifications() {
         };
     }
-//
-//            @Test
-//            public void notify_NotificationNotMatchType(@Mocked BackendConnector<?, ?> backendConnector) {
-//
-//                List<NotificationType> requiredNotifications = new ArrayList<>();
-//                requiredNotifications.add(MESSAGE_STATUS_CHANGE);
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendConnectorProvider.getBackendConnector(BACKEND_NAME);
-//                    result = backendConnector;
-//
-//                    backendConnectorService.getRequiredNotificationTypeList(backendConnector);
-//                    result = requiredNotifications;
-//
-//                    backendConnector.getMode();
-//                    result = BackendConnector.Mode.PUSH;
-//                }};
-//
-//                backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyOfMessageStatusChange(@Mocked final UserMessageLog messageLog,
-//                                                        @Mocked final UserMessage userMessage) {
-//                MessageStatus status = MessageStatus.ACKNOWLEDGED;
-//
-//                new Expectations(backendNotificationService) {{
-//                    messagingDao.findUserMessageByMessageId(messageLog.getMessageId());
-//                    result = userMessage;
-//
-//                    backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
-//                }};
-//
-//                backendNotificationService.notifyOfMessageStatusChange(messageLog, status, TIMESTAMP);
-//
-//                new FullVerifications() {
-//                };
-//            }
+
+    @Test
+    public void notify_NotificationNotMatchType(@Mocked BackendConnector<?, ?> backendConnector, @Mocked UserMessage userMessage) {
+
+        List<NotificationType> requiredNotifications = new ArrayList<>();
+        requiredNotifications.add(MESSAGE_STATUS_CHANGE);
+
+        new Expectations(backendNotificationService) {{
+            backendConnectorProvider.getBackendConnector(BACKEND_NAME);
+            result = backendConnector;
+
+            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            result = requiredNotifications;
+
+            backendConnector.getMode();
+            result = BackendConnector.Mode.PUSH;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+
+            userMessage.getEntityId();
+            this.result = entityId;
+        }};
+
+        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyOfMessageStatusChange(@Mocked final UserMessageLog messageLog,
+                                                @Mocked final UserMessage userMessage) {
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+
+        new Expectations(backendNotificationService) {{
+            userMessageDao.findByMessageId(anyString);
+            result = userMessage;
+
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(MESSAGE_ID, messageLog, status, TIMESTAMP);
+
+        new FullVerifications() {
+        };
+    }
 //
 //            @Test
 //            public void notifyOfMessageStatusChange_isPluginNotificationDisabled(
