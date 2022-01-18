@@ -1,14 +1,15 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.ErrorResult;
+import eu.domibus.common.MessageDeletedBatchEvent;
+import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
@@ -20,21 +21,24 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static eu.domibus.common.NotificationType.MESSAGE_STATUS_CHANGE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static eu.domibus.common.NotificationType.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Cosmin Baciu
@@ -392,602 +396,602 @@ public class BackendNotificationServiceTest {
         new FullVerifications() {
         };
     }
-//
-//            @Test
-//            public void notifyOfMessageStatusChange_isPluginNotificationDisabled(
-//                    @Mocked final UserMessageLog messageLog) {
-//                final String messageId = "1";
-//                final MSHRole role = MSHRole.SENDING;
-//
-//                MessageStatus status = MessageStatus.ACKNOWLEDGED;
-//                final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
-//                new Expectations(backendNotificationService) {{
-//                    messagingConfigurationManager.getConfiguration();
-//                    result = messageCommunicationConfiguration;
-//                    times = 1;
-//
-//                    messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-//                    result = true;
-//                    times = 1;
-//
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = true;
-//                    times = 1;
-//
-//                    messageLog.getMessageStatus();
-//                    result = previousStatus;
-//
-//                    messageLog.getMessageId();
-//                    result = messageId;
-//
-//                    messageLog.getMshRole();
-//                    result = role;
-//                }};
-//
-//                backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
-//
-//                new FullVerificationsInOrder() {{
-//                    eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
-//                    times = 1;
-//                }};
-//            }
-//
-//            @Test
-//            public void notifyOfMessageStatusChange_notFragment(@Mocked final UserMessageLog messageLog,
-//                                                                @Mocked final UserMessage userMessage) {
-//                final String messageId = "1";
-//                final String backend = "JMS";
-//                final MSHRole role = MSHRole.SENDING;
-//
-//                MessageStatus status = MessageStatus.ACKNOWLEDGED;
-//                final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
-//                new Expectations(backendNotificationService) {{
-//                    messagingConfigurationManager.getConfiguration();
-//                    result = messageCommunicationConfiguration;
-//                    times = 1;
-//
-//                    messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-//                    result = true;
-//                    times = 1;
-//
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    messageLog.getMessageStatus();
-//                    result = previousStatus;
-//
-//                    messageLog.getMessageId();
-//                    result = messageId;
-//
-//                    messageLog.getMshRole();
-//                    result = role;
-//
-//                    messageLog.getBackend();
-//                    result = backend;
-//
-//                    messageLog.getMessageFragment();
-//                    result = false;
-//
-//                    backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
-//                    result = new HashMap<String, Object>();
-//
-//                    backendNotificationService.notify(anyString, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<>()));
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
-//
-//                new FullVerificationsInOrder() {{
-//                    eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
-//                    times = 1;
-//                }};
-//            }
-//
-//            @Test
-//            public void notifyOfMessageStatusChange_fragment(@Mocked final UserMessageLog messageLog,
-//                                                             @Mocked final UserMessage userMessage) {
-//                final String messageId = "1";
-//                final String backend = "JMS";
-//                final MSHRole role = MSHRole.SENDING;
-//
-//                MessageStatus status = MessageStatus.ACKNOWLEDGED;
-//                final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
-//                new Expectations(backendNotificationService) {{
-//                    messagingConfigurationManager.getConfiguration();
-//                    result = messageCommunicationConfiguration;
-//                    times = 1;
-//
-//                    messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-//                    result = true;
-//                    times = 1;
-//
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    messageLog.getMessageStatus();
-//                    result = previousStatus;
-//
-//                    messageLog.getMessageId();
-//                    result = messageId;
-//
-//                    messageLog.getMshRole();
-//                    result = role;
-//
-//                    messageLog.getBackend();
-//                    result = backend;
-//
-//                    messageLog.getMessageFragment();
-//                    result = true;
-//
-//                    backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
-//                    result = new HashMap<String, Object>();
-//
-//                    backendNotificationService.notify(anyString, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE, withAny(new HashMap<>()));
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
-//
-//                new FullVerificationsInOrder() {{
-//                    eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
-//                    times = 1;
-//                }};
-//            }
-//
-//            @Test
-//            public void notifyOfMessageStatusChange_SameState(@Mocked final UserMessageLog messageLog) {
-//                final String messageId = "1";
-//                final MSHRole role = MSHRole.SENDING;
-//
-//                MessageStatus status = MessageStatus.ACKNOWLEDGED;
-//                final MessageStatus previousStatus = MessageStatus.ACKNOWLEDGED;
-//                new Expectations(backendNotificationService) {{
-//                    messagingConfigurationManager.getConfiguration();
-//                    result = messageCommunicationConfiguration;
-//                    times = 1;
-//
-//                    messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-//                    result = true;
-//                    times = 1;
-//
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    messageLog.getMessageStatus();
-//                    result = previousStatus;
-//
-//                    messageLog.getMessageId();
-//                    result = messageId;
-//
-//                    messageLog.getMshRole();
-//                    result = role;
-//                }};
-//
-//                backendNotificationService.notifyOfMessageStatusChange(null, messageLog, status, TIMESTAMP);
-//
-//                new FullVerifications() {{
-//                    eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
-//                    times = 1;
-//                }};
-//            }
-//
-//            @Test
-//            public void createMessageDeleteBatchEventTest() {
-//
-//                String backend = "ws";
-//                List<MessageDeletedEvent> messageIds = Stream
-//                        .of("abc", "def")
-//                        .map(this::getMessageDeletedEvent)
-//                        .collect(Collectors.toList());
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendConnectorDelegate.messageDeletedBatchEvent(backend, (MessageDeletedBatchEvent) any);
-//
-//                }};
-//
-//                backendNotificationService.createMessageDeleteBatchEvent(backend, messageIds);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            private MessageDeletedEvent getMessageDeletedEvent(String s) {
-//                MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
-//                messageDeletedEvent.setMessageId(s);
-//                return messageDeletedEvent;
-//            }
-//
-//            @Test
-//            public void getAllMessageIdsForBackendTest(@Mocked UserMessageLogDto uml1,
-//                                                       @Mocked UserMessageLogDto uml2) {
-//
-//                String backend = "ws";
-//                List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-//                Map<String, String> props = new HashMap<>();
-//                props.put(FINAL_RECIPIENT, "f1");
-//                props.put(ORIGINAL_SENDER, "o1");
-//
-//                new Expectations(backendNotificationService) {{
-//                    uml1.getMessageId();
-//                    result = "abc";
-//
-//                    uml2.getMessageId();
-//                    result = "def";
-//
-//                    uml1.getBackend();
-//                    result = backend;
-//
-//                    uml2.getBackend();
-//                    result = backend;
-//
-//                    uml1.getProperties();
-//                    result = props;
-//
-//                    uml2.getProperties();
-//                    result = props;
-//
-//                }};
-//
-//                List<MessageDeletedEvent> result =
-//                        backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
-//
-//                Assert.assertEquals(2, result.size());
-//                Assert.assertEquals("abc", result.get(0).getMessageId());
-//                Assert.assertEquals("def", result.get(1).getMessageId());
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void getMessageDeletedEvent(@Mocked UserMessageLogDto uml1) {
-//
-//                Map<String, String> props1 = new HashMap<>();
-//                props1.put(FINAL_RECIPIENT, "f1");
-//                props1.put(ORIGINAL_SENDER, "o1");
-//                new Expectations(backendNotificationService) {{
-//                    uml1.getMessageId();
-//                    result = "abc";
-//
-//                    uml1.getProperties();
-//                    result = props1;
-//
-//                }};
-//
-//                MessageDeletedEvent result =
-//                        backendNotificationService.getMessageDeletedEvent(uml1);
-//
-//                Assert.assertEquals("abc", result.getMessageId());
-//                Assert.assertEquals("f1", result.getProps().get(FINAL_RECIPIENT));
-//                Assert.assertEquals("o1", result.getProps().get(ORIGINAL_SENDER));
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessageDeletedRemoveTestMessages(@Mocked UserMessageLogDto uml1, @Mocked UserMessageLogDto uml2) {
-//
-//                String backend = "ws";
-//                List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-//                List<UserMessageLogDto> userMessageLogDtosNoTest = Collections.singletonList(uml1);
-//
-//                new Expectations(backendNotificationService) {{
-//                    uml1.getBackend();
-//                    result = backend;
-//                    uml2.getBackend();
-//                    times = 0;
-//                    uml1.isTestMessage();
-//                    result = false;
-//                    uml2.isTestMessage();
-//                    result = true;
-//
-//                    backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtosNoTest);
-//                    times = 1;
-//
-//                    backendNotificationService.createMessageDeleteBatchEvent(backend, (List<MessageDeletedEvent>) any);
-//
-//                }};
-//
-//                backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessage_allTestMessages(@Mocked UserMessageLogDto uml1, @Mocked UserMessageLogDto uml2) {
-//
-//                String backend = "ws";
-//                List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-//                List<UserMessageLogDto> userMessageLogDtosNoTest = Collections.singletonList(uml1);
-//
-//                new Expectations(backendNotificationService) {{
-//                    uml1.isTestMessage();
-//                    result = true;
-//                    uml2.isTestMessage();
-//                    result = true;
-//
-//                    backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtosNoTest);
-//                    times = 0;
-//
-//                    backendNotificationService.createMessageDeleteBatchEvent(backend, (List<MessageDeletedEvent>) any);
-//                    times = 0;
-//
-//                }};
-//
-//                backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessageDeletedEmptyList(@Mocked UserMessageLogDto uml1, @Mocked UserMessageLogDto uml2) {
-//
-//                String backend = "ws";
-//                List<UserMessageLogDto> userMessageLogDtos = Collections.emptyList();
-//
-//                new Expectations(backendNotificationService) {{
-//                    uml1.getBackend();
-//                    times = 0;
-//                    uml2.getBackend();
-//                    times = 0;
-//
-//                    backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
-//                    times = 0;
-//                }};
-//
-//                backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessageDeleted(
-//                    @Mocked UserMessageLogDto uml1,
-//                    @Mocked UserMessageLogDto uml2) {
-//
-//                String backend = "ws";
-//                List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-//                List<MessageDeletedEvent> messageIds = Stream
-//                        .of("abc", "def")
-//                        .map(this::getMessageDeletedEvent)
-//                        .collect(Collectors.toList());
-//
-//                List<List<MessageDeletedEvent>> calls = new ArrayList<>();
-//
-//                new Expectations(backendNotificationService) {{
-//                    uml1.getBackend();
-//                    result = backend;
-//                    uml2.getBackend();
-//                    result = backend;
-//                    uml1.isTestMessage();
-//                    result = false;
-//                    uml2.isTestMessage();
-//                    result = false;
-//
-//                    backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
-//                    result = messageIds;
-//
-//                    backendNotificationService.createMessageDeleteBatchEvent(backend, withCapture(calls));
-//                }};
-//
-//                backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
-//
-//                assertEquals(1, calls.size());
-//                assertEquals(2, calls.get(0).size());
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessageDeleted_noBackend(
-//                    @Mocked UserMessageLogDto uml1,
-//                    @Mocked UserMessageLogDto uml2) {
-//
-//                String backend = "ws";
-//                List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-//
-//                List<List<MessageDeletedEvent>> calls = new ArrayList<>();
-//
-//                new Expectations(backendNotificationService) {{
-//                    uml1.getBackend();
-//                    result = null;
-//                    uml2.getBackend();
-//                    result = null;
-//                    uml1.isTestMessage();
-//                    result = false;
-//                    uml2.isTestMessage();
-//                    result = false;
-//
-//                    backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
-//                    times = 0;
-//
-//                    backendNotificationService.createMessageDeleteBatchEvent(backend, withCapture(calls));
-//                    times = 0;
-//                }};
-//
-//                backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessageReceivedFailure(@Mocked UserMessage userMessage,
-//                                                         @Mocked ErrorResult errorResult,
-//                                                         @Mocked CollaborationInfo collaborationInfo) {
-//
-//                String errorCodeName = "errorCode";
-//                String errorDetail = "errorDetail";
-//                String service = "my service";
-//                String serviceType = "service type";
-//                String action = "my action";
-//
-//                List<Map<String, String>> propertiesList = new ArrayList<>();
-//
-//                new Expectations(backendNotificationService) {{
-//                    errorResult.getErrorCode().getErrorCodeName();
-//                    result = errorCodeName;
-//
-//                    errorResult.getErrorDetail();
-//                    result = errorDetail;
-//
-//                    userMessage.isUserMessageFragment();
-//                    result = true;
-//
-//                    userMessage.getCollaborationInfo();
-//                    result = collaborationInfo;
-//
-//                    collaborationInfo.getService();
-//                    result = service;
-//
-//                    collaborationInfo.getAction();
-//                    result = action;
-//
-//                    collaborationInfo.getService().getValue();
-//                    result = service;
-//
-//                    collaborationInfo.getService().getType();
-//                    result = serviceType;
-//
-//                    collaborationInfo.getAction();
-//                    result = action;
-//
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//
-//                    backendNotificationService.notifyOfIncoming(userMessage, MESSAGE_FRAGMENT_RECEIVED_FAILURE, withCapture(propertiesList));
-//
-//                }};
-//
-//                backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
-//
-//                assertEquals(1, propertiesList.size());
-//
-//                assertEquals(errorCodeName, propertiesList.get(0).get(MessageConstants.ERROR_CODE));
-//                assertEquals(errorDetail, propertiesList.get(0).get(MessageConstants.ERROR_DETAIL));
-//                assertEquals(service, propertiesList.get(0).get(MessageConstants.SERVICE));
-//                assertEquals(serviceType, propertiesList.get(0).get(MessageConstants.SERVICE_TYPE));
-//                assertEquals(action, propertiesList.get(0).get(MessageConstants.ACTION));
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void testNotifyMessageReceivedFailure_PluginNotificationDisabled(@Mocked UserMessage userMessage,
-//                                                                                    @Mocked ErrorResult errorResult) {
-//
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = true;
-//                }};
-//
-//                backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void isPluginNotificationDisabled() {
-//                new Expectations() {{
-//                    domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
-//                    result = true;
-//                }};
-//                boolean pluginNotificationDisabled = backendNotificationService.isPluginNotificationDisabled();
-//                assertFalse(pluginNotificationDisabled);
-//
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyOfSendSuccess(@Mocked UserMessageLog userMessageLog) {
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = true;
-//                    times = 1;
-//                }};
-//                backendNotificationService.notifyOfSendSuccess(userMessageLog);
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyOfSendSuccess_notFragment(@Mocked UserMessageLog userMessageLog) {
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    userMessageLog.getMessageId();
-//                    result = MESSAGE_ID;
-//                    times = 1;
-//
-//                    userMessageLog.getMessageFragment();
-//                    result = false;
-//                    times = 1;
-//
-//                    userMessageLog.getBackend();
-//                    result = BACKEND_NAME;
-//                    times = 1;
-//
-//                    backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
-//                    times = 1;
-//
-//                    userMessageLogDao.setAsNotified(userMessageLog);
-//                    times = 1;
-//
-//                    uiReplicationSignalService.messageChange(MESSAGE_ID);
-//                    times = 1;
-//                }};
-//                backendNotificationService.notifyOfSendSuccess(userMessageLog);
-//                new FullVerifications() {
-//                };
-//            }
-//
-//            @Test
-//            public void notifyOfSendSuccess_fragment(@Mocked UserMessageLog userMessageLog) {
-//                new Expectations(backendNotificationService) {{
-//                    backendNotificationService.isPluginNotificationDisabled();
-//                    result = false;
-//                    times = 1;
-//
-//                    userMessageLog.getMessageId();
-//                    result = MESSAGE_ID;
-//                    times = 1;
-//
-//                    userMessageLog.getMessageFragment();
-//                    result = true;
-//                    times = 1;
-//
-//                    userMessageLog.getBackend();
-//                    result = BACKEND_NAME;
-//                    times = 1;
-//
-//                    backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
-//                    times = 1;
-//
-//                    userMessageLogDao.setAsNotified(userMessageLog);
-//                    times = 1;
-//
-//                    uiReplicationSignalService.messageChange(MESSAGE_ID);
-//                    times = 1;
-//                }};
-//
-//                backendNotificationService.notifyOfSendSuccess(userMessageLog);
-//                new FullVerifications() {
-//                };
-//            }
-//
+
+
+    @Test
+    public void notifyOfMessageStatusChange_isPluginNotificationDisabled(
+            @Mocked final UserMessageLog messageLog, @Mocked final UserMessage userMessage) {
+        final String messageId = "1";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
+        new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            userMessage.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole().getRole();
+            result = role;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
+
+        new FullVerificationsInOrder() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
+        }};
+    }
+
+
+    @Test
+    public void notifyOfMessageStatusChange_notFragment(@Mocked final UserMessageLog messageLog,
+                                                        @Mocked final UserMessage userMessage) {
+        final String messageId = "1";
+        final String backend = "JMS";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
+        new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            userMessage.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole().getRole();
+            result = role;
+
+            messageLog.getBackend();
+            result = backend;
+
+            userMessage.isMessageFragment();
+            result = false;
+
+            backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
+            result = new HashMap<String, Object>();
+
+            backendNotificationService.notify(userMessage, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
+
+        new FullVerificationsInOrder() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfMessageStatusChange_fragment(@Mocked final UserMessageLog messageLog,
+                                                     @Mocked final UserMessage userMessage) {
+        final String messageId = "1";
+        final String backend = "JMS";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
+        new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            userMessage.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole().getRole();
+            result = role;
+
+            messageLog.getBackend();
+            result = backend;
+
+            userMessage.isMessageFragment();
+            result = true;
+
+            backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
+            result = new HashMap<String, Object>();
+
+            backendNotificationService.notify(userMessage, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE, withAny(new HashMap<>()));
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
+
+        new FullVerificationsInOrder() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void notifyOfMessageStatusChange_SameState(@Mocked final UserMessageLog messageLog, @Mocked final UserMessage userMessage) {
+        final String messageId = "1";
+        final MSHRole role = MSHRole.SENDING;
+
+        MessageStatus status = MessageStatus.ACKNOWLEDGED;
+        final MessageStatus previousStatus = MessageStatus.ACKNOWLEDGED;
+        new Expectations(backendNotificationService) {{
+            messagingConfigurationManager.getConfiguration();
+            result = messageCommunicationConfiguration;
+            times = 1;
+
+            messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
+            result = true;
+            times = 1;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            messageLog.getMessageStatus();
+            result = previousStatus;
+
+            userMessage.getMessageId();
+            result = messageId;
+
+            messageLog.getMshRole().getRole();
+            result = role;
+        }};
+
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
+
+        new FullVerifications() {{
+            eventService.enqueueMessageEvent(messageId, previousStatus, status, role);
+            times = 1;
+        }};
+    }
+
+
+    @Test
+    public void createMessageDeleteBatchEventTest() {
+
+        String backend = "ws";
+        List<MessageDeletedEvent> messageIds = Stream
+                .of("abc", "def")
+                .map(this::getMessageDeletedEvent)
+                .collect(Collectors.toList());
+
+        new Expectations(backendNotificationService) {{
+            backendConnectorDelegate.messageDeletedBatchEvent(backend, (MessageDeletedBatchEvent) any);
+
+        }};
+
+        backendNotificationService.createMessageDeleteBatchEvent(backend, messageIds);
+
+        new FullVerifications() {
+        };
+    }
+
+    private MessageDeletedEvent getMessageDeletedEvent(String s) {
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(s);
+        return messageDeletedEvent;
+    }
+
+
+    @Test
+    public void getAllMessageIdsForBackendTest(@Mocked UserMessageLogDto uml1,
+                                               @Mocked UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        Map<String, String> props = new HashMap<>();
+        props.put(FINAL_RECIPIENT, "f1");
+        props.put(ORIGINAL_SENDER, "o1");
+
+        new Expectations(backendNotificationService) {{
+            uml1.getMessageId();
+            result = "abc";
+
+            uml2.getMessageId();
+            result = "def";
+
+            uml1.getBackend();
+            result = backend;
+
+            uml2.getBackend();
+            result = backend;
+
+            uml1.getProperties();
+            result = props;
+
+            uml2.getProperties();
+            result = props;
+
+        }};
+
+        List<MessageDeletedEvent> result =
+                backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+
+        assertEquals(2, result.size());
+        assertEquals("abc", result.get(0).getMessageId());
+        assertEquals("def", result.get(1).getMessageId());
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getMessageDeletedEvent(@Mocked UserMessageLogDto uml1) {
+
+        Map<String, String> props1 = new HashMap<>();
+        props1.put(FINAL_RECIPIENT, "f1");
+        props1.put(ORIGINAL_SENDER, "o1");
+        new Expectations(backendNotificationService) {{
+            uml1.getMessageId();
+            result = "abc";
+
+            uml1.getProperties();
+            result = props1;
+
+        }};
+
+        MessageDeletedEvent result =
+                backendNotificationService.getMessageDeletedEvent(uml1);
+
+        assertEquals("abc", result.getMessageId());
+        assertEquals("f1", result.getProps().get(FINAL_RECIPIENT));
+        assertEquals("o1", result.getProps().get(ORIGINAL_SENDER));
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeletedRemoveTestMessages(@Mocked UserMessageLogDto uml1, @Mocked UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<UserMessageLogDto> userMessageLogDtosNoTest = Collections.singletonList(uml1);
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend();
+            result = backend;
+            uml2.getBackend();
+            times = 0;
+            uml1.isTestMessage();
+            result = false;
+            uml2.isTestMessage();
+            result = true;
+
+            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtosNoTest);
+            times = 1;
+
+            backendNotificationService.createMessageDeleteBatchEvent(backend, (List<MessageDeletedEvent>) any);
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessage_allTestMessages(@Mocked UserMessageLogDto uml1, @Mocked UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<UserMessageLogDto> userMessageLogDtosNoTest = Collections.singletonList(uml1);
+
+        new Expectations(backendNotificationService) {{
+            uml1.isTestMessage();
+            result = true;
+            uml2.isTestMessage();
+            result = true;
+
+            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtosNoTest);
+            times = 0;
+
+            backendNotificationService.createMessageDeleteBatchEvent(backend, (List<MessageDeletedEvent>) any);
+            times = 0;
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeletedEmptyList(@Mocked UserMessageLogDto uml1, @Mocked UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Collections.emptyList();
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend();
+            times = 0;
+            uml2.getBackend();
+            times = 0;
+
+            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+            times = 0;
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeleted(
+            @Mocked UserMessageLogDto uml1,
+            @Mocked UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<MessageDeletedEvent> messageIds = Stream
+                .of("abc", "def")
+                .map(this::getMessageDeletedEvent)
+                .collect(Collectors.toList());
+
+        List<List<MessageDeletedEvent>> calls = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend();
+            result = backend;
+            uml2.getBackend();
+            result = backend;
+            uml1.isTestMessage();
+            result = false;
+            uml2.isTestMessage();
+            result = false;
+
+            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+            result = messageIds;
+
+            backendNotificationService.createMessageDeleteBatchEvent(backend, withCapture(calls));
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        assertEquals(1, calls.size());
+        assertEquals(2, calls.get(0).size());
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeleted_noBackend(
+            @Mocked UserMessageLogDto uml1,
+            @Mocked UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+
+        List<List<MessageDeletedEvent>> calls = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend();
+            result = null;
+            uml2.getBackend();
+            result = null;
+            uml1.isTestMessage();
+            result = false;
+            uml2.isTestMessage();
+            result = false;
+
+            backendNotificationService.getAllMessageIdsForBackend(backend, userMessageLogDtos);
+            times = 0;
+
+            backendNotificationService.createMessageDeleteBatchEvent(backend, withCapture(calls));
+            times = 0;
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageReceivedFailure(@Mocked UserMessage userMessage,
+                                                 @Mocked ErrorResult errorResult,
+                                                 @Mocked List<PartInfo> partInfoList,
+                                                 @Mocked ServiceEntity serviceEntity) {
+
+        String errorCodeName = "errorCode";
+        String errorDetail = "errorDetail";
+        String service = "my service";
+        String serviceType = "service type";
+        String action = "my action";
+
+        List<Map<String, String>> propertiesList = new ArrayList<>();
+
+        new Expectations(backendNotificationService) {{
+            errorResult.getErrorCode().getErrorCodeName();
+            result = errorCodeName;
+
+            errorResult.getErrorDetail();
+            result = errorDetail;
+
+            userMessage.isMessageFragment();
+            result = true;
+
+            userMessage.getService();
+            result = serviceEntity;
+
+            userMessage.getActionValue();
+            result = action;
+
+            serviceEntity.getValue();
+            result = service;
+
+            serviceEntity.getType();
+            result = serviceType;
+
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            backendNotificationService.notifyOfIncoming(userMessage, partInfoList, MESSAGE_FRAGMENT_RECEIVED_FAILURE, withCapture(propertiesList));
+
+        }};
+
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfoList, errorResult);
+
+        assertEquals(1, propertiesList.size());
+
+        assertEquals(errorCodeName, propertiesList.get(0).get(MessageConstants.ERROR_CODE));
+        assertEquals(errorDetail, propertiesList.get(0).get(MessageConstants.ERROR_DETAIL));
+        assertEquals(service, propertiesList.get(0).get(MessageConstants.SERVICE));
+        assertEquals(serviceType, propertiesList.get(0).get(MessageConstants.SERVICE_TYPE));
+        assertEquals(action, propertiesList.get(0).get(MessageConstants.ACTION));
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageReceivedFailure_PluginNotificationDisabled(@Mocked UserMessage userMessage,
+                                                                            @Mocked ErrorResult errorResult,
+                                                                            @Mocked List<PartInfo> partInfoList) {
+
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+        }};
+
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfoList, errorResult);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void isPluginNotificationDisabled() {
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
+            result = true;
+        }};
+        boolean pluginNotificationDisabled = backendNotificationService.isPluginNotificationDisabled();
+        assertFalse(pluginNotificationDisabled);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendSuccess(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = true;
+            times = 1;
+        }};
+        backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendSuccess_notFragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+            times = 1;
+
+            userMessage.isMessageFragment();
+            result = false;
+            times = 1;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+            times = 1;
+
+            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
+            times = 1;
+
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+        backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void notifyOfSendSuccess_fragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+            times = 1;
+
+            userMessage.getMessageId();
+            result = MESSAGE_ID;
+            times = 1;
+
+            userMessage.isMessageFragment();
+            result = true;
+            times = 1;
+
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+            times = 1;
+
+            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
+            times = 1;
+
+            userMessageLogDao.setAsNotified(userMessageLog);
+            times = 1;
+
+            uiReplicationSignalService.messageChange(MESSAGE_ID);
+            times = 1;
+        }};
+
+        backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
+        new FullVerifications() {
+        };
+    }
+
 //            @Test
 //            public void notifyMessageReceived_isPluginNotificationDisabled(
 //                    @Mocked final BackendFilter matchingBackendFilter,

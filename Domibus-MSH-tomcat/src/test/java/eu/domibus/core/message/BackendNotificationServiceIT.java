@@ -43,6 +43,7 @@ import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
@@ -124,9 +125,13 @@ public class BackendNotificationServiceIT extends AbstractIT {
     MessagesLogServiceImpl messagesLogService;
 
     MessageReceivePluginMock backendConnector;
+    String messageId, filename;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
+        messageId = UUID.randomUUID().toString();
+        filename = "SOAPMessage2.xml";
+
         uploadPmode();
 
         backendConnector = new MessageReceivePluginMock("test");
@@ -136,17 +141,13 @@ public class BackendNotificationServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void testValidateAndNotifySync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-//        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
-//        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
         Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-        String filename = "SOAPMessage2.xml";
-        String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+//        String filename = "SOAPMessage2.xml";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
@@ -160,24 +161,17 @@ public class BackendNotificationServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void testValidateAndNotifyAsync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-        String backendName = "domibusBackend";
-
-//        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
-//        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-//        Mockito.when(backendConnector.getName()).thenReturn(backendName);
 
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
-        Mockito.when(backendFilter.getBackendName()).thenReturn(backendName);
+        Mockito.when(backendFilter.getBackendName()).thenReturn(backendConnector.getName());
         Mockito.when(pluginAsyncNotificationConfiguration.getBackendConnector()).thenReturn(backendConnector);
         Mockito.when(pluginAsyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(notifyBackendWebServiceQueue);
 
         Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-        String filename = "SOAPMessage2.xml";
-        String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
@@ -191,8 +185,6 @@ public class BackendNotificationServiceIT extends AbstractIT {
     @Test(expected = WebServiceException.class)
     @Transactional
     public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-//        MessageReceivePluginMock backendConnector = new MessageReceivePluginMock("test");
-//        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
@@ -200,8 +192,7 @@ public class BackendNotificationServiceIT extends AbstractIT {
         Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-        String filename = "InvalidBodyloadCidSOAPMessage.xml";
-        String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+        filename = "InvalidBodyloadCidSOAPMessage.xml";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
@@ -217,7 +208,7 @@ public class BackendNotificationServiceIT extends AbstractIT {
     @Transactional
     public void notifyPayloadEvent() throws MessagingProcessingException {
         Submission submission = submissionUtil.createSubmission();
-        final String messageId = databaseMessageHandler.submit(submission, backendConnector.getName());
+        messageId = databaseMessageHandler.submit(submission, backendConnector.getName());
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         assertNotNull(userMessageLog);
