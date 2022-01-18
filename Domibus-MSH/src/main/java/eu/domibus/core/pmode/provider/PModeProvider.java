@@ -257,6 +257,7 @@ public abstract class PModeProvider {
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         }
         LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getFromPartyId().getValue());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());

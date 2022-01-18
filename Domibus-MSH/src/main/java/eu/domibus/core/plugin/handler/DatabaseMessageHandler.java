@@ -293,6 +293,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             throw new MessagingProcessingException("Message fragment id is empty");
         }
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         LOG.debug("Preparing to submit message fragment");
 
         try {
@@ -363,6 +364,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
+            LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {

@@ -89,6 +89,7 @@ public class SourceMessageSender implements MessageSender {
     protected void doSendMessage(final UserMessage userMessage) {
         String messageId = userMessage.getMessageId();
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.debug("Add message ID to LOG MDC [{}]", messageId);
 
         LOG.debug("Sending SourceMessage");
 

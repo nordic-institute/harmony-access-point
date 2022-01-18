@@ -571,6 +571,7 @@ public class UserMessageDefaultService implements UserMessageService {
         //add messageId to MDC map
         if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);

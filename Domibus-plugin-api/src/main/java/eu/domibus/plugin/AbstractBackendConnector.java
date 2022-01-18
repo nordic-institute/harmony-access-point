@@ -75,8 +75,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageEntityId);
         if (messageEntityId != null) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
-            LOG.debug("Add message entity ID to LOG MDC [{}]", String.valueOf(messageEntityId));
+            String msgEntityId = String.valueOf(messageEntityId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, msgEntityId);
+            LOG.debug("Add message entity ID to LOG MDC [{}]", msgEntityId);
         }
 
         try {
@@ -107,6 +108,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         }
 
         try {

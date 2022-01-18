@@ -61,6 +61,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
         try {
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
 
             final long messageEntityId = message.getLongProperty(MessageConstants.MESSAGE_ENTITY_ID);
 
