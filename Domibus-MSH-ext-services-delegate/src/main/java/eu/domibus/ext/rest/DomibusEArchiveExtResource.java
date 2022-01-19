@@ -1,8 +1,10 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -144,19 +146,23 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size.") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
-        ExportedBatchMessagesResultDTO resultDTO = new ExportedBatchMessagesResultDTO(batchId, pageStart, pageSize);
-        LOG.info("Return batch messages with batch id [{}] for page: [{}] and page size: [{}].", batchId, pageStart, pageSize);
-        Long total = domibusEArchiveExtService.getBatchMessageCount(batchId);
-        if (total == null || total < 1L) {
-            LOG.trace(NO_RESULTS_FOUND);
-            resultDTO.getPagination().setTotal(0);
+        try {
+            ExportedBatchMessagesResultDTO resultDTO = new ExportedBatchMessagesResultDTO(batchId, pageStart, pageSize);
+            LOG.info("Return batch messages with batch id [{}] for page: [{}] and page size: [{}].", batchId, pageStart, pageSize);
+            Long total = domibusEArchiveExtService.getBatchMessageCount(batchId);
+            if (total == null || total < 1L) {
+                LOG.trace(NO_RESULTS_FOUND);
+                resultDTO.getPagination().setTotal(0);
+                return resultDTO;
+            }
+            resultDTO.getPagination().setTotal(total.intValue());
+            List<String> messagePage = domibusEArchiveExtService.getBatchMessageIds(batchId, pageStart, pageSize);
+            resultDTO.getMessages().addAll(messagePage);
+            LOG.trace(RETURN_RESULTS_OF_TOTAL, messagePage.size(), total);
             return resultDTO;
+        } catch (DomibusEArchiveException coreEArchiveException) {
+            throw new DomibusEArchiveExtException(DomibusErrorCode.valueOf(coreEArchiveException.getError().name()), coreEArchiveException.getMessage(), coreEArchiveException);
         }
-        resultDTO.getPagination().setTotal(total.intValue());
-        List<String> messagePage = domibusEArchiveExtService.getBatchMessageIds(batchId, pageStart, pageSize);
-        resultDTO.getMessages().addAll(messagePage);
-        LOG.trace(RETURN_RESULTS_OF_TOTAL, messagePage.size(), total);
-        return resultDTO;
     }
 
     /**
