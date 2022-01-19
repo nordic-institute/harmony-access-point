@@ -1,10 +1,8 @@
 package eu.domibus.ext.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.domibus.api.earchive.DomibusEArchiveService;
-import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.*;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.delegate.mapper.TestMapperContextConfiguration;
 import eu.domibus.ext.delegate.services.earchive.DomibusEArchiveServiceDelegate;
@@ -33,6 +31,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.text.SimpleDateFormat;
@@ -59,6 +59,7 @@ public class DomibusEArchiveExtResourceIT {
     public static final String TEST_ENDPOINT_EXPORTED = TEST_ENDPOINT_RESOURCE + "/batches/exported";
     public static final String TEST_ENDPOINT_SANITY_DATE = TEST_ENDPOINT_RESOURCE + "/sanity-mechanism/start-date";
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
+    public static final String TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES = TEST_ENDPOINT_EXPORTED + "/{batchId}/messages";
 
     public ObjectMapper objectMapper = new ObjectMapper();
 
@@ -124,8 +125,8 @@ public class DomibusEArchiveExtResourceIT {
         public DomibusEArchiveServiceDelegate beanDomibusEArchiveExtService(EArchiveExtMapper eArchiveExtMapper) {
             return new DomibusEArchiveServiceDelegate(mockDomibusEArchiveService, eArchiveExtMapper);
         }
-    }
 
+    }
     public List<HttpMessageConverter<?>> mappingJackson2HttpMessageConverter() {
         Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
         List<HttpMessageConverter<?>> converter = Collections.singletonList(new MappingJackson2HttpMessageConverter(builder.build()));
@@ -168,6 +169,20 @@ public class DomibusEArchiveExtResourceIT {
                 .andReturn();
         // then
         verify(mockDomibusEArchiveService, times(1)).updateStartDateSanityArchive(resultDate);
+    }
+
+    @Test
+    public void testGetBatchMessageIdsNoResultFound() throws Exception {
+        final String batchId = "0";
+
+        when(mockDomibusEArchiveService.getBatchUserMessageListCount(batchId))
+                .thenThrow(new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"EArchive batch not found batchId: [" + batchId + "]"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES)
+                .param("batchId", batchId)
+        )
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andReturn();
     }
 
     @Test
