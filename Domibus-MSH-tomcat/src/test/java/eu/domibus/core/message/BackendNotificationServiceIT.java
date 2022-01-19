@@ -290,7 +290,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
+        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
 
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
