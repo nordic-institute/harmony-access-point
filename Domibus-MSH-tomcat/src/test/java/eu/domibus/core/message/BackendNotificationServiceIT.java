@@ -14,12 +14,15 @@ import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
+import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -36,8 +40,12 @@ import javax.jms.Queue;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
+import eu.domibus.plugin.ProcessingType;
 
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
@@ -164,6 +172,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Before
     public void before() throws IOException, XmlProcessingException {
+        MessageExchangeService mock = Mockito.mock(MessageExchangeService.class);
+        ReflectionTestUtils.setField(this, "messageExchangeService", mock);
+
         messageId = UUID.randomUUID() + "@domibus.eu";
         filename = "SOAPMessage2.xml";
 
@@ -193,75 +204,74 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     }
 
-//    @Test
-//    @Transactional
-//    public void testValidateAndNotifyAsync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-//
-//        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-//        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-//
-//        Mockito.when(backendFilter.getBackendName()).thenReturn(backendConnector.getName());
-//        Mockito.when(pluginAsyncNotificationConfiguration.getBackendConnector()).thenReturn(backendConnector);
-//        Mockito.when(pluginAsyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(notifyBackendWebServiceQueue);
-//
-//        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
-//                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
-//
-//        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-//        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
-//
-//        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
-//
-//        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
-//        assertNotNull(ebms3Messaging);
-//
-//    }
+    @Test
+    @Transactional
+    public void testValidateAndNotifyAsync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
 
-//    @Test(expected = WebServiceException.class)
-//    @Transactional
-//    public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-//
-//        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-//        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-//
-//        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
-//                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
-//
-//        filename = "InvalidBodyloadCidSOAPMessage.xml";
-//        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-//        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
-//
-//        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
-//
-//        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
-//        assertNotNull(ebms3Messaging);
-//
-//        assertEquals(backendConnector.getMessageReceiveFailureEvent().getMessageId(), messageId);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void notifyPayloadEvent() throws MessagingProcessingException {
-//        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
-//        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
-//        Mockito.when(messageExchangeService.getMessageStatus(Mockito.any(MessageExchangeConfiguration.class), Mockito.any(ProcessingType.class)))
-//                .thenReturn(messageStatusEntity);
-//
-//        Submission submission = submissionUtil.createSubmission();
-//        messageId = databaseMessageHandler.submit(submission, backendConnector.getName());
-//
-//        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-//        assertNotNull(userMessageLog);
-//        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
-//        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
-//
-//        final HashMap<String, Object> filters = new HashMap<>();
-//        filters.put("receivedTo", new Date());
-//        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
-//        assertNotNull(result);
-//        assertEquals(result.getMessageLogEntries().size(), 1);
-//        assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
-//    }
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+
+        Mockito.when(backendFilter.getBackendName()).thenReturn(backendConnector.getName());
+        Mockito.when(pluginAsyncNotificationConfiguration.getBackendConnector()).thenReturn(backendConnector);
+        Mockito.when(pluginAsyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(notifyBackendWebServiceQueue);
+
+        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+
+        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
+
+        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
+        assertNotNull(ebms3Messaging);
+
+    }
+    @Test(expected = WebServiceException.class)
+    @Transactional
+    public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+
+        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        filename = "InvalidBodyloadCidSOAPMessage.xml";
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+
+        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
+
+        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
+        assertNotNull(ebms3Messaging);
+
+        assertEquals(backendConnector.getMessageReceiveFailureEvent().getMessageId(), messageId);
+    }
+
+    @Test
+    @Transactional
+    public void notifyPayloadEvent() throws MessagingProcessingException {
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
+        Mockito.when(messageExchangeService.getMessageStatus(Mockito.any(MessageExchangeConfiguration.class), Mockito.any(ProcessingType.class)))
+                .thenReturn(messageStatusEntity);
+
+        Submission submission = submissionUtil.createSubmission();
+        messageId = databaseMessageHandler.submit(submission, backendConnector.getName());
+
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        assertNotNull(userMessageLog);
+        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
+        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
+
+        final HashMap<String, Object> filters = new HashMap<>();
+        filters.put("receivedTo", new Date());
+        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
+        assertNotNull(result);
+        assertEquals(result.getMessageLogEntries().size(), 1);
+        assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
+    }
 //
 //    @Autowired
 //    protected MessageStatusDao messageStatusDao;
