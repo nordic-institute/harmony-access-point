@@ -69,14 +69,44 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         @Primary
         @Bean
+        public RoutingService routingService() {
+            return Mockito.mock(RoutingService.class);
+        }
+
+        @Primary
+        @Bean
+        public BackendConnectorService backendConnectorService() {
+            return Mockito.mock(BackendConnectorService.class);
+        }
+
+        @Primary
+        @Bean
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration() {
             return Mockito.mock(PluginAsyncNotificationConfiguration.class);
         }
 
         @Primary
         @Bean("notifyBackendWebServiceQueue")
-        public ActiveMQQueue notifyBackendWebServiceQueue() {
+        public ActiveMQQueue notifyBackendWSQueue() {
             return new ActiveMQQueue("domibus.notification.webservice");
+        }
+
+        @Primary
+        @Bean
+        MSHDispatcher mshDispatcher() {
+            return Mockito.mock(MSHDispatcher.class);
+        }
+
+        @Primary
+        @Bean
+        ResponseHandler responseHandler() {
+            return Mockito.mock(ResponseHandler.class);
+        }
+
+        @Primary
+        @Bean
+        ReliabilityChecker reliabilityChecker() {
+            return Mockito.mock(ReliabilityChecker.class);
         }
 
     }
@@ -136,20 +166,13 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Autowired
     protected ReliabilityChecker reliabilityChecker;
 
-    @Autowired
-    protected MessageStatusDao messageStatusDao;
-
     BackendConnectorMock backendConnector;
     String messageId, filename;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
-        ReflectionTestUtils.setField(this, "messageExchangeService", Mockito.mock(MessageExchangeService.class));
-        ReflectionTestUtils.setField(this, "reliabilityChecker", Mockito.mock(ReliabilityChecker.class));
-        ReflectionTestUtils.setField(this, "responseHandler", Mockito.mock(ResponseHandler.class));
-        ReflectionTestUtils.setField(this, "mshDispatcher", Mockito.mock(MSHDispatcher.class));
-        ReflectionTestUtils.setField(this, "backendConnectorService", Mockito.mock(BackendConnectorService.class));
-        ReflectionTestUtils.setField(this, "routingService", Mockito.mock(RoutingService.class));
+        MessageExchangeService mock = Mockito.mock(MessageExchangeService.class);
+        ReflectionTestUtils.setField(this, "messageExchangeService", mock);
 
         messageId = UUID.randomUUID() + "@domibus.eu";
         filename = "SOAPMessage2.xml";
@@ -249,6 +272,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertEquals(result.getMessageLogEntries().size(), 1);
         assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
     }
+
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
 
     @Test
     public void testDeleteFailedMessage() throws MessagingProcessingException, EbMS3Exception {
