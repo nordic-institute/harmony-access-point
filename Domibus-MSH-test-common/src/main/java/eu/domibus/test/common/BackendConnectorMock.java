@@ -9,8 +9,8 @@ import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
 /**
- * @author Cosmin Baciu
- * @since 3.2.2
+ * @author Ion perpegel
+ * @since 5.0
  */
 public class BackendConnectorMock extends AbstractBackendConnector {
 
