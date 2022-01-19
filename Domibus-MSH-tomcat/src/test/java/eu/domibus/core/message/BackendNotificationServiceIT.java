@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.ITTestsService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -50,6 +51,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
@@ -106,12 +109,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         @Bean
         ReliabilityChecker reliabilityChecker() {
             return Mockito.mock(ReliabilityChecker.class);
-        }
-
-        @Primary
-        @Bean
-        MessageExchangeService messageExchangeService() {
-            return Mockito.mock(MessageExchangeService.class);
         }
     }
 
@@ -172,6 +169,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Autowired
     protected MessageStatusDao messageStatusDao;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     BackendConnectorMock backendConnector;
     String messageId, filename;
@@ -256,11 +256,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void notifyPayloadEvent() throws MessagingProcessingException {
-        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
-        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
-        Mockito.when(messageExchangeService.getMessageStatus(Mockito.any(MessageExchangeConfiguration.class), Mockito.any(ProcessingType.class)))
-                .thenReturn(messageStatusEntity);
-
         Submission submission = submissionUtil.createSubmission();
         messageId = databaseMessageHandler.submit(submission, backendConnector.getName());
 
@@ -278,14 +273,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    public void testNotifyPayloadSubmitted() throws MessagingProcessingException, EbMS3Exception {
-        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
-        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
-        Mockito.when(messageExchangeService.getMessageStatus(Mockito.any(MessageExchangeConfiguration.class), Mockito.any(ProcessingType.class)))
-                .thenReturn(messageStatusEntity);
-        Mockito.when(messageExchangeService.forcePullOnMpc(Mockito.any(UserMessage.class))).thenReturn(false);
-        doNothing().when(messageExchangeService).verifySenderCertificate(Mockito.any(LegConfiguration.class), Mockito.any(String.class));
-        doNothing().when(messageExchangeService).verifyReceiverCertificate(Mockito.any(LegConfiguration.class), Mockito.any(String.class));
+    public void testNotifyOfSendSuccess() throws MessagingProcessingException, EbMS3Exception {
+        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
+        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
 
         Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
                 .thenReturn(Mockito.mock(SOAPMessage.class));

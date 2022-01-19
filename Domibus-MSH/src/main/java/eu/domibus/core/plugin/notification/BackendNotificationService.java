@@ -156,7 +156,7 @@ public class BackendNotificationService {
 
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
     }
-
+//OK
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.warn("Empty notification list of userMessageLogs");
