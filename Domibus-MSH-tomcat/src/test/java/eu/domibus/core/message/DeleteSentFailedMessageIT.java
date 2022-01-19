@@ -48,7 +48,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
-        String messageId = itTestsService.sendMessageToDelete(MessageStatus.SEND_FAILURE);
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_FAILURE);
 
         LOG.info("Message Id to delete: [{}]", messageId);
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);

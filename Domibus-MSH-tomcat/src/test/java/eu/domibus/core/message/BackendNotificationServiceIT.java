@@ -19,6 +19,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.test.common.BackendConnectorMock;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
-import eu.domibus.plugin.ProcessingType;
 
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
@@ -109,6 +108,11 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
             return Mockito.mock(ReliabilityChecker.class);
         }
 
+        @Primary
+        @Bean
+        MessageExchangeService messageExchangeService() {
+            return Mockito.mock(MessageExchangeService.class);
+        }
     }
 
     @Autowired
@@ -166,14 +170,14 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Autowired
     protected ReliabilityChecker reliabilityChecker;
 
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
+
     BackendConnectorMock backendConnector;
     String messageId, filename;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
-        MessageExchangeService mock = Mockito.mock(MessageExchangeService.class);
-        ReflectionTestUtils.setField(this, "messageExchangeService", mock);
-
         messageId = UUID.randomUUID() + "@domibus.eu";
         filename = "SOAPMessage2.xml";
 
@@ -273,17 +277,13 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
     }
 
-    @Autowired
-    protected MessageStatusDao messageStatusDao;
-
     @Test
-    public void testDeleteFailedMessage() throws MessagingProcessingException, EbMS3Exception {
+    public void testNotifyPayloadSubmitted() throws MessagingProcessingException, EbMS3Exception {
         MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
         messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
-
-        Mockito.when(messageExchangeService.forcePullOnMpc(Mockito.any(UserMessage.class))).thenReturn(false);
         Mockito.when(messageExchangeService.getMessageStatus(Mockito.any(MessageExchangeConfiguration.class), Mockito.any(ProcessingType.class)))
                 .thenReturn(messageStatusEntity);
+        Mockito.when(messageExchangeService.forcePullOnMpc(Mockito.any(UserMessage.class))).thenReturn(false);
         doNothing().when(messageExchangeService).verifySenderCertificate(Mockito.any(LegConfiguration.class), Mockito.any(String.class));
         doNothing().when(messageExchangeService).verifyReceiverCertificate(Mockito.any(LegConfiguration.class), Mockito.any(String.class));
 
@@ -298,22 +298,14 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
                 .thenReturn(ReliabilityChecker.CheckResult.OK);
 
-        String messageId = itTestsService.sendMessageToDelete(MessageStatus.SEND_ENQUEUED);
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
+        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
 
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
 
         deleteMessages();
-
-//        UserMessage byMessageId1 = userMessageDao.findByMessageId(messageId);
-//        Assert.assertNull(byMessageId1);
-//        try {
-//            userMessageLogDao.findByMessageId(messageId);
-//            Assert.fail();
-//        } catch (NoResultException e) {
-//            //OK
-//        }
     }
+
 }

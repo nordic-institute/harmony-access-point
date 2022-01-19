@@ -59,7 +59,7 @@ public class ITTestsService {
     protected MessagePropertyDao messagePropertyDao;
 
     @Transactional
-    public String sendMessageToDelete(MessageStatus endStatus) throws MessagingProcessingException {
+    public String sendMessageWithStatus(MessageStatus endStatus) throws MessagingProcessingException {
 
         Submission submission = submissionUtil.createSubmission();
         final String messageId = databaseMessageHandler.submit(submission, "mybackend");
