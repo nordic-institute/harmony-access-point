@@ -12,19 +12,19 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
  * @author Cosmin Baciu
  * @since 3.2.2
  */
-public class MessageReceivePluginMock extends AbstractBackendConnector {
+public class BackendConnectorMock extends AbstractBackendConnector {
 
     private MessageReceiveFailureEvent messageReceiveFailureEvent;
     private PayloadSubmittedEvent payloadSubmittedEvent;
     private PayloadProcessedEvent payloadProcessedEvent;
 
-    public MessageReceivePluginMock(String name) {
+    public BackendConnectorMock(String name) {
         super(name);
     }
 
     @Override
     public String getName() {
-        return "domibusBackend";
+        return name;
     }
 
     @Override

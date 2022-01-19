@@ -200,7 +200,6 @@ public class BackendNotificationService {
         backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
     }
 
-
     protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
         List<MessageDeletedEvent> messageIds = userMessageLogs
                 .stream()
