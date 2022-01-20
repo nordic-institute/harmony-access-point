@@ -70,8 +70,8 @@ public class UserAlertsServiceImplTest {
     private UserAlertsServiceImpl userAlertsService;
 
     @Test
-    public void testSendPasswordExpiredAlerts(@Injectable UserDaoBase<UserEntityBase> dao,
-                                              @Injectable PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+    public void testSendPasswordExpiredAlerts(@Mocked UserDaoBase<UserEntityBase> dao,
+                                              @Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 10;
         final Integer howManyDaysToGenerateAlertsAfterExpiration = 3;
@@ -119,8 +119,8 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
-    public void testSendPasswordImminentExpirationAlerts(@Injectable UserDaoBase<UserEntityBase> dao,
-                                                         @Injectable PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+    public void testSendPasswordImminentExpirationAlerts(@Mocked UserDaoBase<UserEntityBase> dao,
+                                                         @Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 10;
         final Integer howManyDaysBeforeExpirationToGenerateAlerts = 4;
