@@ -358,7 +358,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {

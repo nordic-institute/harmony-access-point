@@ -47,7 +47,7 @@ public class SplitAndJoinListener implements MessageListener {
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(final Message message) {
         try {
             LOG.clearCustomKeys();

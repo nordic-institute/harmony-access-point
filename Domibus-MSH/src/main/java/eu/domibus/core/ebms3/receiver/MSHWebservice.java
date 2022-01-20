@@ -96,6 +96,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     protected void setUserMessageEntityIdOnContext() {
         final String userMessageEntityId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         PhaseInterceptorChain.getCurrentMessage().getExchange().put(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY, userMessageEntityId);
+        LOG.debug("PUT UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY [{}]", userMessageEntityId);
     }
 
     protected Ebms3Messaging getMessaging() {

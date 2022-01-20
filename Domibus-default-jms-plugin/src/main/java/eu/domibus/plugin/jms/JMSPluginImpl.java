@@ -80,7 +80,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      *
      * @param map The incoming JMS Message
      */
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
@@ -146,7 +146,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
         final String queueValue = jmsPluginQueueService.getJMSQueue(event.getMessageEntityId(), messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
-        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), messageId, queueValue));
+        mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), queueValue));
     }
 
     @Override
@@ -198,7 +198,6 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public MapMessage downloadMessage(final Long messageEntityId, MapMessage target) throws MessageNotFoundException {
         LOG.debug("Downloading message with entity id [{}]", messageEntityId);
         try {
@@ -214,17 +213,16 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     }
 
     private class DownloadMessageCreator implements MessageCreator {
-        private String messageId;
         private String destination;
         private long messageEntityId;
 
-        public DownloadMessageCreator(final long messageEntityId, final String messageId, String destination) {
+        public DownloadMessageCreator(final long messageEntityId, String destination) {
             this.messageEntityId = messageEntityId;
-            this.messageId = messageId;
             this.destination = destination;
         }
 
         @Override
+        @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
         public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {
