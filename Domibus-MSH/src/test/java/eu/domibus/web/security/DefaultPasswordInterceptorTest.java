@@ -25,7 +25,7 @@ public class DefaultPasswordInterceptorTest {
     @Mocked
     Authentication authentication;
     @Mocked
-    UserDetail userDetail;
+    DomibusUserDetails domibusUserDetails;
 
     @Before
     public void setup() {
@@ -37,7 +37,7 @@ public class DefaultPasswordInterceptorTest {
             authentication.isAuthenticated();
             result = true;
             authentication.getPrincipal();
-            result = userDetail;
+            result = domibusUserDetails;
         }};
     }
 
@@ -46,7 +46,7 @@ public class DefaultPasswordInterceptorTest {
                                                  @Injectable final HttpServletResponse httpServletResponse,
                                                  @Injectable final Object handler) throws Exception {
         new Expectations() {{
-            userDetail.isDefaultPasswordUsed();
+            domibusUserDetails.isDefaultPasswordUsed();
             result = true;
         }};
 
@@ -58,7 +58,7 @@ public class DefaultPasswordInterceptorTest {
                                                  @Injectable final HttpServletResponse httpServletResponse,
                                                  @Injectable final Object handler ) throws Exception {
         new Expectations() {{
-            userDetail.isDefaultPasswordUsed();
+            domibusUserDetails.isDefaultPasswordUsed();
             result = false;
         }};
 

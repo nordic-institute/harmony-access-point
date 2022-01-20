@@ -28,7 +28,6 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-
         registry.addInterceptor(defaultPasswordInterceptor())
                 .addPathPatterns("/rest/**")
                 .excludePathPatterns("/rest/security/user")

@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
  * @since 3.3
  */
 @RunWith(MockitoJUnitRunner.class)
-public class UserDetailServiceImplTest {
+public class DomibusUserDetailsServiceImplTest {
 
     @Mock
     private UserDao userDao;
@@ -48,7 +48,7 @@ public class UserDetailServiceImplTest {
         when(domibusPropertyProvider.getProperty(eq(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD))).thenReturn("true");
         when(userService.getDaysTillExpiration(eq("admin"))).thenReturn(90);
 
-        UserDetail admin = (UserDetail) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
 
         assertEquals("whateverdifferentthandefaultpasswordhash", admin.getPassword());
         assertEquals("admin", admin.getUsername());
@@ -66,7 +66,7 @@ public class UserDetailServiceImplTest {
         when(domibusPropertyProvider.getProperty(eq(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD))).thenReturn("true");
         when(userService.getDaysTillExpiration(eq("admin"))).thenReturn(90);
 
-        UserDetail admin = (UserDetail) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
 
         assertEquals("$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36", admin.getPassword());
         assertEquals("user", admin.getUsername());
@@ -83,7 +83,7 @@ public class UserDetailServiceImplTest {
         when(domibusPropertyProvider.getProperty(eq(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD))).thenReturn("false");
         when(userService.getDaysTillExpiration(eq("admin"))).thenReturn(90);
 
-        UserDetail admin = (UserDetail) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
 
         assertEquals("$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36", admin.getPassword());
         assertEquals("user", admin.getUsername());

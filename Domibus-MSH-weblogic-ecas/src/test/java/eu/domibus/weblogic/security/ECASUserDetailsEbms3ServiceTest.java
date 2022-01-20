@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -51,14 +51,14 @@ public class ECASUserDetailsEbms3ServiceTest {
     }
 
     @Test
-    public void loadUserDetails(@Mocked final PreAuthenticatedAuthenticationToken token, @Mocked final UserDetail userDetail) {
+    public void loadUserDetails(@Mocked final PreAuthenticatedAuthenticationToken token, @Mocked final DomibusUserDetails domibusUserDetails) {
         final String username = "super";
 
         new Expectations(ecasUserDetailsService) {{
             token.getPrincipal();
             result = username;
             ecasUserDetailsService.loadUserByUsername(username);
-            result = userDetail;
+            result = domibusUserDetails;
         }};
 
         //tested method
@@ -67,7 +67,7 @@ public class ECASUserDetailsEbms3ServiceTest {
     }
 
     @Test
-    public void loadUserByUsername(@Mocked final UserDetail userDetail) throws Exception {
+    public void loadUserByUsername(@Mocked final DomibusUserDetails domibusUserDetails) throws Exception {
         final String username = "super";
 
         new Expectations(ecasUserDetailsService) {{
@@ -75,7 +75,7 @@ public class ECASUserDetailsEbms3ServiceTest {
             result = true;
 
             ecasUserDetailsService.createUserDetails(username);
-            result = userDetail;
+            result = domibusUserDetails;
         }};
 
         //tested method
@@ -90,7 +90,7 @@ public class ECASUserDetailsEbms3ServiceTest {
     }
 
     @Test
-    public void createUserDetails(@Mocked final Principal principal, @Mocked final UserDetail userDetail) throws Exception {
+    public void createUserDetails(@Mocked final Principal principal, @Mocked final DomibusUserDetails domibusUserDetails) throws Exception {
         final String username = "super";
         final String domainCode = "domain1";
 

@@ -7,23 +7,29 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Thomas Dussart, Catalin Enache
  * @since 3.3
  */
-public class UserDetail implements UserDetails {
+public class DomibusUserDetails implements UserDetails {
     private final UserDetails springUser;
-    private boolean defaultPasswordUsed;
-    protected String domain;
-    private Integer daysTillExpiration;
-    private boolean externalAuthProvider = false;
 
-    public UserDetail(final User user) {
+    private boolean defaultPasswordUsed;
+
+    private Integer daysTillExpiration;
+
+    private boolean externalAuthProvider;
+
+    protected String domain;
+
+    /**
+     * All available domains this user is able to access or control.
+     */
+    private Set<String> availableDomains = new HashSet<>();
+
+    public DomibusUserDetails(final User user) {
         this.defaultPasswordUsed = user.hasDefaultPassword();
         springUser = org.springframework.security.core.userdetails.User
                 .withUsername(user.getUserName())
@@ -39,8 +45,8 @@ public class UserDetail implements UserDetails {
      * @param password
      * @param authorities
      */
-    public UserDetail(String username, String password,
-                      Collection<? extends GrantedAuthority> authorities) {
+    public DomibusUserDetails(String username, String password,
+                              Collection<? extends GrantedAuthority> authorities) {
 
         this.springUser = org.springframework.security.core.userdetails.User
                 .withUsername(username)
@@ -104,6 +110,14 @@ public class UserDetail implements UserDetails {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public Set<String> getAvailableDomains() {
+        return Collections.unmodifiableSet(availableDomains);
+    }
+
+    public void setAvailableDomains(Set<String> availableDomains) {
+        this.availableDomains = new HashSet<>(availableDomains);
     }
 
     public Integer getDaysTillExpiration() {

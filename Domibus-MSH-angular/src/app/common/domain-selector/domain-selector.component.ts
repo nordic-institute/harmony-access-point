@@ -32,14 +32,14 @@ export class DomainSelectorComponent implements OnInit {
     try {
       const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
 
-      if (isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) {
+      if (isMultiDomain) {
         this.displayDomains = true;
         this.showDomains = this.shouldShowDomains(this.route.snapshot);
 
         this.domainService.getCurrentDomain().subscribe(domain => {
           this.domainCode = this.currentDomainCode = (domain ? domain.code : null);
         });
-        
+
         this.domainService.domains.subscribe(domains => {
           this.domains = domains;
         });

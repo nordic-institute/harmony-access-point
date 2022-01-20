@@ -1,7 +1,7 @@
 package eu.domibus.user;
 
 import eu.domibus.core.user.ui.User;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +23,7 @@ public class TestUserDetailService implements UserDetailsService {
         User user = new User();
         user.setUserName(userName);
         user.setPassword(userName);
-        return new UserDetail(user);
+        return new DomibusUserDetails(user);
     }
 
 }

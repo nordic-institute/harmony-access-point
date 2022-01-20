@@ -1,5 +1,8 @@
 package eu.domibus.core.security;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.User;
@@ -7,7 +10,7 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +19,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 
@@ -40,6 +47,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    private DomainService domainService;
+
+    @Autowired
+    private UserDomainService userDomainService;
+
     @Override
     @Transactional(readOnly = true, noRollbackFor = UsernameNotFoundException.class)
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -50,10 +63,22 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(msg);
         }
 
-        UserDetail userDetail = new UserDetail(user);
-        userDetail.setDefaultPasswordUsed(isDefaultPasswordUsed(user));
-        userDetail.setDaysTillExpiration(userService.getDaysTillExpiration(userName));
-        return userDetail;
+        DomibusUserDetails domibusUserDetails = new DomibusUserDetails(user);
+        domibusUserDetails.setDefaultPasswordUsed(isDefaultPasswordUsed(user));
+        domibusUserDetails.setDaysTillExpiration(userService.getDaysTillExpiration(userName));
+
+        Set<String> availableDomains = getAvailableDomains(user);
+        LOG.debug("Available domains: [{}]", availableDomains);
+        domibusUserDetails.setAvailableDomains(availableDomains);
+
+        return domibusUserDetails;
+    }
+
+    private Set<String> getAvailableDomains(User user) {
+        // Return all domains for the super admin user; otherwise, return the user's domain
+        return user.isSuperAdmin()
+                ? domainService.getDomains().stream().map(Domain::getName).collect(Collectors.toSet())
+                : Collections.singleton(userDomainService.getDomainForUser(user.getUserName()));
     }
 
     private boolean isDefaultPasswordUsed(final User user) {

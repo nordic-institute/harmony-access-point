@@ -45,7 +45,7 @@ public class AuthenticationEbms3ServiceBaseTest {
     }
 
     @Test
-    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked UserDetail userDetail) {
+    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked DomibusUserDetails domibusUserDetails) {
         final String domainCode = "domain1";
 
         new Expectations() {{
@@ -63,7 +63,7 @@ public class AuthenticationEbms3ServiceBaseTest {
             result = authentication;
 
             authentication.getPrincipal();
-            result = userDetail;
+            result = domibusUserDetails;
 
         }};
 
@@ -72,7 +72,7 @@ public class AuthenticationEbms3ServiceBaseTest {
 
         new Verifications() {{
             String actualDomain;
-            userDetail.setDomain(actualDomain = withCapture());
+            domibusUserDetails.setDomain(actualDomain = withCapture());
             Assert.assertEquals(domainCode, actualDomain);
 
             SecurityContextHolder.getContext().setAuthentication((Authentication) any);
@@ -124,7 +124,7 @@ public class AuthenticationEbms3ServiceBaseTest {
     @Test
     public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        final UserDetail userDetail = new UserDetail("username", "password", authorities);
+        final DomibusUserDetails domibusUserDetails = new DomibusUserDetails("username", "password", authorities);
 
         new Expectations() {{
             new MockUp<SecurityContextHolder>() {
@@ -138,13 +138,13 @@ public class AuthenticationEbms3ServiceBaseTest {
             result = authentication;
 
             authentication.getPrincipal();
-            result = userDetail;
+            result = domibusUserDetails;
 
         }};
 
         //tested method
-        UserDetail userDetai1Actual = authenticationServiceBase.getLoggedUser();
-        Assert.assertEquals(userDetail, userDetai1Actual);
+        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        Assert.assertEquals(domibusUserDetails, userDetai1Actual);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class AuthenticationEbms3ServiceBaseTest {
         }};
 
         //tested method
-        UserDetail userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
         Assert.assertNull(userDetai1Actual);
     }
 }
