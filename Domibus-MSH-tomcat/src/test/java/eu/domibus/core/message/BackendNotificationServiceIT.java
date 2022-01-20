@@ -2,14 +2,15 @@ package eu.domibus.core.message;
 
 import eu.domibus.ITTestsService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -28,7 +29,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.neethi.Policy;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,13 +49,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
@@ -196,6 +191,13 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @After
     public void after() {
         backendConnector.clear();
+        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
+        if (list.size() > 0) {
+            list.forEach(el -> {
+                UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId());
+                userMessageLogDao.deleteMessageLogs(Arrays.asList(res.getEntityId()));
+            });
+        }
     }
 
     @Test
@@ -239,7 +241,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
-
     }
 
     @Test(expected = WebServiceException.class)
@@ -283,6 +284,24 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertEquals(messageId, result.getMessageLogEntries().get(0).getMessageId());
     }
 
+    @Test
+    public void testNotifyMessageDeleted() throws MessagingProcessingException {
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
+
+        deleteMessages();
+
+        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().size(), 1);
+        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
+
+        Assert.assertNull(userMessageDao.findByMessageId(messageId));
+        try {
+            userMessageLogDao.findByMessageId(messageId);
+            Assert.fail();
+        } catch (NoResultException e) {
+            //OK
+        }
+    }
+
 //    @Test
 //    public void testNotifyOfSendSuccess() throws MessagingProcessingException, EbMS3Exception {
 //        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
@@ -316,24 +335,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 ////        userMessageLogDao.deleteMessageLogs(Arrays.asList(userMessageLog.getEntityId()));
 ////        userMessageDao.delete(userMessage);
 //    }
-
-    @Test
-    public void testNotifyMessageDeleted() throws MessagingProcessingException {
-        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
-
-        deleteMessages();
-
-        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().size(), 1);
-        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
-
-        Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        try {
-            userMessageLogDao.findByMessageId(messageId);
-            Assert.fail();
-        } catch (NoResultException e) {
-            //OK
-        }
-    }
 
 //    @Test
 //    public void testNotifyOfSendFailure() throws MessagingProcessingException, EbMS3Exception, InterruptedException {

@@ -78,6 +78,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
         this.payloadSubmittedEvent = null;
         this.payloadProcessedEvent = null;
         this.messageDeletedBatchEvent = null;
+        this.deliverMessageEvent = null;
         this.messageSendFailedEvent = null;
         this.messageSendSuccessEvent = null;
     }
