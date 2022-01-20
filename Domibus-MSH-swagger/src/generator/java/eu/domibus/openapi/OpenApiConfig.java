@@ -134,4 +134,9 @@ public class OpenApiConfig {
     public UserMessageValidatorServiceDelegate userMessageValidatorServiceDelegate() {
         return Mockito.mock(UserMessageValidatorServiceDelegate.class);
     }
+
+    @Bean
+    public PayloadExtService payloadExtService() {
+        return Mockito.mock(PayloadExtService.class);
+    }
 }
