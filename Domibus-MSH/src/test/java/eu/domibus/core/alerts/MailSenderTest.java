@@ -220,12 +220,12 @@ public class MailSenderTest {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
-    public void sendMail_oneRecipient(@Injectable final Properties javaMailProperties,
-                                      @Injectable MailModel<Map<String, String>> model,
-                                      @Injectable MimeMessage mimeMessage,
-                                      @Injectable MimeMessageHelper mimeMessageHelper,
-                                      @Injectable Template template,
-                                      @Injectable FreeMarkerTemplateUtils freeMarkerTemplateUtils) throws IOException, TemplateException, MessagingException {
+    public void sendMail_oneRecipient(@Mocked final Properties javaMailProperties,
+                                      @Mocked MailModel<Map<String, String>> model,
+                                      @Mocked MimeMessage mimeMessage,
+                                      @Mocked MimeMessageHelper mimeMessageHelper,
+                                      @Mocked Template template,
+                                      @Mocked FreeMarkerTemplateUtils freeMarkerTemplateUtils) throws IOException, TemplateException, MessagingException {
         String to = "to";
         String from = "from";
         String html = "html";
@@ -267,12 +267,12 @@ public class MailSenderTest {
 
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
-    public void sendMail_multipleRecipients(@Injectable final Properties javaMailProperties,
-                                            @Injectable MailModel<Map<String, String>> model,
-                                            @Injectable MimeMessage mimeMessage,
-                                            @Injectable MimeMessageHelper mimeMessageHelper,
-                                            @Injectable Template template,
-                                            @Injectable FreeMarkerTemplateUtils freeMarkerTemplateUtils) throws MessagingException, IOException, TemplateException {
+    public void sendMail_multipleRecipients(@Mocked final Properties javaMailProperties,
+                                            @Mocked MailModel<Map<String, String>> model,
+                                            @Mocked MimeMessage mimeMessage,
+                                            @Mocked MimeMessageHelper mimeMessageHelper,
+                                            @Mocked Template template,
+                                            @Mocked FreeMarkerTemplateUtils freeMarkerTemplateUtils) throws MessagingException, IOException, TemplateException {
         String to = "to;to";
         String from = "from";
         String html = "html";

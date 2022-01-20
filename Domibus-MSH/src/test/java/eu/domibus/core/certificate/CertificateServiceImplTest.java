@@ -385,7 +385,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void logCertificateRevocationWarning(@Injectable final DomibusLogger LOG) {
+    public void logCertificateRevocationWarning(@Mocked final DomibusLogger LOG) {
         final Certificate soonRevokedCertificate = new Certificate();
         final Date now = new Date();
         final String soonRevokedAlias = "Cert1";
