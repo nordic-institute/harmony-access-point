@@ -8,6 +8,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
+import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -18,6 +19,8 @@ import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -174,6 +177,12 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Autowired
     NotificationStatusDao notificationStatusDao;
+
+    @Autowired
+    @Qualifier("messageSenderErrorHandler")
+    protected MessageSenderErrorHandler messageSenderErrorHandler;
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationServiceIT.class);
 
     BackendConnectorMock backendConnector;
     String messageId, filename;
@@ -353,22 +362,20 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
-
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLog.setScheduled(false);
-        userMessageLog.setSendAttempts(6);
+        userMessageLog.setSendAttempts(5);
         NotificationStatusEntity entity = notificationStatusDao.findOrCreate(NotificationStatus.REQUIRED);
         userMessageLog.setNotificationStatus(entity);
         userMessageLogDao.update(userMessageLog);
 
-        try {
-            waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
-            assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
-        } catch (Exception ex) {
-            Assert.fail();
-        } finally {
-            deleteMessages();
-        }
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        messageSenderErrorHandler.handleError(new Exception());
+
+        waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
+        assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
+
+        deleteMessages();
     }
 
 }
