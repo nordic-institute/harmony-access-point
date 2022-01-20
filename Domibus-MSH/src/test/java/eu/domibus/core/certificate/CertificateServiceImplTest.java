@@ -244,7 +244,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValid(@Mocked final X509Certificate certificate) {
+    public void testIsCertificateValid(@Injectable final X509Certificate certificate) {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = true;
@@ -258,7 +258,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValidWithExpiredCertificate(@Mocked final X509Certificate certificate) {
+    public void testIsCertificateValidWithExpiredCertificate(@Injectable final X509Certificate certificate) {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = false;
@@ -284,10 +284,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testGetTrustStoreEntries(@Mocked final KeyStore trustStore,
-                                         @Mocked final Enumeration<String> aliasEnum,
-                                         @Mocked final X509Certificate blueCertificate,
-                                         @Mocked final X509Certificate redCertificate) throws KeyStoreException {
+    public void testGetTrustStoreEntries(@Injectable final KeyStore trustStore,
+                                         @Injectable final Enumeration<String> aliasEnum,
+                                         @Injectable final X509Certificate blueCertificate,
+                                         @Injectable final X509Certificate redCertificate) throws KeyStoreException {
         final Date validFrom = Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant());
         final Date validUntil = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant());
         new Expectations() {{
@@ -342,7 +342,7 @@ public class CertificateServiceImplTest {
 
 
     @Test
-    public void testGetTrustStoreEntriesWithKeyStoreException(@Mocked final KeyStore trustStore) throws KeyStoreException {
+    public void testGetTrustStoreEntriesWithKeyStoreException(@Injectable final KeyStore trustStore) throws KeyStoreException {
 
         new Expectations() {{
             trustStore.aliases();
@@ -385,7 +385,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void logCertificateRevocationWarning(@Mocked final DomibusLogger LOG) {
+    public void logCertificateRevocationWarning(@Injectable final DomibusLogger LOG) {
         final Certificate soonRevokedCertificate = new Certificate();
         final Date now = new Date();
         final String soonRevokedAlias = "Cert1";
@@ -477,9 +477,9 @@ public class CertificateServiceImplTest {
 
 
     @Test
-    public void extractCertificateFromKeyStore(@Mocked final KeyStore keyStore,
-                                               @Mocked final Enumeration<String> aliases,
-                                               @Mocked final X509Certificate x509Certificate) throws KeyStoreException, ParseException {
+    public void extractCertificateFromKeyStore(@Injectable final KeyStore keyStore,
+                                               @Injectable final Enumeration<String> aliases,
+                                               @Injectable final X509Certificate x509Certificate) throws KeyStoreException, ParseException {
         final String keystoreAlias = "keystoreAlias";
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         final Date notBefore = format.parse("2017/02/20");
@@ -630,8 +630,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateExpiredAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                           @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) {
+    public void sendCertificateExpiredAlertsModuleInactive(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
+                                                           @Injectable LocalDateTime dateTime, @Injectable final Certificate certificate) {
         new Expectations() {{
             expiredCertificateConfigurationManager.getConfiguration().isActive();
             result = false;
@@ -644,8 +644,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                                      @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) {
+    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
+                                                                      @Injectable LocalDateTime dateTime, @Injectable final Certificate certificate) {
         new Expectations() {{
             imminentExpirationCertificateConfigurationManager.getConfiguration().isActive();
             result = false;
@@ -658,7 +658,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
+    public void validateLoadOperation(final @Injectable KeyStore keyStore, final @Injectable ByteArrayInputStream newTrustStoreBytes)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final String password = "test123";
         final String type = "jks";
@@ -729,8 +729,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_KeyStoreException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                         @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_KeyStoreException(@Injectable ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                         @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
@@ -841,8 +841,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                                @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_NoSuchAlgorithmException(@Injectable ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                                @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
@@ -868,8 +868,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_CertificateException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_CertificateException(@Injectable ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                            @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Could not replace truststore");
 
@@ -895,8 +895,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_IOException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                             @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity)
+    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_IOException(@Injectable ByteArrayInputStream newTrustStoreBytes,
+                                                                             @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity)
             throws CertificateException, NoSuchAlgorithmException, IOException {
         // Given
         byte[] store = {1, 2, 3};
@@ -923,8 +923,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                                          @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_NoSuchAlgorithmException(@Injectable ByteArrayInputStream newTrustStoreBytes,
+                                                                                          @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -950,8 +950,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_CertificateException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                                      @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_CertificateException(@Injectable ByteArrayInputStream newTrustStoreBytes,
+                                                                                      @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -977,8 +977,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenPersistTheTrustStore_CryptoException(@Mocked ByteArrayInputStream newTrustStoreBytes,
-                                                                        @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity)
+    public void throwsExceptionWhenPersistTheTrustStore_CryptoException(@Injectable ByteArrayInputStream newTrustStoreBytes,
+                                                                        @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity)
             throws CertificateException, NoSuchAlgorithmException, IOException {
         // Given
         byte[] store = {1, 2, 3};
@@ -1007,8 +1007,8 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToRestoreTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore_IOException(
-            @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+            @Injectable ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Injectable ByteArrayInputStream newTrustStoreBytes,
+            @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -1041,8 +1041,8 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToRestoreTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore_NoSuchAlgorithmException(
-            @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+            @Injectable ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Injectable ByteArrayInputStream newTrustStoreBytes,
+            @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -1075,8 +1075,8 @@ public class CertificateServiceImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToRestoreTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore_CertificateException(
-            @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+            @Injectable ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Injectable ByteArrayInputStream newTrustStoreBytes,
+            @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -1109,8 +1109,8 @@ public class CertificateServiceImplTest {
 
     @Test(expected = CryptoException.class) // ignore the CryptoException being initially thrown
     public void signalsTheTrustStoreUpdateWhenSuccessfullyRestoringTheOldTrustStoreInCaseOfAnInitialFailureWhenLoadingTheNewTrustStore(
-            @Mocked ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Mocked ByteArrayInputStream newTrustStoreBytes,
-            @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+            @Injectable ByteArrayOutputStream oldTrustStoreBytes, @Injectable InputStream oldTrustStoreInputStream, @Injectable ByteArrayInputStream newTrustStoreBytes,
+            @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         // Given
         byte[] store = {1, 2, 3};
 
@@ -1400,8 +1400,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_IOException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
-                                                                                   @Injectable KeyStore trustStore, @Mocked TruststoreEntity entity) throws Exception {
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_IOException(@Injectable ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                   @Injectable KeyStore trustStore, @Injectable TruststoreEntity entity) throws Exception {
         byte[] store = {1, 2, 3};
 
         thrown.expect(CryptoException.class);
@@ -1429,7 +1429,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void loadTrustStoreFromContent(@Mocked InputStream contentStream) {
+    public void loadTrustStoreFromContent(@Injectable InputStream contentStream) {
         byte[] content = {1, 2, 3};
 
         thrown.expect(ConfigurationException.class);
@@ -1445,7 +1445,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void loadTrustStoreFromStream(@Mocked InputStream contentStream, @Mocked KeyStore truststore) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+    public void loadTrustStoreFromStream(@Injectable InputStream contentStream, @Injectable KeyStore truststore) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
 
         thrown.expect(ConfigurationException.class);
         thrown.expectMessage("Exception loading truststore.");
@@ -1466,7 +1466,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent, @Mocked TruststoreEntity entity) {
+    public void replaceTrustStore(@Injectable String fileName, @Injectable byte[] fileContent, @Injectable TruststoreEntity entity) {
 
         new Expectations(certificateService) {{
             certificateService.getTruststoreEntity(anyString);
@@ -1514,7 +1514,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doAddCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+    public void doAddCertificates(@Injectable KeyStore trustStore, @Injectable String trustStorePassword, @Injectable String trustStoreLocation,
                                   @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
 
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
@@ -1537,7 +1537,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+    public void doAddCertificatesNotAdded(@Injectable KeyStore trustStore, @Injectable String trustStorePassword, @Injectable String trustStoreLocation,
                                           @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
 
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
