@@ -15,6 +15,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     private PayloadSubmittedEvent payloadSubmittedEvent;
     private PayloadProcessedEvent payloadProcessedEvent;
     private MessageDeletedBatchEvent messageDeletedBatchEvent;
+    private DeliverMessageEvent deliverMessageEvent;
 
     public BackendConnectorMock(String name) {
         super(name);
@@ -56,7 +57,8 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     }
 
     @Override
-    public void deliverMessage(final DeliverMessageEvent event) {
+    public void deliverMessage(final DeliverMessageEvent deliverMessageEvent) {
+        this.deliverMessageEvent = deliverMessageEvent;
     }
 
     public void clear() {
@@ -80,5 +82,9 @@ public class BackendConnectorMock extends AbstractBackendConnector {
 
     public MessageDeletedBatchEvent getMessageDeletedBatchEvent() {
         return messageDeletedBatchEvent;
+    }
+
+    public DeliverMessageEvent getDeliverMessageEvent() {
+        return deliverMessageEvent;
     }
 }

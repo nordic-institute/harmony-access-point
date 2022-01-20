@@ -20,6 +20,7 @@ import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -113,7 +114,22 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         ReliabilityChecker reliabilityChecker() {
             return Mockito.mock(ReliabilityChecker.class);
         }
+
+//        @Primary
+//        @Bean
+//        InternalJMSManager internalJmsManager() {
+//            return Mockito.mock(InternalJMSManager.class);
+//        }
+
+//        @Primary
+//        @Bean("jmsSender")
+//        JmsOperations jmsSender() {
+//            return Mockito.mock(JmsOperations.class);
+//        }
     }
+
+//    @Autowired
+//    InternalJMSManager internalJmsManager;
 
     @Autowired
     protected MessageExchangeService messageExchangeService;
@@ -210,9 +226,10 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
 
+        assertEquals(backendConnector.getDeliverMessageEvent().getMessageId(), messageId);
+
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
-
     }
 
     @Test
