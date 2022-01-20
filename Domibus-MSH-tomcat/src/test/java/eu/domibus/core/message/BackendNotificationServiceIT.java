@@ -2,7 +2,10 @@ package eu.domibus.core.message;
 
 import eu.domibus.ITTestsService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -20,7 +23,6 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.test.common.BackendConnectorMock;
@@ -29,6 +31,7 @@ import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.neethi.Policy;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.jms.Queue;
+import javax.persistence.NoResultException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -57,7 +61,6 @@ import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.doNothing;
 
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
@@ -188,9 +191,14 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
                 .thenReturn(backendConnector);
     }
 
+    @After
+    public void after() {
+        backendConnector.clear();
+    }
+
     @Test
     @Transactional
-    public void testValidateAndNotifySync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+    public void testNotifyMessageReceivedSync() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
@@ -292,10 +300,30 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
 
+        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
+        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
+
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
 
         deleteMessages();
     }
 
+    @Test
+    public void testNotifyMessageDeleted() throws MessagingProcessingException {
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
+
+        deleteMessages();
+
+        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().size(), 1);
+        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
+
+        Assert.assertNull(userMessageDao.findByMessageId(messageId));
+        try {
+            userMessageLogDao.findByMessageId(messageId);
+            Assert.fail();
+        } catch (NoResultException e) {
+            //OK
+        }
+    }
 }

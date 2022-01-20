@@ -1,9 +1,6 @@
 package eu.domibus.test.common;
 
-import eu.domibus.common.DeliverMessageEvent;
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.PayloadProcessedEvent;
-import eu.domibus.common.PayloadSubmittedEvent;
+import eu.domibus.common.*;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
@@ -17,6 +14,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     private MessageReceiveFailureEvent messageReceiveFailureEvent;
     private PayloadSubmittedEvent payloadSubmittedEvent;
     private PayloadProcessedEvent payloadProcessedEvent;
+    private MessageDeletedBatchEvent messageDeletedBatchEvent;
 
     public BackendConnectorMock(String name) {
         super(name);
@@ -43,6 +41,11 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     }
 
     @Override
+    public void messageDeletedBatchEvent(final MessageDeletedBatchEvent messageDeletedBatchEvent) {
+        this.messageDeletedBatchEvent = messageDeletedBatchEvent;
+    }
+
+    @Override
     public MessageSubmissionTransformer getMessageSubmissionTransformer() {
         return null;
     }
@@ -54,11 +57,13 @@ public class BackendConnectorMock extends AbstractBackendConnector {
 
     @Override
     public void deliverMessage(final DeliverMessageEvent event) {
-
     }
 
     public void clear() {
         this.messageReceiveFailureEvent = null;
+        this.payloadSubmittedEvent = null;
+        this.payloadProcessedEvent = null;
+        this.messageDeletedBatchEvent = null;
     }
 
     public MessageReceiveFailureEvent getMessageReceiveFailureEvent() {
@@ -71,5 +76,9 @@ public class BackendConnectorMock extends AbstractBackendConnector {
 
     public PayloadProcessedEvent getPayloadProcessedEvent() {
         return payloadProcessedEvent;
+    }
+
+    public MessageDeletedBatchEvent getMessageDeletedBatchEvent() {
+        return messageDeletedBatchEvent;
     }
 }
