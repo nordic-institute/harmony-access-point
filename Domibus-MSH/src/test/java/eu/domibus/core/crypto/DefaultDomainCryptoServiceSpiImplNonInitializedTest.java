@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
@@ -11,6 +12,7 @@ import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -144,6 +147,41 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         // Then
         Assert.assertEquals("Should have returned the correct trust store when loading it", trustStore, result);
     }
+
+//    @Test
+//    public void throwsExceptionWhenFailingToLoadTheTrustStore_WSSecurityException(@Injectable InputStream trustStoreInputStream) {
+//        // Given
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Error loading truststore");
+//
+//        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
+//            @Mock
+//            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
+//                throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);
+//            }
+//        };
+//
+//        // When
+//        domainCryptoService.loadTrustStore();
+//    }
+
+    // to be moved
+//    @Test
+//    public void throwsExceptionWhenFailingToLoadTheTrustStore_IOException() {
+//        // Given
+//        thrown.expect(CryptoException.class);
+//        thrown.expectMessage("Error loading truststore");
+//
+//        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
+//            @Mock
+//            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
+//                throw new IOException();
+//            }
+//        };
+//
+//        // When
+//        domainCryptoService.loadTrustStore();
+//    }
 
     @Test
     public void refreshesTheTrustStoreWithTheLoadedTrustStore() {

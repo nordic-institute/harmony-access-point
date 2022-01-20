@@ -104,7 +104,7 @@ public class MailSenderTest {
     }
 
     @Test
-    public void initMailSender_enabled(@Injectable final Properties javaMailProperties) {
+    public void initMailSender_enabled(@Mocked final Properties javaMailProperties) {
 
         dynamicPropertySet.add(dynamicPropertyName);
         dynamicPropertySet.add(timeoutPropertyName);
@@ -164,7 +164,7 @@ public class MailSenderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void sendMailIllegalAddresses_to(@Injectable MailModel<Map<String, String>> model) {
+    public void sendMailIllegalAddresses_to(@Mocked MailModel<Map<String, String>> model) {
 
         mailSender.sendMail(model, "", "   ");
 
@@ -173,7 +173,7 @@ public class MailSenderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void sendMailIllegalAddresses_from(@Injectable MailModel<Map<String, String>> model) {
+    public void sendMailIllegalAddresses_from(@Mocked MailModel<Map<String, String>> model) {
 
         mailSender.sendMail(model, "", "test");
 
@@ -182,7 +182,7 @@ public class MailSenderTest {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void sendMail_DomibusPropertyException(@Injectable MailModel<Map<String, String>> model) {
+    public void sendMail_DomibusPropertyException(@Mocked MailModel<Map<String, String>> model) {
 
         new Expectations(mailSender) {{
             mailSender.initMailSender();
@@ -198,8 +198,8 @@ public class MailSenderTest {
 
     @Test(expected = AlertDispatchException.class)
     public void sendMail_AlertDispatchException(
-            @Injectable MailModel<Map<String, String>> model,
-            @Injectable MimeMessage mimeMessage) throws MessagingException {
+            @Mocked MailModel<Map<String, String>> model,
+            @Mocked MimeMessage mimeMessage) throws MessagingException {
 
         new Expectations(mailSender) {{
             mailSender.initMailSender();

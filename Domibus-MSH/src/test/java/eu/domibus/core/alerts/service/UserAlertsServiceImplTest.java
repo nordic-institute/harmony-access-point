@@ -170,7 +170,7 @@ public class UserAlertsServiceImplTest {
 
     @Test
     public void testSendPasswordImminentExpirationAlerts_inactive(
-            @Injectable PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+            @Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         new Expectations(userAlertsService) {{
             userAlertsService.getEventTypeForPasswordImminentExpiration();
             result = EventType.PASSWORD_IMMINENT_EXPIRATION;
@@ -219,7 +219,7 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
-    public void doNotSendPasswordExpiredEventsIfPasswordExpirationIsDisabled(@Injectable PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+    public void doNotSendPasswordExpiredEventsIfPasswordExpirationIsDisabled(@Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         new Expectations() {{
             userAlertsService.getExpiredAlertConfiguration();
             result = alertConfiguration;
@@ -287,7 +287,7 @@ public class UserAlertsServiceImplTest {
 
     @Test
     public void triggerLoginEventsTest_BAD_CREDENTIALS(
-            @Injectable LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
             LoginFailureModuleConfiguration.isActive();
@@ -310,8 +310,8 @@ public class UserAlertsServiceImplTest {
 
     @Test
     public void triggerLoginEventsTest_SUSPENDED_inactive(
-            @Injectable AccountDisabledModuleConfiguration accountDisabledConfiguration,
-            @Injectable LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+            @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration,
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
             LoginFailureModuleConfiguration.isActive();
@@ -334,8 +334,8 @@ public class UserAlertsServiceImplTest {
 
     @Test
     public void triggerLoginEventsTest_SUSPENDED_active_eachLogin(
-            @Injectable AccountDisabledModuleConfiguration accountDisabledConfiguration,
-            @Injectable LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+            @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration,
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
             LoginFailureModuleConfiguration.isActive();
@@ -366,8 +366,8 @@ public class UserAlertsServiceImplTest {
 
     @Test
     public void triggerLoginEventsTest_SUSPENDED_active_notEachLogin(
-            @Injectable AccountDisabledModuleConfiguration accountDisabledConfiguration,
-            @Injectable LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+            @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration,
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
 
         new Expectations(userAlertsService) {{
             LoginFailureModuleConfiguration.isActive();
