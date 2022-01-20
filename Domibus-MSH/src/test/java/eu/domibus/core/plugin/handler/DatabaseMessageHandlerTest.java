@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.pmode.PModeConstants;
@@ -183,6 +184,9 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     UserMessageHandlerServiceImpl userMessageHandlerService;
+
+    @Injectable
+    UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     @Tested
     private DatabaseMessageHandler databaseMessageHandler;

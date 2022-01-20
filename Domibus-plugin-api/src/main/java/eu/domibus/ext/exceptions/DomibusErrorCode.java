@@ -24,7 +24,12 @@ public enum DomibusErrorCode {
     /**
      * Parties error
      */
-    DOM_004("004");
+    DOM_004("004"),
+
+    /**
+     * Payloads error
+     */
+    DOM_005("005");
 
     private String errorCode;
 
