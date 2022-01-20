@@ -2,15 +2,14 @@ package eu.domibus.core.message;
 
 import eu.domibus.ITTestsService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
+import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -29,6 +28,7 @@ import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.neethi.Policy;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,6 +51,8 @@ import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
@@ -302,75 +304,71 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         }
     }
 
-//    @Test
-//    public void testNotifyOfSendSuccess() throws MessagingProcessingException, EbMS3Exception {
-//        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
-//        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
-//
-//        Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
-//                .thenReturn(Mockito.mock(SOAPMessage.class));
-//
-//        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
-//        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
-//        Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
-//                .thenReturn(responseResult);
-//
-//        Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
-//                .thenReturn(ReliabilityChecker.CheckResult.OK);
-//
-//        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
-////        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-////        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-//
-//        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
-//
-//        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
-//        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
-//
-//        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
-//        Assert.assertNotNull(byMessageId);
-//
-//        deleteMessages();
-//
-////        userMessageLogDao.deleteMessageLogs(Arrays.asList(userMessageLog.getEntityId()));
-////        userMessageDao.delete(userMessage);
-//    }
+    @Test
+    public void testNotifyOfSendSuccess() throws MessagingProcessingException, EbMS3Exception {
+        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
+        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
 
-//    @Test
-//    public void testNotifyOfSendFailure() throws MessagingProcessingException, EbMS3Exception, InterruptedException {
-//        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
-//        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
-//
-//        Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
-//                .thenReturn(Mockito.mock(SOAPMessage.class));
-//
-//        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
-//        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
-//        Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
-//                .thenReturn(responseResult);
-//
-//        Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
-//                .thenReturn(ReliabilityChecker.CheckResult.OK);
-//
-//        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
-//                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
-//
-//        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
-//
-//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-//        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-//        userMessageLog.setScheduled(false);
-//        userMessageLog.setSendAttempts(6);
-//        NotificationStatusEntity entity = notificationStatusDao.findOrCreate(NotificationStatus.REQUIRED);
-//        userMessageLog.setNotificationStatus(entity);
-//        userMessageLogDao.update(userMessageLog);
-//
-//        Thread.sleep(1000);
-//        waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
-//
-//        assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
-//
-//        deleteMessages();
-//    }
+        Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
+                .thenReturn(Mockito.mock(SOAPMessage.class));
+
+        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
+        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
+        Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
+                .thenReturn(responseResult);
+
+        Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
+                .thenReturn(ReliabilityChecker.CheckResult.OK);
+
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
+
+        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
+
+        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
+        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
+
+        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
+        Assert.assertNotNull(byMessageId);
+
+        deleteMessages();
+    }
+
+    @Test
+    public void testNotifyOfSendFailure() throws MessagingProcessingException, EbMS3Exception, InterruptedException {
+        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
+        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
+
+        Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
+                .thenReturn(Mockito.mock(SOAPMessage.class));
+
+        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
+        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
+        Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
+                .thenReturn(responseResult);
+
+        Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
+                .thenReturn(ReliabilityChecker.CheckResult.OK);
+
+        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
+
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        userMessageLog.setScheduled(false);
+        userMessageLog.setSendAttempts(6);
+        NotificationStatusEntity entity = notificationStatusDao.findOrCreate(NotificationStatus.REQUIRED);
+        userMessageLog.setNotificationStatus(entity);
+        userMessageLogDao.update(userMessageLog);
+
+        try {
+            waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
+            assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
+        } catch (Exception ex) {
+            Assert.fail();
+        } finally {
+            deleteMessages();
+        }
+    }
 
 }
