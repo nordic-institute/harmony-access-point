@@ -49,6 +49,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -56,7 +57,6 @@ import java.util.UUID;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
-import static eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService.MESSAGE_EXPIRATION_DELAY;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -175,6 +175,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    NotificationStatusDao notificationStatusDao;
+
     BackendConnectorMock backendConnector;
     String messageId, filename;
 
@@ -276,11 +279,12 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         filters.put("receivedTo", new Date());
         MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
         assertNotNull(result);
-        assertEquals(result.getMessageLogEntries().size(), 1);
-        assertEquals(result.getMessageLogEntries().get(0).getMessageId(), messageId);
+        assertEquals(1, result.getMessageLogEntries().size());
+        assertEquals(messageId, result.getMessageLogEntries().get(0).getMessageId());
     }
 
     @Test
+//    @Transactional
     public void testNotifyOfSendSuccess() throws MessagingProcessingException, EbMS3Exception {
         domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
         domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
@@ -297,8 +301,10 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
                 .thenReturn(ReliabilityChecker.CheckResult.OK);
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
+//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+//        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
+        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
 
         assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
         assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
@@ -307,6 +313,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(byMessageId);
 
         deleteMessages();
+
+//        userMessageLogDao.deleteMessageLogs(Arrays.asList(userMessageLog.getEntityId()));
+//        userMessageDao.delete(userMessage);
     }
 
     @Test
@@ -327,38 +336,41 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         }
     }
 
-    @Autowired
-    NotificationStatusDao notificationStatusDao;
+    @Test
+    public void testNotifyOfSendFailure() throws MessagingProcessingException, EbMS3Exception {
+        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
+        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
 
-//    @Test
-////    @Transactional
-//    public void test2() throws MessagingProcessingException, EbMS3Exception {
-//        domibusPropertyProvider.setProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING, "false");
-//        domibusPropertyProvider.setProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING, "false");
-//        domibusPropertyProvider.setProperty(MESSAGE_EXPIRATION_DELAY, "-1000");
-//
-//        Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
-//                .thenReturn(Mockito.mock(SOAPMessage.class));
-//
-//        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
-//        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
-//        Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
-//                .thenReturn(responseResult);
-//
-//        Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
-//                .thenReturn(ReliabilityChecker.CheckResult.OK);
-//
-//        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
-//
-//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-//        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-//        userMessageLog.setScheduled(false);
-//        userMessageLog.setSendAttempts(6);
-//        NotificationStatusEntity entity = notificationStatusDao.findOrCreate(NotificationStatus.REQUIRED);
-//        userMessageLog.setNotificationStatus(entity);
-//        userMessageLogDao.update(userMessageLog);
-////        userMessageLog = userMessageLogDao.findByMessageId(messageId);
-//
-//        waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
-//    }
+        Mockito.when(mshDispatcher.dispatch(Mockito.any(SOAPMessage.class), Mockito.any(String.class), Mockito.any(Policy.class), Mockito.any(LegConfiguration.class), Mockito.any(String.class)))
+                .thenReturn(Mockito.mock(SOAPMessage.class));
+
+        ResponseResult responseResult = Mockito.mock(ResponseResult.class);
+        Mockito.when(responseResult.getResponseStatus()).thenReturn(ResponseHandler.ResponseStatus.OK);
+        Mockito.when(responseHandler.verifyResponse(Mockito.any(SOAPMessage.class), Mockito.any(String.class)))
+                .thenReturn(responseResult);
+
+        Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
+                .thenReturn(ReliabilityChecker.CheckResult.OK);
+
+        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
+
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        userMessageLog.setScheduled(false);
+        userMessageLog.setSendAttempts(6);
+        NotificationStatusEntity entity = notificationStatusDao.findOrCreate(NotificationStatus.REQUIRED);
+        userMessageLog.setNotificationStatus(entity);
+        userMessageLogDao.update(userMessageLog);
+
+        waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
+
+        assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
+
+        deleteMessages();
+
+//        userMessageLogDao.deleteMessageLogs(Arrays.asList(userMessageLog.getEntityId()));
+    }
 }
