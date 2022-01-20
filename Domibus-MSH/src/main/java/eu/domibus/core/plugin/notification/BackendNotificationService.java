@@ -114,7 +114,7 @@ public class BackendNotificationService {
     @Autowired
     protected BackendConnectorService backendConnectorService;
 
-    //OK
+    
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
@@ -142,7 +142,7 @@ public class BackendNotificationService {
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
-    //OK
+    
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
@@ -156,7 +156,7 @@ public class BackendNotificationService {
 
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
     }
-//OK
+
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.warn("Empty notification list of userMessageLogs");
@@ -246,7 +246,7 @@ public class BackendNotificationService {
                 messageDeletedEvent);
     }
 
-    //OK
+    
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
@@ -263,7 +263,7 @@ public class BackendNotificationService {
         backendConnector.payloadSubmittedEvent(payloadSubmittedEvent);
     }
 
-    //OK
+    
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
@@ -394,7 +394,7 @@ public class BackendNotificationService {
 
         uiReplicationSignalService.messageChange(messageId);
     }
-    //OK
+    
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
             return;
@@ -417,7 +417,7 @@ public class BackendNotificationService {
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
-    //OK
+    
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
