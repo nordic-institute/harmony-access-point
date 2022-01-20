@@ -148,41 +148,6 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
         Assert.assertEquals("Should have returned the correct trust store when loading it", trustStore, result);
     }
 
-//    @Test
-//    public void throwsExceptionWhenFailingToLoadTheTrustStore_WSSecurityException(@Injectable InputStream trustStoreInputStream) {
-//        // Given
-//        thrown.expect(CryptoException.class);
-//        thrown.expectMessage("Error loading truststore");
-//
-//        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-//            @Mock
-//            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
-//                throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);
-//            }
-//        };
-//
-//        // When
-//        domainCryptoService.loadTrustStore();
-//    }
-
-    // to be moved
-//    @Test
-//    public void throwsExceptionWhenFailingToLoadTheTrustStore_IOException() {
-//        // Given
-//        thrown.expect(CryptoException.class);
-//        thrown.expectMessage("Error loading truststore");
-//
-//        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-//            @Mock
-//            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) throws Exception {
-//                throw new IOException();
-//            }
-//        };
-//
-//        // When
-//        domainCryptoService.loadTrustStore();
-//    }
-
     @Test
     public void refreshesTheTrustStoreWithTheLoadedTrustStore() {
         // Given
