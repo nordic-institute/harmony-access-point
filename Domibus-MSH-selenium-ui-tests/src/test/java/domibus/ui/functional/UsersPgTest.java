@@ -473,21 +473,25 @@ public class UsersPgTest extends SeleniumTest {
 		Reporter.log("checking with only one letter");
 		log.info("checking with only one letter");
 		modal.getUserNameInput().fill("t");
+		modal.getEmailInput().click();
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SHORT, "Correct error message shown (1)");
 
 		Reporter.log("checking with only two letters");
 		log.info("checking with only two letters");
 		modal.getUserNameInput().fill("te");
+		modal.getEmailInput().click();
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SHORT, "Correct error message shown (2)");
 
 		Reporter.log("checking with only two letters and special characters");
 		log.info("checking with only two letters and special characters");
 		modal.getUserNameInput().fill("te$%^*");
+		modal.getEmailInput().click();
 		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SPECIAL_CHR, "Correct error message shown (3)");
 
 		Reporter.log("checking with valid username");
 		log.info("checking with valid username");
 		modal.getUserNameInput().fill("testUser");
+		modal.getEmailInput().click();
 
 		String errMess = null;
 		try {
