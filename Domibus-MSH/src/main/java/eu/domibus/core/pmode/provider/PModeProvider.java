@@ -9,6 +9,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -404,6 +405,11 @@ public abstract class PModeProvider {
      * @return boolean true if there is the same AP
      */
     public boolean checkSelfSending(String pmodeKey) {
+        if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE)) {
+            LOG.debug("Self sending check is deactivated");
+            return false;
+        }
+
         final Party receiver = getReceiverParty(pmodeKey);
         final Party sender = getSenderParty(pmodeKey);
 

@@ -24,6 +24,7 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -102,6 +103,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Autowired
+    private PartyEndpointProvider partyEndpointProvider;
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;

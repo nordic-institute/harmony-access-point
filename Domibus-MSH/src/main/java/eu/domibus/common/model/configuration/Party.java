@@ -2,6 +2,7 @@ package eu.domibus.common.model.configuration;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.api.model.AbstractBaseEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.envers.AuditJoinTable;
@@ -203,19 +204,17 @@ public class Party extends AbstractBaseEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+    public boolean equals(Object otherParty) {
+        if (this == otherParty) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (otherParty == null || getClass() != otherParty.getClass()) return false;
 
-        Party party = (Party) o;
+        if (!super.equals(otherParty)) return false;
 
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .appendSuper(equalIdentifiers(identifiers, party.identifiers))
-                .append(name, party.name)
-                .append(endpoint, party.endpoint)
-                .isEquals();
+        Party party = (Party) otherParty;
+
+        if (!equalIdentifiers(identifiers, party.identifiers)) return false;
+        return StringUtils.equalsIgnoreCase(name, party.name);
     }
 
     protected boolean equalIdentifiers(List<Identifier> identifiers, List<Identifier> identifiers1) {
@@ -249,11 +248,13 @@ public class Party extends AbstractBaseEntity {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(identifiers)
-                .append(name)
-                .append(endpoint)
-                .toHashCode();
+        int result = super.hashCode();
+        if(identifiers != null) {
+            result = 31 * result + identifiers.hashCode();
+        }
+        if(name != null) {
+            result = 31 * result + name.hashCode();
+        }
+        return result;
     }
 }
