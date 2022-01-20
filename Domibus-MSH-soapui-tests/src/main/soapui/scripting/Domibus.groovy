@@ -1229,7 +1229,7 @@ class Domibus{
         }
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def domibusHealthMonitor(String side, context, log, String domainValue = "Default",String pluginUsername = "user",String pluginPassword = "Domibus-123",String userRole = "ROLE_ADMIN",authorizedUser = true,outcomesMap = [], String authUser = null, String authPwd = null){
+    static def domibusHealthMonitor(String side, context, log, String domainValue = "Default",String pluginUsername = "user",String pluginPassword = "DomibusEdel-12345",String userRole = "ROLE_ADMIN",authorizedUser = true,outcomesMap = [], String authUser = null, String authPwd = null){
         debugLog("  ====  Calling \"domibusHealthMonitor\".", log)
         log.info "  domibusHealthMonitor  [][]  Checking the health of Domibus $side."
         def jsonSlurper = new JsonSlurper()
@@ -1514,7 +1514,7 @@ class Domibus{
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def addAdminConsoleUser(String side, context, log, String domainValue = "Default", String userRole = "ROLE_ADMIN", String userAC, String passwordAC = "Domibus-123", String authUser = null, String authPwd = null,success = true){
+    static def addAdminConsoleUser(String side, context, log, String domainValue = "Default", String userRole = "ROLE_ADMIN", String userAC, String passwordAC = "DomibusEdel-12345", String authUser = null, String authPwd = null,success = true){
         debugLog("  ====  Calling \"addAdminConsoleUser\".", log)
         def jsonSlurper = new JsonSlurper()
         def authenticationUser = authUser
@@ -1620,7 +1620,7 @@ class Domibus{
         }
     }
 //-------------------------------------------------------------------------------------------------------------------------------
-    static def UpdateAdminConsoleUserPass(String side, context, log, String userLogin = SUPER_USER, oldPassword = SUPER_USER_PWD,newPassword = "Domibus-1234",String domainValue = "Default",checkResp0 = null,checkResp1 = null,success = true){
+    static def UpdateAdminConsoleUserPass(String side, context, log, String userLogin = SUPER_USER, oldPassword = SUPER_USER_PWD,newPassword = "DomibusEdel-123454",String domainValue = "Default",checkResp0 = null,checkResp1 = null,success = true){
         debugLog("  ====  Calling \"loginAdminConsole\".", log)
         def authenticationUser = userLogin
         def authenticationPwd = oldPassword
@@ -1670,7 +1670,7 @@ class Domibus{
         return commandResult[0].substring(5)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def addPluginUser(String side, context, log, String domainValue = "Default", String userRole = "ROLE_ADMIN", String userPl, String passwordPl = "Domibus-123", String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",success = true, String authUser = null, String authPwd = null){
+    static def addPluginUser(String side, context, log, String domainValue = "Default", String userRole = "ROLE_ADMIN", String userPl, String passwordPl = "DomibusEdel-12345", String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",success = true, String authUser = null, String authPwd = null){
         debugLog("  ====  Calling \"addPluginUser\".", log)
         def jsonSlurper = new JsonSlurper()
         def authenticationUser = authUser
@@ -1768,7 +1768,7 @@ class Domibus{
         }
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def updatePluginUserPass(String side, context, log, String userPl, newPassword = "Domibus-1234", String domainValue = "Default",checkResp0 = null,checkResp1 = null,success = true, String authUser = null, String authPwd = null){
+    static def updatePluginUserPass(String side, context, log, String userPl, newPassword = "DomibusEdel-123454", String domainValue = "Default",checkResp0 = null,checkResp1 = null,success = true, String authUser = null, String authPwd = null){
         debugLog("  ====  Calling \"updatePluginUser\".", log)
         def jsonSlurper = new JsonSlurper()
         def authenticationUser = authUser
@@ -2942,7 +2942,7 @@ class Domibus{
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST PUT request to test blacklisted characters
-    static def userInputCheck_PUT(String side, context, log, String userAC,listType = "blacklist", String domainValue = "Default", String userRole = "ROLE_ADMIN", String passwordAC = "Domibus-123", String authUser = null, String authPwd = null){
+    static def userInputCheck_PUT(String side, context, log, String userAC,listType = "blacklist", String domainValue = "Default", String userRole = "ROLE_ADMIN", String passwordAC = "DomibusEdel-12345", String authUser = null, String authPwd = null){
         debugLog("  ====  Calling \"userInputCheck_PUT\".", log)
         def jsonSlurper = new JsonSlurper()
         def authenticationUser = authUser
