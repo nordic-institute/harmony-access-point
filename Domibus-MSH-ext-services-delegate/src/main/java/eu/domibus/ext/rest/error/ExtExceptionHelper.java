@@ -122,6 +122,7 @@ public class ExtExceptionHelper {
         try {
             return DomibusErrorCode.valueOf(coreErrorCode.name());
         } catch (IllegalArgumentException e) {
+            LOG.debug("DomibusCoreErrorCode:[{}] does not match with any existing DomibusErrorCode. Mapping to generic error DOM_001.", coreErrorCode.name());
             return DomibusErrorCode.DOM_001;
         }
     }
