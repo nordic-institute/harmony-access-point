@@ -90,7 +90,7 @@ public class IncomingUserMessageHandlerTest {
         incomingUserMessageHandler.processMessage(soapRequestMessage, messaging);
 
         new Verifications() {{
-            backendNotificationService.notifyMessageReceivedFailure(userMessage, null, (ErrorResult) any);
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, (ErrorResult) any);
             times = 0;
         }};
     }
@@ -124,7 +124,7 @@ public class IncomingUserMessageHandlerTest {
         }
 
         new Verifications() {{
-            backendNotificationService.notifyMessageReceivedFailure(userMessage, null, (ErrorResult) any);
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, (ErrorResult) any);
         }};
     }
 }

@@ -31,7 +31,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1423,21 +1422,37 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8774 Validation Sender presence")
-    public void testFindUserMessageExchangeContextSenderNotProvided(@Injectable UserMessage userMessage) {
+    public void testFindUserMessageExchangeContextSenderNotProvided(@Injectable UserMessage userMessage, @Injectable PartyId partyId) {
 
         MSHRole mshRole1 = MSHRole.SENDING;
-        new Expectations() {{
+        new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getFromPartyId();
-            result = null;
+            result = partyId;
         }};
         try {
             cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null);
             Assert.fail("expected error that sender party is missing");
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("Mandatory field From PartyId is not provided.", ex.getErrorDetail());
+            assertEquals("Sender party could not be found for the value  " + partyId, ex.getErrorDetail());
             assertEquals(mshRole1, ex.getMshRole());
+        }
+    }
+
+    @Test
+    public void findSenderParty(@Injectable UserMessage userMessage) {
+
+        MSHRole mshRole1 = MSHRole.SENDING;
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
+            result = null;
+        }};
+        try {
+            cachingPModeProvider.findSenderParty(userMessage);
+            Assert.fail("expected error that sender party is missing");
+        } catch (EbMS3Exception ex) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals("Mandatory field From PartyId is not provided.", ex.getErrorDetail());
         }
     }
 

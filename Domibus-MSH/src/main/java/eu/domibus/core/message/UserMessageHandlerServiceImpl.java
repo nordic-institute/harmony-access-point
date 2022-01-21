@@ -314,7 +314,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
-                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
@@ -367,7 +367,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw EbMS3ExceptionBuilder.getInstance()
