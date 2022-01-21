@@ -9,6 +9,7 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 @Service
 public class SubmissionUtil {
@@ -36,7 +37,7 @@ public class SubmissionUtil {
         submission.setService(SERVICE_NOPROCESS);
         submission.setServiceType(SERVICE_TYPE_TC1);
         submission.setConversationId("123");
-        submission.setMessageId("1234");
+        submission.setMessageId(UUID.randomUUID() + "@domibus.eu");
         submission.addFromParty(DOMIBUS_BLUE, UNREGISTERED_PARTY_TYPE);
         submission.setFromRole(INITIATOR_ROLE);
         submission.addToParty(DOMIBUS_RED, UNREGISTERED_PARTY_TYPE);
