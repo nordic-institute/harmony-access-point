@@ -87,7 +87,6 @@ public class UserMessageLogDefaultService {
         userMessageLog.setMessageStatus(messageStatusEntity);
         userMessageLogDao.create(userMessageLog);
         LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
-        LOG.debug("UserMessage saved with entityId: [{}]", userMessage.getEntityId());
 
         return userMessageLog;
     }

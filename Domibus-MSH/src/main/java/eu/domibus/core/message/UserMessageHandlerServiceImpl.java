@@ -442,7 +442,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         //add messageId to MDC map
         if (StringUtils.isNotBlank(userMessage.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
-            LOG.debug("Add message ID to LOG MDC [{}]", userMessage.getMessageId());
         }
         LOG.info("Persisting received message");
 

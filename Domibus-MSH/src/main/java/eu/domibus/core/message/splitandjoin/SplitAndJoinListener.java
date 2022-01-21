@@ -131,8 +131,6 @@ public class SplitAndJoinListener implements MessageListener {
             } else {
                 LOG.error("Unrecognized message type [{}]", messageType);
             }
-            LOG.debug("Add message ID to LOG MDC [{}]", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID));
-
         } catch (final JMSException e) {
             LOG.error("Error processing JMS message", e);
         }
