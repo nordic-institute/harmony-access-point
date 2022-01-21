@@ -3,10 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -38,8 +35,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
     public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
-    public final static String INIT_TRUSTSTORE_NAME = "TRUSTSTORE";
-    public final static String INIT_KEYSTORE_NAME = "KEYSTORE";
+    public final static CertificateInitValueType INIT_TRUSTSTORE_NAME = CertificateInitValueType.TRUSTSTORE;
+    public final static CertificateInitValueType INIT_KEYSTORE_NAME = CertificateInitValueType.KEYSTORE;
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
