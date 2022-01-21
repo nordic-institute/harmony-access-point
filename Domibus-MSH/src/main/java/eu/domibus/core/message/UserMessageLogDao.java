@@ -22,16 +22,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -115,22 +108,19 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", failedStartDate == null ? null : getZoneDateTime(failedStartDate));
-        query.setParameter("END_DATE", failedEndDate == null ? null : getZoneDateTime(failedEndDate));
+        query.setParameter("START_DATE", failedStartDate == null ? null : dateUtil.getZoneDateTime(failedStartDate));
+        query.setParameter("END_DATE", failedEndDate == null ? null : dateUtil.getZoneDateTime(failedEndDate));
         return query.getResultList();
     }
 
-    protected long getZoneDateTime(Date date) {
-        return Long.parseLong(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-    }
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", getZoneDateTime(startDate));
+        query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
 
-        query.setParameter("END_DATE", getZoneDateTime(endDate));
+        query.setParameter("END_DATE", dateUtil.getZoneDateTime(endDate));
         return query.getResultList();
     }
 

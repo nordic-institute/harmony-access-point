@@ -18,6 +18,11 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
+
 /**
  * @author Cosmin Baciu
  * @author Sebastian-Ion TINCU
@@ -96,5 +101,10 @@ public class DateUtilImpl implements DateUtil {
     public long getDiffMinutesBetweenDates(Date date1, Date date2) {
         long diffInMillies = Math.abs(date2.getTime() - date1.getTime());
         return TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public long getZoneDateTime(Date date) {
+        return Long.parseLong(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
     }
 }
