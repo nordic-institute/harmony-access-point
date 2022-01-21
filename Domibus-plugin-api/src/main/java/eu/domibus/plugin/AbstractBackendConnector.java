@@ -108,7 +108,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         }
 
         try {

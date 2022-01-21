@@ -71,7 +71,6 @@ public class FSProcessFileService {
                 String messageId = backendFSPlugin.submit(message);
 
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-                LOG.debug("Add message ID to LOG MDC [{}]", messageId);
                 LOG.info("Message [{}] submitted: [{}]", messageId, processableFile.getName());
 
             } else {

@@ -429,7 +429,6 @@ public class BackendNotificationService {
         final String messageId = userMessage.getMessageId();
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         }
         if (messageLog.getMessageStatus() == newStatus) {
             LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);

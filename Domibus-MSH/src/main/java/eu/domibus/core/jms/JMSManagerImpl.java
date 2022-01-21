@@ -552,7 +552,6 @@ public class JMSManagerImpl implements JMSManager {
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            LOG.debug("Add message ID to LOG MDC [{}]", messageId);
         }
 
         JmsMessage message = consumeMessage(queueName, messageId);

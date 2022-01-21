@@ -90,7 +90,6 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 //trim the empty space
                 messageID = messageExtService.cleanMessageIdentifier(messageID);
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
-                LOG.debug("Add message ID to LOG MDC [{}]", messageID);
             }
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
