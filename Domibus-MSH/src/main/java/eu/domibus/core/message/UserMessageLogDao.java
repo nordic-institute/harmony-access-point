@@ -113,19 +113,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
+        query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", failedStartDate == null ? null : Long.parseLong(ZonedDateTime.ofInstant(failedStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("END_DATE", failedEndDate == null ? null : Long.parseLong(ZonedDateTime.ofInstant(failedEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("START_DATE", failedStartDate == null ? null : getZoneDateTime(failedStartDate));
+        query.setParameter("END_DATE", failedEndDate == null ? null : getZoneDateTime(failedEndDate));
         return query.getResultList();
+    }
+
+    protected long getZoneDateTime(Date date) {
+        return Long.parseLong(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
     }
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("START_DATE", getZoneDateTime(startDate));
 
-        query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("END_DATE", getZoneDateTime(endDate));
         return query.getResultList();
     }
 

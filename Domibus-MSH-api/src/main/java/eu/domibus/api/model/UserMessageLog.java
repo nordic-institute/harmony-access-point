@@ -68,7 +68,7 @@ import java.util.List;
                         "FROM UserMessageLog uml                                                                                           " +
                         "JOIN uml.userMessage um                                                                                           " +
                         "left join um.messageProperties p                                                                         " +
-                        "WHERE uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE                                               " +
+                        "WHERE uml.messageStatus.messageStatus = :MESSAGE_STATUS                                               " +
                         "AND uml.deleted IS NULL  " +
                         "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE) " +
