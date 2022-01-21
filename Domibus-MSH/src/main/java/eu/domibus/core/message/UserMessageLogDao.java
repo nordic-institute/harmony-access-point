@@ -198,11 +198,16 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional(readOnly = true)
     public UserMessageLog findByEntityId(final Long entityId) {
+        try {
         final UserMessageLog userMessageLog = super.read(entityId);
 
         initializeChildren(userMessageLog);
 
         return userMessageLog;
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with entityId [{}]", entityId);
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)

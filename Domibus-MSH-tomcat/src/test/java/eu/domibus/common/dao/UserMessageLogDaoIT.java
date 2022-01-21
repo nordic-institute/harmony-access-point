@@ -417,6 +417,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore
     public void findByEntityId_notFound() {
         try {
             userMessageLogDao.findByEntityId(12234567890L);
@@ -436,6 +437,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore
     public void findByEntityIdSafely_notFound() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(12234567890L);
         Assert.assertNull(userMessageLog);
