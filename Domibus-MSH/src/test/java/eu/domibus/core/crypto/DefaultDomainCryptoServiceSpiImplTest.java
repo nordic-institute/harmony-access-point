@@ -100,13 +100,13 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToLoadMerlinProperties_WSSecurityException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
+    public void throwsExceptionWhenFailingToLoadMerlinProperties_WSSecurityException() throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Error occurred when loading the properties of TrustStore");
 
-        new Expectations() {{
-            merlin.loadProperties((Properties) any, (ClassLoader) any, null);
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.loadProperties((Properties) any, (ClassLoader) any, null);
             result = new WSSecurityException(SECURITY_ERROR);
         }};
 
@@ -115,13 +115,13 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
+    public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException() throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Error occurred when loading the properties of TrustStore");
 
-        new Expectations() {{
-            merlin.loadProperties((Properties) any, (ClassLoader) any, null);
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.loadProperties((Properties) any, (ClassLoader) any, null);
             result = new IOException();
         }};
 
@@ -130,11 +130,11 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void returnsKeystoreCertificateFromMerlin(@Mocked Merlin merlin, @Injectable KeyStore keyStore) throws Exception {
+    public void returnsKeystoreCertificateFromMerlin(@Injectable KeyStore keyStore) throws Exception {
         // Given
         String alias = "alias";
-        new Expectations() {{
-            merlin.getKeyStore();
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStore();
             result = keyStore;
             keyStore.getCertificate(alias);
             result = x509Certificate;
@@ -148,11 +148,11 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void returnsTrustStoreCertificateFromMerlin(@Mocked Merlin merlin, @Injectable KeyStore trustStore) throws Exception {
+    public void returnsTrustStoreCertificateFromMerlin(@Injectable KeyStore trustStore) throws Exception {
         // Given
         String alias = "alias";
-        new Expectations() {{
-            merlin.getTrustStore();
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStore();
             result = trustStore;
             trustStore.getCertificate(alias);
             result = x509Certificate;
@@ -166,7 +166,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void returnsPrivateKeyPasswordAsTheValueOfThePropertyDefinedInTheCurrentDomain(@Mocked Merlin merlin) {
+    public void returnsPrivateKeyPasswordAsTheValueOfThePropertyDefinedInTheCurrentDomain() {
         // Given
         String alias = "alias";
 

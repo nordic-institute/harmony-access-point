@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
@@ -12,15 +11,10 @@ import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -32,6 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  *
  * @author Sebastian-Ion TINCU
  */
+@Ignore
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
