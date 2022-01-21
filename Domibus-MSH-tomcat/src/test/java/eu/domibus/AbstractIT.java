@@ -188,10 +188,7 @@ public abstract class AbstractIT {
     }
 
     protected Callable<Boolean> messageHasStatus(String messageId, MessageStatus messageStatus) {
-        return () -> {
-            MessageStatus messageStatus1 = userMessageLogDao.getMessageStatus(messageId);
-            return messageStatus == messageStatus1;
-        };
+        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId);
     }
 
     protected Callable<Boolean> databaseIsInitialized() {

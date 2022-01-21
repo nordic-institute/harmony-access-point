@@ -229,6 +229,8 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
+
+        assertEquals(backendConnector.getDeliverMessageEvent().getMessageId(), messageId);
     }
 
     @Test

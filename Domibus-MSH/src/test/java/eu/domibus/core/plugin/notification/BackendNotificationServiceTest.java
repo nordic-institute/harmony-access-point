@@ -227,7 +227,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify(
-            @Mocked final AsyncNotificationConfiguration notificationListener,
+            @Injectable final AsyncNotificationConfiguration notificationListener,
             @Mocked final BackendConnector<?, ?> backendConnector,
             @Mocked UserMessage userMessage) {
 
