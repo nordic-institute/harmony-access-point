@@ -307,6 +307,17 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(3, message.size());
     }
 
+    @Test
+    @Transactional
+    public void findFailedMessages() {
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
+        final String finalRecipient = "finalRecipient2";
+
+        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
+        assertEquals(2, message.size());
+    }
 
     @Test
     @Transactional

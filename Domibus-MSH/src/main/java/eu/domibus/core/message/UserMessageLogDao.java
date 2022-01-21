@@ -12,7 +12,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,28 +112,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
-        String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
-                "left join m.messageProperties p, " +
-                "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
-        if (StringUtils.isNotEmpty(finalRecipient)) {
-            queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
-        }
-        if (failedStartDate != null) {
-            queryString += " and ml.failed >= :START_DATE";
-        }
-        if (failedEndDate != null) {
-            queryString += " and ml.failed <= :END_DATE";
-        }
-        TypedQuery<String> query = this.em.createQuery(queryString, String.class);
-        if (StringUtils.isNotEmpty(finalRecipient)) {
-            query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        }
-        if (failedStartDate != null) {
-            query.setParameter("START_DATE", failedStartDate);
-        }
-        if (failedEndDate != null) {
-            query.setParameter("END_DATE", failedEndDate);
-        }
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(failedStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(failedEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
         return query.getResultList();
     }
 
