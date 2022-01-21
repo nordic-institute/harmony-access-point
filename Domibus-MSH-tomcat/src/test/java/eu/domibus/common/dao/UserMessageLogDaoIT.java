@@ -316,7 +316,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final String finalRecipient = "finalRecipient2";
 
         List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
-        assertEquals(2, message.size());
+        assertEquals(1, message.size());
     }
 
     @Test
