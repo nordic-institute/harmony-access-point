@@ -108,8 +108,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", failedStartDate == null ? null : dateUtil.getZoneDateTime(failedStartDate));
-        query.setParameter("END_DATE", failedEndDate == null ? null : dateUtil.getZoneDateTime(failedEndDate));
+        query.setParameter("START_DATE", dateUtil.getZoneDateTime(failedStartDate));
+        query.setParameter("END_DATE", dateUtil.getZoneDateTime(failedEndDate));
         return query.getResultList();
     }
 

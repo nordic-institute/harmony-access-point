@@ -28,5 +28,5 @@ public interface DateUtil {
 
     long getDiffMinutesBetweenDates(Date date1, Date date2);
 
-    long getZoneDateTime(Date date);
+    Long getZoneDateTime(Date date);
 }

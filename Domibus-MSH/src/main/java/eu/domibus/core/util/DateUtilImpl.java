@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author Cosmin Baciu
@@ -104,7 +103,10 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
-    public long getZoneDateTime(Date date) {
-        return Long.parseLong(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+    public Long getZoneDateTime(Date date) {
+        if (date != null) {
+            return Long.parseLong(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT)) + MAX);
+        }
+        return null;
     }
 }

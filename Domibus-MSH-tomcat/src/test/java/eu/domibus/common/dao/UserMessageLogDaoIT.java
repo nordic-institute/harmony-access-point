@@ -321,6 +321,13 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void findFailedMessagesWithOutDates() {
+        List<String> message = userMessageLogDao.findFailedMessages(null, null, null);
+        assertEquals(2, message.size());
+    }
+
+    @Test
+    @Transactional
     public void testFindMessagesForArchiving_oldest() {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
