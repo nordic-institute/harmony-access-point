@@ -35,10 +35,11 @@ public class MDCCleanAspect {
         try {
             MDCKey annotation = getAnnotation(method);
             if (annotation != null) {
-                mdcKeysToClean = getMDCKeysToClean(targetLocation, annotation);
+                List<String> keysToClean = Arrays.asList(annotation.value());
                 if (annotation.cleanOnStart()) {
-                    cleanMDCKeys(targetLocation, mdcKeysToClean);
+                    cleanMDCKeys(targetLocation, keysToClean);
                 }
+                mdcKeysToClean = getMDCKeysToClean(targetLocation, keysToClean);
             }
 
             return joinPoint.proceed();
@@ -48,8 +49,8 @@ public class MDCCleanAspect {
         }
     }
 
-    protected List<String> getMDCKeysToClean(String locationIdentifier, MDCKey annotation) {
-        final List<String> candidatesMDCKeysToClean = new ArrayList<>(Arrays.asList(annotation.value()));
+    protected List<String> getMDCKeysToClean(String locationIdentifier, List<String> strings) {
+        final List<String> candidatesMDCKeysToClean = new ArrayList<>(strings);
         LOG.debug("[{}]: found candidate MDC keys for cleaning [{}]", locationIdentifier, candidatesMDCKeysToClean);
         final List<String> mdcKeysToClean = getMDCKeysToClean(candidatesMDCKeysToClean);
         if (!mdcKeysToClean.isEmpty()) {

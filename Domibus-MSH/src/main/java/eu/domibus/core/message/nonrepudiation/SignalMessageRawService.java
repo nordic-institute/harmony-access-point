@@ -32,14 +32,13 @@ public class SignalMessageRawService {
         }
         SignalMessageRaw read = signalMessageRawEnvelopeDao.read(signalMessageId);
         if (read == null) {
-            //            LOG.debug("SignalMessageRaw not found: [{}] - creation", signalMessageId, e);
-            LOG.info("SignalMessageRaw not found: [{}] - creation", signalMessageId);
+            LOG.debug("SignalMessageRaw not found: [{}] - creation", signalMessageId);
             SignalMessageRaw signalMessageRaw = new SignalMessageRaw();
             signalMessageRaw.setRawXML(rawXml);
             signalMessageRaw.setSignalMessage(signalMessage);
             signalMessageRawEnvelopeDao.create(signalMessageRaw);
         } else {
-            LOG.warn("SignalMessageRaw already exists for ID_PK: [{}]", signalMessageId);
+            throw new DomibusCoreException("SignalMessageRaw already exists for ID_PK: [" + signalMessageId + "]");
         }
     }
 }
