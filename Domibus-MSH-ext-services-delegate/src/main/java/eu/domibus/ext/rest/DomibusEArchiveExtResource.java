@@ -4,7 +4,6 @@ import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -161,7 +160,7 @@ public class DomibusEArchiveExtResource {
             LOG.trace(RETURN_RESULTS_OF_TOTAL, messagePage.size(), total);
             return resultDTO;
         } catch (DomibusEArchiveException coreEArchiveException) {
-            throw new DomibusEArchiveExtException(DomibusErrorCode.valueOf(coreEArchiveException.getError().name()), coreEArchiveException.getMessage(), coreEArchiveException);
+            throw new DomibusEArchiveExtException(extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(coreEArchiveException.getError()), coreEArchiveException.getMessage(), coreEArchiveException);
         }
     }
 
