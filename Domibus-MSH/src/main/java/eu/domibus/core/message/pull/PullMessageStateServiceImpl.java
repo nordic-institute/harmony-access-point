@@ -91,7 +91,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Transactional
     @Override
     public void reset(final UserMessageLog userMessageLog, String messageId) {
-        final MessageStatusEntity readyToPull = messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL);
+        final MessageStatusEntity readyToPull = messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
         LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", messageId, userMessageLog.getMessageStatus(), readyToPull);
         userMessageLog.setMessageStatus(readyToPull);
         userMessageLogDao.update(userMessageLog);
