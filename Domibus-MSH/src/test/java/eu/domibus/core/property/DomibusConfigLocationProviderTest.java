@@ -34,7 +34,7 @@ public class DomibusConfigLocationProviderTest {
     }
 
     @Test
-    public void getDomibusConfigLocation(@Injectable ServletContext servletContext,
+    public void getDomibusConfigLocation(@Mocked ServletContext servletContext,
                                          @Mocked System system) {
         String systemConfigLocation = "systemConfigLocation";
         new Expectations() {{
