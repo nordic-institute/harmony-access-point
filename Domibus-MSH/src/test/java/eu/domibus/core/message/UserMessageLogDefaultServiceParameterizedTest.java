@@ -89,8 +89,6 @@ public class UserMessageLogDefaultServiceParameterizedTest {
             result = mshRoleEntity;
             notificationStatusDao.findOrCreate(NotificationStatus.valueOf(notificationStatus));
             result = notifStatus;
-            messageStatusDao.findMessageStatus(MessageStatus.valueOf(messageStatus));
-            result = messageStatusEntity;
         }};
         userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
 
