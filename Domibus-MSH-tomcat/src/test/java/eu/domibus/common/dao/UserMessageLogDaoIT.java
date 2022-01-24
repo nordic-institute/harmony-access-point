@@ -14,7 +14,6 @@ import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -28,7 +27,8 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ion Perpegel
@@ -435,14 +435,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8767: findByEntity -> hibernate initialization")
     public void findByEntityId_notFound() {
-        try {
-            userMessageLogDao.findByEntityId(12234567890L);
-            fail();
-        } catch (NoResultException e) {
-            //OK
-        }
+        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(12234567890L);
+
+        Assert.assertNull(userMessageLog);
     }
 
     @Test
@@ -455,9 +451,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8767: findByEntity -> hibernate initialization")
     public void findByEntityIdSafely_notFound() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(12234567890L);
+
         Assert.assertNull(userMessageLog);
     }
 
