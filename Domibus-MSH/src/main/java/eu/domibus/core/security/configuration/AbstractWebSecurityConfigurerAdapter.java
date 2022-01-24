@@ -3,6 +3,7 @@ package eu.domibus.core.security.configuration;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
+import eu.domibus.web.header.ServerHeaderWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,6 +42,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
 
     @Autowired
     CookieFilter cookieFilter;
+
+    @Autowired
+    ServerHeaderWriter serverHeaderWriter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -134,7 +138,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/**").authenticated()
                 .and()
                 .exceptionHandling().and()
-                .headers().frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
+                .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
                 .and()
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()
