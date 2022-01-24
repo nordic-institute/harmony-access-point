@@ -419,7 +419,8 @@ public class CachingPModeProviderTest {
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
         // Then
-        assertEquals(expectedList, partyIdByServiceAndAction);
+        assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
+        assertTrue(CollectionUtils.containsAll(expectedList, partyIdByServiceAndAction));
     }
 
     private Party getPartyByName(Set<Party> parties, final String partyName) {
