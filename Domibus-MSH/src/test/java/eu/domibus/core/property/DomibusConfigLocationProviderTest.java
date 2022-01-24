@@ -1,28 +1,29 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Mocked;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
 import javax.servlet.ServletContext;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JMockit.class)
 public class DomibusConfigLocationProviderTest {
 
     @Tested
     DomibusConfigLocationProvider domibusConfigLocationProvider;
 
-    @Injectable
-    ServletContext servletContext;
-
     @Test
-    public void getDomibusConfigLocationWithServletInitParameterConfigured() {
+    public void getDomibusConfigLocationWithServletInitParameterConfigured(@Injectable ServletContext servletContext) {
         String domibusConfigLocationInitParameter = "servletConfigLocation";
         new Expectations() {{
             servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
@@ -33,7 +34,8 @@ public class DomibusConfigLocationProviderTest {
     }
 
     @Test
-    public void getDomibusConfigLocation(@Mocked System system) {
+    public void getDomibusConfigLocation(@Injectable ServletContext servletContext,
+                                         @Mocked System system) {
         String systemConfigLocation = "systemConfigLocation";
         new Expectations() {{
             servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
