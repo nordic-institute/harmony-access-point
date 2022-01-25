@@ -105,7 +105,8 @@ public class MailSenderTest {
     }
 
     @Test
-    public void initMailSender_enabled(@Injectable final Properties javaMailProperties) {
+    public void initMailSender_enabled() {
+        Properties javaMailProperties = new Properties();
 
         dynamicPropertySet.add(dynamicPropertyName);
         dynamicPropertySet.add(timeoutPropertyName);

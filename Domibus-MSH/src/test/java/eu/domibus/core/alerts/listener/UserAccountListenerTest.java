@@ -46,7 +46,7 @@ public class UserAccountListenerTest {
 
         userAccountListener.onLoginFailure(event, null);
 
-        new FullVerifications() {{
+        new Verifications() {{
             domainContextProvider.clearCurrentDomain();
             times = 1;
             eventService.persistEvent(event);
@@ -70,7 +70,7 @@ public class UserAccountListenerTest {
 
         userAccountListener.onLoginFailure(event, domain);
 
-        new FullVerifications() {{
+        new Verifications() {{
             domainContextProvider.setCurrentDomain(withAny(domain));
             times = 1;
             eventService.persistEvent(event);

@@ -642,10 +642,13 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                                      @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) {
+    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration, @Injectable ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateModuleConfiguration,
+                                                                      @Injectable LocalDateTime dateTime, @Injectable final Certificate certificate) {
         new Expectations() {{
-            imminentExpirationCertificateConfigurationManager.getConfiguration().isActive();
+            imminentExpirationCertificateConfigurationManager.getConfiguration();
+            result = imminentExpirationCertificateModuleConfiguration;
+
+            imminentExpirationCertificateModuleConfiguration.isActive();
             result = false;
         }};
         certificateService.sendCertificateImminentExpirationAlerts();
@@ -1464,7 +1467,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent, @Mocked TruststoreEntity entity) {
+    public void replaceTrustStore(@Mocked byte[] fileContent, @Mocked TruststoreEntity entity) {
+        String fileName = "";
 
         new Expectations(certificateService) {{
             certificateService.getTruststoreEntity(anyString);
@@ -1512,9 +1516,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doAddCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+    public void doAddCertificates(@Mocked KeyStore trustStore,
                                   @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
-
+        String trustStoreLocation = "";
+        String trustStorePassword = "";
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
         boolean overwrite = true;
 
@@ -1535,8 +1540,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+    public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore,
                                           @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+        String trustStorePassword = "";
+        String trustStoreLocation = "";
 
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
         boolean overwrite = true;

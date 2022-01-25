@@ -74,8 +74,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Before
-    public void setUp() {
+    private void commonExpectations() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = "keystoreType";
@@ -101,6 +100,8 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToLoadMerlinProperties_WSSecurityException() throws WSSecurityException, IOException {
+        commonExpectations();
+
         // Given
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Error occurred when loading the properties of TrustStore");
@@ -116,6 +117,8 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
     @Test
     public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException() throws WSSecurityException, IOException {
+        commonExpectations();
+
         // Given
         thrown.expect(CryptoException.class);
         thrown.expectMessage("Error occurred when loading the properties of TrustStore");
@@ -134,8 +137,9 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         // Given
         String alias = "alias";
         new Expectations(domainCryptoService) {{
-            domainCryptoService.getTrustStore();
+            domainCryptoService.getKeyStore();
             result = keyStore;
+
             keyStore.getCertificate(alias);
             result = x509Certificate;
         }};
@@ -163,35 +167,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
         // Then
         Assert.assertNotNull("Should have returned the truststore certificate from Merlin", certificateFromTrustStore);
-    }
-
-    @Test
-    public void returnsPrivateKeyPasswordAsTheValueOfThePropertyDefinedInTheCurrentDomain() {
-        // Given
-        String alias = "alias";
-
-        // When
-        String privateKeyPassword = domainCryptoService.getPrivateKeyPassword(alias);
-
-        // Then
-        Assert.assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
-    }
-
-    @Test(expected = ConfigurationException.class)
-    public void initTruststore(@Injectable Properties properties, @Injectable Merlin merlin) throws WSSecurityException, IOException {
-
-        new Expectations() {{
-            domainCryptoService.getTrustStoreProperties();
-            result = properties;
-
-        }};
-        domainCryptoService.init();
-
-        new Verifications() {{
-            merlin.loadProperties(properties, Merlin.class.getClassLoader(), null);
-        }};
-
-
     }
 
     @Test
