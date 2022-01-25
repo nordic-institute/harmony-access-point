@@ -64,7 +64,7 @@ import static org.junit.Assert.*;
  * Created by Cosmin Baciu on 07-Jul-16.
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-
+@Ignore
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
