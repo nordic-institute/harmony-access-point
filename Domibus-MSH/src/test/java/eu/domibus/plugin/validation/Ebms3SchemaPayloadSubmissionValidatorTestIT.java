@@ -32,7 +32,7 @@ public class Ebms3SchemaPayloadSubmissionValidatorTestIT {
     public void testValidatePayloadWithValidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
-            returns(new ClassPathResource("eu/domibus/core/plugin/validation/validPayload.xml").getInputStream());
+            result = new ClassPathResource("eu/domibus/core/plugin/validation/validPayload.xml").getInputStream();
         }};
 
         schemaPayloadSubmissionValidator.validatePayload(payload);
@@ -42,7 +42,7 @@ public class Ebms3SchemaPayloadSubmissionValidatorTestIT {
     public void testValidatePayloadWithValidInvalidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
-            returns(new ClassPathResource("eu/domibus/core/plugin/validation/invalidPayload.xml").getInputStream());
+            result = new ClassPathResource("eu/domibus/core/plugin/validation/invalidPayload.xml").getInputStream();
         }};
 
         schemaPayloadSubmissionValidator.validatePayload(payload);

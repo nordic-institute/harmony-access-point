@@ -12,6 +12,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,7 +24,7 @@ import javax.xml.ws.WebServiceException;
  * @author Cosmin Baciu
  * @since 3.3
  */
-
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class MSHWebServiceTest {
 

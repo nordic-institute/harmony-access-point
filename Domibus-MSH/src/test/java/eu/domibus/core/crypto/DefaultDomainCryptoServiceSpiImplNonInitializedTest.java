@@ -11,10 +11,7 @@ import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
@@ -29,6 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  *
  * @author Sebastian-Ion TINCU
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
@@ -80,7 +78,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
             void init() { /* avoid @PostConstruct initialization */ }
         };
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = "keystoreType";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD);

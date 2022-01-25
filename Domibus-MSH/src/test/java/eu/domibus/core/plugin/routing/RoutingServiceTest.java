@@ -21,6 +21,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +41,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConstantConditions", "rawtypes"})
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;

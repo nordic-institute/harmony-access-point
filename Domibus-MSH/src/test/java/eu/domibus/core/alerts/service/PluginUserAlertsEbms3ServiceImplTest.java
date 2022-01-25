@@ -11,6 +11,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
@@ -96,8 +97,13 @@ public class PluginUserAlertsEbms3ServiceImplTest {
     }
 
     @Test
-    public void testGetAccountDisabledConfiguration() {
-        AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
+    public void testGetAccountDisabledConfiguration(@Injectable AccountDisabledModuleConfiguration accountDisabledModuleConfiguration) {
+        new Expectations() {{
+            pluginAccountDisabledConfigurationManager.getConfiguration();
+            result = accountDisabledModuleConfiguration;
+        }};
+
+        userAlertsService.getAccountDisabledConfiguration();
 
         new VerificationsInOrder() {{
             pluginAccountDisabledConfigurationManager.getConfiguration();

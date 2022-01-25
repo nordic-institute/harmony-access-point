@@ -34,7 +34,7 @@ public class ObjectBlacklistValidatorTest {
 
         new Expectations(blacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns(";%'\\/");
+            result = ";%'\\/";
         }};
 
         blacklistValidator.init();
@@ -60,7 +60,7 @@ public class ObjectBlacklistValidatorTest {
 
         new Expectations(blacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns(";%'\\/");
+            result = ";%'\\/";
         }};
 
         blacklistValidator.init();
@@ -88,7 +88,7 @@ public class ObjectBlacklistValidatorTest {
 
         new Expectations(blacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns(";%'\\/");
+            result = ";%'\\/";
         }};
         blacklistValidator.init();
 

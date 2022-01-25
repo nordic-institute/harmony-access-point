@@ -368,7 +368,7 @@ public class AlertResourceTest {
 
         List<AlertRo> alertsRO = alertResource.fetchAndTransformAlerts(alertCriteria, isSuperAdmin);
 
-        new Verifications(1) {{
+        new Verifications() {{
             assertEquals(1, alertsRO.size());
             assertEquals(isSuperAdmin, alertsRO.get(0).isSuperAdmin());
             csvServiceImpl.validateMaxRows(1, (LongSupplier) any);
