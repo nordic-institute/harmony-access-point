@@ -38,18 +38,26 @@ public class DomibusConnectionProvider implements ConnectionProvider {
     public Connection getConnection() throws SQLException {
         LOG.trace("Getting new connection");
 
+        return getDBConnection();
+    }
+
+    protected Connection getDBConnection() throws SQLException {
         String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
         if (StringUtils.isBlank(mdcUser)) {
             String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
-
-        Connection connection = dataSource.getConnection();
-        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-        connection.setAutoCommit(false);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
-            LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
+        Connection connection = null;
+        try {
+            dataSource.getConnection();
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            connection.setAutoCommit(false);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+                LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
+            }
+        } finally {
+            connection.close();
         }
         return connection;
     }
