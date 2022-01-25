@@ -1371,4 +1371,9 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
     </changeSet>
 
+    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-single-tenancy" author="Soumya">
+        <sqlFile path="src/main/resources/db/migration/oracle/db-migration-utc-conversion.sql" endDelimiter="\n/"
+                 dbms="oracle"/>
+    </changeSet>
+
 </databaseChangeLog>

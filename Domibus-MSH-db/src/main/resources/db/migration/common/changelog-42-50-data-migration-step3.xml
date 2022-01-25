@@ -169,6 +169,9 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         </sql>
     </changeSet>
 
-    <include file="changelog-utc-conversion-procedures.xml" relativeToChangelogFile="true"/>
+    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-common" author="Soumya">
+        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-utc-conversion.sql" endDelimiter="\n//"
+                 dbms="mysql"/>
+    </changeSet>
 
 </databaseChangeLog>
