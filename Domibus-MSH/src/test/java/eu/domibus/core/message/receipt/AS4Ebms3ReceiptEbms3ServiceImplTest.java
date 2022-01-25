@@ -51,7 +51,7 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
 @RunWith(JMockit.class)
 public class AS4Ebms3ReceiptEbms3ServiceImplTest {

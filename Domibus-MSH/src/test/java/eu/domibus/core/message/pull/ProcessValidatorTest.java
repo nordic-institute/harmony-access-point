@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  * @author Thomas Dussart
  * @since 3.3
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ProcessValidatorTest {
 

@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class RegexIOFileFilterTest {
 

@@ -29,7 +29,7 @@ import java.util.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class EArchiveListenerTest {
 
     @Tested

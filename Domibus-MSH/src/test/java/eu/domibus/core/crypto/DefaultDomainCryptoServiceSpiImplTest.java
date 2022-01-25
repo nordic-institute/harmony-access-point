@@ -32,7 +32,7 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
  * @since 4.0
  */
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class DefaultDomainCryptoServiceSpiImplTest {
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 

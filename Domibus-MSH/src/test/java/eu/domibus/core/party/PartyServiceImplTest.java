@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
  * @author Thomas Dussart
  * @since 4.0
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PartyServiceImplTest {
 

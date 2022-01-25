@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * @author Sebastian-Ion TINCU
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class TLSReaderTest {
 

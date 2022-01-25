@@ -25,7 +25,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class DatabasePayloadPersistenceTest {
 
     @Injectable

@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class UpdateRetryLoggingServiceTest {
 
     private static final int RETRY_TIMEOUT_IN_MINUTES = 60;

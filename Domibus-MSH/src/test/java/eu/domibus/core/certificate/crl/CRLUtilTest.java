@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * Created by Cosmin Baciu on 07-Jul-16.
  */
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class CRLUtilTest {
 
     @Tested

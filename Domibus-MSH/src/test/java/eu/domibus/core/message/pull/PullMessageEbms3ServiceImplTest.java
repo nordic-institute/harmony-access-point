@@ -32,7 +32,7 @@ import java.util.Date;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PullMessageEbms3ServiceImplTest {
 

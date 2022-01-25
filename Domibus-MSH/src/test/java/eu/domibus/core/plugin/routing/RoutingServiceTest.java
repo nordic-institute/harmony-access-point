@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConstantConditions", "rawtypes"})
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;

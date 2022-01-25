@@ -34,7 +34,7 @@ import java.util.List;
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class UserAlertsServiceImplTest {
 

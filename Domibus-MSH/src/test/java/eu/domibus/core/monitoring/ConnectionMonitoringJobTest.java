@@ -17,7 +17,7 @@ import org.quartz.JobExecutionException;
  * @author Soumya Chandran
  * @since 5.0
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ConnectionMonitoringJobTest {
     @Tested

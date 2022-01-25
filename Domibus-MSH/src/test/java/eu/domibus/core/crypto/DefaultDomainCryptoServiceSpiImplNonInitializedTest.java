@@ -26,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  *
  * @author Sebastian-Ion TINCU
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 

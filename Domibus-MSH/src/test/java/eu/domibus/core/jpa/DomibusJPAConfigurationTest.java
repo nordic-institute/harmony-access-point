@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DomibusJPAConfigurationTest {
 

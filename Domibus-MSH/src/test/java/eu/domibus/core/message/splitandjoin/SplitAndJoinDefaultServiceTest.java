@@ -64,7 +64,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
 @RunWith(JMockit.class)
-@Ignore
+@Ignore("EDELIVERY-8892")
 public class SplitAndJoinDefaultServiceTest {
 
     public static final long ENTITY_ID = 1L;

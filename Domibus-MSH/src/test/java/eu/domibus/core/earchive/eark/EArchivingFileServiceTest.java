@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
 public class EArchivingFileServiceTest {
 

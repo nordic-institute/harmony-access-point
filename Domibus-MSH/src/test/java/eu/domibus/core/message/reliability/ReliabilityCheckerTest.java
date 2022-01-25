@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @author Joze Rihtarsic
  * @since 4.2
  */
-@Ignore
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ReliabilityCheckerTest {
 
