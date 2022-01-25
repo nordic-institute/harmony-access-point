@@ -126,7 +126,7 @@
         <opencsv.version>5.2</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.12</junit.version>
-        <jmockit.version>1.49</jmockit.version>
+        <jmockit.version>1.39</jmockit.version>
         <org.reflections.version>0.9.12</org.reflections.version>
         <messaging.saaj.version>1.5.2</messaging.saaj.version>
         <jaxws-api.version>2.2</jaxws-api.version>
