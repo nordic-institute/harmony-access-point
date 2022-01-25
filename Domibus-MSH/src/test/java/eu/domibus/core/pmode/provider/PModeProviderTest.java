@@ -18,6 +18,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +34,7 @@ import java.lang.reflect.Method;
  * @author François Gautier
  * @since 5.0
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PModeProviderTest {
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";

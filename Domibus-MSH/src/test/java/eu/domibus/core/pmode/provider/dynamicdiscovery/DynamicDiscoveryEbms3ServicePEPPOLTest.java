@@ -17,6 +17,7 @@ import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
 import no.difi.vefa.peppol.mode.Mode;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -35,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Sebastian-Ion TINCU
  * @since 3.2.5
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 

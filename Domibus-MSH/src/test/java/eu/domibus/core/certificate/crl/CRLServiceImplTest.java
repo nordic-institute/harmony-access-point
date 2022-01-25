@@ -7,6 +7,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class CRLServiceImplTest {
 

@@ -24,6 +24,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
@@ -49,6 +50,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Sebastian-Ion TINCU
  * @since 3.2.5
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServiceOASISTest {
