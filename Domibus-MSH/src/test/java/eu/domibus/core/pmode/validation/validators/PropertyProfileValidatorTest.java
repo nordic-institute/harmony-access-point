@@ -18,6 +18,7 @@ import mockit.Expectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,6 +31,7 @@ import java.util.Set;
  * @author idragusa
  * @since 4.0
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PropertyProfileValidatorTest {

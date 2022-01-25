@@ -5,6 +5,7 @@ import mockit.Expectations;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,6 +14,7 @@ import java.util.Properties;
 /**
  * @author Sebastian-Ion TINCU
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PrimitivePropertyTypesManagerDeenTest {
 

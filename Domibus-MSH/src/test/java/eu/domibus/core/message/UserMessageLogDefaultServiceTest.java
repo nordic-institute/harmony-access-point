@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class UserMessageLogDefaultServiceTest {

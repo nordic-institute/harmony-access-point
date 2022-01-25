@@ -3,6 +3,7 @@ package eu.domibus.web.security;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@Ignore("EDELIVERY-8892")
 public class DefaultPasswordInterceptorTest {
 
     @Tested
