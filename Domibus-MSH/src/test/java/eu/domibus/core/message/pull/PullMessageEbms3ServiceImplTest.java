@@ -21,6 +21,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -31,6 +32,7 @@ import java.util.Date;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
+@Ignore
 @RunWith(JMockit.class)
 public class PullMessageEbms3ServiceImplTest {
 

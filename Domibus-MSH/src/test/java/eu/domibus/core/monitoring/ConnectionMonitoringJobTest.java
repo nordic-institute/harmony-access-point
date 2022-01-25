@@ -7,6 +7,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
@@ -16,6 +17,7 @@ import org.quartz.JobExecutionException;
  * @author Soumya Chandran
  * @since 5.0
  */
+@Ignore
 @RunWith(JMockit.class)
 public class ConnectionMonitoringJobTest {
     @Tested

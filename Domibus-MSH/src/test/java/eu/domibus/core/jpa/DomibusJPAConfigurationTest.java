@@ -4,6 +4,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
@@ -17,6 +18,7 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
+@Ignore
 @RunWith(JMockit.class)
 public class DomibusJPAConfigurationTest {
 

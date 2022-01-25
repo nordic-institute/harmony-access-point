@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.tika.mime.MimeTypes;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
@@ -32,6 +33,7 @@ import static org.junit.Assert.assertNotNull;
  * @author François Gautier
  * @since 5.0
  */
+@Ignore
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
 public class EArchivingFileServiceTest {
 

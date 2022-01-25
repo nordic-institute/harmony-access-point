@@ -14,6 +14,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertTrue;
  * @author Thomas Dussart
  * @since 3.3
  */
+@Ignore
 @RunWith(JMockit.class)
 public class ProcessValidatorTest {
 

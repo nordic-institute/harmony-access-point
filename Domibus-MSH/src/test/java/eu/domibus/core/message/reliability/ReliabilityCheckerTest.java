@@ -5,6 +5,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -23,6 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @author Joze Rihtarsic
  * @since 4.2
  */
+@Ignore
 @RunWith(JMockit.class)
 public class ReliabilityCheckerTest {
 
