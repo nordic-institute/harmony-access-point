@@ -8,6 +8,7 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +25,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
+@Ignore
 public class DatabasePayloadPersistenceTest {
 
     @Injectable
