@@ -6,6 +6,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,6 +20,7 @@ import java.util.Optional;
 /**
  * @author Sebastian-Ion TINCU
  */
+@Ignore
 @RunWith(JMockit.class)
 public class TLSReaderTest {
 
