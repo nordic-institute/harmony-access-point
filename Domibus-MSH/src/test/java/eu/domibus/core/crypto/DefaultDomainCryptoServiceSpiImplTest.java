@@ -76,7 +76,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
     @Before
     public void setUp() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = "keystoreType";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD);

@@ -88,7 +88,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         final List<String> allPropertyNames = Arrays.asList("JMSProp1", "totalNumberOfPayloads");
         final List<String> mapNames = Arrays.asList("payload_1");
 
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 mapMessage.getJMSType();
                 result = jmsType;

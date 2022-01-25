@@ -191,7 +191,7 @@ public class PullMessageEbms3ServiceImplTest {
         final String partyId = "partyId";
         final String messageId = "messageId";
         final String mpc = "mpc";
-        new NonStrictExpectations(pullMessageService) {{
+        new Expectations(pullMessageService) {{
 //            userMessage.getToFirstPartyId();
 //            result = partyId;
 //            messageLog.getMessageId();
@@ -324,7 +324,7 @@ public class PullMessageEbms3ServiceImplTest {
     @Test
     public void hasAttemptsLeftTrueBecauseOfSendAttempt(@Injectable final UserMessageLog userMessageLog,
                                                         @Injectable final LegConfiguration legConfiguration) {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = 1;
             userMessageLog.getSendAttempts();
@@ -361,7 +361,7 @@ public class PullMessageEbms3ServiceImplTest {
     @Test
     public void equalAttemptsButNotExpired(@Injectable final UserMessageLog userMessageLog,
                                            @Injectable final LegConfiguration legConfiguration) {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = 1;
 
@@ -384,7 +384,7 @@ public class PullMessageEbms3ServiceImplTest {
     @Test
     public void equalAttemptsButExpired(@Injectable final UserMessageLog userMessageLog,
                                         @Injectable final LegConfiguration legConfiguration) {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             legConfiguration.getReceptionAwareness().getRetryTimeout();
             result = 1;
 

@@ -111,7 +111,7 @@ public class SourceMessageSenderTest {
         String pModeKey = "pModeKey";
         String messageId = "test";
         String senderParty = "red_gw";
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 userMessage.getMessageId();
                 result = messageId;

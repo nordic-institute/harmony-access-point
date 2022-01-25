@@ -102,7 +102,7 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
@@ -116,10 +116,10 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
 
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            returns("ftp,http");
+            returns("ftp","http");
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
@@ -149,7 +149,7 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
 
             crlUtil.downloadCRL(crlUrl1);
             result = new DomibusCRLException();
@@ -165,10 +165,10 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
 
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            returns("ftp");
+            result = "ftp";
         }};
 
         crlService.isCertificateRevoked(certificate);
@@ -188,7 +188,7 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);

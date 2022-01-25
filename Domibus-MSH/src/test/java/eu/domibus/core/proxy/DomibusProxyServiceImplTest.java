@@ -4,8 +4,8 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import mockit.Expectations;
 import mockit.Injectable;
-import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -31,7 +31,7 @@ public class DomibusProxyServiceImplTest {
 
     @Test(expected = DomibusCoreException.class)
     public void initDomibusProxyMissingHostTest() {
-        new NonStrictExpectations(){{
+        new Expectations(){{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -41,7 +41,7 @@ public class DomibusProxyServiceImplTest {
 
     @Test(expected = DomibusCoreException.class)
     public void initDomibusProxyMissingPortTest() {
-        new NonStrictExpectations(){{
+        new Expectations(){{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -54,7 +54,7 @@ public class DomibusProxyServiceImplTest {
 
     @Test
     public void initDomibusProxyTest() {
-        new NonStrictExpectations(){{
+        new Expectations(){{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -70,7 +70,7 @@ public class DomibusProxyServiceImplTest {
 
     @Test(expected = DomibusCoreException.class)
     public void initDomibusProxyMissingPasswordTest() {
-        new NonStrictExpectations(){{
+        new Expectations(){{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -89,7 +89,7 @@ public class DomibusProxyServiceImplTest {
 
     @Test
     public void initDomibusProxyAuthTest() {
-        new NonStrictExpectations(){{
+        new Expectations(){{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 

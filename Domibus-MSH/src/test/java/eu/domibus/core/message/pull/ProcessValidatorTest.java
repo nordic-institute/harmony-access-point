@@ -9,7 +9,7 @@ import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.Injectable;
-import mockit.NonStrictExpectations;
+import mockit.Expectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class ProcessValidatorTest {
 
     @Before
     public void init() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             pullMessageService.allowDynamicInitiatorInPullProcess();
             result = false;
 

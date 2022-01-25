@@ -111,7 +111,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Before
     public void setup() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusCertificateValidators.getObject(any, any, anyString);
             result = domibusCertificateValidator;
 
@@ -128,7 +128,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Test
     public void testLookupInformationMock(@Capturing LookupClient smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -158,7 +158,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Test
     public void testLookupInformationMockOtherTransportProfile(final @Capturing LookupClient smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -212,7 +212,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 

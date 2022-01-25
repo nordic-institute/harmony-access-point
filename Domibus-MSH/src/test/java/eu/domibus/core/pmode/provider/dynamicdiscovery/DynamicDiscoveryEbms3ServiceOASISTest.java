@@ -162,7 +162,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Before
     public void setup() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusCertificateValidators.getObject(any, any, anyString);
             result = domibusCertificateValidator;
 
@@ -197,7 +197,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Test
     public void testLookupInformationMock(final @Capturing DynamicDiscovery smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -231,7 +231,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Test
     public void testLookupInformationRegexMatch(final @Capturing DynamicDiscovery smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -269,7 +269,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Test
     public void testLookupInformationRegexNull(final @Capturing DynamicDiscovery smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -308,7 +308,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing DynamicDiscovery smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -322,7 +322,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
     @Test
     public void testLookupInformationNotFoundMessage(final @Capturing DynamicDiscovery smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -478,7 +478,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
                                       @Injectable EndpointInfo endpointInfo,
                                       @Injectable ProcessIdentifier processIdentifier,
                                       @Injectable ServiceMetadata serviceMetadata) throws Exception {
-        new NonStrictExpectations(dynamicDiscoveryServiceOASIS) {{
+        new Expectations(dynamicDiscoveryServiceOASIS) {{
 
             dynamicDiscoveryServiceOASIS.createDynamicDiscoveryClient();
             result = smpClient;

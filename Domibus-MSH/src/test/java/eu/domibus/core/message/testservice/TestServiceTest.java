@@ -110,7 +110,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectPayload() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectPayload() throws IOException {
         givenSenderAndInitiatorCorrectlySet();
 
         whenCreatingTheSubmissionMessageData();
@@ -119,7 +119,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectInitiatorParty() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectInitiatorParty() throws IOException {
         givenSenderAndInitiatorCorrectlySet();
         givenSenderPartyId("partyId");
 
@@ -129,7 +129,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectServiceType() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectServiceType() throws IOException {
         givenSenderAndInitiatorCorrectlySet();
         givenServiceType("serviceType");
 
@@ -139,7 +139,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectInitiatorRole() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectInitiatorRole() throws IOException {
         givenSenderCorrectlySet();
         givenInitiatorRole("initiator");
 
@@ -149,7 +149,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectResponderRole() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectResponderRole() throws IOException {
         givenSenderAndInitiatorCorrectlySet();
         givenResponderRole("responder");
 
@@ -159,7 +159,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectAgreementReference() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectAgreementReference() throws IOException {
         givenSenderAndInitiatorCorrectlySet();
         Agreement agreement = new Agreement();
         agreement.setValue("agreement");
@@ -171,7 +171,7 @@ public class TestServiceTest {
     }
 
     @Test
-    public void createsTheMessageDataToSubmitHavingTheCorrectConversationIdentifier() {
+    public void createsTheMessageDataToSubmitHavingTheCorrectConversationIdentifier() throws IOException {
         givenSenderAndInitiatorCorrectlySet();
 
         whenCreatingTheSubmissionMessageData();
@@ -308,8 +308,11 @@ public class TestServiceTest {
         submission.addMessageProperty(MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT, finalRecipient);
     }
 
-    private void whenCreatingTheSubmissionMessageData() {
-        returnedSubmission = Deencapsulation.invoke(testService, "createSubmission", new Class[]{String.class}, sender);
+    private void whenCreatingTheSubmissionMessageData() throws IOException {
+        new Expectations() {{
+           testService.createSubmission(sender);
+           result = returnedSubmission;
+        }};
     }
 
     private void whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery() throws Exception {

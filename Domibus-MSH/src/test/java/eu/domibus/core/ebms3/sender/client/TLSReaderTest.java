@@ -149,8 +149,9 @@ public class TLSReaderTest {
     }
 
     private void whenRetrievingTheClientAuthenticationPath() {
-        clientAuthenticationPath = Deencapsulation.invoke(tlsReader, "getClientAuthenticationPath", domainCode);
+        new Expectations() {{
+            tlsReader.getClientAuthenticationPath(domainCode);
+            result = clientAuthenticationPath;
+        }};
     }
-
-
 }

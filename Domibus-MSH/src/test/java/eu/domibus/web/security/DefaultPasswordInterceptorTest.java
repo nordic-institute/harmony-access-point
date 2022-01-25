@@ -29,7 +29,7 @@ public class DefaultPasswordInterceptorTest {
 
     @Before
     public void setup() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
             result = "true";
             SecurityContextHolder.getContext().getAuthentication();

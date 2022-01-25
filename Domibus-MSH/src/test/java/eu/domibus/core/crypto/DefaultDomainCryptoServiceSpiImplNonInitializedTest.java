@@ -26,7 +26,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  *
  * @author Sebastian-Ion TINCU
  */
-@Ignore
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
@@ -78,7 +77,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
             void init() { /* avoid @PostConstruct initialization */ }
         };
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = "keystoreType";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD);

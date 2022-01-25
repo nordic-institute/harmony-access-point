@@ -99,7 +99,7 @@ public class PartyServiceImplTest {
 
     @Before
     public void setUp() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             gatewayParty.getName();
             result = "gatewayParty";
             pModeProvider.getGatewayParty();
