@@ -56,6 +56,8 @@ public class DomibusConnectionProvider implements ConnectionProvider {
                 LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
                 LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
             }
+        } catch (SQLException ex) {
+            LOG.info("Cannot establish a connection with the data source.", ex);
         } finally {
             connection.close();
         }
