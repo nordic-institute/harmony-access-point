@@ -1,58 +1,120 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.ext.exceptions.CacheExtServiceException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.CacheExtService;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
+import org.hamcrest.CoreMatchers;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 /**
- * @author Soumya Chandran
+ * @author François Gautier
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class CacheExtResourceTest {
-    @Tested
-    CacheExtResource cacheExtResource;
 
-    @Injectable
-    ExtExceptionHelper extExceptionHelper;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
-    @Injectable
-    CacheExtService cacheExtService;
+    @Autowired
+    private CacheExtResource cacheExtResource;
 
-    @Test
-    public void evictCaches() {
-        //tested method
-        cacheExtResource.evictCaches();
+    @Autowired
+    private CacheExtService cacheExtService;
 
-        new FullVerifications() {{
-            cacheExtService.evictCaches();
-        }};
-    }
+    private MockMvc mockMvc;
 
-    @Test
-    public void evictCachesWithException() {
-
-        new Expectations() {{
-            cacheExtService.evictCaches();
-            result = new CacheExtServiceException(DomibusErrorCode.DOM_001, "exception");
-
-        }};
-
-        //tested method
-        try {
-            cacheExtResource.evictCaches();
-            Assert.fail("Exception expected");
-        } catch (Exception e) {
-            Assert.assertTrue(e instanceof CacheExtServiceException);
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    static class ContextConfiguration {
+        
+        @Bean
+        public CacheExtResource cacheExtResource(CacheExtService cacheExtService) {
+            return new CacheExtResource(cacheExtService, null);
+        }
+        
+        @Bean
+        public CacheExtService cacheExtService() {
+            return Mockito.mock(CacheExtService.class);
         }
     }
+
+    @Before
+    public void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(cacheExtResource).build();
+    }
+
+    @Test
+    public void deleteCache_noUser() throws Exception {
+        expectedException.expectCause(CoreMatchers.isA(AuthenticationCredentialsNotFoundException.class));
+
+        mockMvc.perform(delete("/ext/cache"));
+
+        Mockito.verify(cacheExtService, Mockito.times(0)).evictCaches();
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteCache_notAdmin() throws Exception {
+        expectedException.expectCause(CoreMatchers.isA(AccessDeniedException.class));
+
+        mockMvc.perform(delete("/ext/cache"));
+
+        Mockito.verify(cacheExtService, Mockito.times(0)).evictCaches();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void deleteCache_admin() throws Exception {
+        mockMvc.perform(delete("/ext/cache"));
+
+        Mockito.verify(cacheExtService, Mockito.times(1)).evictCaches();
+    }
+
+    @Test
+    public void delete2LCache_noUser() throws Exception {
+        expectedException.expectCause(CoreMatchers.isA(AuthenticationCredentialsNotFoundException.class));
+
+        mockMvc.perform(delete("/ext/2LCache"));
+
+        Mockito.verify(cacheExtService, Mockito.times(0)).evict2LCaches();
+
+    }
+
+    @Test
+    @WithMockUser
+    public void delete2LCache_notAdmin() throws Exception {
+        expectedException.expectCause(CoreMatchers.isA(AccessDeniedException.class));
+
+        mockMvc.perform(delete("/ext/2LCache"));
+
+        Mockito.verify(cacheExtService, Mockito.times(0)).evict2LCaches();
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void delete2LCache_admin() throws Exception {
+
+        mockMvc.perform(delete("/ext/2LCache"));
+
+        Mockito.verify(cacheExtService, Mockito.times(1)).evict2LCaches();
+    }
+
 }

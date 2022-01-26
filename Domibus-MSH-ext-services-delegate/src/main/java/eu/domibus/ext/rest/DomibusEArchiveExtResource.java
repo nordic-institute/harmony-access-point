@@ -1,6 +1,7 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
@@ -48,8 +49,8 @@ public class DomibusEArchiveExtResource {
     /**
      * Handling EArchive exceptions
      *
-     * @return ErrorDTO object.
      * @param extException Rest Exception response
+     * @return ErrorDTO object.
      */
     @ExceptionHandler(DomibusEArchiveExtException.class)
     public ResponseEntity<ErrorDTO> handleEArchiveExtException(DomibusEArchiveExtException extException) {
@@ -107,7 +108,7 @@ public class DomibusEArchiveExtResource {
      * <p>
      * Method returns the earchive batch for the given batch ID.
      *
-     * @param batchId:   batch id of the batch,
+     * @param batchId: batch id of the batch,
      * @return Batch with a given batchId
      */
     @Operation(summary = "Get the batch",
@@ -119,6 +120,9 @@ public class DomibusEArchiveExtResource {
         LOG.info("Return exported batch with batchId: [{}].", batchId);
 
         BatchDTO batch = domibusEArchiveExtService.getBatch(batchId);
+        if (batch == null) {
+            throw new DomibusEArchiveExtException(new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]"));
+        }
         LOG.trace("Return exported batch with batchId: [{}] -> [{}]", batchId, batch);
         return batch;
     }
@@ -170,12 +174,12 @@ public class DomibusEArchiveExtResource {
      * This REST endpoint provides a history of exported batches with status success, failed or expired. It
      * allows the archiving client to validate if it has ~~archived all exported batches.
      *
-     * @param messageStartDate: start date and hour of the exported messages in the batch yyMMddHH
-     * @param messageEndDate:   end date  of the exported messages included in the batch,
-     * @param statuses:         Filter by list of batch statues
-     * @param includeReExportedBatches:     Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
-     * @param pageStart:        the offset/page from which the message IDs export will start. List is sorted by batch request date
-     * @param pageSize:         maximum number of records in the page
+     * @param messageStartDate:         start date and hour of the exported messages in the batch yyMMddHH
+     * @param messageEndDate:           end date  of the exported messages included in the batch,
+     * @param statuses:                 Filter by list of batch statues
+     * @param includeReExportedBatches: Batch re-export status (true/false; includes batches for which a re-export has been requested using the REST endpoint)
+     * @param pageStart:                the offset/page from which the message IDs export will start. List is sorted by batch request date
+     * @param pageSize:                 maximum number of records in the page
      * @return list of the exported batches
      */
     @Operation(summary = "History of the exported batches",
@@ -185,8 +189,8 @@ public class DomibusEArchiveExtResource {
     @GetMapping(path = "/batches/exported", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ExportedBatchResultDTO historyOfTheExportedBatches(
             // message start date-hour in format yyMMddHH
-            @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam(value ="messageStartDate", required = false) Long messageStartDate,
-            @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam(value ="messageEndDate", required = false) Long messageEndDate,
+            @Parameter(description = "Start date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam(value = "messageStartDate", required = false) Long messageStartDate,
+            @Parameter(description = "End date and hour of the exported messages in the batch. The value is 8 digit number with format yyMMddHH!") @RequestParam(value = "messageEndDate", required = false) Long messageEndDate,
             @Parameter(description = "Filter batches for statuses") @RequestParam(value = "statuses", required = false) List<ExportedBatchStatusType> statuses,
             @Parameter(description = "Include ReExported Batches (true/false; includes batches for which a re-export has been requested using the REST endpoint)!") @RequestParam(value = "includeReExportedBatches", defaultValue = "false") Boolean includeReExportedBatches,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
@@ -200,6 +204,7 @@ public class DomibusEArchiveExtResource {
         Long total = domibusEArchiveExtService.getExportedBatchRequestsCount(filter);
 
         if (total == null || total < 1L) {
+            //not covered
             LOG.trace(NO_RESULTS_FOUND);
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
@@ -234,8 +239,13 @@ public class DomibusEArchiveExtResource {
     public BatchStatusDTO reExportBatch(
             @PathVariable(name = "batchId") String batchId
     ) {
+        //not covered
         LOG.info("ReExport batch with ID: [{}].", batchId);
-        return domibusEArchiveExtService.reExportBatch(batchId);
+        try {
+            return domibusEArchiveExtService.reExportBatch(batchId);
+        } catch (DomibusEArchiveException coreEArchiveException) {
+            throw new DomibusEArchiveExtException(extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(coreEArchiveException.getError()), coreEArchiveException.getMessage(), coreEArchiveException);
+        }
     }
 
     /**
@@ -267,7 +277,12 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Set the batch archive status.") @RequestParam("status") BatchArchiveStatusType batchStatus,
             @Parameter(description = "Set the batch message/error - reason.") @RequestParam(value = "message", required = false) String message) {
         LOG.info("Set client's final status [{}] for batch with ID: [{}] and message [{}].", batchStatus, batchId, message);
-        return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus, message);
+        //not covered
+        try {
+            return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus, message);
+        } catch (DomibusEArchiveException coreEArchiveException) {
+            throw new DomibusEArchiveExtException(extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(coreEArchiveException.getError()), coreEArchiveException.getMessage(), coreEArchiveException);
+        }
     }
 
     /**
