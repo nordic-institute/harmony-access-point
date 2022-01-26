@@ -70,6 +70,7 @@
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
         <dependency.check.version>6.4.1</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <dss.version>5.8</dss.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>

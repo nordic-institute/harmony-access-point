@@ -11,7 +11,6 @@
     </parent>
     <artifactId>dss-domibus</artifactId>
     <packaging>pom</packaging>
-    <version>4.2.7-SNAPSHOT</version>
     <name>Domibus DSS</name>
     <modules>
         <module>specs-xmldsig</module>
@@ -39,10 +38,4 @@
         <module>dss-utils-apache-commons</module>
         <module>domibus-dss-test</module>
     </modules>
-
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <dss.version>5.8</dss.version>
-    </properties>
 </project>
