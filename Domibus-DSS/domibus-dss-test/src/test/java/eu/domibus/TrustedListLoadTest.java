@@ -65,7 +65,7 @@ public class TrustedListLoadTest {
     private CacheAccessFactory cacheAccessFactory = new CacheAccessFactory();
 
 
-    @Test
+    //@Test
     public void testTrustedListLoadTest() throws IOException {
 
         String tempDirectoryPath = FileUtils.getTempDirectoryPath();
