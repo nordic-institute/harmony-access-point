@@ -3,7 +3,6 @@ package eu.domibus.api.model;
 import javax.persistence.*;
 
 @NamedQueries({
-        @NamedQuery(name = "SignalMessageRaw.findByMessageEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) FROM SignalMessageRaw l where l.entityId=:ENTITY_ID"),
         @NamedQuery(name = "SignalMessageRaw.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) " +
                 "FROM SignalMessageRaw l JOIN l.signalMessage sm " +
                 "JOIN sm.userMessage um where um.messageId=:MESSAGE_ID"),

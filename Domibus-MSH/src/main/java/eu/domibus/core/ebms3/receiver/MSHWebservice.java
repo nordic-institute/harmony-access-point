@@ -16,6 +16,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -51,6 +52,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
 
     @Timer(clazz = MSHWebservice.class,value = "incoming_user_message")
     @Counter(clazz = MSHWebservice.class,value = "incoming_user_message")
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
