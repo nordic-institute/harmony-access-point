@@ -151,6 +151,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION, Type.REGEXP, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS, Usage.DOMAIN, true),
+
+            new DomibusPropertyMetadata(DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, Type.REGEXP, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING, Type.REGEXP),
@@ -237,6 +240,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_EXPORT_EMPTY, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_STORAGE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_SANITY_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_MAX, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_BATCH_RETRY_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),

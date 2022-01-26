@@ -114,7 +114,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
      * @return the path to an existing domain specific client authentication file or the path to an existing default client authentication file; otherwise, an empty
      * {@code Optional} path.
      */
-    private Optional<Path> getClientAuthenticationPath(String domainCode) {
+    protected Optional<Path> getClientAuthenticationPath(String domainCode) {
         if (domainCode != null) {
             String domainSpecificFileName = StringUtils.stripToEmpty(domainCode) + "_" + CLIENT_AUTHENTICATION_XML;
             Path domainSpecificPath = Paths.get(domibusConfigurationService.getConfigLocation(), DOMAINS_HOME, domainCode, domainSpecificFileName);

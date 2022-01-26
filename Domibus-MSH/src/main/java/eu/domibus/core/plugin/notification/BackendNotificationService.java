@@ -114,7 +114,7 @@ public class BackendNotificationService {
     @Autowired
     protected BackendConnectorService backendConnectorService;
 
-    
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
@@ -142,7 +142,7 @@ public class BackendNotificationService {
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
-    
+
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
@@ -246,7 +246,7 @@ public class BackendNotificationService {
                 messageDeletedEvent);
     }
 
-    
+
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
@@ -263,7 +263,7 @@ public class BackendNotificationService {
         backendConnector.payloadSubmittedEvent(payloadSubmittedEvent);
     }
 
-    
+
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
@@ -394,7 +394,7 @@ public class BackendNotificationService {
 
         uiReplicationSignalService.messageChange(messageId);
     }
-    
+
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
             return;
@@ -411,14 +411,13 @@ public class BackendNotificationService {
         uiReplicationSignalService.messageChange(messageId);
     }
 
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(String messageId, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
-    
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {

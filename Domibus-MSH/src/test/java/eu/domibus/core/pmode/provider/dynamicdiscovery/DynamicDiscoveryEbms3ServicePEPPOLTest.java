@@ -17,6 +17,7 @@ import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
 import no.difi.vefa.peppol.mode.Mode;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -35,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Sebastian-Ion TINCU
  * @since 3.2.5
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
@@ -111,7 +113,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Before
     public void setup() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusCertificateValidators.getObject(any, any, anyString);
             result = domibusCertificateValidator;
 
@@ -128,7 +130,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Test
     public void testLookupInformationMock(@Capturing LookupClient smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -158,7 +160,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Test
     public void testLookupInformationMockOtherTransportProfile(final @Capturing LookupClient smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 
@@ -212,7 +214,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
 

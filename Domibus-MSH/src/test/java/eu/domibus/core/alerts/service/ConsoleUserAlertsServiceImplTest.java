@@ -11,6 +11,7 @@ import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
@@ -99,12 +100,12 @@ public class ConsoleUserAlertsServiceImplTest {
     }
 
     @Test
-    public void testGetAccountDisabledConfiguration() {
-        AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
-
-        new VerificationsInOrder() {{
+    public void testGetAccountDisabledConfiguration(@Injectable AccountDisabledModuleConfiguration accountDisabledModuleConfiguration) {
+        new Expectations() {{
             consoleAccountDisabledConfigurationManager.getConfiguration();
-            times = 1;
+            result = accountDisabledModuleConfiguration;
         }};
+
+        userAlertsService.getAccountDisabledConfiguration();
     }
 }

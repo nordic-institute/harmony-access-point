@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.queue;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
@@ -44,6 +45,7 @@ public class FSSendMessageListener implements MessageListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class}, timeout = 1200)
     // 20 minutes
     @Override
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(Message message) {
         LOG.debug("received message on fsPluginSendQueue");
 

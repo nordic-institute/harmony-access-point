@@ -195,14 +195,14 @@ public class EventServiceImplTest {
             result = persistedEvent;
         }};
         eventService.persistEvent(event);
+
         new Verifications() {{
             eu.domibus.core.alerts.model.persist.Event capture;
             eventDao.create(capture = withCapture());
             final AbstractEventProperty stringEventProperty1 = capture.getProperties().get(key);
             Assert.assertEquals(key, stringEventProperty1.getKey());
-            Assert.assertEquals(persistedEvent, stringEventProperty1.getEvent());
+            Assert.assertEquals(persistedEvent.getType(), stringEventProperty1.getEvent().getType());
             Assert.assertEquals(1, event.getEntityId());
-
         }};
     }
 

@@ -15,6 +15,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -84,6 +85,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     @Autowired
     protected PartyIdDictionaryService partyIdDictionaryService;
+
+    @Autowired
+
+    protected PartyEndpointProvider partyEndpointProvider;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -170,7 +175,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                 LOG.info("PmodeKey not found, starting the dynamic discovery process");
                 doDynamicDiscovery(userMessage, mshRole);
             } else {
-                LOG.debug("PmodeKey not found, dynamic discovery is not enabled! Check parameter {} for current domain.", DynamicDiscoveryService.SMLZONE_KEY);
+                LOG.debug("PmodeKey not found, dynamic discovery is not enabled! Check parameter [{}] for current domain.", DynamicDiscoveryService.SMLZONE_KEY);
                 throw e;
             }
         }
@@ -202,6 +207,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             PartyId toPartyId = getToPartyId(userMessage);
             Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
             updateResponderPartiesInPmode(candidates, configurationParty);
+
+            Property finalRecipient = getFinalRecipient(userMessage);
+            final String finalRecipientValue = finalRecipient.getValue();
+            final String receiverURL = endpointInfo.getAddress();
+            partyEndpointProvider.setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
         }
     }
 

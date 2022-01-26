@@ -159,16 +159,16 @@ public class ConnectionMonitoringServiceImplTest {
 
         new Expectations() {{
             testService.getLastTestSent(partyId1);
-            returns(lastSent1);
+            result = lastSent1;
 
             testService.getLastTestReceived(partyId1, null);
-            returns(lastReceived1);
+            result = lastReceived1;
 
             testService.getLastTestSent(partyId2);
-            returns(lastSent2);
+            result =lastSent2;
 
             testService.getLastTestReceived(partyId2, null);
-            returns(lastReceived2);
+            result = lastReceived2;
 
             partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
             result = Arrays.asList(partyId1, partyId2);

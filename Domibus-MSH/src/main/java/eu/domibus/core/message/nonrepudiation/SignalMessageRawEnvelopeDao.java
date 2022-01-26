@@ -21,16 +21,10 @@ import java.util.List;
 @Repository
 public class SignalMessageRawEnvelopeDao extends BasicDao<SignalMessageRaw> {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageRawEnvelopeDao.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageRawEnvelopeDao.class);
 
     public SignalMessageRawEnvelopeDao() {
         super(SignalMessageRaw.class);
-    }
-
-    public RawEnvelopeDto findRawXmlByMessageEntityId(final Long messageId) {
-        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("SignalMessageRaw.findByMessageEntityId", RawEnvelopeDto.class);
-        namedQuery.setParameter("ENTITY_ID", messageId);
-        return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 
     public RawEnvelopeDto findSignalMessageByUserMessageId(final String userMessageId) {
@@ -49,17 +43,4 @@ public class SignalMessageRawEnvelopeDao extends BasicDao<SignalMessageRaw> {
         LOG.debug("deleteMessages result [{}]", result);
         return result;
     }
-
-
-        /**
-         * Delete all the raw entries related to a given UserMessage id.
-         *
-         * @param messageId the id of the message.
-         */
-    public void deleteUserMessageRawEnvelope(final String messageId) {
-        /*Query query = em.createNamedQuery("Raw.deleteByMessageID");
-        query.setParameter(MESSAGE_ID, messageId);
-        query.executeUpdate();*/
-    }
-
 }
