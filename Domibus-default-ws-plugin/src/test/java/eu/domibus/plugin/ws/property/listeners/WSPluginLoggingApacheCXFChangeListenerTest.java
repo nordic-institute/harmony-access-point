@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfiguration.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author François Gautier
@@ -19,53 +19,53 @@ import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfigurat
 @RunWith(JMockit.class)
 public class WSPluginLoggingApacheCXFChangeListenerTest {
 
-        @Mocked
-        private LoggingFeature loggingFeature;
+    @Mocked
+    private LoggingFeature loggingFeature;
 
-        @Mocked
-        private WSPluginLoggingEventSender loggingSender;
+    @Mocked
+    private WSPluginLoggingEventSender loggingSender;
 
-        protected WSPluginLoggingApacheCXFChangeListener listener;
+    protected WSPluginLoggingApacheCXFChangeListener listener;
 
-        @Before
-        public void setUp() {
-            listener = new WSPluginLoggingApacheCXFChangeListener(loggingFeature, loggingSender);
-        }
+    @Before
+    public void setUp() {
+        listener = new WSPluginLoggingApacheCXFChangeListener(loggingFeature, loggingSender);
+    }
 
-        @Test
-        public void handlesProperty_true() {
-            Assert.assertTrue(listener.handlesProperty(DOMIBUS_LOGGING_METADATA_PRINT));
-        }
+    @Test
+    public void handlesProperty_true() {
+        Assert.assertTrue(listener.handlesProperty(DOMIBUS_LOGGING_METADATA_PRINT));
+    }
 
-        @Test
-        public void handlesProperty_false() {
-            Assert.assertFalse(listener.handlesProperty("I hate pickles"));
-        }
+    @Test
+    public void handlesProperty_false() {
+        Assert.assertFalse(listener.handlesProperty("I hate pickles"));
+    }
 
-        @Test
-        public void propertyValueChanged() {
-            listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "true");
-            listener.propertyValueChanged("default", DOMIBUS_LOGGING_CXF_LIMIT, "20000");
-            listener.propertyValueChanged("default", DOMIBUS_LOGGING_PAYLOAD_PRINT, "false");
+    @Test
+    public void propertyValueChanged() {
+        listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "true");
+        listener.propertyValueChanged("default", DOMIBUS_LOGGING_CXF_LIMIT, "20000");
+        listener.propertyValueChanged("default", DOMIBUS_LOGGING_PAYLOAD_PRINT, "false");
 
-            new FullVerifications() {{
-                loggingSender.setPrintMetadata(true);
-                times = 1;
-                loggingFeature.setLimit(anyInt);
-                loggingSender.setPrintPayload(false);
-            }};
-        }
+        new FullVerifications() {{
+            loggingSender.setPrintMetadata(true);
+            times = 1;
+            loggingFeature.setLimit(anyInt);
+            loggingSender.setPrintPayload(false);
+        }};
+    }
 
-        /**
-         * Should not happen because of property validation. But default behaviour: set false.
-         */
-        @Test
-        public void propertyValueChanged_invalid() {
-            listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "nope");
+    /**
+     * Should not happen because of property validation. But default behaviour: set false.
+     */
+    @Test
+    public void propertyValueChanged_invalid() {
+        listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "nope");
 
-            new FullVerifications() {{
-                loggingSender.setPrintMetadata(false);
-                times = 1;
-            }};
-        }
+        new FullVerifications() {{
+            loggingSender.setPrintMetadata(false);
+            times = 1;
+        }};
+    }
 }
