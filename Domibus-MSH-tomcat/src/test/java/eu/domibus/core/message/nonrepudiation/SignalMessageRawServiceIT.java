@@ -1,6 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -9,7 +10,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 
 /**
@@ -35,7 +35,7 @@ public class SignalMessageRawServiceIT extends AbstractIT {
         try {
             signalMessageRawService.saveSignalMessageRawService("", 1L);
             Assert.fail();
-        } catch (EntityNotFoundException e) {
+        } catch (DomibusCoreException e) {
             //OK
         }
     }
