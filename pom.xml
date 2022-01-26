@@ -21,6 +21,7 @@
         <module>Domibus-MSH-test</module>
         <module>Domibus-iam-spi</module>
         <module>Domibus-ext-model</module>
+        <module>Domibus-DSS</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
