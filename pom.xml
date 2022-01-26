@@ -27,8 +27,8 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.5</cxf.version>
         <wss4j.ws.security.version>2.3.3</wss4j.ws.security.version>
-        <spring.version>5.2.18.RELEASE</spring.version>
-        <spring.security.version>5.4.9</spring.security.version>
+        <spring.version>5.3.15</spring.version>
+        <spring.security.version>5.6.1</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
