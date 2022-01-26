@@ -70,4 +70,6 @@ public interface DomainCryptoServiceSpi {
     void init(List<Enum> initValue);
 
     void init();
+
+    void replaceKeyStore(String storeFileLocation);
 }

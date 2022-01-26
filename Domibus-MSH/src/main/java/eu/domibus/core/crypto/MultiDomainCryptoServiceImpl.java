@@ -3,10 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -135,11 +132,21 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password, List<Enum> initValue) throws CryptoException {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, initValue);
+    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
         certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
+
         domibusCacheService.clearCache("certValidationByAlias");
+        saveCertificateAndLogRevocation(domain);
+    }
+
+    @Override
+    public void replaceKeyStore(Domain domain, String storeFileLocation) throws CryptoException {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.KEYSTORE));
+        domainCertificateProvider.replaceKeyStore(storeFileLocation);
+
+        saveCertificateAndLogRevocation(domain);
     }
 
     @Override
@@ -275,5 +282,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
         return getDomainCertificateProvider(domain, null);
+    }
+
+    private void saveCertificateAndLogRevocation(Domain domain) {
+        // trigger update certificate table
+        final KeyStore trustStore = getTrustStore(domain);
+        final KeyStore keyStore = getKeyStore(domain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
     }
 }

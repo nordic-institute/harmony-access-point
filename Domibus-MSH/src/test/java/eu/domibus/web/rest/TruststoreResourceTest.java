@@ -64,10 +64,6 @@ public class TruststoreResourceTest {
         new Expectations() {{
             domainProvider.getCurrentDomain();
             result = domain;
-            multiDomainCertificateProvider.getTrustStore(domain);
-            result = trustStore;
-            multiDomainCertificateProvider.getKeyStore(domain);
-            result = keyStore;
         }};
 
         // When
@@ -75,8 +71,7 @@ public class TruststoreResourceTest {
         truststoreResource.doReplaceTrustStore(fileContent, filename, pass);
 
         new Verifications() {{
-            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
-            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass);
         }};
     }
 

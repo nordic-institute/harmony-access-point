@@ -192,6 +192,11 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
+    public void replaceKeyStore(String storeFileLocation) {
+        iamProvider.replaceKeyStore(storeFileLocation);
+    }
+
+    @Override
     public KeyStore getKeyStore() {
         return iamProvider.getKeyStore();
     }

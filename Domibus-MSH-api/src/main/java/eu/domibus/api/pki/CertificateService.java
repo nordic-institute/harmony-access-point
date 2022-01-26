@@ -103,6 +103,16 @@ public interface CertificateService {
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
      *
+     * @param fileLocation the file location representing the trust
+     * @param filePassword the password of the trust
+     * @param trustName    the location of the trust on disc
+     * @throws CryptoException
+     */
+    void replaceTrustStore(String fileLocation, String filePassword, String trustName);
+
+    /**
+     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     *
      * @param fileName     the file name representing the trust
      * @param fileContent  the trust content
      * @param filePassword the password of the trust

@@ -122,7 +122,7 @@ public class MultiDomainCryptoServiceImplTest {
             result = "jks";
         }};
 
-        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
 
         new Verifications() {{
             cryptoService.replaceTrustStore(store, password);

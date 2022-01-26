@@ -201,6 +201,15 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     @Override
+    public void replaceKeyStore(String storeFileLocation) {
+        try {
+            certificateService.replaceTrustStore(storeFileLocation, getKeystorePassword(), DOMIBUS_KEYSTORE_NAME);
+        } catch (CryptoException ex) {
+            throw new CryptoSpiException(ex);
+        }
+    }
+
+    @Override
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateSpiException {
         LOG.debug("Checking certificate validation for [{}]", alias);
         KeyStore trustStore = getTrustStore();

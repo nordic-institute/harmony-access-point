@@ -73,4 +73,6 @@ public interface DomainCryptoService {
     void reset(List<Enum> initValue);
 
     byte[] getTruststoreContent();
+
+    void replaceKeyStore(String storeFileLocation);
 }

@@ -42,7 +42,9 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void refreshTrustStore(Domain domain);
 
-    void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password, List<Enum> initValue) throws CryptoException;
+    void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException;
+
+    void replaceKeyStore(Domain domain, String storeFileLocation) throws CryptoException;
 
     KeyStore getKeyStore(Domain domain);
 

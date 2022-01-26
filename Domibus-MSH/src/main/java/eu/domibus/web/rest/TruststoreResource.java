@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,8 +38,6 @@ public class TruststoreResource extends TruststoreResourceBase {
     private final DomainContextProvider domainProvider;
 
     private final CertificateService certificateService;
-
-    public static final String INIT_VALUE_TRUSTSTORE = "truststore";
 
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
@@ -79,12 +76,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
         Domain currentDomain = domainProvider.getCurrentDomain();
-        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
-
-        // trigger update certificate table
-        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
-        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
-        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
     }
 
     @Override

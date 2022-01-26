@@ -335,8 +335,19 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    public void replaceTrustStore(String fileLocation, String filePassword, String trustName) {
+        Path path = Paths.get(fileLocation);
+        String fileName = path.getFileName().toString();
+        byte[] fileContent = getTruststoreContentFromFile(fileLocation);
+        replaceTrustStore(fileName, fileContent, filePassword, trustName);
+    }
+
+    @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
         TruststoreEntity entity = getTruststoreEntity(trustName);
+        if (entity == null) {
+            throw new DomibusCertificateException("Could not read truststore [" + trustName + "] from the DB.");
+        }
         certificateHelper.validateStoreType(entity.getType(), fileName);
         replaceTrustStore(fileContent, filePassword, trustName);
     }
@@ -706,8 +717,7 @@ public class CertificateServiceImpl implements CertificateService {
     private List<eu.domibus.core.certificate.Certificate> loadAndEnrichCertificateFromKeystore(KeyStore keyStore, CertificateType certificateType) {
         List<eu.domibus.core.certificate.Certificate> certificates = new ArrayList<>();
         if (keyStore != null) {
-            certificates = extractCertificateFromKeyStore(
-                    keyStore);
+            certificates = extractCertificateFromKeyStore(keyStore);
             for (eu.domibus.core.certificate.Certificate certificate : certificates) {
                 certificate.setCertificateType(certificateType);
                 CertificateStatus certificateStatus = getCertificateStatus(certificate.getNotAfter());
@@ -739,7 +749,7 @@ public class CertificateServiceImpl implements CertificateService {
         return CertificateStatus.OK;
     }
 
-    protected List<eu.domibus.core.certificate.Certificate> extractCertificateFromKeyStore(KeyStore trustStore) {
+    public List<eu.domibus.core.certificate.Certificate> extractCertificateFromKeyStore(KeyStore trustStore) {
         List<eu.domibus.core.certificate.Certificate> certificates = new ArrayList<>();
         try {
             final Enumeration<String> aliases = trustStore.aliases();
