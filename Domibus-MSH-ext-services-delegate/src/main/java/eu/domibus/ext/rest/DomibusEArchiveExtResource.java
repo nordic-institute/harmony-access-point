@@ -1,6 +1,7 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
@@ -124,6 +125,9 @@ public class DomibusEArchiveExtResource {
         LOG.info("Return exported batch with batchId: [{}].", batchId);
 
         BatchDTO batch = domibusEArchiveExtService.getBatch(batchId);
+        if (batch == null) {
+            throw new DomibusEArchiveExtException(new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]"));
+        }
         LOG.trace("Return exported batch with batchId: [{}] -> [{}]", batchId, batch);
         return batch;
     }
@@ -205,6 +209,7 @@ public class DomibusEArchiveExtResource {
         Long total = domibusEArchiveExtService.getExportedBatchRequestsCount(filter);
 
         if (total == null || total < 1L) {
+            //not covered
             LOG.trace(NO_RESULTS_FOUND);
             resultDTO.getPagination().setTotal(0);
             return resultDTO;
@@ -239,8 +244,13 @@ public class DomibusEArchiveExtResource {
     public BatchStatusDTO reExportBatch(
             @PathVariable(name = "batchId") String batchId
     ) {
+        //not covered
         LOG.info("ReExport batch with ID: [{}].", batchId);
-        return domibusEArchiveExtService.reExportBatch(batchId);
+        try {
+            return domibusEArchiveExtService.reExportBatch(batchId);
+        } catch (DomibusEArchiveException coreEArchiveException) {
+            throw new DomibusEArchiveExtException(extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(coreEArchiveException.getError()), coreEArchiveException.getMessage(), coreEArchiveException);
+        }
     }
 
     /**
@@ -272,7 +282,12 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Set the batch archive status.") @RequestParam("status") BatchArchiveStatusType batchStatus,
             @Parameter(description = "Set the batch message/error - reason.") @RequestParam(value = "message", required = false) String message) {
         LOG.info("Set client's final status [{}] for batch with ID: [{}] and message [{}].", batchStatus, batchId, message);
-        return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus, message);
+        //not covered
+        try {
+            return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus, message);
+        } catch (DomibusEArchiveException coreEArchiveException) {
+            throw new DomibusEArchiveExtException(extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(coreEArchiveException.getError()), coreEArchiveException.getMessage(), coreEArchiveException);
+        }
     }
 
     /**

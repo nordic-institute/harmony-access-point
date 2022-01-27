@@ -9,12 +9,10 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.*;
-import eu.domibus.ext.domain.archive.BatchDTO;
-import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
-import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
-import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
+import eu.domibus.ext.domain.archive.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -25,6 +23,8 @@ import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +35,7 @@ import javax.persistence.PersistenceContext;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -46,17 +45,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The complete rest endpoint integration tests
  */
-public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
+public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceCompleteIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
 
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";
     public static final String TEST_ENDPOINT_QUEUED = TEST_ENDPOINT_RESOURCE + "/batches/queued";
     public static final String TEST_ENDPOINT_EXPORTED = TEST_ENDPOINT_RESOURCE + "/batches/exported";
     public static final String TEST_ENDPOINT_BATCH = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}";
+
+    public static final String TEST_ENDPOINT_BATCH_EXPORT = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}/export";
     public static final String TEST_ENDPOINT_SANITY_DATE = TEST_ENDPOINT_RESOURCE + "/sanity-mechanism/start-date";
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
+    public static final String TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES = TEST_ENDPOINT_EXPORTED + "/{batchId}/messages";
+    public static final String TEST_ENDPOINT_BATCH_CLOSE = TEST_ENDPOINT_EXPORTED + "/{batchId}/close";
+
     public static final String TEST_PLUGIN_USERNAME = "admin";
     public static final String TEST_PLUGIN_PASSWORD = "123456";
 
@@ -172,6 +176,7 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         Assert.assertEquals(ExportedBatchStatusType.QUEUED, batchDTO.getStatus());
     }
 
+
     @Test
     @Transactional
     public void testGetBatch_notFound() throws Exception {
@@ -179,11 +184,83 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_BATCH, "unknown")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        Assert.assertEquals("{\"message\":\"[DOM_009]:EArchive batch not found batchId: [unknown]\"}", content);
+    }
+
+    @Test
+    @Transactional
+    public void testExport_notFound() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(put(TEST_ENDPOINT_BATCH_EXPORT, "unknown")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("status", "ARCHIVED")
+                        .param("message", "close")
+                )
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        Assert.assertEquals("{\"message\":\"[DOM_009]:EArchive batch not found batchId: [unknown]\"}", content);
+    }
+
+    @Test
+    @Transactional
+    public void testExport() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(put(TEST_ENDPOINT_BATCH_EXPORT, batch1.getBatchId())
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("status", "ARCHIVED")
+                        .param("message", "close")
+                )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("", content);
+        Assert.assertTrue(StringUtils.contains(content, "QUEUED"));
+    }
+
+    @Test
+    @Transactional
+    public void testClose_notFound() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(put(TEST_ENDPOINT_BATCH_CLOSE, "unknown")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("status", "ARCHIVED")
+                        .param("message", "close")
+                )
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        Assert.assertEquals("{\"message\":\"[DOM_009]:EArchive batch not found batchId: [unknown]\"}", content);
+    }
+
+    @Test
+    @Transactional
+    public void testClose_ARCHIVED() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(put(TEST_ENDPOINT_BATCH_CLOSE, batch1.getBatchId())
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("status", "ARCHIVED")
+                        .param("message", "close")
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        Assert.assertTrue(StringUtils.contains(content, batch1.getBatchId()) && StringUtils.contains(content, "ARCHIVED"));
     }
 
     @Test
@@ -329,4 +406,42 @@ public class DomibusEArchiveExtResourceCompleteIT extends AbstractIT {
         LOG.info(content);
         assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + batch3.getDateRequested().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()));
     }
+
+    @Test
+    @Transactional
+    public void testGetBatchMessageIdsNoResultFound() throws Exception {
+        final String batchId = "0";
+
+        mockMvc.perform(MockMvcRequestBuilders.get(TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES, "batchId")
+                        .param("batchId", batchId)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void testGetQueuedBatchRequestsForResults() throws Exception {
+// given
+        Integer lastCountRequests = 5;
+
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
+                        .param("lastCountRequests", lastCountRequests + "")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        QueuedBatchResultDTO response = objectMapper.readValue(content, QueuedBatchResultDTO.class);
+
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
+        assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
+        assertEquals(1, response.getBatches().size());
+        assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
+    }
+
 }

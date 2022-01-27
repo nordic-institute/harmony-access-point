@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -46,10 +45,8 @@ public class CacheExtResource {
 
     @Operation(summary = "[ADMIN] Evict all Caches",
             description = "Clear all caches from the cacheManager (Admin rights needed)",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @ApiResponses({
-            @ApiResponse(responseCode = "403", description = "Admin role needed")
-    })
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ApiResponse(responseCode = "403", description = "Admin role needed")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     @DeleteMapping(path = "/cache")
     public void evictCaches() {
@@ -59,10 +56,8 @@ public class CacheExtResource {
 
     @Operation(summary = "[ADMIN] Evict Second Level Caches",
             description = "[ADMIN] Clear second level caches including query caches (Admin rights needed)",
-            security = @SecurityRequirement(name ="DomibusBasicAuth"))
-    @ApiResponses({
-            @ApiResponse(responseCode="403", description = "Admin role needed")
-    })
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @ApiResponse(responseCode = "403", description = "Admin role needed")
     @DeleteMapping(path = "/2LCache")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public void evictTechnicalCaches() {
