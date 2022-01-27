@@ -123,12 +123,17 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     @Override
     public List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
-        return domibusEArchiveService.getNotArchivedMessages(filter.getMessageStartDate(), filter.getMessageEndDate(), pageStart, pageSize);
+        return domibusEArchiveService.getNotArchivedMessages(
+                dateToPKUserMessageId(filter.getMessageStartDate()),
+                dateToPKUserMessageId(filter.getMessageEndDate()),
+                pageStart, pageSize);
     }
 
     @Override
     public Long getNotArchivedMessageCount(NotArchivedMessagesFilterDTO filter) {
-        return domibusEArchiveService.getNotArchivedMessagesCount(filter.getMessageStartDate(), filter.getMessageEndDate());
+        return domibusEArchiveService.getNotArchivedMessagesCount(
+                dateToPKUserMessageId(filter.getMessageStartDate()),
+                dateToPKUserMessageId(filter.getMessageEndDate()));
     }
 
     /**
@@ -145,21 +150,20 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
         // return  only QUEUED batches
         LOG.trace("Always return only batches in status QUEUED!");
         archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.QUEUED);
-        // set filter
-        if (filter.getLastCountRequests() != null && filter.getLastCountRequests() > 0) {
-            // Explained behaviour: if last count is given then ignore all other filters.
-            LOG.trace("Return last count request and ignore all other filters");
-            archiveBatchFilter.setPageSize(filter.getLastCountRequests());
-        } else {
-
-            setBatchRequestTypes(archiveBatchFilter, filter.getRequestTypes());
-            archiveBatchFilter.setStartDate(filter.getStartDate());
-            archiveBatchFilter.setEndDate(filter.getEndDate());
-
-        }
         // set pagination
         archiveBatchFilter.setPageSize(pageSize);
         archiveBatchFilter.setPageStart(pageStart);
+        // set filter
+        if (filter.getLastCountRequests() != null && filter.getLastCountRequests() > 0) {
+            // Explained behaviour: if last count is given then ignore all other filters.
+            LOG.trace("Return last count request and ignore all other filters amd set the page size to getLastCountRequests");
+            archiveBatchFilter.setPageSize(filter.getLastCountRequests());
+        } else {
+            setBatchRequestTypes(archiveBatchFilter, filter.getRequestTypes());
+            archiveBatchFilter.setStartDate(filter.getStartDate());
+            archiveBatchFilter.setEndDate(filter.getEndDate());
+        }
+
         return archiveBatchFilter;
     }
 

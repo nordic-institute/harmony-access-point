@@ -68,19 +68,19 @@ public class EArchiveBatchDispatcherService {
         Long lastEntityIdProcessed = continuousStartDate.getLastPkUserMessage();
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
         long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType);
-        int batchSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
+        int batchMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
         LOG.trace("Start eArchive batch lastEntityIdProcessed [{}], " +
                         "maxEntityIdToArchived [{}], " +
-                        "batchSize [{}], " +
+                        "batchMaxSize [{}], " +
                         "maxNumberOfBatchesCreated [{}]",
                 lastEntityIdProcessed,
                 maxEntityIdToArchived,
-                batchSize,
+                batchMaxSize,
                 maxNumberOfBatchesCreated);
 
         for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
-            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchSize, maxEntityIdToArchived, domain, eArchiveRequestType);
+            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchMaxSize, maxEntityIdToArchived, domain, eArchiveRequestType);
             if (batchAndEnqueue == null) {
                 break;
             }
@@ -96,7 +96,8 @@ public class EArchiveBatchDispatcherService {
             LOG.debug("Dispatch eArchiving batches finished with last entityId [{}]", lastEntityIdProcessed);
         } else {
             if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(domain, DOMIBUS_EARCHIVE_EXPORT_EMPTY)) && eArchiveRequestType == EArchiveRequestType.CONTINUOUS) {
-                EArchiveBatchEntity eArchiveBatchWithoutMessages = createBatchAndEnqueue(lastEntityIdProcessed, batchSize, domain, EArchiveRequestType.CONTINUOUS, new ArrayList<>());
+                // create empty batch!
+                EArchiveBatchEntity eArchiveBatchWithoutMessages = createBatchAndEnqueue(lastEntityIdProcessed, domain, EArchiveRequestType.CONTINUOUS, new ArrayList<>());
                 LOG.debug("EArchive [{}] created with no messages", eArchiveBatchWithoutMessages.getBatchId());
             }
         }
@@ -109,19 +110,19 @@ public class EArchiveBatchDispatcherService {
     /**
      * Create a new batch and enqueue it
      */
-    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
-        List<EArchiveBatchUserMessage> messagesForArchivingAsc = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchSize);
+    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchMaxSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
+        List<EArchiveBatchUserMessage> messagesForArchivingAsc = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchMaxSize);
         if (CollectionUtils.isEmpty(messagesForArchivingAsc)) {
             LOG.debug("No message to archive");
             return null;
         }
         long lastEntityIdTreated = messagesForArchivingAsc.get(messagesForArchivingAsc.size() - 1).getUserMessageEntityId();
 
-        return createBatchAndEnqueue(lastEntityIdTreated, batchSize, domain, requestType, messagesForArchivingAsc);
+        return createBatchAndEnqueue(lastEntityIdTreated, domain, requestType, messagesForArchivingAsc);
     }
 
-    public EArchiveBatchEntity createBatchAndEnqueue(long lastEntityIdTreated, int batchSize, Domain domain, EArchiveRequestType requestType, List<EArchiveBatchUserMessage> messagesForArchivingAsc) {
-        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated, batchSize, messagesForArchivingAsc, requestType);
+    public EArchiveBatchEntity createBatchAndEnqueue(long lastEntityIdTreated, Domain domain, EArchiveRequestType requestType, List<EArchiveBatchUserMessage> messagesForArchivingAsc) {
+        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated,  messagesForArchivingAsc, requestType);
 
         enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_CREATE, eArchiveBatch.getBatchId());
