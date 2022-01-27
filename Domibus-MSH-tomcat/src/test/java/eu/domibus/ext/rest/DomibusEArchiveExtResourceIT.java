@@ -56,10 +56,10 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_BATCH = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}";
 
     public static final String TEST_ENDPOINT_BATCH_EXPORT = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}/export";
-    public static final String TEST_ENDPOINT_BATCH_CLOSE = TEST_ENDPOINT_RESOURCE + "/batches/exported/{batchId}/close";
     public static final String TEST_ENDPOINT_SANITY_DATE = TEST_ENDPOINT_RESOURCE + "/sanity-mechanism/start-date";
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
     public static final String TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES = TEST_ENDPOINT_EXPORTED + "/{batchId}/messages";
+    public static final String TEST_ENDPOINT_BATCH_CLOSE = TEST_ENDPOINT_EXPORTED + "/{batchId}/close";
 
     public static final String TEST_PLUGIN_USERNAME = "admin";
     public static final String TEST_PLUGIN_PASSWORD = "123456";
