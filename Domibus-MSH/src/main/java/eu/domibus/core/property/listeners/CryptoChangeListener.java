@@ -32,7 +32,7 @@ public class CryptoChangeListener implements DomibusPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.startsWithAny(propertyName,
-                DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_PREFIX,
+//                DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_PREFIX,
                 DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_PREFIX)
                 || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
     }

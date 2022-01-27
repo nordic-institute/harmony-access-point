@@ -12,6 +12,8 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
@@ -101,6 +103,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final PasswordDecryptionService passwordDecryptionService;
 
+    private final PasswordEncryptionService passwordEncryptionService;
+
     private final DomainContextProvider domainContextProvider;
 
     public CertificateServiceImpl(CRLService crlService,
@@ -115,6 +119,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   DomainTaskExecutor domainTaskExecutor,
                                   TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
+                                  PasswordEncryptionService passwordEncryptionService,
                                   DomainContextProvider domainContextProvider) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -128,6 +133,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.domainTaskExecutor = domainTaskExecutor;
         this.truststoreDao = truststoreDao;
         this.passwordDecryptionService = passwordDecryptionService;
+        this.passwordEncryptionService = passwordEncryptionService;
         this.domainContextProvider = domainContextProvider;
     }
 
@@ -365,7 +371,7 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.load(newTrustStoreBytes, filePassword.toCharArray());
                 LOG.debug("Truststore successfully loaded");
 
-                persistTrustStore(truststore, trustName);
+                persistTrustStore(truststore, filePassword, trustName);
                 LOG.debug("Truststore successfully persisted");
             } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
                 LOG.error("Could not replace truststore", e);
@@ -583,10 +589,31 @@ public class CertificateServiceImpl implements CertificateService {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             TruststoreEntity entity = truststoreDao.findByName(trustName);
 
-            truststore.store(byteStream, entity.getPassword().toCharArray());
+            String decryptedPassword = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
+            truststore.store(byteStream, decryptedPassword.toCharArray());
             byte[] content = byteStream.toByteArray();
 
             entity.setContent(content);
+            truststoreDao.update(entity);
+        } catch (Exception e) {
+            throw new CryptoException("Could not persist truststore:", e);
+        }
+    }
+
+    protected void persistTrustStore(KeyStore truststore, String password, String trustName) throws CryptoException {
+        backupTrustStore(trustName);
+
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            TruststoreEntity entity = truststoreDao.findByName(trustName);
+
+            truststore.store(byteStream, password.toCharArray());
+            byte[] content = byteStream.toByteArray();
+            entity.setContent(content);
+
+            PasswordEncryptionResult res = passwordEncryptionService.encryptProperty(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", password);
+            String encryptedPassword = res.getFormattedBase64EncryptedValue();
+            entity.setPassword(encryptedPassword);
+
             truststoreDao.update(entity);
         } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
