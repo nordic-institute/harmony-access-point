@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class EArchiveExtMapperIT {
+public class EArchiveExtMapperTest {
 
     @Autowired
     private EArchiveExtMapper archiveExtMapper;
