@@ -749,7 +749,7 @@ public class CertificateServiceImpl implements CertificateService {
         return CertificateStatus.OK;
     }
 
-    public List<eu.domibus.core.certificate.Certificate> extractCertificateFromKeyStore(KeyStore trustStore) {
+    protected List<eu.domibus.core.certificate.Certificate> extractCertificateFromKeyStore(KeyStore trustStore) {
         List<eu.domibus.core.certificate.Certificate> certificates = new ArrayList<>();
         try {
             final Enumeration<String> aliases = trustStore.aliases();

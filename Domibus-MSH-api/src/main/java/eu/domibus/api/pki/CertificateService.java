@@ -101,31 +101,32 @@ public interface CertificateService {
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
     /**
-     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     * Replaces the truststore pointed by the name with the one provided by location/password parameters
      *
      * @param fileLocation the file location representing the trust
      * @param filePassword the password of the trust
-     * @param trustName    the location of the trust on disc
+     * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
     void replaceTrustStore(String fileLocation, String filePassword, String trustName);
 
     /**
-     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     * Replaces the truststore pointed by the name with the one provided by content/password parameters
      *
      * @param fileName     the file name representing the trust
      * @param fileContent  the trust content
      * @param filePassword the password of the trust
-     * @param trustName    the location of the trust on disc
+     * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
     void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
     /**
-     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     * Replaces the truststore pointed by the name with the one provided by content/password parameters
      *
      * @param fileContent  the trust content
      * @param filePassword the password of the trust
+     * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
     void replaceTrustStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException;
@@ -185,7 +186,23 @@ public interface CertificateService {
      */
     boolean removeCertificates(String trustName, List<String> aliases);
 
+    /**
+     * Retrieves the content of the specified truststore
+     * @param trustName the name of the trust in the db
+     * @return
+     */
     byte[] getTruststoreContent(String trustName);
 
-    void persistTruststoresIfApplicable(final String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+    /**
+     * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time
+     *
+     * @param name the name of the truststore(can be domibus truststore and keystore and TLS trsustore)
+     * @param optional permits the location to be null without raising any exception
+     * @param filePathSupplier a supplier method that returns the file path on disc of the trust
+     * @param typeSupplier a supplier method that returns the type of the trust
+     * @param passwordSupplier a supplier method that returns the password of the trust
+     * @param domains in MT env it specifies for which domain to persist
+     */
+    void persistTruststoresIfApplicable(final String name, boolean optional,
+                                        Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
 }
