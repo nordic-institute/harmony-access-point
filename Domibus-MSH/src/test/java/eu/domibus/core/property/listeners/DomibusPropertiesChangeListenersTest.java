@@ -292,8 +292,6 @@ public class DomibusPropertiesChangeListenersTest {
         new FullVerifications(alertPluginLoginFailureConfigurationChangeListener) {{
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
-//            cryptoService.reset();
-            gatewayConfigurationValidator.validateConfiguration();
             domibusProxyService.resetProxy();
             messageListenerContainerInitializer.setConcurrency((Domain) any, anyString, anyString);
             domibusScheduler.rescheduleJob((Domain) any, anyString, anyString);

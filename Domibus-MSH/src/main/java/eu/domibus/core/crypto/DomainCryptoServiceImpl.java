@@ -13,6 +13,7 @@ import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.KeyStoreTypeSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -75,7 +76,9 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     public void init(KeyStoreType type) {
         getIAMProvider();
-        iamProvider.init(type);
+
+        KeyStoreTypeSpi typeSpi = type == KeyStoreType.KEYSTORE ? KeyStoreTypeSpi.KEYSTORE : KeyStoreTypeSpi.TRUSTSTORE;
+        iamProvider.init(typeSpi);
     }
 
     @Override

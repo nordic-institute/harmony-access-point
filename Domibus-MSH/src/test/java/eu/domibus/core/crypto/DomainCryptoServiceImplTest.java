@@ -54,7 +54,7 @@ public class DomainCryptoServiceImplTest {
         when(domain.getName()).thenReturn("DEFAULT");
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-        domainCryptoService.init(null);
+        domainCryptoService.init();
         verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
         verify(dssSpi, times(1)).init();
     }

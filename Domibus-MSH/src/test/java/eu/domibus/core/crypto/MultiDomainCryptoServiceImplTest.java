@@ -117,8 +117,6 @@ public class MultiDomainCryptoServiceImplTest {
         new Expectations() {{
             domainCertificateProviderFactory.domainCryptoService(domain);
             result = cryptoService;
-            cryptoService.getTrustStoreType();
-            result = "jks";
         }};
 
         mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
