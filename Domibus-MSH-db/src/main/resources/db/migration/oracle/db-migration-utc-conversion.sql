@@ -6,14 +6,14 @@
 -- Parameters to be provided:
 --  TIMEZONE: the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels')
 -- *****************************************************************************************************
-CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50_date_time_to_utc IS
+CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50_utc_conversion IS
 
     PROCEDURE migrate(TIMEZONE IN VARCHAR2);
 
-END MIGRATE_42_TO_50_date_time_to_utc;
+END MIGRATE_42_TO_50_utc_conversion;
 /
 
-CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50_date_time_to_utc IS
+CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50_utc_conversion IS
 
     PROCEDURE migrate(TIMEZONE IN VARCHAR2) IS
     BEGIN
@@ -837,5 +837,5 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50_date_time_to_utc IS
         COMMIT;
     END migrate;
 
-END MIGRATE_42_TO_50_date_time_to_utc;
+END MIGRATE_42_TO_50_utc_conversion;
 /
