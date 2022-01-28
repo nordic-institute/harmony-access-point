@@ -153,7 +153,7 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     }
 
     @Override
-    public void replaceKeyStore(String storeFileLocation){
-        defaultDomainCryptoService.replaceKeyStore(storeFileLocation);
+    public void replaceKeyStore(String storeFileLocation, String storePassword){
+        defaultDomainCryptoService.replaceKeyStore(storeFileLocation, storePassword);
     }
 }

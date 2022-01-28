@@ -22,9 +22,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * Handles the change of DOMIBUS_SECURITY_KEYSTORE_LOCATION property
  */
 @Service
-public class TruststorePropertiesChangeListener implements DomibusPropertyChangeListener {
+public class TruststoreChangeListener implements DomibusPropertyChangeListener {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(TruststorePropertiesChangeListener.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(TruststoreChangeListener.class);
 
     private final MultiDomainCryptoService multiDomainCryptoService;
 
@@ -32,9 +32,9 @@ public class TruststorePropertiesChangeListener implements DomibusPropertyChange
 
     private final GatewayConfigurationValidator gatewayConfigurationValidator;
 
-    public TruststorePropertiesChangeListener(MultiDomainCryptoService multiDomainCryptoService,
-                                              DomainService domainService,
-                                              GatewayConfigurationValidator gatewayConfigurationValidator) {
+    public TruststoreChangeListener(MultiDomainCryptoService multiDomainCryptoService,
+                                    DomainService domainService,
+                                    GatewayConfigurationValidator gatewayConfigurationValidator) {
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.domainService = domainService;
         this.gatewayConfigurationValidator = gatewayConfigurationValidator;

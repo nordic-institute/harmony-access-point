@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -23,9 +23,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * Handles the change of DOMIBUS_SECURITY_KEYSTORE_LOCATION property
  */
 @Service
-public class KeystorePropertiesChangeListener implements DomibusPropertyChangeListener {
+public class KeystoreChangeListener implements DomibusPropertyChangeListener {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(KeystorePropertiesChangeListener.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(KeystoreChangeListener.class);
 
     private final MultiDomainCryptoService multiDomainCryptoService;
 
@@ -33,12 +33,16 @@ public class KeystorePropertiesChangeListener implements DomibusPropertyChangeLi
 
     private final GatewayConfigurationValidator gatewayConfigurationValidator;
 
-    public KeystorePropertiesChangeListener(MultiDomainCryptoService multiDomainCryptoService,
-                                            DomainService domainService,
-                                            GatewayConfigurationValidator gatewayConfigurationValidator) {
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    public KeystoreChangeListener(MultiDomainCryptoService multiDomainCryptoService,
+                                  DomainService domainService,
+                                  GatewayConfigurationValidator gatewayConfigurationValidator,
+                                  DomibusPropertyProvider domibusPropertyProvider) {
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.domainService = domainService;
         this.gatewayConfigurationValidator = gatewayConfigurationValidator;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -54,8 +58,11 @@ public class KeystorePropertiesChangeListener implements DomibusPropertyChangeLi
         Domain domain = domainService.getDomain(domainCode);
 
         if (StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEYSTORE_LOCATION)) {
-            multiDomainCryptoService.replaceKeyStore(domain, propertyValue);
-            multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.KEYSTORE));
+            String type = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE);
+            String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+            multiDomainCryptoService.replaceKeyStore(domain, propertyValue, password);
+
+            multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.KEYSTORE));  // ????
             gatewayConfigurationValidator.validateCertificates();
         } else {
             multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.KEYSTORE)); // ??

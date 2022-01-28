@@ -142,9 +142,10 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceKeyStore(Domain domain, String storeFileLocation) throws CryptoException {
+    public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
+        // todo add store type validation against file extension
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.KEYSTORE));
-        domainCertificateProvider.replaceKeyStore(storeFileLocation);
+        domainCertificateProvider.replaceKeyStore(storeFileLocation, storePassword);
 
         saveCertificateAndLogRevocation(domain);
     }

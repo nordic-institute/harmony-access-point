@@ -203,9 +203,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     @Override
-    public void replaceKeyStore(String storeFileLocation) {
+    public void replaceKeyStore(String storeFileLocation, String storePassword) {
         try {
-            certificateService.replaceTrustStore(storeFileLocation, getKeystorePassword(), DOMIBUS_KEYSTORE_NAME);
+            certificateService.replaceTrustStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(ex);
         }

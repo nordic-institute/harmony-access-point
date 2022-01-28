@@ -71,5 +71,5 @@ public interface DomainCryptoServiceSpi {
 
     void init();
 
-    void replaceKeyStore(String storeFileLocation);
+    void replaceKeyStore(String storeFileLocation, String storePassword);
 }
