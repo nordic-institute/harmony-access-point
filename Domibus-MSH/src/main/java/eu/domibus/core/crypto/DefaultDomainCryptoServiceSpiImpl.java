@@ -165,7 +165,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         try {
             certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
         } catch (CryptoException ex) {
-            throw new CryptoSpiException(ex);
+            throw new CryptoSpiException(ex.getMessage(), ex);
         }
         refreshKeyStore();
     }
