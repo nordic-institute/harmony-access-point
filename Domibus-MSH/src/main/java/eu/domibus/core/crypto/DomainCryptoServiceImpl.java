@@ -5,7 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.CertificateType;
+import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
@@ -73,7 +73,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.init();
     }
 
-    public void init(CertificateType type) {
+    public void init(KeyStoreType type) {
         getIAMProvider();
         iamProvider.init(type);
     }
@@ -231,7 +231,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void reset(CertificateType type) {
+    public void reset(KeyStoreType type) {
         this.init(type);
     }
 

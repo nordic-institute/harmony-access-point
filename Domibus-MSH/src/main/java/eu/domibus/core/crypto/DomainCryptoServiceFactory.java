@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;

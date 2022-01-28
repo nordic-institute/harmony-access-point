@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateType;
+import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -59,10 +59,10 @@ public class KeystoreChangeListener implements DomibusPropertyChangeListener {
             String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
             multiDomainCryptoService.replaceKeyStore(domain, propertyValue, password);
 
-            multiDomainCryptoService.reset(domain, CertificateType.KEYSTORE);  // ????
+            multiDomainCryptoService.reset(domain, KeyStoreType.KEYSTORE);  // ????
             gatewayConfigurationValidator.validateCertificates();
         } else {
-            multiDomainCryptoService.reset(domain, CertificateType.KEYSTORE); // ??
+            multiDomainCryptoService.reset(domain, KeyStoreType.KEYSTORE); // ??
         }
     }
 

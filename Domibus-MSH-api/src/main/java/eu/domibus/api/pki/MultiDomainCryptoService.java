@@ -68,7 +68,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void reset(Domain domain);
 
-    void reset(Domain domain, CertificateType type);
+    void reset(Domain domain, KeyStoreType type);
 
     byte[] getTruststoreContent(Domain domain);
 

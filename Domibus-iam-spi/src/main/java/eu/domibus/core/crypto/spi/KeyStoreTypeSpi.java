@@ -1,12 +1,12 @@
-package eu.domibus.api.pki;
+package eu.domibus.core.crypto.spi;
 
 /**
  * Initializing values for the certificate provider types
  *
- * @author Soumya
+ * @author Ion Perpegel
  * @since 5.0
  */
 
-public enum CertificateType {
+public enum KeyStoreTypeSpi {
     TRUSTSTORE, KEYSTORE;
 }

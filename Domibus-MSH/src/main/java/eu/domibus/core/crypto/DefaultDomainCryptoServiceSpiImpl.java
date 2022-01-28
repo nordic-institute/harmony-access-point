@@ -80,15 +80,16 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
-    public void init(Enum type) {
-        if (type == null) {
+    public void init(KeyStoreTypeSpi typeSpi) {
+        if (typeSpi == null) {
             LOG.debug("No initializing value found for the certificate provider");
             return;
         }
-        CertificateType type2 = (CertificateType) type;
-        if (type == CertificateType.TRUSTSTORE) {
+        // todo method on enum itself??
+        KeyStoreType type = typeSpi == KeyStoreTypeSpi.KEYSTORE ? KeyStoreType.KEYSTORE : KeyStoreType.TRUSTSTORE;
+        if (type == KeyStoreType.TRUSTSTORE) {
             initTrustStore();
-        } else if (type == CertificateType.KEYSTORE) {
+        } else if (type == KeyStoreType.KEYSTORE) {
             initKeyStore();
         }
 
