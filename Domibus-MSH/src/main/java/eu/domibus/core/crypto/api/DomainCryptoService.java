@@ -77,4 +77,6 @@ public interface DomainCryptoService {
     byte[] getTruststoreContent();
 
     void replaceKeyStore(String storeFileLocation, String storePassword);
+
+    void refreshKeyStore();
 }

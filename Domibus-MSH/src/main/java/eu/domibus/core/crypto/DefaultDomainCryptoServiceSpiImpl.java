@@ -98,39 +98,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     }
 
-    protected void initTrustStore() {
-        LOG.debug("Initializing the truststore certificate provider for domain [{}]", domain);
-        try {
-            super.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
-        } catch (WSSecurityException | IOException e) {
-            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
-        }
-
-        domainTaskExecutor.submit(() -> {
-            KeyStore trustStore = loadTrustStore();
-            super.setTrustStore(trustStore);
-        }, domain);
-
-        LOG.debug("Finished initializing the truststore certificate provider for domain [{}]", domain);
-    }
-
-    protected void initKeyStore() {
-        LOG.debug("Initializing the keystore certificate provider for domain [{}]", domain);
-        try {
-            super.loadProperties(getKeystoreProperties(), Merlin.class.getClassLoader(), null);
-        } catch (WSSecurityException | IOException e) {
-            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
-        }
-
-        domainTaskExecutor.submit(() -> {
-            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
-            super.setKeyStore(keyStore);
-        }, domain);
-
-        LOG.debug("Finished initializing the keyStore certificate provider for domain [{}]", domain);
-    }
-
-
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
         return (X509Certificate) getKeyStore().getCertificate(alias);
@@ -148,14 +115,29 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized void refreshTrustStore() {
+        // shouldn't we provide merlin the new type and password??
         KeyStore oldTruststore = getTrustStore();
-        final KeyStore trustStore = loadTrustStore();
+        final KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
         setTrustStore(trustStore);
 
         if (areKeystoresIdentical(oldTruststore, trustStore)) {
             LOG.debug("New truststore and previous truststore are identical");
         } else {
             signalService.signalTrustStoreUpdate(domain);
+        }
+    }
+
+    @Override
+    public synchronized void refreshKeyStore() {
+        // shouldn't we provide merlin the new type and password??
+        KeyStore old = getKeyStore();
+        final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+        setKeyStore(current);
+
+        if (areKeystoresIdentical(old, current)) {
+            LOG.debug("New keystore and previous keystore are identical");
+        } else {
+            signalService.signalKeyStoreUpdate(domain);
         }
     }
 
@@ -245,8 +227,36 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         this.domain = coreMapper.domainSpiToDomain(domain);
     }
 
-    protected KeyStore loadTrustStore() {
-        return certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+    protected void initTrustStore() {
+        LOG.debug("Initializing the truststore certificate provider for domain [{}]", domain);
+        try {
+            super.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
+        }
+
+        domainTaskExecutor.submit(() -> {
+            KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+            super.setTrustStore(trustStore);
+        }, domain);
+
+        LOG.debug("Finished initializing the truststore certificate provider for domain [{}]", domain);
+    }
+
+    protected void initKeyStore() {
+        LOG.debug("Initializing the keystore certificate provider for domain [{}]", domain);
+        try {
+            super.loadProperties(getKeystoreProperties(), Merlin.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
+        }
+
+        domainTaskExecutor.submit(() -> {
+            KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
+            super.setKeyStore(keyStore);
+        }, domain);
+
+        LOG.debug("Finished initializing the keyStore certificate provider for domain [{}]", domain);
     }
 
     protected Properties getKeystoreProperties() {

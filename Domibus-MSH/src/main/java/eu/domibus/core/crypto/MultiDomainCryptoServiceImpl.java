@@ -132,6 +132,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public void refreshKeyStore(Domain currentDomain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.refreshKeyStore();
+    }
+
+    // todo avoid duplicate code
+    @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileName);
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
