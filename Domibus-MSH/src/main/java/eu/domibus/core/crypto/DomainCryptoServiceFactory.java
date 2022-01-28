@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pki.CertificateType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
@@ -40,18 +41,12 @@ public class DomainCryptoServiceFactory {
 
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomainCryptoServiceImpl domainCryptoService(Domain domain,  List<Enum> initValue) {
+    public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 
         final DomainCryptoServiceImpl bean = new DomainCryptoServiceImpl(domain, domainCryptoServiceSpiListProvider.get(), domibusPropertyProvider, certificateService);
-        bean.init(initValue);
+        bean.init();
         return bean;
-    }
-
-    @Bean(autowireCandidate = false)
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
-        return domainCryptoService(domain, null);
     }
 
 }

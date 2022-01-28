@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.CertificateInitValueType;
+import eu.domibus.api.pki.CertificateType;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -11,8 +11,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -58,7 +56,7 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
         String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
         multiDomainCryptoService.replaceTrustStore(domain, propertyValue, password);
 
-        multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE)); // ??
+        multiDomainCryptoService.reset(domain, CertificateType.TRUSTSTORE); //??
         gatewayConfigurationValidator.validateCertificates();
 
     }

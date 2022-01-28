@@ -69,7 +69,7 @@ public interface DomainCryptoServiceSpi {
 
     void setDomain(DomainSpi domain);
 
-    void init(List<Enum> initValue);
+    void init(Enum type);
 
     void init();
 

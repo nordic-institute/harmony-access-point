@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateInitValueType;
+import eu.domibus.api.pki.CertificateType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
@@ -116,7 +116,7 @@ public class MultiDomainCryptoServiceImplTest {
         String password = "test123";
 
         new Expectations() {{
-            domainCertificateProviderFactory.domainCryptoService(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+            domainCertificateProviderFactory.domainCryptoService(domain, CertificateType.TRUSTSTORE);
             result = cryptoService;
             cryptoService.getTrustStoreType();
             result = "jks";

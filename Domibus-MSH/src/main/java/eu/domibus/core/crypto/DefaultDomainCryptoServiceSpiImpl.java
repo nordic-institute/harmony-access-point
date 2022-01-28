@@ -5,17 +5,13 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.TruststoreInfo;
+import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -37,7 +33,8 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.*;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Cosmin Baciu
@@ -83,16 +80,15 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
-    public void init(List<Enum> initValue) {
-        if (CollectionUtils.isEmpty(initValue)) {
+    public void init(Enum type) {
+        if (type == null) {
             LOG.debug("No initializing value found for the certificate provider");
             return;
         }
-        if (initValue.contains(INIT_TRUSTSTORE_NAME) && initValue.contains(INIT_KEYSTORE_NAME)) {
-            init();
-        } else if (initValue.contains(INIT_TRUSTSTORE_NAME)) {
+        CertificateType type2 = (CertificateType) type;
+        if (type == CertificateType.TRUSTSTORE) {
             initTrustStore();
-        } else if (initValue.contains(INIT_KEYSTORE_NAME)) {
+        } else if (type == CertificateType.KEYSTORE) {
             initKeyStore();
         }
 

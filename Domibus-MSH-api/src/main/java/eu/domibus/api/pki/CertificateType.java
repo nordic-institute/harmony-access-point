@@ -7,6 +7,6 @@ package eu.domibus.api.pki;
  * @since 5.0
  */
 
-public enum CertificateInitValueType {
+public enum CertificateType {
     TRUSTSTORE, KEYSTORE;
 }

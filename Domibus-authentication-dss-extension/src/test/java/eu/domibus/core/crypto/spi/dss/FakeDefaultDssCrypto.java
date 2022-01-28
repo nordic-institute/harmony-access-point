@@ -134,7 +134,7 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
     }
 
     @Override
-    public void init(List<Enum> initValue) {
+    public void init(CertificateInitValueType type) {
 
     }
 
