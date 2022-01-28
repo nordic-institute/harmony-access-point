@@ -125,7 +125,7 @@ public class MultiDomainCryptoServiceImplTest {
         mdCryptoService.replaceTrustStore(domain, storeFileName, store, password);
 
         new Verifications() {{
-            cryptoService.replaceTrustStore(store, password);
+            cryptoService.replaceTrustStore(store, storeFileName, password);
         }};
     }
 

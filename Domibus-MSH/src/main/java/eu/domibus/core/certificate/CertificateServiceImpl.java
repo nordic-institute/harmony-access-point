@@ -355,41 +355,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
-        TruststoreEntity entity = getTruststoreEntity(trustName);
-        if (entity == null) {
-            throw new DomibusCertificateException("Could not read truststore [" + trustName + "] from the DB.");
-        }
-        certificateHelper.validateStoreType(entity.getType(), fileName);
-        replaceStore(fileContent, filePassword, trustName);
-    }
-
-    @Override
-    public void replaceStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException {
-        LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
-
-        KeyStore truststore = getTrustStore(trustName);
-        TruststoreEntity entity = getTruststoreEntity(trustName);
-        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
-            truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
-            try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
-                validateLoadOperation(newTrustStoreBytes, filePassword, entity.getType());
-                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-                LOG.debug("Truststore successfully loaded");
-
-                persistTrustStore(truststore, filePassword, trustName);
-                LOG.debug("Truststore successfully persisted");
-            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-                LOG.error("Could not replace truststore", e);
-                try {
-                    truststore.load(oldTrustStoreBytes.toInputStream(), entity.getPassword().toCharArray());
-                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
-                }
-                throw new CryptoException(e);
-            }
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
-            throw new CryptoException("Could not replace truststore", exc);
-        }
+        String storeType = certificateHelper.getStoreType(fileName);
+        replaceStore(fileContent, filePassword, storeType, trustName);
     }
 
     @Override
@@ -438,6 +405,34 @@ public class CertificateServiceImpl implements CertificateService {
     public TruststoreInfo getTruststoreInfo(String trustName) {
         TruststoreEntity entity = getTruststoreEntity(trustName);
         return coreMapper.truststoreEntityToTruststoreInfo(entity);
+    }
+
+    protected void replaceStore(byte[] fileContent, String filePassword, String storeType, String trustName) throws CryptoException {
+        LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
+
+        KeyStore truststore = getTrustStore(trustName);
+        TruststoreEntity entity = getTruststoreEntity(trustName);
+        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
+            truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
+            try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+                validateLoadOperation(newTrustStoreBytes, filePassword, entity.getType());
+                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
+                LOG.debug("Truststore successfully loaded");
+
+                persistTrustStore(truststore, filePassword, storeType, trustName);
+                LOG.debug("Truststore successfully persisted");
+            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+                LOG.error("Could not replace truststore", e);
+                try {
+                    truststore.load(oldTrustStoreBytes.toInputStream(), entity.getPassword().toCharArray());
+                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+                }
+                throw new CryptoException(e);
+            }
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+            throw new CryptoException("Could not replace truststore", exc);
+        }
     }
 
     protected byte[] getTruststoreContentFromFile(String location) {
@@ -611,7 +606,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected void persistTrustStore(KeyStore truststore, String password, String trustName) throws CryptoException {
+    protected void persistTrustStore(KeyStore truststore, String password, String storeType, String trustName) throws CryptoException {
         backupTrustStore(trustName);
 
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
@@ -624,6 +619,8 @@ public class CertificateServiceImpl implements CertificateService {
             PasswordEncryptionResult res = passwordEncryptionService.encryptProperty(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", password);
             String encryptedPassword = res.getFormattedBase64EncryptedValue();
             entity.setPassword(encryptedPassword);
+
+            entity.setType(storeType);
 
             truststoreDao.update(entity);
         } catch (Exception e) {

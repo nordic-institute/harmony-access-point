@@ -15,7 +15,7 @@ public class CertificateHelper {
     /**
      * Validates the truststore type with the file extension
      *
-     * @param storeType the type of the trust: pkcs12, jks
+     * @param storeType     the type of the trust: pkcs12, jks
      * @param storeFileName the name of the truststore file
      */
     public void validateStoreType(String storeType, String storeFileName) {
@@ -32,4 +32,13 @@ public class CertificateHelper {
         }
         throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
+
+    public String getStoreType(String storeFileName) {
+        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        if (Arrays.asList("p12", "pfx").contains(fileType)) {
+            return "pkcs12";
+        }
+        return "jks";
+    }
+
 }

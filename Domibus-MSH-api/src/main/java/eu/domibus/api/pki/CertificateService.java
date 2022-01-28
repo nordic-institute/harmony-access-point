@@ -121,17 +121,7 @@ public interface CertificateService {
      */
     void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
-    /**
-     * Replaces the truststore pointed by the name with the one provided by content/password parameters
-     *
-     * @param fileContent  the trust content
-     * @param filePassword the password of the trust
-     * @param trustName    the name of the trust in hte DB
-     * @throws CryptoException
-     */
-    void replaceStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException;
-
-    /**
+     /**
      * Returns the truststore pointed by the location/password parameters
      *
      * @param trustName the location of the trust on disc

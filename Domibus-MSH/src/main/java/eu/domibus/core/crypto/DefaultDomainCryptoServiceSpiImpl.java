@@ -161,9 +161,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public synchronized void replaceTrustStore(byte[] storeContent, String storePassword) throws CryptoSpiException {
+    public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         try {
-            certificateService.replaceStore(storeContent, storePassword, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_TRUSTSTORE_NAME);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(ex);
         }

@@ -43,7 +43,7 @@ public interface DomainCryptoServiceSpi {
 
     void refreshTrustStore();
 
-    void replaceTrustStore(byte[] storeContent, String storePassword);
+    void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
 
     void replaceTrustStore(String storeLocation, String storePassword);
 

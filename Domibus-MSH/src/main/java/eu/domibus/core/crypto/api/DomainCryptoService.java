@@ -46,7 +46,7 @@ public interface DomainCryptoService {
 
     void refreshTrustStore();
 
-    void replaceTrustStore(byte[] storeContent, String storePassword) throws CryptoException;
+    void replaceTrustStore(byte[] storeContent,String storeFileName, String storePassword) throws CryptoException;
 
     void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException;
 

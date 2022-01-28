@@ -166,19 +166,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void replaceTrustStore() {
-
-        byte[] store = "cert content".getBytes();
-        String password = "test123";
-
-        domainCryptoService.replaceTrustStore(store, password);
-
-        new Verifications() {{
-            certificateService.replaceStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
-        }};
-    }
-
-    @Test
     public void areKeystoresIdentical() {
         KeyStore store0 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
         KeyStore store1 = loadKeyStoreFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, TEST_KEYSTORE_PASSWORD);
