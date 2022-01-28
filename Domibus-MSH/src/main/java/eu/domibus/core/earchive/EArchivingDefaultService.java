@@ -149,7 +149,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     public Long getBatchUserMessageListCount(String batchId) {
         EArchiveBatchEntity batch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (batch == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"EArchive batch not found batchId: [" + batchId + "]");
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]");
         }
         return batch.getBatchSize() != null ? batch.getBatchSize().longValue() : 0L;
     }
@@ -183,7 +183,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         LOG.debug("Got status notification with status: [{}] and message: [{}] for batchId: [{}]", batchStatus, message, batchId);
         EArchiveBatchEntity eArchiveBatchEntity = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (eArchiveBatchEntity == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"EArchive batch not found batchId: [" + batchId + "]");
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]");
         }
         DomibusMessageCode messageCode;
         if (batchStatus == EArchiveBatchStatus.ARCHIVED) {
@@ -204,15 +204,15 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Transactional
     public EArchiveBatchEntity getEArchiveBatch(long entityId, boolean fetchEarchiveBatchUm) {
-        EArchiveBatchEntity eArchiveBatchByBatchId = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
+        EArchiveBatchEntity eArchiveBatch = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
 
-        if (eArchiveBatchByBatchId == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"EArchive batch not found for batchId: [" + entityId + "]");
+        if (eArchiveBatch == null) {
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found for batchEntityId: [" + entityId + "]");
         }
         if (fetchEarchiveBatchUm) {
-            eArchiveBatchByBatchId.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatchByBatchId.getBatchId(), null, null));
+            eArchiveBatch.seteArchiveBatchUserMessages(eArchiveBatchUserMessageDao.getBatchMessageList(eArchiveBatch.getBatchId(), null, null));
         }
-        return eArchiveBatchByBatchId;
+        return eArchiveBatch;
     }
 
     public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status) {
