@@ -116,11 +116,11 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     public synchronized void refreshTrustStore() {
         // shouldn't we provide merlin the new type and password??
-        KeyStore oldTruststore = getTrustStore();
-        final KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
-        setTrustStore(trustStore);
+        KeyStore old = getTrustStore();
+        final KeyStore current = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
+        setTrustStore(current);
 
-        if (areKeystoresIdentical(oldTruststore, trustStore)) {
+        if (areKeystoresIdentical(old, current)) {
             LOG.debug("New truststore and previous truststore are identical");
         } else {
             signalService.signalTrustStoreUpdate(domain);
@@ -171,7 +171,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         } catch (CryptoException ex) {
             throw new CryptoSpiException(ex);
         }
-        //todo refresh or init???
+        refreshKeyStore();
     }
 
     @Override

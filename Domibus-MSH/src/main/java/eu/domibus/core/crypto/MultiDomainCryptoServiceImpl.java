@@ -132,7 +132,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void refreshKeyStore(Domain currentDomain) {
+    public void refreshKeyStore(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.refreshKeyStore();
     }
@@ -148,6 +148,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         saveCertificateAndLogRevocation(domain);
     }
 
+    // todo avoid duplicate code
     @Override
     public void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
         certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileLocation);
