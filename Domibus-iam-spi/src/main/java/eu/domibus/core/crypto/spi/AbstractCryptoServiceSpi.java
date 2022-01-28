@@ -83,8 +83,13 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
     }
 
     @Override
-    public void replaceTrustStore(byte[] store, String password) {
-        defaultDomainCryptoService.replaceTrustStore(store, password);
+    public void replaceTrustStore(byte[] storeContent, String storePassword) {
+        defaultDomainCryptoService.replaceTrustStore(storeContent, storePassword);
+    }
+
+    @Override
+    public void replaceTrustStore(String storeLocation, String storePassword) {
+        defaultDomainCryptoService.replaceTrustStore(storeLocation, storePassword);
     }
 
     @Override

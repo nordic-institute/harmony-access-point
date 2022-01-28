@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateInitValueType;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -32,12 +33,16 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
 
     private final GatewayConfigurationValidator gatewayConfigurationValidator;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
     public TruststoreChangeListener(MultiDomainCryptoService multiDomainCryptoService,
                                     DomainService domainService,
-                                    GatewayConfigurationValidator gatewayConfigurationValidator) {
+                                    GatewayConfigurationValidator gatewayConfigurationValidator,
+                                    DomibusPropertyProvider domibusPropertyProvider) {
         this.multiDomainCryptoService = multiDomainCryptoService;
         this.domainService = domainService;
         this.gatewayConfigurationValidator = gatewayConfigurationValidator;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -50,9 +55,11 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
         LOG.debug("[{}] property has changed for domain [{}].", propertyName, domainCode);
 
         Domain domain = domainService.getDomain(domainCode);
+//        String type = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
 
-//        multiDomainCryptoService.replaceTrustStore(domain, propertyValue);
-        multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.KEYSTORE)); // ??
+        multiDomainCryptoService.replaceTrustStore(domain, propertyValue, password);
+        multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE)); // ??
         gatewayConfigurationValidator.validateCertificates();
 
     }

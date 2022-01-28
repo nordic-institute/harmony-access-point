@@ -70,6 +70,11 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
     }
 
     @Override
+    public void replaceTrustStore(String storeLocation, String storePassword) {
+
+    }
+
+    @Override
     public void replaceKeyStore(String storeFileLocation, String storePassword) {
     }
 

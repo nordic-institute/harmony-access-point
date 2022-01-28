@@ -43,7 +43,9 @@ public interface DomainCryptoServiceSpi {
 
     void refreshTrustStore();
 
-    void replaceTrustStore(byte[] store, String password) throws CryptoSpiException;
+    void replaceTrustStore(byte[] storeContent, String storePassword);
+
+    void replaceTrustStore(String storeLocation, String storePassword);
 
     KeyStore getKeyStore();
 

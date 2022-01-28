@@ -187,8 +187,13 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(byte[] store, String password) throws CryptoException {
-        iamProvider.replaceTrustStore(store, password);
+    public void replaceTrustStore(byte[] storeContent, String storePassword) throws CryptoException {
+        iamProvider.replaceTrustStore(storeContent, storePassword);
+    }
+
+    @Override
+    public void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException {
+        iamProvider.replaceTrustStore(storeLocation, storePassword);
     }
 
     @Override
@@ -247,11 +252,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     public void reset(List<Enum> initValue) {
         this.init(initValue);
     }
-
-//    @Override
-//    public void reset() {
-//        this.init(null);
-//    }
 
     @Override
     public byte[] getTruststoreContent() {

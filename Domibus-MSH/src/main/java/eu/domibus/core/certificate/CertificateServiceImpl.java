@@ -340,31 +340,31 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException {
+    public TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) {
         LOG.debug("Create TrustStore Entry for [{}] = [{}] ", alias, cert);
         return createTrustStoreEntry(alias, cert);
     }
 
     @Override
-    public void replaceTrustStore(String fileLocation, String filePassword, String trustName) {
+    public void replaceStore(String fileLocation, String filePassword, String trustName) {
         Path path = Paths.get(fileLocation);
         String fileName = path.getFileName().toString();
         byte[] fileContent = getTruststoreContentFromFile(fileLocation);
-        replaceTrustStore(fileName, fileContent, filePassword, trustName);
+        replaceStore(fileName, fileContent, filePassword, trustName);
     }
 
     @Override
-    public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
+    public void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
         TruststoreEntity entity = getTruststoreEntity(trustName);
         if (entity == null) {
             throw new DomibusCertificateException("Could not read truststore [" + trustName + "] from the DB.");
         }
         certificateHelper.validateStoreType(entity.getType(), fileName);
-        replaceTrustStore(fileContent, filePassword, trustName);
+        replaceStore(fileContent, filePassword, trustName);
     }
 
     @Override
-    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException {
+    public void replaceStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException {
         LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
 
         KeyStore truststore = getTrustStore(trustName);

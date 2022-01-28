@@ -7,11 +7,9 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -176,7 +174,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         domainCryptoService.replaceTrustStore(store, password);
 
         new Verifications() {{
-            certificateService.replaceTrustStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 

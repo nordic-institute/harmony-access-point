@@ -132,10 +132,20 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
+    public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileName);
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
-        certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
-        domainCertificateProvider.replaceTrustStore(store, password);
+        domainCertificateProvider.replaceTrustStore(storeContent, storePassword);
+
+        domibusCacheService.clearCache("certValidationByAlias");
+        saveCertificateAndLogRevocation(domain);
+    }
+
+    @Override
+    public void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileLocation);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        domainCertificateProvider.replaceTrustStore(storeFileLocation, storePassword);
 
         domibusCacheService.clearCache("certValidationByAlias");
         saveCertificateAndLogRevocation(domain);
@@ -143,7 +153,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        // todo add store type validation against file extension
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), storeFileLocation);
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, Arrays.asList(CertificateInitValueType.KEYSTORE));
         domainCertificateProvider.replaceKeyStore(storeFileLocation, storePassword);
 
