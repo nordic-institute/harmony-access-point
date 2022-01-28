@@ -52,6 +52,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static eu.domibus.core.certificate.CertificateHelper.JKS;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
@@ -659,7 +660,7 @@ public class CertificateServiceImplTest {
     public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final String password = "test123";
-        final String type = "jks";
+        final String type = JKS;
 
         new Expectations() {{
             KeyStore.getInstance(type);
@@ -746,7 +747,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(new byte[]{}, "pass", "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass", JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -858,7 +859,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(new byte[]{}, "pass","jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -885,7 +886,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(new byte[]{}, "pass","jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -917,7 +918,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,"jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -944,7 +945,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,"jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -971,7 +972,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1000,7 +1001,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1034,7 +1035,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1068,7 +1069,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1102,7 +1103,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test(expected = CryptoException.class) // ignore the CryptoException being initially thrown
@@ -1132,7 +1133,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         // Then
         new Verifications() {{
@@ -1419,7 +1420,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -1473,14 +1474,14 @@ public class CertificateServiceImplTest {
             entity.getType();
             result = TRUST_STORE_TYPE;
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD, "jks", DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
         certificateService.replaceStore(fileName, fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD,"jks", DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 

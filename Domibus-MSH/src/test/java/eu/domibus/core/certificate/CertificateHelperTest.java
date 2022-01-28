@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 
 import java.security.InvalidParameterException;
 
+import static eu.domibus.core.certificate.CertificateHelper.JKS;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -23,12 +24,12 @@ public class CertificateHelperTest extends TestCase {
 
     @Test
     public void checkTruststoreTypeValidationHappy1() {
-        certificateHelper.validateStoreType("jks", "test.jks");
+        certificateHelper.validateStoreType(JKS, "test.jks");
     }
 
     @Test
     public void checkTruststoreTypeValidationHappy2() {
-        certificateHelper.validateStoreType("jks", "test.JKS");
+        certificateHelper.validateStoreType(JKS, "test.JKS");
     }
 
     @Test
@@ -44,20 +45,20 @@ public class CertificateHelperTest extends TestCase {
     @Test
     public void checkTruststoreTypeValidationNegative1() {
         try {
-            certificateHelper.validateStoreType("jks", "test_filename_wrong_extension.p12");
+            certificateHelper.validateStoreType(JKS, "test_filename_wrong_extension.p12");
             Assert.fail("Expected exception was not raised!");
         } catch (InvalidParameterException e) {
-            assertEquals(true, e.getMessage().contains("jks"));
+            assertEquals(true, e.getMessage().contains(JKS));
         }
     }
 
     @Test
     public void checkTruststoreTypeValidationNegative2() {
         try {
-            certificateHelper.validateStoreType("jks", "test_filename_no_extension");
+            certificateHelper.validateStoreType(JKS, "test_filename_no_extension");
             Assert.fail("Expected exception was not raised!");
         } catch (InvalidParameterException e) {
-            assertEquals(true, e.getMessage().contains("jks"));
+            assertEquals(true, e.getMessage().contains(JKS));
         }
     }
 

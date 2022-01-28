@@ -12,6 +12,12 @@ import java.util.Arrays;
  */
 @Service
 public class CertificateHelper {
+
+    public static final String PKCS_12 = "pkcs12";
+    public static final String P_12 = "p12";
+    public static final String PFX = "pfx";
+    public static final String JKS = "jks";
+
     /**
      * Validates the truststore type with the file extension
      *
@@ -21,12 +27,12 @@ public class CertificateHelper {
     public void validateStoreType(String storeType, String storeFileName) {
         String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
         switch (storeType.toLowerCase()) {
-            case "pkcs12":
-                if (Arrays.asList("p12", "pfx").contains(fileType)) {
+            case PKCS_12:
+                if (Arrays.asList(P_12, PFX).contains(fileType)) {
                     return;
                 }
-            case "jks":
-                if (Arrays.asList("jks").contains(fileType)) {
+            case JKS:
+                if (Arrays.asList(JKS).contains(fileType)) {
                     return;
                 }
         }
@@ -35,10 +41,10 @@ public class CertificateHelper {
 
     public String getStoreType(String storeFileName) {
         String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-        if (Arrays.asList("p12", "pfx").contains(fileType)) {
-            return "pkcs12";
+        if (Arrays.asList(P_12, PFX).contains(fileType)) {
+            return PKCS_12;
         }
-        return "jks";
+        return JKS;
     }
 
 }
