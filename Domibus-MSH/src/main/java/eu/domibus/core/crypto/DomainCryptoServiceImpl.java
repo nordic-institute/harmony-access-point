@@ -225,7 +225,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.addCertificate(list, overwrite);
     }
 
-
     public String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
@@ -249,10 +248,10 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         this.init(initValue);
     }
 
-    @Override
-    public void reset() {
-        this.init(null);
-    }
+//    @Override
+//    public void reset() {
+//        this.init(null);
+//    }
 
     @Override
     public byte[] getTruststoreContent() {

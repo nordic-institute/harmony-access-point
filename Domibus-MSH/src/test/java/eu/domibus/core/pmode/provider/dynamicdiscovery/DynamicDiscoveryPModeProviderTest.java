@@ -20,6 +20,7 @@ import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
@@ -150,15 +151,15 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
                 Mockito.spy(ExpiredCertificateConfigurationManager.class),
-//                Mockito.spy(BackupServiceImpl.class),
                 Mockito.spy(CertificateHelper.class),
                 Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
                 Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),
                 Mockito.spy(PasswordEncryptionService.class),
-                Mockito.spy(DomainContextProvider.class)
-                );
+                Mockito.spy(DomainContextProvider.class),
+                Mockito.spy(DomibusCoreMapper.class)
+        );
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

@@ -147,6 +147,8 @@ public interface CertificateService {
      */
     List<TrustStoreEntry> getTrustStoreEntries(String trustName);
 
+    TruststoreInfo getTruststoreInfo(String trustName);
+
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
      *

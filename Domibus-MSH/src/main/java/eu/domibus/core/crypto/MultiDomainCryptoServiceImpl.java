@@ -204,15 +204,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.removeCertificate(aliases);
     }
 
-    @Override
-    public void reset() {
-        domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
-    }
+//    @Override
+//    public void reset() {
+//        domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
+//    }
 
-    @Override
-    public void reset(List<Enum> initValue) {
-        domainCertificateProviderMap.values().stream().forEach(service -> service.reset(initValue));
-    }
+//    @Override
+//    public void reset(List<Enum> initValue) {
+//        domainCertificateProviderMap.values().stream().forEach(service -> service.reset(initValue));
+//    }
 
     @Override
     public void reset(Domain domain, List<Enum> initValue) {

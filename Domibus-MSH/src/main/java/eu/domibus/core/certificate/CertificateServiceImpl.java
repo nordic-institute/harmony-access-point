@@ -9,6 +9,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
@@ -21,6 +22,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
@@ -107,6 +109,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final DomainContextProvider domainContextProvider;
 
+    private final DomibusCoreMapper coreMapper;
+
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao,
@@ -120,7 +124,7 @@ public class CertificateServiceImpl implements CertificateService {
                                   TruststoreDao truststoreDao,
                                   PasswordDecryptionService passwordDecryptionService,
                                   PasswordEncryptionService passwordEncryptionService,
-                                  DomainContextProvider domainContextProvider) {
+                                  DomainContextProvider domainContextProvider, DomibusCoreMapper coreMapper) {
         this.crlService = crlService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateDao = certificateDao;
@@ -135,6 +139,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.passwordDecryptionService = passwordDecryptionService;
         this.passwordEncryptionService = passwordEncryptionService;
         this.domainContextProvider = domainContextProvider;
+        this.coreMapper = coreMapper;
     }
 
     @Override
@@ -427,6 +432,12 @@ public class CertificateServiceImpl implements CertificateService {
     public byte[] getTruststoreContent(String trustName) {
         TruststoreEntity res = getTruststoreEntity(trustName);
         return res.getContent();
+    }
+
+    @Override
+    public TruststoreInfo getTruststoreInfo(String trustName) {
+        TruststoreEntity entity = getTruststoreEntity(trustName);
+        return coreMapper.truststoreEntityToTruststoreInfo(entity);
     }
 
     protected byte[] getTruststoreContentFromFile(String location) {

@@ -64,9 +64,9 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void removeCertificate(Domain domain, List<String> aliases);
 
-    void reset();
+//    void reset();
 
-    void reset(List<Enum> initValue);
+//    void reset(List<Enum> initValue);
 
     void reset(Domain domain, List<Enum> initValue);
 

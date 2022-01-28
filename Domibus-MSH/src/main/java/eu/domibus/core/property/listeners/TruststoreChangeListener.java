@@ -1,0 +1,60 @@
+package eu.domibus.core.property.listeners;
+
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.CertificateInitValueType;
+import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusPropertyChangeListener;
+import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
+
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ * <p>
+ * Handles the change of DOMIBUS_SECURITY_KEYSTORE_LOCATION property
+ */
+@Service
+public class TruststorePropertiesChangeListener implements DomibusPropertyChangeListener {
+
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(TruststorePropertiesChangeListener.class);
+
+    private final MultiDomainCryptoService multiDomainCryptoService;
+
+    private final DomainService domainService;
+
+    private final GatewayConfigurationValidator gatewayConfigurationValidator;
+
+    public TruststorePropertiesChangeListener(MultiDomainCryptoService multiDomainCryptoService,
+                                              DomainService domainService,
+                                              GatewayConfigurationValidator gatewayConfigurationValidator) {
+        this.multiDomainCryptoService = multiDomainCryptoService;
+        this.domainService = domainService;
+        this.gatewayConfigurationValidator = gatewayConfigurationValidator;
+    }
+
+    @Override
+    public boolean handlesProperty(String propertyName) {
+        return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+    }
+
+    @Override
+    public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
+        LOG.debug("[{}] property has changed for domain [{}].", propertyName, domainCode);
+
+        Domain domain = domainService.getDomain(domainCode);
+
+//        multiDomainCryptoService.replaceTrustStore(domain, propertyValue);
+        multiDomainCryptoService.reset(domain, Arrays.asList(CertificateInitValueType.KEYSTORE)); // ??
+        gatewayConfigurationValidator.validateCertificates();
+
+    }
+
+}
