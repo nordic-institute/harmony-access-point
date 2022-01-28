@@ -89,8 +89,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
-            result = "trustStoreBackupLocation";
         }};
     }
 
