@@ -97,9 +97,6 @@ Domibus 5.0 (from 4.2.3)
                         - multitenancy:
                             - general database: mysql-4.2.3-to-5.0-multi-tenancy-migration.ddl
                             - domain databases: mysql-4.2.3-to-5.0-migration.ddl
-                - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.
-                - To execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) use the current 'TIMEZONE' value as IN parameter for mysql and oracle DB.
-                  The current 'TIMEZONE' value should be the timezone in which the date time values have been previously saved (e.g. 'Europe/Brussels').
                 - Data migration scripts should be run in order to migrate data from old tables to the new tables:
                     o [Oracle only]
                         Domibus application (.war) should be stopped while running these:
@@ -109,6 +106,7 @@ Domibus 5.0 (from 4.2.3)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                 - step 3: oracle-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                 - step 4: oracle-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
@@ -118,6 +116,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: execute the migrate_multitenancy procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain schemas:
@@ -126,6 +125,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: oracle-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: oracle-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - grant privileges to the general schema using oracle10g-5.0-multi-tenancy-rights.sql, updating the schema names before execution
@@ -137,6 +137,7 @@ Domibus 5.0 (from 4.2.3)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                 - step 3: mysql-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                 - step 4: mysql-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
@@ -146,6 +147,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain databases:
@@ -154,6 +156,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: mysql-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                 - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
