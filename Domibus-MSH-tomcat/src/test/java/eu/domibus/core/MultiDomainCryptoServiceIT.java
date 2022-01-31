@@ -9,11 +9,10 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.*;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +35,7 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  * @author Ion Perpegel
  * @since 5.0
  */
+@Ignore("EDELIVERY-8892")
 public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Autowired
