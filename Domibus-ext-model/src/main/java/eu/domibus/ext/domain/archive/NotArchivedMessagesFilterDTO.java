@@ -7,30 +7,30 @@ import java.util.Date;
  * @since 5.0
  */
 public class NotArchivedMessagesFilterDTO {
-    protected Date messageStartDate;
-    protected Date messageEndDate;
+    protected Long messageStartDate;
+    protected Long messageEndDate;
 
     public NotArchivedMessagesFilterDTO() {
     }
 
-    public NotArchivedMessagesFilterDTO(Date messageStartDate, Date messageEndDate) {
+    public NotArchivedMessagesFilterDTO(Long messageStartDate, Long messageEndDate) {
         this.messageStartDate = messageStartDate;
         this.messageEndDate = messageEndDate;
     }
 
-    public Date getMessageStartDate() {
+    public Long getMessageStartDate() {
         return messageStartDate;
     }
 
-    public void setMessageStartDate(Date messageStartDate) {
+    public void setMessageStartDate(Long messageStartDate) {
         this.messageStartDate = messageStartDate;
     }
 
-    public Date getMessageEndDate() {
+    public Long getMessageEndDate() {
         return messageEndDate;
     }
 
-    public void setMessageEndDate(Date messageEndDate) {
+    public void setMessageEndDate(Long messageEndDate) {
         this.messageEndDate = messageEndDate;
     }
 
