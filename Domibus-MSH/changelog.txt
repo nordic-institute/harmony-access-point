@@ -1,3 +1,5 @@
+Domibus 4.2.7
+- Upgraded Spring to the latest version
 Domibus 4.2.6
 - Upgrade DSS to 5.8
 - Upgraded BouncyCastle

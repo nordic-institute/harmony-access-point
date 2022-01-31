@@ -6,7 +6,7 @@
 
     <groupId>eu.domibus</groupId>
     <artifactId>domibus</artifactId>
-    <version>4.2.6</version>
+    <version>4.2.7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
@@ -21,14 +21,15 @@
         <module>Domibus-MSH-test</module>
         <module>Domibus-iam-spi</module>
         <module>Domibus-ext-model</module>
+        <module>Domibus-DSS</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.5</cxf.version>
         <wss4j.ws.security.version>2.3.3</wss4j.ws.security.version>
-        <spring.version>5.2.18.RELEASE</spring.version>
-        <spring.security.version>5.4.9</spring.security.version>
+        <spring.version>5.3.15</spring.version>
+        <spring.security.version>5.6.1</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
@@ -69,6 +70,7 @@
         <dropwizard.metrics.version>4.1.1</dropwizard.metrics.version>
         <dependency.check.version>6.4.1</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <dss.version>5.8</dss.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>

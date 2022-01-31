@@ -1,3 +1,5 @@
+Domibus 4.2.7 (from 4.2.6):
+                - Replace the Domibus war
 Domibus 4.2.6 (from 4.2.5):
                 - Please remove the following properties from the file /conf/domibus/extensions/config/authentication-dss-extension.properties:
                         - domibus.authentication.dss.custom.trusted.lists.list1.code
