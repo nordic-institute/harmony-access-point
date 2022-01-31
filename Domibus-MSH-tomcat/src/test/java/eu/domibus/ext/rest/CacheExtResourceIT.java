@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.ext.services.CacheExtService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
+@Ignore("EDELIVERY-8892")
 public class CacheExtResourceIT extends AbstractIT {
 
     @Rule
