@@ -138,7 +138,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domainCertificateProvider.refreshKeyStore();
     }
 
-    // todo avoid duplicate code
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);

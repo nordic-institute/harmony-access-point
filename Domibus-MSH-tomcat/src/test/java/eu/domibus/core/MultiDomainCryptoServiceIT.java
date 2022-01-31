@@ -164,7 +164,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void getTrustStore() throws KeyStoreException, CertificateParsingException, IOException {
+    public void getTrustStore() throws KeyStoreException, IOException {
         multiDomainCryptoService.persistTruststoresIfApplicable();
 
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domainContextProvider.getCurrentDomain());

@@ -66,6 +66,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -616,9 +617,8 @@ public class CertificateServiceImpl implements CertificateService {
             byte[] content = byteStream.toByteArray();
             entity.setContent(content);
 
-            PasswordEncryptionResult res = passwordEncryptionService.encryptProperty(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", password);
-            String encryptedPassword = res.getFormattedBase64EncryptedValue();
-            entity.setPassword(encryptedPassword);
+            String passToSave = getPassToSave(password, trustName);
+            entity.setPassword(passToSave);
 
             entity.setType(storeType);
 
@@ -626,6 +626,16 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
         }
+    }
+
+    private String getPassToSave(String password, String trustName) {
+        String passToSave = password;
+        Boolean encrypted = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE);
+        if(encrypted) {
+            PasswordEncryptionResult res = passwordEncryptionService.encryptProperty(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", password);
+            passToSave = res.getFormattedBase64EncryptedValue();
+        }
+        return passToSave;
     }
 
     protected void backupTrustStore(String trustName) {
