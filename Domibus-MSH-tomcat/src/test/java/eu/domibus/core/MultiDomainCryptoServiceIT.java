@@ -91,7 +91,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void replaceTrustStore() throws KeyStoreException {
+    public void replaceTrustStore() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String password = "test123";
         multiDomainCryptoService.persistTruststoresIfApplicable();

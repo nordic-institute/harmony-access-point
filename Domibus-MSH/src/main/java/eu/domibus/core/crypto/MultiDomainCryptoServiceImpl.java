@@ -143,7 +143,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
     }
 
-    // todo avoid duplicate code
     @Override
     public void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
         doReplaceTrustStore(domain, storeFileLocation, null, storePassword);
