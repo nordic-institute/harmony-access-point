@@ -127,23 +127,23 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
             return newPayload;
         }
 
-        //start to replace/suppress the content between <value>...</value> pairs
-        int indexStart = newPayload.indexOf(VALUE_START_MARKER);
-        int startTagLength = newPayload.indexOf('>', indexStart) - indexStart + 1;
-
-        int indexEnd = newPayload.indexOf(VALUE_END_MARKER);
-        int endTagLength = newPayload.indexOf('>', indexEnd) - indexEnd + 1;
-
-        while (indexStart >= 0 && indexStart > xmlNodeStartIndex && indexStart < indexEnd) {
-            String toBeReplaced = newPayload.substring(indexStart + startTagLength, indexEnd);
-            newPayload = newPayload.replace(toBeReplaced,
-                    AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
-
-            int fromIndex = indexEnd + endTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() - toBeReplaced.length() + 1;
+        int startTagLength = VALUE_START_MARKER.length() + 1;
+        int endTagLength = VALUE_END_MARKER.length() + 1;
+        int indexStart = 0, indexEnd = 0, fromIndex = 0;
+        while (true) {
             indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
+            if (indexStart < 0) {
+                break;
+            }
             indexEnd = newPayload.indexOf(VALUE_END_MARKER, fromIndex);
-            startTagLength = newPayload.indexOf('>', indexStart) - indexStart + 1;
-            endTagLength = newPayload.indexOf('>', indexEnd) - indexEnd + 1;
+            // the payload content is so large that it was trimmed, but we need to replace it nevertheless
+            if (indexEnd < 0) {
+                // go till the end
+                indexEnd = indexStart + startTagLength + newPayload.substring(indexStart + endTagLength).length() + 1;
+            }
+            String toBeReplaced = newPayload.substring(indexStart + startTagLength, indexEnd);
+            newPayload = newPayload.replace(toBeReplaced, AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
+            fromIndex = indexStart + startTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() + endTagLength;
         }
 
         return newPayload;
