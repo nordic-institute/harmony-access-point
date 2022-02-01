@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.property.listeners;
 
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import mockit.FullVerifications;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -18,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @RunWith(JMockit.class)
 public class WSPluginLoggingPayloadPrintChangeListenerTest {
 
-    @Mocked
+    @Injectable
     private WSPluginLoggingEventSender loggingSender;
 
     protected WSPluginLoggingPayloadPrintChangeListener listener;

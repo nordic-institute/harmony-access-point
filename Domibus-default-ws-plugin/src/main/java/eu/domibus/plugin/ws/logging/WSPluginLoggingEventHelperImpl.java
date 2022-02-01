@@ -129,12 +129,9 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
         int startTagLength = VALUE_START_MARKER.length() + 1;
         int endTagLength = VALUE_END_MARKER.length() + 1;
-        int indexStart = 0, indexEnd = 0, fromIndex = 0;
-        while (true) {
-            indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
-            if (indexStart < 0) {
-                break;
-            }
+        int indexEnd = 0, fromIndex = 0;
+        int indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
+        while (indexStart >= 0) {
             indexEnd = newPayload.indexOf(VALUE_END_MARKER, fromIndex);
             // the payload content is so large that it was trimmed, but we need to replace it nevertheless
             if (indexEnd < 0) {
@@ -143,7 +140,9 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
             }
             String toBeReplaced = newPayload.substring(indexStart + startTagLength, indexEnd);
             newPayload = newPayload.replace(toBeReplaced, AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
+
             fromIndex = indexStart + startTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() + endTagLength;
+            indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
         }
 
         return newPayload;
