@@ -1,10 +1,5 @@
 package eu.domibus.ext.delegate.mapper;
 
-import eu.domibus.api.earchive.DomibusEArchiveService;
-import eu.domibus.ext.delegate.services.earchive.DomibusEArchiveServiceDelegate;
-import eu.domibus.ext.rest.DomibusEArchiveExtResource;
-import eu.domibus.ext.services.DomibusEArchiveExtService;
-import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -52,5 +47,9 @@ public class TestMapperContextConfiguration {
     @Bean
     public DomibusExtMapperImpl_ domibusExtMapperDelegate() {
         return new DomibusExtMapperImpl_();
+    }
+    @Bean
+    public PModeExtMapper pModeExtMapper() {
+        return new PModeExtMapperImpl();
     }
 }

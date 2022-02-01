@@ -1,18 +1,19 @@
 package eu.domibus.core.earchive.eark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.message.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import mockit.Expectations;
-import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypes;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,14 +21,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author François Gautier
@@ -96,7 +96,7 @@ public class EArchivingFileServiceTest {
 
         Map<String, InputStream> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
 
-        new FullVerifications() {
+        new Verifications() {
         };
 
         Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
@@ -105,8 +105,8 @@ public class EArchivingFileServiceTest {
 
     @Test
     public void getArchivingFiles_compressedAttachment(@Injectable PartInfo partInfo1,
-                                            @Injectable DataHandler dataHandler,
-                                            @Injectable InputStream inputStream) throws IOException {
+                                                       @Injectable DataHandler dataHandler,
+                                                       @Injectable InputStream inputStream) throws IOException {
         RawEnvelopeDto rawEnvelopeDto = new RawEnvelopeDto(1L, getCompressedBytes(RAW_ENVELOPE_CONTENT), true);
         List<PartInfo> partInfos = Collections.singletonList(partInfo1);
         new Expectations() {{
@@ -132,7 +132,7 @@ public class EArchivingFileServiceTest {
 
         Map<String, InputStream> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
 
-        new FullVerifications() {
+        new Verifications() {
         };
 
         Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
@@ -174,7 +174,7 @@ public class EArchivingFileServiceTest {
             //ok
         }
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -206,6 +206,10 @@ public class EArchivingFileServiceTest {
 
             partInfo1.getHref();
             result = CID + MESSAGE;
+
+            partInfo1.getUserMessage().getMessageId();
+            result = "messageId";
+
         }};
 
         try {
@@ -215,7 +219,7 @@ public class EArchivingFileServiceTest {
             //ok
         }
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -223,9 +227,7 @@ public class EArchivingFileServiceTest {
     public void getFile(
             @Injectable PartInfo partInfo,
             @Injectable PartProperty partProperty1,
-            @Injectable PartProperty partProperty2,
-            @Injectable DataSource source,
-            @Injectable InputStream inputStream
+            @Injectable PartProperty partProperty2
 
     ) throws IOException {
         Set<PartProperty> properties = new HashSet<>();
@@ -235,7 +237,7 @@ public class EArchivingFileServiceTest {
 
         byte[] compressedBytes = getCompressedBytes(RAW_ENVELOPE_CONTENT);
 
-        new Expectations(){{
+        new Expectations() {{
 
             partInfo.getPayloadDatahandler().getInputStream();
             result = new ByteArrayInputStream(compressedBytes);
@@ -245,15 +247,42 @@ public class EArchivingFileServiceTest {
 
         assertNotNull("message.attachment.xml", file);
 
-        new FullVerifications(){};
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void getFile_exception(@Injectable PartInfo partInfo) throws IOException {
+
+
+        new Expectations() {{
+
+            partInfo.getPayloadDatahandler().getInputStream();
+            result = new IOException("TEST");
+
+            partInfo.getUserMessage().getMessageId();
+            result = "partInfoMessageId";
+
+            partInfo.getHref();
+            result = "href";
+        }};
+        try {
+            eArchivingFileService.getInputStream(1L, partInfo);
+            fail();
+        } catch (DomibusEArchiveException e) {
+            assertTrue(StringUtils.contains(e.getMessage(), "partInfoMessageId"));
+        }
+
+        new Verifications() {
+        };
     }
 
     private byte[] getCompressedBytes(String rawEnvelopeContent) throws IOException {
         byte[] compressedBytes;
 
         // Compress it
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
-            try(OutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            try (OutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream)) {
                 gzipOutputStream.write(rawEnvelopeContent.getBytes(StandardCharsets.UTF_8));
             }
             compressedBytes = byteArrayOutputStream.toByteArray();

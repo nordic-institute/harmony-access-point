@@ -25,9 +25,23 @@ public interface DomibusEArchiveService {
 
     Long getBatchUserMessageListCount(String batchId);
 
-    List<String> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize);
+    /**
+     * Get not archive message from start message id till end message id.
+     * @param startMessageId - start message id for the select of not archived messages
+     * @param endMessageId - end  message id for the select of not archived messages
+     * @param pageStart - return result for page
+     * @param pageSize - return page size
+     * @return list of message ids
+     */
+    List<String> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize);
 
-    Long getNotArchivedMessagesCount(Date messageStartDate, Date messageEndDate);
+    /**
+     * Get not archive message count from start message id till end message id.
+     * @param startMessageId - start message id for the select of not archived messages
+     * @param endMessageId - end  message id for the select of not archived messages
+     * @return count of message ids
+     */
+    Long getNotArchivedMessagesCount(Long startMessageId, Long endMessageId);
 
     EArchiveBatchRequestDTO reExportBatch(String batchId);
 

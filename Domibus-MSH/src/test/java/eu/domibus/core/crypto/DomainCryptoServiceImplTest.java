@@ -1,11 +1,12 @@
 package eu.domibus.core.crypto;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.pki.CertificateInitValueType;
+import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.KeyStoreTypeSpi;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
 
 import static org.mockito.Mockito.*;
 
@@ -40,7 +39,7 @@ public class DomainCryptoServiceImplTest {
     private DomainCryptoServiceImpl domainCryptoService;
 
     @Before
-    public void setup(){
+    public void setup() {
         MockitoAnnotations.initMocks(this);
     }
 
@@ -53,11 +52,11 @@ public class DomainCryptoServiceImplTest {
         when(dssSpi.getIdentifier()).thenReturn(dss);
         when(domain.getCode()).thenReturn("DEF");
         when(domain.getName()).thenReturn("DEFAULT");
-        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi,dssSpi));
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-        domainCryptoService.init(null);
-        verify(dssSpi,times(1)).setDomain(new DomainSpi("DEF","DEFAULT"));
-        verify(dssSpi,times(1)).init();
+        domainCryptoService.init();
+        verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
+        verify(dssSpi, times(1)).init();
     }
 
 
@@ -68,7 +67,7 @@ public class DomainCryptoServiceImplTest {
         final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
         when(defaultSpi.getIdentifier()).thenReturn(dss);
         when(dssSpi.getIdentifier()).thenReturn(dss);
-        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi,dssSpi));
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
         domainCryptoService.init(null);
     }
@@ -94,11 +93,11 @@ public class DomainCryptoServiceImplTest {
         when(dssSpi.getIdentifier()).thenReturn(dss);
         when(domain.getCode()).thenReturn("DEF");
         when(domain.getName()).thenReturn("DEFAULT");
-        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi,dssSpi));
+        domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
         when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
-        domainCryptoService.init(Arrays.asList(CertificateInitValueType.TRUSTSTORE));
-        verify(dssSpi,times(1)).setDomain(new DomainSpi("DEF","DEFAULT"));
-        verify(dssSpi,times(1)).init(Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        domainCryptoService.init(KeyStoreType.TRUSTSTORE);
+        verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
+        verify(dssSpi, times(1)).init(KeyStoreTypeSpi.TRUSTSTORE.TRUSTSTORE);
     }
 }
 

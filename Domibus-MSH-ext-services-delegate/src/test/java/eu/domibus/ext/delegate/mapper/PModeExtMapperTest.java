@@ -20,7 +20,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class PModeExtMapperIT {
+public class PModeExtMapperTest {
 
     @Autowired
     private PModeExtMapper pModeExtMapper;

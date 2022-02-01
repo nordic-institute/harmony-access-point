@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
@@ -12,12 +13,12 @@ import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.crypto.spi.KeyStoreTypeSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -68,37 +69,16 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         this.certificateService = certificateService;
     }
 
-    public void init(List<Enum> initValue) {
-        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
-        if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
-            LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
-                    DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
-        }
-        final List<DomainCryptoServiceSpi> providerList = domainCryptoServiceSpiList.stream().
-                filter(domainCryptoServiceSpi -> spiIdentifier.equals(domainCryptoServiceSpi.getIdentifier())).
-                collect(Collectors.toList());
+    public void init() {
+        getIAMProvider();
+        iamProvider.init();
+    }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Authentication spi:");
-            providerList.forEach(domainCryptoServiceSpi -> LOG.debug(" identifier:[{}] for class:[{}]", domainCryptoServiceSpi.getIdentifier(), domainCryptoServiceSpi.getClass()));
-        }
+    public void init(KeyStoreType type) {
+        getIAMProvider();
 
-        if (providerList.size() > 1) {
-            throw new IllegalStateException(String.format("More than one authentication service provider for identifier:[%s]", spiIdentifier));
-        }
-        if (providerList.isEmpty()) {
-            throw new IllegalStateException(String.format("No authentication service provider found for given identifier:[%s]", spiIdentifier));
-        }
-
-        iamProvider = providerList.get(0);
-        iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
-        if (CollectionUtils.isEmpty(initValue)) {
-            iamProvider.init();
-        } else {
-            iamProvider.init(initValue);
-        }
-
-        LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
+        KeyStoreTypeSpi typeSpi = type == KeyStoreType.KEYSTORE ? KeyStoreTypeSpi.KEYSTORE : KeyStoreTypeSpi.TRUSTSTORE;
+        iamProvider.init(typeSpi);
     }
 
     @Override
@@ -187,8 +167,23 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(byte[] store, String password) throws CryptoException {
-        iamProvider.replaceTrustStore(store, password);
+    public void refreshKeyStore() {
+        iamProvider.refreshKeyStore();
+    }
+
+    @Override
+    public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException {
+        iamProvider.replaceTrustStore(storeContent, storeFileName, storePassword);
+    }
+
+    @Override
+    public void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException {
+        iamProvider.replaceTrustStore(storeLocation, storePassword);
+    }
+
+    @Override
+    public void replaceKeyStore(String storeFileLocation, String storePassword) {
+        iamProvider.replaceKeyStore(storeFileLocation, storePassword);
     }
 
     @Override
@@ -220,7 +215,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.addCertificate(list, overwrite);
     }
 
-
     public String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
@@ -240,18 +234,46 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void reset(List<Enum> initValue) {
-        this.init(initValue);
+    public void reset(KeyStoreType type) {
+        this.init(type);
     }
 
     @Override
     public void reset() {
-        this.init(null);
+        this.init();
     }
 
     @Override
     public byte[] getTruststoreContent() {
         return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
+    }
+
+    private void getIAMProvider() {
+        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
+        if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
+            LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
+                    DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
+        }
+        final List<DomainCryptoServiceSpi> providerList = domainCryptoServiceSpiList.stream().
+                filter(domainCryptoServiceSpi -> spiIdentifier.equals(domainCryptoServiceSpi.getIdentifier())).
+                collect(Collectors.toList());
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Authentication spi:");
+            providerList.forEach(domainCryptoServiceSpi -> LOG.debug(" identifier:[{}] for class:[{}]", domainCryptoServiceSpi.getIdentifier(), domainCryptoServiceSpi.getClass()));
+        }
+
+        if (providerList.size() > 1) {
+            throw new IllegalStateException(String.format("More than one authentication service provider for identifier:[%s]", spiIdentifier));
+        }
+        if (providerList.isEmpty()) {
+            throw new IllegalStateException(String.format("No authentication service provider found for given identifier:[%s]", spiIdentifier));
+        }
+
+        iamProvider = providerList.get(0);
+        iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
+
+        LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
     }
 
 }

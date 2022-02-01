@@ -1,8 +1,10 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.AbstractIT;
 import eu.domibus.ext.services.CacheExtService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -11,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -28,7 +31,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class CacheExtResourceIT {
+@Ignore("EDELIVERY-8892")
+public class CacheExtResourceIT extends AbstractIT {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -44,13 +48,15 @@ public class CacheExtResourceIT {
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     static class ContextConfiguration {
-        
+
         @Bean
+        @Primary
         public CacheExtResource cacheExtResource(CacheExtService cacheExtService) {
             return new CacheExtResource(cacheExtService, null);
         }
-        
+
         @Bean
+        @Primary
         public CacheExtService cacheExtService() {
             return Mockito.mock(CacheExtService.class);
         }

@@ -26,7 +26,6 @@ import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
@@ -39,8 +38,6 @@ import org.mockito.internal.matchers.GreaterThan;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -55,6 +52,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static eu.domibus.core.certificate.CertificateHelper.JKS;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
@@ -662,7 +660,7 @@ public class CertificateServiceImplTest {
     public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final String password = "test123";
-        final String type = "jks";
+        final String type = JKS;
 
         new Expectations() {{
             KeyStore.getInstance(type);
@@ -749,7 +747,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass", JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -861,7 +859,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -888,7 +886,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -920,7 +918,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -947,7 +945,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -974,7 +972,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1003,7 +1001,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1037,7 +1035,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1071,7 +1069,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1105,7 +1103,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test(expected = CryptoException.class) // ignore the CryptoException being initially thrown
@@ -1135,7 +1133,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         // Then
         new Verifications() {{
@@ -1422,7 +1420,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -1476,14 +1474,14 @@ public class CertificateServiceImplTest {
             entity.getType();
             result = TRUST_STORE_TYPE;
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
-        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(fileName, fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 

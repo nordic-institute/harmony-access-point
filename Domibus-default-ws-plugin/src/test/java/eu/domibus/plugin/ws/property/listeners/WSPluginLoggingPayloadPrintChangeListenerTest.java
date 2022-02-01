@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.property.listeners;
 
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import mockit.FullVerifications;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -9,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfiguration.DOMIBUS_LOGGING_PAYLOAD_PRINT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
  * @author François Gautier
@@ -18,7 +19,7 @@ import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfigurat
 @RunWith(JMockit.class)
 public class WSPluginLoggingPayloadPrintChangeListenerTest {
 
-    @Mocked
+    @Injectable
     private WSPluginLoggingEventSender loggingSender;
 
     protected WSPluginLoggingPayloadPrintChangeListener listener;
