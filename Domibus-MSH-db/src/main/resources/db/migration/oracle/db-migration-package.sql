@@ -3956,8 +3956,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN pm_join_payload_profile.FIRST .. pm_join_payload_profile.LAST
                 LOOP
                     BEGIN
-                        lookup_migration_pk('pm_payload', migration_pks, pm_join_payload_profile(i).FK_PAYLOAD, v_fk_payload);
-                        lookup_migration_pk('pm_payload_profile', migration_pks, pm_join_payload_profile(i).FK_PROFILE, v_fk_profile);
+                        lookup_migration_pk('pm_payload_profile', migration_pks, pm_join_payload_profile(i).FK_PAYLOAD, v_fk_payload);
+                        lookup_migration_pk('pm_payload', migration_pks, pm_join_payload_profile(i).FK_PROFILE, v_fk_profile);
 
                         INSERT INTO MIGR_TB_PM_JOIN_PAYLD_PROFILE (FK_PAYLOAD, FK_PROFILE, CREATION_TIME, CREATED_BY,
                                                                    MODIFICATION_TIME, MODIFIED_BY)
