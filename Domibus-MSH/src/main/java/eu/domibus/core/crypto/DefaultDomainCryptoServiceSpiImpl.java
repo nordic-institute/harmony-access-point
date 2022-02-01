@@ -143,7 +143,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         try {
             certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_TRUSTSTORE_NAME);
         } catch (CryptoException ex) {
-            throw new CryptoSpiException(ex);
+            throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
         }
         refreshTrustStore();
     }
@@ -153,7 +153,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         try {
             certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
         } catch (CryptoException ex) {
-            throw new CryptoSpiException(ex);
+            throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
         }
         refreshTrustStore();
     }
@@ -163,7 +163,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         try {
             certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
         } catch (CryptoException ex) {
-            throw new CryptoSpiException(ex.getMessage(), ex);
+            throw new CryptoSpiException("Error while replacing the keytstore from " + storeFileLocation, ex);
         }
         refreshKeyStore();
     }
