@@ -1,6 +1,5 @@
 package eu.domibus.api.earchive;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,24 +20,42 @@ public interface DomibusEArchiveService {
 
     Long getBatchRequestListCount(EArchiveBatchFilter filter);
 
-    List<String> getBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize);
+    /**
+     * Get exported messages ids in batch. If batch is in status: STARTED, QUEUED or FAILED, it returns empty list!
+     * If batch for "batch id" doesn't exist it throws and error getExportedBatchUserMessageList DomibusEArchiveException.
+     *
+     * @param batchId   - batch message id
+     * @param pageStart - return messages for page
+     * @param pageSize  - page size
+     * @return list of exported message ids in a batch for given page
+     */
+    List<String> getExportedBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize);
 
-    Long getBatchUserMessageListCount(String batchId);
+    /**
+     * Get count of exported messages in batch. If batch is in status STARTED, QUEUED or FAILED, it returns 0!
+     * If batch for "batch id" doesn't exist it throws and error getExportedBatchUserMessageList DomibusEArchiveException.
+     *
+     * @param batchId - batch message id
+     * @return number of exported messages in a batch
+     */
+    Long getExportedBatchUserMessageListCount(String batchId);
 
     /**
      * Get not archive message from start message id till end message id.
+     *
      * @param startMessageId - start message id for the select of not archived messages
-     * @param endMessageId - end  message id for the select of not archived messages
-     * @param pageStart - return result for page
-     * @param pageSize - return page size
+     * @param endMessageId   - end  message id for the select of not archived messages
+     * @param pageStart      - return result for page
+     * @param pageSize       - return page size
      * @return list of message ids
      */
     List<String> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize);
 
     /**
      * Get not archive message count from start message id till end message id.
+     *
      * @param startMessageId - start message id for the select of not archived messages
-     * @param endMessageId - end  message id for the select of not archived messages
+     * @param endMessageId   - end  message id for the select of not archived messages
      * @return count of message ids
      */
     Long getNotArchivedMessagesCount(Long startMessageId, Long endMessageId);
