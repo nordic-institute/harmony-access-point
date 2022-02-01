@@ -144,7 +144,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         final List<GrantedAuthority> authorities = validateAuthorities(highestAuthority, domain);
 
         DomibusUserDetails domibusUserDetails = new DomibusUserDetails(username, StringUtils.EMPTY, authorities);
-        domibusUserDetails.setAvailableDomains(domainCodesFromLDAP);
+        domibusUserDetails.setAvailableDomainCodes(domainCodesFromLDAP);
         domibusUserDetails.setDefaultPasswordUsed(false);
         domibusUserDetails.setExternalAuthProvider(true);
         domibusUserDetails.setDaysTillExpiration(Integer.MAX_VALUE);
@@ -160,7 +160,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         return domibusUserDetails;
     }
 
-    private List<GrantedAuthority> validateAuthorities(GrantedAuthority applicableAuthority, Domain domain) {
+    protected List<GrantedAuthority> validateAuthorities(GrantedAuthority applicableAuthority, Domain domain) {
         List<GrantedAuthority> authorities = new LinkedList<>();
         if (applicableAuthority != null) {
             if (hasSuperAdminUserPrivilege(applicableAuthority)) {
@@ -171,7 +171,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
                 } else {
                     LOG.warn("User has the super admin role but Domibus is not currently running in multitenancy mode");
                 }
-            }else if(domain != null) {
+            }else if (domain != null) {
                 //we set the groups only if the LDAP groups are mapping on both privileges and domain code
                 LOG.debug("granted role is [{}]", applicableAuthority.getAuthority());
                 authorities.add(applicableAuthority);
@@ -185,7 +185,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         return StringUtils.equals(grantedAuthority.getAuthority(), AuthRole.ROLE_AP_ADMIN.name());
     }
 
-    private Domain getFirstDomain(Set<String> domainCodesFromLDAP) {
+    protected Domain getFirstDomain(Set<String> domainCodesFromLDAP) {
         if(domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("assigned single tenancy default domain");
             return DomainService.DEFAULT_DOMAIN;
@@ -193,7 +193,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
 
         final String[] domainCodesFromLDAPArray = domainCodesFromLDAP.toArray(new String[0]);
         Domain defaultDomain = domainService.getDomains().stream()
-                .filter(domain -> StringUtils.equalsAny(domain.getName(), domainCodesFromLDAPArray))
+                .filter(domain -> StringUtils.equalsAny(domain.getCode(), domainCodesFromLDAPArray))
                 .findFirst()
                 .orElse(null);
         LOG.debug("assigned multitenancy default domain is [{}]", defaultDomain);

@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +60,7 @@ public class DomainsResource {
      */
     @GetMapping(value = "")
     public List<DomainRO> getDomains(@Valid Boolean active) {
-        List<Domain> domains = Arrays.asList();
+        List<Domain> domains = new ArrayList<>();
         if (active == null) {
             LOG.debug("Getting all domains");
             domains = domainDao.findAll();
@@ -68,8 +68,8 @@ public class DomainsResource {
             LOG.debug("Getting active domains");
             UserDetails userDetails = authUtils.getUserDetails();
             if (userDetails instanceof DomibusUserDetails) {
-                List<Domain> availableDomains = ((DomibusUserDetails) userDetails).getAvailableDomains().stream()
-                        .map(code -> domainService.getDomain(code))
+                List<Domain> availableDomains = ((DomibusUserDetails) userDetails).getAvailableDomainCodes().stream()
+                        .map(domainService::getDomain)
                         .collect(Collectors.toList());
                 domains.addAll(availableDomains);
             }

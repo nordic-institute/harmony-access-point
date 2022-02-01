@@ -1,5 +1,6 @@
 package eu.domibus.weblogic.security;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -12,12 +13,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import java.security.Principal;
 import java.util.*;
+
+import static eu.domibus.api.multitenancy.DomainService.DEFAULT_DOMAIN;
+import static org.junit.Assert.*;
 
 /**
  * @author Catalin Enache
@@ -27,7 +32,7 @@ import java.util.*;
 public class ECASUserDetailsEbms3ServiceTest {
 
     @Tested
-    ECASUserDetailsService ecasUserDetailsService;
+    private ECASUserDetailsService ecasUserDetailsService;
 
     @Injectable
     private DomainService domainService;
@@ -41,11 +46,12 @@ public class ECASUserDetailsEbms3ServiceTest {
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
 
-    private Map<String, AuthRole> userRoleMappings = new HashMap<>();
-    private Map<String, String> domainMappings = new HashMap<>();
+    private final Map<String, AuthRole> userRoleMappings = new HashMap<>();
+
+    private final Map<String, String> domainMappings = new HashMap<>();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         userRoleMappings.put("DIGIT_DOMRADM", AuthRole.ROLE_ADMIN);
         domainMappings.put("DIGIT_DOMDDOMN1", "domain1");
     }
@@ -85,14 +91,13 @@ public class ECASUserDetailsEbms3ServiceTest {
             String actualUsername;
             ecasUserDetailsService.createUserDetails(actualUsername = withCapture());
             times = 1;
-            Assert.assertEquals(username, actualUsername);
+            assertEquals(username, actualUsername);
         }};
     }
 
     @Test
-    public void createUserDetails(@Mocked final Principal principal, @Mocked final DomibusUserDetails domibusUserDetails) throws Exception {
+    public void createUserDetails(@Mocked final Principal principal) throws Exception {
         final String username = "super";
-        final String domainCode = "domain1";
 
         final Set<Principal> principals = new HashSet<>();
         principals.add(principal);
@@ -117,31 +122,177 @@ public class ECASUserDetailsEbms3ServiceTest {
             result = true;
 
             principal.getName();
-            result = "DIGIT_DOMRADM";
+            result = "DIGIT_DOMRSADM";
 
             ecasUserDetailsService.chooseHighestUserGroup((ArrayList<AuthRole>) any);
-            result = new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name());
+            result = new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name());
         }};
 
         //tested method
         ecasUserDetailsService.createUserDetails(username);
 
-        new FullVerifications(ecasUserDetailsService) {{
+        new FullVerifications(ecasUserDetailsService) { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void validateAuthorities_NothingGrantedWhenInitialGrantedAuthorityNull() {
+        // WHEN
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(null, DEFAULT_DOMAIN);
+
+        // THEN
+        assertTrue(grantedAuthorities.isEmpty());
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void validateAuthorities_NothingGrantedForNonSuperAdminUsersWhenDomainIsNull(@Injectable GrantedAuthority grantedAuthority) {
+        // GIVEN
+        new Expectations() {{
+            grantedAuthority.getAuthority();
+            result = AuthRole.ROLE_USER.name();
         }};
+
+        // WHEN
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, null);
+
+        // THEN
+        assertTrue(grantedAuthorities.isEmpty());
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void validateAuthorities_GrantedForNonSuperAdminUsersWhenDomainIsNotNull(@Injectable GrantedAuthority grantedAuthority) {
+        // GIVEN
+        new Expectations() {{
+            grantedAuthority.getAuthority();
+            result = AuthRole.ROLE_ADMIN.name();
+        }};
+
+        // WHEN
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, DEFAULT_DOMAIN);
+
+        // THEN
+        assertEquals(Collections.singletonList(grantedAuthority), grantedAuthorities);
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void validateAuthorities_NothingGrantedForSuperAdminUsersInSingleTenancy(@Injectable GrantedAuthority grantedAuthority) {
+        // GIVEN
+        new Expectations() {{
+            grantedAuthority.getAuthority();
+            result = AuthRole.ROLE_AP_ADMIN.name();
+
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+        }};
+
+        // WHEN
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, null);
+
+        // THEN
+        assertTrue(grantedAuthorities.isEmpty());
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void validateAuthorities_GrantedForSuperAdminUsersInMultitenancy(@Injectable GrantedAuthority grantedAuthority) {
+        // GIVEN
+        new Expectations() {{
+            grantedAuthority.getAuthority();
+            result = AuthRole.ROLE_AP_ADMIN.name();
+
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+        }};
+
+        // WHEN
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, null);
+
+        // THEN
+        assertEquals(Collections.singletonList(grantedAuthority), grantedAuthorities);
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void getFirstDomain_ReturnsDefaultDomainInSingleTenancy() {
+        // GIVEN
+        Set<String> domainCodesFromLdap = new HashSet<>();
+        domainCodesFromLdap.add("red");
+
+        new Expectations() {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = true;
+        }};
+
+        // WHEN
+        Domain firstDomain = ecasUserDetailsService.getFirstDomain(domainCodesFromLdap);
+
+        // THEN
+        assertEquals(DEFAULT_DOMAIN, firstDomain);
+    }
+
+    @Test
+    public void getFirstDomain_ReturnsNullWhenNoDomainLdapCodesMatchDomibusExistingDomains() {
+        // GIVEN
+        Set<String> domainCodesFromLdap = new HashSet<>();
+        domainCodesFromLdap.add("red");
+        domainCodesFromLdap.add("yellow");
+        domainCodesFromLdap.add("blue");
+
+        new Expectations() {{
+            final List<Domain> existing = new ArrayList<>();
+            existing.add(DEFAULT_DOMAIN);
+            existing.add(new Domain("green", "Green"));
+
+            domainService.getDomains();
+            result = existing;
+        }};
+
+        // WHEN
+        Domain firstDomain = ecasUserDetailsService.getFirstDomain(domainCodesFromLdap);
+
+        // THEN
+        assertNull(firstDomain);
+    }
+
+    @Test
+    public void getFirstDomain_ReturnsFirstMatchWhenOneOrMoreDomainLdapCodesMatchDomibusExistingDomains() {
+        // GIVEN
+        Set<String> domainCodesFromLdap = new HashSet<>();
+        domainCodesFromLdap.add("red");
+        domainCodesFromLdap.add("yellow");
+        domainCodesFromLdap.add("blue");
+
+        new Expectations() {{
+            final List<Domain> existing = new ArrayList<>();
+            existing.add(new Domain("yellow", "Yellow"));
+
+            domainService.getDomains();
+            result = existing;
+        }};
+
+        // WHEN
+        Domain firstDomain = ecasUserDetailsService.getFirstDomain(domainCodesFromLdap);
+
+        // THEN
+        assertEquals(new Domain("yellow", "Yellow"), firstDomain);
     }
 
     @Test
     public void retrieveDomainMappings() {
+        // GIVEN
         new Expectations() {{
             domibusPropertyProvider.getProperty(ECASUserDetailsService.ECAS_DOMIBUS_DOMAIN_MAPPINGS_KEY);
             result = "DIGIT_DOMDDOMN1=domain1;";
         }};
 
-        //tested method
+        // WHEN
         Map<String, String> domainMappings = ecasUserDetailsService.retrieveDomainMappings();
 
-        Assert.assertTrue(domainMappings.containsKey("DIGIT_DOMDDOMN1"));
-        Assert.assertEquals("domain1", domainMappings.get("DIGIT_DOMDDOMN1"));
+        // THEN
+        assertTrue(domainMappings.containsKey("DIGIT_DOMDDOMN1"));
+        assertEquals("domain1", domainMappings.get("DIGIT_DOMDDOMN1"));
     }
 
     @Test
@@ -154,25 +305,31 @@ public class ECASUserDetailsEbms3ServiceTest {
         //tested method
         Map<String, AuthRole> userRoleMappings = ecasUserDetailsService.retrieveUserRoleMappings();
 
-        Assert.assertTrue(userRoleMappings.entrySet().size() == 3);
-        Assert.assertEquals(AuthRole.ROLE_USER, userRoleMappings.get("DIGIT_DOMRUSR"));
-        Assert.assertEquals(AuthRole.ROLE_ADMIN, userRoleMappings.get("DIGIT_DOMRADM"));
-        Assert.assertEquals(AuthRole.ROLE_AP_ADMIN, userRoleMappings.get("DIGIT_DOMRSADM"));
+        assertEquals(3, userRoleMappings.size());
+        assertEquals(AuthRole.ROLE_USER, userRoleMappings.get("DIGIT_DOMRUSR"));
+        assertEquals(AuthRole.ROLE_ADMIN, userRoleMappings.get("DIGIT_DOMRADM"));
+        assertEquals(AuthRole.ROLE_AP_ADMIN, userRoleMappings.get("DIGIT_DOMRSADM"));
     }
 
     @Test
-    public void chooseHighestUserGroup() {
+    public void chooseHighestUserGroup_AdminRolesHaveHigherPrecedenceThanUserRoles() {
+        final List<AuthRole> roles = new ArrayList<>();
+        roles.add(AuthRole.ROLE_ADMIN);
+        roles.add(AuthRole.ROLE_USER);
 
-        final List<AuthRole> list1 = new ArrayList<>();
-        list1.add(AuthRole.ROLE_ADMIN);
-        list1.add(AuthRole.ROLE_USER);
+        assertEquals(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()),
+                ecasUserDetailsService.chooseHighestUserGroup(roles));
+    }
 
-        Assert.assertEquals(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()),
-                ecasUserDetailsService.chooseHighestUserGroup(list1));
+    @Test
+    public void chooseHighestUserGroup_SuperAdminRolesHaveHigherPrecedenceThanAdminOrUserRoles() {
+        final List<AuthRole> roles = new ArrayList<>();
+        roles.add(AuthRole.ROLE_ADMIN);
+        roles.add(AuthRole.ROLE_USER);
+        roles.add(AuthRole.ROLE_AP_ADMIN);
 
-        list1.add(AuthRole.ROLE_AP_ADMIN);
-        Assert.assertEquals(new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name()),
-                ecasUserDetailsService.chooseHighestUserGroup(list1));
+        assertEquals(new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name()),
+                ecasUserDetailsService.chooseHighestUserGroup(roles));
     }
 
 }

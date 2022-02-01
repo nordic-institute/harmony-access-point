@@ -69,7 +69,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         Set<String> availableDomains = getAvailableDomains(user);
         LOG.debug("Available domains: [{}]", availableDomains);
-        domibusUserDetails.setAvailableDomains(availableDomains);
+        domibusUserDetails.setAvailableDomainCodes(availableDomains);
 
         return domibusUserDetails;
     }
@@ -77,7 +77,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private Set<String> getAvailableDomains(User user) {
         // Return all domains for the super admin user; otherwise, return the user's domain
         return user.isSuperAdmin()
-                ? domainService.getDomains().stream().map(Domain::getName).collect(Collectors.toSet())
+                ? domainService.getDomains().stream().map(Domain::getCode).collect(Collectors.toSet())
                 : Collections.singleton(userDomainService.getDomainForUser(user.getUserName()));
     }
 

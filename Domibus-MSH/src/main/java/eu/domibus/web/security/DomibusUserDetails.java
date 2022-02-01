@@ -25,9 +25,9 @@ public class DomibusUserDetails implements UserDetails {
     protected String domain;
 
     /**
-     * All available domains this user is able to access or control.
+     * The codes of all available domains this user is able to access or control.
      */
-    private Set<String> availableDomains = new HashSet<>();
+    private Set<String> availableDomainCodes = new HashSet<>();
 
     public DomibusUserDetails(final User user) {
         this.defaultPasswordUsed = user.hasDefaultPassword();
@@ -112,12 +112,12 @@ public class DomibusUserDetails implements UserDetails {
         this.domain = domain;
     }
 
-    public Set<String> getAvailableDomains() {
-        return Collections.unmodifiableSet(availableDomains);
+    public Set<String> getAvailableDomainCodes() {
+        return Collections.unmodifiableSet(availableDomainCodes);
     }
 
-    public void setAvailableDomains(Set<String> availableDomains) {
-        this.availableDomains = new HashSet<>(availableDomains);
+    public void setAvailableDomainCodes(Set<String> availableDomainCodes) {
+        this.availableDomainCodes = new HashSet<>(availableDomainCodes);
     }
 
     public Integer getDaysTillExpiration() {
