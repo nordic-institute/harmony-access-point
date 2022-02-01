@@ -6,6 +6,7 @@
 -- Parameters to be adjusted:
 -- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
 --              default value is 10000
+-- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 10000
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
@@ -15,6 +16,9 @@
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
     BATCH_SIZE CONSTANT NUMBER := 10000;
+
+    -- limit loading a high number of records into memory
+    BULK_COLLECT_LIMIT CONSTANT NUMBER := 10000;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -240,7 +244,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_alert;
         LOOP
-            FETCH c_alert BULK COLLECT INTO alert;
+            FETCH c_alert BULK COLLECT INTO alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN alert.COUNT = 0;
 
             FOR i IN alert.FIRST .. alert.LAST
@@ -283,7 +287,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || alert.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || alert.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -317,7 +321,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event;
         LOOP
-            FETCH c_event BULK COLLECT INTO event;
+            FETCH c_event BULK COLLECT INTO event LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event.COUNT = 0;
 
             FOR i IN event.FIRST .. event.LAST
@@ -349,7 +353,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -382,7 +386,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event_alert;
         LOOP
-            FETCH c_event_alert BULK COLLECT INTO event_alert;
+            FETCH c_event_alert BULK COLLECT INTO event_alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_alert.COUNT = 0;
 
             FOR i IN event_alert.FIRST .. event_alert.LAST
@@ -412,7 +416,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_alert.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_alert.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -449,7 +453,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event_property;
         LOOP
-            FETCH c_event_property BULK COLLECT INTO event_property;
+            FETCH c_event_property BULK COLLECT INTO event_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_property.COUNT = 0;
 
             FOR i IN event_property.FIRST .. event_property.LAST
@@ -484,7 +488,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -517,7 +521,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_command;
         LOOP
-            FETCH c_command BULK COLLECT INTO command;
+            FETCH c_command BULK COLLECT INTO command LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command.COUNT = 0;
 
             FOR i IN command.FIRST .. command.LAST
@@ -548,7 +552,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || command.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || command.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -581,7 +585,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_command_property;
         LOOP
-            FETCH c_command_property BULK COLLECT INTO command_property;
+            FETCH c_command_property BULK COLLECT INTO command_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command_property.COUNT = 0;
 
             FOR i IN command_property.FIRST .. command_property.LAST
@@ -611,7 +615,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || command_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || command_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -645,7 +649,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_domain;
         LOOP
-            FETCH c_user_domain BULK COLLECT INTO user_domain;
+            FETCH c_user_domain BULK COLLECT INTO user_domain LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_domain.COUNT = 0;
 
             FOR i IN user_domain.FIRST .. user_domain.LAST
@@ -676,7 +680,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_domain.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_domain.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -717,7 +721,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user;
         LOOP
-            FETCH c_user BULK COLLECT INTO v_user;
+            FETCH c_user BULK COLLECT INTO v_user LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN v_user.COUNT = 0;
 
             FOR i IN v_user.FIRST .. v_user.LAST
@@ -758,7 +762,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || v_user.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || v_user.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -793,7 +797,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_password_history;
         LOOP
-            FETCH c_user_password_history BULK COLLECT INTO user_password_history;
+            FETCH c_user_password_history BULK COLLECT INTO user_password_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_password_history.COUNT = 0;
 
             FOR i IN user_password_history.FIRST .. user_password_history.LAST
@@ -826,7 +830,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_password_history.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_password_history.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -858,7 +862,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_role;
         LOOP
-            FETCH c_user_role BULK COLLECT INTO user_role;
+            FETCH c_user_role BULK COLLECT INTO user_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role.COUNT = 0;
 
             FOR i IN user_role.FIRST .. user_role.LAST
@@ -888,7 +892,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -921,7 +925,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_roles;
         LOOP
-            FETCH c_user_roles BULK COLLECT INTO user_roles;
+            FETCH c_user_roles BULK COLLECT INTO user_roles LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles.COUNT = 0;
 
             FOR i IN user_roles.FIRST .. user_roles.LAST
@@ -951,7 +955,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -981,7 +985,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_rev_info;
         LOOP
-            FETCH c_rev_info BULK COLLECT INTO rev_info;
+            FETCH c_rev_info BULK COLLECT INTO rev_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_info.COUNT = 0;
 
             FOR i IN rev_info.FIRST .. rev_info.LAST
@@ -1008,7 +1012,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_info.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_info.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1047,7 +1051,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_rev_changes;
         LOOP
-            FETCH c_rev_changes BULK COLLECT INTO rev_changes;
+            FETCH c_rev_changes BULK COLLECT INTO rev_changes LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_changes.COUNT = 0;
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
@@ -1107,7 +1111,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_changes.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_changes.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1154,7 +1158,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_aud;
         LOOP
-            FETCH c_user_aud BULK COLLECT INTO user_aud;
+            FETCH c_user_aud BULK COLLECT INTO user_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_aud.COUNT = 0;
 
             FOR i IN user_aud.FIRST .. user_aud.LAST
@@ -1201,7 +1205,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1234,7 +1238,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_role_aud;
         LOOP
-            FETCH c_user_role_aud BULK COLLECT INTO user_role_aud;
+            FETCH c_user_role_aud BULK COLLECT INTO user_role_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role_aud.COUNT = 0;
 
             FOR i IN user_role_aud.FIRST .. user_role_aud.LAST
@@ -1263,7 +1267,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1295,7 +1299,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_roles_aud;
         LOOP
-            FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud;
+            FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles_aud.COUNT = 0;
 
             FOR i IN user_roles_aud.FIRST .. user_roles_aud.LAST
@@ -1323,7 +1327,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
