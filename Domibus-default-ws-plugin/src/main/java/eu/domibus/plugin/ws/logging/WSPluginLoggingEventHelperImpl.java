@@ -3,13 +3,14 @@ package eu.domibus.plugin.ws.logging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
+
+import static org.apache.cxf.ext.logging.AbstractLoggingInterceptor.CONTENT_SUPPRESSED;
 
 /**
  * {@inheritDoc}
@@ -112,7 +113,7 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
 
     private String getReplacementPart(final String boundarySplit, final String xmlTag) {
         if (boundarySplit.contains(CONTENT_TYPE_MARKER) && !boundarySplit.contains(xmlTag)) {
-            return System.lineSeparator() + AbstractLoggingInterceptor.CONTENT_SUPPRESSED + System.lineSeparator();
+            return System.lineSeparator() + CONTENT_SUPPRESSED + System.lineSeparator();
         }
         return boundarySplit;
     }
@@ -130,18 +131,21 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
         int startTagLength = VALUE_START_MARKER.length() + 1;
         int endTagLength = VALUE_END_MARKER.length() + 1;
         int indexEnd = 0, fromIndex = 0;
+        String replaceWith = CONTENT_SUPPRESSED;
+
         int indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
         while (indexStart >= 0) {
             indexEnd = newPayload.indexOf(VALUE_END_MARKER, fromIndex);
             // the payload content is so large that it was trimmed, but we need to replace it nevertheless
             if (indexEnd < 0) {
-                // go till the end
+                // go till the end and close the tag
                 indexEnd = indexStart + startTagLength + newPayload.substring(indexStart + endTagLength).length() + 1;
+                replaceWith += VALUE_END_MARKER + ">\n</payload>";
             }
             String toBeReplaced = newPayload.substring(indexStart + startTagLength, indexEnd);
-            newPayload = newPayload.replace(toBeReplaced, AbstractLoggingInterceptor.CONTENT_SUPPRESSED);
+            newPayload = newPayload.replace(toBeReplaced, replaceWith);
 
-            fromIndex = indexStart + startTagLength + AbstractLoggingInterceptor.CONTENT_SUPPRESSED.length() + endTagLength;
+            fromIndex = indexStart + startTagLength + replaceWith.length() + endTagLength;
             indexStart = newPayload.indexOf(VALUE_START_MARKER, fromIndex);
         }
 
