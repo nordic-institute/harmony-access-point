@@ -205,6 +205,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     UserMessagePersistenceService userMessagePersistenceService;
 
+    @Injectable
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
     String pmodeKey = "pmodeKey";
 
     private static final String STRING_TYPE = "string";

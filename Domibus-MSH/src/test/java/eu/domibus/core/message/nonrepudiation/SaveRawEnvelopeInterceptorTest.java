@@ -2,6 +2,7 @@ package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.UserMessageContextKeyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.BooleanUtils;
@@ -24,6 +25,9 @@ public class SaveRawEnvelopeInterceptorTest {
     @Injectable
     NonRepudiationService nonRepudiationService;
 
+    @Injectable
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
     @Test
     public void testHandleMessage(@Mocked SoapMessage message, @Mocked SOAPMessage jaxwsMessage) {
         Long userMessageEntityId = 123L;
@@ -39,7 +43,7 @@ public class SaveRawEnvelopeInterceptorTest {
             message.getExchange().get(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY);
             result = String.valueOf(userMessageEntityId);
 
-            message.getExchange().get(UserMessage.USER_MESSAGE_DUPLICATE_KEY);
+            userMessageContextKeyProvider.getKeyFromTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY);
             result = "false";
         }};
 
