@@ -183,6 +183,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected SubmissionValidatorService submissionValidatorService;
 
+    @Autowired
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
     @Transactional
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
@@ -249,7 +252,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.warn("Message is a duplicate", e);
         }
 
-        PhaseInterceptorChain.getCurrentMessage().getExchange().put(UserMessage.USER_MESSAGE_DUPLICATE_KEY, "true");
+        userMessageContextKeyProvider.setKeyOnTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY, "true");
         final boolean duplicateDetectionActive = legConfiguration.getReceptionAwareness().getDuplicateDetection();
 
         String errorMessage = "Duplicate message";

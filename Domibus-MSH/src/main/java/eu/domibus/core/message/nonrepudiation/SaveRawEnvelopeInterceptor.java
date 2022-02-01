@@ -1,6 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.message.UserMessageContextKeyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -30,6 +31,9 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
     @Autowired
     NonRepudiationService nonRepudiationService;
 
+    @Autowired
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
     public SaveRawEnvelopeInterceptor() {
         super(Phase.WRITE_ENDING);
         addAfter(SoapOutInterceptor.SoapOutEndingInterceptor.class.getName());
@@ -44,7 +48,7 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
 
         String userMessageId = (String) message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
         String userMessageEntityIdValue = (String) message.getExchange().get(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY);
-        boolean duplicateMessage = BooleanUtils.toBoolean((String) message.getExchange().get(UserMessage.USER_MESSAGE_DUPLICATE_KEY));
+        boolean duplicateMessage = BooleanUtils.toBoolean(userMessageContextKeyProvider.getKeyFromTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY));
 
         if (userMessageEntityIdValue != null && !duplicateMessage) {
             Long userMessageEntityId = Long.valueOf(userMessageEntityIdValue);
