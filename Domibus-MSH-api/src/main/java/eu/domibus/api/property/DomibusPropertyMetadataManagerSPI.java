@@ -291,7 +291,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.connectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
 
-    String DOMIBUS_JMS_QUEUE_EARCHIVE = "domibus.jms.queue.earchive";
     String DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY = "domibus.earchive.queue.concurrency";
     String DOMIBUS_EARCHIVE_NOTIFICATION_QUEUE_CONCURRENCY = "domibus.earchive.notification.queue.concurrency";
     String DOMIBUS_EARCHIVE_NOTIFICATION_DLQ_CONCURRENCY = "domibus.earchive.notification.dlq.concurrency";
