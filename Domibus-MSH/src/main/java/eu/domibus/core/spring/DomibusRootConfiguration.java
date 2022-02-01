@@ -7,8 +7,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.io.File;
-
 import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_HOME;
 
 /**
@@ -27,6 +25,7 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_H
         basePackages = "eu.domibus",
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.web\\..*"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.webservice\\.backend\\..*"),
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu\\.domibus\\.ext\\.rest\\..*")}
 )
 @EnableJms
