@@ -11,10 +11,7 @@ import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
@@ -29,6 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  *
  * @author Sebastian-Ion TINCU
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
@@ -80,7 +78,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
             void init() { /* avoid @PostConstruct initialization */ }
         };
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
             result = "keystoreType";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
@@ -116,33 +114,6 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
         // Then
         Assert.assertTrue("Should have correctly returned the validity of the certificate chain", valid);
-    }
-
-    @Test
-    public void returnsTheCorrectTrustStoreWhenLoadingIt(@Injectable InputStream trustStoreInputStream) {
-        // Given
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) {
-                return trustStoreInputStream;
-            }
-
-            @Mock
-            String decryptPassword(String password, PasswordEncryptor passwordEncryptor) {
-                return "decryptedPassword";
-            }
-
-            @Mock
-            KeyStore load(InputStream input, String storepass, String provider, String type) {
-                return trustStore;
-            }
-        };
-
-        // When
-        KeyStore result = domainCryptoService.loadTrustStore();
-
-        // Then
-        Assert.assertEquals("Should have returned the correct trust store when loading it", trustStore, result);
     }
 
     @Test

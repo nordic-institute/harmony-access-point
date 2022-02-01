@@ -70,7 +70,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void clearPayloadData(long entityId) {
         LOG.debug("Start clearing payloadData");
 

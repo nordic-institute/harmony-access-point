@@ -1,9 +1,11 @@
 package eu.domibus.core.property;
 
 import mockit.Deencapsulation;
+import mockit.Expectations;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,12 +14,13 @@ import java.util.Properties;
 /**
  * @author Sebastian-Ion TINCU
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PrimitivePropertyTypesManagerDeenTest {
 
     private String customValue;
 
-    private Object result;
+    private Object myResult;
 
     private String propertyName = "domibus.property.name";
 
@@ -186,15 +189,21 @@ public class PrimitivePropertyTypesManagerDeenTest {
     }
 
     private void whenRetrievingTheIntegerProperty() {
-        result = Deencapsulation.invoke(primitivePropertyTypesManager, "getIntegerInternal", new Class[]{String.class, String.class}, propertyName, customValue);
+        new Expectations() {{
+            primitivePropertyTypesManager.getIntegerInternal(propertyName, customValue);
+            result = myResult;
+        }};
     }
 
     private void whenRetrievingTheBooleanProperty() {
-        result = Deencapsulation.invoke(primitivePropertyTypesManager, "getBooleanInternal", new Class[]{String.class, String.class}, propertyName, customValue);
+        new Expectations() {{
+            primitivePropertyTypesManager.getBooleanInternal(propertyName, customValue);
+            result = myResult;
+        }};
     }
 
     private void thenPropertyValueTakenFromDefaults(String message, Object expectedValue) {
-        Assert.assertEquals(message, result, expectedValue);
+        Assert.assertEquals(message, myResult, expectedValue);
     }
 
 

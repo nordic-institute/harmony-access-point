@@ -17,12 +17,14 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -92,6 +94,12 @@ public class AbstractEbms3UserMessageSenderTest {
     @Injectable
     SoapUtil soapUtil;
 
+    @Injectable
+    protected PartyEndpointProvider partyEndpointProvider;
+
+    @Injectable
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
     private final String messageId = UUID.randomUUID().toString();
 
     private final String senderName = "domibus-blue";
@@ -116,6 +124,8 @@ public class AbstractEbms3UserMessageSenderTest {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
         String messageId = "123";
+        String finalRecipient = "0151:123";
+        String receiverURL = "http://localhost";
 
         new Expectations(abstractUserMessageSender) {{
             userMessage.getMessageId();
@@ -157,7 +167,13 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = finalRecipient;
+
+            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            result = receiverURL;
+
+            mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
             result = response;
 
             responseHandler.verifyResponse(response, messageId);
@@ -308,6 +324,9 @@ public class AbstractEbms3UserMessageSenderTest {
                                                              @Injectable ResponseResult responseResult) throws Exception {
 
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
+        String finalRecipient = "0151:123";
+        String receiverURL = "http://localhost";
+
 
         new Expectations(abstractUserMessageSender) {{
             abstractUserMessageSender.getLog();
@@ -346,7 +365,13 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = finalRecipient;
+
+            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            result = receiverURL;
+
+            mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
             result = response;
 
             responseHandler.verifyResponse(response, messageId);
@@ -412,6 +437,8 @@ public class AbstractEbms3UserMessageSenderTest {
         final ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
 
         String attemptError = "OutOfMemory occurred while dispatching messages";
+        String finalRecipient = "0151:123";
+        String receiverURL = "http://localhost";
 
         new Expectations(abstractUserMessageSender) {{
 
@@ -451,7 +478,13 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+            userMessageServiceHelper.getFinalRecipient(userMessage);
+            result = finalRecipient;
+
+            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            result = receiverURL;
+
+            mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
             result = new OutOfMemoryError(attemptError);
 
         }};

@@ -42,7 +42,7 @@ public class PluginListenerTest {
 
         pluginListener.onPluginEvent(event, null);
 
-        new FullVerifications(){{
+        new Verifications(){{
             domainContextProvider.clearCurrentDomain();
             eventService.persistEvent(event);
             alertService.createAndEnqueueAlertOnPluginEvent(event);
@@ -59,7 +59,7 @@ public class PluginListenerTest {
 
         pluginListener.onPluginEvent(event, domain);
 
-        new FullVerifications(){{
+        new Verifications(){{
             domainContextProvider.setCurrentDomain(domain);times=1;
             eventService.persistEvent(event);
             alertService.createAndEnqueueAlertOnPluginEvent(event);

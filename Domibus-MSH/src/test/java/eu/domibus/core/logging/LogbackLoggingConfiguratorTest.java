@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.io.File;
 /**
  * Created by Cosmin Baciu on 12-Oct-16.
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class LogbackLoggingConfiguratorTest {
 

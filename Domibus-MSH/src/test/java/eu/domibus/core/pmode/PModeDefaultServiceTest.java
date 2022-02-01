@@ -77,7 +77,7 @@ public class PModeDefaultServiceTest {
 
             //noinspection ThrowableNotThrown
             pModeValidationHelper.getPModeValidationException(xmlProcessingException, "Failed to upload the PMode file due to: ");
-            returns(new PModeValidationException("Failed to upload the PMode file due to: ", null));
+            result = new PModeValidationException("Failed to upload the PMode file due to: ", null);
         }};
 
         // When

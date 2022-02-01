@@ -94,6 +94,8 @@ public class EArchiveNotificationListener implements MessageListener {
 
         EArchiveBatchStatus notificationType = EArchiveBatchStatus.valueOf(jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE));
 
+        LOG.info("Notification of type [{}] for batchId [{}] and entityId [{}]", notificationType, batchId, entityId);
+
         EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
 
         if (notificationType == EArchiveBatchStatus.FAILED) {

@@ -150,67 +150,68 @@
                         <version>${replacer.version}</version>
                         <executions>
                             <execution>
-                                <phase>pre-integration-test</phase>
+                                <id>tomcat-hardening</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>replace</goal>
                                 </goals>
+                                <configuration>
+                                    <basedir>${project.basedir}/cargo/installs/tomcat-${tomcat.version}/apache-tomcat-${tomcat.version}</basedir>
+                                    <outputBasedir>${project.build.directory}</outputBasedir>
+                                    <outputDir>replacer</outputDir>
+                                    <includes>
+                                        <include>conf/server.xml</include>
+                                        <include>conf/web.xml</include>
+                                    </includes>
+                                    <replacements>
+                                        <!-- Errors -->
+                                        <replacement>
+                                            <token>&lt;/web-app&gt;</token>
+                                            <value><![CDATA[
+<error-page>
+    <error-code>404</error-code>
+    <location>/error.jsp</location>
+</error-page>
+<error-page>
+    <error-code>403</error-code>
+    <location>/error.jsp</location>
+</error-page>
+<error-page>
+    <error-code>500</error-code>
+    <location>/error.jsp</location>
+</error-page>
+<error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/error.jsp</location>
+</error-page>
+</web-app>]]>
+                                            </value>
+                                        </replacement>
+                                        <!-- Cookies -->
+                                        <replacement>
+                                            <token>&lt;/session-config&gt;</token>
+                                            <value> <![CDATA[
+    <cookie-config>
+        <secure>true</secure>
+        <http-only>true</http-only>
+    </cookie-config>
+</session-config>]]>
+                                            </value>
+                                        </replacement>
+                                        <!-- Remote server shutdown  -->
+                                        <replacement>
+                                            <!-- setting its value to -1 (i.e. disable the remote shutdown) is not encouraged -->
+                                            <token>(&lt;Server.*port=")(\d+)(".*)</token>
+                                            <value>$158291$3</value>
+                                        </replacement>
+                                        <replacement>
+                                            <token>(&lt;Server.*shutdown=")(\w+)(".*)</token>
+                                            <value>$1DOMIBUSSHUTDOWNCMD$3</value>
+                                        </replacement>
+                                    </replacements>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <basedir>${project.basedir}/cargo/installs/tomcat-${tomcat.version}/apache-tomcat-${tomcat.version}</basedir>
-                            <outputBasedir>${project.build.directory}</outputBasedir>
-                            <outputDir>replacer</outputDir>
-                            <includes>
-                                <include>conf/server.xml</include>
-                                <include>conf/web.xml</include>
-                            </includes>
-                            <replacements>
-                                <!-- Errors -->
-                                <replacement>
-                                    <token>&lt;/web-app&gt;</token>
-                                    <value><![CDATA[
-    <error-page>
-        <error-code>404</error-code>
-        <location>/error.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>403</error-code>
-        <location>/error.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>500</error-code>
-        <location>/error.jsp</location>
-    </error-page>
-    <error-page>
-        <exception-type>java.lang.Exception</exception-type>
-        <location>/error.jsp</location>
-    </error-page>
-</web-app>]]>
-                                    </value>
-                                </replacement>
-                                <!-- Cookies -->
-                                <replacement>
-                                    <token>&lt;/session-config&gt;</token>
-                                    <value> <![CDATA[
-        <cookie-config>
-            <secure>true</secure>
-            <http-only>true</http-only>
-        </cookie-config>
-    </session-config>]]>
-                                    </value>
-                                </replacement>
-                                <!-- Remote server shutdown  -->
-                                <replacement>
-                                    <!-- setting its value to -1 (i.e. disable the remote shutdown) is not encouraged -->
-                                    <token>(&lt;Server.*port=")(\d+)(".*)</token>
-                                    <value>$158291$3</value>
-                                </replacement>
-                                <replacement>
-                                    <token>(&lt;Server.*shutdown=")(\w+)(".*)</token>
-                                    <value>$1DOMIBUSSHUTDOWNCMD$3</value>
-                                </replacement>
-                            </replacements>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -332,7 +333,7 @@
                         <version>${replacer.version}</version>
                         <executions>
                             <execution>
-                                <id>domibus-conf-location</id>
+                                <id>wildfly-startup-arguments</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>replace</goal>

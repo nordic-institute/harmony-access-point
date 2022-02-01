@@ -17,6 +17,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,6 +40,7 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PasswordEncryptionServiceImplTest {

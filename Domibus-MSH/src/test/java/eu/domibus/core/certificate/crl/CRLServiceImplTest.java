@@ -7,6 +7,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class CRLServiceImplTest {
 
@@ -102,7 +104,7 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
@@ -116,10 +118,10 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
 
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            returns("ftp,http");
+            returns("ftp","http");
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
@@ -149,7 +151,7 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
 
             crlUtil.downloadCRL(crlUrl1);
             result = new DomibusCRLException();
@@ -165,10 +167,10 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
 
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            returns("ftp");
+            result = "ftp";
         }};
 
         crlService.isCertificateRevoked(certificate);
@@ -188,7 +190,7 @@ public class CRLServiceImplTest {
 
         new Expectations(crlService) {{
             crlUtil.getCrlDistributionPoints(certificate);
-            returns(crlUrlList);
+            result = crlUrlList;
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);

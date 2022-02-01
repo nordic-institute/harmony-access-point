@@ -72,17 +72,17 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize) {
         LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
                 lastUserMessageLogId,
                 maxEntityIdToArchived,
-                size);
+                batchMaxSize);
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
-        query.setMaxResults(size);
+        query.setMaxResults(batchMaxSize);
 
         return query.getResultList();
     }
@@ -459,7 +459,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
         MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
         messageLog.setMessageStatus(messageStatusEntity);

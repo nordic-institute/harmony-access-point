@@ -129,7 +129,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void deliverMessage(DeliverMessageEvent event) {
         String fsPluginDomain = fsDomainService.getFSPluginDomain();
         if (!fsPluginProperties.getDomainEnabled(fsPluginDomain)) {

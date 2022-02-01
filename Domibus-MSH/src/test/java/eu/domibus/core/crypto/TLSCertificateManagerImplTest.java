@@ -54,7 +54,7 @@ public class TLSCertificateManagerImplTest {
         tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword);
 
         new Verifications() {{
-            certificateService.replaceTrustStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }

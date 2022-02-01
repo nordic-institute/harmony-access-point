@@ -265,24 +265,38 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected void getTriggersInErrorOrBlockedState(Scheduler quartzScheduler, String domainName, List<QuartzTriggerDetails> triggerInfoList, String jobName, List<Trigger> triggers) throws SchedulerException {
         for (Trigger trigger : triggers) {
             Trigger.TriggerState triggerState = quartzScheduler.getTriggerState(trigger.getKey());
-            if (isTriggerInErrorOrBlockedState(triggerState, trigger)) {
+            if (isTriggerInErrorOrBlockedState(triggerState, trigger, domainName)) {
                 MonitoringStatus state = triggerState.equals(Trigger.TriggerState.ERROR) ? MonitoringStatus.ERROR : MonitoringStatus.BLOCKED;
                 QuartzTriggerDetails quartzTriggerDetails = new QuartzTriggerDetails();
                 quartzTriggerDetails.setDomainName(domainName);
                 quartzTriggerDetails.setTriggerStatus(state);
                 quartzTriggerDetails.setJobName(jobName);
-                LOG.debug("Quartz job [{}] is in [{}] state.", jobName, state);
+                LOG.debug("Quartz job [{}] is in [{}] state for domain [{}].", jobName, state, domainName);
                 triggerInfoList.add(quartzTriggerDetails);
             }
         }
     }
 
-    protected boolean isTriggerInErrorOrBlockedState(Trigger.TriggerState triggerState, Trigger trigger) {
+    protected boolean isTriggerInErrorOrBlockedState(Trigger.TriggerState triggerState, Trigger trigger, String domainName) {
+        if (triggerState == null) {
+            LOG.debug("Trigger state is null. Determined the trigger state as ERROR for domain [{}]", domainName);
+            return true;
+        }
+        if (triggerState.equals(Trigger.TriggerState.ERROR)) {
+            LOG.warn("Trigger [{}] is in ERROR state for domain [{}]", trigger, domainName);
+            return true;
+        }
+        //checking triggers in error status or blocked for the duration of more than 5 minutes
         Date now = new Date();
         Date previousFireTime = trigger.getPreviousFireTime();
-        //checking triggers in error status or blocked for the duration of more than 5 minutes
-        if (triggerState.equals(Trigger.TriggerState.ERROR) ||
-                (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > TRIGGER_BLOCKED_DURATION))) {
+        if (previousFireTime == null) {
+            LOG.debug("Previous fire time is null: could not determine if trigger [{}] is BLOCKED for domain [{}]. Considering the trigger as not BLOCKED", trigger, domainName);
+            return false;
+
+        }
+
+        if (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > TRIGGER_BLOCKED_DURATION)) {
+            LOG.warn("Trigger [{}] is BLOCKED for domain [{}]", trigger, domainName);
             return true;
         }
         return false;

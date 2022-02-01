@@ -52,7 +52,6 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-all</artifactId>
             <version>${org.apache.activemq.client-all.version}</version>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>

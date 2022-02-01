@@ -9,6 +9,7 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class UserMessageLogDefaultServiceTest {

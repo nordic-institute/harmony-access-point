@@ -9,11 +9,12 @@ import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.Injectable;
-import mockit.NonStrictExpectations;
+import mockit.Expectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertTrue;
  * @author Thomas Dussart
  * @since 3.3
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ProcessValidatorTest {
 
@@ -41,7 +43,7 @@ public class ProcessValidatorTest {
 
     @Before
     public void init() {
-        new NonStrictExpectations() {{
+        new Expectations() {{
             pullMessageService.allowDynamicInitiatorInPullProcess();
             result = false;
 

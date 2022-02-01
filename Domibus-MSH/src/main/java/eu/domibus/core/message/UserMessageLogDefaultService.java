@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ENTITY_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -82,6 +83,8 @@ public class UserMessageLogDefaultService {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.create(userMessageLog);
+        LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+
         return userMessageLog;
     }
 

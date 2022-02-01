@@ -62,6 +62,13 @@ public class CertificateDaoImplIT extends AbstractIT {
     @Before
     public void setup() {
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+
+        final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
+        final LocalDateTime offset = localDateTime.minusDays(15);
+        final LocalDateTime notification = localDateTime.minusDays(7);
+        List<Certificate> certs2 = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
+        certificateDao.deleteAll(certs2);
+        certs2 = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
     }
 
     /**

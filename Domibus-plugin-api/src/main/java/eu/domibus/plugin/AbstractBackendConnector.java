@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -72,7 +71,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ENTITY_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageEntityId);
         if (messageEntityId != null) {
@@ -102,7 +101,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {

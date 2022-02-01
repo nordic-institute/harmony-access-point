@@ -19,6 +19,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +33,7 @@ import static org.junit.Assert.fail;
  * @since 4.1
  */
 
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class IncomingUserMessageHandlerTest {

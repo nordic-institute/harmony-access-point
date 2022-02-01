@@ -18,13 +18,13 @@ public class DomibusConfigLocationProvider {
     public String getDomibusConfigLocation(ServletContext servletContext) {
         String domibusConfigLocationInitParameter = servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
         if (StringUtils.isNotBlank(domibusConfigLocationInitParameter)) {
-            LOG.debug("Property [{}] is configured as a servlet init parameter with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocationInitParameter);
+            LOG.info("Property [{}] is configured as a servlet init parameter with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocationInitParameter);
             return domibusConfigLocationInitParameter;
         }
 
         String domibusConfigLocation = System.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
         if (StringUtils.isNotBlank(domibusConfigLocation)) {
-            LOG.debug("Property [{}] is configured as a system property with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
+            LOG.info("Property [{}] is configured as a system property with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION, domibusConfigLocation);
             return domibusConfigLocation;
         }
         return null;

@@ -132,11 +132,28 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password, List<Enum> initValue) throws CryptoException {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain, initValue);
-        certificateHelper.validateStoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
-        domainCertificateProvider.replaceTrustStore(store, password);
-        domibusCacheService.clearCache("certValidationByAlias");
+    public void refreshKeyStore(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.refreshKeyStore();
+    }
+
+    @Override
+    public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
+        doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
+    }
+
+    @Override
+    public void replaceTrustStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
+        doReplaceTrustStore(domain, storeFileLocation, null, storePassword);
+    }
+
+    @Override
+    public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), storeFileLocation);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.replaceKeyStore(storeFileLocation, storePassword);
+
+        saveCertificateAndLogRevocation(domain);
     }
 
     @Override
@@ -195,27 +212,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void reset() {
-        domainCertificateProviderMap.values().stream().forEach(service -> service.reset());
+    public void reset(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        domainCertificateProvider.reset();
     }
 
     @Override
-    public void reset(List<Enum> initValue) {
-        domainCertificateProviderMap.values().stream().forEach(service -> service.reset(initValue));
-    }
-
-    @Override
-    public void reset(Domain domain, List<Enum> initValue) {
-        if (domain == null) {
-            throw new InvalidParameterException("Domain is null.");
-        }
-
-        final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
-        if (domainCertificateProvider == null) {
-            throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
-        }
-
-        domainCertificateProvider.reset(initValue);
+    public void reset(Domain domain, KeyStoreType type) {
+        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        domainCertificateProvider.reset(type);
     }
 
     @Override
@@ -239,6 +244,21 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     public void onDomainRemoved(Domain domain) {
     }
 
+    private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileNameOrLocation);
+
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        if (storeContent != null) {
+            domainCertificateProvider.replaceTrustStore(storeContent, storeFileNameOrLocation, storePassword);
+        } else {
+            domainCertificateProvider.replaceTrustStore(storeFileNameOrLocation, storePassword);
+        }
+
+        domibusCacheService.clearCache(CERT_VALIDATION_BY_ALIAS);
+        saveCertificateAndLogRevocation(domain);
+    }
+
+
     protected void persistTruststoresIfApplicable(List<Domain> domains) {
         certificateService.persistTruststoresIfApplicable(DOMIBUS_TRUSTSTORE_NAME, false,
                 () -> Optional.of(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION)),
@@ -255,13 +275,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         );
     }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain,  List<Enum> initValue) {
+    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
         LOG.debug("Get domain CertificateProvider for domain [{}]", domain);
         if (domainCertificateProviderMap.get(domain) == null) {
             synchronized (domainCertificateProviderMap) {
                 if (domainCertificateProviderMap.get(domain) == null) { //NOSONAR: double-check locking
                     LOG.debug("Creating domain CertificateProvider for domain [{}]", domain);
-                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain, initValue);
+                    DomainCryptoService domainCertificateProvider = domainCryptoServiceFactory.domainCryptoService(domain);
                     domainCertificateProviderMap.put(domain, domainCertificateProvider);
                 }
             }
@@ -269,8 +289,22 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         return domainCertificateProviderMap.get(domain);
     }
 
+    private DomainCryptoService getDomainCryptoService(Domain domain) {
+        if (domain == null) {
+            throw new InvalidParameterException("Domain is null.");
+        }
 
-    protected DomainCryptoService getDomainCertificateProvider(Domain domain) {
-        return getDomainCertificateProvider(domain, null);
+        final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
+        if (domainCertificateProvider == null) {
+            throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
+        }
+        return domainCertificateProvider;
+    }
+
+    private void saveCertificateAndLogRevocation(Domain domain) {
+        // trigger update certificate table
+        final KeyStore trustStore = getTrustStore(domain);
+        final KeyStore keyStore = getKeyStore(domain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
     }
 }

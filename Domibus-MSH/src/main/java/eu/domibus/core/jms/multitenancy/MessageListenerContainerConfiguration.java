@@ -313,7 +313,8 @@ public class MessageListenerContainerConfiguration {
                         "SELECTOR: [{}]",
                 domain,
                 destination,
-                selector));
+                selector,
+                t));
         return messageListenerContainer;
     }
 
