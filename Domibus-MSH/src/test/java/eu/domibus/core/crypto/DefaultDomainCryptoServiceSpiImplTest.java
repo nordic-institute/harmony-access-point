@@ -7,11 +7,9 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -91,8 +89,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
-            result = "trustStoreBackupLocation";
         }};
     }
 
@@ -165,19 +161,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
         // Then
         Assert.assertNotNull("Should have returned the truststore certificate from Merlin", certificateFromTrustStore);
-    }
-
-    @Test
-    public void replaceTrustStore() {
-
-        byte[] store = "cert content".getBytes();
-        String password = "test123";
-
-        domainCryptoService.replaceTrustStore(store, password);
-
-        new Verifications() {{
-            certificateService.replaceTrustStore(store, password, DOMIBUS_TRUSTSTORE_NAME);
-        }};
     }
 
     @Test

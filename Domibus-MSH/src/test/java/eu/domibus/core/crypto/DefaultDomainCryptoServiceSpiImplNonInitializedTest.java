@@ -117,33 +117,6 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
     }
 
     @Test
-    public void returnsTheCorrectTrustStoreWhenLoadingIt(@Injectable InputStream trustStoreInputStream) {
-        // Given
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            InputStream loadInputStream(ClassLoader classLoader, String trustStoreLocation) {
-                return trustStoreInputStream;
-            }
-
-            @Mock
-            String decryptPassword(String password, PasswordEncryptor passwordEncryptor) {
-                return "decryptedPassword";
-            }
-
-            @Mock
-            KeyStore load(InputStream input, String storepass, String provider, String type) {
-                return trustStore;
-            }
-        };
-
-        // When
-        KeyStore result = domainCryptoService.loadTrustStore();
-
-        // Then
-        Assert.assertEquals("Should have returned the correct trust store when loading it", trustStore, result);
-    }
-
-    @Test
     public void refreshesTheTrustStoreWithTheLoadedTrustStore() {
         // Given
         new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
