@@ -6,7 +6,6 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
@@ -26,10 +25,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
+import java.util.*;
 
+import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_NAME;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -225,16 +223,16 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         try {
             processingTypeProperty = messageIn.getStringProperty(PROCESSING_TYPE);
         } catch (JMSException e) {
-            LOG.debug("Property:[{}] is empty, setting processing type to default PUSH",PROCESSING_TYPE);
+            LOG.debug("Property:[{}] is empty, setting processing type to default PUSH", PROCESSING_TYPE);
             return ProcessingType.PUSH;
         }
-        if(StringUtils.isEmpty(processingTypeProperty)){
+        if (StringUtils.isEmpty(processingTypeProperty)) {
             return ProcessingType.PUSH;
         }
         try {
             return ProcessingType.valueOf(processingTypeProperty);
-        }catch (IllegalArgumentException e){
-            throw new DefaultJmsPluginException("Value for processingType property:["+ processingTypeProperty +"] is incorrect. Should be PUSH or PULL.",e);
+        } catch (IllegalArgumentException e) {
+            throw new DefaultJmsPluginException("Value for processingType property:[" + processingTypeProperty + "] is incorrect. Should be PUSH or PULL.", e);
         }
     }
 
@@ -343,23 +341,37 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     private void transformToSubmissionHandlePayload(MapMessage messageIn, Submission target, String bodyloadEnabled, int i) throws JMSException {
-        final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
+        final Collection<Submission.TypedProperty> partProperties = new ArrayList<>();
 
         final String mimeType = getMimeType(messageIn, i);
+        partProperties.add(new Submission.TypedProperty(MIME_TYPE, mimeType));
+
         final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, i);
         String fileName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payFileNameProp)));
-        final String payloadNameProperty = MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, i);
-        String payloadName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payloadNameProperty)));
-        final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
-        final String contentId = trim(messageIn.getStringProperty(payContID));
-        final Collection<Submission.TypedProperty> partProperties = new ArrayList<>();
-        partProperties.add(new Submission.TypedProperty(MIME_TYPE, mimeType));
         if (fileName != null && !fileName.trim().equals("")) {
             partProperties.add(new Submission.TypedProperty(PAYLOAD_FILENAME, fileName));
         }
+
+        final String payloadNameProperty = MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, i);
+        String payloadName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payloadNameProperty)));
         if (StringUtils.isNotBlank(payloadName)) {
-            partProperties.add(new Submission.TypedProperty(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, payloadName));
+            partProperties.add(new Submission.TypedProperty(PAYLOAD_PROPERTY_FILE_NAME, payloadName));
         }
+
+        List<String> addedProps = Arrays.asList(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, i), payFileNameProp, payloadNameProperty);
+        final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
+        Enumeration<String> allProps = messageIn.getPropertyNames();
+        while (allProps.hasMoreElements()) {
+            String key = allProps.nextElement();
+            if (key.startsWith(propPayload)) {
+                if (addedProps.contains(key)) {
+                    continue;
+                }
+                String propName = key.substring(propPayload.length() + 1);
+                partProperties.add(new Submission.TypedProperty(propName, messageIn.getStringProperty(key)));
+            }
+        }
+
         DataHandler payloadDataHandler;
         try {
             payloadDataHandler = new DataHandler(new ByteArrayDataSource(messageIn.getBytes(propPayload), mimeType));
@@ -373,11 +385,12 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         }
         boolean inBody = (i == 1 && "true".equalsIgnoreCase(bodyloadEnabled));
 
+        final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
+        final String contentId = trim(messageIn.getStringProperty(payContID));
         target.addPayload(contentId, payloadDataHandler, partProperties, inBody, null, null);
     }
 
     /**
-     *
      * @return {@link MediaType#APPLICATION_OCTET_STREAM} if null or empty
      */
     protected String getMimeType(MapMessage messageIn, int index) throws JMSException {
