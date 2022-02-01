@@ -22,18 +22,18 @@ public interface DomibusEArchiveService {
 
     /**
      * Get exported messages ids in batch. If batch is in status: STARTED, QUEUED or FAILED, it returns empty list!
-     * If batch for "batch id" doesn't exist it throws and error getExportedBatchUserMessageList DomibusEArchiveException.
+     * If batch for "batch id" doesn't exist, method throws and error DomibusEArchiveException.
      *
      * @param batchId   - batch message id
-     * @param pageStart - return messages for page
-     * @param pageSize  - page size
+     * @param pageStart - return result for the page
+     * @param pageSize  - return result for the page size
      * @return list of exported message ids in a batch for given page
      */
     List<String> getExportedBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize);
 
     /**
      * Get count of exported messages in batch. If batch is in status STARTED, QUEUED or FAILED, it returns 0!
-     * If batch for "batch id" doesn't exist it throws and error getExportedBatchUserMessageList DomibusEArchiveException.
+     * If batch for "batch id" doesn't exist, method throws and error DomibusEArchiveException.
      *
      * @param batchId - batch message id
      * @return number of exported messages in a batch
@@ -46,7 +46,7 @@ public interface DomibusEArchiveService {
      * @param startMessageId - start message id for the select of not archived messages
      * @param endMessageId   - end  message id for the select of not archived messages
      * @param pageStart      - return result for page
-     * @param pageSize       - return page size
+     * @param pageSize       - return result for the page size
      * @return list of message ids
      */
     List<String> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize);
