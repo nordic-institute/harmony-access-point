@@ -35,8 +35,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
     public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
-    public final static CertificateInitValueType INIT_TRUSTSTORE_NAME = CertificateInitValueType.TRUSTSTORE;
-    public final static CertificateInitValueType INIT_KEYSTORE_NAME = CertificateInitValueType.KEYSTORE;
+    public static final String CERT_VALIDATION_BY_ALIAS = "certValidationByAlias";
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
