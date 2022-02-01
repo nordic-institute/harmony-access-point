@@ -66,7 +66,8 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
     }
 
     @Override
-    public void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
+    public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) {
+
     }
 
     @Override
@@ -76,6 +77,11 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
 
     @Override
     public void replaceKeyStore(String storeFileLocation, String storePassword) {
+    }
+
+    @Override
+    public void refreshKeyStore() {
+
     }
 
     @Override
@@ -134,7 +140,7 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
     }
 
     @Override
-    public void init(CertificateInitValueType type) {
+    public void init(KeyStoreTypeSpi type) {
 
     }
 
