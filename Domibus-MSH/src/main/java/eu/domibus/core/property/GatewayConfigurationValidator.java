@@ -68,7 +68,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
     public void onDomainRemoved(Domain domain) {
     }
 
-    protected void validateCertificates() {
+    public   void validateCertificates() {
         final List<Domain> domains = domainService.getDomains();
         validateCertificates(domains);
     }

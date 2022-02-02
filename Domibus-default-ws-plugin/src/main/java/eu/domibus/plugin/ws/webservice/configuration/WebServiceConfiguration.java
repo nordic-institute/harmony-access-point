@@ -12,7 +12,9 @@ import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
-import eu.domibus.plugin.ws.webservice.*;
+import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
+import eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory;
+import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
@@ -28,6 +30,8 @@ import javax.jms.Queue;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+
 /**
  * Class responsible for the configuration of the plugin, independent of any server
  *
@@ -40,9 +44,6 @@ public class WebServiceConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
-    public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
-    public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
-    public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
     @Bean(WSPluginImpl.PLUGIN_NAME)
     public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
@@ -58,13 +59,13 @@ public class WebServiceConfiguration {
 
     @Bean("backendWebservice")
     public WebServiceImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
-                                               WebServiceExceptionFactory webServicePluginExceptionFactory,
-                                               WSMessageLogService wsMessageLogService,
-                                               DomainContextExtService domainContextExtService,
-                                               WSPluginPropertyManager wsPluginPropertyManager,
-                                               AuthenticationExtService authenticationExtService,
-                                               MessageExtService messageExtService,
-                                               WSPluginImpl wsPlugin) {
+                                         WebServiceExceptionFactory webServicePluginExceptionFactory,
+                                         WSMessageLogService wsMessageLogService,
+                                         DomainContextExtService domainContextExtService,
+                                         WSPluginPropertyManager wsPluginPropertyManager,
+                                         AuthenticationExtService authenticationExtService,
+                                         MessageExtService messageExtService,
+                                         WSPluginImpl wsPlugin) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,

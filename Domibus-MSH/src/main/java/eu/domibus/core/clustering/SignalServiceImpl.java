@@ -54,6 +54,17 @@ public class SignalServiceImpl implements SignalService {
     }
 
     @Override
+    public void signalKeyStoreUpdate(Domain domain) {
+        LOG.debug("Signaling keystore update on [{}] domain", domain);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.RELOAD_KEYSTORE);
+        commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
     public void signalPModeUpdate() {
         LOG.debug("Signaling PMode update on [{}] domain", domainContextProvider.getCurrentDomain().getCode());
 
