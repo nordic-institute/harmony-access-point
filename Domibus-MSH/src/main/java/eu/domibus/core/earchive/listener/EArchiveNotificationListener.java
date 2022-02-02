@@ -84,8 +84,8 @@ public class EArchiveNotificationListener implements MessageListener {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
-
         Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
         if (StringUtils.isBlank(batchId) || entityId == null) {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;
