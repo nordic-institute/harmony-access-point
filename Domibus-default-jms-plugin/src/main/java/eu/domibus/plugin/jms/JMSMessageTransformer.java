@@ -363,10 +363,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         Enumeration<String> allProps = messageIn.getPropertyNames();
         while (allProps.hasMoreElements()) {
             String key = allProps.nextElement();
-            if (!key.startsWith(propPayload) || addedProps.contains(key)) {
+            if (!key.startsWith(propPayload) || propPayload.equals(key) || addedProps.contains(key)) {
                 continue;
             }
             String propName = key.substring(propPayload.length() + 1);
+            if (propName.isEmpty()) {
+                continue;
+            }
             partProperties.add(new Submission.TypedProperty(propName, messageIn.getStringProperty(key)));
         }
 
