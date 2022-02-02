@@ -177,7 +177,7 @@ public class MessageDaoTestUtil {
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received) {
-        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC, new Date());
+        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC, null);
     }
 
     @Transactional
