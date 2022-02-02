@@ -360,7 +360,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
-        assertEquals(2, messagesForArchiving.size());
+        assertEquals(5, messagesForArchiving.size());
         assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
     }
 
@@ -370,7 +370,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
-        assertEquals(2, messagesForArchiving.size());
+        assertEquals(4, messagesForArchiving.size());
     }
 
     @Test
