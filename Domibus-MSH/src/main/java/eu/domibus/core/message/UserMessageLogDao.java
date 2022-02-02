@@ -235,24 +235,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
+    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
+            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesOlderThan");
         }
         // return only messages with payload not already cleared
-        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
+        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
     }
 
     public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
@@ -294,20 +294,21 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
 
     /**
      * EDELIVERY-7772 Hibernate setResultTransformer deprecated
      */
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, boolean eArchiveIsActive, String queryName) {
         Query query = em.createNamedQuery(queryName);
 
         query.unwrap(org.hibernate.query.Query.class)
                 .setResultTransformer(new UserMessageLogDtoResultTransformer());
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
+        query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
         query.setMaxResults(expiredMessagesLimit);
 
         try {
