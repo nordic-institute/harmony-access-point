@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class ECASUserDetailsEbms3ServiceTest {
+public class ECASUserDetailsServiceTest {
 
     @Tested
     private ECASUserDetailsService ecasUserDetailsService;
@@ -67,7 +67,7 @@ public class ECASUserDetailsEbms3ServiceTest {
             result = domibusUserDetails;
         }};
 
-        //tested method
+        // WHEN
         final UserDetails userDetails = ecasUserDetailsService.loadUserDetails(token);
         Assert.assertNotNull(userDetails);
     }
@@ -84,7 +84,7 @@ public class ECASUserDetailsEbms3ServiceTest {
             result = domibusUserDetails;
         }};
 
-        //tested method
+        // WHEN
         ecasUserDetailsService.loadUserByUsername(username);
 
         new FullVerifications() {{
@@ -128,7 +128,7 @@ public class ECASUserDetailsEbms3ServiceTest {
             result = new SimpleGrantedAuthority(AuthRole.ROLE_AP_ADMIN.name());
         }};
 
-        //tested method
+        // WHEN
         ecasUserDetailsService.createUserDetails(username);
 
         new FullVerifications(ecasUserDetailsService) { /* no unexpected interactions */ };
@@ -137,7 +137,7 @@ public class ECASUserDetailsEbms3ServiceTest {
     @Test
     public void validateAuthorities_NothingGrantedWhenInitialGrantedAuthorityNull() {
         // WHEN
-        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(null, DEFAULT_DOMAIN);
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateHighestAuthority(null, DEFAULT_DOMAIN);
 
         // THEN
         assertTrue(grantedAuthorities.isEmpty());
@@ -153,7 +153,7 @@ public class ECASUserDetailsEbms3ServiceTest {
         }};
 
         // WHEN
-        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, null);
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateHighestAuthority(grantedAuthority, null);
 
         // THEN
         assertTrue(grantedAuthorities.isEmpty());
@@ -169,7 +169,7 @@ public class ECASUserDetailsEbms3ServiceTest {
         }};
 
         // WHEN
-        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, DEFAULT_DOMAIN);
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateHighestAuthority(grantedAuthority, DEFAULT_DOMAIN);
 
         // THEN
         assertEquals(Collections.singletonList(grantedAuthority), grantedAuthorities);
@@ -188,7 +188,7 @@ public class ECASUserDetailsEbms3ServiceTest {
         }};
 
         // WHEN
-        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, null);
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateHighestAuthority(grantedAuthority, null);
 
         // THEN
         assertTrue(grantedAuthorities.isEmpty());
@@ -207,7 +207,7 @@ public class ECASUserDetailsEbms3ServiceTest {
         }};
 
         // WHEN
-        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateAuthorities(grantedAuthority, null);
+        List<GrantedAuthority> grantedAuthorities = ecasUserDetailsService.validateHighestAuthority(grantedAuthority, null);
 
         // THEN
         assertEquals(Collections.singletonList(grantedAuthority), grantedAuthorities);
@@ -280,6 +280,92 @@ public class ECASUserDetailsEbms3ServiceTest {
     }
 
     @Test
+    public void getAvailableDomainCodes_ReturnsValidLdapDomainCodesForNonSuperAdminUsersInMultitenancy(@Injectable GrantedAuthority highestAuthority) {
+        // GIVEN
+        final Set<String> domainCodesFromLdap = new HashSet<>();
+        domainCodesFromLdap.add("red");
+        domainCodesFromLdap.add("yellow");
+        domainCodesFromLdap.add("blue");
+
+        final List<Domain> availableDomains = Collections.singletonList(new Domain("blue", "Blue"));
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+
+            highestAuthority.getAuthority();
+            result = AuthRole.ROLE_USER.name();
+
+            domainService.getDomains();
+            result = availableDomains;
+        }};
+
+
+        // WHEN
+        Set<String> availableDomainCodes = ecasUserDetailsService.getAvailableDomainCodes(domainCodesFromLdap, highestAuthority);
+
+        // THEN
+        assertEquals(Collections.singleton("blue"), availableDomainCodes);
+    }
+
+    @Test
+    public void getAvailableDomainCodes_ReturnsValidLdapDomainCodesInSingleTenancy(@Injectable GrantedAuthority highestAuthority) {
+        // GIVEN
+        final Set<String> domainCodesFromLdap = new HashSet<>();
+        domainCodesFromLdap.add("red");
+        domainCodesFromLdap.add("yellow");
+        domainCodesFromLdap.add("blue");
+
+        final List<Domain> availableDomains = Collections.singletonList(new Domain("yellow", "Yellow"));
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+
+            domainService.getDomains();
+            result = availableDomains;
+        }};
+
+        // WHEN
+        Set<String> availableDomainCodes = ecasUserDetailsService.getAvailableDomainCodes(domainCodesFromLdap, highestAuthority);
+
+        // THEN
+        assertEquals(Collections.singleton("yellow"), availableDomainCodes);
+    }
+
+
+    @Test
+    public void getAvailableDomainCodes_ReturnsAllValidLdapDomainCodesForSuperAdminUsersInMultitenancy(@Injectable GrantedAuthority highestAuthority) {
+        // GIVEN
+        final Set<String> domainCodesFromLdap = new HashSet<>();
+        domainCodesFromLdap.add("red");
+        domainCodesFromLdap.add("yellow");
+        domainCodesFromLdap.add("blue");
+
+        final List<Domain> availableDomains = Arrays.asList(
+                new Domain("red", "Red"),
+                new Domain("yellow", "Yellow"));
+
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+
+            highestAuthority.getAuthority();
+            result = AuthRole.ROLE_AP_ADMIN.name();
+
+            domainService.getDomains();
+            result = availableDomains;
+        }};
+
+
+        // WHEN
+        Set<String> availableDomainCodes = ecasUserDetailsService.getAvailableDomainCodes(domainCodesFromLdap, highestAuthority);
+
+        // THEN
+        assertEquals(new HashSet<>(Arrays.asList("red", "yellow")), availableDomainCodes);
+    }
+
+    @Test
     public void retrieveDomainMappings() {
         // GIVEN
         new Expectations() {{
@@ -302,7 +388,7 @@ public class ECASUserDetailsEbms3ServiceTest {
             result = "DIGIT_DOMRUSR=ROLE_USER;DIGIT_DOMRADM=ROLE_ADMIN;DIGIT_DOMRSADM=ROLE_AP_ADMIN;";
         }};
 
-        //tested method
+        // WHEN
         Map<String, AuthRole> userRoleMappings = ecasUserDetailsService.retrieveUserRoleMappings();
 
         assertEquals(3, userRoleMappings.size());
