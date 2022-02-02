@@ -56,6 +56,11 @@ export class DomainService {
       this.domainSubject.unsubscribe();
     }
     this.domainSubject = null;
+
+    if (this._domains) {
+      this._domains.unsubscribe();
+    }
+    this._domains = null;
   }
 
   public get domains(): Observable<Domain[]> {
