@@ -84,7 +84,7 @@ public class DomibusApplicationInitializerTest {
 
         domibusApplicationInitializer.onStartup(servletContext);
 
-        new FullVerifications() {{
+        new Verifications() {{
             annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
             annotationConfigWebApplicationContext.register(DomibusWebConfiguration.class);
 

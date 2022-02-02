@@ -30,6 +30,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Arun Raj on 18/10/2016.
@@ -54,12 +55,17 @@ public class JMSMessageTransformerTest {
     private static final String SERVICE_TYPE_TC1 = "tc1";
     private static final String PAYLOAD_FILENAME = "FileName";
     private static final String PAYLOAD_1_FILENAME = "payload_1_fileName";
+    private static final String TEST_PROPERTY = "testProperty";
+    private static final String PAYLOAD_1_TEST_PROPERTY = "payload_1" + "_" + TEST_PROPERTY;
+    private static final String PAYLOAD_1_EMPTY_PROPERTY = "payload_1_";
+
     private static final String PAYLOAD_2_FILENAME = "payload_2_fileName";
     private static final String FILENAME_TEST = "09878378732323.payload";
     private static final String CUSTOM_AGREEMENT_REF = "customAgreement";
     public static final String PROPERTY_TEST = "test";
     public static final String PROPERTY_PREFIX = "property_";
     public static final String PAY_LOAD = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+    public static final String TEST_VALUE = "testValue";
 
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
@@ -154,7 +160,7 @@ public class JMSMessageTransformerTest {
      */
     @Test
     public void transformToSubmission_HappyFlow() throws Exception {
-        ReflectionTestUtils.setField(testObj,"fileUtilExtService", (FileUtilExtService) fileName -> fileName);
+        ReflectionTestUtils.setField(testObj, "fileUtilExtService", (FileUtilExtService) fileName -> fileName);
 
         MapMessage messageMap = new ActiveMQMapMessage();
         messageMap.setStringProperty(JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, "submitMessage");
@@ -174,6 +180,9 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(AGREEMENT_REF, "customAgreement");
         messageMap.setStringProperty(AGREEMENT_REF_TYPE, "ref_type");
         messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
+        messageMap.setStringProperty(PAYLOAD_1_TEST_PROPERTY, TEST_VALUE);
+        messageMap.setStringProperty(PAYLOAD_1_EMPTY_PROPERTY, "blabla");
+
         messageMap.setStringProperty(PROPERTY_PREFIX + PROPERTY_TEST, "test property");
         messageMap.setStringProperty(JMSMessageConstants.PROCESSING_TYPE, ProcessingType.PUSH.name());
 
@@ -183,7 +192,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), PAYLOAD_ID);
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), DEFAULT_MT);
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, 1), "filename");
-        messageMap.setStringProperty(MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, 1), JMS_PAYLOAD_NAME_FORMAT+"name");
+        messageMap.setStringProperty(MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, 1), JMS_PAYLOAD_NAME_FORMAT + "name");
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 
         Submission objSubmission = testObj.transformToSubmission(messageMap);
@@ -226,12 +235,17 @@ public class JMSMessageTransformerTest {
                         .flatMap(payload -> payload.getPayloadProperties().stream())
                         .collect(toList());
 
-        assertEquals(4, typedProperties.size());
+        assertEquals(6, typedProperties.size());
+
+        assertTrue(typedProperties.stream().anyMatch(el -> el.getKey().equals(TEST_PROPERTY)));
+        assertTrue(typedProperties.stream().anyMatch(el -> el.getValue().equals(TEST_VALUE)));
+
+        assertTrue(!typedProperties.stream().anyMatch(el -> el.getKey().equals(PAYLOAD_1_EMPTY_PROPERTY)));
 
         assertEquals(DEFAULT_MT, getMandatoryProperties(typedProperties, MIME_TYPE).get(0).getValue());
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, getMandatoryProperties(typedProperties, MIME_TYPE).get(1).getValue());
         assertEquals("filename", getMandatoryProperty(typedProperties, PAYLOAD_FILENAME).getValue());
-        assertEquals(JMS_PAYLOAD_NAME_FORMAT+"name", getMandatoryProperty(typedProperties, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME).getValue());
+        assertEquals(JMS_PAYLOAD_NAME_FORMAT + "name", getMandatoryProperty(typedProperties, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME).getValue());
     }
 
     /**
@@ -246,6 +260,7 @@ public class JMSMessageTransformerTest {
                 .findAny()
                 .orElseThrow(() -> new AssertionError("Property:" + key + "Not found"));
     }
+
     /**
      * @param typedProperties from {@link Submission}
      * @param key             of the property
@@ -399,13 +414,14 @@ public class JMSMessageTransformerTest {
     }
 
     private void assertGetMimeType(String expected, String actual) throws JMSException {
-        new Expectations(){{
+        new Expectations() {{
             messageIn.getStringProperty("payload_1_mimeType");
             times = 1;
             result = actual;
         }};
         String mimeType = testObj.getMimeType(messageIn, 1);
         assertEquals(expected, mimeType);
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }

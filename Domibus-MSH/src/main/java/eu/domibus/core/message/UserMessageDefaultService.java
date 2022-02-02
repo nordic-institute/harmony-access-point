@@ -41,7 +41,6 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -542,7 +541,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public List<String> deleteMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
-        if (messagesToDelete.isEmpty() || messagesToDelete == null) {
+        if (CollectionUtils.isEmpty(messagesToDelete)) {
             LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
         }
@@ -564,7 +563,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);

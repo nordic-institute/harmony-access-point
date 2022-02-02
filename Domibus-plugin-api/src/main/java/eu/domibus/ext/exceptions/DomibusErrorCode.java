@@ -29,7 +29,24 @@ public enum DomibusErrorCode {
     /**
      * Payloads error
      */
-    DOM_005("005");
+    DOM_005("005"),
+
+    /**
+     * Proxy related exception.
+     */
+    DOM_006("006"),
+    /**
+     * Invalid message exception
+     */
+    DOM_007("007"),
+    /**
+     * Convert exception
+     */
+    DOM_008("008"),
+    /**
+     * Not found exception
+     */
+    DOM_009("009");
 
     private String errorCode;
 

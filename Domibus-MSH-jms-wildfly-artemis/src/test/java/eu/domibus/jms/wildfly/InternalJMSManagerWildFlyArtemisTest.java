@@ -14,6 +14,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
@@ -32,6 +33,7 @@ import static org.junit.Assert.*;
  * @author Ion Perpegel
  * @since 4.1
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class InternalJMSManagerWildFlyArtemisTest {
 
@@ -88,7 +90,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
         final List<String> allPropertyNames = Arrays.asList("JMSProp1", "totalNumberOfPayloads");
         final List<String> mapNames = Arrays.asList("payload_1");
 
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 mapMessage.getJMSType();
                 result = jmsType;

@@ -30,8 +30,8 @@ def create_domibus_plugin_user():
 	headers = {"Accept": "application/json, text/plain, */*", "Content-Type": "application/json"}
 	login_info = '{"username":"super","password":"123456"}'
 	plugin_userName = 'soapScanScript'
-	plugin_user_info = '[{"status":"NEW","userName":"soapScanScript","active":true,"suspended":false,"authenticationType":"BASIC","authRoles":"ROLE_ADMIN","password":"QW!@qw12"}]'
-	plugin_auth_info = 'Basic c29hcFNjYW5TY3JpcHQ6UVchQHF3MTI='
+	plugin_user_info = '[{"status":"NEW","userName":"soapScanScript","active":true,"suspended":false,"authenticationType":"BASIC","authRoles":"ROLE_ADMIN","password":"QW!@qw12QW!@qw12"}]'
+	plugin_auth_info = 'Basic c29hcFNjYW5TY3JpcHQ6UVchQHF3MTJRVyFAcXcxMg =='
 
 	login_url = "http://localhost:9088/domibus/rest/security/authentication"
 	plugin_user_url = "http://localhost:9088/domibus/rest/plugin/users"

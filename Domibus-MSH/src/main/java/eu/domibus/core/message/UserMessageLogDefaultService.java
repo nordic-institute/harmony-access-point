@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ENTITY_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -81,10 +82,8 @@ public class UserMessageLogDefaultService {
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
         }
-        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(status);
-        //we set the status after we send the status change event; otherwise the old status and the new status would be the same
-        userMessageLog.setMessageStatus(messageStatusEntity);
         userMessageLogDao.create(userMessageLog);
+        LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
 
         return userMessageLog;
     }
@@ -129,7 +128,7 @@ public class UserMessageLogDefaultService {
 
     protected void setSignalMessageAsDeleted(final String signalMessageId) {
         final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
-        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(MessageStatus.DELETED);
+        final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.DELETED);
         signalMessageLog.setDeleted(new Date());
         signalMessageLog.setMessageStatus(messageStatusEntity);
         uiReplicationSignalService.messageChange(signalMessageId);

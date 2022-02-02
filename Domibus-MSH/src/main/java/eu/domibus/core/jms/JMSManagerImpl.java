@@ -35,7 +35,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Topic;
-import javax.management.ObjectName;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -544,7 +543,7 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void removeFromPending(String queueName, String messageId) throws MessageNotFoundException {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();

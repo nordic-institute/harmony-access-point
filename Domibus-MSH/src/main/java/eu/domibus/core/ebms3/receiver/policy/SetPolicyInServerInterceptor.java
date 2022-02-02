@@ -144,7 +144,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         try {
             if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, userMessageHandlerService.createErrorResult(e));
+                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
             }
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);

@@ -23,10 +23,13 @@ public class ConfigurationLoaderTest {
     private DomainContextProvider domainContextProvider;
 
     @Test
-    public void getConfigurationForDomain(@Mocked final ConfigurationReader configurationReader, @Mocked final Domain domain) {
+    public void getConfigurationForDomain(@Injectable final ConfigurationReader configurationReader, @Injectable final Domain domain) {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = domain;
+
+            configurationReader.readConfiguration();
+            result = new Object();
         }};
         configurationLoader.getConfiguration(configurationReader);
         configurationLoader.getConfiguration(configurationReader);
@@ -41,6 +44,9 @@ public class ConfigurationLoaderTest {
         new Expectations() {{
             domainContextProvider.getCurrentDomainSafely();
             result = null;
+
+            configurationReader.readConfiguration();
+            result = new Object();
         }};
 
         configurationLoader.getConfiguration(configurationReader);

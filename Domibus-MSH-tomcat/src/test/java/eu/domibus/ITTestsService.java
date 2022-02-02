@@ -31,7 +31,6 @@ public class ITTestsService {
     @Autowired
     protected DatabaseMessageHandler databaseMessageHandler;
 
-
     @Autowired
     protected MpcDao mpcDao;
 
@@ -52,14 +51,15 @@ public class ITTestsService {
 
     @Autowired
     protected AgreementDao agreementDao;
+
     @Autowired
     protected UserMessageDao userMessageDao;
+
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
 
-
     @Transactional
-    public String sendMessageToDelete(MessageStatus endStatus) throws MessagingProcessingException {
+    public String sendMessageWithStatus(MessageStatus endStatus) throws MessagingProcessingException {
 
         Submission submission = submissionUtil.createSubmission();
         final String messageId = databaseMessageHandler.submit(submission, "mybackend");

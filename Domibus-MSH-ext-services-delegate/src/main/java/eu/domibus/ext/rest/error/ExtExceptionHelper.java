@@ -6,6 +6,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.ext.domain.ErrorDTO;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -107,5 +108,22 @@ public class ExtExceptionHelper {
     private Throwable extractCause(Throwable e) {
         //first level of cause exception
         return (e.getCause() == null ? e : e.getCause());
+    }
+
+    /**
+     * Uses the enum name of the {@Link DomibusCoreErrorCode} to identify the DomibusExtErrorCode.
+     * Assumption is that the error codes for Core and Ext will be maintained as a 1-1 match.
+     * If no match found, generic error code will be returned.
+     *
+     * @param coreErrorCode
+     * @return
+     */
+    public DomibusErrorCode identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode coreErrorCode){
+        try {
+            return DomibusErrorCode.valueOf(coreErrorCode.name());
+        } catch (IllegalArgumentException e) {
+            LOG.debug("DomibusCoreErrorCode:[{}] does not match with any existing DomibusErrorCode. Mapping to generic error DOM_001.", coreErrorCode.name());
+            return DomibusErrorCode.DOM_001;
+        }
     }
 }

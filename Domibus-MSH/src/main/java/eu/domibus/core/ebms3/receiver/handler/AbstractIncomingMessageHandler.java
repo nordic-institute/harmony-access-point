@@ -78,7 +78,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         } catch (final EbMS3Exception e) {
             try {
                 if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                    backendNotificationService.notifyMessageReceivedFailure(userMessage, null, userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());

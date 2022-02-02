@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest.error;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -96,4 +97,9 @@ public class ExtExceptionHelperTest {
         }};
     }
 
+    @Test
+    public void identifyExtErrorCodeFromCoreErrorCode() {
+        Assert.assertEquals(DomibusErrorCode.DOM_009, extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode.DOM_009));
+        Assert.assertEquals(DomibusErrorCode.DOM_002, extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode.DOM_002));
+    }
 }

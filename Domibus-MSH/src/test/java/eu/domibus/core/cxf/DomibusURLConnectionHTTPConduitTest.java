@@ -12,6 +12,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,6 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.core.cxf.DomibusURLConnectionHTTPConduit.PROTOCOL_HTTP;
 import static eu.domibus.core.cxf.DomibusURLConnectionHTTPConduit.PROTOCOL_HTTPS;
 
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DomibusURLConnectionHTTPConduitTest {
 

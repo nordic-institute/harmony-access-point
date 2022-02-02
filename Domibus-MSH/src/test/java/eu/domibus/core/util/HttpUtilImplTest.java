@@ -8,8 +8,8 @@ import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import mockit.Expectations;
 import mockit.Injectable;
-import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.http.HttpHost;
@@ -66,7 +66,7 @@ public class HttpUtilImplTest {
     @Test
     @Ignore
     public void testDownloadCRLViaProxy() throws Exception {
-        new NonStrictExpectations(proxyUtil) {{
+        new Expectations(proxyUtil) {{
             domibusProxyService.useProxy();
             result = true;
 
@@ -114,7 +114,7 @@ public class HttpUtilImplTest {
             trustStore.load(instream, TEST_TRUSTSTORE_PASSWD.toCharArray());
         }
 
-        new NonStrictExpectations(proxyUtil) {{
+        new Expectations(proxyUtil) {{
             domibusProxyService.useProxy();
             result = false;
 

@@ -97,7 +97,7 @@ public class SetPolicyInServerInterceptorTest {
         setPolicyInServerInterceptor.processPluginNotification(ebMS3Exception, legConfiguration, messaging);
 
         new Verifications() {{
-            backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, errorResult);
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
         }};
     }
 

@@ -16,14 +16,28 @@ import java.util.zip.GZIPInputStream;
  */
 public class RawEnvelopeDto {
 
-    final byte[] rawMessage;
-    final long id;
-    final boolean compressed;
+    protected final byte[] rawMessage;
+    protected final long id;
+    protected final boolean compressed;
+
+    /* The entity id of the UserMessage or SignalMessage */
+    protected Long parentEntityId = null;
+
+    public RawEnvelopeDto(long id, byte[] rawMessage, boolean compressed, Long parentEntityId) {
+        this.id = id;
+        this.rawMessage = rawMessage;
+        this.compressed = compressed;
+        this.parentEntityId = parentEntityId;
+    }
 
     public RawEnvelopeDto(long id, byte[] rawMessage, boolean compressed) {
         this.id = id;
         this.rawMessage = rawMessage;
         this.compressed = compressed;
+    }
+
+    public Long getParentEntityId() {
+        return parentEntityId;
     }
 
     public byte[] getRawMessage() {

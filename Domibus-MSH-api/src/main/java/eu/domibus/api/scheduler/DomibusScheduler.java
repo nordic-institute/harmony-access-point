@@ -29,30 +29,30 @@ public interface DomibusScheduler extends DomainsAware {
     void rescheduleJob(Domain domain, String jobNameToReschedule, Integer newRepeatInterval) throws DomibusSchedulerException;
 
     /**
-     * If the job exist and it is not already paused, method pause the job.
+     * If the job exists and it is not already paused, method pauses the job.
      * @param domain the domain of the job to pause
      * @param jobNameToPause the name of the job to pause
      */
     void pauseJob(Domain domain, String jobNameToPause) throws DomibusSchedulerException;
 
     /**
-     * If the job exist and it is not already paused, method pause the job.
-     * @param domain the domain of the job to pause
-     * @param jobNamesToPause array of the names of the job to pause
+     * If the job exists and it is not already paused, method pauses the job(s).
+     * @param domain the domain of the jobs to pause
+     * @param jobNamesToPause array of the names of jobs to pause
      */
     void pauseJobs(Domain domain, String ... jobNamesToPause) throws DomibusSchedulerException;
 
     /**
-     * If the job exist and it is paused, method resumes the job.
+     * If the job exists and it is paused, method resumes the job.
      * @param domain the domain of the job to resume
      * @param jobNameToResume the name of the job to resume
      */
     void resumeJob(Domain domain, String jobNameToResume) throws DomibusSchedulerException;
 
     /**
-     * If the job exist and it is paused, method resumes the job.
-     * @param domain the domain of the job to resume
-     * @param jobNamesToResume the names of the job to resume
+     * If the job exists and it is paused, method resumes the job(s).
+     * @param domain the domain of the jobs to resume
+     * @param jobNamesToResume the names of jobs to resume
      */
     void resumeJobs(Domain domain, String ... jobNamesToResume) throws DomibusSchedulerException;
 
@@ -69,5 +69,12 @@ public interface DomibusScheduler extends DomainsAware {
      * @param domain
      * @param jobNameToDelete
      */
-    public void markJobForDeletionByDomain(Domain domain, String jobNameToDelete);
+    void markJobForDeletionByDomain(Domain domain, String jobNameToDelete);
+
+    /**
+     * Marks a job to be paused when possible (after the quartz scheduler is started)
+     * @param domain the domain of the job to be paused
+     * @param jobName the name of the job to be paused
+     */
+    void markJobForPausingByDomain(Domain domain, String jobName);
 }

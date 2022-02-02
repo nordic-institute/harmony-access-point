@@ -100,7 +100,7 @@ public class RetryDefaultEbms3ServiceTest {
     public void getMessagesNotAlreadyQueuedWithNoAlreadyQueuedMessagesTest() {
         List<Long> retryMessageIds = Arrays.asList(123L, 456L, 789L);
 
-        new NonStrictExpectations(retryService) {{
+        new Expectations(retryService) {{
             userMessageLogDao.findRetryMessages(anyLong, anyLong);
             result = new ArrayList<>(retryMessageIds);
         }};

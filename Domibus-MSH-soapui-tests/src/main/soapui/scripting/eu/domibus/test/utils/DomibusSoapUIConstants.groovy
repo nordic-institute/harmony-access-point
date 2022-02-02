@@ -5,6 +5,8 @@ class DomibusSoapUIConstants {
     public static final def PROP_GLOBAL_JMS_ALL_PROPERTIES = 'allJMSDomainsProperties'
     // JMS JSON properties
     public static final def JSON_JMS_TYPE = 'jmsClientType';
+    public static final def JSON_JMX_PORT = "jmxPort";
+    public static final def JSON_HOSTNAME = "hostname";
     public static final def JSON_JMS_URL = 'jmsUrl';
     public static final def JSON_JMS_QUEUE = 'jmsQueue';
     public static final def JSON_JMS_CF_JNDI = 'jmsConnectionFactoryJNDI';

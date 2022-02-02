@@ -29,9 +29,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -395,7 +395,8 @@ public class CachingPModeProviderTest {
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         // Then
-        assertEquals(expectedList, partyIdByServiceAndAction);
+        assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
+        assertTrue(CollectionUtils.containsAll(expectedList, partyIdByServiceAndAction));
     }
 
     @Test
@@ -417,7 +418,8 @@ public class CachingPModeProviderTest {
         List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
         // Then
-        assertEquals(expectedList, partyIdByServiceAndAction);
+        assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
+        assertTrue(CollectionUtils.containsAll(expectedList, partyIdByServiceAndAction));
     }
 
     private Party getPartyByName(Set<Party> parties, final String partyName) {
@@ -1423,21 +1425,37 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8774 Validation Sender presence")
-    public void testFindUserMessageExchangeContextSenderNotProvided(@Injectable UserMessage userMessage) {
+    public void testFindUserMessageExchangeContextSenderNotProvided(@Injectable UserMessage userMessage, @Injectable PartyId partyId) {
 
         MSHRole mshRole1 = MSHRole.SENDING;
-        new Expectations() {{
+        new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getFromPartyId();
-            result = null;
+            result = partyId;
         }};
         try {
             cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null);
             Assert.fail("expected error that sender party is missing");
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("Mandatory field From PartyId is not provided.", ex.getErrorDetail());
+            assertEquals("Sender party could not be found for the value  " + partyId, ex.getErrorDetail());
             assertEquals(mshRole1, ex.getMshRole());
+        }
+    }
+
+    @Test
+    public void findSenderParty(@Injectable UserMessage userMessage) {
+
+        MSHRole mshRole1 = MSHRole.SENDING;
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getFromPartyId();
+            result = null;
+        }};
+        try {
+            cachingPModeProvider.findSenderParty(userMessage);
+            Assert.fail("expected error that sender party is missing");
+        } catch (EbMS3Exception ex) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals("Mandatory field From PartyId is not provided.", ex.getErrorDetail());
         }
     }
 

@@ -205,6 +205,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     UserMessagePersistenceService userMessagePersistenceService;
 
+    @Injectable
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
     String pmodeKey = "pmodeKey";
 
     private static final String STRING_TYPE = "string";
@@ -270,7 +273,7 @@ public class UserMessageHandlerServiceImplTest {
             soapUtil.logMessage(soapRequestMessage);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(null, userMessage, null);
+            backendNotificationService.notifyMessageReceived(null, userMessage);
             times = 1;
 
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
@@ -316,7 +319,7 @@ public class UserMessageHandlerServiceImplTest {
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
         }};
@@ -357,7 +360,7 @@ public class UserMessageHandlerServiceImplTest {
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
             splitAndJoinService.incrementReceivedFragments(null, "backEndName");
@@ -795,52 +798,6 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testInvoke_DuplicateMessage(@Injectable final LegConfiguration legConfiguration,
-                                            @Injectable final SignalMessageResult signalMessageResult,
-                                            @Injectable final UserMessage userMessage)
-            throws EbMS3Exception, TransformerException, IOException, SOAPException {
-
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        new Expectations(userMessageHandlerService) {{
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            legConfiguration.getReliability().isNonRepudiation();
-            result = false;
-
-            legConfiguration.getReliability().getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            as4ReceiptService.generateReceipt(
-                    soapRequestMessage,
-                    userMessage,
-                    ReplyPattern.RESPONSE,
-                    legConfiguration.getReliability().isNonRepudiation(),
-                    false,
-                    false);
-            result = soapResponseMessage;
-
-            as4ReceiptService.generateResponse(soapResponseMessage, false);
-            result = signalMessageResult;
-
-            userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false, false, false, signalMessageResult);
-            result = new DataIntegrityViolationException("");
-
-            legConfiguration.getReceptionAwareness().getDuplicateDetection();
-            result = true;
-        }};
-
-        SOAPMessage soapMessage = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
-
-        assertNotNull(soapMessage);
-
-    }
-
-    @Test
     public void testInvoke_ErrorInNotifyingIncomingMessage(@Injectable final BackendFilter matchingBackendFilter,
                                                            @Injectable final LegConfiguration legConfiguration,
                                                            @Injectable final UserMessage userMessage,
@@ -892,7 +849,7 @@ public class UserMessageHandlerServiceImplTest {
             pModeProvider.checkSelfSending(pmodeKey);
             result = false;
 
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             result = new SubmissionValidationException("Error while submitting the message!!");
         }};
         try {
@@ -904,7 +861,7 @@ public class UserMessageHandlerServiceImplTest {
 
         new Verifications() {{
             soapUtil.logMessage(soapRequestMessage);
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, null);
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
         }};
     }

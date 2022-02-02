@@ -6,6 +6,7 @@
 -- Parameters to be adjusted:
 -- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
 --              default value is 10000
+-- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 10000
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
@@ -15,6 +16,9 @@
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
     BATCH_SIZE CONSTANT NUMBER := 10000;
+
+    -- limit loading a high number of records into memory
+    BULK_COLLECT_LIMIT CONSTANT NUMBER := 10000;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -175,53 +179,53 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MPC WHERE VALUE = :1' INTO v_id_pk USING mpc_value;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_MPC WHERE VALUE = mpc_value;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MPC: ' || mpc_value);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MPC(ID_PK, VALUE) VALUES (' || v_id_pk || ', :1)' USING mpc_value;
+                INSERT INTO TB_D_MPC (ID_PK, VALUE) VALUES (v_id_pk, mpc_value);
                 COMMIT;
         END;
         RETURN v_id_pk;
     END get_tb_d_mpc_rec;
 
-    FUNCTION get_tb_d_role_rec(role VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_role_rec(v_role VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
-        IF role IS NULL THEN
+        IF v_role IS NULL THEN
             log_verbose('No record added into TB_D_ROLE');
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ROLE WHERE ROLE = :1' INTO v_id_pk USING role;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_ROLE WHERE ROLE = v_role;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ROLE: ' || role);
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ROLE: ' || v_role);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_ROLE(ID_PK, ROLE) VALUES (' || v_id_pk || ', :1)' USING role;
+                INSERT INTO TB_D_ROLE (ID_PK, ROLE) VALUES (v_id_pk, v_role);
                 COMMIT;
         END;
         RETURN v_id_pk;
     END get_tb_d_role_rec;
 
-    FUNCTION get_tb_d_msh_role_rec(role VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_msh_role_rec(v_role VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
-        IF role IS NULL THEN
+        IF v_role IS NULL THEN
             log_verbose('No record added into TB_D_MSH_ROLE');
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MSH_ROLE WHERE ROLE = :1' INTO v_id_pk USING role;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_MSH_ROLE WHERE ROLE = v_role;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MSH_ROLE: ' || role);
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MSH_ROLE: ' || v_role);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MSH_ROLE(ID_PK, ROLE) VALUES (' || v_id_pk || ', :1)' USING role;
+                INSERT INTO TB_D_MSH_ROLE (ID_PK, ROLE) VALUES (v_id_pk, v_role);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -236,19 +240,18 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END IF;
         BEGIN
             IF service_type IS NULL THEN
-                EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE WHERE TYPE IS NULL AND VALUE = :1' INTO v_id_pk USING service_value;
+                SELECT ID_PK INTO v_id_pk FROM TB_D_SERVICE WHERE TYPE IS NULL AND VALUE = service_value;
             ELSIF service_value IS NULL THEN
-                EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE WHERE TYPE = :1 AND VALUE IS NULL' INTO v_id_pk USING service_type;
+                SELECT ID_PK INTO v_id_pk FROM TB_D_SERVICE WHERE TYPE = service_type AND VALUE IS NULL;
             ELSE
-                EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING service_type, service_value;
+                SELECT ID_PK INTO v_id_pk FROM TB_D_SERVICE WHERE TYPE = service_type AND VALUE = service_value;
             END IF;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_SERVICE: ' || service_type || ' , ' || service_value);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_SERVICE(ID_PK, TYPE, VALUE) VALUES (' || v_id_pk ||
-                                  ', :1, :2)' USING service_type, service_value;
+                INSERT INTO TB_D_SERVICE (ID_PK, TYPE, VALUE) VALUES (v_id_pk, service_type, service_value);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -262,14 +265,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_STATUS WHERE STATUS = :1' INTO v_id_pk USING message_status;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_STATUS WHERE STATUS = message_status;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MESSAGE_STATUS: ' || message_status);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_STATUS(ID_PK, STATUS) VALUES (' || v_id_pk ||
-                                  ', :1)' USING message_status;
+                INSERT INTO TB_D_MESSAGE_STATUS (ID_PK, STATUS) VALUES (v_id_pk, message_status);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -283,35 +285,34 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_AGREEMENT WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING agreement_type, agreement_value;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_AGREEMENT WHERE TYPE = agreement_type AND VALUE = agreement_value;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE(
                             'Add new record into TB_D_AGREEMENT: ' || agreement_type || ' , ' || agreement_value);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_AGREEMENT(ID_PK, TYPE, VALUE) VALUES (' || v_id_pk ||
-                                  ', :1, :2)' USING agreement_type, agreement_value;
+                INSERT INTO TB_D_AGREEMENT (ID_PK, TYPE, VALUE) VALUES (v_id_pk, agreement_type, agreement_value);
                 COMMIT;
         END;
         RETURN v_id_pk;
     END get_tb_d_agreement_rec;
 
-    FUNCTION get_tb_d_action_rec(action VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_action_rec(v_action VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
-        IF action IS NULL THEN
+        IF v_action IS NULL THEN
             log_verbose('No record added into TB_D_ACTION');
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ACTION WHERE ACTION = :1' INTO v_id_pk USING action;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_ACTION WHERE ACTION = v_action;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ACTION: ' || action);
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ACTION: ' || v_action);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_ACTION(ID_PK, ACTION) VALUES (' || v_id_pk || ', :1)' USING action;
+                INSERT INTO TB_D_ACTION (ID_PK, ACTION) VALUES (v_id_pk, v_action);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -325,14 +326,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_PARTY WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING party_type, party_value;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_PARTY WHERE TYPE = party_type AND VALUE = party_value;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_PARTY: ' || party_type || ' , ' || party_value);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_PARTY(ID_PK, TYPE, VALUE) VALUES (' || v_id_pk ||
-                                  ', :1, :2)' USING party_type, party_value;
+                INSERT INTO TB_D_PARTY (ID_PK, TYPE, VALUE) VALUES (v_id_pk, party_type, party_value);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -347,41 +347,40 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_test_message;
     END get_msg_subtype;
 
-    FUNCTION get_tb_d_notif_status_rec(status VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_notif_status_rec(v_status VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
-        IF status IS NULL THEN
+        IF v_status IS NULL THEN
             log_verbose('No record added into TB_D_NOTIFICATION_STATUS');
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_NOTIFICATION_STATUS WHERE STATUS = :1' INTO v_id_pk USING status;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_NOTIFICATION_STATUS WHERE STATUS = v_status;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_NOTIFICATION_STATUS: ' || status);
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_NOTIFICATION_STATUS: ' || v_status);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_NOTIFICATION_STATUS(ID_PK, STATUS) VALUES (' || v_id_pk ||
-                                  ', :1)' USING status;
+                INSERT INTO TB_D_NOTIFICATION_STATUS (ID_PK, STATUS) VALUES (v_id_pk, v_status);
                 COMMIT;
         END;
         RETURN v_id_pk;
     END get_tb_d_notif_status_rec;
 
-    FUNCTION get_tb_user_message_rec(message_id VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_user_message_rec(v_message_id VARCHAR2) RETURN NUMBER IS
         v_id_pk   NUMBER;
         v_tab_new VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
     BEGIN
-        IF message_id IS NULL THEN
+        IF v_message_id IS NULL THEN
             log_verbose('No record to look into ' || v_tab_new);
             RETURN v_id_pk;
         END IF;
         BEGIN
             -- TODO check index on message_id column?
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM ' || v_tab_new || ' WHERE MESSAGE_ID = :1' INTO v_id_pk USING message_id;
+            SELECT ID_PK INTO v_id_pk FROM MIGR_TB_USER_MESSAGE WHERE MESSAGE_ID = v_message_id;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                DBMS_OUTPUT.PUT_LINE('No record found into ' || v_tab_new || ' for MESSAGE_ID = ' || message_id);
+                DBMS_OUTPUT.PUT_LINE('No record found into ' || v_tab_new || ' for MESSAGE_ID = ' || v_message_id);
         END;
         RETURN v_id_pk;
     END get_tb_user_message_rec;
@@ -396,7 +395,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END IF;
         BEGIN
             -- TODO check index on signal_message_id column?
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM ' || v_tab_new || ' WHERE SIGNAL_MESSAGE_ID = :1' INTO v_id_pk USING message_id;
+            SELECT ID_PK INTO v_id_pk FROM MIGR_TB_SIGNAL_MESSAGE WHERE SIGNAL_MESSAGE_ID = message_id;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 DBMS_OUTPUT.PUT_LINE('No record found into ' || v_tab_new || ' for MESSAGE_ID = ' || message_id);
@@ -412,15 +411,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_PROPERTY WHERE (NAME = :1 AND TYPE = :2 AND VALUE = :3) OR (NAME = :4 AND TYPE IS NULL AND VALUE = :5 )' INTO v_id_pk USING prop_name, prop_type, prop_value, prop_name, prop_value;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_MESSAGE_PROPERTY
+            WHERE (NAME = prop_name AND TYPE = prop_type AND VALUE = prop_value)
+               OR (NAME = prop_name AND TYPE IS NULL AND VALUE = prop_value);
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE(
                             'Add new record into TB_D_MESSAGE_PROPERTY: ' || prop_name || ' , ' || prop_value|| ' , ' || prop_type);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_PROPERTY(ID_PK, NAME, VALUE, TYPE) VALUES (' || v_id_pk ||
-                                  ', :1, :2, :3)' USING prop_name, prop_value, prop_type;
+                INSERT INTO TB_D_MESSAGE_PROPERTY (ID_PK, NAME, VALUE, TYPE) VALUES (v_id_pk, prop_name, prop_value, prop_type);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -434,15 +434,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_PART_PROPERTY WHERE (NAME = :1 AND VALUE = :2 AND TYPE = :3) OR (NAME = :4 AND VALUE = :5 AND TYPE IS NULL)' INTO v_id_pk USING prop_name, prop_value, prop_type, prop_name, prop_value;
+            SELECT ID_PK INTO v_id_pk  FROM TB_D_PART_PROPERTY
+            WHERE (NAME = prop_name AND VALUE = prop_value AND TYPE = prop_type)
+               OR (NAME = prop_name AND VALUE = prop_value AND TYPE IS NULL);
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 DBMS_OUTPUT.PUT_LINE(
                             'Add new record into TB_D_PART_PROPERTY: ' || prop_name || ' , ' || prop_value|| ' , ' || prop_type);
                 v_id_pk := generate_id();
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_PART_PROPERTY(ID_PK, NAME, VALUE, TYPE) VALUES (' || v_id_pk ||
-                                  ', :1, :2, :3)' USING prop_name, prop_value, prop_type;
+                INSERT INTO TB_D_PART_PROPERTY (ID_PK, NAME, VALUE, TYPE) VALUES (v_id_pk, prop_name, prop_value, prop_type);
                 COMMIT;
         END;
         RETURN v_id_pk;
@@ -453,15 +454,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         BEGIN
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_TIMEZONE_OFFSET WHERE NEXT_ATTEMPT_TIMEZONE_ID=''UTC''' INTO v_id_pk;
+            SELECT ID_PK INTO v_id_pk FROM TB_D_TIMEZONE_OFFSET WHERE NEXT_ATTEMPT_TIMEZONE_ID='UTC';
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
                 v_id_pk := generate_id();
                 update_migration_pks('timezone_offset', 1, v_id_pk, migration_pks);
 
-                EXECUTE IMMEDIATE 'INSERT INTO TB_D_TIMEZONE_OFFSET (ID_PK, NEXT_ATTEMPT_TIMEZONE_ID, NEXT_ATTEMPT_OFFSET_SECONDS, CREATION_TIME, CREATED_BY) VALUES (' ||
-                                  v_id_pk || ', ''UTC'', 0, SYSDATE, ''migration'')';
+                INSERT INTO TB_D_TIMEZONE_OFFSET (ID_PK, NEXT_ATTEMPT_TIMEZONE_ID, NEXT_ATTEMPT_OFFSET_SECONDS, CREATION_TIME, CREATED_BY)
+                VALUES (v_id_pk, 'UTC', 0, SYSDATE, 'migration');
+
+                COMMIT;
         END;
     END prepare_timezone_offset;
 
@@ -495,6 +498,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_new    VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
 
         v_id_pk NUMBER;
+
+        calculated_mpc_id_fk NUMBER;
+        calculated_from_role_id_fk NUMBER;
+        calculated_to_role_id_fk NUMBER;
+        calculated_service_id_fk NUMBER;
+        calculated_agreement_id_fk NUMBER;
+        calculated_action_id_fk NUMBER;
+        calculated_from_party_id_fk NUMBER;
+        calculated_to_party_id_fk NUMBER;
+        calculated_test_message NUMBER;
 
         CURSOR c_user_message IS
             SELECT UM.ID_PK,
@@ -532,7 +545,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_message;
         LOOP
-            FETCH c_user_message BULK COLLECT INTO user_message;
+            FETCH c_user_message BULK COLLECT INTO user_message LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_message.COUNT = 0;
 
             FOR i IN user_message.FIRST .. user_message.LAST
@@ -542,26 +555,36 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('user_message', user_message(i).ID_PK, v_id_pk, migration_pks);
                         update_migration_pks('message_info', user_message(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, ' ||
-                                          'TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, TEST_MESSAGE) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16)'
-                        USING v_id_pk,
+                        calculated_mpc_id_fk := get_tb_d_mpc_rec(user_message(i).MPC);
+                        calculated_from_role_id_fk := get_tb_d_role_rec(user_message(i).FROM_ROLE);
+                        calculated_to_role_id_fk := get_tb_d_role_rec(user_message(i).TO_ROLE);
+                        calculated_service_id_fk := get_tb_d_service_rec(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE);
+                        calculated_agreement_id_fk := get_tb_d_agreement_rec(user_message(i).AGREEMENT_REF_TYPE, user_message(i).AGREEMENT_REF_VALUE);
+                        calculated_action_id_fk := get_tb_d_action_rec(user_message(i).ACTION);
+                        calculated_from_party_id_fk := get_tb_d_party_rec(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE);
+                        calculated_to_party_id_fk := get_tb_d_party_rec(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE);
+                        calculated_test_message := get_msg_subtype(user_message(i).MESSAGE_SUBTYPE);
+
+                        INSERT INTO MIGR_TB_USER_MESSAGE (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID,
+                                                          SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK,
+                                                          FROM_ROLE_ID_FK, TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK,
+                                                          ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, TEST_MESSAGE)
+                        VALUES (v_id_pk,
                                 user_message(i).MESSAGE_ID,
                                 user_message(i).REF_TO_MESSAGE_ID,
                                 user_message(i).CONVERSATION_ID,
                                 user_message(i).SOURCE_MESSAGE,
                                 user_message(i).MESSAGE_FRAGMENT,
                                 user_message(i).EBMS3_TIMESTAMP,
-                                get_tb_d_mpc_rec(user_message(i).MPC),
-                                get_tb_d_role_rec(user_message(i).FROM_ROLE),
-                                get_tb_d_role_rec(user_message(i).TO_ROLE),
-                                get_tb_d_service_rec(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE),
-                                get_tb_d_agreement_rec(user_message(i).AGREEMENT_REF_TYPE, user_message(i).AGREEMENT_REF_VALUE),
-                                get_tb_d_action_rec(user_message(i).ACTION),
-                                get_tb_d_party_rec(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE),
-                                get_tb_d_party_rec(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE),
-                                get_msg_subtype(user_message(i).MESSAGE_SUBTYPE);
+                                calculated_mpc_id_fk,
+                                calculated_from_role_id_fk,
+                                calculated_to_role_id_fk,
+                                calculated_service_id_fk,
+                                calculated_agreement_id_fk,
+                                calculated_action_id_fk,
+                                calculated_from_party_id_fk,
+                                calculated_to_party_id_fk,
+                                calculated_test_message);
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -570,12 +593,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_message -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_message -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_message.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_message.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -621,7 +644,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_fragment;
         LOOP
-            FETCH c_message_fragment BULK COLLECT INTO message_fragment;
+            FETCH c_message_fragment BULK COLLECT INTO message_fragment LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_fragment.COUNT = 0;
 
             FOR i IN message_fragment.FIRST .. message_fragment.LAST
@@ -629,16 +652,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         lookup_migration_pk('user_message', migration_pks, message_fragment(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_SJ_MESSAGE_FRAGMENT (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME,
+                                                                 CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 message_fragment(i).GROUP_ID_FK,
                                 message_fragment(i).FRAGMENT_NUMBER,
                                 message_fragment(i).CREATION_TIME,
                                 message_fragment(i).CREATED_BY,
                                 message_fragment(i).MODIFICATION_TIME,
-                                message_fragment(i).MODIFIED_BY;
+                                message_fragment(i).MODIFIED_BY);
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -647,11 +669,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_fragment -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_fragment -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records');
         END LOOP;
 
         COMMIT;
@@ -671,6 +693,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_user_message_new VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
 
         v_id_pk NUMBER;
+
+        calculated_msh_role_id_fk NUMBER;
+        calculated_source_message_id_fk NUMBER;
 
         CURSOR c_message_group IS
             SELECT MG.ID_PK,
@@ -702,7 +727,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_group;
         LOOP
-            FETCH c_message_group BULK COLLECT INTO message_group;
+            FETCH c_message_group BULK COLLECT INTO message_group LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_group.COUNT = 0;
 
             FOR i IN message_group.FIRST .. message_group.LAST
@@ -711,11 +736,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(message_group(i).ID_PK, message_group(i).CREATION_TIME);
                         update_migration_pks('message_group', message_group(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE,' ||
-                                          'SOAP_ACTION, REJECTED, EXPIRED, MSH_ROLE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY, SOURCE_MESSAGE_ID_FK) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17)'
-                        USING v_id_pk,
+                        calculated_msh_role_id_fk := get_tb_d_msh_role_rec(message_group(i).MSH_ROLE);
+                        calculated_source_message_id_fk := get_tb_user_message_rec(message_group(i).SOURCE_MESSAGE_ID);
+
+                        INSERT INTO MIGR_TB_SJ_MESSAGE_GROUP (ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT,
+                                                              SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM,
+                                                              COMPRESSED_MESSAGE_SIZE, SOAP_ACTION, REJECTED, EXPIRED,
+                                                              MSH_ROLE_ID_FK, CREATION_TIME, CREATED_BY,
+                                                              MODIFICATION_TIME, MODIFIED_BY, SOURCE_MESSAGE_ID_FK)
+                        VALUES (v_id_pk,
                                 message_group(i).GROUP_ID,
                                 message_group(i).MESSAGE_SIZE,
                                 message_group(i).FRAGMENT_COUNT,
@@ -726,12 +755,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 message_group(i).SOAP_ACTION,
                                 message_group(i).REJECTED,
                                 message_group(i).EXPIRED,
-                                get_tb_d_msh_role_rec(message_group(i).MSH_ROLE),
+                                calculated_msh_role_id_fk,
                                 message_group(i).CREATION_TIME,
                                 message_group(i).CREATED_BY,
                                 message_group(i).MODIFICATION_TIME,
                                 message_group(i).MODIFIED_BY,
-                                get_tb_user_message_rec(message_group(i).SOURCE_MESSAGE_ID); -- we look into migrated table here
+                                calculated_source_message_id_fk); -- we look into migrated table here
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -740,11 +769,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_group -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_group -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_group.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_group.COUNT || ' records');
         END LOOP;
 
         COMMIT;
@@ -787,7 +816,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_header;
         LOOP
-            FETCH c_message_header BULK COLLECT INTO message_header;
+            FETCH c_message_header BULK COLLECT INTO message_header LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_header.COUNT = 0;
 
             FOR i IN message_header.FIRST .. message_header.LAST
@@ -795,16 +824,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         lookup_migration_pk('message_group', migration_pks, message_header(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, BOUNDARY, START_MULTIPART, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_SJ_MESSAGE_HEADER (ID_PK, BOUNDARY, START_MULTIPART, CREATION_TIME,
+                                                               CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 message_header(i).BOUNDARY,
                                 message_header(i)."START",
                                 message_header(i).CREATION_TIME,
                                 message_header(i).CREATED_BY,
                                 message_header(i).MODIFICATION_TIME,
-                                message_header(i).MODIFIED_BY;
+                                message_header(i).MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -813,11 +842,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_header -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_header -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_header.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_header.COUNT || ' records');
         END LOOP;
 
         COMMIT;
@@ -842,6 +871,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_receipt_new      VARCHAR2(30) := 'MIGR_TB_RECEIPT';
 
         v_id_pk NUMBER;
+
+        calculated_raw_xml BLOB;
 
         CURSOR c_signal_message_receipt IS
             SELECT UM.ID_PK, --  1:1 here
@@ -885,7 +916,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     v_tab_signal || ' ,' || v_tab_receipt || ' and' || v_tab_receipt_data || ' migration started...');
         OPEN c_signal_message_receipt;
         LOOP
-            FETCH c_signal_message_receipt BULK COLLECT INTO signal_message_receipt;
+            FETCH c_signal_message_receipt BULK COLLECT INTO signal_message_receipt LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN signal_message_receipt.COUNT = 0;
 
             FOR i IN signal_message_receipt.FIRST .. signal_message_receipt.LAST
@@ -894,28 +925,30 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('user_message', migration_pks, signal_message_receipt(i).ID_PK, v_id_pk);
 
                         -- new tb_signal_message table
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_signal_new ||
-                                          ' (ID_PK, SIGNAL_MESSAGE_ID, REF_TO_MESSAGE_ID, EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_SIGNAL_MESSAGE (ID_PK, SIGNAL_MESSAGE_ID, REF_TO_MESSAGE_ID,
+                                                            EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY,
+                                                            MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 signal_message_receipt(i).SIGNAL_MESSAGE_ID,
                                 signal_message_receipt(i).REF_TO_MESSAGE_ID,
                                 signal_message_receipt(i).EBMS3_TIMESTAMP,
                                 signal_message_receipt(i).CREATION_TIME,
                                 signal_message_receipt(i).CREATED_BY,
                                 signal_message_receipt(i).MODIFICATION_TIME,
-                                signal_message_receipt(i).MODIFIED_BY;
+                                signal_message_receipt(i).MODIFIED_BY);
 
                         -- new tb_receipt table
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_receipt_new ||
-                                          ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
-                        USING v_id_pk,
-                                clob_to_blob(signal_message_receipt(i).RAW_XML),
+                        calculated_raw_xml := clob_to_blob(signal_message_receipt(i).RAW_XML);
+
+                        INSERT INTO MIGR_TB_RECEIPT (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                     MODIFIED_BY)
+                        VALUES (v_id_pk,
+                                calculated_raw_xml,
                                 signal_message_receipt(i).R_CREATION_TIME,
                                 signal_message_receipt(i).R_CREATED_BY,
                                 signal_message_receipt(i).R_MODIFICATION_TIME,
-                                signal_message_receipt(i).R_MODIFIED_BY;
+                                signal_message_receipt(i).R_MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -925,12 +958,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_signal_receipt -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_signal_receipt -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || signal_message_receipt.COUNT || ' records in total into ' || v_tab_signal_new ||
+                        'Migrated ' || signal_message_receipt.COUNT || ' records into ' || v_tab_signal_new ||
                         ' and ' || v_tab_receipt_new);
         END LOOP;
 
@@ -959,6 +992,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_migrated     VARCHAR2(30) := v_tab_signal_new;
 
         v_id_pk NUMBER;
+
+        calculated_raw_xml BLOB;
 
         CURSOR c_raw_envelope IS
             SELECT UM.ID_PK, --  1:1 here
@@ -1002,7 +1037,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     v_tab || ' migration started...');
         OPEN c_raw_envelope;
         LOOP
-            FETCH c_raw_envelope BULK COLLECT INTO raw_envelope;
+            FETCH c_raw_envelope BULK COLLECT INTO raw_envelope LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN raw_envelope.COUNT = 0;
 
             FOR i IN raw_envelope.FIRST .. raw_envelope.LAST
@@ -1010,41 +1045,41 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         lookup_migration_pk('user_message', migration_pks, raw_envelope(i).ID_PK, v_id_pk);
 
+                        calculated_raw_xml := clob_to_blob(raw_envelope(i).RAW_XML);
+
                         IF raw_envelope(i)."TYPE" = 'USER' THEN
                             v_count_user := v_count_user + 1;
                             BEGIN
-                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_user_new ||
-                                                  ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
-                                USING v_id_pk,
-                                        clob_to_blob(raw_envelope(i).RAW_XML),
+                                INSERT INTO MIGR_TB_USER_MESSAGE_RAW (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY,
+                                                                      MODIFICATION_TIME, MODIFIED_BY)
+                                VALUES (v_id_pk,
+                                        calculated_raw_xml,
                                         raw_envelope(i).CREATION_TIME,
                                         raw_envelope(i).CREATED_BY,
                                         raw_envelope(i).MODIFICATION_TIME,
-                                        raw_envelope(i).MODIFIED_BY;
+                                        raw_envelope(i).MODIFIED_BY);
                             EXCEPTION
                                 WHEN OTHERS THEN
                                     DBMS_OUTPUT.PUT_LINE('migrate_raw_envelope_log for ' || v_tab_user_new ||
-                                                         '-> execute immediate error: ' ||
+                                                         '-> insert error: ' ||
                                                          DBMS_UTILITY.FORMAT_ERROR_STACK);
                             END;
 
                         ELSE
                             v_count_signal := v_count_signal + 1;
                             BEGIN
-                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_signal_new ||
-                                                  ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
-                                USING v_id_pk,
-                                        clob_to_blob(raw_envelope(i).RAW_XML),
+                                INSERT INTO MIGR_TB_SIGNAL_MESSAGE_RAW (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY,
+                                                                        MODIFICATION_TIME, MODIFIED_BY)
+                                VALUES (v_id_pk,
+                                        calculated_raw_xml,
                                         raw_envelope(i).CREATION_TIME,
                                         raw_envelope(i).CREATED_BY,
                                         raw_envelope(i).MODIFICATION_TIME,
-                                        raw_envelope(i).MODIFIED_BY;
+                                        raw_envelope(i).MODIFIED_BY);
                             EXCEPTION
                                 WHEN OTHERS THEN
                                     DBMS_OUTPUT.PUT_LINE('migrate_raw_envelope_log for ' || v_tab_signal_new ||
-                                                         '-> execute immediate error: ' ||
+                                                         '-> insert error: ' ||
                                                          DBMS_UTILITY.FORMAT_ERROR_STACK);
                             END;
                         END IF;
@@ -1064,7 +1099,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || raw_envelope.COUNT || ' records in total into ' || v_tab_migrated);
+                        'Migrated ' || raw_envelope.COUNT || ' records into ' || v_tab_migrated);
         END LOOP;
 
         COMMIT;
@@ -1084,6 +1119,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_count_user     NUMBER       := 0;
         v_count_signal   NUMBER       := 0;
         v_count          NUMBER       := 0;
+
+        calculated_id_pk NUMBER;
+        calculated_message_status_id_fk NUMBER;
+        calculated_msh_role_id_fk NUMBER;
+        calculated_notification_status_id_fk NUMBER;
+
         CURSOR c_message_log IS
             SELECT ML.ID_PK,
                    ML.MESSAGE_ID,
@@ -1114,20 +1155,28 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_log;
         LOOP
-            FETCH c_message_log BULK COLLECT INTO message_log;
+            FETCH c_message_log BULK COLLECT INTO message_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_log.COUNT = 0;
 
             FOR i IN message_log.FIRST .. message_log.LAST
                 LOOP
                     BEGIN
+                        calculated_message_status_id_fk := get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS);
+                        calculated_msh_role_id_fk := get_tb_d_msh_role_rec(message_log(i).MSH_ROLE);
+
                         IF message_log(i).MESSAGE_TYPE = 'USER_MESSAGE' THEN
                             BEGIN
-                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_user_new ||
-                                                  ' (ID_PK, BACKEND, RECEIVED, DOWNLOADED, FAILED, RESTORED, DELETED, NEXT_ATTEMPT, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, SCHEDULED, ' ||
-                                                  'VERSION, MESSAGE_STATUS_ID_FK, MSH_ROLE_ID_FK, NOTIFICATION_STATUS_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18, :p_19)'
-                                    USING
-                                    get_tb_user_message_rec(message_log(i).MESSAGE_ID), -- return ID_PK from the newly migrated table
+                                -- user message
+                                calculated_id_pk := get_tb_user_message_rec(message_log(i).MESSAGE_ID);
+                                calculated_notification_status_id_fk := get_tb_d_notif_status_rec(message_log(i).NOTIFICATION_STATUS);
+
+                                INSERT INTO MIGR_TB_USER_MESSAGE_LOG (ID_PK, BACKEND, RECEIVED, DOWNLOADED, FAILED,
+                                                                      RESTORED, DELETED, NEXT_ATTEMPT, SEND_ATTEMPTS,
+                                                                      SEND_ATTEMPTS_MAX, SCHEDULED, VERSION,
+                                                                      MESSAGE_STATUS_ID_FK, MSH_ROLE_ID_FK,
+                                                                      NOTIFICATION_STATUS_ID_FK, CREATION_TIME,
+                                                                      CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                                VALUES (calculated_id_pk, -- return ID_PK from the newly migrated table
                                     message_log(i).BACKEND,
                                     message_log(i).RECEIVED,
                                     message_log(i).DOWNLOADED,
@@ -1139,39 +1188,40 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                     message_log(i).SEND_ATTEMPTS_MAX,
                                     message_log(i).SCHEDULED,
                                     message_log(i).VERSION,
-                                    get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
-                                    get_tb_d_msh_role_rec(message_log(i).MSH_ROLE),
-                                    get_tb_d_notif_status_rec(message_log(i).NOTIFICATION_STATUS),
+                                    calculated_message_status_id_fk,
+                                    calculated_msh_role_id_fk,
+                                    calculated_notification_status_id_fk,
                                     message_log(i).CREATION_TIME,
                                     message_log(i).CREATED_BY,
                                     message_log(i).MODIFICATION_TIME,
-                                    message_log(i).MODIFIED_BY;
+                                    message_log(i).MODIFIED_BY);
                             EXCEPTION
                                 WHEN OTHERS THEN
                                     DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_user_new ||
-                                                         ' -> execute immediate error: ' ||
-                                                         DBMS_UTILITY.FORMAT_ERROR_STACK);
+                                                         ' -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                             END;
                             v_count_user := v_count_user + 1;
                         ELSE
                             BEGIN
                                 -- signal message
-                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_signal_new ||
-                                                  ' (ID_PK, RECEIVED, DELETED, MESSAGE_STATUS_ID_FK, MSH_ROLE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9)'
-                                    USING
-                                    get_tb_signal_message_rec(message_log(i).MESSAGE_ID), -- return ID_PK from the newly migrated table
+                                calculated_id_pk := get_tb_signal_message_rec(message_log(i).MESSAGE_ID);
+
+                                INSERT INTO MIGR_TB_SIGNAL_MESSAGE_LOG (ID_PK, RECEIVED, DELETED, MESSAGE_STATUS_ID_FK,
+                                                                        MSH_ROLE_ID_FK, CREATION_TIME, CREATED_BY,
+                                                                        MODIFICATION_TIME, MODIFIED_BY)
+                                VALUES (calculated_id_pk, -- return ID_PK from the newly migrated table
                                     message_log(i).RECEIVED,
                                     message_log(i).DELETED,
-                                    get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
-                                    get_tb_d_msh_role_rec(message_log(i).MSH_ROLE),
+                                    calculated_message_status_id_fk,
+                                    calculated_msh_role_id_fk,
                                     message_log(i).CREATION_TIME,
                                     message_log(i).CREATED_BY,
                                     message_log(i).MODIFICATION_TIME,
-                                    message_log(i).MODIFIED_BY;
+                                    message_log(i).MODIFIED_BY);
                             EXCEPTION
                                 WHEN OTHERS THEN
-                                    DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_signal_new || ' -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                                    DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_signal_new ||
+                                                         ' -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                             END;
                             v_count_signal := v_count_signal + 1;
                         END IF;
@@ -1184,14 +1234,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                     v_count := i;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || message_log.COUNT || ' records in total. ' || v_count_user || ' into ' ||
-                        v_tab_user_new ||
+                        'Migrated ' || message_log.COUNT || ' records: ' || v_count_user || ' into ' || v_tab_user_new ||
                         ' and ' || v_count_signal || ' into ' || v_tab_signal_new);
         END LOOP;
 
@@ -1211,6 +1260,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_message_new  VARCHAR2(30) := 'MIGR_TB_MESSAGE_PROPERTIES';
 
         v_user_message_id_fk NUMBER;
+
+        calculated_message_property_fk NUMBER;
 
         CURSOR c_property IS
             SELECT UM.ID_PK USER_MESSAGE_ID_FK,
@@ -1232,7 +1283,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_property;
         LOOP
-            FETCH c_property BULK COLLECT INTO property;
+            FETCH c_property BULK COLLECT INTO property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN property.COUNT = 0;
 
             FOR i IN property.FIRST .. property.LAST
@@ -1240,15 +1291,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         lookup_migration_pk('user_message', migration_pks, property(i).USER_MESSAGE_ID_FK, v_user_message_id_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_message_new ||
-                                          ' (USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
-                        USING v_user_message_id_fk,
-                                get_tb_d_msg_property_rec(property(i).NAME, property(i).VALUE, property(i).TYPE),
+                        calculated_message_property_fk := get_tb_d_msg_property_rec(property(i).NAME, property(i).VALUE, property(i).TYPE);
+
+                        INSERT INTO MIGR_TB_MESSAGE_PROPERTIES (USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME,
+                                                                CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_user_message_id_fk,
+                                calculated_message_property_fk,
                                 property(i).CREATION_TIME,
                                 property(i).CREATED_BY,
                                 property(i).MODIFICATION_TIME,
-                                property(i).MODIFIED_BY;
+                                property(i).MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1257,12 +1310,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || property.COUNT || ' records in total into ' ||
+                        'Migrated ' || property.COUNT || ' records into ' ||
                         v_tab_message_new);
         END LOOP;
 
@@ -1305,7 +1358,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_part_info;
         LOOP
-            FETCH c_part_info BULK COLLECT INTO part_info;
+            FETCH c_part_info BULK COLLECT INTO part_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN part_info.COUNT = 0;
 
             FOR i IN part_info.FIRST .. part_info.LAST
@@ -1315,11 +1368,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('part_info', part_info(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('user_message', migration_pks, part_info(i).USER_MESSAGE_ID_FK, v_user_message_id_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY, FILENAME, MIME,' ||
-                                          'PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PART_INFO (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF,
+                                                       IN_BODY, FILENAME, MIME, PART_ORDER, ENCRYPTED,
+                                                       USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                       MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 part_info(i).BINARY_DATA,
                                 part_info(i).DESCRIPTION_LANG,
                                 part_info(i).DESCRIPTION_VALUE,
@@ -1333,7 +1386,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 part_info(i).CREATION_TIME,
                                 part_info(i).CREATED_BY,
                                 part_info(i).MODIFICATION_TIME,
-                                part_info(i).MODIFIED_BY;
+                                part_info(i).MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1343,12 +1397,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     EXCEPTION
                         WHEN OTHERS THEN
                             DBMS_OUTPUT.PUT_LINE('migrate_part_info_user for ' || v_tab_new ||
-                                                 ' -> execute immediate error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                                                 ' -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || part_info.COUNT || ' records in total into ' ||
+                        'Migrated ' || part_info.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1369,6 +1422,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_part_info_id_fk NUMBER;
 
+        calculated_part_info_property_fk NUMBER;
+
         CURSOR c_part_prop IS
             SELECT PR.NAME,
                    PR.VALUE,
@@ -1388,7 +1443,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab_info || ' and ' || v_tab_property || ' migration started...');
         OPEN c_part_prop;
         LOOP
-            FETCH c_part_prop BULK COLLECT INTO part_prop;
+            FETCH c_part_prop BULK COLLECT INTO part_prop LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN part_prop.COUNT = 0;
 
             FOR i IN part_prop.FIRST .. part_prop.LAST
@@ -1396,17 +1451,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         lookup_migration_pk('part_info', migration_pks, part_prop(i).PART_INFO_ID_FK, v_part_info_id_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
-                        USING v_part_info_id_fk,
-                                get_tb_d_part_property_rec(part_prop(i).NAME,
-                                                           part_prop(i).VALUE,
-                                                           part_prop(i).TYPE),
+                        calculated_part_info_property_fk := get_tb_d_part_property_rec(part_prop(i).NAME,part_prop(i).VALUE, part_prop(i).TYPE);
+
+                        INSERT INTO MIGR_TB_PART_PROPERTIES (PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME,
+                                                             CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_part_info_id_fk,
+                                calculated_part_info_property_fk,
                                 part_prop(i).CREATION_TIME,
                                 part_prop(i).CREATED_BY,
                                 part_prop(i).MODIFICATION_TIME,
-                                part_prop(i).MODIFIED_BY;
+                                part_prop(i).MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1416,11 +1471,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     EXCEPTION
                         WHEN OTHERS THEN
                             DBMS_OUTPUT.PUT_LINE('migrate_part_info_property for ' || v_tab_new ||
-                                                 ' -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                                                 ' -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || part_prop.COUNT || ' records in total into ' ||
+                        'Migrated ' || part_prop.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1435,6 +1490,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_id_pk NUMBER;
         v_user_message_id_fk NUMBER;
+
+        calculated_msh_role_id_fk NUMBER;
 
         CURSOR c_error_log IS
             SELECT EL.ID_PK,
@@ -1464,7 +1521,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_error_log;
         LOOP
-            FETCH c_error_log BULK COLLECT INTO error_log;
+            FETCH c_error_log BULK COLLECT INTO error_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN error_log.COUNT = 0;
 
             FOR i IN error_log.FIRST .. error_log.LAST
@@ -1474,23 +1531,26 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('error_log', error_log(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('message_info', migration_pks, error_log(i).USER_MESSAGE_ID_FK, v_user_message_id_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, ERROR_CODE, ERROR_DETAIL, ERROR_SIGNAL_MESSAGE_ID, MESSAGE_IN_ERROR_ID, MSH_ROLE_ID_FK,' ||
-                                          ' NOTIFIED, TIME_STAMP, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13)'
-                        USING v_id_pk,
+                        calculated_msh_role_id_fk := get_tb_d_msh_role_rec(error_log(i).MSH_ROLE);
+
+                        INSERT INTO MIGR_TB_ERROR_LOG (ID_PK, ERROR_CODE, ERROR_DETAIL, ERROR_SIGNAL_MESSAGE_ID,
+                                                       MESSAGE_IN_ERROR_ID, MSH_ROLE_ID_FK, NOTIFIED, TIME_STAMP,
+                                                       USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                       MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 error_log(i).ERROR_CODE,
                                 error_log(i).ERROR_DETAIL,
                                 error_log(i).ERROR_SIGNAL_MESSAGE_ID,
                                 error_log(i).MESSAGE_IN_ERROR_ID,
-                                get_tb_d_msh_role_rec(error_log(i).MSH_ROLE),
+                                calculated_msh_role_id_fk,
                                 error_log(i).NOTIFIED,
                                 error_log(i).TIME_STAMP,
                                 v_user_message_id_fk,
                                 error_log(i).CREATION_TIME,
                                 error_log(i).CREATED_BY,
                                 error_log(i).MODIFICATION_TIME,
-                                error_log(i).MODIFIED_BY;
+                                error_log(i).MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1499,12 +1559,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_error_log -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || error_log.COUNT || ' records in total into ' ||
+                        'Migrated ' || error_log.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1548,7 +1608,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_acknw;
         LOOP
-            FETCH c_message_acknw BULK COLLECT INTO message_acknw;
+            FETCH c_message_acknw BULK COLLECT INTO message_acknw LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_acknw.COUNT = 0;
 
             FOR i IN message_acknw.FIRST .. message_acknw.LAST
@@ -1558,10 +1618,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('message_acknw', message_acknw(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('user_message', migration_pks, message_acknw(i).USER_MESSAGE_ID_FK, v_user_message_id_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, FROM_VALUE, TO_VALUE, ACKNOWLEDGE_DATE, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_MESSAGE_ACKNW (ID_PK, FROM_VALUE, TO_VALUE, ACKNOWLEDGE_DATE,
+                                                           USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY,
+                                                           MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 message_acknw(i).FROM_VALUE,
                                 message_acknw(i).TO_VALUE,
                                 message_acknw(i).ACKNOWLEDGE_DATE,
@@ -1569,7 +1629,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 message_acknw(i).CREATION_TIME,
                                 message_acknw(i).CREATED_BY,
                                 message_acknw(i).MODIFICATION_TIME,
-                                message_acknw(i).MODIFIED_BY;
+                                message_acknw(i).MODIFIED_BY);
+
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -1578,12 +1639,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_acknw -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_acknw -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || message_acknw.COUNT || ' records in total into ' ||
+                        'Migrated ' || message_acknw.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1627,7 +1688,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_send_attempt;
         LOOP
-            FETCH c_send_attempt BULK COLLECT INTO send_attempt;
+            FETCH c_send_attempt BULK COLLECT INTO send_attempt LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN send_attempt.COUNT = 0;
 
             FOR i IN send_attempt.FIRST .. send_attempt.LAST
@@ -1637,10 +1698,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     update_migration_pks('send_attempt', send_attempt(i).ID_PK, v_id_pk, migration_pks);
                     lookup_migration_pk('user_message', migration_pks, send_attempt(i).USER_MESSAGE_ID_FK, v_user_message_id_fk);
 
-                    EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                      ' (ID_PK, START_DATE, END_DATE, STATUS, ERROR, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10)'
-                    USING v_id_pk,
+                    INSERT INTO MIGR_TB_SEND_ATTEMPT (ID_PK, START_DATE, END_DATE, STATUS, ERROR, USER_MESSAGE_ID_FK,
+                                                      CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                    VALUES (v_id_pk,
                             send_attempt(i).START_DATE,
                             send_attempt(i).END_DATE,
                             send_attempt(i).STATUS,
@@ -1649,7 +1709,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             send_attempt(i).CREATION_TIME,
                             send_attempt(i).CREATED_BY,
                             send_attempt(i).MODIFICATION_TIME,
-                            send_attempt(i).MODIFIED_BY;
+                            send_attempt(i).MODIFIED_BY);
 
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
@@ -1659,12 +1719,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END IF;
                 EXCEPTION
                     WHEN OTHERS THEN
-                        DBMS_OUTPUT.PUT_LINE('migrate_send_attempt -> execute immediate error: ' ||
+                        DBMS_OUTPUT.PUT_LINE('migrate_send_attempt -> insert error: ' ||
                                              DBMS_UTILITY.FORMAT_ERROR_STACK);
                 END;
             END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || send_attempt.COUNT || ' records in total into ' ||
+                        'Migrated ' || send_attempt.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1703,7 +1763,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_action_audit;
         LOOP
-            FETCH c_action_audit BULK COLLECT INTO action_audit;
+            FETCH c_action_audit BULK COLLECT INTO action_audit LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN action_audit.COUNT = 0;
 
             FOR i IN action_audit.FIRST .. action_audit.LAST
@@ -1712,10 +1772,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(action_audit(i).ID_PK, action_audit(i).CREATION_TIME);
                         update_migration_pks('action_audit', action_audit(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, AUDIT_TYPE, ENTITY_ID, MODIFICATION_TYPE, REVISION_DATE, USER_NAME, FROM_QUEUE, TO_QUEUE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_ACTION_AUDIT (ID_PK, AUDIT_TYPE, ENTITY_ID, MODIFICATION_TYPE,
+                                                          REVISION_DATE, USER_NAME, FROM_QUEUE, TO_QUEUE, CREATION_TIME,
+                                                          CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 action_audit(i).AUDIT_TYPE,
                                 action_audit(i).ENTITY_ID,
                                 action_audit(i).MODIFICATION_TYPE,
@@ -1726,7 +1786,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 action_audit(i).CREATION_TIME,
                                 action_audit(i).CREATED_BY,
                                 action_audit(i).MODIFICATION_TIME,
-                                action_audit(i).MODIFIED_BY;
+                                action_audit(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -1736,11 +1796,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_action_audit -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_action_audit -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || action_audit.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || action_audit.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1782,7 +1842,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_alert;
         LOOP
-            FETCH c_alert BULK COLLECT INTO alert;
+            FETCH c_alert BULK COLLECT INTO alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN alert.COUNT = 0;
 
             FOR i IN alert.FIRST .. alert.LAST
@@ -1792,10 +1852,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('alert', alert(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('timezone_offset', migration_pks, 1, v_fk_timezone_offset);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, ALERT_TYPE, ATTEMPTS_NUMBER, MAX_ATTEMPTS_NUMBER, PROCESSED, PROCESSED_TIME, REPORTING_TIME, REPORTING_TIME_FAILURE, NEXT_ATTEMPT, FK_TIMEZONE_OFFSET, ALERT_STATUS, ALERT_LEVEL, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15,:p_16)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_ALERT (ID_PK, ALERT_TYPE, ATTEMPTS_NUMBER, MAX_ATTEMPTS_NUMBER, PROCESSED,
+                                                   PROCESSED_TIME, REPORTING_TIME, REPORTING_TIME_FAILURE, NEXT_ATTEMPT,
+                                                   FK_TIMEZONE_OFFSET, ALERT_STATUS, ALERT_LEVEL, CREATION_TIME,
+                                                   CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 alert(i).ALERT_TYPE,
                                 alert(i).ATTEMPTS_NUMBER,
                                 alert(i).MAX_ATTEMPTS_NUMBER,
@@ -1810,7 +1871,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 alert(i).CREATION_TIME,
                                 alert(i).CREATED_BY,
                                 alert(i).MODIFICATION_TIME,
-                                alert(i).MODIFIED_BY;
+                                alert(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -1820,11 +1881,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_alert -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_alert -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || alert.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || alert.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1858,7 +1919,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event;
         LOOP
-            FETCH c_event BULK COLLECT INTO event;
+            FETCH c_event BULK COLLECT INTO event LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event.COUNT = 0;
 
             FOR i IN event.FIRST .. event.LAST
@@ -1867,17 +1928,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(event(i).ID_PK, event(i).CREATION_TIME);
                         update_migration_pks('event', event(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, EVENT_TYPE, REPORTING_TIME, LAST_ALERT_DATE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_EVENT (ID_PK, EVENT_TYPE, REPORTING_TIME, LAST_ALERT_DATE, CREATION_TIME,
+                                                   CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 event(i).EVENT_TYPE,
                                 event(i).REPORTING_TIME,
                                 event(i).LAST_ALERT_DATE,
                                 event(i).CREATION_TIME,
                                 event(i).CREATED_BY,
                                 event(i).MODIFICATION_TIME,
-                                event(i).MODIFIED_BY;
+                                event(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -1887,11 +1947,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_event -> execute immediate error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_event -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1924,7 +1983,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event_alert;
         LOOP
-            FETCH c_event_alert BULK COLLECT INTO event_alert;
+            FETCH c_event_alert BULK COLLECT INTO event_alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_alert.COUNT = 0;
 
             FOR i IN event_alert.FIRST .. event_alert.LAST
@@ -1933,15 +1992,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('alert', migration_pks, event_alert(i).FK_ALERT, v_fk_alert);
                         lookup_migration_pk('event', migration_pks, event_alert(i).FK_EVENT, v_fk_event);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (FK_EVENT, FK_ALERT, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_fk_event,
+                        INSERT INTO MIGR_TB_EVENT_ALERT (FK_EVENT, FK_ALERT, CREATION_TIME, CREATED_BY,
+                                                         MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_fk_event,
                                 v_fk_alert,
                                 event_alert(i).CREATION_TIME,
                                 event_alert(i).CREATED_BY,
                                 event_alert(i).MODIFICATION_TIME,
-                                event_alert(i).MODIFIED_BY;
+                                event_alert(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -1951,11 +2009,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_event_alert -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_event_alert -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_alert.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_alert.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1992,7 +2050,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event_property;
         LOOP
-            FETCH c_event_property BULK COLLECT INTO event_property;
+            FETCH c_event_property BULK COLLECT INTO event_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_property.COUNT = 0;
 
             FOR i IN event_property.FIRST .. event_property.LAST
@@ -2001,10 +2059,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(event_property(i).ID_PK, event_property(i).CREATION_TIME);
                         lookup_migration_pk('event', migration_pks, event_property(i).FK_EVENT, v_fk_event);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, PROPERTY_TYPE, FK_EVENT, DTYPE, STRING_VALUE, DATE_VALUE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_EVENT_PROPERTY (ID_PK, PROPERTY_TYPE, FK_EVENT, DTYPE, STRING_VALUE,
+                                                            DATE_VALUE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                            MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 event_property(i).PROPERTY_TYPE,
                                 v_fk_event,
                                 event_property(i).DTYPE,
@@ -2013,7 +2071,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 event_property(i).CREATION_TIME,
                                 event_property(i).CREATED_BY,
                                 event_property(i).MODIFICATION_TIME,
-                                event_property(i).MODIFIED_BY;
+                                event_property(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2023,11 +2081,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_event_property -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_event_property -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2069,7 +2127,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_authentication_entry;
         LOOP
-            FETCH c_authentication_entry BULK COLLECT INTO authentication_entry;
+            FETCH c_authentication_entry BULK COLLECT INTO authentication_entry LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN authentication_entry.COUNT = 0;
 
             FOR i IN authentication_entry.FIRST .. authentication_entry.LAST
@@ -2078,10 +2136,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(authentication_entry(i).ID_PK, authentication_entry(i).CREATION_TIME);
                         update_migration_pks('authentication_entry', authentication_entry(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, CERTIFICATE_ID, USERNAME, PASSWD, AUTH_ROLES, ORIGINAL_USER, BACKEND, PASSWORD_CHANGE_DATE, DEFAULT_PASSWORD, ATTEMPT_COUNT, SUSPENSION_DATE, USER_ENABLED, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15,:p_16)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_AUTHENTICATION_ENTRY (ID_PK, CERTIFICATE_ID, USERNAME, PASSWD, AUTH_ROLES,
+                                                                  ORIGINAL_USER, BACKEND, PASSWORD_CHANGE_DATE,
+                                                                  DEFAULT_PASSWORD, ATTEMPT_COUNT, SUSPENSION_DATE,
+                                                                  USER_ENABLED, CREATION_TIME, CREATED_BY,
+                                                                  MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 authentication_entry(i).CERTIFICATE_ID,
                                 authentication_entry(i).USERNAME,
                                 authentication_entry(i).PASSWD,
@@ -2096,7 +2156,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 authentication_entry(i).CREATION_TIME,
                                 authentication_entry(i).CREATED_BY,
                                 authentication_entry(i).MODIFICATION_TIME,
-                                authentication_entry(i).MODIFIED_BY;
+                                authentication_entry(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2106,11 +2166,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_authentication_entry -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_authentication_entry -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2146,7 +2206,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_plugin_user_passwd_history;
         LOOP
-            FETCH c_plugin_user_passwd_history BULK COLLECT INTO plugin_user_passwd_history;
+            FETCH c_plugin_user_passwd_history BULK COLLECT INTO plugin_user_passwd_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN plugin_user_passwd_history.COUNT = 0;
 
             FOR i IN plugin_user_passwd_history.FIRST .. plugin_user_passwd_history.LAST
@@ -2156,17 +2216,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('authentication_entry', migration_pks, plugin_user_passwd_history(i).USER_ID, v_user_id);
 
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, USER_ID, USER_PASSWORD, PASSWORD_CHANGE_DATE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PLUGIN_USR_PASSWD_HIST (ID_PK, USER_ID, USER_PASSWORD, PASSWORD_CHANGE_DATE,
+                                                                    CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                    MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 v_user_id,
                                 plugin_user_passwd_history(i).USER_PASSWORD,
                                 plugin_user_passwd_history(i).PASSWORD_CHANGE_DATE,
                                 plugin_user_passwd_history(i).CREATION_TIME,
                                 plugin_user_passwd_history(i).CREATED_BY,
                                 plugin_user_passwd_history(i).MODIFICATION_TIME,
-                                plugin_user_passwd_history(i).MODIFIED_BY;
+                                plugin_user_passwd_history(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2176,11 +2236,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_plugin_user_passwd_history -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_plugin_user_passwd_history -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || plugin_user_passwd_history.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || plugin_user_passwd_history.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2213,7 +2273,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_backend_filter;
         LOOP
-            FETCH c_backend_filter BULK COLLECT INTO backend_filter;
+            FETCH c_backend_filter BULK COLLECT INTO backend_filter LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN backend_filter.COUNT = 0;
 
             FOR i IN backend_filter.FIRST .. backend_filter.LAST
@@ -2222,16 +2282,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(backend_filter(i).ID_PK, backend_filter(i).CREATION_TIME);
                         update_migration_pks('backend_filter', backend_filter(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, BACKEND_NAME, PRIORITY, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_BACKEND_FILTER (ID_PK, BACKEND_NAME, PRIORITY, CREATION_TIME, CREATED_BY,
+                                                            MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 backend_filter(i).BACKEND_NAME,
                                 backend_filter(i).PRIORITY,
                                 backend_filter(i).CREATION_TIME,
                                 backend_filter(i).CREATED_BY,
                                 backend_filter(i).MODIFICATION_TIME,
-                                backend_filter(i).MODIFIED_BY;
+                                backend_filter(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2241,11 +2300,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_backend_filter -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_backend_filter -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2281,7 +2340,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_routing_criteria;
         LOOP
-            FETCH c_routing_criteria BULK COLLECT INTO routing_criteria;
+            FETCH c_routing_criteria BULK COLLECT INTO routing_criteria LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN routing_criteria.COUNT = 0;
 
             FOR i IN routing_criteria.FIRST .. routing_criteria.LAST
@@ -2291,10 +2350,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('routing_criteria', routing_criteria(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('backend_filter', migration_pks, routing_criteria(i).FK_BACKEND_FILTER, v_fk_backend_filter);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, EXPRESSION, NAME, FK_BACKEND_FILTER, PRIORITY, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_ROUTING_CRITERIA (ID_PK, EXPRESSION, NAME, FK_BACKEND_FILTER, PRIORITY,
+                                                              CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                              MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 routing_criteria(i).EXPRESSION,
                                 routing_criteria(i).NAME,
                                 v_fk_backend_filter,
@@ -2302,7 +2361,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 routing_criteria(i).CREATION_TIME,
                                 routing_criteria(i).CREATED_BY,
                                 routing_criteria(i).MODIFICATION_TIME,
-                                routing_criteria(i).MODIFIED_BY;
+                                routing_criteria(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2312,11 +2371,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_routing_criteria -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_routing_criteria -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2355,7 +2414,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_certificate;
         LOOP
-            FETCH c_certificate BULK COLLECT INTO certificate;
+            FETCH c_certificate BULK COLLECT INTO certificate LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN certificate.COUNT = 0;
 
             FOR i IN certificate.FIRST .. certificate.LAST
@@ -2364,10 +2423,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(certificate(i).ID_PK, certificate(i).CREATION_TIME);
                         update_migration_pks('certificate', certificate(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, CERTIFICATE_ALIAS, NOT_VALID_BEFORE_DATE, NOT_VALID_AFTER_DATE, REVOKE_NOTIFICATION_DATE, ALERT_IMM_NOTIFICATION_DATE, ALERT_EXP_NOTIFICATION_DATE, CERTIFICATE_STATUS, CERTIFICATE_TYPE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_CERTIFICATE (ID_PK, CERTIFICATE_ALIAS, NOT_VALID_BEFORE_DATE,
+                                                         NOT_VALID_AFTER_DATE, REVOKE_NOTIFICATION_DATE,
+                                                         ALERT_IMM_NOTIFICATION_DATE, ALERT_EXP_NOTIFICATION_DATE,
+                                                         CERTIFICATE_STATUS, CERTIFICATE_TYPE, CREATION_TIME,
+                                                         CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 certificate(i).CERTIFICATE_ALIAS,
                                 certificate(i).NOT_VALID_BEFORE_DATE,
                                 certificate(i).NOT_VALID_AFTER_DATE,
@@ -2379,7 +2440,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 certificate(i).CREATION_TIME,
                                 certificate(i).CREATED_BY,
                                 certificate(i).MODIFICATION_TIME,
-                                certificate(i).MODIFIED_BY;
+                                certificate(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2389,11 +2450,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_certificate -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_certificate -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2426,7 +2487,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_command;
         LOOP
-            FETCH c_command BULK COLLECT INTO command;
+            FETCH c_command BULK COLLECT INTO command LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command.COUNT = 0;
 
             FOR i IN command.FIRST .. command.LAST
@@ -2435,16 +2496,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(command(i).ID_PK, command(i).CREATION_TIME);
                         update_migration_pks('command', command(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, SERVER_NAME, COMMAND_NAME, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_COMMAND (ID_PK, SERVER_NAME, COMMAND_NAME, CREATION_TIME, CREATED_BY,
+                                                     MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 command(i).SERVER_NAME,
                                 command(i).COMMAND_NAME,
                                 command(i).CREATION_TIME,
                                 command(i).CREATED_BY,
                                 command(i).MODIFICATION_TIME,
-                                command(i).MODIFIED_BY;
+                                command(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2454,11 +2514,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_command -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_command -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || command.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || command.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2491,7 +2551,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_command_property;
         LOOP
-            FETCH c_command_property BULK COLLECT INTO command_property;
+            FETCH c_command_property BULK COLLECT INTO command_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command_property.COUNT = 0;
 
             FOR i IN command_property.FIRST .. command_property.LAST
@@ -2499,16 +2559,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         lookup_migration_pk('command', migration_pks, command_property(i).FK_COMMAND, v_fk_command);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (PROPERTY_NAME, PROPERTY_VALUE, FK_COMMAND, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING command_property(i).PROPERTY_NAME,
+                        INSERT INTO MIGR_TB_COMMAND_PROPERTY (PROPERTY_NAME, PROPERTY_VALUE, FK_COMMAND, CREATION_TIME,
+                                                              CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (command_property(i).PROPERTY_NAME,
                                 command_property(i).PROPERTY_VALUE,
                                 v_fk_command,
                                 command_property(i).CREATION_TIME,
                                 command_property(i).CREATED_BY,
                                 command_property(i).MODIFICATION_TIME,
-                                command_property(i).MODIFIED_BY;
+                                command_property(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2518,11 +2577,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_command_property -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_command_property -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || command_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || command_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2556,7 +2615,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_encryption_key;
         LOOP
-            FETCH c_encryption_key BULK COLLECT INTO encryption_key;
+            FETCH c_encryption_key BULK COLLECT INTO encryption_key LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN encryption_key.COUNT = 0;
 
             FOR i IN encryption_key.FIRST .. encryption_key.LAST
@@ -2564,17 +2623,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         v_id_pk := generate_scalable_seq(encryption_key(i).ID_PK, encryption_key(i).CREATION_TIME);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, KEY_USAGE, SECRET_KEY, INIT_VECTOR, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_ENCRYPTION_KEY (ID_PK, KEY_USAGE, SECRET_KEY, INIT_VECTOR, CREATION_TIME,
+                                                            CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 encryption_key(i).KEY_USAGE,
                                 encryption_key(i).SECRET_KEY,
                                 encryption_key(i).INIT_VECTOR,
                                 encryption_key(i).CREATION_TIME,
                                 encryption_key(i).CREATED_BY,
                                 encryption_key(i).MODIFICATION_TIME,
-                                encryption_key(i).MODIFIED_BY;
+                                encryption_key(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2584,11 +2642,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_encryption_key -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_encryption_key -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || encryption_key.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || encryption_key.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2623,7 +2681,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_acknw_prop;
         LOOP
-            FETCH c_message_acknw_prop BULK COLLECT INTO message_acknw_prop;
+            FETCH c_message_acknw_prop BULK COLLECT INTO message_acknw_prop LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_acknw_prop.COUNT = 0;
 
             FOR i IN message_acknw_prop.FIRST .. message_acknw_prop.LAST
@@ -2632,17 +2690,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(message_acknw_prop(i).ID_PK, message_acknw_prop(i).CREATION_TIME);
                         lookup_migration_pk('message_acknw', migration_pks, message_acknw_prop(i).FK_MSG_ACKNOWLEDGE, v_fk_msg_acknowledge);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, PROPERTY_NAME, PROPERTY_VALUE, FK_MSG_ACKNOWLEDGE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_MESSAGE_ACKNW_PROP (ID_PK, PROPERTY_NAME, PROPERTY_VALUE,
+                                                                FK_MSG_ACKNOWLEDGE, CREATION_TIME, CREATED_BY,
+                                                                MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 message_acknw_prop(i).PROPERTY_NAME,
                                 message_acknw_prop(i).PROPERTY_VALUE,
                                 v_fk_msg_acknowledge,
                                 message_acknw_prop(i).CREATION_TIME,
                                 message_acknw_prop(i).CREATED_BY,
                                 message_acknw_prop(i).MODIFICATION_TIME,
-                                message_acknw_prop(i).MODIFIED_BY;
+                                message_acknw_prop(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2652,11 +2710,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_acknw_prop -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_acknw_prop -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || message_acknw_prop.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || message_acknw_prop.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2698,7 +2756,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_messaging_lock;
         LOOP
-            FETCH c_messaging_lock BULK COLLECT INTO messaging_lock;
+            FETCH c_messaging_lock BULK COLLECT INTO messaging_lock LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN messaging_lock.COUNT = 0;
 
             FOR i IN messaging_lock.FIRST .. messaging_lock.LAST
@@ -2707,10 +2765,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(messaging_lock(i).ID_PK, messaging_lock(i).CREATION_TIME);
                         lookup_migration_pk('timezone_offset', migration_pks, 1, v_fk_timezone_offset);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, MESSAGE_TYPE, MESSAGE_RECEIVED, MESSAGE_STATE, MESSAGE_ID, INITIATOR, MPC, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, FK_TIMEZONE_OFFSET, MESSAGE_STALED, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15,:p_16)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_MESSAGING_LOCK (ID_PK, MESSAGE_TYPE, MESSAGE_RECEIVED, MESSAGE_STATE,
+                                                            MESSAGE_ID, INITIATOR, MPC, SEND_ATTEMPTS,
+                                                            SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, FK_TIMEZONE_OFFSET,
+                                                            MESSAGE_STALED, CREATION_TIME, CREATED_BY,
+                                                            MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 messaging_lock(i).MESSAGE_TYPE,
                                 messaging_lock(i).MESSAGE_RECEIVED,
                                 messaging_lock(i).MESSAGE_STATE,
@@ -2725,7 +2785,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 messaging_lock(i).CREATION_TIME,
                                 messaging_lock(i).CREATED_BY,
                                 messaging_lock(i).MODIFICATION_TIME,
-                                messaging_lock(i).MODIFIED_BY;
+                                messaging_lock(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2735,11 +2795,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_messaging_lock -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_messaging_lock -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || messaging_lock.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || messaging_lock.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2770,7 +2830,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_business_process;
         LOOP
-            FETCH c_pm_business_process BULK COLLECT INTO pm_business_process;
+            FETCH c_pm_business_process BULK COLLECT INTO pm_business_process LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_business_process.COUNT = 0;
 
             FOR i IN pm_business_process.FIRST .. pm_business_process.LAST
@@ -2779,14 +2839,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(pm_business_process(i).ID_PK, pm_business_process(i).CREATION_TIME);
                         update_migration_pks('pm_business_process', pm_business_process(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_BUSINESS_PROCESS (ID_PK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                 MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_business_process(i).CREATION_TIME,
                                 pm_business_process(i).CREATED_BY,
                                 pm_business_process(i).MODIFICATION_TIME,
-                                pm_business_process(i).MODIFIED_BY;
+                                pm_business_process(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2796,11 +2855,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_business_process -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_business_process -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_business_process.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_business_process.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2835,7 +2894,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_action;
         LOOP
-            FETCH c_pm_action BULK COLLECT INTO pm_action;
+            FETCH c_pm_action BULK COLLECT INTO pm_action LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_action.COUNT = 0;
 
             FOR i IN pm_action.FIRST .. pm_action.LAST
@@ -2845,17 +2904,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_action', pm_action(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_action(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_ACTION (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
+                                                       CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_action(i).NAME,
                                 pm_action(i).VALUE,
                                 v_fk_businessprocess,
                                 pm_action(i).CREATION_TIME,
                                 pm_action(i).CREATED_BY,
                                 pm_action(i).MODIFICATION_TIME,
-                                pm_action(i).MODIFIED_BY;
+                                pm_action(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2865,11 +2923,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_action -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_action -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_action.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_action.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2905,7 +2963,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_agreement;
         LOOP
-            FETCH c_pm_agreement BULK COLLECT INTO pm_agreement;
+            FETCH c_pm_agreement BULK COLLECT INTO pm_agreement LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_agreement.COUNT = 0;
 
             FOR i IN pm_agreement.FIRST .. pm_agreement.LAST
@@ -2915,10 +2973,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_agreement', pm_agreement(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_agreement(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, TYPE, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_AGREEMENT (ID_PK, NAME, TYPE, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
+                                                          CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_agreement(i).NAME,
                                 pm_agreement(i).TYPE,
                                 pm_agreement(i).VALUE,
@@ -2926,7 +2983,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_agreement(i).CREATION_TIME,
                                 pm_agreement(i).CREATED_BY,
                                 pm_agreement(i).MODIFICATION_TIME,
-                                pm_agreement(i).MODIFIED_BY;
+                                pm_agreement(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -2936,11 +2993,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_agreement -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_agreement -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_agreement.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_agreement.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2978,7 +3035,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_error_handling;
         LOOP
-            FETCH c_pm_error_handling BULK COLLECT INTO pm_error_handling;
+            FETCH c_pm_error_handling BULK COLLECT INTO pm_error_handling LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_error_handling.COUNT = 0;
 
             FOR i IN pm_error_handling.FIRST .. pm_error_handling.LAST
@@ -2988,10 +3045,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_error_handling', pm_error_handling(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_error_handling(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, BUSINESS_ERROR_NOTIFY_CONSUMER, BUSINESS_ERROR_NOTIFY_PRODUCER, DELIVERY_FAIL_NOTIFY_PRODUCER, ERROR_AS_RESPONSE, NAME, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_ERROR_HANDLING (ID_PK, BUSINESS_ERROR_NOTIFY_CONSUMER,
+                                                               BUSINESS_ERROR_NOTIFY_PRODUCER,
+                                                               DELIVERY_FAIL_NOTIFY_PRODUCER, ERROR_AS_RESPONSE, NAME,
+                                                               FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
+                                                               MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_error_handling(i).BUSINESS_ERROR_NOTIFY_CONSUMER,
                                 pm_error_handling(i).BUSINESS_ERROR_NOTIFY_PRODUCER,
                                 pm_error_handling(i).DELIVERY_FAIL_NOTIFY_PRODUCER,
@@ -3001,7 +3060,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_error_handling(i).CREATION_TIME,
                                 pm_error_handling(i).CREATED_BY,
                                 pm_error_handling(i).MODIFICATION_TIME,
-                                pm_error_handling(i).MODIFIED_BY;
+                                pm_error_handling(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3011,11 +3070,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_error_handling -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_error_handling -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_error_handling.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_error_handling.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3051,7 +3110,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_mep;
         LOOP
-            FETCH c_pm_mep BULK COLLECT INTO pm_mep;
+            FETCH c_pm_mep BULK COLLECT INTO pm_mep LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mep.COUNT = 0;
 
             FOR i IN pm_mep.FIRST .. pm_mep.LAST
@@ -3061,10 +3120,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_mep', pm_mep(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_mep(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, LEG_COUNT, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_MEP (ID_PK, LEG_COUNT, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
+                                                    CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_mep(i).LEG_COUNT,
                                 pm_mep(i).NAME,
                                 pm_mep(i).VALUE,
@@ -3072,7 +3130,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_mep(i).CREATION_TIME,
                                 pm_mep(i).CREATED_BY,
                                 pm_mep(i).MODIFICATION_TIME,
-                                pm_mep(i).MODIFIED_BY;
+                                pm_mep(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3082,11 +3140,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_mep -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_mep -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3121,7 +3179,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_mep_binding;
         LOOP
-            FETCH c_pm_mep_binding BULK COLLECT INTO pm_mep_binding;
+            FETCH c_pm_mep_binding BULK COLLECT INTO pm_mep_binding LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mep_binding.COUNT = 0;
 
             FOR i IN pm_mep_binding.FIRST .. pm_mep_binding.LAST
@@ -3131,17 +3189,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_mep_binding', pm_mep_binding(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_mep_binding(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_MEP_BINDING (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
+                                                            CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_mep_binding(i).NAME,
                                 pm_mep_binding(i).VALUE,
                                 v_fk_businessprocess,
                                 pm_mep_binding(i).CREATION_TIME,
                                 pm_mep_binding(i).CREATED_BY,
                                 pm_mep_binding(i).MODIFICATION_TIME,
-                                pm_mep_binding(i).MODIFIED_BY;
+                                pm_mep_binding(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3151,11 +3208,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_mep_binding -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_mep_binding -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep_binding.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep_binding.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3192,7 +3249,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_message_property;
         LOOP
-            FETCH c_pm_message_property BULK COLLECT INTO pm_message_property;
+            FETCH c_pm_message_property BULK COLLECT INTO pm_message_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_message_property.COUNT = 0;
 
             FOR i IN pm_message_property.FIRST .. pm_message_property.LAST
@@ -3202,10 +3259,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_message_property', pm_message_property(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_message_property(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, DATATYPE, KEY_, NAME, REQUIRED_, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_MESSAGE_PROPERTY (ID_PK, DATATYPE, KEY_, NAME, REQUIRED_,
+                                                                 FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
+                                                                 MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_message_property(i).DATATYPE,
                                 pm_message_property(i).KEY_,
                                 pm_message_property(i).NAME,
@@ -3214,7 +3271,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_message_property(i).CREATION_TIME,
                                 pm_message_property(i).CREATED_BY,
                                 pm_message_property(i).MODIFICATION_TIME,
-                                pm_message_property(i).MODIFIED_BY;
+                                pm_message_property(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3228,7 +3285,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3262,7 +3319,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_message_property_set;
         LOOP
-            FETCH c_pm_message_property_set BULK COLLECT INTO pm_message_property_set;
+            FETCH c_pm_message_property_set BULK COLLECT INTO pm_message_property_set LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_message_property_set.COUNT = 0;
 
             FOR i IN pm_message_property_set.FIRST .. pm_message_property_set.LAST
@@ -3272,16 +3329,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_message_property_set', pm_message_property_set(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_message_property_set(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_MSG_PROPERTY_SET (ID_PK, NAME, FK_BUSINESSPROCESS, CREATION_TIME,
+                                                                 CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_message_property_set(i).NAME,
                                 v_fk_businessprocess,
                                 pm_message_property_set(i).CREATION_TIME,
                                 pm_message_property_set(i).CREATED_BY,
                                 pm_message_property_set(i).MODIFICATION_TIME,
-                                pm_message_property_set(i).MODIFIED_BY;
+                                pm_message_property_set(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3291,11 +3347,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_message_property_set -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_message_property_set -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property_set.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property_set.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3328,7 +3384,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_property_set;
         LOOP
-            FETCH c_pm_join_property_set BULK COLLECT INTO pm_join_property_set;
+            FETCH c_pm_join_property_set BULK COLLECT INTO pm_join_property_set LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_property_set.COUNT = 0;
 
             FOR i IN pm_join_property_set.FIRST .. pm_join_property_set.LAST
@@ -3337,15 +3393,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_message_property_set', migration_pks, pm_join_property_set(i).PROPERTY_FK, v_property_fk);
                         lookup_migration_pk('pm_message_property', migration_pks, pm_join_property_set(i).SET_FK, v_set_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (PROPERTY_FK, SET_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_property_fk,
+                        INSERT INTO MIGR_TB_PM_JOIN_PROPERTY_SET (PROPERTY_FK, SET_FK, CREATION_TIME, CREATED_BY,
+                                                                  MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_property_fk,
                                 v_set_fk,
                                 pm_join_property_set(i).CREATION_TIME,
                                 pm_join_property_set(i).CREATED_BY,
                                 pm_join_property_set(i).MODIFICATION_TIME,
-                                pm_join_property_set(i).MODIFIED_BY;
+                                pm_join_property_set(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3355,11 +3410,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_property_set -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_property_set -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_property_set.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_property_set.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3396,7 +3451,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party;
         LOOP
-            FETCH c_pm_party BULK COLLECT INTO pm_party;
+            FETCH c_pm_party BULK COLLECT INTO pm_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party.COUNT = 0;
 
             FOR i IN pm_party.FIRST .. pm_party.LAST
@@ -3406,10 +3461,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_party', pm_party(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_party(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, ENDPOINT, NAME, PASSWORD, USERNAME, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PARTY (ID_PK, ENDPOINT, NAME, PASSWORD, USERNAME, FK_BUSINESSPROCESS,
+                                                      CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_party(i).ENDPOINT,
                                 pm_party(i).NAME,
                                 pm_party(i).PASSWORD,
@@ -3418,7 +3472,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_party(i).CREATION_TIME,
                                 pm_party(i).CREATED_BY,
                                 pm_party(i).MODIFICATION_TIME,
-                                pm_party(i).MODIFIED_BY;
+                                pm_party(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3428,11 +3482,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3467,7 +3521,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration;
         LOOP
-            FETCH c_pm_configuration BULK COLLECT INTO pm_configuration;
+            FETCH c_pm_configuration BULK COLLECT INTO pm_configuration LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration.COUNT = 0;
 
             FOR i IN pm_configuration.FIRST .. pm_configuration.LAST
@@ -3478,16 +3532,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_business_process', migration_pks, pm_configuration(i).FK_BUSINESSPROCESSES, v_fk_businessprocess);
                         lookup_migration_pk('pm_party', migration_pks, pm_configuration(i).FK_PARTY, v_fk_party);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, FK_BUSINESSPROCESSES, FK_PARTY, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_CONFIGURATION (ID_PK, FK_BUSINESSPROCESSES, FK_PARTY, CREATION_TIME,
+                                                              CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 v_fk_businessprocess,
                                 v_fk_party,
                                 pm_configuration(i).CREATION_TIME,
                                 pm_configuration(i).CREATED_BY,
                                 pm_configuration(i).MODIFICATION_TIME,
-                                pm_configuration(i).MODIFIED_BY;
+                                pm_configuration(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3497,11 +3550,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3543,7 +3596,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_mpc;
         LOOP
-            FETCH c_pm_mpc BULK COLLECT INTO pm_mpc;
+            FETCH c_pm_mpc BULK COLLECT INTO pm_mpc LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mpc.COUNT = 0;
 
             FOR i IN pm_mpc.FIRST .. pm_mpc.LAST
@@ -3553,10 +3606,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_mpc', pm_mpc(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_configuration', migration_pks, pm_mpc(i).FK_CONFIGURATION, v_fk_configuration);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, DEFAULT_MPC, IS_ENABLED, NAME, QUALIFIED_NAME, RETENTION_DOWNLOADED, RETENTION_UNDOWNLOADED, RETENTION_SENT, DELETE_MESSAGE_METADATA, MAX_BATCH_DELETE, FK_CONFIGURATION, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_MPC (ID_PK, DEFAULT_MPC, IS_ENABLED, NAME, QUALIFIED_NAME,
+                                                    RETENTION_DOWNLOADED, RETENTION_UNDOWNLOADED, RETENTION_SENT,
+                                                    DELETE_MESSAGE_METADATA, MAX_BATCH_DELETE, FK_CONFIGURATION,
+                                                    CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_mpc(i).DEFAULT_MPC,
                                 pm_mpc(i).IS_ENABLED,
                                 pm_mpc(i).NAME,
@@ -3570,7 +3624,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_mpc(i).CREATION_TIME,
                                 pm_mpc(i).CREATED_BY,
                                 pm_mpc(i).MODIFICATION_TIME,
-                                pm_mpc(i).MODIFIED_BY;
+                                pm_mpc(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3580,11 +3634,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_mpc -> execute immediate error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_mpc -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mpc.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mpc.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3619,7 +3672,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_id_type;
         LOOP
-            FETCH c_pm_party_id_type BULK COLLECT INTO pm_party_id_type;
+            FETCH c_pm_party_id_type BULK COLLECT INTO pm_party_id_type LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_id_type.COUNT = 0;
 
             FOR i IN pm_party_id_type.FIRST .. pm_party_id_type.LAST
@@ -3629,17 +3682,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_party_id_type', pm_party_id_type(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_party_id_type(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PARTY_ID_TYPE (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
+                                                              CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_party_id_type(i).NAME,
                                 pm_party_id_type(i).VALUE,
                                 v_fk_businessprocess,
                                 pm_party_id_type(i).CREATION_TIME,
                                 pm_party_id_type(i).CREATED_BY,
                                 pm_party_id_type(i).MODIFICATION_TIME,
-                                pm_party_id_type(i).MODIFIED_BY;
+                                pm_party_id_type(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3649,11 +3701,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_id_type -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_id_type -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3689,7 +3741,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_identifier;
         LOOP
-            FETCH c_pm_party_identifier BULK COLLECT INTO pm_party_identifier;
+            FETCH c_pm_party_identifier BULK COLLECT INTO pm_party_identifier LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_identifier.COUNT = 0;
 
             FOR i IN pm_party_identifier.FIRST .. pm_party_identifier.LAST
@@ -3700,17 +3752,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_party_id_type', migration_pks, pm_party_identifier(i).FK_PARTY_ID_TYPE, v_fk_party_id_type);
                         lookup_migration_pk('pm_party', migration_pks, pm_party_identifier(i).FK_PARTY, v_fk_party);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, PARTY_ID, FK_PARTY_ID_TYPE, FK_PARTY, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PARTY_IDENTIFIER (ID_PK, PARTY_ID, FK_PARTY_ID_TYPE, FK_PARTY,
+                                                                 CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                 MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_party_identifier(i).PARTY_ID,
                                 v_fk_party_id_type,
                                 v_fk_party,
                                 pm_party_identifier(i).CREATION_TIME,
                                 pm_party_identifier(i).CREATED_BY,
                                 pm_party_identifier(i).MODIFICATION_TIME,
-                                pm_party_identifier(i).MODIFIED_BY;
+                                pm_party_identifier(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3720,11 +3772,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_identifier -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_identifier -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3764,7 +3816,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_payload;
         LOOP
-            FETCH c_pm_payload BULK COLLECT INTO pm_payload;
+            FETCH c_pm_payload BULK COLLECT INTO pm_payload LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_payload.COUNT = 0;
 
             FOR i IN pm_payload.FIRST .. pm_payload.LAST
@@ -3774,10 +3826,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_payload', pm_payload(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_payload(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, CID, IN_BODY, MAX_SIZE, MIME_TYPE, NAME, REQUIRED_, SCHEMA_FILE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PAYLOAD (ID_PK, CID, IN_BODY, MAX_SIZE, MIME_TYPE, NAME, REQUIRED_,
+                                                        SCHEMA_FILE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
+                                                        MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_payload(i).CID,
                                 pm_payload(i).IN_BODY,
                                 pm_payload(i).MAX_SIZE,
@@ -3789,7 +3841,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_payload(i).CREATION_TIME,
                                 pm_payload(i).CREATED_BY,
                                 pm_payload(i).MODIFICATION_TIME,
-                                pm_payload(i).MODIFIED_BY;
+                                pm_payload(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3799,11 +3851,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_payload -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_payload -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3838,7 +3890,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_payload_profile;
         LOOP
-            FETCH c_pm_payload_profile BULK COLLECT INTO pm_payload_profile;
+            FETCH c_pm_payload_profile BULK COLLECT INTO pm_payload_profile LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_payload_profile.COUNT = 0;
 
             FOR i IN pm_payload_profile.FIRST .. pm_payload_profile.LAST
@@ -3848,17 +3900,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_payload_profile', pm_payload_profile(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_payload_profile(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, MAX_SIZE, NAME, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PAYLOAD_PROFILE (ID_PK, MAX_SIZE, NAME, FK_BUSINESSPROCESS,
+                                                                CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_payload_profile(i).MAX_SIZE,
                                 pm_payload_profile(i).NAME,
                                 v_fk_businessprocess,
                                 pm_payload_profile(i).CREATION_TIME,
                                 pm_payload_profile(i).CREATED_BY,
                                 pm_payload_profile(i).MODIFICATION_TIME,
-                                pm_payload_profile(i).MODIFIED_BY;
+                                pm_payload_profile(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3868,11 +3920,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_payload_profile -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_payload_profile -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload_profile.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload_profile.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_payload_profile;
 
@@ -3898,24 +3950,23 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_payload_profile;
         LOOP
-            FETCH c_pm_join_payload_profile BULK COLLECT INTO pm_join_payload_profile;
+            FETCH c_pm_join_payload_profile BULK COLLECT INTO pm_join_payload_profile LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_payload_profile.COUNT = 0;
 
             FOR i IN pm_join_payload_profile.FIRST .. pm_join_payload_profile.LAST
                 LOOP
                     BEGIN
-                        lookup_migration_pk('pm_payload', migration_pks, pm_join_payload_profile(i).FK_PAYLOAD, v_fk_payload);
-                        lookup_migration_pk('pm_payload_profile', migration_pks, pm_join_payload_profile(i).FK_PROFILE, v_fk_profile);
+                        lookup_migration_pk('pm_payload_profile', migration_pks, pm_join_payload_profile(i).FK_PAYLOAD, v_fk_payload);
+                        lookup_migration_pk('pm_payload', migration_pks, pm_join_payload_profile(i).FK_PROFILE, v_fk_profile);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (FK_PAYLOAD, FK_PROFILE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_fk_payload,
+                        INSERT INTO MIGR_TB_PM_JOIN_PAYLD_PROFILE (FK_PAYLOAD, FK_PROFILE, CREATION_TIME, CREATED_BY,
+                                                                   MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_fk_payload,
                                 v_fk_profile,
                                 pm_join_payload_profile(i).CREATION_TIME,
                                 pm_join_payload_profile(i).CREATED_BY,
                                 pm_join_payload_profile(i).MODIFICATION_TIME,
-                                pm_join_payload_profile(i).MODIFIED_BY;
+                                pm_join_payload_profile(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3925,11 +3976,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_payload_profile -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_payload_profile -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_payload_profile.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_payload_profile.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_join_payload_profile;
 
@@ -3960,7 +4011,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_reception_awareness;
         LOOP
-            FETCH c_pm_reception_awareness BULK COLLECT INTO pm_reception_awareness;
+            FETCH c_pm_reception_awareness BULK COLLECT INTO pm_reception_awareness LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_reception_awareness.COUNT = 0;
 
             FOR i IN pm_reception_awareness.FIRST .. pm_reception_awareness.LAST
@@ -3970,10 +4021,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_reception_awareness', pm_reception_awareness(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_reception_awareness(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, DUPLICATE_DETECTION, NAME, RETRY_COUNT, RETRY_TIMEOUT, STRATEGY, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_RECEPTION_AWARENESS (ID_PK, DUPLICATE_DETECTION, NAME, RETRY_COUNT,
+                                                                    RETRY_TIMEOUT, STRATEGY, FK_BUSINESSPROCESS,
+                                                                    CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                    MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_reception_awareness(i).DUPLICATE_DETECTION,
                                 pm_reception_awareness(i).NAME,
                                 pm_reception_awareness(i).RETRY_COUNT,
@@ -3983,7 +4035,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_reception_awareness(i).CREATION_TIME,
                                 pm_reception_awareness(i).CREATED_BY,
                                 pm_reception_awareness(i).MODIFICATION_TIME,
-                                pm_reception_awareness(i).MODIFIED_BY;
+                                pm_reception_awareness(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -3993,11 +4045,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_reception_awareness -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_reception_awareness -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reception_awareness.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reception_awareness.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_reception_awareness;
 
@@ -4026,7 +4078,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_reliability;
         LOOP
-            FETCH c_pm_reliability BULK COLLECT INTO pm_reliability;
+            FETCH c_pm_reliability BULK COLLECT INTO pm_reliability LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_reliability.COUNT = 0;
 
             FOR i IN pm_reliability.FIRST .. pm_reliability.LAST
@@ -4036,10 +4088,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_reliability', pm_reliability(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_reliability(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, NON_REPUDIATION, REPLY_PATTERN, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_RELIABILITY (ID_PK, NAME, NON_REPUDIATION, REPLY_PATTERN,
+                                                            FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
+                                                            MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_reliability(i).NAME,
                                 pm_reliability(i).NON_REPUDIATION,
                                 pm_reliability(i).REPLY_PATTERN,
@@ -4047,7 +4099,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_reliability(i).CREATION_TIME,
                                 pm_reliability(i).CREATED_BY,
                                 pm_reliability(i).MODIFICATION_TIME,
-                                pm_reliability(i).MODIFIED_BY;
+                                pm_reliability(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4057,11 +4109,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_reliability -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_reliability -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reliability.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reliability.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_reliability;
 
@@ -4089,7 +4141,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_role;
         LOOP
-            FETCH c_pm_role BULK COLLECT INTO pm_role;
+            FETCH c_pm_role BULK COLLECT INTO pm_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_role.COUNT = 0;
 
             FOR i IN pm_role.FIRST .. pm_role.LAST
@@ -4099,17 +4151,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_role', pm_role(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_role(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_ROLE (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
+                                                     MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_role(i).NAME,
                                 pm_role(i).VALUE,
                                 v_fk_businessprocess,
                                 pm_role(i).CREATION_TIME,
                                 pm_role(i).CREATED_BY,
                                 pm_role(i).MODIFICATION_TIME,
-                                pm_role(i).MODIFIED_BY;
+                                pm_role(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4119,11 +4170,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_role -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_role -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_role.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_role.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_role;
 
@@ -4152,7 +4203,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_security;
         LOOP
-            FETCH c_pm_security BULK COLLECT INTO pm_security;
+            FETCH c_pm_security BULK COLLECT INTO pm_security LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_security.COUNT = 0;
 
             FOR i IN pm_security.FIRST .. pm_security.LAST
@@ -4162,10 +4213,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_security', pm_security(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_security(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, POLICY, SIGNATURE_METHOD, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_SECURITY (ID_PK, NAME, POLICY, SIGNATURE_METHOD, FK_BUSINESSPROCESS,
+                                                         CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_security(i).NAME,
                                 pm_security(i).POLICY,
                                 pm_security(i).SIGNATURE_METHOD,
@@ -4173,7 +4223,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_security(i).CREATION_TIME,
                                 pm_security(i).CREATED_BY,
                                 pm_security(i).MODIFICATION_TIME,
-                                pm_security(i).MODIFIED_BY;
+                                pm_security(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4183,11 +4233,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_security -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_security -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_security.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_security.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_security;
 
@@ -4216,7 +4266,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_service;
         LOOP
-            FETCH c_pm_service BULK COLLECT INTO pm_service;
+            FETCH c_pm_service BULK COLLECT INTO pm_service LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_service.COUNT = 0;
 
             FOR i IN pm_service.FIRST .. pm_service.LAST
@@ -4226,10 +4276,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_service', pm_service(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_service(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, SERVICE_TYPE, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_SERVICE (ID_PK, NAME, SERVICE_TYPE, VALUE, FK_BUSINESSPROCESS,
+                                                        CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_service(i).NAME,
                                 pm_service(i).SERVICE_TYPE,
                                 pm_service(i).VALUE,
@@ -4237,7 +4286,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_service(i).CREATION_TIME,
                                 pm_service(i).CREATED_BY,
                                 pm_service(i).MODIFICATION_TIME,
-                                pm_service(i).MODIFIED_BY;
+                                pm_service(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4247,11 +4296,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_service -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_service -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_service.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_service.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_service;
 
@@ -4282,7 +4331,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_splitting;
         LOOP
-            FETCH c_pm_splitting BULK COLLECT INTO pm_splitting;
+            FETCH c_pm_splitting BULK COLLECT INTO pm_splitting LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_splitting.COUNT = 0;
 
             FOR i IN pm_splitting.FIRST .. pm_splitting.LAST
@@ -4292,10 +4341,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         update_migration_pks('pm_splitting', pm_splitting(i).ID_PK, v_id_pk, migration_pks);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_splitting(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, FRAGMENT_SIZE, COMPRESSION, COMPRESSION_ALGORITHM, JOIN_INTERVAL, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_SPLITTING (ID_PK, NAME, FRAGMENT_SIZE, COMPRESSION,
+                                                          COMPRESSION_ALGORITHM, JOIN_INTERVAL, FK_BUSINESSPROCESS,
+                                                          CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_splitting(i).NAME,
                                 pm_splitting(i).FRAGMENT_SIZE,
                                 pm_splitting(i).COMPRESSION,
@@ -4305,7 +4354,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_splitting(i).CREATION_TIME,
                                 pm_splitting(i).CREATED_BY,
                                 pm_splitting(i).MODIFICATION_TIME,
-                                pm_splitting(i).MODIFIED_BY;
+                                pm_splitting(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4315,11 +4364,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_splitting -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_splitting -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_splitting.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_splitting.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_splitting;
 
@@ -4367,7 +4416,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_leg;
         LOOP
-            FETCH c_pm_leg BULK COLLECT INTO pm_leg;
+            FETCH c_pm_leg BULK COLLECT INTO pm_leg LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_leg.COUNT = 0;
 
             FOR i IN pm_leg.FIRST .. pm_leg.LAST
@@ -4387,10 +4436,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_business_process', migration_pks, pm_leg(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
                         lookup_migration_pk('pm_splitting', migration_pks, pm_leg(i).FK_SPLITTING, v_fk_splitting);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, COMPRESS_PAYLOADS, NAME, FK_ACTION, FK_MPC, FK_ERROR_HANDLING, FK_PAYLOAD_PROFILE, FK_PROPERTY_SET, FK_RECEPTION_AWARENESS, FK_RELIABILITY, FK_SECURITY, FK_SERVICE, FK_BUSINESSPROCESS, FK_SPLITTING, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15,:p_16,:p_17,:p_18)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_LEG (ID_PK, COMPRESS_PAYLOADS, NAME, FK_ACTION, FK_MPC,
+                                                    FK_ERROR_HANDLING, FK_PAYLOAD_PROFILE, FK_PROPERTY_SET,
+                                                    FK_RECEPTION_AWARENESS, FK_RELIABILITY, FK_SECURITY, FK_SERVICE,
+                                                    FK_BUSINESSPROCESS, FK_SPLITTING, CREATION_TIME, CREATED_BY,
+                                                    MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_leg(i).COMPRESS_PAYLOADS,
                                 pm_leg(i).NAME,
                                 v_fk_action,
@@ -4407,7 +4458,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_leg(i).CREATION_TIME,
                                 pm_leg(i).CREATED_BY,
                                 pm_leg(i).MODIFICATION_TIME,
-                                pm_leg(i).MODIFIED_BY;
+                                pm_leg(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4417,11 +4468,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_leg -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_leg -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_leg;
 
@@ -4449,7 +4500,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_leg_mpc;
         LOOP
-            FETCH c_pm_leg_mpc BULK COLLECT INTO pm_leg_mpc;
+            FETCH c_pm_leg_mpc BULK COLLECT INTO pm_leg_mpc LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_leg_mpc.COUNT = 0;
 
             FOR i IN pm_leg_mpc.FIRST .. pm_leg_mpc.LAST
@@ -4459,16 +4510,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_mpc', migration_pks, pm_leg_mpc(i).PARTYMPCMAP_ID_PK, v_partympcmap_id_pk);
                         lookup_migration_pk('pm_party', migration_pks, pm_leg_mpc(i).PARTYMPCMAP_KEY, v_partympcmap_key);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (LEGCONFIGURATION_ID_PK, PARTYMPCMAP_ID_PK, PARTYMPCMAP_KEY, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_legconfiguration_id_pk,
+                        INSERT INTO MIGR_TB_PM_LEG_MPC (LEGCONFIGURATION_ID_PK, PARTYMPCMAP_ID_PK, PARTYMPCMAP_KEY,
+                                                        CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_legconfiguration_id_pk,
                                 v_partympcmap_id_pk,
                                 v_partympcmap_key,
                                 pm_leg_mpc(i).CREATION_TIME,
                                 pm_leg_mpc(i).CREATED_BY,
                                 pm_leg_mpc(i).MODIFICATION_TIME,
-                                pm_leg_mpc(i).MODIFIED_BY;
+                                pm_leg_mpc(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4478,11 +4528,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_leg_mpc -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_leg_mpc -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg_mpc.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg_mpc.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_leg_mpc;
 
@@ -4521,7 +4571,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_process;
         LOOP
-            FETCH c_pm_process BULK COLLECT INTO pm_process;
+            FETCH c_pm_process BULK COLLECT INTO pm_process LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_process.COUNT = 0;
 
             FOR i IN pm_process.FIRST .. pm_process.LAST
@@ -4536,10 +4586,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_role', migration_pks, pm_process(i).FK_RESPONDER_ROLE, v_fk_responder_role);
                         lookup_migration_pk('pm_business_process', migration_pks, pm_process(i).FK_BUSINESSPROCESS, v_fk_businessprocess);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, NAME, FK_AGREEMENT, FK_INITIATOR_ROLE, FK_MEP, FK_MEP_BINDING, FK_RESPONDER_ROLE, FK_BUSINESSPROCESS, USE_DYNAMIC_INITIATOR, USE_DYNAMIC_RESPONDER, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PROCESS (ID_PK, NAME, FK_AGREEMENT, FK_INITIATOR_ROLE, FK_MEP,
+                                                        FK_MEP_BINDING, FK_RESPONDER_ROLE, FK_BUSINESSPROCESS,
+                                                        USE_DYNAMIC_INITIATOR, USE_DYNAMIC_RESPONDER, CREATION_TIME,
+                                                        CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_process(i).NAME,
                                 v_fk_agreement,
                                 v_fk_initiator_role,
@@ -4552,7 +4603,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_process(i).CREATION_TIME,
                                 pm_process(i).CREATED_BY,
                                 pm_process(i).MODIFICATION_TIME,
-                                pm_process(i).MODIFIED_BY;
+                                pm_process(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4562,11 +4613,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_process -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_process -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_process.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_process.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
     END migrate_pm_process;
@@ -4593,7 +4644,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_process_init_party;
         LOOP
-            FETCH c_pm_join_process_init_party BULK COLLECT INTO pm_join_process_init_party;
+            FETCH c_pm_join_process_init_party BULK COLLECT INTO pm_join_process_init_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_init_party.COUNT = 0;
 
             FOR i IN pm_join_process_init_party.FIRST .. pm_join_process_init_party.LAST
@@ -4602,15 +4653,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_process', migration_pks, pm_join_process_init_party(i).PROCESS_FK, v_process_fk);
                         lookup_migration_pk('pm_party', migration_pks, pm_join_process_init_party(i).PARTY_FK, v_party_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (PROCESS_FK, PARTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_process_fk,
+                        INSERT INTO MIGR_TB_PM_JOIN_PROC_INI_PARTY (PROCESS_FK, PARTY_FK, CREATION_TIME, CREATED_BY,
+                                                                    MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_process_fk,
                                 v_party_fk,
                                 pm_join_process_init_party(i).CREATION_TIME,
                                 pm_join_process_init_party(i).CREATED_BY,
                                 pm_join_process_init_party(i).MODIFICATION_TIME,
-                                pm_join_process_init_party(i).MODIFIED_BY;
+                                pm_join_process_init_party(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4620,11 +4670,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_process_init_party -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_process_init_party -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_init_party.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_init_party.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_join_process_init_party;
 
@@ -4650,7 +4700,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_process_leg;
         LOOP
-            FETCH c_pm_join_process_leg BULK COLLECT INTO pm_join_process_leg;
+            FETCH c_pm_join_process_leg BULK COLLECT INTO pm_join_process_leg LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_leg.COUNT = 0;
 
             FOR i IN pm_join_process_leg.FIRST .. pm_join_process_leg.LAST
@@ -4659,15 +4709,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_process', migration_pks, pm_join_process_leg(i).PROCESS_FK, v_process_fk);
                         lookup_migration_pk('pm_leg', migration_pks, pm_join_process_leg(i).LEG_FK, v_leg_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (PROCESS_FK, LEG_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_process_fk,
+                        INSERT INTO MIGR_TB_PM_JOIN_PROCESS_LEG (PROCESS_FK, LEG_FK, CREATION_TIME, CREATED_BY,
+                                                                 MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_process_fk,
                                 v_leg_fk,
                                 pm_join_process_leg(i).CREATION_TIME,
                                 pm_join_process_leg(i).CREATED_BY,
                                 pm_join_process_leg(i).MODIFICATION_TIME,
-                                pm_join_process_leg(i).MODIFIED_BY;
+                                pm_join_process_leg(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4677,11 +4726,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_process_leg -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_process_leg -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_leg.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_leg.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_join_process_leg;
 
@@ -4707,7 +4756,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_process_resp_party;
         LOOP
-            FETCH c_pm_join_process_resp_party BULK COLLECT INTO pm_join_process_resp_party;
+            FETCH c_pm_join_process_resp_party BULK COLLECT INTO pm_join_process_resp_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_resp_party.COUNT = 0;
 
             FOR i IN pm_join_process_resp_party.FIRST .. pm_join_process_resp_party.LAST
@@ -4716,15 +4765,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('pm_process', migration_pks, pm_join_process_resp_party(i).PROCESS_FK, v_process_fk);
                         lookup_migration_pk('pm_party', migration_pks, pm_join_process_resp_party(i).PARTY_FK, v_party_fk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (PROCESS_FK, PARTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_process_fk,
+                        INSERT INTO MIGR_TB_PM_JOIN_PROC_RSP_PARTY (PROCESS_FK, PARTY_FK, CREATION_TIME, CREATED_BY,
+                                                                    MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_process_fk,
                                 v_party_fk,
                                 pm_join_process_resp_party(i).CREATION_TIME,
                                 pm_join_process_resp_party(i).CREATED_BY,
                                 pm_join_process_resp_party(i).MODIFICATION_TIME,
-                                pm_join_process_resp_party(i).MODIFIED_BY;
+                                pm_join_process_resp_party(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4734,11 +4782,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_process_resp_party -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_join_process_resp_party -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_resp_party.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_resp_party.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4772,7 +4820,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration_raw;
         LOOP
-            FETCH c_pm_configuration_raw BULK COLLECT INTO pm_configuration_raw;
+            FETCH c_pm_configuration_raw BULK COLLECT INTO pm_configuration_raw LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_raw.COUNT = 0;
 
             FOR i IN pm_configuration_raw.FIRST .. pm_configuration_raw.LAST
@@ -4781,17 +4829,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(pm_configuration_raw(i).ID_PK, pm_configuration_raw(i).CREATION_TIME);
                         update_migration_pks('pm_configuration_raw', pm_configuration_raw(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, CONFIGURATION_DATE, XML, DESCRIPTION, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_CONFIGURATION_RAW (ID_PK, CONFIGURATION_DATE, XML, DESCRIPTION,
+                                                                  CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                  MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 pm_configuration_raw(i).CONFIGURATION_DATE,
                                 pm_configuration_raw(i).XML,
                                 pm_configuration_raw(i).DESCRIPTION,
                                 pm_configuration_raw(i).CREATION_TIME,
                                 pm_configuration_raw(i).CREATED_BY,
                                 pm_configuration_raw(i).MODIFICATION_TIME,
-                                pm_configuration_raw(i).MODIFIED_BY;
+                                pm_configuration_raw(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4801,11 +4849,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration_raw -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration_raw -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4846,7 +4894,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user;
         LOOP
-            FETCH c_user BULK COLLECT INTO v_user;
+            FETCH c_user BULK COLLECT INTO v_user LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN v_user.COUNT = 0;
 
             FOR i IN v_user.FIRST .. v_user.LAST
@@ -4855,10 +4903,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(v_user(i).ID_PK, v_user(i).CREATION_TIME);
                         update_migration_pks('user', v_user(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, USER_EMAIL, USER_ENABLED, USER_PASSWORD, USER_NAME, OPTLOCK, ATTEMPT_COUNT, SUSPENSION_DATE, USER_DELETED, PASSWORD_CHANGE_DATE, DEFAULT_PASSWORD, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_USER (ID_PK, USER_EMAIL, USER_ENABLED, USER_PASSWORD, USER_NAME, OPTLOCK,
+                                                  ATTEMPT_COUNT, SUSPENSION_DATE, USER_DELETED, PASSWORD_CHANGE_DATE,
+                                                  DEFAULT_PASSWORD, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                  MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 v_user(i).USER_EMAIL,
                                 v_user(i).USER_ENABLED,
                                 v_user(i).USER_PASSWORD,
@@ -4872,7 +4921,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 v_user(i).CREATION_TIME,
                                 v_user(i).CREATED_BY,
                                 v_user(i).MODIFICATION_TIME,
-                                v_user(i).MODIFIED_BY;
+                                v_user(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4882,11 +4931,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || v_user.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || v_user.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4924,7 +4973,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_msg_deletion_job;
         LOOP
-            FETCH c_user_msg_deletion_job BULK COLLECT INTO user_msg_deletion_job;
+            FETCH c_user_msg_deletion_job BULK COLLECT INTO user_msg_deletion_job LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_msg_deletion_job.COUNT = 0;
 
             FOR i IN user_msg_deletion_job.FIRST .. user_msg_deletion_job.LAST
@@ -4932,10 +4981,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         v_id_pk := generate_scalable_seq(user_msg_deletion_job(i).ID_PK, user_msg_deletion_job(i).CREATION_TIME);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, PROCEDURE_NAME, MPC, START_RETENTION_DATE, END_RETENTION_DATE, MAX_COUNT, STATE, ACTUAL_START_DATE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_USER_MSG_DELETION_JOB (ID_PK, PROCEDURE_NAME, MPC, START_RETENTION_DATE,
+                                                                   END_RETENTION_DATE, MAX_COUNT, STATE,
+                                                                   ACTUAL_START_DATE, CREATION_TIME, CREATED_BY,
+                                                                   MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 user_msg_deletion_job(i).PROCEDURE_NAME,
                                 user_msg_deletion_job(i).MPC,
                                 user_msg_deletion_job(i).START_RETENTION_DATE,
@@ -4946,7 +4996,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 user_msg_deletion_job(i).CREATION_TIME,
                                 user_msg_deletion_job(i).CREATED_BY,
                                 user_msg_deletion_job(i).MODIFICATION_TIME,
-                                user_msg_deletion_job(i).MODIFIED_BY;
+                                user_msg_deletion_job(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -4956,11 +5006,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_msg_deletion_job -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_msg_deletion_job -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_msg_deletion_job.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_msg_deletion_job.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4995,7 +5045,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_password_history;
         LOOP
-            FETCH c_user_password_history BULK COLLECT INTO user_password_history;
+            FETCH c_user_password_history BULK COLLECT INTO user_password_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_password_history.COUNT = 0;
 
             FOR i IN user_password_history.FIRST .. user_password_history.LAST
@@ -5004,17 +5054,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(user_password_history(i).ID_PK, user_password_history(i).CREATION_TIME);
                         lookup_migration_pk('user', migration_pks, user_password_history(i).USER_ID, v_user_id);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, USER_ID, USER_PASSWORD, PASSWORD_CHANGE_DATE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_USER_PASSWORD_HISTORY (ID_PK, USER_ID, USER_PASSWORD, PASSWORD_CHANGE_DATE,
+                                                                   CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                                   MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 v_user_id,
                                 user_password_history(i).USER_PASSWORD,
                                 user_password_history(i).PASSWORD_CHANGE_DATE,
                                 user_password_history(i).CREATION_TIME,
                                 user_password_history(i).CREATED_BY,
                                 user_password_history(i).MODIFICATION_TIME,
-                                user_password_history(i).MODIFIED_BY;
+                                user_password_history(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5024,11 +5074,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_password_history -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_password_history -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_password_history.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_password_history.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5060,7 +5110,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_role;
         LOOP
-            FETCH c_user_role BULK COLLECT INTO user_role;
+            FETCH c_user_role BULK COLLECT INTO user_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role.COUNT = 0;
 
             FOR i IN user_role.FIRST .. user_role.LAST
@@ -5069,15 +5119,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(user_role(i).ID_PK, user_role(i).CREATION_TIME);
                         update_migration_pks('user_role', user_role(i).ID_PK, v_id_pk, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, ROLE_NAME, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_USER_ROLE (ID_PK, ROLE_NAME, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                       MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 user_role(i).ROLE_NAME,
                                 user_role(i).CREATION_TIME,
                                 user_role(i).CREATED_BY,
                                 user_role(i).MODIFICATION_TIME,
-                                user_role(i).MODIFIED_BY;
+                                user_role(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5087,11 +5136,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_role -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_role -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5124,7 +5173,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_roles;
         LOOP
-            FETCH c_user_roles BULK COLLECT INTO user_roles;
+            FETCH c_user_roles BULK COLLECT INTO user_roles LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles.COUNT = 0;
 
             FOR i IN user_roles.FIRST .. user_roles.LAST
@@ -5133,15 +5182,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('user', migration_pks, user_roles(i).USER_ID, v_user_id);
                         lookup_migration_pk('user_role', migration_pks, user_roles(i).ROLE_ID, v_role_id);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (USER_ID, ROLE_ID, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_user_id,
+                        INSERT INTO MIGR_TB_USER_ROLES (USER_ID, ROLE_ID, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
+                                                        MODIFIED_BY)
+                        VALUES (v_user_id,
                                 v_role_id,
                                 user_roles(i).CREATION_TIME,
                                 user_roles(i).CREATED_BY,
                                 user_roles(i).MODIFICATION_TIME,
-                                user_roles(i).MODIFIED_BY;
+                                user_roles(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5151,11 +5199,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_roles -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_roles -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5189,7 +5237,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_ws_plugin_message_log;
         LOOP
-            FETCH c_ws_plugin_message_log BULK COLLECT INTO ws_plugin_message_log;
+            FETCH c_ws_plugin_message_log BULK COLLECT INTO ws_plugin_message_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN ws_plugin_message_log.COUNT = 0;
 
             FOR i IN ws_plugin_message_log.FIRST .. ws_plugin_message_log.LAST
@@ -5197,17 +5245,17 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     BEGIN
                         v_id_pk := generate_scalable_seq(ws_plugin_message_log(i).ID_PK, SYSDATE);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, MESSAGE_ID, CONVERSATION_ID, REF_TO_MESSAGE_ID, FROM_PARTY_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, RECEIVED)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_WS_PLUGIN_TB_MESSAGE_LOG (ID_PK, MESSAGE_ID, CONVERSATION_ID,
+                                                                   REF_TO_MESSAGE_ID, FROM_PARTY_ID, FINAL_RECIPIENT,
+                                                                   ORIGINAL_SENDER, RECEIVED)
+                        VALUES (v_id_pk,
                                 ws_plugin_message_log(i).MESSAGE_ID,
                                 ws_plugin_message_log(i).CONVERSATION_ID,
                                 ws_plugin_message_log(i).REF_TO_MESSAGE_ID,
                                 ws_plugin_message_log(i).FROM_PARTY_ID,
                                 ws_plugin_message_log(i).FINAL_RECIPIENT,
                                 ws_plugin_message_log(i).ORIGINAL_SENDER,
-                                ws_plugin_message_log(i).RECEIVED;
+                                ws_plugin_message_log(i).RECEIVED);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5217,11 +5265,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_ws_plugin_message_log -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_ws_plugin_message_log -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || ws_plugin_message_log.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || ws_plugin_message_log.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5251,7 +5299,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_rev_info;
         LOOP
-            FETCH c_rev_info BULK COLLECT INTO rev_info;
+            FETCH c_rev_info BULK COLLECT INTO rev_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_info.COUNT = 0;
 
             FOR i IN rev_info.FIRST .. rev_info.LAST
@@ -5260,13 +5308,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id := generate_scalable_seq(rev_info(i).ID, rev_info(i).REVISION_DATE);
                         update_migration_pks('rev_info', rev_info(i).ID, v_id, migration_pks);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID, TIMESTAMP, REVISION_DATE, USER_NAME)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4)'
-                        USING v_id,
+                        INSERT INTO MIGR_TB_REV_INFO (ID, TIMESTAMP, REVISION_DATE, USER_NAME)
+                        VALUES (v_id,
                                 rev_info(i).TIMESTAMP,
                                 rev_info(i).REVISION_DATE,
-                                rev_info(i).USER_NAME;
+                                rev_info(i).USER_NAME);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5276,11 +5322,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_rev_info -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_rev_info -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_info.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_info.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5319,7 +5365,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_rev_changes;
         LOOP
-            FETCH c_rev_changes BULK COLLECT INTO rev_changes;
+            FETCH c_rev_changes BULK COLLECT INTO rev_changes LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_changes.COUNT = 0;
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
@@ -5352,10 +5398,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 END;
                             END CASE;
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, AUDIT_ORDER, ENTIY_NAME, GROUP_NAME, ENTITY_ID, MODIFICATION_TYPE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_REV_CHANGES (ID_PK, REV, AUDIT_ORDER, ENTIY_NAME, GROUP_NAME, ENTITY_ID,
+                                                         MODIFICATION_TYPE, CREATION_TIME, CREATED_BY,
+                                                         MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 rev_changes(i).AUDIT_ORDER,
                                 rev_changes(i).ENTIY_NAME,
@@ -5365,7 +5411,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 rev_changes(i).CREATION_TIME,
                                 rev_changes(i).CREATED_BY,
                                 rev_changes(i).MODIFICATION_TIME,
-                                rev_changes(i).MODIFIED_BY;
+                                rev_changes(i).MODIFIED_BY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5375,11 +5421,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_rev_changes -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_rev_changes -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_changes.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_changes.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5427,7 +5473,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_authentication_entry_aud;
         LOOP
-            FETCH c_authentication_entry_aud BULK COLLECT INTO authentication_entry_aud;
+            FETCH c_authentication_entry_aud BULK COLLECT INTO authentication_entry_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN authentication_entry_aud.COUNT = 0;
 
             FOR i IN authentication_entry_aud.FIRST .. authentication_entry_aud.LAST
@@ -5436,10 +5482,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, authentication_entry_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, authentication_entry_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, CERTIFICATE_ID, CERTIFICATEID_MOD, USERNAME, USERNAME_MOD, PASSWD, PASSWORD_MOD, AUTH_ROLES, AUTHROLES_MOD, ORIGINAL_USER, ORIGINALUSER_MOD, BACKEND, BACKEND_MOD, USER_ENABLED, ACTIVE_MOD, PASSWORD_CHANGE_DATE, PASSWORDCHANGEDATE_MOD, DEFAULT_PASSWORD, DEFAULTPASSWORD_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15,:p_16,:p_17,:p_18,:p_19,:p_20,:p_21)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_AUTH_ENTRY_AUD (ID_PK, REV, REVTYPE, CERTIFICATE_ID, CERTIFICATEID_MOD,
+                                                            USERNAME, USERNAME_MOD, PASSWD, PASSWORD_MOD, AUTH_ROLES,
+                                                            AUTHROLES_MOD, ORIGINAL_USER, ORIGINALUSER_MOD, BACKEND,
+                                                            BACKEND_MOD, USER_ENABLED, ACTIVE_MOD, PASSWORD_CHANGE_DATE,
+                                                            PASSWORDCHANGEDATE_MOD, DEFAULT_PASSWORD,
+                                                            DEFAULTPASSWORD_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 authentication_entry_aud(i).REVTYPE,
                                 authentication_entry_aud(i).CERTIFICATE_ID,
@@ -5459,7 +5508,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 authentication_entry_aud(i).PASSWORD_CHANGE_DATE,
                                 authentication_entry_aud(i).PASSWORDCHANGEDATE_MOD,
                                 authentication_entry_aud(i).DEFAULT_PASSWORD,
-                                authentication_entry_aud(i).DEFAULTPASSWORD_MOD;
+                                authentication_entry_aud(i).DEFAULTPASSWORD_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5469,11 +5518,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_authentication_entry_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_authentication_entry_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5506,7 +5555,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_back_rcriteria_aud;
         LOOP
-            FETCH c_back_rcriteria_aud BULK COLLECT INTO back_rcriteria_aud;
+            FETCH c_back_rcriteria_aud BULK COLLECT INTO back_rcriteria_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN back_rcriteria_aud.COUNT = 0;
 
             FOR i IN back_rcriteria_aud.FIRST .. back_rcriteria_aud.LAST
@@ -5516,14 +5565,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, back_rcriteria_aud(i).ID_PK, v_id_pk);
                         lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, back_rcriteria_aud(i).FK_BACKEND_FILTER, v_fk_backend_filter);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, FK_BACKEND_FILTER, PRIORITY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_BACK_RCRITERIA_AUD (ID_PK, REV, REVTYPE, FK_BACKEND_FILTER, PRIORITY)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 back_rcriteria_aud(i).REVTYPE,
                                 v_fk_backend_filter,
-                                back_rcriteria_aud(i).PRIORITY;
+                                back_rcriteria_aud(i).PRIORITY);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5533,11 +5580,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_back_rcriteria_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_back_rcriteria_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || back_rcriteria_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || back_rcriteria_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5572,7 +5619,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_backend_filter_aud;
         LOOP
-            FETCH c_backend_filter_aud BULK COLLECT INTO backend_filter_aud;
+            FETCH c_backend_filter_aud BULK COLLECT INTO backend_filter_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN backend_filter_aud.COUNT = 0;
 
             FOR i IN backend_filter_aud.FIRST .. backend_filter_aud.LAST
@@ -5581,17 +5628,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, backend_filter_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, backend_filter_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, BACKEND_NAME, BACKENDNAME_MOD, PRIORITY, INDEX_MOD, ROUTINGCRITERIAS_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_BACKEND_FILTER_AUD (ID_PK, REV, REVTYPE, BACKEND_NAME, BACKENDNAME_MOD,
+                                                                PRIORITY, INDEX_MOD, ROUTINGCRITERIAS_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 backend_filter_aud(i).REVTYPE,
                                 backend_filter_aud(i).BACKEND_NAME,
                                 backend_filter_aud(i).BACKENDNAME_MOD,
                                 backend_filter_aud(i).PRIORITY,
                                 backend_filter_aud(i).INDEX_MOD,
-                                backend_filter_aud(i).ROUTINGCRITERIAS_MOD;
+                                backend_filter_aud(i).ROUTINGCRITERIAS_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5601,11 +5647,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_backend_filter_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_backend_filter_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5644,7 +5690,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_certificate_aud;
         LOOP
-            FETCH c_certificate_aud BULK COLLECT INTO certificate_aud;
+            FETCH c_certificate_aud BULK COLLECT INTO certificate_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN certificate_aud.COUNT = 0;
 
             FOR i IN certificate_aud.FIRST .. certificate_aud.LAST
@@ -5653,10 +5699,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, certificate_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('certificate', migration_pks, missing_entity_date_prefix, certificate_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, CERTIFICATE_ALIAS, NOT_VALID_BEFORE_DATE, NOT_VALID_AFTER_DATE, REVOKE_NOTIFICATION_DATE, ALERT_IMM_NOTIFICATION_DATE, ALERT_EXP_NOTIFICATION_DATE, CERTIFICATE_STATUS, CERTIFICATE_TYPE)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_CERTIFICATE_AUD (ID_PK, REV, REVTYPE, CERTIFICATE_ALIAS,
+                                                             NOT_VALID_BEFORE_DATE, NOT_VALID_AFTER_DATE,
+                                                             REVOKE_NOTIFICATION_DATE, ALERT_IMM_NOTIFICATION_DATE,
+                                                             ALERT_EXP_NOTIFICATION_DATE, CERTIFICATE_STATUS,
+                                                             CERTIFICATE_TYPE)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 certificate_aud(i).REVTYPE,
                                 certificate_aud(i).CERTIFICATE_ALIAS,
@@ -5666,7 +5714,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 certificate_aud(i).ALERT_IMM_NOTIFICATION_DATE,
                                 certificate_aud(i).ALERT_EXP_NOTIFICATION_DATE,
                                 certificate_aud(i).CERTIFICATE_STATUS,
-                                certificate_aud(i).CERTIFICATE_TYPE;
+                                certificate_aud(i).CERTIFICATE_TYPE);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5676,11 +5724,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_certificate_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_certificate_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5714,7 +5762,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration_aud;
         LOOP
-            FETCH c_pm_configuration_aud BULK COLLECT INTO pm_configuration_aud;
+            FETCH c_pm_configuration_aud BULK COLLECT INTO pm_configuration_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_aud.COUNT = 0;
 
             FOR i IN pm_configuration_aud.FIRST .. pm_configuration_aud.LAST
@@ -5723,16 +5771,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, pm_configuration_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('pm_configuration', migration_pks, missing_entity_date_prefix, pm_configuration_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, EXPRESSION, EXPRESSION_MOD, NAME, NAME_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_CONFIGURATION_AUD (ID_PK, REV, REVTYPE, EXPRESSION, EXPRESSION_MOD,
+                                                                  NAME, NAME_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 pm_configuration_aud(i).REVTYPE,
                                 pm_configuration_aud(i).EXPRESSION,
                                 pm_configuration_aud(i).EXPRESSION_MOD,
                                 pm_configuration_aud(i).NAME,
-                                pm_configuration_aud(i).NAME_MOD;
+                                pm_configuration_aud(i).NAME_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5742,11 +5789,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5782,7 +5829,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration_raw_aud;
         LOOP
-            FETCH c_pm_configuration_raw_aud BULK COLLECT INTO pm_configuration_raw_aud;
+            FETCH c_pm_configuration_raw_aud BULK COLLECT INTO pm_configuration_raw_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_raw_aud.COUNT = 0;
 
             FOR i IN pm_configuration_raw_aud.FIRST .. pm_configuration_raw_aud.LAST
@@ -5791,10 +5838,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, pm_configuration_raw_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('pm_configuration_raw', migration_pks, missing_entity_date_prefix, pm_configuration_raw_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, CONFIGURATION_DATE, CONFIGURATIONDATE_MOD, DESCRIPTION, DESCRIPTION_MOD, XML, XML_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_CONF_RAW_AUD (ID_PK, REV, REVTYPE, CONFIGURATION_DATE,
+                                                             CONFIGURATIONDATE_MOD, DESCRIPTION, DESCRIPTION_MOD,
+                                                             XML, XML_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 pm_configuration_raw_aud(i).REVTYPE,
                                 pm_configuration_raw_aud(i).CONFIGURATION_DATE,
@@ -5802,7 +5849,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_configuration_raw_aud(i).DESCRIPTION,
                                 pm_configuration_raw_aud(i).DESCRIPTION_MOD,
                                 pm_configuration_raw_aud(i).XML,
-                                pm_configuration_raw_aud(i).XML_MOD;
+                                pm_configuration_raw_aud(i).XML_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5812,11 +5859,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration_raw_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_configuration_raw_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5854,7 +5901,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_aud;
         LOOP
-            FETCH c_pm_party_aud BULK COLLECT INTO pm_party_aud;
+            FETCH c_pm_party_aud BULK COLLECT INTO pm_party_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_aud.COUNT = 0;
 
             FOR i IN pm_party_aud.FIRST .. pm_party_aud.LAST
@@ -5863,10 +5910,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, pm_party_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('pm_party', migration_pks, missing_entity_date_prefix, pm_party_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, ENDPOINT, ENDPOINT_MOD, NAME, NAME_MOD, PASSWORD, PASSWORD_MOD, USERNAME, USERNAME_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PARTY_AUD (ID_PK, REV, REVTYPE, ENDPOINT, ENDPOINT_MOD, NAME,
+                                                          NAME_MOD, PASSWORD, PASSWORD_MOD, USERNAME, USERNAME_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 pm_party_aud(i).REVTYPE,
                                 pm_party_aud(i).ENDPOINT,
@@ -5876,7 +5922,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 pm_party_aud(i).PASSWORD,
                                 pm_party_aud(i).PASSWORD_MOD,
                                 pm_party_aud(i).USERNAME,
-                                pm_party_aud(i).USERNAME_MOD;
+                                pm_party_aud(i).USERNAME_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5886,11 +5932,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5924,7 +5970,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_id_type_aud;
         LOOP
-            FETCH c_pm_party_id_type_aud BULK COLLECT INTO pm_party_id_type_aud;
+            FETCH c_pm_party_id_type_aud BULK COLLECT INTO pm_party_id_type_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_id_type_aud.COUNT = 0;
 
             FOR i IN pm_party_id_type_aud.FIRST .. pm_party_id_type_aud.LAST
@@ -5933,16 +5979,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, pm_party_id_type_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('pm_party_id_type', migration_pks, missing_entity_date_prefix, pm_party_id_type_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, NAME, NAME_MOD, VALUE, VALUE_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PARTY_ID_TYPE_AUD (ID_PK, REV, REVTYPE, NAME, NAME_MOD, VALUE,
+                                                                  VALUE_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 pm_party_id_type_aud(i).REVTYPE,
                                 pm_party_id_type_aud(i).NAME,
                                 pm_party_id_type_aud(i).NAME_MOD,
                                 pm_party_id_type_aud(i).VALUE,
-                                pm_party_id_type_aud(i).VALUE_MOD;
+                                pm_party_id_type_aud(i).VALUE_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -5952,11 +5997,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_id_type_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_id_type_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5988,7 +6033,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_identifier_aud;
         LOOP
-            FETCH c_pm_party_identifier_aud BULK COLLECT INTO pm_party_identifier_aud;
+            FETCH c_pm_party_identifier_aud BULK COLLECT INTO pm_party_identifier_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_identifier_aud.COUNT = 0;
 
             FOR i IN pm_party_identifier_aud.FIRST .. pm_party_identifier_aud.LAST
@@ -5998,13 +6043,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_audit_migration_pk('pm_party_identifier', migration_pks, missing_entity_date_prefix, pm_party_identifier_aud(i).ID_PK, v_id_pk);
                         lookup_audit_migration_pk('pm_party', migration_pks, missing_entity_date_prefix, pm_party_identifier_aud(i).FK_PARTY, v_fk_party);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, FK_PARTY)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_PM_PARTY_IDENTIF_AUD (ID_PK, REV, REVTYPE, FK_PARTY)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 pm_party_identifier_aud(i).REVTYPE,
-                                v_fk_party;
+                                v_fk_party);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -6014,11 +6057,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_identifier_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_pm_party_identifier_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6052,7 +6095,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_routing_criteria_aud;
         LOOP
-            FETCH c_routing_criteria_aud BULK COLLECT INTO routing_criteria_aud;
+            FETCH c_routing_criteria_aud BULK COLLECT INTO routing_criteria_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN routing_criteria_aud.COUNT = 0;
 
             FOR i IN routing_criteria_aud.FIRST .. routing_criteria_aud.LAST
@@ -6061,16 +6104,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, routing_criteria_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, routing_criteria_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, EXPRESSION, EXPRESSION_MOD, NAME, NAME_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_ROUTING_CRITERIA_AUD (ID_PK, REV, REVTYPE, EXPRESSION, EXPRESSION_MOD,
+                                                                  NAME, NAME_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 routing_criteria_aud(i).REVTYPE,
                                 routing_criteria_aud(i).EXPRESSION,
                                 routing_criteria_aud(i).EXPRESSION_MOD,
                                 routing_criteria_aud(i).NAME,
-                                routing_criteria_aud(i).NAME_MOD;
+                                routing_criteria_aud(i).NAME_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -6080,11 +6122,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_routing_criteria_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_routing_criteria_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6131,7 +6173,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_aud;
         LOOP
-            FETCH c_user_aud BULK COLLECT INTO user_aud;
+            FETCH c_user_aud BULK COLLECT INTO user_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_aud.COUNT = 0;
 
             FOR i IN user_aud.FIRST .. user_aud.LAST
@@ -6140,10 +6182,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, user_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, user_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, USER_ENABLED, ACTIVE_MOD, USER_DELETED, DELETED_MOD, USER_EMAIL, EMAIL_MOD, USER_PASSWORD, PASSWORD_MOD, USER_NAME, USERNAME_MOD, OPTLOCK, VERSION_MOD, ROLES_MOD, PASSWORD_CHANGE_DATE, PASSWORDCHANGEDATE_MOD, DEFAULT_PASSWORD, DEFAULTPASSWORD_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6,:p_7,:p_8,:p_9,:p_10,:p_11,:p_12,:p_13,:p_14,:p_15,:p_16,:p_17,:p_18,:p_19,:p_20)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_USER_AUD (ID_PK, REV, REVTYPE, USER_ENABLED, ACTIVE_MOD, USER_DELETED,
+                                                      DELETED_MOD, USER_EMAIL, EMAIL_MOD, USER_PASSWORD, PASSWORD_MOD,
+                                                      USER_NAME, USERNAME_MOD, OPTLOCK, VERSION_MOD, ROLES_MOD,
+                                                      PASSWORD_CHANGE_DATE, PASSWORDCHANGEDATE_MOD, DEFAULT_PASSWORD,
+                                                      DEFAULTPASSWORD_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 user_aud(i).REVTYPE,
                                 user_aud(i).USER_ENABLED,
@@ -6162,7 +6206,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 user_aud(i).PASSWORD_CHANGE_DATE,
                                 user_aud(i).PASSWORDCHANGEDATE_MOD,
                                 user_aud(i).DEFAULT_PASSWORD,
-                                user_aud(i).DEFAULTPASSWORD_MOD;
+                                user_aud(i).DEFAULTPASSWORD_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -6172,11 +6216,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6209,7 +6253,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_role_aud;
         LOOP
-            FETCH c_user_role_aud BULK COLLECT INTO user_role_aud;
+            FETCH c_user_role_aud BULK COLLECT INTO user_role_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role_aud.COUNT = 0;
 
             FOR i IN user_role_aud.FIRST .. user_role_aud.LAST
@@ -6218,15 +6262,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_migration_pk('rev_info', migration_pks, user_role_aud(i).REV, v_rev);
                         lookup_audit_migration_pk('user_role', migration_pks, missing_entity_date_prefix, user_role_aud(i).ID_PK, v_id_pk);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, REV, REVTYPE, ROLE_NAME, NAME_MOD, USERS_MOD)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4,:p_5,:p_6)'
-                        USING v_id_pk,
+                        INSERT INTO MIGR_TB_USER_ROLE_AUD (ID_PK, REV, REVTYPE, ROLE_NAME, NAME_MOD, USERS_MOD)
+                        VALUES (v_id_pk,
                                 v_rev,
                                 user_role_aud(i).REVTYPE,
                                 user_role_aud(i).ROLE_NAME,
                                 user_role_aud(i).NAME_MOD,
-                                user_role_aud(i).USERS_MOD;
+                                user_role_aud(i).USERS_MOD);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -6236,11 +6278,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_role_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_role_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6272,7 +6314,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_roles_aud;
         LOOP
-            FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud;
+            FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles_aud.COUNT = 0;
 
             FOR i IN user_roles_aud.FIRST .. user_roles_aud.LAST
@@ -6282,13 +6324,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, user_roles_aud(i).USER_ID, v_user_id);
                         lookup_audit_migration_pk('user_role', migration_pks, missing_entity_date_prefix, user_roles_aud(i).ROLE_ID, v_role_id);
 
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (REV, REVTYPE, USER_ID, ROLE_ID)' ||
-                                          ' VALUES (:p_1,:p_2,:p_3,:p_4)'
-                        USING v_rev,
+                        INSERT INTO MIGR_TB_USER_ROLES_AUD (REV, REVTYPE, USER_ID, ROLE_ID)
+                        VALUES (v_rev,
                                 user_roles_aud(i).REVTYPE,
                                 v_user_id,
-                                v_role_id;
+                                v_role_id);
 
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
@@ -6298,11 +6338,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_roles_aud -> execute immediate error: ' ||
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_roles_aud -> insert error: ' ||
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;

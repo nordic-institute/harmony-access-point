@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -19,10 +20,12 @@ import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
@@ -129,6 +132,9 @@ public class DynamicDiscoveryPModeProviderTest {
     PartyRoleDictionaryService partyRoleDictionaryService;
 
     @Mock
+    PartyEndpointProvider partyEndpointProvider;
+
+    @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Before
@@ -145,14 +151,15 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
                 Mockito.spy(ExpiredCertificateConfigurationManager.class),
-//                Mockito.spy(BackupServiceImpl.class),
                 Mockito.spy(CertificateHelper.class),
                 Mockito.spy(DomainService.class),
                 Mockito.spy(DomainTaskExecutor.class),
                 Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),
-                Mockito.spy(DomainContextProvider.class)
-                );
+                Mockito.spy(PasswordEncryptionService.class),
+                Mockito.spy(DomainContextProvider.class),
+                Mockito.spy(DomibusCoreMapper.class)
+        );
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {

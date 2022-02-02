@@ -21,7 +21,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -104,10 +103,6 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @Override
     protected List<TrustStoreEntry> doGetTrustStoreEntries() {
         return tlsCertificateManager.getTrustStoreEntries();
-    }
-
-    protected String getTrustStoreBackUpLocation() {
-        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
     }
 
 }

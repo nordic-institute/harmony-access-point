@@ -32,6 +32,7 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
     public void setUpMessage(final String pmodeKey) {
         //set the messageId in the MDC context
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, getMessageId());
+
         message.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
         message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
         //FIXME: Test!!!!

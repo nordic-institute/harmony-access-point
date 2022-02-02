@@ -43,10 +43,10 @@ public class MessageSenderErrorHandler implements ErrorHandler {
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void handleError(Throwable t) {
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
-        LOG.warn("Handling dispatch error for message " + messageId, t);
+        LOG.warn("Handling dispatch error for message [{}]", messageId, t);
 
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
 

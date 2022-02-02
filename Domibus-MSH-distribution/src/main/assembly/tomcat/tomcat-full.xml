@@ -48,7 +48,16 @@
             <excludes>
                 <exclude>work</exclude>
                 <exclude>webapps/**/*</exclude>
+                <exclude>conf/server.xml</exclude>
+                <exclude>conf/web.xml</exclude>
             </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/replacer/conf</directory>
+            <outputDirectory>domibus/conf</outputDirectory>
+            <filtered>false</filtered>
+            <!-- web.xml is somehow getting Windows CRLF line endings after being processed by the replacer plugin -->
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../Domibus-MSH-tomcat/src/main/conf/domibus</directory>

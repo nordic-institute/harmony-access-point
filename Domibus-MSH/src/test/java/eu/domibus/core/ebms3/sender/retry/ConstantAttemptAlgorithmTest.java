@@ -6,6 +6,7 @@ import mockit.MockUp;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ConstantAttemptAlgorithmTest {
 

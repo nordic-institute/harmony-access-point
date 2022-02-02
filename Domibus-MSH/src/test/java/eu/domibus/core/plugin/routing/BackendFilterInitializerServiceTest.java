@@ -15,6 +15,7 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  * @author Cosmin Baciu
  * @since 4.2
  */
+@Ignore("EDELIVERY-8892")
 public class BackendFilterInitializerServiceTest {
 
     @Tested

@@ -367,7 +367,7 @@ public class Properties2PgTest extends SeleniumTest {
 		log.info("property modified");
 
 		try {
-			rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(10));
+			rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(20));
 		} catch (Exception e) {
 			soft.assertTrue(false, "Updating pass to only numbers failed for user");
 		}
@@ -381,7 +381,7 @@ public class Properties2PgTest extends SeleniumTest {
 			modifyProperty("domibus.passwordPolicy.pattern", false, "[0-9].{8,32}");
 
 			try {
-				rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(10));
+				rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(20));
 			} catch (Exception e) {
 				soft.assertTrue(false, "Updating pass to only numbers failed for super");
 			}

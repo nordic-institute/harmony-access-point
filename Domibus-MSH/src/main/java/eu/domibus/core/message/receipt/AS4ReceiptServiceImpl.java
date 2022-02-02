@@ -160,8 +160,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
                 Source requestMessage;
                 if (duplicate) {
+                    LOG.debug("Generating receipt for duplicate message");
                     final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageId());
-                    SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
+                    SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(rawXmlByMessageId.getParentEntityId());
                     messageId = existingSignalMessage.getSignalMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp(existingSignalMessage.getTimestamp());
                     final String rawXml = rawXmlByMessageId.getRawXmlMessage();

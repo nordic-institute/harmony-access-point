@@ -73,12 +73,12 @@ public class EArchivingFileService {
 
     protected InputStream getInputStream(Long entityId, PartInfo partInfo) {
         if (partInfo.getPayloadDatahandler() == null) {
-            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009,"Could not find attachment for [" + partInfo.getHref() + "] and entityId [" + entityId + "]");
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
         }
         try {
             return partInfo.getPayloadDatahandler().getInputStream();
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "] and messageId [" + entityId + "]", e);
+            throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]", e);
         }
     }
 

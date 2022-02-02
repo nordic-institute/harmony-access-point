@@ -1,9 +1,11 @@
 package eu.domibus.core.converter;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
@@ -62,4 +64,5 @@ public interface DomibusCoreMapper {
 
     List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
 
+    TruststoreInfo truststoreEntityToTruststoreInfo(TruststoreEntity entity);
 }

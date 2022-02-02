@@ -131,7 +131,17 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public PayloadExtService beanPayloadExtService() {
+        return Mockito.mock(PayloadExtService.class);
+    }
+
+    @Bean
     public UserMessageValidatorServiceDelegate userMessageValidatorServiceDelegate() {
         return Mockito.mock(UserMessageValidatorServiceDelegate.class);
+    }
+
+    @Bean
+    public PayloadExtService payloadExtService() {
+        return Mockito.mock(PayloadExtService.class);
     }
 }
