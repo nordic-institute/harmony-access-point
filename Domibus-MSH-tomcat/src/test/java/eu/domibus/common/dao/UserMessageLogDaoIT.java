@@ -27,8 +27,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Ion Perpegel
@@ -41,7 +40,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
 
     private final static String NUMBER_FORMAT_DEFAULT = "%010d";
-    public static final String MSG1_ID = "msg1-" + UUID.randomUUID();
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
@@ -73,6 +71,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final String testDate = randomUUID().toString();
     private long maxEntityId;
     private UserMessageLog msg1;
+    private UserMessageLog msg2;
+    private UserMessageLog msg3;
 
     @Before
     @Transactional
@@ -82,9 +82,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        msg1 = messageDaoTestUtil.createUserMessageLog(MSG1_ID, timeT);
-        messageDaoTestUtil.createUserMessageLog("msg2-"+ UUID.randomUUID(), timeT);
-        messageDaoTestUtil.createUserMessageLog("msg3-"+ UUID.randomUUID(), old);
+        msg1 = messageDaoTestUtil.createUserMessageLog("msg1-" + UUID.randomUUID(), timeT);
+        msg2 = messageDaoTestUtil.createUserMessageLog("msg2-" + randomUUID(), timeT);
+        msg3 = messageDaoTestUtil.createUserMessageLog("msg3-" + UUID.randomUUID(), old);
 
         messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC, new Date());
 
@@ -361,14 +361,20 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
-        assertEquals(5, messagesForArchiving.size());
-        assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
+        assertThat(messagesForArchiving.stream()
+                        .map(EArchiveBatchUserMessage::getMessageId)
+                        .collect(Collectors.toList()),
+                hasItems(msg1.getUserMessage().getMessageId(),
+                msg2.getUserMessage().getMessageId(),
+                msg3.getUserMessage().getMessageId(),
+                receivedWithProperties,
+                downloadedWithProperties));
     }
 
     @Test
     @Transactional
     public void testFindMessagesForArchiving_rest() {
-        UserMessageLog msg1 = userMessageLogDao.findByMessageId(MSG1_ID);
+        UserMessageLog msg1 = userMessageLogDao.findByMessageId(this.msg1.getUserMessage().getMessageId());
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
         assertEquals(4, messagesForArchiving.size());
