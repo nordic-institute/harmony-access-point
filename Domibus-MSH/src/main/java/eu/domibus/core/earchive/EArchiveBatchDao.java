@@ -108,7 +108,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();
     }
@@ -117,7 +117,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesForArchiving", Long.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         return query.getSingleResult();
     }
 

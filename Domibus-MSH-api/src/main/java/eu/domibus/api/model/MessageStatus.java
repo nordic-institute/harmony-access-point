@@ -84,14 +84,13 @@ public enum MessageStatus {
          */
         DOWNLOADED;
 
-        public static List<MessageStatus> getFinalStates(){
+        public static List<MessageStatus> getSuccessfulStates(){
                 return Arrays.asList(
                         ACKNOWLEDGED,
                         ACKNOWLEDGED_WITH_WARNING,
                         RECEIVED,
                         RECEIVED_WITH_WARNINGS,
-                        DOWNLOADED,
-                        DELETED);
+                        DOWNLOADED);
         }
 
         public static List<MessageStatus> getNotFinalStates(){
@@ -110,7 +109,7 @@ public enum MessageStatus {
 
         public static List<String> getFinalStatesAsString(){
                 List<String> messageStatusNames = new ArrayList<>();
-                getFinalStates().stream().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
+                getSuccessfulStates().stream().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
                 return messageStatusNames;
         }
 }

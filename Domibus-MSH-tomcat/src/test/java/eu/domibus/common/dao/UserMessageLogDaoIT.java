@@ -34,7 +34,6 @@ import static org.junit.Assert.assertNull;
  * @author Ion Perpegel
  * @since 5.0
  */
-@Ignore("to be fixed EDELIVERY-8799")
 @Transactional
 public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
