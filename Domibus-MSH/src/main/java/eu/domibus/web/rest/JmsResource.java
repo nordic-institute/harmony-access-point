@@ -74,19 +74,16 @@ public class JmsResource extends BaseResource {
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
             LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
-            LOG.info("Moved JMS messages from the source queue successfully.");
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
             LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());
             jmsManager.deleteMessages(request.getSource(), ids);
-            LOG.info("Deleted JMS messages from the source queue successfully.");
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE_ALL) {
             LOG.info("Starting to delete all JMS messages from the source: {}", request.getSource());
             jmsManager.deleteAllMessages(request.getSource());
-            LOG.info("Deleted all JMS messages from the source queue successfully.");
         } else {
             throw new RequestValidationException("Invalid action specified. Valid actions are 'move', 'remove' and 'remove all'");
         }
-
+        LOG.info("The action was successfully done.");
         response.setOutcome("Success");
         return response;
     }
