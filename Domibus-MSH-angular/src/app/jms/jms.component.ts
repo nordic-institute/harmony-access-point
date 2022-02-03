@@ -363,6 +363,7 @@ export class JmsComponent extends mix(BaseListComponent)
   deleteAll() {
     try {
       this.serverRemoveAll(this.currentSearchSelectedSource.name);
+
     } catch (ex) {
       this.alertService.exception('Exception trying to delete all messages:', ex);
     }
@@ -430,6 +431,8 @@ export class JmsComponent extends mix(BaseListComponent)
     }).toPromise().then(() => {
         this.refreshDestinations();
         this.markedForDeletionMessages = [];
+        this.alertService.success('All messages in the queue deleted successfully.');
+        super.rows = [];
       }
     )
   }
@@ -465,6 +468,10 @@ export class JmsComponent extends mix(BaseListComponent)
 
   canMove() {
     return this.canDelete();
+  }
+
+  canDeleteAll() {
+    return this.rows.length > 0;
   }
 
   private atLeastOneRowSelected() {

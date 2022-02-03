@@ -6,6 +6,8 @@ import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.jms.spi.InternalJMSException;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,8 @@ public class JmsResource extends BaseResource {
 
     private ErrorHandlerService errorHandlerService;
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsResource.class);
+
     public JmsResource(JMSManager jmsManager, ErrorHandlerService errorHandlerService) {
         this.jmsManager = jmsManager;
         this.errorHandlerService = errorHandlerService;
@@ -41,6 +45,7 @@ public class JmsResource extends BaseResource {
 
     @GetMapping(value = {"/destinations"})
     public DestinationsResponseRO destinations() {
+        LOG.info("Getting all destinations available on the JMS server");
         SortedMap<String, JMSDestination> destinations = jmsManager.getDestinations();
 
         final DestinationsResponseRO response = new DestinationsResponseRO();
@@ -50,6 +55,7 @@ public class JmsResource extends BaseResource {
 
     @GetMapping(value = {"/messages"})
     public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
+        LOG.info("Getting JMS messages from the source: {}", request.getSource());
         List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector());
         customizeProperties(messages);
         final MessagesResponseRO response = new MessagesResponseRO();
@@ -63,14 +69,20 @@ public class JmsResource extends BaseResource {
         final MessagesActionResponseRO response = new MessagesActionResponseRO();
 
         List<String> messageIds = request.getSelectedMessages();
-        String[] ids = (messageIds!= null ? messageIds.toArray(new String[0]) : new String[0]);
+        String[] ids = (messageIds != null ? messageIds.toArray(new String[0]) : new String[0]);
 
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
+            LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
+            LOG.info("Moved all JMS messages from the source queue successfully.");
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
+            LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());
             jmsManager.deleteMessages(request.getSource(), ids);
+            LOG.info("Deleted all JMS messages from the source queue successfully.");
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE_ALL) {
+            LOG.info("Starting to delete all JMS messages from the source: {}", request.getSource());
             jmsManager.deleteAllMessages(request.getSource());
+            LOG.info("Deleted all JMS messages from the source queue successfully.");
         } else {
             throw new RequestValidationException("Invalid action specified. Valid actions are 'move', 'remove' and 'remove all'");
         }
