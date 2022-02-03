@@ -74,11 +74,11 @@ public class JmsResource extends BaseResource {
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
             LOG.info("Starting to move JMS messages from the source: {} to destination: {}", request.getSource(), request.getDestination());
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
-            LOG.info("Moved all JMS messages from the source queue successfully.");
+            LOG.info("Moved JMS messages from the source queue successfully.");
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
             LOG.info("Starting to delete JMS messages from the source: {}", request.getSource());
             jmsManager.deleteMessages(request.getSource(), ids);
-            LOG.info("Deleted all JMS messages from the source queue successfully.");
+            LOG.info("Deleted JMS messages from the source queue successfully.");
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE_ALL) {
             LOG.info("Starting to delete all JMS messages from the source: {}", request.getSource());
             jmsManager.deleteAllMessages(request.getSource());
