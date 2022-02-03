@@ -363,7 +363,6 @@ export class JmsComponent extends mix(BaseListComponent)
   deleteAll() {
     try {
       this.serverRemoveAll(this.currentSearchSelectedSource.name);
-
     } catch (ex) {
       this.alertService.exception('Exception trying to delete all messages:', ex);
     }
