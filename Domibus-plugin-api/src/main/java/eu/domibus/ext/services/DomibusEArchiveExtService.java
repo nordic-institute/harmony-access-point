@@ -26,9 +26,9 @@ public interface DomibusEArchiveExtService {
 
     List<BatchDTO> getExportedBatchRequests(ExportedBatchFilterDTO filter, Integer pageStart, Integer pageSize);
 
-    Long getBatchMessageCount(String batchId);
+    Long getExportedBatchMessageCount(String batchId);
 
-    List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize);
+    List<String> getExportedBatchMessageIds(String batchId, Integer pageStart, Integer pageSize);
 
     BatchStatusDTO reExportBatch(String batchId);
 

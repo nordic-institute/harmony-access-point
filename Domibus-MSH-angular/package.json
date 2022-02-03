@@ -5,7 +5,7 @@
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy-config.js",
+    "start": "ng serve --proxy-config proxy-config.js --serve-path domibus",
     "build": "ng build --base-href /domibus/",
     "prod": "ng build --prod --output-path=./src/main/resources/META-INF/resources",
     "test": "ng test",

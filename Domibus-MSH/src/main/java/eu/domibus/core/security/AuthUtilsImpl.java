@@ -9,6 +9,7 @@ import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -80,6 +81,20 @@ public class AuthUtilsImpl implements AuthUtils {
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
+    }
+
+    @Override
+    public DomibusUserDetails getUserDetails() {
+        if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
+            LOG.debug("Authentication is missing from the security context");
+            return null;
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication.getPrincipal() instanceof DomibusUserDetails)) {
+            LOG.debug("User details are missing from the authentication");
+            return null;
+        }
+        return (DomibusUserDetails) authentication.getPrincipal();
     }
 
     @Override
@@ -218,7 +233,7 @@ public class AuthUtilsImpl implements AuthUtils {
     public void runWithDomibusSecurityContext(AuthenticatedProcedure method, AuthRole authRole, boolean forceSecurityContext) {
         runWithSecurityContext(method, DOMIBUS_USER, DOMIBUS_PASSWORD, authRole, forceSecurityContext);
     }
-    
+
     @Override
     public <R> R runFunctionWithDomibusSecurityContext(AuthenticatedFunction function, AuthRole authRole, boolean forceSecurityContext) {
         return runFunctionWithSecurityContext(function, DOMIBUS_USER, DOMIBUS_PASSWORD, authRole, forceSecurityContext);

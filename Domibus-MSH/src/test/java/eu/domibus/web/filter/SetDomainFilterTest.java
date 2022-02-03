@@ -2,7 +2,7 @@ package eu.domibus.web.filter;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import mockit.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,16 +33,16 @@ public class SetDomainFilterTest {
 
     @Test
     public void doFilter(@Mocked ServletRequest request, @Mocked ServletResponse response,
-                         @Mocked FilterChain chain, @Mocked UserDetail userDetail)
+                         @Mocked FilterChain chain, @Mocked DomibusUserDetails domibusUserDetails)
             throws IOException, ServletException {
 
         String domainCode = "default";
 
         new Expectations(setDomainFilter) {{
             setDomainFilter.getAuthenticatedUser();
-            result = userDetail;
+            result = domibusUserDetails;
 
-            setDomainFilter.getDomain(userDetail);
+            setDomainFilter.getDomain(domibusUserDetails);
             this.result = domainCode;
         }};
 
@@ -55,7 +55,7 @@ public class SetDomainFilterTest {
     }
 
     @Test
-    public void getDomain(@Mocked UserDetail userDetail) {
+    public void getDomain(@Mocked DomibusUserDetails domibusUserDetails) {
 
         String domainCode = "default";
 
@@ -63,11 +63,11 @@ public class SetDomainFilterTest {
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
-            userDetail.getDomain();
+            domibusUserDetails.getDomain();
             this.result = domainCode;
         }};
 
-        String result = setDomainFilter.getDomain(userDetail);
+        String result = setDomainFilter.getDomain(domibusUserDetails);
         Assert.assertEquals(domainCode, result);
     }
 }

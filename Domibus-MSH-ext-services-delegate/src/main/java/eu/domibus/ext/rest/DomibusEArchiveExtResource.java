@@ -145,8 +145,8 @@ public class DomibusEArchiveExtResource {
      */
 
     @Operation(summary = "Get the message IDs exported in a batch",
-            description = "Method returns the message IDs exported in a batch for the given ID. All message IDs are exported if the\n" +
-                    "limit and start parameters are not provided.",
+            description = "Method returns the message IDs exported in a batch for the given ID. If batch is in status STARTED, QUEUED or FAILED, it returns empty list. " +
+                    " All message IDs are exported if the limit and start parameters are not provided.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "/batches/exported/{batchId:.+}/messages", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ExportedBatchMessagesResultDTO getBatchMessageIds(
@@ -157,14 +157,14 @@ public class DomibusEArchiveExtResource {
         try {
             ExportedBatchMessagesResultDTO resultDTO = new ExportedBatchMessagesResultDTO(batchId, pageStart, pageSize);
             LOG.info("Return batch messages with batch id [{}] for page: [{}] and page size: [{}].", batchId, pageStart, pageSize);
-            Long total = domibusEArchiveExtService.getBatchMessageCount(batchId);
+            Long total = domibusEArchiveExtService.getExportedBatchMessageCount(batchId);
             if (total == null || total < 1L) {
                 LOG.trace(NO_RESULTS_FOUND);
                 resultDTO.getPagination().setTotal(0);
                 return resultDTO;
             }
             resultDTO.getPagination().setTotal(total.intValue());
-            List<String> messagePage = domibusEArchiveExtService.getBatchMessageIds(batchId, pageStart, pageSize);
+            List<String> messagePage = domibusEArchiveExtService.getExportedBatchMessageIds(batchId, pageStart, pageSize);
             resultDTO.getMessages().addAll(messagePage);
             LOG.trace(RETURN_RESULTS_OF_TOTAL, messagePage.size(), total);
             return resultDTO;

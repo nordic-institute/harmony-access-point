@@ -205,6 +205,9 @@ public class UserMessageHandlerServiceImplTest {
     @Injectable
     UserMessagePersistenceService userMessagePersistenceService;
 
+    @Injectable
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
     String pmodeKey = "pmodeKey";
 
     private static final String STRING_TYPE = "string";
@@ -792,52 +795,6 @@ public class UserMessageHandlerServiceImplTest {
 
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void testInvoke_DuplicateMessage(@Injectable final LegConfiguration legConfiguration,
-                                            @Injectable final SignalMessageResult signalMessageResult,
-                                            @Injectable final UserMessage userMessage)
-            throws EbMS3Exception, TransformerException, IOException, SOAPException {
-
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        new Expectations(userMessageHandlerService) {{
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            legConfiguration.getReliability().isNonRepudiation();
-            result = false;
-
-            legConfiguration.getReliability().getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            as4ReceiptService.generateReceipt(
-                    soapRequestMessage,
-                    userMessage,
-                    ReplyPattern.RESPONSE,
-                    legConfiguration.getReliability().isNonRepudiation(),
-                    false,
-                    false);
-            result = soapResponseMessage;
-
-            as4ReceiptService.generateResponse(soapResponseMessage, false);
-            result = signalMessageResult;
-
-            userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false, false, false, signalMessageResult);
-            result = new DataIntegrityViolationException("");
-
-            legConfiguration.getReceptionAwareness().getDuplicateDetection();
-            result = true;
-        }};
-
-        SOAPMessage soapMessage = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
-
-        assertNotNull(soapMessage);
-
     }
 
     @Test

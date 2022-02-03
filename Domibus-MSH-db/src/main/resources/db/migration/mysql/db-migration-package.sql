@@ -5422,8 +5422,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile(INOUT migratio
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload', migration_pks, fk_payload, calculated_fk_payload);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload_profile', migration_pks, fk_profile, calculated_fk_profile);
+                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload_profile', migration_pks, fk_payload, calculated_fk_payload);
+                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload', migration_pks, fk_profile, calculated_fk_profile);
 
                 INSERT INTO MIGR_TB_PM_JOIN_PAYLD_PROFILE (FK_PAYLOAD, FK_PROFILE, CREATION_TIME, CREATED_BY,
                                                              MODIFICATION_TIME, MODIFIED_BY)

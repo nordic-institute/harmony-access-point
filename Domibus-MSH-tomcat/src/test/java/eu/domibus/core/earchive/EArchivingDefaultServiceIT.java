@@ -91,11 +91,11 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         batch1 = eArchiveBatchDao.merge(EArchiveTestUtils.createEArchiveBatchEntity(
                 UUID.randomUUID().toString(),
                 EArchiveRequestType.CONTINUOUS,
-                EArchiveBatchStatus.STARTED,
+                EArchiveBatchStatus.EXPORTED,
                 DateUtils.addDays(currentDate, -30),
                 uml1.getEntityId(),
                 uml3.getEntityId(),
-                1,
+                3,
                 "/tmp/batch"));
         eArchiveBatchUserMessageDao.create(batch1, Arrays.asList(
                 new EArchiveBatchUserMessage(uml1.getEntityId(), uml1.getUserMessage().getMessageId()),
@@ -109,7 +109,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
                 DateUtils.addDays(currentDate, -5),
                 2110100000000011L,
                 2110100000000020L,
-                1,
+                2,
                 "/tmp/batch"));
 
         eArchiveBatchUserMessageDao.create(batch2, Arrays.asList(
@@ -198,9 +198,32 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void getBatchUserMessageList() {
-        List<String> messageList = eArchivingService.getBatchUserMessageList(batch1.getBatchId(), null, null);
+    public void getBatchUserMessageListExported() {
+        // given
+        String batchId = batch1.getBatchId();
+        // when
+        Long messageCount = eArchivingService.getExportedBatchUserMessageListCount(batchId);
+        List<String> messageList = eArchivingService.getExportedBatchUserMessageList(batchId, null, null);
+        // then
+        Assert.assertNotNull(messageCount);
         Assert.assertEquals(3, messageList.size());
+        Assert.assertEquals(messageCount.intValue(), messageList.size());
+    }
+
+
+    @Test
+    @Transactional
+    public void getBatchUserMessageListFailed() {
+        // given - batch2 has status failed
+        String batchId = batch2.getBatchId();
+        // when
+        Long messageCount = eArchivingService.getExportedBatchUserMessageListCount(batchId);
+        List<String> messageList = eArchivingService.getExportedBatchUserMessageList(batchId, null, null);
+        // then - no messages are exported!
+        Assert.assertNotNull(messageCount);
+        Assert.assertEquals(0, messageList.size());
+        Assert.assertEquals(messageCount.intValue(), messageList.size());
+
     }
 
     @Test
