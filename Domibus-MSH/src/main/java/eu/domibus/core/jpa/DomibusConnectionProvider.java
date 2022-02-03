@@ -49,7 +49,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
         }
         Connection connection = null;
         try {
-            dataSource.getConnection();
+            connection = dataSource.getConnection();
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             connection.setAutoCommit(false);
             if (LOG.isTraceEnabled()) {
