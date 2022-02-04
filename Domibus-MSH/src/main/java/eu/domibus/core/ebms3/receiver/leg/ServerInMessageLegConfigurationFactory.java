@@ -2,7 +2,6 @@ package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;

@@ -9,6 +9,8 @@ import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
@@ -64,11 +66,10 @@ public class PluginUserServiceImpl implements PluginUserService {
     private AuthCoreMapper authCoreMapper;
 
     @Override
-    public List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
+    public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
         List<AuthenticationEntity> users = authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
-        List<PluginUserRO> res = convertAndPrepareUsers(users);
-        return res;
+        return users;
     }
 
     @Override
@@ -104,7 +105,7 @@ public class PluginUserServiceImpl implements PluginUserService {
         userSecurityPolicyManager.reactivateSuspendedUsers();
     }
 
-    protected List<PluginUserRO> convertAndPrepareUsers(List<AuthenticationEntity> userEntities) {
+    public List<PluginUserRO> convertAndPrepareUsers(List<AuthenticationEntity> userEntities) {
         List<PluginUserRO> users = new ArrayList<>();
 
         userEntities.forEach(userEntity -> {

@@ -1,8 +1,8 @@
 package eu.domibus.web.spring;
 
+import eu.domibus.api.spring.DomibusWebContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.api.spring.DomibusWebContext;
 import org.reflections.Reflections;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;

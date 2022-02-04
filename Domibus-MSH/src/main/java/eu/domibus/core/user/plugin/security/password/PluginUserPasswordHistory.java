@@ -1,7 +1,7 @@
 package eu.domibus.core.user.plugin.security.password;
 
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.UserPasswordHistory;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;

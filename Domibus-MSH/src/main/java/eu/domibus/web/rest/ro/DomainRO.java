@@ -1,7 +1,6 @@
 package eu.domibus.web.rest.ro;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author Ion Perpegel

@@ -4,8 +4,6 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.IncomingPullRequestHandler;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;

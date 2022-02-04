@@ -1,7 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import java.util.Date;
-
 /**
  * Created by musatmi on 15/05/2017.
  */

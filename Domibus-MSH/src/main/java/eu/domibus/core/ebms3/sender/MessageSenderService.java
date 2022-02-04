@@ -1,11 +1,13 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.core.message.*;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;

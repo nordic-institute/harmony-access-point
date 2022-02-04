@@ -2,7 +2,7 @@ package eu.domibus.core.converter;
 
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.User;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
 import org.junit.Test;

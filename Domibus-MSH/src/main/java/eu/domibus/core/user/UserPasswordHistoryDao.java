@@ -1,5 +1,7 @@
 package eu.domibus.core.user;
 
+import eu.domibus.api.user.UserEntityBase;
+
 import java.time.LocalDateTime;
 import java.util.List;
 

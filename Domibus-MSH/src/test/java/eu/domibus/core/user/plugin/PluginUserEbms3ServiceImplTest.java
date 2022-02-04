@@ -10,6 +10,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;

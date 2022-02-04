@@ -1,6 +1,5 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
-import eu.domibus.core.ebms3.sender.interceptor.SetPolicyOutInterceptor;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.helpers.CastUtils;

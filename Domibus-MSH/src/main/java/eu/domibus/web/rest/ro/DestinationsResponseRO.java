@@ -2,9 +2,7 @@ package eu.domibus.web.rest.ro;
 
 import eu.domibus.api.jms.JMSDestination;
 
-import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * Created by musatmi on 15/05/2017.

@@ -1,14 +1,14 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;

@@ -1,8 +1,5 @@
 package eu.domibus.ext.domain;
 
-import eu.domibus.ext.domain.security.AuthType;
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * Data Object for Plugin User management using External API
  *
@@ -15,13 +12,9 @@ public class PluginUserDTO {
 
     private String password;
 
-    private String certificateId; //TODO: Should we support this from /ext services?
-
     private String originalUser;
 
     private String authRoles;
-
-    private String authenticationType; // TODO: can we default this to AuthType.BASIC for /ext services?
 
     private String status;
 
@@ -29,14 +22,8 @@ public class PluginUserDTO {
 
     private boolean suspended;
 
-    private String domain;
-
-    /**
-     * Returns the name of the user but only for basic type of users
-     * @return the name
-     */
     public String getUserName() {
-        return StringUtils.equals(AuthType.BASIC.name(), authenticationType) ? userName : null;
+        return userName;
     }
 
     public void setUserName(String username) {
@@ -49,18 +36,6 @@ public class PluginUserDTO {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    /**
-     * Returns the id of the certificate of the user but only for certificate type of users
-     * @return the certificate id
-     */
-    public String getCertificateId() {
-        return StringUtils.equals(AuthType.CERTIFICATE.name(), authenticationType) ? certificateId : null;
-    }
-
-    public void setCertificateId(String certificateId) {
-        this.certificateId = certificateId;
     }
 
     public String getOriginalUser() {
@@ -77,14 +52,6 @@ public class PluginUserDTO {
 
     public void setAuthRoles(String authRoles) {
         this.authRoles = authRoles;
-    }
-
-    public String getAuthenticationType() {
-        return authenticationType;
-    }
-
-    public void setAuthenticationType(String authenticationType) {
-        this.authenticationType = authenticationType;
     }
 
     public String getStatus() {
@@ -109,14 +76,6 @@ public class PluginUserDTO {
 
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 
 }

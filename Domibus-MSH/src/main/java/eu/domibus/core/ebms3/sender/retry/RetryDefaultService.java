@@ -1,17 +1,17 @@
 package eu.domibus.core.ebms3.sender.retry;
 
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.ENGLISH;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
 
 /**
  * @author Christian Koch, Stefan Mueller

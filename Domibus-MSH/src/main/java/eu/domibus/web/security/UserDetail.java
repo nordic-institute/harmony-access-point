@@ -1,8 +1,8 @@
 package eu.domibus.web.security;
 
 import com.google.common.collect.Lists;
-import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

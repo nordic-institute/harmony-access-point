@@ -2,7 +2,6 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.messaging.MessageConstants;
 
 

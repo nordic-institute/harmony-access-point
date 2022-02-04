@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.splitandjoin.MessageFragmentSender;
 import eu.domibus.core.message.splitandjoin.SourceMessageSender;
-import eu.domibus.api.model.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
