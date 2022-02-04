@@ -20,7 +20,7 @@ import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -125,7 +125,7 @@ public class FaultInHandler extends AbstractFaultHandler {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
 
-            if (StringUtils.isEmpty(ebMS3Exception.getRefToMessageId()) && !StringUtils.isEmpty(messageId)) {
+            if (ObjectUtils.isEmpty(ebMS3Exception == null ? null : ebMS3Exception.getRefToMessageId()) && !ObjectUtils.isEmpty(messageId)) {
                 ebMS3Exception.setRefToMessageId(messageId);
             }
 
