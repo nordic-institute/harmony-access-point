@@ -4,7 +4,6 @@ import eu.domibus.api.scheduler.Reprogrammable;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Federico Martini
@@ -166,8 +165,6 @@ import java.util.List;
                         "WHERE uml.entityId IN( :ENTITY_IDS )"),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
-
-    public static final List<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = MessageStatus.getFinalStates();
 
     @Column(name = "BACKEND")
     private String backend;

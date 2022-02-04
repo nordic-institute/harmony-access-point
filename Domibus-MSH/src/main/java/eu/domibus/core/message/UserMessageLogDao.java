@@ -81,7 +81,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         query.setMaxResults(batchMaxSize);
 
         return query.getResultList();
@@ -116,7 +116,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
 
@@ -212,7 +212,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter(STR_MESSAGE_ID, messageId);
         try {
             return query.getSingleResult();
