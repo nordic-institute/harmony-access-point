@@ -1,5 +1,7 @@
 package eu.domibus.ext.domain;
 
+import eu.domibus.ext.domain.security.AuthRole;
+
 /**
  * Data Object for Plugin User management using External API
  *
@@ -14,13 +16,13 @@ public class PluginUserDTO {
 
     private String originalUser;
 
-    private String authRoles;
-
-    private String status;
+    private AuthRole authRoles;
 
     private boolean active;
 
-    private boolean suspended;
+    private boolean defaultPassword;
+
+    private String domain;
 
     public String getUserName() {
         return userName;
@@ -46,20 +48,12 @@ public class PluginUserDTO {
         this.originalUser = originalUser;
     }
 
-    public String getAuthRoles() {
+    public AuthRole getAuthRoles() {
         return authRoles;
     }
 
-    public void setAuthRoles(String authRoles) {
+    public void setAuthRoles(AuthRole authRoles) {
         this.authRoles = authRoles;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public boolean isActive() {
@@ -70,12 +64,19 @@ public class PluginUserDTO {
         this.active = active;
     }
 
-    public boolean isSuspended() {
-        return suspended;
+    public boolean isDefaultPassword() {
+        return defaultPassword;
     }
 
-    public void setSuspended(boolean suspended) {
-        this.suspended = suspended;
+    public void setDefaultPassword(boolean defaultPassword) {
+        this.defaultPassword = defaultPassword;
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
 }

@@ -1,6 +1,8 @@
 package eu.domibus.ext.delegate.services.pluginUser;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.PluginUserDTO;
 import eu.domibus.ext.exceptions.PluginUserExtServiceException;
@@ -8,6 +10,9 @@ import eu.domibus.ext.services.PluginUserExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@inheritDoc}
@@ -20,25 +25,19 @@ public class PluginUserServiceDelegate implements PluginUserExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserServiceDelegate.class);
 
-//    protected PluginUserService pluginUserService;
+    protected PluginUserService pluginUserService;
 
     protected DomibusExtMapper domibusExtMapper;
 
     protected DomainContextProvider domainProvider;
 
-    public PluginUserServiceDelegate(/*PluginUserService pluginUserService,*/
+    public PluginUserServiceDelegate(PluginUserService pluginUserService,
                                      DomibusExtMapper domibusExtMapper,
                                      DomainContextProvider domainProvider) {
-        /*this.pluginUserService = pluginUserService*/;
+        this.pluginUserService = pluginUserService;
         this.domibusExtMapper = domibusExtMapper;
         this.domainProvider = domainProvider;
     }
-
-    /* TODO: remove
-    public void createParty(PartyDTO partyDTO) {
-        Party newParty = domibusExtMapper.partyDTOToParty(partyDTO);
-        partyService.createParty(newParty, partyDTO.getCertificateContent());
-    }*/
 
     /**
      * {@inheritDoc}
@@ -48,6 +47,13 @@ public class PluginUserServiceDelegate implements PluginUserExtService {
     @Override
     public void createPluginUser(PluginUserDTO pluginUserDTO) throws PluginUserExtServiceException {
         LOG.info("@@@ Create Plugin User, domain retrieved is:[{}] ", domainProvider.getCurrentDomain().getCode());
-        //domibusExtMapper.partyDTOToParty()
+
+        //currently from ext service only Basic authentication will be supported
+        AuthenticationEntity authenticationEntity = domibusExtMapper.pluginUserDTOToAuthenticationEntity(pluginUserDTO);
+        LOG.info("@@@ Create Plugin User, AuthenticationEntity created:[{}]", authenticationEntity);
+
+        List<AuthenticationEntity> newUsers = Collections.singletonList(authenticationEntity);
+        pluginUserService.updateUsers(newUsers, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     }
+
 }
