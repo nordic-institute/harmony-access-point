@@ -248,9 +248,10 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Transactional
-    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId) {
+    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation());
+        userMessageLogDefaultService.updateStatusToExported(eArchiveBatchUtils.getEntityIds(userMessageDtos));
         sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
     }
 

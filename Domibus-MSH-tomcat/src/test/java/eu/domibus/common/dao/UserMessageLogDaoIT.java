@@ -386,13 +386,30 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLog> allUserMessageLogs = messageDaoTestUtil.getAllUserMessageLogs();
         List<Long> resultList = allUserMessageLogs.stream().map(AbstractNoGeneratedPkEntity::getEntityId).collect(Collectors.toList());
 
-        userMessageLogDao.updateArchived(resultList);
+        userMessageLogDao.update(resultList, userMessageLogDao::updateArchivedBatched);
 
         List<UserMessageLog> result = messageDaoTestUtil.getAllUserMessageLogs();
 
         for (UserMessageLog uml : result) {
             em.refresh(uml);
             Assert.assertNotNull(uml.getArchived());
+        }
+    }
+
+
+    @Test
+    @Transactional
+    public void updateStatusToExported() {
+        List<UserMessageLog> allUserMessageLogs = messageDaoTestUtil.getAllUserMessageLogs();
+        List<Long> resultList = allUserMessageLogs.stream().map(AbstractNoGeneratedPkEntity::getEntityId).collect(Collectors.toList());
+
+        userMessageLogDao.update(resultList, userMessageLogDao::updateExportedBatched);
+
+        List<UserMessageLog> result = messageDaoTestUtil.getAllUserMessageLogs();
+
+        for (UserMessageLog uml : result) {
+            em.refresh(uml);
+            Assert.assertNotNull(uml.getExported());
         }
     }
 
