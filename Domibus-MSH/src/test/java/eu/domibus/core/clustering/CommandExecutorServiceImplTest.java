@@ -4,13 +4,11 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.ext.services.CommandExtTask;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -26,25 +25,25 @@ import static org.junit.Assert.assertTrue;
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class CommandExecutorEbms3ServiceImplTest {
+public class CommandExecutorServiceImplTest {
 
     @Tested
     private CommandExecutorServiceImpl commandExecutorService;
 
     @Injectable
-    protected CommandService commandService;
+    private CommandService commandService;
 
     @Injectable
-    protected ServerInfoService serverInfoService;
+    private ServerInfoService serverInfoService;
 
     @Injectable
-    protected List<CommandTask> commandTasks;
+    private List<CommandTask> commandTasks;
 
     @Injectable
-    protected List<CommandExtTask> pluginCommands;
+    private List<CommandExtTask> pluginCommands;
 
     @Injectable
-    protected DomainTaskExecutor domainTaskExecutor;
+    private DomainTaskExecutor domainTaskExecutor;
 
     @Test
     public void testExecuteCommands(@Mocked Command command1, @Mocked Command command2) {
@@ -154,5 +153,59 @@ public class CommandExecutorEbms3ServiceImplTest {
         }};
 
         assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
+    }
+
+    @Test
+    public void skipCommandSameServer_NullCommandProperties(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+
+        assertTrue(commandExecutorService.skipCommandSameServer(command, null));
+    }
+
+    @Test
+    public void skipCommandSameServer_NullOriginServerProperty(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+        String originServerName = null;
+
+        new Expectations() {{
+            commandProperties.get(CommandProperty.ORIGIN_SERVER);
+            result = originServerName;
+        }};
+
+        assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
+    }
+
+    @Test
+    public void skipCommandSameServer_BlankOriginServerProperty(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+        String originServerName = " ";
+
+        new Expectations() {{
+            commandProperties.get(CommandProperty.ORIGIN_SERVER);
+            result = originServerName;
+        }};
+
+        assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
+    }
+
+    @Test
+    public void skipCommandSameServer_DoesNotSkipOnSeparateServer(@Injectable Map<String, String> commandProperties,
+                                      @Injectable CommandExtTask commandTask) {
+        String command = "mycommand";
+        String originServerName = "server1";
+        String currentServerName = "server2";
+
+        new Expectations() {{
+            commandProperties.get(CommandProperty.ORIGIN_SERVER);
+            result = originServerName;
+
+            serverInfoService.getServerName();
+            result = currentServerName;
+        }};
+
+        assertFalse(commandExecutorService.skipCommandSameServer(command, commandProperties));
     }
 }

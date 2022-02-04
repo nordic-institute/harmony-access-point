@@ -19,25 +19,25 @@ import static org.junit.Assert.assertEquals;
  * @since 4.0.1
  */
 @RunWith(JMockit.class)
-public class CommandEbms3ServiceImplTest {
+public class CommandServiceImplTest {
 
     @Tested
     private CommandServiceImpl commandService;
 
     @Injectable
-    protected CommandDao commandDao;
+    private CommandDao commandDao;
 
     @Injectable
-    protected CommandCoreMapper commandCoreMapper;
+    private CommandCoreMapper commandCoreMapper;
 
     @Injectable
-    protected ServerInfoService serverInfoService;
+    private ServerInfoService serverInfoService;
 
     @Injectable
-    protected List<CommandTask> commandTasks;
+    private List<CommandTask> commandTasks;
 
     @Injectable
-    protected List<CommandExtTask> pluginCommands;
+    private List<CommandExtTask> pluginCommands;
 
     @Test
     public void testCreateClusterCommand() {
