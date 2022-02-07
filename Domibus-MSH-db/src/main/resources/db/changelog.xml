@@ -603,6 +603,7 @@
             <column name="ACKNOWLEDGED" type="TIMESTAMP"/>
             <column name="DOWNLOADED" type="TIMESTAMP"/>
             <column name="ARCHIVED" type="TIMESTAMP"/>
+            <column name="EXPORTED" type="TIMESTAMP"/>
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="DELETED" type="TIMESTAMP"/>
@@ -667,6 +668,9 @@
         </createIndex>
         <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ARCHIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_EXPORTED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="EXPORTED"/>
         </createIndex>
         <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ACKNOWLEDGED"/>
@@ -1668,17 +1672,17 @@
                 replaceIfExists="true"
                 viewName="V_AUDIT_DETAIL">
             SELECT
-            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
-            rc.MODIFICATION_TYPE as ACTION_TYPE,
-            ri.USER_NAME as USER_NAME ,
-            ri.REVISION_DATE as AUDIT_DATE,
-            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
-            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
+                DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+                         rc.MODIFICATION_TYPE as ACTION_TYPE,
+                         ri.USER_NAME as USER_NAME ,
+                         ri.REVISION_DATE as AUDIT_DATE,
+                         COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+                         COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
             FROM TB_REV_INFO ri, TB_REV_CHANGES rc
             WHERE ri.ID=rc.REV
             UNION
             SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
-            TB_ACTION_AUDIT aa
+                TB_ACTION_AUDIT aa
         </createView>
         <createView
                 replaceIfExists="true"
