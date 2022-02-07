@@ -1,7 +1,5 @@
 package eu.domibus.ext.domain;
 
-import eu.domibus.ext.domain.security.AuthRole;
-
 /**
  * Data Object for Plugin User management using External API
  *
@@ -16,7 +14,7 @@ public class PluginUserDTO {
 
     private String originalUser;
 
-    private AuthRole authRoles;
+    private String authRoles;
 
     private boolean active;
 
@@ -48,11 +46,11 @@ public class PluginUserDTO {
         this.originalUser = originalUser;
     }
 
-    public AuthRole getAuthRoles() {
+    public String getAuthRoles() {
         return authRoles;
     }
 
-    public void setAuthRoles(AuthRole authRoles) {
+    public void setAuthRoles(String authRoles) {
         this.authRoles = authRoles;
     }
 

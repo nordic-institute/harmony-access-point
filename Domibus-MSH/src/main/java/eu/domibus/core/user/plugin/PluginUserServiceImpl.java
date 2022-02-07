@@ -27,10 +27,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Ion Perpegel, Catalin Enache
@@ -122,7 +119,6 @@ public class PluginUserServiceImpl implements PluginUserService {
         user.setStatus(UserState.PERSISTED.name());
         user.setPassword(null);
 
-        // TODO: François Gautier 14-04-21 check if  setAuthenticationType setSuspended are still needed
         user.setAuthenticationType(userEntity.getAuthenticationType().name());
         user.setSuspended(userEntity.isSuspended());
 
@@ -147,8 +143,10 @@ public class PluginUserServiceImpl implements PluginUserService {
         // check duplicates with other plugin users
         for (AuthenticationEntity user : addedUsers) {
             if (!StringUtils.isEmpty(user.getUserName())) {
-                if (addedUsers.stream().anyMatch(x -> x != user && user.getUserName().equalsIgnoreCase(x.getUserName())))
+                if (addedUsers.stream().anyMatch(x -> x != user && user.getUserName().equalsIgnoreCase(x.getUserName()))) {
                     throw new UserManagementException("Cannot add user " + user.getUserName() + " more than once.");
+                }
+                validatePluginUserName(user.getUserName());
             }
             if (StringUtils.isNotBlank(user.getCertificateId())) {
                 if (addedUsers.stream().anyMatch(x -> x != user && user.getCertificateId().equalsIgnoreCase(x.getCertificateId())))
@@ -162,6 +160,12 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
 
         Streams.concat(addedUsers.stream(), updatedUsers.stream())
+                .forEach(authenticationEntity -> {
+                            validateAuthRoles(authenticationEntity.getAuthRoles());
+                            validateOriginalUser(authenticationEntity.getOriginalUser());
+                        }
+                );
+        Streams.concat(addedUsers.stream(), updatedUsers.stream())
                 .filter(user -> StringUtils.equals(user.getAuthRoles(), AuthRole.ROLE_USER.name()))
                 .filter(user -> StringUtils.isEmpty(user.getOriginalUser()))
                 .findFirst()
@@ -169,6 +173,40 @@ public class PluginUserServiceImpl implements PluginUserService {
                     throw new UserManagementException("Cannot add or update the user " + user.getUserName()
                             + " having the " + AuthRole.ROLE_USER.name() + " role without providing the original user value.");
                 });
+
+    }
+
+    protected void validateOriginalUser(String originalUser) {
+        String patternOriginalUser = "urn:oasis:names:tc:ebcore:partyid\\-type:[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+";
+        if(!originalUser.matches(patternOriginalUser)){
+            LOG.error("Original User:[{}] does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]", originalUser);
+            throw new UserManagementException("Original User :" + originalUser + " does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner].");
+        }
+    }
+
+    protected void validateAuthRoles(String authRoles) {
+        //authRoles is semicolon separated list
+        List<String> lstAuthRoles = Arrays.asList(authRoles.split(";"));
+        for (String authRole : lstAuthRoles) {
+            try {
+                AuthRole.valueOf(authRole);
+            } catch (IllegalArgumentException e) {
+                LOG.error("AuthRole supplied:[{}] is unknown.", authRole);
+                throw new UserManagementException("AuthRole supplied " + authRole + " is not known.");
+            }
+        }
+    }
+
+    protected void validatePluginUserName(String userName) {
+        String lclPluginUserName = StringUtils.trim(userName);
+        int lclPluginUserNameLength = StringUtils.length(lclPluginUserName);
+        if (lclPluginUserNameLength < 4 || lclPluginUserNameLength > 255) {
+            throw new UserManagementException("Plugin User Username should be between 4 and 255 characters long.");
+        }
+        String pluginUserNameRegExp = "^[a-zA-Z0-9\\.@_]*$";
+        if (!lclPluginUserName.matches(pluginUserNameRegExp)) {
+            throw new UserManagementException("Plugin User should be alphanumeric with allowed special characters .@_");
+        }
     }
 
     protected Map<String, Object> createFilterMap(AuthType authType, AuthRole authRole, String originalUser, String userName) {
