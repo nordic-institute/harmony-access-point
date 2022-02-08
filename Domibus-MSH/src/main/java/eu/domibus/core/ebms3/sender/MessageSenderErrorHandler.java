@@ -3,8 +3,8 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;

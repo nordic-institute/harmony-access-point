@@ -1,7 +1,7 @@
 package eu.domibus.core.user.ui.security.password;
 
-import eu.domibus.core.user.UserPasswordHistoryDaoImpl;
 import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.UserPasswordHistoryDaoImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

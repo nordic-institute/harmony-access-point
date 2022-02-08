@@ -2,10 +2,10 @@ package eu.domibus.core.user.ui.job;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.user.multitenancy.SuperUserPasswordPolicyAlertJob;
-import eu.domibus.core.user.plugin.job.PluginUserPasswordPolicyAlertJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.core.user.plugin.job.PluginUserPasswordPolicyAlertJob;
+import eu.domibus.core.user.multitenancy.SuperUserPasswordPolicyAlertJob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;

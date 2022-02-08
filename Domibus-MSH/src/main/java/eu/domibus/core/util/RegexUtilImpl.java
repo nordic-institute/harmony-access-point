@@ -2,6 +2,8 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.util.RegexUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;

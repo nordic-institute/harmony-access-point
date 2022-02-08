@@ -1,9 +1,9 @@
 
 package eu.domibus.core.party;
 
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;

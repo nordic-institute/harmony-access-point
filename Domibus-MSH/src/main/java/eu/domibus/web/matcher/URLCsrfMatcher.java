@@ -2,6 +2,7 @@ package eu.domibus.web.matcher;
 
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 

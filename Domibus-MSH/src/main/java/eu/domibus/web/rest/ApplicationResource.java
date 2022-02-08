@@ -11,6 +11,7 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
 import eu.domibus.web.rest.ro.PasswordPolicyRO;
 import eu.domibus.web.rest.ro.SupportTeamInfoRO;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 

@@ -1,5 +1,7 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.api.property.DomibusPropertyMetadata;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
