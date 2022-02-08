@@ -2,6 +2,8 @@ package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,9 +1,9 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

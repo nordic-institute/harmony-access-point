@@ -5,8 +5,9 @@ import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.converter.AuthCoreMapper;
-import eu.domibus.core.user.plugin.PluginUserServiceImpl;
+import eu.domibus.core.user.plugin.PluginUserMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -36,7 +37,10 @@ public class PluginUserResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
 
     @Autowired
-    private PluginUserServiceImpl pluginUserService;
+    private PluginUserService pluginUserService;
+
+    @Autowired
+    private PluginUserMapper pluginUserMapper;
 
     @Autowired
     private AuthCoreMapper authCoreMapper;
@@ -118,7 +122,7 @@ public class PluginUserResource extends BaseResource {
         List<AuthenticationEntity> users = pluginUserService.findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
                 request.getPageStart(), request.getPageSize());
 
-        List<PluginUserRO> pluginUserROList = pluginUserService.convertAndPrepareUsers(users);
+        List<PluginUserRO> pluginUserROList = pluginUserMapper.convertAndPrepareUsers(users);
 
         PluginUserResultRO result = new PluginUserResultRO();
         result.setEntries(pluginUserROList);

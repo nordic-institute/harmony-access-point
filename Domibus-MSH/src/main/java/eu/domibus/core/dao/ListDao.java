@@ -1,5 +1,6 @@
 package eu.domibus.core.dao;
 
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.DomibusBaseEntity;
 
 import javax.persistence.TypedQuery;

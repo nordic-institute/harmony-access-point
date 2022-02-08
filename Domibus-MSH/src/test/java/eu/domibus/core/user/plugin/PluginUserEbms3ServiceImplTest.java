@@ -63,9 +63,6 @@ public class PluginUserEbms3ServiceImplTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    PluginUserSecurityPolicyManager pluginUserSecurityPolicyManager;
-
-    @Injectable
     PluginUserAlertsServiceImpl userAlertsService;
 
     @Injectable
@@ -114,14 +111,17 @@ public class PluginUserEbms3ServiceImplTest {
 
         AuthenticationEntity added_user = new AuthenticationEntity();
         added_user.setCertificateId("added_user");
+        added_user.setAuthRoles("ROLE_ADMIN");
         List<AuthenticationEntity> addedUsers = Arrays.asList(new AuthenticationEntity[]{added_user});
 
         AuthenticationEntity updated_user = new AuthenticationEntity();
         updated_user.setCertificateId("updated_user");
+        updated_user.setAuthRoles("ROLE_ADMIN");
         List<AuthenticationEntity> updatedUsers = Arrays.asList(new AuthenticationEntity[]{updated_user});
 
         AuthenticationEntity deleted_user = new AuthenticationEntity();
         updated_user.setCertificateId("deleted_user");
+        updated_user.setAuthRoles("ROLE_ADMIN");
         List<AuthenticationEntity> removedUsers = Arrays.asList(new AuthenticationEntity[]{deleted_user});
 
         new Expectations() {{
@@ -248,59 +248,6 @@ public class PluginUserEbms3ServiceImplTest {
             userDomainService.setDomainForUser(id, domain);
             times = 0;
         }};
-    }
-
-    @Test
-    public void convertAndPrepareUsers() {
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName("user1");
-        final List<AuthenticationEntity> userList = Arrays.asList(user);
-
-        PluginUserRO userRO = new PluginUserRO();
-        userRO.setUserName("user1");
-        userRO.setExpirationDate(LocalDateTime.now(ZoneOffset.UTC).plusDays(30));
-
-        LocalDateTime expDate = LocalDateTime.now(ZoneOffset.UTC).plusDays(30);
-
-        new Expectations(pluginUserService) {{
-            pluginUserService.convertAndPrepareUser(user);
-            result = userRO;
-        }};
-
-        List<PluginUserRO> result = pluginUserService.convertAndPrepareUsers(userList);
-
-        Assert.assertEquals(userList.size(), result.size());
-        Assert.assertEquals(userRO, result.get(0));
-    }
-
-    @Test
-    public void convertAndPrepareUser() {
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName("user1");
-
-        PluginUserRO userRO = new PluginUserRO();
-        userRO.setUserName("user1");
-        userRO.setExpirationDate(LocalDateTime.now(ZoneOffset.UTC).plusDays(30));
-
-        LocalDateTime expDate = LocalDateTime.now(ZoneOffset.UTC).plusDays(30);
-
-        new Expectations() {{
-            authCoreMapper.authenticationEntityToPluginUserRO(user);
-            result = userRO;
-            userSecurityPolicyManager.getExpirationDate(user);
-            result = expDate;
-            userDomainService.getDomainForUser(user.getUniqueIdentifier());
-            result="domain1";
-        }};
-
-        PluginUserRO result = pluginUserService.convertAndPrepareUser(user);
-
-        Assert.assertEquals(userRO, result);
-        Assert.assertEquals(UserState.PERSISTED.name(), result.getStatus());
-        Assert.assertEquals(AuthType.BASIC.name(), result.getAuthenticationType());
-        Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.isSuspended());
-        Assert.assertEquals("domain1", result.getDomain());
-        Assert.assertEquals(expDate, result.getExpirationDate());
     }
 
     @Test

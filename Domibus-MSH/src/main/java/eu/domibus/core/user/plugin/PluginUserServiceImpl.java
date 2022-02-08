@@ -102,37 +102,6 @@ public class PluginUserServiceImpl implements PluginUserService {
         userSecurityPolicyManager.reactivateSuspendedUsers();
     }
 
-    public List<PluginUserRO> convertAndPrepareUsers(List<AuthenticationEntity> userEntities) {
-        List<PluginUserRO> users = new ArrayList<>();
-
-        userEntities.forEach(userEntity -> {
-            PluginUserRO user = convertAndPrepareUser(userEntity);
-            users.add(user);
-        });
-
-        return users;
-    }
-
-    protected PluginUserRO convertAndPrepareUser(AuthenticationEntity userEntity) {
-        PluginUserRO user = authCoreMapper.authenticationEntityToPluginUserRO(userEntity);
-
-        user.setStatus(UserState.PERSISTED.name());
-        user.setPassword(null);
-
-        user.setAuthenticationType(userEntity.getAuthenticationType().name());
-        user.setSuspended(userEntity.isSuspended());
-
-        String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
-        user.setDomain(domainCode);
-
-        if (userEntity.isBasic()) {
-            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
-            user.setExpirationDate(expDate);
-        }
-
-        return user;
-    }
-
     /**
      * get all users from general schema and validate new users against existing names
      *
@@ -177,6 +146,9 @@ public class PluginUserServiceImpl implements PluginUserService {
     }
 
     protected void validateOriginalUser(String originalUser) {
+        if(StringUtils.isBlank(originalUser)){
+            return;
+        }
         String patternOriginalUser = "urn:oasis:names:tc:ebcore:partyid\\-type:[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+";
         if(!originalUser.matches(patternOriginalUser)){
             LOG.error("Original User:[{}] does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]", originalUser);
@@ -185,6 +157,10 @@ public class PluginUserServiceImpl implements PluginUserService {
     }
 
     protected void validateAuthRoles(String authRoles) {
+        if(StringUtils.isBlank(authRoles)){
+            LOG.error("Valid AuthRoles not provided for PluginUser");
+            throw new UserManagementException("Valid AuthRoles should be supplied for PluginUser.");
+        }
         //authRoles is semicolon separated list
         List<String> lstAuthRoles = Arrays.asList(authRoles.split(";"));
         for (String authRole : lstAuthRoles) {
