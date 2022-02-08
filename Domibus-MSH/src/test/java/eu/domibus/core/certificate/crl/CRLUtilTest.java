@@ -9,6 +9,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * Created by Cosmin Baciu on 07-Jul-16.
  */
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class CRLUtilTest {
 
     @Tested
@@ -44,7 +46,7 @@ public class CRLUtilTest {
     }
 
     @Test(expected = DomibusCRLException.class)
-    public void testDownloadCRLWithNullUrl(@Mocked final URL crlUrl) throws Exception {
+    public void testDownloadCRLWithNullUrl(@Injectable final URL crlUrl) throws Exception {
         final String crlUrlString = "file://test";
         new Expectations(crlUtil) {{
             crlUtil.getCrlURL(crlUrlString);
@@ -55,7 +57,7 @@ public class CRLUtilTest {
     }
 
     @Test
-    public void testDownloadCRL(@Mocked final URL crlUrl) throws Exception {
+    public void testDownloadCRL(@Injectable final URL crlUrl) throws Exception {
         X509CRL crl = pkiUtil.createCRL(Arrays.asList(new BigInteger("0400000000011E44A5E405", 16),
                 new BigInteger("0400000000011E44A5E404", 16)));
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(crl.getEncoded());

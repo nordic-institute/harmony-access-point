@@ -48,7 +48,7 @@ public class PullReceiptSender {
             LOG.error("Error dispatching the pull receipt for message:[{}]", messsageId, e);
             throw e;
         } finally {
-            LOG.trace("[sendReceipt] ~~~ finnaly the end ~~~");
+            LOG.trace("[sendReceipt] ~~~ finally the end ~~~");
         }
     }
 

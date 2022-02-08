@@ -19,7 +19,7 @@ public class ItemsFieldBlacklistValidatorTest {
     public void testIsValid() {
         new Expectations(blacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns("%'\\/");
+            result = "%'\\/";
         }};
 
         blacklistValidator.init();

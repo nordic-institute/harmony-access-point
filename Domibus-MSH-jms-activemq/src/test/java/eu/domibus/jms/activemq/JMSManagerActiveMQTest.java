@@ -49,6 +49,9 @@ public class JMSManagerActiveMQTest {
     private JmsOperations jmsOperations;
 
     @Injectable
+    JmsOperations jmsSender;
+
+    @Injectable
     JMSSelectorUtil jmsSelectorUtil;
 
     @Injectable

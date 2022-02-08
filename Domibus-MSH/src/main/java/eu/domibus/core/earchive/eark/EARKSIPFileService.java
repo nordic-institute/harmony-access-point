@@ -63,6 +63,7 @@ public class EARKSIPFileService {
         setMetsDocumentID(mainMETSWrapper, batchId);
         return mainMETSWrapper;
     }
+
     public void createDataFile(FileObject fileObject, InputStream value) {
         try {
             fileObject.createFile();
@@ -78,7 +79,7 @@ public class EARKSIPFileService {
         try {
             return SHA_256 + getChecksumSHA256(path);
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not calculate the checksum of the manifest", e);
+            throw new DomibusEArchiveException("Could not calculate the checksum of the manifest for path [" + path + "]", e);
         }
     }
 
@@ -99,6 +100,7 @@ public class EARKSIPFileService {
     public void addBatchJsonToMETS(MetsWrapper representationMETS, String pathFromData) {
         addDataFileInfoToMETS(representationMETS, pathFromData, null);
     }
+
     public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, FileObject dataFile) {
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());

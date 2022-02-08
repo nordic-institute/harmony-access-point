@@ -109,16 +109,22 @@ public class BaseTest {
 	private void generateAlerts() {
 		try {
 
-			for (String userRoleValue : DRoles.userRoleValues()) {
-				for (int i = 0; i < 5; i++) {
-					String name = rest.getUsername(null, userRoleValue, true, false, true);
-					rest.login(name, "veryVeryWrong");
+			for (String domain: rest.getDomainCodes()) {
+				for (String userRoleValue : DRoles.userRoleValues()) {
+					for (int i = 0; i < 5; i++) {
+						String name = rest.getUsername(domain, userRoleValue, true, false, true);
+						rest.login(name, "veryVeryWrong");
+					}
 				}
-			}
 
-			for (int i = 0; i < 5; i++) {
-				String pluginUsername = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
-				messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+				for (int i = 0; i < 5; i++) {
+					String pluginUsername = rest.getPluginUser(domain, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+					try {
+						messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+					} catch (Exception e) {
+
+					}
+				}
 			}
 
 		} catch (Exception e) {

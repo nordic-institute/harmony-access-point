@@ -1,28 +1,25 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.RawEnvelopeDto;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
@@ -111,7 +108,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         try {
             String rawXMLMessage = soapUtil.getRawXMLMessage(response);
-            LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
+            LOG.debug("Persist raw XML envelope: [{}]", rawXMLMessage);
             signalMessageRawService.saveSignalMessageRawService(rawXMLMessage, signalMessageEntityId);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);

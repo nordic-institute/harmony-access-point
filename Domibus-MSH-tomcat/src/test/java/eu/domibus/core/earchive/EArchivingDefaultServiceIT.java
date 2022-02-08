@@ -18,10 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static eu.domibus.core.earchive.EArchivingDefaultService.CONTINUOUS_ID;
 import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
+import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.util.Locale.ENGLISH;
 
 /**
  * @author François Gautier
@@ -201,8 +207,13 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Transactional
     public void getNotArchivedMessages() {
         Date currentDate = Calendar.getInstance().getTime();
-        List<String> messages = eArchivingService.getNotArchivedMessages(DateUtils.addDays(currentDate, -30),
-                DateUtils.addDays(currentDate, 1), null, null);
+        Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
+                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        Long endDate  = Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(),
+                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+
+        List<String> messages = eArchivingService.getNotArchivedMessages(startDate,
+                endDate, null, null);
 
         // According to the discussion service must return all messages which does not have set archive date!
         int expectedCount = 8;

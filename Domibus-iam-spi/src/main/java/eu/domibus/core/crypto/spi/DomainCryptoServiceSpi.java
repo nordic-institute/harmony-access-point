@@ -43,7 +43,9 @@ public interface DomainCryptoServiceSpi {
 
     void refreshTrustStore();
 
-    void replaceTrustStore(byte[] store, String password) throws CryptoSpiException;
+    void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword);
+
+    void replaceTrustStore(String storeLocation, String storePassword);
 
     KeyStore getKeyStore();
 
@@ -67,7 +69,11 @@ public interface DomainCryptoServiceSpi {
 
     void setDomain(DomainSpi domain);
 
-    void init(List<Enum> initValue);
+    void init(KeyStoreTypeSpi type);
 
     void init();
+
+    void replaceKeyStore(String storeFileLocation, String storePassword);
+
+    void refreshKeyStore();
 }

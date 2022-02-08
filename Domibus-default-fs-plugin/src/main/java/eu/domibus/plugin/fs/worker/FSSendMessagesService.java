@@ -105,7 +105,7 @@ public class FSSendMessagesService {
         clearObservedFiles(domain);
     }
 
-    @MDCKey(DomibusLogger.MDC_DOMAIN)
+    @MDCKey(value = DomibusLogger.MDC_DOMAIN, cleanOnStart = true)
     protected void sendMessagesSafely(String domain) {
         if (StringUtils.isNotEmpty(domain)) {
             LOG.putMDC(DomibusLogger.MDC_DOMAIN, domain);

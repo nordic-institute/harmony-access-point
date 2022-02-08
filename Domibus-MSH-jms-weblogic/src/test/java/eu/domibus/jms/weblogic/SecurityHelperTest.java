@@ -1,7 +1,6 @@
 package eu.domibus.jms.weblogic;
 
 import mockit.Expectations;
-import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -23,7 +22,7 @@ public class SecurityHelperTest {
 
     @Test
     public void testGetBootIdentityWithUserAndPasswordProvidedAsSystemVariables() throws Exception {
-        new NonStrictExpectations(System.class) {{
+        new Expectations(System.class) {{
             System.getProperty("weblogic.management.username");
             result = "myusername";
 
@@ -41,7 +40,7 @@ public class SecurityHelperTest {
         File bootPropertiesFile = new File(getClass().getClassLoader().getResource("jms/boot.properties").toURI());
         final String bootPropertiesPath = bootPropertiesFile.getAbsolutePath();
 
-        new NonStrictExpectations(System.class) {{
+        new Expectations(System.class) {{
             System.getProperty("weblogic.management.username");
             result = null;
 

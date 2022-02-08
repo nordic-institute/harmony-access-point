@@ -14,10 +14,11 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.NonStrictExpectations;
+import mockit.Expectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,6 +31,7 @@ import java.util.Set;
  * @author idragusa
  * @since 4.0
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PropertyProfileValidatorTest {
@@ -61,7 +63,7 @@ public class PropertyProfileValidatorTest {
         Set<eu.domibus.common.model.configuration.Property> properties = new HashSet<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER));
         properties.add(createProperty(MessageConstants.FINAL_RECIPIENT));
-        new NonStrictExpectations() {{
+        new Expectations() {{
             property1.getName();
             result = MessageConstants.ORIGINAL_SENDER;
 
@@ -97,7 +99,7 @@ public class PropertyProfileValidatorTest {
                                             @Injectable PropertySet propertySet) throws EbMS3Exception {
         String pmodeKey = "anyKey";
 
-        new NonStrictExpectations() {{
+        new Expectations() {{
             pModeProvider.getLegConfiguration(pmodeKey);
             result = legConfiguration;
 

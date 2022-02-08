@@ -629,26 +629,26 @@ public class AlertPgTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 
 		int rowCount = page.grid().getRowsNo();
-		if (rowCount > 0) {
-			String domain = page.getDomainFromTitle();
-			JSONArray userList = rest.users().getUsers(domain);
-
-			String alerUser = page.grid().getRowSpecificColumnVal(0, "Parameters").split(",")[0].trim();
-
-			boolean found = false;
-			for (int i = 0; i < userList.length(); i++) {
-				String user = userList.getJSONObject(i).getString("userName");
-				String role = userList.getJSONObject(i).getString("roles");
-				if (StringUtils.equalsIgnoreCase(user, alerUser) && !StringUtils.equalsIgnoreCase(role, "ROLE_AP_ADMIN")) {
-					found = true;
-				}
-			}
-
-			soft.assertTrue(found, "User was found and was not SUPER user");
-
-		} else {
+		if (rowCount <= 0) {
 			throw new SkipException("not enough USER_LOGIN_FAILURE alerts to verify");
 		}
+		String domain = page.getDomainFromTitle();
+		JSONArray userList = rest.users().getUsers(domain);
+
+		String alertUser = page.grid().getRowSpecificColumnVal(0, "Parameters").split(",")[0].trim();
+
+		boolean found = false;
+		for (int i = 0; i < userList.length(); i++) {
+			String user = userList.getJSONObject(i).getString("userName");
+			String role = userList.getJSONObject(i).getString("roles");
+			if (StringUtils.equalsIgnoreCase(user, alertUser) && !StringUtils.equalsIgnoreCase(role, "ROLE_AP_ADMIN")) {
+				found = true;
+			}
+		}
+
+		soft.assertTrue(found, "User was found and was not SUPER user");
+
+
 		soft.assertAll();
 	}
 

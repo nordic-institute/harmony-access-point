@@ -9,6 +9,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -242,7 +243,7 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID,DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
 
         final String agreementName;
@@ -387,12 +388,12 @@ public abstract class PModeProvider {
         return getBusinessProcessRole(responderRole);
     }
 
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
     }
 
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, boolean isPull) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, isPull, null);
     }
@@ -404,6 +405,11 @@ public abstract class PModeProvider {
      * @return boolean true if there is the same AP
      */
     public boolean checkSelfSending(String pmodeKey) {
+        if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE)) {
+            LOG.debug("Self sending check is deactivated");
+            return false;
+        }
+
         final Party receiver = getReceiverParty(pmodeKey);
         final Party sender = getSenderParty(pmodeKey);
 

@@ -112,7 +112,7 @@ public class UserPersistenceServiceImplTest {
 
         new Expectations() {{
             authCoreMapper.userApiToUserSecurity(addedUser);
-            returns(addedUserUntity);
+            result = addedUserUntity;
         }};
 
         userPersistenceService.updateUsers(users);

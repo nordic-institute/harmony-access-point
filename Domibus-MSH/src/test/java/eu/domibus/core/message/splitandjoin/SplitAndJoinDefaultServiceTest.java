@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -63,6 +64,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class SplitAndJoinDefaultServiceTest {
 
     public static final long ENTITY_ID = 1L;

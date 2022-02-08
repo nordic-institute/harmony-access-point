@@ -54,7 +54,7 @@ public class CommandExecutorEbms3ServiceImplTest {
         commands.add(command2);
 
 
-        new NonStrictExpectations(commandExecutorService) {{
+        new Expectations(commandExecutorService) {{
             command1.getCommandName();
             result = Command.RELOAD_PMODE;
 

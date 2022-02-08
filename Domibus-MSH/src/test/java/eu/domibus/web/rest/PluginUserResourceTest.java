@@ -107,7 +107,7 @@ public class PluginUserResourceTest {
 
         userResource.updateUsers(userROs);
 
-        new Verifications(1) {{
+        new Verifications() {{
             List<AuthenticationEntity> addedUsers, updatedUsers, removedUsers;
             pluginUserService.updateUsers(addedUsers = withCapture(), updatedUsers = withCapture(), removedUsers = withCapture());
             times = 1;

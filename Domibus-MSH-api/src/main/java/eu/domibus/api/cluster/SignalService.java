@@ -72,4 +72,6 @@ public interface SignalService {
      * signals that domains were added to other servers in the cluster
      */
     void signalDomainsAdded(String domainCode);
+
+    void signalKeyStoreUpdate(Domain domain);
 }

@@ -12,7 +12,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -28,6 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
+@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class UserMessageLogDefaultServiceTest {
@@ -98,7 +98,7 @@ public class UserMessageLogDefaultServiceTest {
             signalMessageLogDao.findByMessageId(messageId);
             result = signalMessageLog;
 
-             messageStatusDao.findMessageStatus(MessageStatus.DELETED);
+             messageStatusDao.findOrCreate(MessageStatus.DELETED);
              result = messageStatusEntity;
         }};
 
@@ -147,9 +147,6 @@ public class UserMessageLogDefaultServiceTest {
 
             notificationStatusDao.findOrCreate(NOTIFIED);
             result = notificationStatusEntity;
-
-            messageStatusDao.findMessageStatus(SEND_ENQUEUED);
-            result = messageStatusEntity;
         }};
 
         userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);

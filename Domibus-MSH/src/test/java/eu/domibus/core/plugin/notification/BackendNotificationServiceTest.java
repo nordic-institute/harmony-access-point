@@ -30,6 +30,7 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,6 +52,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class BackendNotificationServiceTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";

@@ -16,4 +16,6 @@ import java.lang.annotation.Target;
 public @interface MDCKey {
 
      String[] value();
+
+     boolean cleanOnStart() default false;
 }

@@ -12,7 +12,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +22,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -80,17 +72,17 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize) {
         LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
                 lastUserMessageLogId,
                 maxEntityIdToArchived,
-                size);
+                batchMaxSize);
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
         query.setParameter("STATUSES", MessageStatus.getFinalStates());
-        query.setMaxResults(size);
+        query.setMaxResults(batchMaxSize);
 
         return query.getResultList();
     }
@@ -113,38 +105,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
-        String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
-                "left join m.messageProperties p, " +
-                "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
-        if (StringUtils.isNotEmpty(finalRecipient)) {
-            queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
-        }
-        if (failedStartDate != null) {
-            queryString += " and ml.failed >= :START_DATE";
-        }
-        if (failedEndDate != null) {
-            queryString += " and ml.failed <= :END_DATE";
-        }
-        TypedQuery<String> query = this.em.createQuery(queryString, String.class);
-        if (StringUtils.isNotEmpty(finalRecipient)) {
-            query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        }
-        if (failedStartDate != null) {
-            query.setParameter("START_DATE", failedStartDate);
-        }
-        if (failedEndDate != null) {
-            query.setParameter("END_DATE", failedEndDate);
-        }
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
+        query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", dateUtil.getZoneDateTime(failedStartDate));
+        query.setParameter("END_DATE", dateUtil.getZoneDateTime(failedEndDate));
         return query.getResultList();
     }
+
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
 
-        query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+        query.setParameter("END_DATE", dateUtil.getZoneDateTime(endDate));
         return query.getResultList();
     }
 
@@ -198,18 +174,26 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional(readOnly = true)
     public UserMessageLog findByEntityId(final Long entityId) {
-        final UserMessageLog userMessageLog = super.read(entityId);
+        try {
+            final UserMessageLog userMessageLog = super.read(entityId);
 
-        initializeChildren(userMessageLog);
-
-        return userMessageLog;
+            if (userMessageLog != null) {
+                initializeChildren(userMessageLog);
+            }
+            return userMessageLog;
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with entityId [{}]", entityId);
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
     public UserMessageLog findByEntityIdSafely(final Long entityId) {
         try {
             final UserMessageLog userMessageLog = findByEntityId(entityId);
-            initializeChildren(userMessageLog);
+            if (userMessageLog != null) {
+                initializeChildren(userMessageLog);
+            }
             return userMessageLog;
         } catch (NoResultException nrEx) {
             LOG.debug("Could not find any result for message with entityId [{}]", entityId);
@@ -475,7 +459,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
         MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
         messageLog.setMessageStatus(messageStatusEntity);

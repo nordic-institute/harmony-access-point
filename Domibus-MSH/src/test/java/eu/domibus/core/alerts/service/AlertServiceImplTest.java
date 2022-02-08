@@ -229,7 +229,7 @@ public class AlertServiceImplTest {
 
         alertService.createAndEnqueueAlertOnPluginEvent(event);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -552,14 +552,16 @@ public class AlertServiceImplTest {
                             @Injectable eu.domibus.core.alerts.model.persist.Event event1,
                             @Injectable eu.domibus.core.alerts.model.persist.Event event2) {
 
+        final HashSet<eu.domibus.core.alerts.model.persist.Event> eventsParam = new HashSet<>(Arrays.asList(event1, event2));
+
         new Expectations() {{
             alert.getEvents();
-            result = new HashSet<>(Arrays.asList(event1, event2));
+            result = eventsParam;
         }};
 
         alertService.deleteAlert(alert);
 
-        new FullVerifications() {{
+        new Verifications() {{
             event1.removeAlert(alert);
             event2.removeAlert(alert);
             alertDao.delete(alert);

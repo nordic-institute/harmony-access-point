@@ -14,6 +14,7 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import mockit.Expectations;
@@ -94,6 +95,12 @@ public class MessageFragmentSenderTest {
 
     @Injectable
     MessageGroupEntity groupEntity;
+
+    @Injectable
+    protected PartyEndpointProvider partyEndpointProvider;
+
+    @Injectable
+    protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Test
     public void validateBeforeSendingSuccessful() {
