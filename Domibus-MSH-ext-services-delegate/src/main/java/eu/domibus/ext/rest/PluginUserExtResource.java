@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,13 +25,16 @@ public class PluginUserExtResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserExtResource.class);
 
-    protected PluginUserExtService pluginUserExtService;
-    protected ExtExceptionHelper extExceptionHelper;
+    @Autowired
+    PluginUserExtService pluginUserExtService;
 
-    public PluginUserExtResource(PluginUserExtService pluginUserExtService, ExtExceptionHelper extExceptionHelper) {
+    @Autowired
+    ExtExceptionHelper extExceptionHelper;
+
+    /*public PluginUserExtResource(PluginUserExtService pluginUserExtService, ExtExceptionHelper extExceptionHelper) {
         this.pluginUserExtService = pluginUserExtService;
         this.extExceptionHelper = extExceptionHelper;
-    }
+    }*/
 
     @ExceptionHandler(PluginUserExtServiceException.class)
     public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PluginUserExtServiceException e) {
@@ -41,7 +45,7 @@ public class PluginUserExtResource {
             description = "Creates a Plugin User using username, original user, role and password.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public String createParty(@RequestBody PluginUserDTO request) {
         try {

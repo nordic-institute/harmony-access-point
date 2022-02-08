@@ -32,11 +32,11 @@ public class PluginUserServiceDelegate implements PluginUserExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserServiceDelegate.class);
 
-    protected PluginUserService pluginUserService;
+    PluginUserService pluginUserService;
 
-    protected DomibusExtMapper domibusExtMapper;
+    DomibusExtMapper domibusExtMapper;
 
-    protected DomainContextProvider domainProvider;
+    DomainContextProvider domainProvider;
 
     public PluginUserServiceDelegate(PluginUserService pluginUserService,
                                      DomibusExtMapper domibusExtMapper,
@@ -53,7 +53,7 @@ public class PluginUserServiceDelegate implements PluginUserExtService {
      */
     @Override
     public void createPluginUser(PluginUserDTO pluginUserDTO) throws PluginUserExtServiceException {
-        validateCreatePluginUserInput(pluginUserDTO);
+        //validateCreatePluginUserInput(pluginUserDTO);
 
         //currently from ext service only Basic authentication will be supported
         AuthenticationEntity authenticationEntity = domibusExtMapper.pluginUserDTOToAuthenticationEntity(pluginUserDTO);
