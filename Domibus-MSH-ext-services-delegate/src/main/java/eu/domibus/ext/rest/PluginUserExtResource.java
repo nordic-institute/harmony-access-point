@@ -11,9 +11,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,19 +25,21 @@ public class PluginUserExtResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserExtResource.class);
 
-    @Autowired
-    PluginUserExtService pluginUserExtService;
+    protected PluginUserExtService pluginUserExtService;
+    protected ExtExceptionHelper extExceptionHelper;
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
-
-    /*public PluginUserExtResource(PluginUserExtService pluginUserExtService, ExtExceptionHelper extExceptionHelper) {
+    public PluginUserExtResource(PluginUserExtService pluginUserExtService, ExtExceptionHelper extExceptionHelper) {
         this.pluginUserExtService = pluginUserExtService;
         this.extExceptionHelper = extExceptionHelper;
-    }*/
+    }
 
     @ExceptionHandler(PluginUserExtServiceException.class)
-    public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PluginUserExtServiceException e) {
+    public ResponseEntity<ErrorDTO> handlePluginUserExtServiceException(PluginUserExtServiceException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorDTO> handleAccessDeniedException(AccessDeniedException e) {
         return extExceptionHelper.handleExtException(e);
     }
 
@@ -47,7 +49,7 @@ public class PluginUserExtResource {
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createParty(@RequestBody PluginUserDTO request) {
+    public String createPluginUser(@RequestBody PluginUserDTO request) {
         try {
             pluginUserExtService.createPluginUser(request);
         } catch (DomibusCoreException e) {

@@ -20,8 +20,6 @@ public class PluginUserDTO {
 
     private boolean defaultPassword;
 
-    private String domain;
-
     public String getUserName() {
         return userName;
     }
@@ -68,13 +66,5 @@ public class PluginUserDTO {
 
     public void setDefaultPassword(boolean defaultPassword) {
         this.defaultPassword = defaultPassword;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 }
