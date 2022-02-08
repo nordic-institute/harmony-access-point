@@ -3953,6 +3953,61 @@ test.cleanDBMessageIDStartsWith("-DomJMS060-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS070-Submit Message-Basic Flow-PULL" searchProperties="true" id="c078d7ba-ea2e-4cf5-831a-5090c70dc9c7">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Submit Message" id="8b1242fe-85e9-462b-b398-adce90d6dbca"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc13")
+messageMap.setStringProperty("action", "TC13Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("processingType", "PULL")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS070-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="0f4e8d81-17c2-4edc-bdf1-06f230295e8b"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS070-")
+test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.cleanDBMessageID("-DomJMS070-")
+test.finalize()
+Domibus.reportTestCaseCsv(testRunner, log)
+</con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:setupScript>def unsecureLoginAllowed = context.expand('${#Project#unsecureLoginAllowed}')
 def inputList = [ "DomJMS057", "DomJMS058", "DomJMS059"]
 
