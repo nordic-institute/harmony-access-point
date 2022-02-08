@@ -15,12 +15,12 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -124,11 +124,11 @@ public class FaultInHandler extends AbstractFaultHandler {
             } else {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
-
-            if (ObjectUtils.isEmpty(ebMS3Exception == null ? null : ebMS3Exception.getRefToMessageId()) && !ObjectUtils.isEmpty(messageId)) {
-                ebMS3Exception.setRefToMessageId(messageId);
-            }
-
+            if (ebMS3Exception != null){
+                if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && !StringUtils.isBlank(messageId)) {
+                    ebMS3Exception.setRefToMessageId(messageId);
+                }
+        }
             this.processEbMSError(context, ebMS3Exception);
 
         } else {
