@@ -125,7 +125,7 @@ public class FaultInHandler extends AbstractFaultHandler {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
             if (ebMS3Exception != null){
-                if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && !StringUtils.isBlank(messageId)) {
+                if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && StringUtils.isNotBlank(messageId)) {
                     ebMS3Exception.setRefToMessageId(messageId);
                 }
         }

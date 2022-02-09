@@ -33,6 +33,7 @@ import static java.util.Locale.ENGLISH;
  * @author François Gautier
  * @since 5.0
  */
+
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired

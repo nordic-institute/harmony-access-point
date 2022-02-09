@@ -26,6 +26,7 @@ import java.util.Map;
  * @author Catalin Enache
  * @since 5.0
  */
+
 public class ErrorLogDaoIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);

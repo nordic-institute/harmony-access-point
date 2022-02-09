@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.util.List;
+
 public class UserMessageValidatorSpiServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);

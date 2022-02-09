@@ -469,6 +469,8 @@ public class CertificateServiceImpl implements CertificateService {
                 if (trustStoreEntry != null) {
                     trustStoreEntry.setCertificateExpiryAlertDays(certificateExpiryAlertDays);
                     trustStoreEntries.add(trustStoreEntry);
+                } else {
+                    LOG.debug("The given alias:[{}] does not exist or does not contain a certificate.", alias);
                 }
             }
             return trustStoreEntries;
