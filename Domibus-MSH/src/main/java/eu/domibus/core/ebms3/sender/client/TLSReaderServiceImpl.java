@@ -97,7 +97,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     }
 
     private String getFileContent(Optional<Path> path) throws IOException {
-        byte[] encoded = Files.readAllBytes(path.get());
+        byte[] encoded = Files.readAllBytes(path.orElse(null));
         String config = new String(encoded, StandardCharsets.UTF_8);
         config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
         return config;

@@ -151,7 +151,7 @@ public interface MessageCoreMapper {
         if (partyIds == null || CollectionUtils.isEmpty(partyIds) || !partyIds.stream().findFirst().isPresent()) {
             return null;
         } else {
-            eu.domibus.api.usermessage.domain.PartyId party = partyIds.stream().findFirst().get();
+            eu.domibus.api.usermessage.domain.PartyId party = partyIds.stream().findFirst().orElse(null);
             PartyId partyId = new PartyId();
             partyId.setType(party.getType());
             partyId.setValue(party.getValue());

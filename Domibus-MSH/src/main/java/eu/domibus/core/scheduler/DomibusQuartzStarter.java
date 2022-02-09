@@ -491,7 +491,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     protected void deleteJobByDomain(Domain domain, String jobNameToDelete) throws DomibusSchedulerException {
         try {
-            LOG.debug("Deleting job with jobKey=[{}] for domain=[{}]", jobNameToDelete, domain.getCode());
+            String domainCode = domain != null ? domain.getCode() : null;
+            LOG.debug("Deleting job with jobKey=[{}] for domain=[{}]", jobNameToDelete, domainCode);
             Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
             if (scheduler != null) {
                 JobKey jobKey = findJob(scheduler, jobNameToDelete);
