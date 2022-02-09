@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -43,7 +45,14 @@ import javax.ws.rs.PathParam;
         tags = {
                 @Tag(name = "archive-webhook", description = "The REST endpoint URLs that Domibus will use to notify the archiving client each time it will export a batch.")
         },
+//        security = @SecurityRequirement(name = "basicAuth")
+//        ,
         externalDocs = @ExternalDocumentation(description = "Domibus page", url = "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus")
+)
+@SecurityScheme(
+        name = "basicAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "basic"
 )
 @Path("/domibus-archive-client/webhook/")
 interface DomibusEArchiveWebhookResource {
