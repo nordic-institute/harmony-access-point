@@ -56,7 +56,7 @@ public class PartitionExpirationListener {
         domainContextProvider.setCurrentDomain(domain);
         PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
         final String name = PartitionExpirationEvent.PARTITION_NAME.name();
-        eu.domibus.core.alerts.model.persist.Event persistedEvent = eventDao.findWithTypeAndPropertyValue(event.getType(), name, event.findStringProperty(name).isPresent() ? event.findStringProperty(name).get() : null);
+        eu.domibus.core.alerts.model.persist.Event persistedEvent = eventDao.findWithTypeAndPropertyValue(event.getType(), name, event.findStringProperty(name).orElse(null));
 
         if (!eventService.shouldCreateAlert(persistedEvent, partitionsModuleConfiguration.getEventFrequency())) {
             return;
