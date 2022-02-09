@@ -94,9 +94,9 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     protected void addRepresentation1(List<EArchiveBatchUserMessage> userMessageEntityIds, FileObject batchDirectory, MetsWrapper mainMETSWrapper) {
         eArkSipBuilderService.addBatchJsonToMETS(mainMETSWrapper, BATCH_JSON_PATH);
-        for (EArchiveBatchUserMessage messageId : userMessageEntityIds) {
-            LOG.debug("Add messageId [{}]", messageId);
-            addUserMessage(messageId, batchDirectory, mainMETSWrapper);
+        for (EArchiveBatchUserMessage eArchiveBatchUserMessage : userMessageEntityIds) {
+            LOG.debug("Add messageId [{}]", eArchiveBatchUserMessage.getMessageId());
+            addUserMessage(eArchiveBatchUserMessage, batchDirectory, mainMETSWrapper);
         }
     }
 

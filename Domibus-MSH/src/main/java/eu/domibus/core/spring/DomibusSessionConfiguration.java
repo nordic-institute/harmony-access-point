@@ -4,6 +4,7 @@ import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.security.configuration.SecurityInternalAuthProviderCondition;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -53,6 +54,7 @@ public class DomibusSessionConfiguration {
         setSecure(serializer);
         setTimeout(serializer);
         setSameSite(serializer);
+        setJvmRoute(serializer);
 
         return serializer;
     }
@@ -64,7 +66,7 @@ public class DomibusSessionConfiguration {
 
     private void setName(DefaultCookieSerializer serializer) {
         serializer.setCookieName(SESSION_COOKIE_NAME);
-        LOG.debug("Session cookie name set to [{}].", SESSION_COOKIE_NAME);
+        LOG.info("Session cookie name set to [{}].", SESSION_COOKIE_NAME);
     }
 
     private void setTimeout(DefaultCookieSerializer serializer) {
@@ -75,12 +77,43 @@ public class DomibusSessionConfiguration {
         }
 
         serializer.setCookieMaxAge(timeout * 60);
-        LOG.debug("Session timeout set to [{}].", timeout);
+        LOG.info("Session timeout set to [{}].", timeout);
     }
 
     private void setSecure(DefaultCookieSerializer serializer) {
         Boolean secure = domibusPropertyProvider.getBooleanProperty(DOMIBUS_UI_SESSION_SECURE);
         serializer.setUseSecureCookie(secure);
-        LOG.debug("Session secure set to [{}].", secure);
+        LOG.info("Session secure set to [{}].", secure);
+    }
+
+    private void setJvmRoute(DefaultCookieSerializer serializer) {
+        String jvmRoute = domibusPropertyProvider.getProperty(DOMIBUS_UI_SESSION_JVMROUTE);
+        if(StringUtils.isNotBlank(jvmRoute)) {
+            LOG.info("Session JVM route property set to [{}]: parsing its actual value...", jvmRoute);
+            String jvmRouteValue = parseJvmRoutePropertyValue(jvmRoute);
+
+            LOG.info("Parsed JVM actual route value [{}]", jvmRouteValue);
+            serializer.setJvmRoute(jvmRouteValue);
+
+            LOG.info("Disable Base64 encoding of the session cookie to prevent encoding the jvmRoute");
+            serializer.setUseBase64Encoding(false);
+        }
+    }
+
+    private String parseJvmRoutePropertyValue(String jvmRoute) {
+        String environment = System.getenv(jvmRoute);
+        if (StringUtils.isNotBlank(environment)) {
+            LOG.debug("Found an environment variable having the name of [{}]", environment);
+            return environment;
+        }
+
+        String propertyValue = System.getProperty(jvmRoute);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            LOG.debug("Found a system property having the name of [{}]", propertyValue);
+            return propertyValue;
+        }
+
+        LOG.debug("No system environment variables nor system properties found matching the name of [{}]: treating itself as the actual value", jvmRoute);
+        return jvmRoute;
     }
 }

@@ -241,16 +241,16 @@ public class EArchivingJobService {
         }
     }
 
-    public void createEventOnStartDateContinuousJobStopped(Date continuousStartDate) {
+    public void createEventOnStartDateContinuousJobStopped(Date continuousLastUpdatedDate) {
         Integer property = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
 
-        if (property == null || continuousStartDate == null) {
+        if (property == null || continuousLastUpdatedDate == null) {
             LOG.error("The configuration is incorrect: either [{}] is undefined or the continuous job start date is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             eArchivingEventService.sendEventStartDateStopped();
             return;
         }
 
-        ZonedDateTime continuousStartDateTime = ZonedDateTime.ofInstant(continuousStartDate.toInstant(), ZoneOffset.UTC);
+        ZonedDateTime continuousStartDateTime = ZonedDateTime.ofInstant(continuousLastUpdatedDate.toInstant(), ZoneOffset.UTC);
         ZonedDateTime allowedDateTime = ZonedDateTime.now(ZoneOffset.UTC).minusHours(property);
 
         if (allowedDateTime.isAfter(continuousStartDateTime)) {

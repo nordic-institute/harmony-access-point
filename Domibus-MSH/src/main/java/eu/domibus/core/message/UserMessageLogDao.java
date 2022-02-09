@@ -23,6 +23,7 @@ import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -81,7 +82,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         query.setMaxResults(batchMaxSize);
 
         return query.getResultList();
@@ -116,7 +117,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
 
@@ -212,7 +213,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter(STR_MESSAGE_ID, messageId);
         try {
             return query.getSingleResult();
@@ -530,6 +531,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public void updateArchived(List<Long> entityIds) {
+        update(entityIds, this::updateArchivedBatched);
+    }
+
+    public void updateExported(List<Long> entityIds) {
+        update(entityIds, this::updateExportedBatched);
+    }
+
+    public void update(List<Long> entityIds, Consumer<List<Long>> updateArchivedBatched) {
         if (CollectionUtils.isEmpty(entityIds)) {
             return;
         }
@@ -540,7 +549,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         IntStream.range(0, maxBatchesToCreate + 1)
                 .mapToObj(createList(entityIds, totalSize, maxBatchesToCreate))
-                .forEach(this::updateArchivedBatched);
+                .forEach(updateArchivedBatched);
 
     }
 
@@ -568,7 +577,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
         int i = namedQuery.executeUpdate();
         if (LOG.isTraceEnabled()) {
-            LOG.trace("UserMessageLogs [{}] updated(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+            LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+        }
+    }
+
+    public void updateExportedBatched(List<Long> entityIds) {
+        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateExported");
+
+        namedQuery.setParameter("ENTITY_IDS", entityIds);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        int i = namedQuery.executeUpdate();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
 }

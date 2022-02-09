@@ -103,6 +103,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
     String DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN = "domibus.sendMessage.messageIdPattern";
     String DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED = "domibus.partyinfo.roles.validation.enabled";
+    String DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED = "domibus.pmode.legconfiguration.mpc.validation.enabled";
     String DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING = "domibus.datetime.pattern.onreceiving";
     String DOMIBUS_DATE_TIME_PATTERN_ON_SENDING = "domibus.datetime.pattern.onsending";
     String DOMIBUS_DISPATCHER_CONNECTION_TIMEOUT = "domibus.dispatcher.connectionTimeout";
@@ -291,7 +292,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.connectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
 
-    String DOMIBUS_JMS_QUEUE_EARCHIVE = "domibus.jms.queue.earchive";
     String DOMIBUS_EARCHIVE_QUEUE_CONCURRENCY = "domibus.earchive.queue.concurrency";
     String DOMIBUS_EARCHIVE_NOTIFICATION_QUEUE_CONCURRENCY = "domibus.earchive.notification.queue.concurrency";
     String DOMIBUS_EARCHIVE_NOTIFICATION_DLQ_CONCURRENCY = "domibus.earchive.notification.dlq.concurrency";

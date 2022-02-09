@@ -96,8 +96,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType) throws EbMS3Exception {
-        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType);
+    public String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType, String mpc) throws EbMS3Exception {
+        return getCurrentPModeProvider().findLegName(agreementRef, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType, mpc);
     }
 
     @Override

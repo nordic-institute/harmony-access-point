@@ -169,10 +169,11 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        CommonsDataLoader dataLoader = dataLoader(proxyHelper(), trustedListTrustStore());
-        boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
-        boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
-        boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
+        DssExtensionPropertyManager dssExtensionPropertyManager = dssExtensionPropertyManager();
+        CommonsDataLoader dataLoader = dataLoader(proxyHelper(), trustedListTrustStore(),dssExtensionPropertyManager);
+        boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
+        boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
+        boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
         LOG.debug("New Certificate verifier instance with crl chek:[{}], exception on missing revocation:[{}], check revocation for untrusted chains:[{}]",
                 crlCheck,
                 enableExceptionOnMissingRevocationData,
@@ -208,8 +209,14 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper, KeyStore trustedListTrustStore) {
+    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper, KeyStore trustedListTrustStore,DssExtensionPropertyManager dssExtensionPropertyManager) {
         CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
+        int socketTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_SOCKET_TIMEOUT);
+        int connectionTimeout = dssExtensionPropertyManager.getKnownIntegerPropertyValue(DssExtensionPropertyManager.DSS_DATA_LOADER_CONNECTION_TIMEOUT);
+        LOG.debug("Dss data loader socket timeout in milliseconds:[{}]",socketTimeout);
+        LOG.debug("Dss data loader connection timeout in milliseconds:[{}]",connectionTimeout);
+        commonsDataLoader.setTimeoutSocket(socketTimeout);
+        commonsDataLoader.setTimeoutConnection(connectionTimeout);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         return commonsDataLoader;
     }

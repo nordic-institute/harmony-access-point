@@ -107,7 +107,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         jmsManagerTriggered = false;
 
         UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId1);
-        byMessageId.setArchived(null);
+        byMessageId.setExported(null);
         //All UserMessageLog are now available for archiving again
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.SANITIZER);
         //Only 1 new batch created because START_DATE of continuous forbid the sanitizer to pick up the last message
