@@ -7,7 +7,6 @@ import eu.domibus.api.model.MessageType;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ import java.util.HashMap;
  * @author Ion Perpegel
  * @since 5.0
  */
-@Ignore("EDELIVERY-8927: Bamboo - Sonar Branch plan is failing due to IT test failures")
 public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Autowired

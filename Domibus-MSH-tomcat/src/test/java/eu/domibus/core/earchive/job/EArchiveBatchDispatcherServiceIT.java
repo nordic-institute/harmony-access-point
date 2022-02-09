@@ -23,7 +23,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -43,7 +42,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 5.0
  */
 @Transactional
-@Ignore("EDELIVERY-8927: Bamboo - Sonar Branch plan is failing due to IT test failures")
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDispatcherServiceIT.class);

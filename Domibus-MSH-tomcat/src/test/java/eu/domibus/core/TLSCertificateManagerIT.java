@@ -6,7 +6,6 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.TLSCertificateManagerImpl;
 import eu.domibus.core.crypto.TruststoreDao;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NA
  * @author Ion Perpegel
  * @since 5.0
  */
-@Ignore("EDELIVERY-8927: Bamboo - Sonar Branch plan is failing due to IT test failures")
 public class TLSCertificateManagerIT extends AbstractIT {
 
     @Autowired

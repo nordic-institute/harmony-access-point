@@ -18,7 +18,6 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +37,6 @@ import static org.junit.Assert.assertNotNull;
  * @since 3.3
  */
 //@ActiveProfiles("h2Debug")
-@Ignore("EDELIVERY-8927: Bamboo - Sonar Branch plan is failing due to IT test failures")
 //TODO move it in the core module when Domibus will reference the configuration files via the classpath instead of file disk
 public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 

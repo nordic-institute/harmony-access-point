@@ -15,7 +15,6 @@ import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,6 @@ import static org.junit.Assert.assertNotNull;
  * @author Thomas Dussart
  * @since 4.0
  */
-@Ignore("EDELIVERY-8927: Bamboo - Sonar Branch plan is failing due to IT test failures")
 public class AlertDaoIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
