@@ -604,6 +604,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8895-single-tenancy-performance">
+        <renameColumn tableName="TB_REV_CHANGES" oldColumnName="ENTIY_NAME" newColumnName="ENTITY_NAME" columnDataType="VARCHAR(255)" />
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

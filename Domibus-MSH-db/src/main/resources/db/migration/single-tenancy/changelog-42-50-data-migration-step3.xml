@@ -500,9 +500,6 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
                                  constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_ROLE"/>
-        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
         <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
             <column name="ACTION_ID_FK"/>
         </createIndex>

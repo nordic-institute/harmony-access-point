@@ -4654,6 +4654,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set(INOUT migration_p
                     LEAVE read_loop;
                 END IF;
 
+                -- FKs are inverse here so we need to pass the other FK value when doing the lookups
+                -- (i.e PROPERTY_FK for pm_message_property_set and SET_FK for pm_message_property)
                 CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_message_property_set', migration_pks, property_fk, calculated_property_fk);
                 CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_message_property', migration_pks, set_fk, calculated_set_fk);
 
@@ -5422,6 +5424,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile(INOUT migratio
                     LEAVE read_loop;
                 END IF;
 
+                -- FKs are inverse here so we need to pass the other FK value when doing the lookups
+                -- (i.e FK_PAYLOAD for pm_payload_profile and FK_PROFILE for pm_payload)
                 CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload_profile', migration_pks, fk_payload, calculated_fk_payload);
                 CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload', migration_pks, fk_profile, calculated_fk_profile);
 
@@ -7447,7 +7451,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE audit_order INT;
-        DECLARE entiy_name VARCHAR(255);
+        DECLARE entity_name VARCHAR(255);
         DECLARE group_name VARCHAR(255);
         DECLARE entity_id VARCHAR(255);
         DECLARE modification_type VARCHAR(255);
@@ -7467,7 +7471,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
             SELECT RC.ID_PK,
                     RC.REV,
                     RC.AUDIT_ORDER,
-                    RC.ENTIY_NAME,
+                    RC.ENTITY_NAME,
                     RC.GROUP_NAME,
                     RC.ENTITY_ID,
                     RC.MODIFICATION_TYPE,
@@ -7497,7 +7501,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_rev_changes -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_rev_changes INTO id_pk, rev, audit_order, entiy_name, group_name, entity_id, modification_type,
+                FETCH c_rev_changes INTO id_pk, rev, audit_order, entity_name, group_name, entity_id, modification_type,
                         creation_time, created_by, modification_time, modified_by;
 
                 IF done THEN
@@ -7507,7 +7511,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
                 CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
 
-                CASE entiy_name
+                CASE entity_name
                     WHEN 'eu.domibus.core.user.plugin.AuthenticationEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
                     WHEN 'eu.domibus.core.plugin.routing.BackendFilterEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
                     WHEN 'eu.domibus.core.plugin.routing.RoutingCriteriaEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
@@ -7526,18 +7530,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
                     ELSE
                         BEGIN
                             -- use the previous entity ID value for unknown entities
-                            CALL MIGRATE_42_TO_50_trace(CONCAT('Unknown entity name ', entiy_name));
+                            CALL MIGRATE_42_TO_50_trace(CONCAT('Unknown entity name ', entity_name));
                             SET calculated_entity_id := MIGRATE_42_TO_50_generate_scalable_seq(entity_id, missing_entity_date_prefix);
                         END;
                 END CASE;
 
-                INSERT INTO MIGR_TB_REV_CHANGES (ID_PK, REV, AUDIT_ORDER, ENTIY_NAME, GROUP_NAME, ENTITY_ID,
+                INSERT INTO MIGR_TB_REV_CHANGES (ID_PK, REV, AUDIT_ORDER, ENTITY_NAME, GROUP_NAME, ENTITY_ID,
                                                  MODIFICATION_TYPE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                                                  MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         calculated_rev,
                         audit_order,
-                        entiy_name,
+                        entity_name,
                         group_name,
                         CAST(calculated_entity_id AS CHAR(255)),
                         modification_type,

@@ -862,6 +862,9 @@
         <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
+        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="SIGNAL_MESSAGE_ID"/>
+        </createIndex>
 
         <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT">
@@ -1052,7 +1055,7 @@
             </column>
             <column name="REV" type="BIGINT"/>
             <column name="AUDIT_ORDER" type="INT"/>
-            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
+            <column name="ENTITY_NAME" type="VARCHAR(255)"/>
             <column name="GROUP_NAME" type="VARCHAR(255)"/>
             <column name="ENTITY_ID" type="VARCHAR(255)"/>
             <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
