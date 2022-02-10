@@ -1,6 +1,7 @@
 package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.user.UserDaoBase;
 import org.apache.commons.collections4.CollectionUtils;

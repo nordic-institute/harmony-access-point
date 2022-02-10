@@ -2,14 +2,14 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

@@ -126,6 +126,11 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public PluginUserExtService beanPluginUserExtService() {
+        return Mockito.mock(PluginUserExtService.class);
+    }
+
+    @Bean
     public AuthenticationExtService beanAuthenticationExtService() {
         return Mockito.mock(AuthenticationExtService.class);
     }

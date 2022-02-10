@@ -1,9 +1,9 @@
-package eu.domibus.core.user.plugin;
+package eu.domibus.api.user.plugin;
 
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.api.security.AuthType;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
-import eu.domibus.core.user.UserEntityBase;
-import eu.domibus.core.user.UserEntityBaseImpl;
+import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.api.user.UserEntityBaseImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.Audited;
 

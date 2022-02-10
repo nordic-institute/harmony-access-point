@@ -1,8 +1,8 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
 
 import java.util.Date;
 import java.util.List;

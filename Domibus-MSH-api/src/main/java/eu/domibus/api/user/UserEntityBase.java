@@ -1,6 +1,4 @@
-package eu.domibus.core.user;
-
-import eu.domibus.api.user.UserBase;
+package eu.domibus.api.user;
 
 import java.time.LocalDateTime;
 import java.util.Date;

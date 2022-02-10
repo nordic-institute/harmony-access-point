@@ -1,4 +1,4 @@
-package eu.domibus.core.user;
+package eu.domibus.api.user;
 
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.hibernate.envers.Audited;

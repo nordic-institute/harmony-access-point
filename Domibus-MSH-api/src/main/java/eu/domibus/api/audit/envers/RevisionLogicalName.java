@@ -1,4 +1,4 @@
-package eu.domibus.core.audit.envers;
+package eu.domibus.api.audit.envers;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

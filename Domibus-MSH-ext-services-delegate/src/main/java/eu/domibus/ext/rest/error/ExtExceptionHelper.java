@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
@@ -56,6 +57,12 @@ public class ExtExceptionHelper {
         //other exceptions wrapped by interceptors
         return createResponse(cause);
     }
+
+    public ResponseEntity<ErrorDTO> handleExtException(AccessDeniedException accessDeniedException) {
+        LOG.error("Access denied due to incorrect role:", accessDeniedException);
+        return createResponse(accessDeniedException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
 
     protected ResponseEntity<ErrorDTO> createResponseFromCoreException(Throwable ex, HttpStatus httpStatus) {
         Throwable cause = extractCause(ex);
