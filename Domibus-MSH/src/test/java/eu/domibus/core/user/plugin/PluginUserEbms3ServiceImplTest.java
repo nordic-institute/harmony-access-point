@@ -9,17 +9,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.api.user.UserState;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
-import eu.domibus.web.rest.ro.PluginUserRO;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -29,12 +24,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Ion Perpegel
@@ -331,5 +321,54 @@ public class PluginUserEbms3ServiceImplTest {
         // WHEN
         pluginUserService.checkUsers(new ArrayList<>(), Arrays.asList(adminUser, validUser, nonValidUser));
     }
+
+    @Test
+    public void checkUsers_InvalidUserName_SplChar(@Mocked AuthenticationEntity addedUser){
+        new Expectations(){{
+            addedUser.getUserName();
+            result = "AdminUser!1234";
+        }};
+
+        thrown.expect(UserManagementException.class);
+        thrown.expectMessage("Plugin User should be alphanumeric with allowed special characters .@_");
+
+        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+    }
+
+    @Test
+    public void checkUsers_InvalidUserName_length(@Mocked AuthenticationEntity addedUser){
+        new Expectations(){{
+            addedUser.getUserName();
+            result = "Ad1";
+        }};
+
+        thrown.expect(UserManagementException.class);
+        thrown.expectMessage("Plugin User Username should be between 4 and 255 characters long.");
+
+        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+    }
+
+    @Test
+    public void checkUsers_InvalidOriginalUserPattern(@Mocked AuthenticationEntity addedUser){
+        String testOriginalUser = "urn:oasis:names:tc:ebcore:partyid-type:test1";
+        new Expectations(){{
+            addedUser.getUserName();
+            result = "User_1234";
+            addedUser.getPassword();
+            result = "UserPasswd#1234";
+            addedUser.getAuthRoles();
+            result = AuthRole.ROLE_USER.name();
+            addedUser.getOriginalUser();
+            result = testOriginalUser;
+
+        }};
+
+        thrown.expect(UserManagementException.class);
+        thrown.expectMessage("Original User :" + testOriginalUser + " does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner].");
+
+        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+    }
+
+
 
 }
